@@ -16,11 +16,11 @@ const { Content } = await aufgabe.render();
 
 <BaseLayout title={aufgabe.data.titel} beschreibung={aufgabe.data.didaktischerHinweis}>
   <article class="container-prose py-12">
-    <header class="mb-8 pb-6 border-b border-ink-200">
-      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2">
+    <header class="mb-8 pb-6 border-b border-ink-200 dark:border-ink-700">
+      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2 dark:text-accent-100">
         {aufgabe.data.thema} · Klasse {aufgabe.data.klassenstufe.join('/')}
       </p>
-      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3">
+      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3 dark:text-ink-50">
         {aufgabe.data.titel}
       </h1>
       <div class="flex flex-wrap gap-2 mt-3">
@@ -28,19 +28,19 @@ const { Content } = await aufgabe.render();
         {aufgabe.data.tags.map((t) => <span class="badge-ink">#{t}</span>)}
       </div>
 
-      <aside class="mt-6 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4">
-        <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-1">Didaktischer Hinweis</p>
-        <p class="text-ink-800 text-sm leading-relaxed">{aufgabe.data.didaktischerHinweis}</p>
+      <aside class="mt-6 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4 dark:bg-accent-700/15">
+        <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-1 dark:text-accent-100">Didaktischer Hinweis</p>
+        <p class="text-ink-800 text-sm leading-relaxed dark:text-ink-100">{aufgabe.data.didaktischerHinweis}</p>
       </aside>
     </header>
 
-    <div class="prose prose-ink prose-mathe max-w-none">
+    <div class="prose prose-ink prose-mathe max-w-none dark:prose-invert">
       <Content />
     </div>
 
-    <footer class="mt-12 pt-6 border-t border-ink-200 flex justify-between text-sm">
+    <footer class="mt-12 pt-6 border-t border-ink-200 flex justify-between text-sm dark:border-ink-700">
       <a href="/aufgaben" class="link-arrow">Alle Aufgaben</a>
-      <a href="#hauptinhalt" class="text-ink-500 hover:text-accent-700">Nach oben ↑</a>
+      <a href="#hauptinhalt" class="text-ink-500 hover:text-accent-700 dark:text-ink-400 dark:hover:text-accent-100">Nach oben ↑</a>
     </footer>
   </article>
 </BaseLayout>

@@ -28,6 +28,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
 
+    {/* No-Flash-Bootstrap: setzt Dark/Light direkt vor dem ersten Paint */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('mu-theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = stored === 'dark' || (stored === null && prefersDark);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+
     <title>{seitentitel}</title>
     <meta name="description" content={beschreibung} />
 
@@ -52,10 +64,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       crossorigin="anonymous"
     />
   </head>
-  <body class="min-h-screen bg-ink-50 text-ink-800 antialiased font-sans">
+  <body class="min-h-screen bg-ink-50 text-ink-800 antialiased font-sans dark:bg-ink-900 dark:text-ink-200">
     <a
       href="#hauptinhalt"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded focus:shadow"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white dark:focus:bg-ink-800 dark:focus:text-ink-50 focus:px-4 focus:py-2 focus:rounded focus:shadow"
     >
       Zum Hauptinhalt springen
     </a>

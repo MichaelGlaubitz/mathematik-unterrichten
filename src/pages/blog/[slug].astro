@@ -26,18 +26,18 @@ const aktualisiert = post.data.aktualisiert
 
 <BaseLayout title={post.data.title} beschreibung={post.data.teaser}>
   <article class="container-prose py-12">
-    <header class="mb-8 pb-6 border-b border-ink-200">
-      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2">
+    <header class="mb-8 pb-6 border-b border-ink-200 dark:border-ink-700">
+      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2 dark:text-accent-100">
         {post.data.kategorie}
       </p>
-      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3">
+      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3 dark:text-ink-50">
         {post.data.title}
       </h1>
       {post.data.untertitel && (
-        <p class="font-serif text-xl text-ink-600 italic mb-4">{post.data.untertitel}</p>
+        <p class="font-serif text-xl text-ink-600 italic mb-4 dark:text-ink-300">{post.data.untertitel}</p>
       )}
-      <p class="text-sm text-ink-600">
-        Von <span class="font-medium text-ink-800">{post.data.autor}</span> ·
+      <p class="text-sm text-ink-600 dark:text-ink-300">
+        Von <span class="font-medium text-ink-800 dark:text-ink-100">{post.data.autor}</span> ·
         <time datetime={post.data.datum.toISOString()}>{datum}</time>
         {aktualisiert && <> · aktualisiert am {aktualisiert}</>}
       </p>
@@ -50,13 +50,13 @@ const aktualisiert = post.data.aktualisiert
       )}
     </header>
 
-    <div class="prose prose-ink prose-mathe max-w-none">
+    <div class="prose prose-ink prose-mathe max-w-none dark:prose-invert">
       <Content />
     </div>
 
-    <footer class="mt-12 pt-6 border-t border-ink-200 flex justify-between text-sm">
+    <footer class="mt-12 pt-6 border-t border-ink-200 flex justify-between text-sm dark:border-ink-700">
       <a href="/blog" class="link-arrow">Alle Beiträge</a>
-      <a href="#hauptinhalt" class="text-ink-500 hover:text-accent-700">Nach oben ↑</a>
+      <a href="#hauptinhalt" class="text-ink-500 hover:text-accent-700 dark:text-ink-400 dark:hover:text-accent-100">Nach oben ↑</a>
     </footer>
   </article>
 </BaseLayout>
