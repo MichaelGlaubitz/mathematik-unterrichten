@@ -9,7 +9,7 @@ export default defineConfig({
   integrations: [
     tailwind(),
     mdx(),
-    sitemap(),
+    //sitemap(),
   ],
   markdown: {
     shikiConfig: {
