@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const aufgaben = (await getCollection('aufgaben', ({ data }) => !data.entwurf))
+  .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf());
+
+const themen = Array.from(new Set(aufgaben.map((a) => a.data.thema))).sort();
+---
+
+<BaseLayout title="Aufgabensammlung" beschreibung="Aufgaben und Aufgabenfolgen mit didaktischem Kommentar">
+  <section class="container-prose pt-12 pb-8">
+    <h1 class="font-serif text-4xl font-semibold text-ink-900 mb-3">Aufgabensammlung</h1>
+    <p class="text-ink-700 text-lg leading-relaxed">
+      Aufgabenfolgen mit Lösungswegen und didaktischem Kommentar – orientiert an
+      <em>Variation Theory</em>: Aufgaben, in denen sich nur ein Aspekt nach dem
+      anderen ändert, damit Schüler das mathematische Muster aktiv erkennen.
+    </p>
+  </section>
+
+  <section class="container-wide pb-16">
+    {themen.length > 0 ? (
+      themen.map((thema) => (
+        <div class="mb-10">
+          <h2 class="font-serif text-2xl font-semibold text-ink-900 mb-4">{thema}</h2>
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {aufgaben.filter((a) => a.data.thema === thema).map((a) => (
+              <PostCard
+                href={`/aufgaben/${a.slug}`}
+                titel={a.data.titel}
+                teaser={a.data.didaktischerHinweis}
+                badges={[`Kl. ${a.data.klassenstufe.join('/')}`, a.data.schwierigkeit]}
+              />
+            ))}
+          </div>
+        </div>
+      ))
+    ) : (
+      <p class="text-ink-600">
+        Noch keine Aufgaben veröffentlicht. Lege eine neue Aufgabenseite unter
+        <code class="bg-ink-100 px-1.5 py-0.5 rounded text-sm">src/content/aufgaben/</code> an.
+      </p>
+    )}
+  </section>
+</BaseLayout>

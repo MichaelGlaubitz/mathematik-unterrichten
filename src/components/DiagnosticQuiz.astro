@@ -1,0 +1,295 @@
+---
+// Diagnostische MC-Frage im Stil von Craig Bartons "Diagnostic Questions":
+// Jede falsche Antwort enthält einen typischen Denkfehler -
+// und für jede Option (auch die richtige) gibt es eine Erklärung.
+//
+// Verwendung:
+// import DiagnosticQuiz from '../components/DiagnosticQuiz.astro';
+// <DiagnosticQuiz fragen={...} />
+
+export interface Option {
+  text: string;
+  korrekt: boolean;
+  erklaerung: string;
+}
+
+export interface Frage {
+  frage: string;
+  kontext?: string;
+  optionen: Option[];
+}
+
+export interface Props {
+  fragen: Frage[];
+  id?: string;
+}
+
+const { fragen, id = 'quiz' } = Astro.props;
+---
+
+<section
+  class="not-prose my-8 rounded-xl border border-ink-200 bg-white p-6 shadow-sm"
+  data-quiz
+  data-quiz-id={id}
+>
+  {fragen.map((f, fi) => (
+    <article
+      class="quiz-frage"
+      data-frage-index={fi}
+      data-anzahl-fragen={fragen.length}
+      style={fi === 0 ? '' : 'display:none;'}
+    >
+      <header class="mb-4 flex items-center justify-between gap-3">
+        <p class="text-xs uppercase tracking-wide text-ink-500">
+          Frage <span class="font-semibold">{fi + 1}</span> von {fragen.length}
+        </p>
+        <div class="h-1 flex-1 rounded-full bg-ink-100 ml-4 overflow-hidden">
+          <div
+            class="h-full bg-accent-500 transition-all"
+            style={`width:${((fi) / fragen.length) * 100}%`}
+            data-fortschritt
+          ></div>
+        </div>
+      </header>
+
+      {f.kontext && (
+        <p class="mb-3 text-sm text-ink-600 italic">{f.kontext}</p>
+      )}
+
+      <h3 class="font-serif text-xl font-semibold text-ink-900 mb-5 leading-snug">
+        {f.frage}
+      </h3>
+
+      <ul class="grid gap-2.5" role="radiogroup" aria-label="Antwortoptionen">
+        {f.optionen.map((opt, oi) => (
+          <li>
+            <button
+              type="button"
+              class="quiz-option group w-full text-left rounded-lg border border-ink-200 bg-white px-4 py-3 hover:border-accent-500 hover:bg-accent-50/50 focus:outline-none focus:ring-2 focus:ring-accent-500 transition"
+              data-korrekt={opt.korrekt ? 'true' : 'false'}
+              data-option-index={oi}
+              data-erklaerung={opt.erklaerung}
+              role="radio"
+              aria-checked="false"
+            >
+              <span class="flex items-start gap-3">
+                <span
+                  class="quiz-letter mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-semibold text-ink-700 group-hover:border-accent-500 group-hover:text-accent-700"
+                  aria-hidden="true"
+                >
+                  {String.fromCharCode(65 + oi)}
+                </span>
+                <span class="quiz-option-text text-ink-800">{opt.text}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <div
+        class="quiz-erklaerung mt-5 hidden rounded-lg border-l-4 p-4"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+      <footer class="mt-5 flex items-center justify-between">
+        <button
+          type="button"
+          class="quiz-show-all text-sm text-ink-600 hover:text-accent-700 underline-offset-2 hover:underline hidden"
+        >
+          Alle Antworten erklären
+        </button>
+        <button
+          type="button"
+          class="quiz-next ml-auto inline-flex items-center gap-1 rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled
+        >
+          Weiter
+          <span aria-hidden="true">→</span>
+        </button>
+      </footer>
+    </article>
+  ))}
+
+  <article
+    class="quiz-zusammenfassung"
+    style="display:none;"
+    aria-live="polite"
+  >
+    <h3 class="font-serif text-2xl font-semibold text-ink-900 mb-3">
+      Diagnose abgeschlossen
+    </h3>
+    <p class="text-ink-700 mb-4">
+      Du hast <span class="quiz-richtig font-semibold">0</span> von
+      <span class="quiz-gesamt">{fragen.length}</span> Fragen richtig beantwortet.
+    </p>
+    <p class="text-sm text-ink-600">
+      Diagnostische Fragen sind nicht zum „Punkten" da – die Verteilung der gewählten
+      Distraktoren verrät oft mehr über das Verständnis als die richtige Lösung selbst.
+      Nutze die Erklärungen, um typische Denkmuster im Unterricht zu adressieren.
+    </p>
+    <button
+      type="button"
+      class="quiz-restart mt-5 rounded-md border border-ink-300 px-4 py-2 text-sm font-medium text-ink-700 hover:bg-ink-100"
+    >
+      Quiz neu starten
+    </button>
+  </article>
+</section>
+
+<script>
+  type QuizState = {
+    aktuell: number;
+    richtig: number;
+    beantwortet: Set<number>;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-quiz]').forEach((quiz) => {
+    const fragen = Array.from(quiz.querySelectorAll<HTMLElement>('.quiz-frage'));
+    const zusammenfassung = quiz.querySelector<HTMLElement>('.quiz-zusammenfassung');
+    const richtigAnzeige = quiz.querySelector<HTMLElement>('.quiz-richtig');
+    const fortschrittsbalken = quiz.querySelectorAll<HTMLElement>('[data-fortschritt]');
+    const state: QuizState = { aktuell: 0, richtig: 0, beantwortet: new Set() };
+    const gesamt = fragen.length;
+
+    const aktualisiereFortschritt = (index: number) => {
+      fortschrittsbalken.forEach((bar) => {
+        bar.style.width = `${(index / gesamt) * 100}%`;
+      });
+    };
+
+    const zeigeFrage = (index: number) => {
+      fragen.forEach((f, i) => {
+        f.style.display = i === index ? '' : 'none';
+      });
+      aktualisiereFortschritt(index);
+    };
+
+    const beantworteFrage = (frageEl: HTMLElement, klickedButton: HTMLButtonElement) => {
+      const optionen = frageEl.querySelectorAll<HTMLButtonElement>('.quiz-option');
+      const erklaerungBox = frageEl.querySelector<HTMLElement>('.quiz-erklaerung');
+      const weiterBtn = frageEl.querySelector<HTMLButtonElement>('.quiz-next');
+      const alleAntwortenBtn = frageEl.querySelector<HTMLButtonElement>('.quiz-show-all');
+      const istKorrekt = klickedButton.dataset.korrekt === 'true';
+      const erklaerung = klickedButton.dataset.erklaerung || '';
+
+      // Markiere alle Optionen visuell
+      optionen.forEach((opt) => {
+        opt.disabled = true;
+        opt.setAttribute('aria-checked', opt === klickedButton ? 'true' : 'false');
+        opt.classList.remove('hover:border-accent-500', 'hover:bg-accent-50/50');
+        if (opt.dataset.korrekt === 'true') {
+          opt.classList.add('border-emerald-500', 'bg-emerald-50');
+          opt.querySelector('.quiz-letter')?.classList.add('border-emerald-500', 'text-emerald-700');
+        } else if (opt === klickedButton) {
+          opt.classList.add('border-rose-400', 'bg-rose-50');
+          opt.querySelector('.quiz-letter')?.classList.add('border-rose-400', 'text-rose-700');
+        } else {
+          opt.classList.add('opacity-60');
+        }
+      });
+
+      if (erklaerungBox) {
+        erklaerungBox.innerHTML = `
+          <p class="text-xs font-semibold uppercase tracking-wide ${istKorrekt ? 'text-emerald-700' : 'text-rose-700'} mb-1">
+            ${istKorrekt ? 'Richtig' : 'Typischer Fehler'}
+          </p>
+          <p class="text-ink-800 text-sm leading-relaxed">${erklaerung}</p>
+        `;
+        erklaerungBox.classList.remove('hidden');
+        erklaerungBox.classList.add(
+          istKorrekt ? 'border-emerald-500' : 'border-rose-400',
+          istKorrekt ? 'bg-emerald-50/40' : 'bg-rose-50/40'
+        );
+      }
+
+      if (alleAntwortenBtn) {
+        alleAntwortenBtn.classList.remove('hidden');
+        alleAntwortenBtn.onclick = () => {
+          let html = '<dl class="space-y-3 mt-4 text-sm">';
+          optionen.forEach((opt) => {
+            const ok = opt.dataset.korrekt === 'true';
+            const text = opt.querySelector('.quiz-option-text')?.textContent ?? '';
+            const erkl = opt.dataset.erklaerung || '';
+            html += `
+              <div>
+                <dt class="font-semibold ${ok ? 'text-emerald-700' : 'text-ink-700'}">
+                  ${ok ? '✓' : '✗'} ${text}
+                </dt>
+                <dd class="text-ink-600 mt-0.5">${erkl}</dd>
+              </div>`;
+          });
+          html += '</dl>';
+          if (erklaerungBox) {
+            erklaerungBox.insertAdjacentHTML('beforeend', html);
+            alleAntwortenBtn.classList.add('hidden');
+          }
+        };
+      }
+
+      if (weiterBtn) {
+        weiterBtn.disabled = false;
+        weiterBtn.textContent = state.aktuell === gesamt - 1 ? 'Auswertung anzeigen' : 'Weiter';
+        weiterBtn.append(Object.assign(document.createElement('span'), { textContent: ' →', ariaHidden: 'true' }));
+      }
+
+      const frageIndex = Number(frageEl.dataset.frageIndex);
+      if (!state.beantwortet.has(frageIndex)) {
+        state.beantwortet.add(frageIndex);
+        if (istKorrekt) state.richtig += 1;
+      }
+    };
+
+    const zeigeZusammenfassung = () => {
+      fragen.forEach((f) => (f.style.display = 'none'));
+      if (zusammenfassung) zusammenfassung.style.display = '';
+      if (richtigAnzeige) richtigAnzeige.textContent = String(state.richtig);
+      aktualisiereFortschritt(gesamt);
+    };
+
+    const restart = () => {
+      state.aktuell = 0;
+      state.richtig = 0;
+      state.beantwortet.clear();
+      // alle Fragen zurücksetzen
+      fragen.forEach((f) => {
+        const optionen = f.querySelectorAll<HTMLButtonElement>('.quiz-option');
+        const erklaerungBox = f.querySelector<HTMLElement>('.quiz-erklaerung');
+        const weiterBtn = f.querySelector<HTMLButtonElement>('.quiz-next');
+        const alleAntwortenBtn = f.querySelector<HTMLButtonElement>('.quiz-show-all');
+        optionen.forEach((opt) => {
+          opt.disabled = false;
+          opt.setAttribute('aria-checked', 'false');
+          opt.className = 'quiz-option group w-full text-left rounded-lg border border-ink-200 bg-white px-4 py-3 hover:border-accent-500 hover:bg-accent-50/50 focus:outline-none focus:ring-2 focus:ring-accent-500 transition';
+          const letter = opt.querySelector('.quiz-letter');
+          if (letter) letter.className = 'quiz-letter mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-semibold text-ink-700 group-hover:border-accent-500 group-hover:text-accent-700';
+        });
+        erklaerungBox?.classList.add('hidden');
+        if (erklaerungBox) erklaerungBox.innerHTML = '';
+        if (weiterBtn) {
+          weiterBtn.disabled = true;
+          weiterBtn.innerHTML = 'Weiter <span aria-hidden="true">→</span>';
+        }
+        alleAntwortenBtn?.classList.add('hidden');
+      });
+      if (zusammenfassung) zusammenfassung.style.display = 'none';
+      zeigeFrage(0);
+    };
+
+    // Event-Bindings
+    fragen.forEach((frageEl) => {
+      frageEl.querySelectorAll<HTMLButtonElement>('.quiz-option').forEach((opt) => {
+        opt.addEventListener('click', () => beantworteFrage(frageEl, opt));
+      });
+      frageEl.querySelector<HTMLButtonElement>('.quiz-next')?.addEventListener('click', () => {
+        if (state.aktuell < gesamt - 1) {
+          state.aktuell += 1;
+          zeigeFrage(state.aktuell);
+        } else {
+          zeigeZusammenfassung();
+        }
+      });
+    });
+    quiz.querySelector<HTMLButtonElement>('.quiz-restart')?.addEventListener('click', restart);
+  });
+</script>

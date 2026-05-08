@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
+  return aufgaben.map((a) => ({
+    params: { slug: a.slug },
+    props: { aufgabe: a },
+  }));
+}
+
+const { aufgabe } = Astro.props;
+const { Content } = await aufgabe.render();
+---
+
+<BaseLayout title={aufgabe.data.titel} beschreibung={aufgabe.data.didaktischerHinweis}>
+  <article class="container-prose py-12">
+    <header class="mb-8 pb-6 border-b border-ink-200">
+      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2">
+        {aufgabe.data.thema} · Klasse {aufgabe.data.klassenstufe.join('/')}
+      </p>
+      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3">
+        {aufgabe.data.titel}
+      </h1>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <span class="badge-accent capitalize">{aufgabe.data.schwierigkeit}</span>
+        {aufgabe.data.tags.map((t) => <span class="badge-ink">#{t}</span>)}
+      </div>
+
+      <aside class="mt-6 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4">
+        <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-1">Didaktischer Hinweis</p>
+        <p class="text-ink-800 text-sm leading-relaxed">{aufgabe.data.didaktischerHinweis}</p>
+      </aside>
+    </header>
+
+    <div class="prose prose-ink prose-mathe max-w-none">
+      <Content />
+    </div>
+
+    <footer class="mt-12 pt-6 border-t border-ink-200 flex justify-between text-sm">
+      <a href="/aufgaben" class="link-arrow">Alle Aufgaben</a>
+      <a href="#hauptinhalt" class="text-ink-500 hover:text-accent-700">Nach oben ↑</a>
+    </footer>
+  </article>
+</BaseLayout>

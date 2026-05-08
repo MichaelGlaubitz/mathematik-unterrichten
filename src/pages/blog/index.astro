@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.entwurf))
+  .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf());
+
+const kategorien = Array.from(new Set(posts.map((p) => p.data.kategorie)));
+---
+
+<BaseLayout title="Blog" beschreibung="Didaktische Artikel und Praxisreflexionen für Mathe-Lehrkräfte">
+  <section class="container-prose pt-12 pb-8">
+    <h1 class="font-serif text-4xl font-semibold text-ink-900 mb-3">Blog</h1>
+    <p class="text-ink-700 text-lg">
+      Didaktische Reflexionen, Praxisberichte und Fundstücke aus der Mathematik-Forschung.
+    </p>
+  </section>
+
+  {kategorien.length > 0 && (
+    <section class="container-wide pb-4">
+      <ul class="flex flex-wrap gap-2">
+        {kategorien.map((k) => (
+          <li>
+            <a href={`#kat-${k}`} class="badge-ink hover:bg-accent-50 hover:text-accent-700 transition">
+              {k}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section class="container-wide pb-16">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <PostCard
+          href={`/blog/${post.slug}`}
+          titel={post.data.title}
+          teaser={post.data.teaser}
+          badges={[post.data.kategorie]}
+          datum={post.data.datum}
+          meta={post.data.autor}
+        />
+      ))}
+    </div>
+
+    {posts.length === 0 && (
+      <p class="text-ink-600">
+        Noch keine Beiträge veröffentlicht. Lege einen neuen Beitrag unter
+        <code class="bg-ink-100 px-1.5 py-0.5 rounded text-sm">src/content/blog/</code> an.
+      </p>
+    )}
+  </section>
+</BaseLayout>

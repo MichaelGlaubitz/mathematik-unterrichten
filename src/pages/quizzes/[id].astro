@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DiagnosticQuiz from '../../components/DiagnosticQuiz.astro';
+
+export async function getStaticPaths() {
+  const quizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
+  return quizzes.map((q) => ({
+    params: { id: q.id },
+    props: { quiz: q },
+  }));
+}
+
+const { quiz } = Astro.props;
+---
+
+<BaseLayout title={quiz.data.titel} beschreibung={quiz.data.didaktischerKontext}>
+  <article class="container-prose py-12">
+    <header class="mb-8 pb-6 border-b border-ink-200">
+      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2">
+        {quiz.data.thema} · Klasse {quiz.data.klassenstufe.join('/')}
+      </p>
+      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3">
+        {quiz.data.titel}
+      </h1>
+
+      <aside class="mt-6 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4">
+        <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-1">Didaktischer Kontext</p>
+        <p class="text-ink-800 text-sm leading-relaxed">{quiz.data.didaktischerKontext}</p>
+      </aside>
+    </header>
+
+    <DiagnosticQuiz fragen={quiz.data.fragen} id={quiz.id} />
+
+    <section class="mt-10 prose prose-ink max-w-none">
+      <h2>Hinweise zum Einsatz im Unterricht</h2>
+      <p>
+        Diagnostische Fragen entfalten ihre Wirkung nicht durch das Lösen, sondern
+        durch das gemeinsame Auswerten. Lass die Lernenden zunächst <em>still</em> abstimmen
+        (digital oder mit Karten), zeige dann die Verteilung – und diskutiere die
+        Distraktoren. Welche Annahme muss jemand getroffen haben, um genau diese
+        Antwort zu wählen?
+      </p>
+    </section>
+
+    <footer class="mt-10 pt-6 border-t border-ink-200 flex justify-between text-sm">
+      <a href="/quizzes" class="link-arrow">Alle Diagnose-Fragen</a>
+      <a href="#hauptinhalt" class="text-ink-500 hover:text-accent-700">Nach oben ↑</a>
+    </footer>
+  </article>
+</BaseLayout>

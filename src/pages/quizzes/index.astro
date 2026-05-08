@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf))
+  .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf());
+---
+
+<BaseLayout title="Diagnose-Fragen" beschreibung="Diagnostische Multiple-Choice-Fragen mit gezielten Distraktoren">
+  <section class="container-prose pt-12 pb-8">
+    <h1 class="font-serif text-4xl font-semibold text-ink-900 mb-3">Diagnose-Fragen</h1>
+    <p class="text-ink-700 text-lg leading-relaxed">
+      Multiple-Choice-Fragen, bei denen jede falsche Antwort einem typischen
+      Denkfehler entspricht. Verteilung der gewählten Antworten verrät mehr über
+      das Verständnis als eine einzelne richtige Lösung.
+    </p>
+  </section>
+
+  <section class="container-wide pb-16">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {quizzes.map((q) => (
+        <PostCard
+          href={`/quizzes/${q.id}`}
+          titel={q.data.titel}
+          teaser={q.data.didaktischerKontext}
+          badges={[q.data.thema, `Kl. ${q.data.klassenstufe.join('/')}`]}
+          datum={q.data.datum}
+        />
+      ))}
+    </div>
+
+    {quizzes.length === 0 && (
+      <p class="text-ink-600">
+        Noch keine Quizzes vorhanden. Lege ein neues Quiz unter
+        <code class="bg-ink-100 px-1.5 py-0.5 rounded text-sm">src/content/quizzes/</code> als JSON an.
+      </p>
+    )}
+  </section>
+</BaseLayout>
