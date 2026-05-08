@@ -16,6 +16,7 @@ const blog = defineCollection({
       'Aufgabenkultur',
       'Diagnose',
       'Reflexion',
+      'Unterrichtsdesign',
       'Werkzeug',
     ]).default('Didaktik'),
     teaser: z.string(),
