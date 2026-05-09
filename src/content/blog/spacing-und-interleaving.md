@@ -41,7 +41,7 @@ Ergebnis: Die *gemischte* Gruppe schnitt mehr als doppelt so gut ab. Beim Üben 
 
 ## Was das praktisch bedeutet – drei Konsequenzen
 
-**Erstens: Hausaufgaben sollten gemischt sein.** Die typische Hausaufgabe „heutige Stunde war Bruchrechnung, also 10 Bruchaufgaben für morgen" ist ineffektiv. Besser: 5 Bruchaufgaben (Stoff von heute) plus 3 Termaufgaben (Stoff aus letzter Woche) plus 2 Sachaufgaben (Stoff aus dem letzten Monat). Die Schüler schimpfen am Anfang. Sie lernen mehr.
+**Erstens: Hausaufgaben sollten gemischt sein.** Die typische Hausaufgabe „heute Stunde war Bruchrechnung, also 10 Bruchaufgaben für morgen" ist ineffektiv. Besser: 5 Bruchaufgaben (Stoff von heute) plus 3 Termaufgaben (Stoff aus letzter Woche) plus 2 Sachaufgaben (Stoff aus dem letzten Monat). Die Schüler schimpfen am Anfang. Sie lernen mehr.
 
 **Zweitens: Klassenarbeiten sollten kumulativ sein.** Wenn eine Klassenarbeit nur den Stoff der letzten zwei Wochen umfasst, signalisierst du der Klasse: „Was du vor zwei Monaten gelernt hast, brauchst du jetzt nicht mehr." Wenn 30 % der Punkte aus früheren Themen kommen, signalisierst du: „Mathematik ist kumulativ. Du musst dranbleiben."
 
