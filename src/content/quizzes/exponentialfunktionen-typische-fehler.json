@@ -1,0 +1,110 @@
+{
+  "titel": "Exponentialfunktionen – typische Fehlvorstellungen",
+  "thema": "Exponentialfunktionen",
+  "klassenstufe": ["10"],
+  "didaktischerKontext": "Vier Fragen zu den hartnäckigsten Fehlvorstellungen bei exponentiellen Modellen: 'Wachstumsrate gleich Wachstumsfaktor', 'lineares Aufaddieren bei mehrfachem Wachstum', Verwechslung exponentielles vs. lineares Wachstum, sowie das Missverständnis 'irgendwann ist alles weg' beim exponentiellen Zerfall. Diagnostisch besonders ergiebig nach der Erarbeitung – Verteilung der Antworten zeigt, ob die multiplikative Struktur internalisiert ist oder die additive Vorstellung weiter dominiert.",
+  "datum": "2026-06-09",
+  "entwurf": false,
+  "fragen": [
+    {
+      "frage": "Eine Population wächst pro Jahr um 20 %. Welche Funktionsgleichung beschreibt den Bestand `f(t)` nach `t` Jahren, wenn der Anfangsbestand 1000 ist?",
+      "optionen": [
+        {
+          "text": "f(t) = 1000 · 1,20^t",
+          "korrekt": true,
+          "erklaerung": "Richtig. 20 % Wachstum pro Jahr ergibt den Vermehrungsfaktor q = 1 + 0,20 = 1,20. Die Funktion ist f(t) = a · q^t = 1000 · 1,20^t. Nach 5 Jahren ergibt das ungefähr 2488 – also etwa zweieinhalbmal so viel. Die Pointe: Bei 20 % Wachstum wird *nicht* einfach 20 % auf den Bestand addiert, sondern jedes Jahr der bisherige Bestand mit 1,20 multipliziert."
+        },
+        {
+          "text": "f(t) = 1000 · 0,20^t",
+          "korrekt": false,
+          "erklaerung": "Hier wurde die Wachstumsrate 0,20 als Faktor verwendet – aber 0,20 ist *kleiner* als 1, also würde der Bestand schrumpfen, nicht wachsen. Die Wachstumsrate (20 % bzw. 0,20) muss zur 1 *addiert* werden, um den Vermehrungsfaktor zu bekommen."
+        },
+        {
+          "text": "f(t) = 1000 + 0,20 · t",
+          "korrekt": false,
+          "erklaerung": "Das ist *lineares* Wachstum mit konstantem Zuwachs 0,20 pro Jahr (nicht einmal 20 % – sondern 0,20 absolut). Das ist nicht das, was 'wächst um 20 %' bedeutet. Bei linearem Wachstum kommt jedes Jahr derselbe Betrag dazu; bei exponentiellem Wachstum wird jedes Jahr derselbe *Prozentsatz* dazugerechnet."
+        },
+        {
+          "text": "f(t) = 1000 · (1 + 0,20 · t)",
+          "korrekt": false,
+          "erklaerung": "Das wäre gleichbedeutend mit f(t) = 1000 + 200 · t – also linearer Zuwachs von 200 pro Jahr. Bei exponentiellem Wachstum wirkt der Faktor *multiplikativ wiederholt*, nicht additiv multipliziert."
+        }
+      ]
+    },
+    {
+      "frage": "Ein Bestand wächst zwei Jahre lang jährlich um 10 %. Um wie viel Prozent ist der Bestand nach den zwei Jahren *insgesamt* gewachsen?",
+      "optionen": [
+        {
+          "text": "21 %",
+          "korrekt": true,
+          "erklaerung": "Richtig. Faktor pro Jahr: 1,10. Nach zwei Jahren: 1,10 · 1,10 = 1,21 – also 21 % Gesamtwachstum. Die zweite 10 % wird nicht auf den Anfangswert berechnet, sondern auf den schon erhöhten Bestand. Dadurch entsteht der zusätzliche Prozent."
+        },
+        {
+          "text": "20 %",
+          "korrekt": false,
+          "erklaerung": "Klassischer Fehler: 10 % + 10 % = 20 %. Aber prozentuale Veränderungen werden *nicht* addiert, sondern durch Multiplikation der Faktoren kombiniert. Dadurch entsteht jedes Mal der berühmte 'Zinseszinseffekt' – hier ein zusätzliches Prozent."
+        },
+        {
+          "text": "100 %",
+          "korrekt": false,
+          "erklaerung": "Das wäre eine Verdopplung. Bei 10 % jährlichem Wachstum ist die Verdopplungszeit etwa 7,3 Jahre – nicht 2 Jahre. In zwei Jahren wird der Bestand nur etwa 21 % größer."
+        },
+        {
+          "text": "11 %",
+          "korrekt": false,
+          "erklaerung": "Vermutlich falsch addiert oder mit dem Faktor 1,1 verwechselt. 1,1 · 1,1 ist nicht 1,11 – es ist 1,21."
+        }
+      ]
+    },
+    {
+      "frage": "Ein Bestand verdoppelt sich alle 5 Jahre. Welcher der folgenden Aussagen *folgt* daraus?",
+      "optionen": [
+        {
+          "text": "Nach 10 Jahren ist der Bestand viermal so groß, nach 15 Jahren achtmal.",
+          "korrekt": true,
+          "erklaerung": "Richtig. Bei jeder Verdopplungszeit verdoppelt sich der Bestand. Nach 5 Jahren: 2-fach. Nach 10: 2 · 2 = 4-fach. Nach 15: 2 · 2 · 2 = 8-fach. Allgemein: nach 5n Jahren ist der Bestand 2^n-fach. Das ist der Kern exponentiellen Wachstums – die Verdopplungen *multiplizieren sich*, sie addieren sich nicht."
+        },
+        {
+          "text": "Nach 10 Jahren ist der Bestand 3-fach so groß.",
+          "korrekt": false,
+          "erklaerung": "Das wäre lineare Sicht: 'eine Verdopplung pro 5 Jahre, also nach 10 Jahren 1+1+1 = 3-fach' (Anfang + Doppelt + Verdopplung der Verdopplung). Falsch: Es sind zwei *aufeinanderfolgende* Verdopplungen, also 2 · 2 = 4-fach."
+        },
+        {
+          "text": "Nach 10 Jahren ist der Bestand doppelt so groß wie nach 5 Jahren.",
+          "korrekt": false,
+          "erklaerung": "Das stimmt zwar – ist aber kein Vergleich zum *Anfangsbestand*. Bezogen auf den Startwert ist nach 10 Jahren das Vierfache erreicht."
+        },
+        {
+          "text": "Die Wachstumsrate ist 20 % pro Jahr.",
+          "korrekt": false,
+          "erklaerung": "Falsch. Wenn der Bestand sich in 5 Jahren verdoppelt, ist q^5 = 2, also q = 2^(1/5) ≈ 1,149 – das entspricht etwa 14,9 % jährlich, nicht 20 %. Bei 20 % jährlich wäre die Verdopplungszeit kürzer als 5 Jahre."
+        }
+      ]
+    },
+    {
+      "frage": "Ein radioaktiver Stoff zerfällt mit einer Halbwertszeit von 10 Jahren. Welche der folgenden Aussagen ist *falsch*?",
+      "optionen": [
+        {
+          "text": "Nach 30 Jahren sind nur noch ein Drittel des Stoffs vorhanden.",
+          "korrekt": true,
+          "erklaerung": "Richtig – diese Aussage ist *falsch*. Nach jeder Halbwertszeit halbiert sich der Bestand. Nach 30 Jahren (= 3 Halbwertszeiten) ist 1/2 · 1/2 · 1/2 = 1/8 = 12,5 % übrig, nicht ein Drittel. 'Drei Halbierungen' ist nicht dasselbe wie 'durch drei teilen'. Klassische Fehlvorstellung."
+        },
+        {
+          "text": "Nach 10 Jahren ist genau die Hälfte zerfallen.",
+          "korrekt": false,
+          "erklaerung": "Diese Aussage ist *richtig* (deshalb nicht die gesuchte Antwort). Definition der Halbwertszeit: Nach genau einer Halbwertszeit ist die Hälfte des ursprünglichen Stoffs zerfallen."
+        },
+        {
+          "text": "Theoretisch wird der Stoff nie ganz null – die Funktion nähert sich nur asymptotisch null an.",
+          "korrekt": false,
+          "erklaerung": "Diese Aussage ist *richtig* (deshalb nicht die gesuchte Antwort). Mathematisch ist f(t) = a · 0,5^(t/10) nie genau null – der Wert nähert sich nur beliebig nahe an. Praktisch wird ab gewisser Genauigkeit ein Wert als 'verschwindend klein' eingestuft."
+        },
+        {
+          "text": "Nach 20 Jahren ist nur noch ein Viertel des ursprünglichen Bestands vorhanden.",
+          "korrekt": false,
+          "erklaerung": "Diese Aussage ist *richtig* (deshalb nicht die gesuchte Antwort). 20 Jahre = 2 Halbwertszeiten = 1/2 · 1/2 = 1/4 = 25 %."
+        }
+      ]
+    }
+  ]
+}
