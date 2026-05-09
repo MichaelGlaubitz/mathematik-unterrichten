@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AdminEditFab from '../components/AdminEditFab.astro';
 import '../styles/global.css';
 
 export interface Props {
@@ -17,6 +18,25 @@ const {
 
 const seitentitel = title === 'mathematik-unterrichten' ? title : `${title} – mathematik-unterrichten`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// GitHub-Edit-URL aus Seitenpfad ableiten
+const REPO_EDIT = 'https://github.com/MichaelGlaubitz/mathematik-unterrichten.de/edit/main/';
+const pathname = Astro.url.pathname;
+let autoEditPath = '';
+if (pathname.startsWith('/blog/')) {
+  const slug = pathname.replace('/blog/', '').replace(/\/$/, '');
+  autoEditPath = `src/content/blog/${slug}.md`;
+} else if (pathname.startsWith('/aufgaben/')) {
+  const slug = pathname.replace('/aufgaben/', '').replace(/\/$/, '');
+  autoEditPath = `src/content/aufgaben/${slug}.md`;
+} else if (pathname === '/' || pathname === '') {
+  autoEditPath = 'src/pages/index.astro';
+} else {
+  // Für andere Seiten (impressum, datenschutz, etc.)
+  const pageName = pathname.replace(/\//g, '') || 'index';
+  autoEditPath = `src/pages/${pageName}.astro`;
+}
+const editUrl = `${REPO_EDIT}${autoEditPath}`;
 ---
 
 <!DOCTYPE html>
@@ -79,5 +99,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </main>
 
     <Footer />
+
+    <AdminEditFab editUrl={editUrl} />
   </body>
 </html>

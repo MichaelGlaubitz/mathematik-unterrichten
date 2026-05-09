@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Text-Editor (nur Dev) — mathematik-unterrichten</title>
+		<style>
+			:root {
+				font-family: system-ui, sans-serif;
+				line-height: 1.4;
+				--bg: #0f1419;
+				--fg: #e7ecf1;
+				--muted: #8b98a5;
+				--border: #2f3b47;
+				--accent: #3b82f6;
+				--ok: #22c55e;
+				--err: #ef4444;
+			}
+			[data-theme='light'] {
+				--bg: #f8fafc;
+				--fg: #0f172a;
+				--muted: #64748b;
+				--border: #cbd5e1;
+				--accent: #2563eb;
+			}
+			html,
+			body {
+				margin: 0;
+				height: 100%;
+				background: var(--bg);
+				color: var(--fg);
+			}
+			body {
+				display: flex;
+				flex-direction: column;
+			}
+			header {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem 1rem;
+				align-items: center;
+				padding: 0.75rem 1rem;
+				border-bottom: 1px solid var(--border);
+			}
+			header h1 {
+				margin: 0;
+				font-size: 1.1rem;
+				font-weight: 600;
+			}
+			.badge {
+				font-size: 0.75rem;
+				color: var(--muted);
+				border: 1px solid var(--border);
+				padding: 0.15rem 0.45rem;
+				border-radius: 4px;
+			}
+			label {
+				display: flex;
+				flex-direction: column;
+				gap: 0.2rem;
+				font-size: 0.8rem;
+				color: var(--muted);
+			}
+			input[type='password'],
+			select,
+			button {
+				font: inherit;
+				padding: 0.35rem 0.5rem;
+				border-radius: 6px;
+				border: 1px solid var(--border);
+				background: var(--bg);
+				color: var(--fg);
+			}
+			button {
+				cursor: pointer;
+				background: var(--accent);
+				color: #fff;
+				border-color: transparent;
+			}
+			button.secondary {
+				background: transparent;
+				color: var(--fg);
+				border-color: var(--border);
+			}
+			button:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+			main {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				min-height: 0;
+				padding: 0.75rem 1rem 1rem;
+				gap: 0.5rem;
+			}
+			.toolbar {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				align-items: flex-end;
+			}
+			.toolbar label {
+				min-width: 12rem;
+			}
+			.status {
+				font-size: 0.85rem;
+				min-height: 1.2em;
+			}
+			.status.ok {
+				color: var(--ok);
+			}
+			.status.err {
+				color: var(--err);
+			}
+			textarea {
+				flex: 1;
+				width: 100%;
+				min-height: 200px;
+				resize: vertical;
+				font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'SF Mono', monospace;
+				font-size: 0.85rem;
+				line-height: 1.45;
+				padding: 0.75rem;
+				border-radius: 8px;
+				border: 1px solid var(--border);
+				background: var(--bg);
+				color: var(--fg);
+				box-sizing: border-box;
+			}
+			.hint {
+				font-size: 0.8rem;
+				color: var(--muted);
+				max-width: 52rem;
+			}
+			a {
+				color: var(--accent);
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>Text-Editor</h1>
+			<span class="badge">nur <code>npm run dev</code></span>
+			<button type="button" class="secondary" id="themeBtn" aria-label="Farbschema umschalten">Hell/Dunkel</button>
+			<span style="flex: 1"></span>
+			<a href="__INJECT_BASE__">← Zur Website</a>
+		</header>
+		<main>
+			<p class="hint">
+				Token aus <code>.env</code> (<code>ADMIN_EDIT_TOKEN</code>, mindestens 16 Zeichen). Nach Änderung an der
+				<code>.env</code> den Dev-Server neu starten. Speichern schreibt direkt in die Quelldatei im Projektordner.
+			</p>
+			<div class="toolbar">
+				<label>
+					Token
+					<input type="password" id="token" autocomplete="off" placeholder="ADMIN_EDIT_TOKEN" />
+				</label>
+				<label>
+					Bereich
+					<select id="kind">
+						<option value="">— wählen —</option>
+						<option value="content-blog">Blog (Markdown)</option>
+						<option value="content-aufgaben">Aufgaben (Markdown)</option>
+						<option value="content-quizzes">Quizzes (JSON)</option>
+						<option value="pages">Seiten (.astro)</option>
+					</select>
+				</label>
+				<label>
+					Datei
+					<select id="fileSelect"><option value="">— laden —</option></select>
+				</label>
+				<button type="button" id="reloadBtn" class="secondary">Neu laden</button>
+				<button type="button" id="saveBtn">Speichern</button>
+			</div>
+			<div class="status" id="status" aria-live="polite"></div>
+			<textarea id="editor" spellcheck="false" placeholder="Datei wählen oder Liste laden …"></textarea>
+		</main>
+		<script>
+			(function () {
+				const BASE = '__INJECT_BASE__'.replace(/\/?$/, '/');
+				const API = BASE + '__admin-api';
+
+				const tokenEl = document.getElementById('token');
+				const kindEl = document.getElementById('kind');
+				const fileSelect = document.getElementById('fileSelect');
+				const editor = document.getElementById('editor');
+				const status = document.getElementById('status');
+				const saveBtn = document.getElementById('saveBtn');
+				const reloadBtn = document.getElementById('reloadBtn');
+				const themeBtn = document.getElementById('themeBtn');
+
+				function setStatus(msg, type) {
+					status.textContent = msg || '';
+					status.className = 'status' + (type ? ' ' + type : '');
+				}
+
+				function authHeaders() {
+					const t = tokenEl.value.trim();
+					return t ? { Authorization: 'Bearer ' + t } : {};
+				}
+
+				async function apiFetch(path, opts) {
+					const headers = { ...authHeaders(), ...(opts?.headers || {}) };
+					const res = await fetch(API + path, { ...opts, headers });
+					const text = await res.text();
+					let data;
+					try {
+						data = JSON.parse(text);
+					} catch {
+						data = { error: text.slice(0, 200) };
+					}
+					if (!res.ok) throw new Error(data.error || res.statusText || 'Fehler');
+					return data;
+				}
+
+				function parseKind(value) {
+					if (!value) return { type: null, collection: null };
+					if (value.startsWith('content-')) {
+						return { type: 'content', collection: value.replace('content-', '') };
+					}
+					return { type: value, collection: null };
+				}
+
+				async function loadList() {
+					setStatus('Lade Liste…');
+					fileSelect.innerHTML = '<option value="">— wählen —</option>';
+					editor.value = '';
+					const { type, collection } = parseKind(kindEl.value);
+					if (type === 'content' && collection) {
+						const { files } = await apiFetch('/content/' + encodeURIComponent(collection));
+						for (const f of files) {
+							const o = document.createElement('option');
+							o.value = f;
+							o.textContent = f;
+							fileSelect.appendChild(o);
+						}
+					} else if (type === 'pages') {
+						const { files } = await apiFetch('/pages');
+						for (const f of files) {
+							const o = document.createElement('option');
+							o.value = f;
+							o.textContent = f;
+							fileSelect.appendChild(o);
+						}
+					}
+					setStatus('Liste geladen.', 'ok');
+				}
+
+				async function loadFile() {
+					const { type, collection } = parseKind(kindEl.value);
+					const file = fileSelect.value;
+					if (!file) return;
+					setStatus('Lade Datei…');
+					let path;
+					if (type === 'content' && collection) {
+						path = '/content/' + encodeURIComponent(collection) + '/' + encodeURIComponent(file);
+					} else if (type === 'pages') {
+						path = '/pages/' + encodeURIComponent(file);
+					} else {
+						return;
+					}
+					const data = await apiFetch(path);
+					editor.value = data.raw;
+					setStatus('Geladen: ' + data.file, 'ok');
+				}
+
+				async function saveFile() {
+					const { type, collection } = parseKind(kindEl.value);
+					const file = fileSelect.value;
+					if (!file) {
+						setStatus('Keine Datei gewählt.', 'err');
+						return;
+					}
+					if (!tokenEl.value.trim()) {
+						setStatus('Token eingeben.', 'err');
+						return;
+					}
+					let path;
+					if (type === 'content' && collection) {
+						path = '/content/' + encodeURIComponent(collection) + '/' + encodeURIComponent(file);
+					} else if (type === 'pages') {
+						path = '/pages/' + encodeURIComponent(file);
+					} else {
+						setStatus('Kein Bereich gewählt.', 'err');
+						return;
+					}
+					saveBtn.disabled = true;
+					setStatus('Speichere…');
+					try {
+						await apiFetch(path, { method: 'PUT', body: editor.value });
+						setStatus('Gespeichert. Seite im Browser ggf. neu laden.', 'ok');
+					} catch (e) {
+						setStatus(String(e.message || e), 'err');
+					} finally {
+						saveBtn.disabled = false;
+					}
+				}
+
+				let listLoaded = false;
+
+				function tryLoadList() {
+					if (!tokenEl.value.trim()) {
+						setStatus('Bitte zuerst Token eingeben.', 'err');
+						return;
+					}
+					listLoaded = false;
+					loadList()
+						.then(() => { listLoaded = true; })
+						.catch((e) => setStatus(String(e.message || e), 'err'));
+				}
+
+				tokenEl.addEventListener('change', tryLoadList);
+				tokenEl.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter') tryLoadList();
+				});
+
+				kindEl.addEventListener('change', tryLoadList);
+				fileSelect.addEventListener('change', () => {
+					loadFile().catch((e) => setStatus(String(e.message || e), 'err'));
+				});
+				reloadBtn.addEventListener('click', () => {
+					if (!listLoaded) { tryLoadList(); return; }
+					loadFile().catch((e) => setStatus(String(e.message || e), 'err'));
+				});
+				saveBtn.addEventListener('click', saveFile);
+
+				document.addEventListener('keydown', (e) => {
+					if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+						e.preventDefault();
+						saveFile();
+					}
+				});
+
+				themeBtn.addEventListener('click', () => {
+					const cur = document.documentElement.getAttribute('data-theme');
+					const next = cur === 'light' ? 'dark' : 'light';
+					document.documentElement.setAttribute('data-theme', next);
+					try {
+						localStorage.setItem('theme', next);
+					} catch (_) {}
+				});
+				try {
+					const stored = localStorage.getItem('theme');
+					if (stored === 'light' || stored === 'dark') document.documentElement.setAttribute('data-theme', stored);
+				} catch (_) {}
+
+				setStatus('Token eingeben und mit Enter bestätigen, um Dateiliste zu laden.');
+			})();
+		</script>
+	</body>
+</html>
