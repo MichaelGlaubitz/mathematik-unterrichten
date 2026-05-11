@@ -1,0 +1,205 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Web3Forms-Access-Key – wird per POST gemeinsam mit den Formularfeldern uebermittelt.
+const WEB3FORMS_KEY = '6d19f86f-7bbc-41cd-86e3-cf227fcf9a97';
+---
+
+<BaseLayout
+  title="Kontakt"
+  beschreibung="Schreib mir – ueber das Web3Forms-Kontaktformular. Anregungen, Korrekturen, Diskussionen zu Aufgaben und Didaktik sind willkommen."
+>
+  <article class="container-prose py-12">
+    <header class="mb-8 pb-6 border-b border-ink-200 dark:border-ink-700">
+      <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2 dark:text-accent-100">
+        Schreib mir
+      </p>
+      <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3 dark:text-ink-50">
+        Kontakt
+      </h1>
+      <p class="text-ink-700 leading-relaxed dark:text-ink-200">
+        Ob Anregung, Korrektur eines fehlerhaften Aufgabenkommentars, Diskussion zu einer
+        Diagnosefrage oder ein eigener Vorschlag fuer einen Beitrag – ich freue mich ueber
+        Nachrichten von Kolleginnen und Kollegen. Antworten kommen in der Regel innerhalb
+        weniger Tage.
+      </p>
+    </header>
+
+    <form
+      id="kontakt-form"
+      action="https://api.web3forms.com/submit"
+      method="POST"
+      class="not-prose space-y-5"
+      novalidate
+    >
+      <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+      <input type="hidden" name="subject" value="Neue Nachricht von mathematik-unterrichten.de" />
+      <input type="hidden" name="from_name" value="mathematik-unterrichten.de" />
+      <!-- Honeypot gegen Spam-Bots: bleibt unsichtbar; ausgefuellte Felder werden verworfen. -->
+      <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <div>
+        <label for="kontakt-name" class="block text-sm font-medium text-ink-800 mb-1.5 dark:text-ink-100">
+          Name <span class="text-rose-600 dark:text-rose-300" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="kontakt-name"
+          name="name"
+          type="text"
+          required
+          autocomplete="name"
+          class="w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+      </div>
+
+      <div>
+        <label for="kontakt-email" class="block text-sm font-medium text-ink-800 mb-1.5 dark:text-ink-100">
+          E-Mail <span class="text-rose-600 dark:text-rose-300" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="kontakt-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          class="w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+        <p class="mt-1 text-xs text-ink-500 dark:text-ink-400">
+          Wird nur fuer die Antwort verwendet und nicht weitergegeben.
+        </p>
+      </div>
+
+      <div>
+        <label for="kontakt-betreff" class="block text-sm font-medium text-ink-800 mb-1.5 dark:text-ink-100">
+          Betreff
+        </label>
+        <input
+          id="kontakt-betreff"
+          name="betreff"
+          type="text"
+          class="w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-500"
+          placeholder="z.B. Korrektur zur Aufgabe „Pythagoras"
+        />
+      </div>
+
+      <div>
+        <label for="kontakt-nachricht" class="block text-sm font-medium text-ink-800 mb-1.5 dark:text-ink-100">
+          Nachricht <span class="text-rose-600 dark:text-rose-300" aria-hidden="true">*</span>
+        </label>
+        <textarea
+          id="kontakt-nachricht"
+          name="message"
+          required
+          rows="6"
+          class="w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-50 dark:placeholder:text-ink-500"
+          placeholder="Worum geht es?"
+        ></textarea>
+      </div>
+
+      <div class="flex items-start gap-2.5">
+        <input
+          id="kontakt-datenschutz"
+          name="datenschutz"
+          type="checkbox"
+          required
+          class="mt-1 h-4 w-4 rounded border-ink-300 text-accent-600 focus:ring-accent-500 dark:border-ink-600 dark:bg-ink-900"
+        />
+        <label for="kontakt-datenschutz" class="text-sm text-ink-700 leading-snug dark:text-ink-200">
+          Ich habe die <a href="/datenschutz" class="text-accent-700 underline hover:text-accent-800 dark:text-accent-100">Datenschutzhinweise</a>
+          gelesen und stimme der Verarbeitung meiner Angaben zur Beantwortung der Anfrage zu. <span class="text-rose-600 dark:text-rose-300" aria-hidden="true">*</span>
+        </label>
+      </div>
+
+      <div class="flex items-center gap-4 pt-2">
+        <button
+          type="submit"
+          class="kontakt-submit inline-flex items-center gap-2 rounded-md bg-accent-700 px-5 py-2.5 text-white font-medium hover:bg-accent-800 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition dark:bg-accent-600 dark:hover:bg-accent-700 dark:focus:ring-offset-ink-900"
+        >
+          <span class="kontakt-submit-label">Nachricht senden</span>
+          <svg class="kontakt-submit-spinner h-4 w-4 animate-spin hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"/>
+            <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <p class="text-xs text-ink-500 dark:text-ink-400">
+          <span aria-hidden="true">*</span> Pflichtfeld
+        </p>
+      </div>
+
+      <div
+        class="kontakt-status hidden rounded-md border-l-4 p-4 text-sm"
+        role="status"
+        aria-live="polite"
+      ></div>
+    </form>
+  </article>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('kontakt-form') as HTMLFormElement | null;
+  if (form) {
+    const submitBtn = form.querySelector<HTMLButtonElement>('.kontakt-submit');
+    const submitLabel = form.querySelector<HTMLElement>('.kontakt-submit-label');
+    const spinner = form.querySelector<HTMLElement>('.kontakt-submit-spinner');
+    const status = form.querySelector<HTMLElement>('.kontakt-status');
+
+    const setStatus = (kind: 'success' | 'error' | 'info', msg: string) => {
+      if (!status) return;
+      status.className = 'kontakt-status rounded-md border-l-4 p-4 text-sm';
+      const map: Record<string, string> = {
+        success: 'border-emerald-500 bg-emerald-50/60 text-emerald-900 dark:bg-emerald-900/25 dark:text-emerald-100',
+        error: 'border-rose-500 bg-rose-50/60 text-rose-900 dark:bg-rose-900/25 dark:text-rose-100',
+        info: 'border-ink-400 bg-ink-50 text-ink-800 dark:bg-ink-900 dark:text-ink-100',
+      };
+      status.classList.add(...map[kind].split(' '));
+      status.textContent = msg;
+      status.classList.remove('hidden');
+    };
+
+    const setSubmitting = (submitting: boolean) => {
+      if (submitBtn) submitBtn.disabled = submitting;
+      if (submitLabel) submitLabel.textContent = submitting ? 'Wird gesendet…' : 'Nachricht senden';
+      if (spinner) spinner.classList.toggle('hidden', !submitting);
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Pflichtfelder pruefen
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      // Honeypot
+      const data = new FormData(form);
+      if (data.get('botcheck')) {
+        // Stille Annahme, damit Bots nicht aufmerksam werden
+        setStatus('success', 'Vielen Dank! Deine Nachricht wurde uebermittelt.');
+        form.reset();
+        return;
+      }
+      setSubmitting(true);
+      setStatus('info', 'Sende…');
+      try {
+        const payload: Record<string, string> = {};
+        data.forEach((v, k) => { payload[k] = typeof v === 'string' ? v : ''; });
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && (json as { success?: boolean }).success !== false) {
+          setStatus('success', 'Danke fuer deine Nachricht! Ich melde mich in den naechsten Tagen per E-Mail zurueck.');
+          form.reset();
+        } else {
+          const msg = (json as { message?: string }).message ?? 'Senden fehlgeschlagen. Bitte spaeter erneut versuchen.';
+          setStatus('error', msg);
+        }
+      } catch (err) {
+        setStatus('error', 'Netzwerkfehler – pruefe deine Verbindung und versuche es erneut.');
+      } finally {
+        setSubmitting(false);
+      }
+    });
+  }
+</script>
