@@ -1,3 +1,5 @@
+import typography from '@tailwindcss/typography';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
@@ -68,7 +70,6 @@ export default {
             '--tw-prose-quotes': theme('colors.slate.700'),
             '--tw-prose-quote-borders': theme('colors.violet.600'),
             maxWidth: '70ch',
-            fontFamily: theme('fontFamily.serif').join(', '),
           },
         },
         invert: {
@@ -78,4 +79,21 @@ export default {
             '--tw-prose-lead': theme('colors.slate.400'),
             '--tw-prose-links': theme('colors.violet.200'),
             '--tw-prose-bold': theme('colors.slate.50'),
-            '--tw-prose-counters': theme('colors.sla
+            '--tw-prose-counters': theme('colors.slate.400'),
+            '--tw-prose-bullets': theme('colors.slate.600'),
+            '--tw-prose-hr': theme('colors.slate.700'),
+            '--tw-prose-quotes': theme('colors.slate.200'),
+            '--tw-prose-quote-borders': theme('colors.violet.500'),
+            '--tw-prose-captions': theme('colors.slate.400'),
+            '--tw-prose-code': theme('colors.slate.50'),
+            '--tw-prose-pre-code': theme('colors.slate.200'),
+            '--tw-prose-pre-bg': theme('colors.slate.800'),
+            '--tw-prose-th-borders': theme('colors.slate.600'),
+            '--tw-prose-td-borders': theme('colors.slate.700'),
+          },
+        },
+      }),
+    },
+  },
+  plugins: [typography],
+};
