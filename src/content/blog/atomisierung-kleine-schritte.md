@@ -19,13 +19,13 @@ Der Begriff stammt aus der englischen Lehrerliteratur (Craig Barton hat ihn popu
 
 Eine Aufgabe wie
 
-> Bestimme den Scheitelpunkt der Parabel `f(x) = 2x² − 12x + 19` durch quadratische Ergänzung.
+> Bestimme den Scheitelpunkt der Parabel $f(x) = 2x^{2} - 12x + 19$ durch quadratische Ergänzung.
 
 verlangt von einer Schülerin im Kopf:
 
 1. Den Faktor 2 vor `x²` *ausklammern*, aber nur aus den x-Termen.
 2. Den Koeffizienten von `x` *halbieren* (−6 / 2 = −3).
-3. Diese Hälfte *quadrieren* (`(−3)² = 9`).
+3. Diese Hälfte *quadrieren* ($(-3)^{2} = 9$).
 4. Diese Quadratzahl *addieren und subtrahieren* in der Klammer.
 5. Aus den ersten drei Termen einen Binomialterm *erkennen*.
 6. Den restlichen Term aus der Klammer *herausziehen*, dabei den ausgeklammerten Faktor *berücksichtigen*.
@@ -57,7 +57,7 @@ Für jede Operation, die ich nicht voraussetzen kann, brauche ich eine Diagnose-
 
 ## Ein praktisches Beispiel: Lineare Gleichungen
 
-Was muss eine Schülerin können, um die Gleichung `3(x − 2) + 5 = 2x + 7` zu lösen?
+Was muss eine Schülerin können, um die Gleichung $3(x - 2) + 5 = 2x + 7$ zu lösen?
 
 1. Klammern ausmultiplizieren (Distributivgesetz).
 2. Vorzeichen bei Subtraktionen in der Klammer richtig handhaben.

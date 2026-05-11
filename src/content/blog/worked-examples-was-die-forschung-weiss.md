@@ -17,13 +17,13 @@ Die Forschung sagt etwas anderes. Genauer: Sie sagt, dass selbstständiges Entde
 
 Ein Worked Example ist eine vollständig durchgeführte Beispielaufgabe – mit Schritten, Begründungen und Endergebnis. Die Schüler lesen ihn, *bevor* sie selbst ähnliche Aufgaben bearbeiten. Klassisch könnte das so aussehen:
 
-> **Aufgabe:** Löse `2x + 7 = 19`.
+> **Aufgabe:** Löse $2x + 7 = 19$.
 >
-> *Schritt 1:* Auf beiden Seiten 7 abziehen. → `2x = 12`. *Begründung:* Wir wollen x isolieren; die 7 muss weg.
+> *Schritt 1:* Auf beiden Seiten 7 abziehen. → $2x = 12$. *Begründung:* Wir wollen x isolieren; die 7 muss weg.
 >
-> *Schritt 2:* Auf beiden Seiten durch 2 teilen. → `x = 6`. *Begründung:* x ist verdoppelt; die 2 wird durch Division aufgehoben.
+> *Schritt 2:* Auf beiden Seiten durch 2 teilen. → $x = 6$. *Begründung:* x ist verdoppelt; die 2 wird durch Division aufgehoben.
 >
-> *Probe:* `2 · 6 + 7 = 19`. ✓
+> *Probe:* $2 \cdot 6 + 7 = 19$. ✓
 
 Was hier passiert, sieht trivial aus. Es ist es nicht. Drei Dinge stehen im Beispiel, die ein Lernender selbst kaum systematisch entdecken könnte: die *Reihenfolge* der Schritte, die *Begründung* (warum gerade dieser Schritt), und das *Probe-Ritual*. Der Schüler muss sie nicht alle drei selbst rekonstruieren, sondern kann seine kognitiven Ressourcen darauf verwenden, das Muster zu *verstehen*.
 
@@ -56,7 +56,7 @@ Wenn ich heute ein neues Verfahren einführe – sagen wir, das Lösen quadratis
 3. **Zweites Worked Example (5 Minuten):** Eine zweite Aufgabe wird im Detail durchgegangen. Diesmal lasse ich nach jedem Schritt 30 Sekunden Bedenkzeit – Schüler überlegen, *was als Nächstes kommt*, bevor ich auflöse.
 4. **Completion Problem (10 Minuten):** Eine teilweise gelöste Aufgabe an der Tafel. Schüler ergänzen die fehlenden Schritte. Ich kontrolliere durch *cold call*: zufällige Schüler erklären den nächsten Schritt.
 5. **Eigenständige Aufgaben (15 Minuten):** Erst jetzt arbeiten Schüler an Aufgaben allein. Ich gehe herum und sehe, wo es hakt.
-6. **Reflexion (5 Minuten):** Ein Schüler erklärt das Verfahren ohne Schritte zu nennen, sondern als *Methode*: „Bei einer Gleichung der Form `x² + px + q = 0` rechne ich erst..."
+6. **Reflexion (5 Minuten):** Ein Schüler erklärt das Verfahren ohne Schritte zu nennen, sondern als *Methode*: „Bei einer Gleichung der Form $x^{2} + px + q = 0$ rechne ich erst..."
 
 Diese 45 Minuten sind weniger „spannend" als eine Stunde, in der Schüler die p-q-Formel selbst entdecken. Aber sie funktionieren – jedenfalls für die Schüler, die das Verfahren nach dieser Stunde tatsächlich anwenden können sollen.
 

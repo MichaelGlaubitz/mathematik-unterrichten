@@ -149,6 +149,26 @@ const { fragen, id = 'quiz' } = Astro.props;
   const LETTER_BASE_CLASS =
     'quiz-letter mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-semibold text-ink-700 group-hover:border-accent-500 group-hover:text-accent-700 dark:border-ink-600 dark:text-ink-200 dark:group-hover:border-accent-300 dark:group-hover:text-accent-100';
 
+  // Rendert $...$/$$...$$/\(...\)/\[...\] in einem Element nach Einfuegen dynamischer Inhalte.
+  // Das auto-render-Skript aus dem CDN setzt renderMathInElement auf window; falls noch nicht geladen,
+  // probieren wir es kurz spaeter erneut.
+  const renderMathIn = (el: HTMLElement) => {
+    const w = window as unknown as { renderMathInElement?: (el: HTMLElement, opts?: unknown) => void };
+    if (typeof w.renderMathInElement === 'function') {
+      w.renderMathInElement(el, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$',  right: '$',  display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true },
+        ],
+        throwOnError: false,
+      });
+    } else {
+      setTimeout(() => renderMathIn(el), 120);
+    }
+  };
+
   document.querySelectorAll<HTMLElement>('[data-quiz]').forEach((quiz) => {
     const fragen = Array.from(quiz.querySelectorAll<HTMLElement>('.quiz-frage'));
     const zusammenfassung = quiz.querySelector<HTMLElement>('.quiz-zusammenfassung');
@@ -212,6 +232,7 @@ const { fragen, id = 'quiz' } = Astro.props;
           istKorrekt ? 'bg-emerald-50/40' : 'bg-rose-50/40',
           istKorrekt ? 'dark:bg-emerald-900/20' : 'dark:bg-rose-900/20'
         );
+        renderMathIn(erklaerungBox);
       }
 
       if (alleAntwortenBtn) {
@@ -234,6 +255,7 @@ const { fragen, id = 'quiz' } = Astro.props;
           if (erklaerungBox) {
             erklaerungBox.insertAdjacentHTML('beforeend', html);
             alleAntwortenBtn.classList.add('hidden');
+            renderMathIn(erklaerungBox);
           }
         };
       }

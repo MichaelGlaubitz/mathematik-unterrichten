@@ -77,13 +77,31 @@ const editUrl = `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/${resol
     <meta name="twitter:title" content={seitentitel} />
     <meta name="twitter:description" content={beschreibung} />
 
-    <!-- KaTeX für mathematische Formeln (optional, lädt nur wenn benutzt) -->
+    <!-- KaTeX für mathematische Formeln -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
       integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
       crossorigin="anonymous"
     />
+    <!-- KaTeX-Browser-Renderer: rendert $...$ und $$...$$ in zur Laufzeit eingefügtem Text (z.B. Quiz-Optionen aus JSON) -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+      onload="renderMathInElement(document.body, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$',  right: '$',  display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true }
+        ],
+        throwOnError: false
+      });"
+    ></script>
   </head>
   <body class="min-h-screen bg-ink-50 text-ink-800 antialiased font-sans dark:bg-ink-900 dark:text-ink-200">
     <a
