@@ -5,25 +5,52 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Warmes, akademisches Farbschema
-        ink: {
-          50: '#f8f7f4',
-          100: '#efece4',
-          200: '#dcd5c5',
-          300: '#bfb39c',
-          400: '#a08f72',
-          500: '#857355',
-          600: '#6c5c43',
-          700: '#564938',
-          800: '#3f352a',
-          900: '#2a241d',
+        // Modern, energetisch – Grau + Violett, Cyan, Grün, Orange
+        slate: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
         },
-        accent: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#2563eb',
-          600: '#1d4ed8',
-          700: '#1e40af',
+        // Primary: Vibrant Violet
+        violet: {
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          200: '#e9d5ff',
+          500: '#a78bfa',
+          600: '#9333ea',
+          700: '#7e22ce',
+          800: '#6b21a8',
+        },
+        // Secondary: Electric Cyan
+        cyan: {
+          50: '#ecf8ff',
+          100: '#cffafe',
+          500: '#06b6d4',
+          600: '#0891b2',
+          700: '#0e7490',
+        },
+        // Success: Lime Green
+        lime: {
+          50: '#f7fee7',
+          100: '#ecfccb',
+          500: '#84cc16',
+          600: '#65a30d',
+          700: '#4d7c0f',
+        },
+        // Accent: Coral Orange
+        orange: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
         },
       },
       fontFamily: {
@@ -34,38 +61,21 @@ export default {
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {
-            '--tw-prose-body': theme('colors.ink.800'),
-            '--tw-prose-headings': theme('colors.ink.900'),
-            '--tw-prose-links': theme('colors.accent.600'),
-            '--tw-prose-bold': theme('colors.ink.900'),
-            '--tw-prose-quotes': theme('colors.ink.700'),
-            '--tw-prose-quote-borders': theme('colors.accent.500'),
+            '--tw-prose-body': theme('colors.slate.700'),
+            '--tw-prose-headings': theme('colors.slate.900'),
+            '--tw-prose-links': theme('colors.violet.700'),
+            '--tw-prose-bold': theme('colors.slate.900'),
+            '--tw-prose-quotes': theme('colors.slate.700'),
+            '--tw-prose-quote-borders': theme('colors.violet.600'),
             maxWidth: '70ch',
             fontFamily: theme('fontFamily.serif').join(', '),
           },
         },
         invert: {
           css: {
-            '--tw-prose-body': theme('colors.ink.200'),
-            '--tw-prose-headings': theme('colors.ink.50'),
-            '--tw-prose-lead': theme('colors.ink.300'),
-            '--tw-prose-links': theme('colors.accent.100'),
-            '--tw-prose-bold': theme('colors.ink.50'),
-            '--tw-prose-counters': theme('colors.ink.300'),
-            '--tw-prose-bullets': theme('colors.ink.500'),
-            '--tw-prose-hr': theme('colors.ink.700'),
-            '--tw-prose-quotes': theme('colors.ink.200'),
-            '--tw-prose-quote-borders': theme('colors.accent.500'),
-            '--tw-prose-captions': theme('colors.ink.300'),
-            '--tw-prose-code': theme('colors.ink.50'),
-            '--tw-prose-pre-code': theme('colors.ink.100'),
-            '--tw-prose-pre-bg': theme('colors.ink.800'),
-            '--tw-prose-th-borders': theme('colors.ink.600'),
-            '--tw-prose-td-borders': theme('colors.ink.700'),
-          },
-        },
-      }),
-    },
-  },
-  plugins: [require('@tailwindcss/typography')],
-};
+            '--tw-prose-body': theme('colors.slate.300'),
+            '--tw-prose-headings': theme('colors.slate.50'),
+            '--tw-prose-lead': theme('colors.slate.400'),
+            '--tw-prose-links': theme('colors.violet.200'),
+            '--tw-prose-bold': theme('colors.slate.50'),
+            '--tw-prose-counters': theme('colors.sla
