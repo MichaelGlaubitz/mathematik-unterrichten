@@ -15,7 +15,7 @@ Beim **exponentiellen Wachstum** wird ein Bestand in jedem Zeitschritt mit demse
 
 Die zentrale Beziehung:
 
-$f(t) = a \cdot q^{t}$
+ $f(t) = a \cdot q^{t}$
 
 - `a` ist der Anfangsbestand (zum Zeitpunkt t = 0).
 - `q` ist der Vermehrungs- bzw. Verminderungsfaktor pro Zeitschritt.
@@ -72,9 +72,9 @@ Anfangs- und Endbestand sind bekannt, dazu die Anzahl der Zeitschritte. Berechne
 
 | Nr. | Aufgabe | Ansatz | Lösung |
 |----:|:--------|:-------|:-------|
-| 22 | Bei q = 1,05 (5 % Wachstum): Wann hat sich der Bestand verdoppelt? | $a \cdot 1{,}05^{t} = 2a, also 1{,}05^{t} = 2$ | $t = log(2)/log(1{,}05) \approx 14{,}2 Zeitschritte$ |
-| 23 | $Bei q = 1{,}10: Verdopplung?$ | $1{,}10^{t} = 2$ | $t \approx 7{,}3$ |
-| 24 | $Bei q = 0{,}90: Wann ist nur noch die Hälfte da?$ | $0{,}90^{t} = 0{,}5$ | $t = log(0{,}5)/log(0{,}90) \approx 6{,}6$ |
+| 22 | Bei q = 1,05 (5 % Wachstum): Wann hat sich der Bestand verdoppelt? | $a \cdot 1{,}05^{t} = 2a$, also $1{,}05^{t} = 2$| t = log(2)/log(1,05)$\approx$ 14,2 Zeitschritte |
+| 23 | Bei q = 1,10: Verdopplung? | $1{,}10^{t} = 2$|$t \approx 7{,}3$ |
+| 24 | Bei q $= 0{,}90$: Wann ist nur noch die Hälfte da? |$0{,}90^{t} = 0{,}5$|$t = \log(0{,}5)/\log(0{,}90) \approx 6{,}6$ |
 | 25 | Halbwertszeit von Caesium-137 ist 30 Jahre. Wie viel ist nach 60 Jahren noch da? Nach 90 Jahren? | Nach jeder Halbwertszeit halbiert sich der Bestand. | Nach 60: 25 %. Nach 90: 12,5 %. |
 | 26 | Eine Bevölkerung wächst mit einem Faktor q. In 50 Jahren verdoppelt sie sich. Was ist q? | $q^{50} = 2$ | q = 2^(1/50) ≈ 1,014 → ca. 1,4 % Wachstum jährlich |
 
@@ -85,7 +85,7 @@ In jedem Aufgabentext muss zuerst entschieden werden: Wachstum oder Zerfall? Wel
 | Nr. | Sachkontext | Wachstum oder Zerfall | Faktor |
 |----:|:------------|:----------------------|:-------|
 | 27 | Eine Bakterienkultur verdoppelt sich alle 30 Minuten. Bestand pro 30-Minuten-Schritt? | Wachstum | $q = 2$ |
-| 28 | Ein radioaktiver Stoff zerfällt mit einer Halbwertszeit von 8 Tagen. | Zerfall | $q = 0{,}5 (pro 8 Tage)$ |
+| 28 | Ein radioaktiver Stoff zerfällt mit einer Halbwertszeit von 8 Tagen. | Zerfall | $q = 0{,}5$ (pro 8 Tage) |
 | 29 | Ein Investmentfonds verzinst sich mit 4 % jährlich. | Wachstum | $q = 1{,}04$ |
 | 30 | Ein Auto verliert 18 % seines Wertes pro Jahr. | Zerfall | $q = 0{,}82$ |
 | 31 | Eine Pflanzenpopulation wird durch Schädlinge dezimiert: Jeden Monat sterben 20 % der Pflanzen, gleichzeitig wachsen 5 % nach. | Zerfall (netto) | $q = 0{,}80 + 0{,}05 = 0{,}85$ |

@@ -9,7 +9,7 @@ teaser: "Wenn ein Schüler zu 1/3 + 1/4 das Ergebnis 2/7 sagt, ist das kein Vers
 entwurf: false
 ---
 
-In meinem zweiten Referendariatsjahr habe ich einen Test korrigiert, in dem siebzehn von achtundzwanzig Schülerinnen und Schülern zur Aufgabe $1/3 + 1/4$ die Lösung $2/7$ aufgeschrieben hatten. Mein erster Reflex war Ärger: "Das *hatten* wir doch! Wie kann das sein?"
+In meinem zweiten Referendariatsjahr habe ich einen Test korrigiert, in dem siebzehn von achtundzwanzig Schülerinnen und Schülern zur Aufgabe $1/3 + 1/4$die Lösung$2/7$ aufgeschrieben hatten. Mein erster Reflex war Ärger: "Das *hatten* wir doch! Wie kann das sein?"
 
 Die Antwort: Genau *deshalb* war es so. Die Klasse hatte eine vollständig konsistente Theorie aufgebaut – nur eben die falsche. Sie addierte Brüche, indem sie Zähler und Nenner getrennt addierte. Das ist keine Schludrigkeit. Das ist eine Hypothese.
 
@@ -27,7 +27,7 @@ Die englischsprachige Forschung spricht hier von *misconceptions*. Der deutsche 
 
 **2.** "Bei `−3 − 4` muss ich die Beträge addieren und ein Minus davorsetzen." Stimmt im Spezialfall. Aber bei $-3 - (-4)$ greift das Schema nicht mehr. Der Schüler hat eine Regel verinnerlicht, die nicht das Konzept (Subtraktion als Addition der Gegenzahl), sondern die *Erscheinungsform* abbildet.
 
-**3.** "Wenn `f` linear ist und $f(2) = 6$, dann ist $f(4) = 12$." Funktioniert für Proportionalität, nicht für lineare Funktionen mit Achsenabschnitt. Schüler übertragen ein gut gelerntes Schema (Dreisatz) auf einen Bereich, in dem es nicht mehr trägt.
+**3.** "Wenn `f` linear ist und $f(2) = 6$, dann ist$f(4) = 12$." Funktioniert für Proportionalität, nicht für lineare Funktionen mit Achsenabschnitt. Schüler übertragen ein gut gelerntes Schema (Dreisatz) auf einen Bereich, in dem es nicht mehr trägt.
 
 In allen drei Fällen ist der Fehler nicht *zu wenig* Mathematik, sondern *eine Art* von Mathematik, die in einem engeren Bereich richtig war.
 
@@ -35,7 +35,7 @@ In allen drei Fällen ist der Fehler nicht *zu wenig* Mathematik, sondern *eine 
 
 Drei Konsequenzen ergeben sich aus dieser Sicht.
 
-**Erste Konsequenz: Die Diagnose vor der Therapie.** Wenn ich nicht weiß, *welche* Vorstellung mein Gegenüber hat, kann ich auch nicht zielgerichtet erklären. Eine bloße Wiederholung der "richtigen" Erklärung trifft die Wurzel selten. Ein Schüler, der $2/7$ rechnet, braucht keine erneute Erklärung der Bruchaddition – er braucht ein Erlebnis, das *seine* Theorie zum Bröckeln bringt. Etwa: "Ist $1/2 + 1/2$ gleich $2/4$? Was sagt dein Bauchgefühl?" Wenn er einsieht, dass $1/2 + 1/2 = 1$ ist, aber $2/4 = 1/2$ ist, hat *seine* Theorie ein Problem – und das ist der Lernanlass.
+**Erste Konsequenz: Die Diagnose vor der Therapie.** Wenn ich nicht weiß, *welche* Vorstellung mein Gegenüber hat, kann ich auch nicht zielgerichtet erklären. Eine bloße Wiederholung der "richtigen" Erklärung trifft die Wurzel selten. Ein Schüler, der $2/7$rechnet, braucht keine erneute Erklärung der Bruchaddition – er braucht ein Erlebnis, das *seine* Theorie zum Bröckeln bringt. Etwa: "Ist$1/2 + 1/2$gleich$2/4$? Was sagt dein Bauchgefühl?" Wenn er einsieht, dass$1/2 + 1/2 = 1$ist, aber$2/4 = 1/2$ ist, hat *seine* Theorie ein Problem – und das ist der Lernanlass.
 
 **Zweite Konsequenz: Distraktoren als Werkzeug.** Multiple-Choice-Aufgaben sind in Deutschland traditionell verpönt. Zu Recht, wenn sie reines Raten erlauben. Aber als *diagnostisches* Werkzeug – mit Distraktoren, die jeweils *eine* typische Fehlvorstellung repräsentieren – sind sie überlegen. Die Verteilung der Antworten in einer Klasse zeigt mir mehr als zwanzig korrekturierte Hausaufgabenhefte. Mehr dazu in den [Diagnose-Fragen](/quizzes) auf dieser Seite.
 

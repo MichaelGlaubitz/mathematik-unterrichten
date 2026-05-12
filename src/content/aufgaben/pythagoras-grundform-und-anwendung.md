@@ -13,7 +13,7 @@ entwurf: false
 
 Der **Satz des Pythagoras** sagt: In einem rechtwinkligen Dreieck mit den Katheten `a`, `b` und der Hypotenuse `c` gilt:
 
-$a^{2} + b^{2} = c^{2}$
+ $a^{2} + b^{2} = c^{2}$
 
 Die *Hypotenuse* ist die Seite, die dem rechten Winkel gegenüberliegt – sie ist immer die längste der drei Seiten. Die *Katheten* sind die beiden kürzeren Seiten, die den rechten Winkel bilden.
 
@@ -25,12 +25,12 @@ Beide Katheten sind gegeben. Die Hypotenuse wird gesucht.
 
 | Nr. | Katheten | Hypotenuse |
 |----:|:---------|:-----------|
-| 1 | $a = 3, b = 4$ | $c = 5$ |
-| 2 | $a = 6, b = 8$ | $c = 10$ |
-| 3 | $a = 5, b = 12$ | $c = 13$ |
-| 4 | $a = 9, b = 12$ | $c = 15$ |
-| 5 | $a = 8, b = 15$ | $c = 17$ |
-| 6 | $a = 7, b = 24$ | $c = 25$ |
+| 1 | $a = 3, b = 4$|$c = 5$ |
+| 2 | $a = 6, b = 8$|$c = 10$ |
+| 3 | $a = 5, b = 12$|$c = 13$ |
+| 4 | $a = 9, b = 12$|$c = 15$ |
+| 5 | $a = 8, b = 15$|$c = 17$ |
+| 6 | $a = 7, b = 24$|$c = 25$ |
 
 ## Folge B: Kathete berechnen (Umstellen)
 
@@ -38,12 +38,12 @@ Hypotenuse und eine Kathete sind gegeben. Die andere Kathete wird gesucht. Stell
 
 | Nr. | Gegeben | Gesucht | Lösung |
 |----:|:--------|:--------|:-------|
-| 7 | $a = 3, c = 5$ | b | $b = 4$ |
-| 8 | $a = 5, c = 13$ | b | $b = 12$ |
-| 9 | $a = 6, c = 10$ | b | $b = 8$ |
-| 10 | $a = 8, c = 17$ | b | $b = 15$ |
-| 11 | $a = 9, c = 15$ | b | $b = 12$ |
-| 12 | $a = 1, c = \sqrt 2$ | b | $b = 1$ |
+| 7 | $a = 3, c = 5$| b |$b = 4$ |
+| 8 | $a = 5, c = 13$| b |$b = 12$ |
+| 9 | $a = 6, c = 10$| b |$b = 8$ |
+| 10 | $a = 8, c = 17$| b |$b = 15$ |
+| 11 | $a = 9, c = 15$| b |$b = 12$ |
+| 12 | $a = 1, c = \sqrt 2$| b |$b = 1$ |
 
 ## Folge C: Kein „schönes" Ergebnis
 
@@ -64,11 +64,11 @@ Hier wird der Pythagoras nicht direkt benannt – du musst zuerst entscheiden, *
 
 | Nr. | Aufgabe | Lösungsidee |
 |----:|:--------|:------------|
-| 19 | Eine Leiter ist 5 m lang. Sie steht 1,5 m von der Wand entfernt. Wie hoch reicht sie? | $Wand und Boden bilden den rechten Winkel. Leiter = Hypotenuse, Bodenabstand = eine Kathete, Höhe = andere Kathete: \sqrt{5^{2} - 1{,}5^{2}} = \sqrt 22{,}75 \approx 4{,}77 m.$ |
-| 20 | Wie lang ist die Diagonale eines Rechtecks mit Seitenlängen 6 cm und 8 cm? | $Diagonale = Hypotenuse im rechtwinkligen Dreieck mit Katheten 6 und 8: c = \sqrt{36 + 64} = \sqrt 100 = 10 cm.$ |
-| 21 | Wie lang ist die Diagonale eines Quadrats mit Seitenlänge 4 cm? | $Katheten beide gleich der Quadratseite: c = \sqrt{16 + 16} = \sqrt 32 = 4\sqrt 2 \approx 5{,}66 cm.$ |
-| 22 | Ein gleichseitiges Dreieck hat Seitenlänge 6 cm. Wie hoch ist es? | $Halbiere die Grundseite. Die Höhe bildet mit der halben Grundseite und einer Schenkelseite ein rechtwinkliges Dreieck: h = \sqrt{6^{2} - 3^{2}} = \sqrt 27 = 3\sqrt 3 \approx 5{,}20 cm.$ |
-| 23 | Ein Punkt P(3 / 4) liegt im Koordinatensystem. Wie weit ist er vom Ursprung entfernt? | $Strecke = Hypotenuse, x-Differenz und y-Differenz = Katheten: \sqrt{3^{2} + 4^{2}} = \sqrt 25 = 5.$ |
+| 19 | Eine Leiter ist 5 m lang. Sie steht 1,5 m von der Wand entfernt. Wie hoch reicht sie? | Wand und Boden bilden den rechten Winkel. Leiter = Hypotenuse, Bodenabstand = eine Kathete, Höhe = andere Kathete:$\sqrt{5^(2} - 1${$,)5^{2}$}$= \sqrt{22},75 \approx 4{,}77 m$ . |
+| 20 | Wie lang ist die Diagonale eines Rechtecks mit Seitenlängen 6 cm und 8 cm? | Diagonale = Hypotenuse im rechtwinkligen Dreieck mit Katheten 6 und 8: $c = \sqrt{36 + 64} = \sqrt{100} = 10 cm$ . |
+| 21 | Wie lang ist die Diagonale eines Quadrats mit Seitenlänge 4 cm? | Katheten beide gleich der Quadratseite: c $= √(16$+ 16)$= \sqrt{32} = 4\sqrt{2} \approx$ 5,66 cm. |
+| 22 | Ein gleichseitiges Dreieck hat Seitenlänge 6 cm. Wie hoch ist es? | Halbiere die Grundseite. Die Höhe bildet mit der halben Grundseite und einer Schenkelseite ein rechtwinkliges Dreieck: $h = \sqrt{6^(2} - 3^${2)}$= \sqrt{27} = 3\sqrt{3} \approx 5{,}20 cm$ . |
+| 23 | Ein Punkt P(3 / 4) liegt im Koordinatensystem. Wie weit ist er vom Ursprung entfernt? | Strecke = Hypotenuse, x-Differenz und y-Differenz = Katheten: $\sqrt{3^(2} + 4^{2)} = \sqrt{25} = 5.$ |
 | 24 | Zwei Punkte: A(2 / 1) und B(7 / 13). Wie weit sind sie voneinander entfernt? | $Δx = 5, Δy = 12: d = \sqrt{5^{2} + 12^{2}} = \sqrt 169 = 13.$ |
 
 ## Folge E: Umkehrung – Ist das Dreieck rechtwinklig?

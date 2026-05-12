@@ -33,7 +33,7 @@ Mathematische Begriffe haben eine *präzise* Bedeutung, die nicht immer mit der 
 
 Constance Kamii und David Pimm haben in den 1980er und 1990er Jahren ausführlich beschrieben, wie sehr Schüler an *Sprache* scheitern, nicht an Mathematik. Pimm hat in *Speaking Mathematically* (1987) gezeigt, dass mathematische Begriffe nicht „Wörter mit Definition" sind, sondern *neue mentale Konzepte*, die durch wiederholte Verwendung gefestigt werden müssen. Wer den Begriff nur einmal definiert und dann verwendet, baut keine stabile Vorstellung auf.
 
-Eine wichtige Folgerung: *Die Definition allein hilft nicht.* Der Schüler braucht *Beispiele und Gegenbeispiele*. Er muss erleben, dass „4 ist eine Wurzel von $x^{2} - 16 = 0$" wahr ist, „4 ist eine Wurzel von $x^{2} - 8 = 0$" aber falsch. Erst durch dieses *Aussortieren* baut sich die Bedeutung auf.
+Eine wichtige Folgerung: *Die Definition allein hilft nicht.* Der Schüler braucht *Beispiele und Gegenbeispiele*. Er muss erleben, dass „4 ist eine Wurzel von $x^{2} - 16 = 0$" wahr ist, „4 ist eine Wurzel von$x^{2} - 8 = 0$" aber falsch. Erst durch dieses *Aussortieren* baut sich die Bedeutung auf.
 
 ## Drei typische Anlässe für Begriffsverwirrung im Mathematikunterricht
 
@@ -43,7 +43,7 @@ Klasse 8 begegnet $y = 2x + 3$ als „lineare Funktion", als „Geradengleichung
 Das, was hilft: Die Begriffe *aktiv unterscheiden*. „Eine lineare Funktion *ist* der mathematische Gegenstand. Eine Geradengleichung *ist die Schreibweise* dieser Funktion. Eine Gerade *ist das Bild* dieser Funktion im Koordinatensystem." Drei Sätze, einmal gesagt. Dann konsistent verwendet.
 
 **Anlass 2: Rationale Zahlen vs. Brüche.**
-„Bruch" ist eine *Schreibweise*, „rationale Zahl" ist eine *Zahl*. Eine rationale Zahl kann durch viele verschiedene Brüche geschrieben werden ($1/2 = 2/4 = 3/6$). Schüler, die das nicht trennen, verwechseln das *Vereinfachen* eines Bruchs mit dem *Verändern* einer Zahl. Wenn man $2/4$ zu $1/2$ kürzt, ändert sich *die Zahl nicht*. Nur die Schreibweise.
+„Bruch" ist eine *Schreibweise*, „rationale Zahl" ist eine *Zahl*. Eine rationale Zahl kann durch viele verschiedene Brüche geschrieben werden ($1/2 = 2/4 = 3/6$). Schüler, die das nicht trennen, verwechseln das *Vereinfachen* eines Bruchs mit dem *Verändern* einer Zahl. Wenn man$2/4$zu$1/2$ kürzt, ändert sich *die Zahl nicht*. Nur die Schreibweise.
 
 **Anlass 3: Mathematische Implikation und Folgerung.**
 *„Wenn p, dann q"* heißt mathematisch: *jedes Mal, wenn p wahr ist, ist auch q wahr*. Es heißt *nicht*: „p hat etwas mit q zu tun" oder „aus p folgt automatisch q in jedem Sinne". Schüler in der Oberstufe – vor allem in der Analysis – scheitern oft an logischen Schlüssen, weil sie die Implikation als „lockeren Zusammenhang" verstehen statt als strikte Wenn-dann-Beziehung.
@@ -54,7 +54,7 @@ Eine Praxis, die ich seit etwa zehn Jahren nutze: Alle paar Wochen ein 5-Minuten
 
 > Begriff: *quadratische Funktion*. Schreib zwei *Beispiele* (also: das ist eine quadratische Funktion) und zwei *Gegenbeispiele* (das ist *keine* quadratische Funktion) auf.
 
-Was passiert: Schüler, die den Begriff verstanden haben, schreiben Beispiele wie $f(x) = x^{2}$ und $g(x) = 3x^{2} - 5x + 1$ und Gegenbeispiele wie $h(x) = x^{3}$ und $i(x) = 1/x$. Schüler, die ihn nicht verstanden haben, geben unsinnige oder zufällige Beispiele.
+Was passiert: Schüler, die den Begriff verstanden haben, schreiben Beispiele wie $f(x) = x^{2}$und$g(x) = 3x^{2} - 5x + 1$und Gegenbeispiele wie$h(x) = x^{3}$und$i(x) = 1/x$. Schüler, die ihn nicht verstanden haben, geben unsinnige oder zufällige Beispiele.
 
 Das Verfahren ist diagnostisch außergewöhnlich gut: Eine falsche oder schwache Antwort verrät genau, *welcher* Aspekt des Begriffs unklar ist.
 

@@ -13,8 +13,8 @@ entwurf: false
 
 Eine quadratische Funktion kann auf zwei Standardweisen geschrieben werden:
 
-- **Normalform:** $f(x) = ax^{2} + bx + c$. Vorteil: Du liest sofort den y-Achsenabschnitt `c` ab.
-- **Scheitelpunktform:** $f(x) = a(x - d)^{2} + e$. Vorteil: Du liest sofort den Scheitelpunkt $S(d / e)$ ab.
+- **Normalform:** $f(x) = ax^{2} + bx + c$ . Vorteil: Du liest sofort den y-Achsenabschnitt `c` ab.
+- **Scheitelpunktform:** $f(x) = a(x - d)^{2} + e$. Vorteil: Du liest sofort den Scheitelpunkt$S(d / e)$ ab.
 
 Beide Formen beschreiben *dieselbe* Funktion. Die eine in die andere zu überführen, ist eine algebraische Operation – Ausmultiplizieren in die eine Richtung, quadratische Ergänzung in die andere.
 
@@ -40,13 +40,13 @@ Die Funktion steht in Scheitelpunktform. Schreib sie in die Normalform um (ausmu
 
 | Nr. | Scheitelpunktform | Normalform |
 |----:|:------------------|:-----------|
-| 10 | $(x - 3)^{2} + 2$ | $x^{2} - 6x + 11$ |
-| 11 | $(x + 3)^{2} + 2$ | $x^{2} + 6x + 11$ |
-| 12 | $(x - 3)^{2} - 2$ | $x^{2} - 6x + 7$ |
-| 13 | $(x + 3)^{2} - 2$ | $x^{2} + 6x + 7$ |
-| 14 | $2(x - 1)^{2} + 3$ | $2x^{2} - 4x + 5$ |
-| 15 | $-(x - 2)^{2} + 6$ | $-x^{2} + 4x + 2$ |
-| 16 | $½(x + 4)^{2} - 1$ | $½x^{2} + 4x + 7$ |
+| 10 | $(x - 3)^{2} + 2$|$x^{2} - 6x + 11$ |
+| 11 | $(x + 3)^{2} + 2$|$x^{2} + 6x + 11$ |
+| 12 | $(x - 3)^{2} - 2$|$x^{2} - 6x + 7$ |
+| 13 | $(x + 3)^{2} - 2$|$x^{2} + 6x + 7$ |
+| 14 | $2(x - 1)^{2} + 3$|$2x^{2} - 4x + 5$ |
+| 15 | $-(x - 2)^{2} + 6$|$-x^{2} + 4x + 2$ |
+| 16 | $½(x + 4)^{2} - 1$|$½x^{2} + 4x + 7$ |
 
 ## Folge C: Normalform → Scheitelpunktform (quadratische Ergänzung)
 
@@ -57,14 +57,14 @@ Strategie:
 
 | Nr. | Normalform | Scheitelpunktform | Scheitelpunkt |
 |----:|:-----------|:------------------|:--------------|
-| 17 | $x^{2} - 6x + 11$ | $(x - 3)^{2} + 2$ | S(3 / 2) |
-| 18 | $x^{2} + 6x + 11$ | $(x + 3)^{2} + 2$ | S(−3 / 2) |
-| 19 | $x^{2} + 4x + 7$ | $(x + 2)^{2} + 3$ | S(−2 / 3) |
-| 20 | $x^{2} - 8x + 19$ | $(x - 4)^{2} + 3$ | S(4 / 3) |
-| 21 | $x^{2} - 10x + 21$ | $(x - 5)^{2} - 4$ | S(5 / −4) |
-| 22 | $x^{2} + 2x - 8$ | $(x + 1)^{2} - 9$ | S(−1 / −9) |
-| 23 | $2x^{2} - 12x + 19$ | $2(x - 3)^{2} + 1$ | S(3 / 1) |
-| 24 | $-x^{2} + 6x - 5$ | $-(x - 3)^{2} + 4$ | S(3 / 4), nach unten geöffnet |
+| 17 | $x^{2} - 6x + 11$|$(x - 3)^{2} + 2$ | S(3 / 2) |
+| 18 | $x^{2} + 6x + 11$|$(x + 3)^{2} + 2$ | S(−3 / 2) |
+| 19 | $x^{2} + 4x + 7$|$(x + 2)^{2} + 3$ | S(−2 / 3) |
+| 20 | $x^{2} - 8x + 19$|$(x - 4)^{2} + 3$ | S(4 / 3) |
+| 21 | $x^{2} - 10x + 21$|$(x - 5)^{2} - 4$ | S(5 / −4) |
+| 22 | $x^{2} + 2x - 8$|$(x + 1)^{2} - 9$ | S(−1 / −9) |
+| 23 | $2x^{2} - 12x + 19$|$2(x - 3)^{2} + 1$ | S(3 / 1) |
+| 24 | $-x^{2} + 6x - 5$|$-(x - 3)^{2} + 4$ | S(3 / 4), nach unten geöffnet |
 
 ## Folge D: Aufgaben aus der Funktion ablesen
 
@@ -72,11 +72,11 @@ Die Funktion ist gegeben. Beantworte alle drei Fragen.
 
 | Nr. | Funktion | Scheitelpunkt | y-Achsenabschnitt | Nullstellen |
 |----:|:---------|:--------------|:------------------|:------------|
-| 25 | $f(x) = (x - 4)^{2} - 9$ | S(4 / −9) | $f(0) = 7$ | $x = 1 oder x = 7$ |
-| 26 | $f(x) = (x + 2)^{2} - 1$ | S(−2 / −1) | $f(0) = 3$ | $x = -1 oder x = -3$ |
-| 27 | $f(x) = (x - 1)^{2} + 3$ | S(1 / 3) | $f(0) = 4$ | keine reelen Nullstellen |
-| 28 | $f(x) = x^{2} - 4x$ | S(2 / −4) | $f(0) = 0$ | $x = 0 oder x = 4$ |
-| 29 | $f(x) = -2(x - 1)^{2} + 8$ | S(1 / 8) | $f(0) = 6$ | $x = -1 oder x = 3$ |
+| 25 | $f(x) = (x - 4)^{2} - 9$| S(4 / −9) |$f(0) = 7$|$x = 1$ oder $x = 7$ |
+| 26 | $f(x) = (x + 2)^{2} - 1$| S(−2 / −1) |$f(0) = 3$|$x = -1$ oder $x = -3$ |
+| 27 | $f(x) = (x - 1)^{2} + 3$| S(1 / 3) |$f(0) = 4$ | keine reelen Nullstellen |
+| 28 | $f(x) = x^{2} - 4x$| S(2 / −4) |$f(0) = 0$|$x = 0$ oder $x = 4$ |
+| 29 | $f(x) = -2(x - 1)^{2} + 8$| S(1 / 8) |$f(0) = 6$|$x = -1$ oder $x = 3$ |
 
 ## Reflexionsfragen
 
@@ -104,8 +104,8 @@ Hier werden mehrere Fragen *gleichzeitig* an dieselbe Funktion gestellt – Sche
 
 **Häufige Fehlvorstellungen**
 
-- *„$(x + 3)^{2}$ heißt Scheitelpunkt bei +3."* Klassisch. Der Trick: In $(x - d)^{2}$ ist d der Scheitelpunkt-x-Wert. $(x + 3) = (x - (-3))$, also d = −3.
-- *„Bei $2(x - 3)^{2} + 1$ ist der Scheitelpunkt bei (3, 2 · 1) = (3, 2)."* Nein – der Faktor 2 wirkt auf $(x - 3)^{2}$, nicht auf den Scheitelpunkt-y-Wert. Scheitelpunkt bleibt (3, 1).
+- *„$(x + 3)^{2}$heißt Scheitelpunkt bei +3."* Klassisch. Der Trick: In$(x - d)^{2}$ist d der Scheitelpunkt-x-Wert.$(x + 3) = (x - (-3))$, also d = −3.
+- *„Bei $2(x - 3)^{2} + 1$ist der Scheitelpunkt bei (3, 2 · 1) = (3, 2)."* Nein – der Faktor 2 wirkt auf$(x - 3)^{2}$, nicht auf den Scheitelpunkt-y-Wert. Scheitelpunkt bleibt (3, 1).
 - *„Wenn ich quadratisch ergänze, muss ich nur quadrieren, nicht halbieren."* Genaues Hinsehen ist hier wichtig. Bei $x^{2} + 6x$ halbieren wir zuerst die 6 zu 3, dann quadrieren wir: 9 wird ergänzt und subtrahiert.
 - *„Eine Parabel ohne reele Nullstellen kann ich nicht zeichnen."* Doch – ihr Scheitelpunkt liegt nur auf einer Seite der x-Achse, sodass sie diese nicht schneidet. Die Parabel existiert weiter, sie hat nur keine Nullstellen.
 
