@@ -2,7 +2,7 @@
 titel: "Lineare Funktionen – Steigung und y-Achsenabschnitt"
 thema: "Lineare Funktionen"
 klassenstufe: ["8"]
-schwierigkeit: leicht
+schwierigkeit: einsteiger
 didaktischerHinweis: "Eine Aufgabenfolge, die die Parameter $m$ und $b$ in $y = m \\cdot x + b$ systematisch variiert, damit Schüler erleben, *was* der jeweilige Parameter bewirkt. Erst Steigung allein, dann y-Achsenabschnitt allein, dann beide gemeinsam, dann Umkehr (aus Graph oder zwei Punkten die Gleichung bilden). Die häufigsten Lernlücken: 'Steigung als Strecke statt Verhältnis' und 'y-Achsenabschnitt mit x-Wert verwechseln'."
 tags: ["lineare-funktionen", "steigung", "y-achsenabschnitt", "variation-theory"]
 datum: 2026-06-15
