@@ -33,10 +33,10 @@ Du hast die binomischen Formeln eingeführt. Bevor du Übungsaufgaben verteilst,
 
 > Welche der folgenden Aussagen ist richtig?
 >
-> A) $(x + 3)^{2} = x^{2} + 9$
-> B) $(x + 3)^{2} = x^{2} + 3x + 9$
-> C) $(x + 3)^{2} = x^{2} + 6x + 9$
-> D) $(x + 3)^{2} = 2x + 6$
+> A) `(x + 3)² = x² + 9`
+> B) `(x + 3)² = x² + 3x + 9`
+> C) `(x + 3)² = x² + 6x + 9`
+> D) `(x + 3)² = 2x + 6`
 
 Wenn 90 % der Klasse C wählen: weitermachen.
 Wenn 50 % A wählen: zurücktreten – die Klasse hat die Quadrierung als „verteilt sich auf jeden Summand" verstanden, ein klassischer Fehler.

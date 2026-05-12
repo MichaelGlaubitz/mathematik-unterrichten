@@ -20,13 +20,13 @@ Es gibt zwei Standardfiguren:
 
 In beiden Fällen gilt der erste Strahlensatz:
 
- $ZA / ZA' = ZB / ZB'$
+`ZA / ZA' = ZB / ZB'`
 
 (also: die Strecken auf einem Strahl verhalten sich wie die entsprechenden Strecken auf dem anderen.)
 
 Und der zweite Strahlensatz – über die Strecken *auf den Parallelen*:
 
- $AB / A'B' = ZA / ZA' = ZB / ZB'$
+`AB / A'B' = ZA / ZA' = ZB / ZB'`
 
 Die zentrale Operation: Erkenne die Figur, identifiziere die zusammengehörigen Strecken, schreibe das Verhältnis auf, löse die Gleichung.
 
@@ -36,12 +36,12 @@ Der Schnittpunkt Z liegt außen, beide Parallelen schneiden beide Strahlen auf d
 
 | Nr. | Gegeben | Gesucht | Lösung |
 |----:|:--------|:--------|:-------|
-| 1 | $ZA = 4, ZA' = 12, ZB = 5$| ZB' |$ZB' = 15$ (denn $4/12 = 5/15$) |
-| 2 | $ZA = 3, ZA' = 9, ZB = 4$| ZB' |$ZB' = 12$ |
-| 3 | $ZA = 6, ZA' = 10, ZB = 9$| ZB' |$ZB' = 15$ |
-| 4 | $ZA = 5, ZA' = 12, ZB = 10$| ZB' |$ZB' = 24$ |
-| 5 | $ZA = 4, ZA' = 14, ZB = 6$| ZB' |$ZB' = 21$ |
-| 6 | $ZA = 7, ZA' = 21, AB = 4$ | A'B' | A'B' = 12 (zweiter Strahlensatz) |
+| 1 | ZA = 4, ZA' = 12, ZB = 5 | ZB' | ZB' = 15 (denn 4/12 = 5/15) |
+| 2 | ZA = 3, ZA' = 9, ZB = 4 | ZB' | ZB' = 12 |
+| 3 | ZA = 6, ZA' = 10, ZB = 9 | ZB' | ZB' = 15 |
+| 4 | ZA = 5, ZA' = 12, ZB = 10 | ZB' | ZB' = 24 |
+| 5 | ZA = 4, ZA' = 14, ZB = 6 | ZB' | ZB' = 21 |
+| 6 | ZA = 7, ZA' = 21, AB = 4 | A'B' | A'B' = 12 (zweiter Strahlensatz) |
 
 ## Folge B: X-Figur, Streckenlänge bestimmen
 
@@ -49,11 +49,11 @@ Hier liegt der Schnittpunkt Z *zwischen* den beiden Parallelen. Die Figur sieht 
 
 | Nr. | Gegeben | Gesucht | Lösung |
 |----:|:--------|:--------|:-------|
-| 7 | $ZA = 4, ZA' = 6, ZB = 8$| ZB' |$ZB' = 12$ |
-| 8 | $ZA = 3, ZA' = 9, ZB = 5$| ZB' |$ZB' = 15$ |
-| 9 | $ZA = 6, ZA' = 10, AB = 9$| A'B' |$A'B' = 15$ |
-| 10 | $ZA = 5, ZB = 8, ZA' = 15$| ZB' |$ZB' = 24$ |
-| 11 | $ZA = 4, AB = 6, ZA' = 12$| A'B' |$A'B' = 18$ |
+| 7 | ZA = 4, ZA' = 6, ZB = 8 | ZB' | ZB' = 12 |
+| 8 | ZA = 3, ZA' = 9, ZB = 5 | ZB' | ZB' = 15 |
+| 9 | ZA = 6, ZA' = 10, AB = 9 | A'B' | A'B' = 15 |
+| 10 | ZA = 5, ZB = 8, ZA' = 15 | ZB' | ZB' = 24 |
+| 11 | ZA = 4, AB = 6, ZA' = 12 | A'B' | A'B' = 18 |
 
 ## Folge C: Welche Figur ist es? (Erkennen vor dem Rechnen)
 
@@ -61,10 +61,10 @@ In jeder Aufgabe wird eine Skizze beschrieben. Entscheide zuerst: V- oder X-Figu
 
 | Nr. | Beschreibung | Figur | Lösung |
 |----:|:-------------|:------|:-------|
-| 12 | Zwei Geraden schneiden sich in Z. Ein Lichtstrahl (Parallele 1) trifft beide Strahlen 4 cm bzw. 6 cm weit von Z entfernt. Eine zweite Parallele schneidet den ersten Strahl 12 cm hinter Z. | V (beide Parallelen auf derselben Seite, je weiter weg) | Zweite Parallele schneidet den zweiten Strahl bei $12 \cdot (6/4) = 18 cm$ . |
-| 13 | Zwei Geraden kreuzen sich. Auf einer Seite liegt eine Parallele, die beide Strahlen bei 5 cm und 7 cm von Z trifft. Auf der *anderen* Seite trifft eine zweite Parallele den ersten Strahl bei 10 cm. | X | Zweite Parallele trifft den zweiten Strahl bei $10 \cdot (7/5) = 14 cm$ . |
-| 14 | Ein Wanderer steht im Punkt Z. Er sieht auf 100 m Entfernung einen Baum, dessen Schatten zwei Stäben gleicher Höhe entspricht. Die Stäbe sind 1 m bzw. 4 m vom Wanderer entfernt. | V | Stäbe haben 1 m und 4 m. Der Höhen-Stab am Baum:$100 \cdot$ (Höhe / 4) — Verhältnis bleibt. |
-| 15 | Zwei sich kreuzende Geraden, der Schnittpunkt liegt zwischen zwei parallelen Wegen. Die Wegabstände sind 12 m und 18 m. Wie lang ist der zweite Weg, wenn der erste 24 m misst? | X | $24\cdot (18/12) = 36 m.$ |
+| 12 | Zwei Geraden schneiden sich in Z. Ein Lichtstrahl (Parallele 1) trifft beide Strahlen 4 cm bzw. 6 cm weit von Z entfernt. Eine zweite Parallele schneidet den ersten Strahl 12 cm hinter Z. | V (beide Parallelen auf derselben Seite, je weiter weg) | Zweite Parallele schneidet den zweiten Strahl bei 12·(6/4) = 18 cm. |
+| 13 | Zwei Geraden kreuzen sich. Auf einer Seite liegt eine Parallele, die beide Strahlen bei 5 cm und 7 cm von Z trifft. Auf der *anderen* Seite trifft eine zweite Parallele den ersten Strahl bei 10 cm. | X | Zweite Parallele trifft den zweiten Strahl bei 10·(7/5) = 14 cm. |
+| 14 | Ein Wanderer steht im Punkt Z. Er sieht auf 100 m Entfernung einen Baum, dessen Schatten zwei Stäben gleicher Höhe entspricht. Die Stäbe sind 1 m bzw. 4 m vom Wanderer entfernt. | V | Stäbe haben 1 m und 4 m. Der Höhen-Stab am Baum: 100·(Höhe / 4) — Verhältnis bleibt. |
+| 15 | Zwei sich kreuzende Geraden, der Schnittpunkt liegt zwischen zwei parallelen Wegen. Die Wegabstände sind 12 m und 18 m. Wie lang ist der zweite Weg, wenn der erste 24 m misst? | X | 24·(18/12) = 36 m. |
 
 ## Folge D: Strahlensatz oder *nicht*?
 
@@ -84,9 +84,9 @@ Klassische Anwendungen: Wie hoch ist ein Baum? Wie breit ein Fluss? Hier wird de
 
 | Nr. | Aufgabe | Lösungsidee |
 |----:|:--------|:------------|
-| 21 | Eine Stange von 1,5 m Höhe wirft 2 m Schatten. Ein Baum daneben wirft 14 m Schatten. Wie hoch ist der Baum? | V-Figur: Sonnenstrahlen sind parallel. $1{,}5/2 = h/14$, also$h = 10{,}5$ m. |
-| 22 | Du stellst dich 5 m vor einen Spiegel auf den Boden. Im Spiegel siehst du gerade die Spitze einer Mauer. Du bist 1,8 m groß. Die Mauer ist 12 m vom Spiegel entfernt. Wie hoch ist die Mauer? | X-Figur über den Spiegelpunkt: $1{,}8/5 = h/12$, also$h = 4{,}32$ m. |
-| 23 | Ein Punkt B ist 30 m von dir entfernt, ein Punkt B' liegt in *gleicher Richtung*, weiter weg. Du markierst auf dem Boden Punkte A (2 m vor dir) und A' (10 m vor dir) auf einer Geraden parallel zu BB'. Wenn $AB = 1{,}5$m, wie groß ist A'B'? | V-Figur:$2/10 = 1{,}5/A'B'$, also$A'B' = 7{,}5$. |
+| 21 | Eine Stange von 1,5 m Höhe wirft 2 m Schatten. Ein Baum daneben wirft 14 m Schatten. Wie hoch ist der Baum? | V-Figur: Sonnenstrahlen sind parallel. 1,5/2 = h/14, also h = 10,5 m. |
+| 22 | Du stellst dich 5 m vor einen Spiegel auf den Boden. Im Spiegel siehst du gerade die Spitze einer Mauer. Du bist 1,8 m groß. Die Mauer ist 12 m vom Spiegel entfernt. Wie hoch ist die Mauer? | X-Figur über den Spiegelpunkt: 1,8/5 = h/12, also h = 4,32 m. |
+| 23 | Ein Punkt B ist 30 m von dir entfernt, ein Punkt B' liegt in *gleicher Richtung*, weiter weg. Du markierst auf dem Boden Punkte A (2 m vor dir) und A' (10 m vor dir) auf einer Geraden parallel zu BB'. Wenn AB = 1,5 m, wie groß ist A'B'? | V-Figur: 2/10 = 1,5/A'B', also A'B' = 7,5. |
 | 24 | Ein Schiff fährt auf einem Fluss. Du stehst am Ufer und peilst es zweimal an: einmal direkt vor dir (Punkt A), einmal weiter unten (Punkt B). Eine Hilfsperson 50 m hinter dir peilt das Schiff zur gleichen Zeit an, einmal mit 25 m Abstand zum Schiff. Wie weit ist das Schiff von dir? | Strahlensatz mit den Sichtlinien als Strahlen. |
 
 ## Reflexionsfragen
@@ -127,4 +127,4 @@ Anwendungsmodellierung. Aus dem Sachkontext (Schatten, Spiegel, Sichtlinie) muss
 
 - Aufgabenfolge zur Ähnlichkeit von Dreiecken (Erweiterung des Verhältnisgedankens).
 - Diagnose-Quiz zu typischen Strahlensatz-Fehlern (Figur-Erkennung, Voraussetzungsverletzung).
-- Erweiterung in Klasse 10: Das Strahlensatz-Theorem in der analytischen Geometrie (Streckenverhältnisse mit Vektore
+- Erweiterung in Klasse 10: Das Strahlensatz-Theorem in der analytischen Geometrie (Streckenverhältnisse mit Vektoren).

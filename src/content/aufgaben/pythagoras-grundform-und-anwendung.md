@@ -13,7 +13,7 @@ entwurf: false
 
 Der **Satz des Pythagoras** sagt: In einem rechtwinkligen Dreieck mit den Katheten `a`, `b` und der Hypotenuse `c` gilt:
 
- $a^{2} + b^{2} = c^{2}$
+`a² + b² = c²`
 
 Die *Hypotenuse* ist die Seite, die dem rechten Winkel gegenüberliegt – sie ist immer die längste der drei Seiten. Die *Katheten* sind die beiden kürzeren Seiten, die den rechten Winkel bilden.
 
@@ -25,25 +25,25 @@ Beide Katheten sind gegeben. Die Hypotenuse wird gesucht.
 
 | Nr. | Katheten | Hypotenuse |
 |----:|:---------|:-----------|
-| 1 | $a = 3, b = 4$|$c = 5$ |
-| 2 | $a = 6, b = 8$|$c = 10$ |
-| 3 | $a = 5, b = 12$|$c = 13$ |
-| 4 | $a = 9, b = 12$|$c = 15$ |
-| 5 | $a = 8, b = 15$|$c = 17$ |
-| 6 | $a = 7, b = 24$|$c = 25$ |
+| 1 | a = 3, b = 4 | c = 5 |
+| 2 | a = 6, b = 8 | c = 10 |
+| 3 | a = 5, b = 12 | c = 13 |
+| 4 | a = 9, b = 12 | c = 15 |
+| 5 | a = 8, b = 15 | c = 17 |
+| 6 | a = 7, b = 24 | c = 25 |
 
 ## Folge B: Kathete berechnen (Umstellen)
 
-Hypotenuse und eine Kathete sind gegeben. Die andere Kathete wird gesucht. Stelle die Formel zuerst um: $b = \sqrt{c^{2} - a^{2}}$.
+Hypotenuse und eine Kathete sind gegeben. Die andere Kathete wird gesucht. Stelle die Formel zuerst um: `b = √(c² − a²)`.
 
 | Nr. | Gegeben | Gesucht | Lösung |
 |----:|:--------|:--------|:-------|
-| 7 | $a = 3, c = 5$| b |$b = 4$ |
-| 8 | $a = 5, c = 13$| b |$b = 12$ |
-| 9 | $a = 6, c = 10$| b |$b = 8$ |
-| 10 | $a = 8, c = 17$| b |$b = 15$ |
-| 11 | $a = 9, c = 15$| b |$b = 12$ |
-| 12 | $a = 1, c = \sqrt 2$| b |$b = 1$ |
+| 7 | a = 3, c = 5 | b | b = 4 |
+| 8 | a = 5, c = 13 | b | b = 12 |
+| 9 | a = 6, c = 10 | b | b = 8 |
+| 10 | a = 8, c = 17 | b | b = 15 |
+| 11 | a = 9, c = 15 | b | b = 12 |
+| 12 | a = 1, c = √2 | b | b = 1 |
 
 ## Folge C: Kein „schönes" Ergebnis
 
@@ -51,12 +51,12 @@ Hier sind die Werte so gewählt, dass das Ergebnis nicht ganzzahlig ist. Du muss
 
 | Nr. | Aufgabe | Lösung |
 |----:|:--------|:-------|
-| 13 | Katheten 2 und 3 | $c = \sqrt 13 \approx 3{,}61$ |
-| 14 | Katheten 1 und 2 | $c = \sqrt 5 \approx 2{,}24$ |
-| 15 | Hypotenuse 5, Kathete 3 (suche andere Kathete) | $b = 4$ |
-| 16 | Hypotenuse 4, Kathete 3 (suche andere Kathete) | $b = \sqrt 7 \approx 2{,}65$ |
-| 17 | Katheten 7 und 8 | $c = \sqrt 113 \approx 10{,}63$ |
-| 18 | Hypotenuse √10, Kathete 1 (suche andere Kathete) | $b = 3$ |
+| 13 | Katheten 2 und 3 | c = √13 ≈ 3,61 |
+| 14 | Katheten 1 und 2 | c = √5 ≈ 2,24 |
+| 15 | Hypotenuse 5, Kathete 3 (suche andere Kathete) | b = 4 |
+| 16 | Hypotenuse 4, Kathete 3 (suche andere Kathete) | b = √7 ≈ 2,65 |
+| 17 | Katheten 7 und 8 | c = √113 ≈ 10,63 |
+| 18 | Hypotenuse √10, Kathete 1 (suche andere Kathete) | b = 3 |
 
 ## Folge D: Anwendungen – das rechtwinklige Dreieck *finden*
 
@@ -64,16 +64,16 @@ Hier wird der Pythagoras nicht direkt benannt – du musst zuerst entscheiden, *
 
 | Nr. | Aufgabe | Lösungsidee |
 |----:|:--------|:------------|
-| 19 | Eine Leiter ist 5 m lang. Sie steht 1,5 m von der Wand entfernt. Wie hoch reicht sie? | Wand und Boden bilden den rechten Winkel. Leiter = Hypotenuse, Bodenabstand = eine Kathete, Höhe = andere Kathete:$\sqrt{5^(2} - 1${$,)5^{2}$}$= \sqrt{22},75 \approx 4{,}77 m$ . |
-| 20 | Wie lang ist die Diagonale eines Rechtecks mit Seitenlängen 6 cm und 8 cm? | Diagonale = Hypotenuse im rechtwinkligen Dreieck mit Katheten 6 und 8: $c = \sqrt{36 + 64} = \sqrt{100} = 10 cm$ . |
-| 21 | Wie lang ist die Diagonale eines Quadrats mit Seitenlänge 4 cm? | Katheten beide gleich der Quadratseite: c $= √(16$+ 16)$= \sqrt{32} = 4\sqrt{2} \approx$ 5,66 cm. |
-| 22 | Ein gleichseitiges Dreieck hat Seitenlänge 6 cm. Wie hoch ist es? | Halbiere die Grundseite. Die Höhe bildet mit der halben Grundseite und einer Schenkelseite ein rechtwinkliges Dreieck: $h = \sqrt{6^(2} - 3^${2)}$= \sqrt{27} = 3\sqrt{3} \approx 5{,}20 cm$ . |
-| 23 | Ein Punkt P(3 / 4) liegt im Koordinatensystem. Wie weit ist er vom Ursprung entfernt? | Strecke = Hypotenuse, x-Differenz und y-Differenz = Katheten: $\sqrt{3^(2} + 4^{2)} = \sqrt{25} = 5.$ |
-| 24 | Zwei Punkte: A(2 / 1) und B(7 / 13). Wie weit sind sie voneinander entfernt? | $Δx = 5, Δy = 12: d = \sqrt{5^{2} + 12^{2}} = \sqrt 169 = 13.$ |
+| 19 | Eine Leiter ist 5 m lang. Sie steht 1,5 m von der Wand entfernt. Wie hoch reicht sie? | Wand und Boden bilden den rechten Winkel. Leiter = Hypotenuse, Bodenabstand = eine Kathete, Höhe = andere Kathete: √(5² − 1,5²) = √22,75 ≈ 4,77 m. |
+| 20 | Wie lang ist die Diagonale eines Rechtecks mit Seitenlängen 6 cm und 8 cm? | Diagonale = Hypotenuse im rechtwinkligen Dreieck mit Katheten 6 und 8: c = √(36 + 64) = √100 = 10 cm. |
+| 21 | Wie lang ist die Diagonale eines Quadrats mit Seitenlänge 4 cm? | Katheten beide gleich der Quadratseite: c = √(16 + 16) = √32 = 4√2 ≈ 5,66 cm. |
+| 22 | Ein gleichseitiges Dreieck hat Seitenlänge 6 cm. Wie hoch ist es? | Halbiere die Grundseite. Die Höhe bildet mit der halben Grundseite und einer Schenkelseite ein rechtwinkliges Dreieck: h = √(6² − 3²) = √27 = 3√3 ≈ 5,20 cm. |
+| 23 | Ein Punkt P(3 / 4) liegt im Koordinatensystem. Wie weit ist er vom Ursprung entfernt? | Strecke = Hypotenuse, x-Differenz und y-Differenz = Katheten: √(3² + 4²) = √25 = 5. |
+| 24 | Zwei Punkte: A(2 / 1) und B(7 / 13). Wie weit sind sie voneinander entfernt? | Δx = 5, Δy = 12: d = √(5² + 12²) = √169 = 13. |
 
 ## Folge E: Umkehrung – Ist das Dreieck rechtwinklig?
 
-Drei Seitenlängen sind gegeben. Prüfe, ob das Dreieck rechtwinklig ist (Umkehrung des Satzes des Pythagoras: Wenn $a^{2} + b^{2} = c^{2}$, dann ist das Dreieck rechtwinklig).
+Drei Seitenlängen sind gegeben. Prüfe, ob das Dreieck rechtwinklig ist (Umkehrung des Satzes des Pythagoras: Wenn `a² + b² = c²`, dann ist das Dreieck rechtwinklig).
 
 | Nr. | Seitenlängen | Rechtwinklig? |
 |----:|:-------------|:--------------|
@@ -109,7 +109,7 @@ Die Forderung nach exakter und gerundeter Ergebnisangabe. Die meisten Schüler i
 Hier wird das *Übersetzen* von einem Sachkontext oder einer Figur in das rechtwinklige Dreieck geübt. Aufgabe 22 ist diagnostisch wertvoll: Schüler, die das gleichseitige Dreieck in der Mitte halbieren und damit ein rechtwinkliges erzeugen, haben den Pythagoras *als Werkzeug* internalisiert. Wer die Halbierung nicht von selbst sieht, braucht Hilfsfragen.
 
 **Was variiert in Folge E?**
-Die Umkehrung. Schüler erleben, dass die Beziehung $a^{2} + b^{2} = c^{2}$ *charakteristisch* für rechtwinklige Dreiecke ist, nicht nur eine Folgerung daraus. Das ist eine subtilere Aussage und der erste Schritt in Richtung „äquivalent" und „notwendig & hinreichend".
+Die Umkehrung. Schüler erleben, dass die Beziehung `a² + b² = c²` *charakteristisch* für rechtwinklige Dreiecke ist, nicht nur eine Folgerung daraus. Das ist eine subtilere Aussage und der erste Schritt in Richtung „äquivalent" und „notwendig & hinreichend".
 
 **Häufige Fehlvorstellungen**
 

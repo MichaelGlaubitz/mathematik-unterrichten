@@ -15,7 +15,7 @@ In meinen ersten Jahren als Lehrer habe ich Aufgaben aus dem Schulbuch genommen.
 
 Wittmann hat den Begriff der *substantiellen Lernumgebung* geprägt. Eine substantielle Lernumgebung – kürzer: eine substantielle Aufgabe – erfüllt nach seiner Lesart vier Kriterien.
 
-**Erstens: Sie repräsentiert zentrale mathematische Inhalte.** Sie führt nicht in einen Nebenstrang, sondern berührt einen Kerngedanken des Lehrplans. Beispiel: Eine Aufgabenfolge, in der Schüler entdecken, dass die Summe zweier ungerader Zahlen immer gerade ist, repräsentiert das Konzept des *Beweisens durch allgemeingültige Argumente*. Eine Aufgabenfolge, in der Schüler 17 Mal $4 \cdot 7$ ausrechnen, repräsentiert nichts als das Einüben einer Routine.
+**Erstens: Sie repräsentiert zentrale mathematische Inhalte.** Sie führt nicht in einen Nebenstrang, sondern berührt einen Kerngedanken des Lehrplans. Beispiel: Eine Aufgabenfolge, in der Schüler entdecken, dass die Summe zweier ungerader Zahlen immer gerade ist, repräsentiert das Konzept des *Beweisens durch allgemeingültige Argumente*. Eine Aufgabenfolge, in der Schüler 17 Mal `4 · 7` ausrechnen, repräsentiert nichts als das Einüben einer Routine.
 
 **Zweitens: Sie bietet vielfältige Lösungswege.** Es gibt nicht *einen* Trichter, durch den alle Schüler durchmüssen, sondern eine Pluralität an Zugängen – algebraisch, geometrisch, mit Tabelle, mit Schätzung, durch Probieren. Damit wird die Aufgabe von Natur aus differenzierend: jeder findet einen Einstieg.
 
@@ -30,7 +30,7 @@ Aufgabe: "Wähle drei aufeinanderfolgende natürliche Zahlen. Bilde ihre Summe. 
 Prüfen wir die vier Kriterien:
 
 - *Zentraler Inhalt?* Ja – die Aufgabe berührt das Konzept der allgemeingültigen mathematischen Begründung. Schüler entdecken: Die Summe ist immer das Dreifache der mittleren Zahl. Das ist eine algebraische Einsicht, die später beim Variablengebrauch trägt.
-- *Vielfältige Lösungswege?* Auch ja. Manche Schüler probieren Beispiele aus und sehen das Muster. Andere argumentieren symbolisch ($(n-1) + n + (n+1) = 3n$ ). Wieder andere nehmen ein geometrisches Modell mit Plättchen.
+- *Vielfältige Lösungswege?* Auch ja. Manche Schüler probieren Beispiele aus und sehen das Muster. Andere argumentieren symbolisch (`(n−1) + n + (n+1) = 3n`). Wieder andere nehmen ein geometrisches Modell mit Plättchen.
 - *Skalierbar?* Sehr. Die schwächere Schülerin findet Beispiele und sagt: "Es geht immer durch drei." Die stärkere Schülerin beweist es allgemein und fragt: "Was passiert mit fünf aufeinanderfolgenden Zahlen?"
 - *Produktives Üben?* Ja, wenn die Lehrkraft den Übergang macht – etwa zur Frage: "Was, wenn du *vier* aufeinanderfolgende Zahlen nimmst?" Dann üben Schüler den Variablengebrauch im Kontext einer neuen Hypothese.
 

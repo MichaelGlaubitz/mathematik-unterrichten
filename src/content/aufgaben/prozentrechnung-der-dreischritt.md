@@ -11,7 +11,7 @@ entwurf: false
 
 ## Vorbemerkung für die Schüler
 
-Bei der Prozentrechnung gibt es immer drei Größen: den **Grundwert** (das Ganze, oft `G`), den **Prozentwert** (der Anteil, oft `W`) und den **Prozentsatz** (die Quote, oft `p%`). Sie hängen zusammen über $W = G \cdot p / 100$. Wenn du zwei der drei Größen kennst, kannst du die dritte ausrechnen.
+Bei der Prozentrechnung gibt es immer drei Größen: den **Grundwert** (das Ganze, oft `G`), den **Prozentwert** (der Anteil, oft `W`) und den **Prozentsatz** (die Quote, oft `p%`). Sie hängen zusammen über `W = G · p / 100`. Wenn du zwei der drei Größen kennst, kannst du die dritte ausrechnen.
 
 Bearbeite die Aufgaben in der gegebenen Reihenfolge. Schreib bei jeder Aufgabe vorher auf, *welche* Größe gesucht ist – G, W oder p.
 
@@ -32,7 +32,7 @@ Bearbeite die Aufgaben in der gegebenen Reihenfolge. Schreib bei jeder Aufgabe v
 
 | Nr. | Aufgabe | Lösung |
 |----:|:--------|:-------|
-| 9 | 20 € sind 10 % von welchem Betrag? | 200 € |
+| 9  | 20 € sind 10 % von welchem Betrag? | 200 € |
 | 10 | 20 € sind 20 % von welchem Betrag? | 100 € |
 | 11 | 20 € sind 25 % von welchem Betrag? | 80 € |
 | 12 | 20 € sind 50 % von welchem Betrag? | 40 € |
@@ -57,12 +57,12 @@ Bearbeite die Aufgaben in der gegebenen Reihenfolge. Schreib bei jeder Aufgabe v
 1. Vergleiche Aufgabe 1 und 2. Was hat sich verändert, was nicht? Wie wirkt sich das aufs Ergebnis aus?
 2. In Aufgabe 13 ist die Antwort `20 €`, weil der ganze Betrag 100 % ausmacht. Warum ist das *kein* Sonderfall, sondern der Normalfall, wenn man die Definition ernst nimmt?
 3. In Aufgabe 22 ist der Prozentsatz größer als 100 %. Wie kann ein Anteil größer als das Ganze sein?
-4. Aufgabe 15 verlangt das Lösen einer Gleichung. Schreib sie auf: $14 = G \cdot 7 / 100$. Was ist hier der "Trick"?
+4. Aufgabe 15 verlangt das Lösen einer Gleichung. Schreib sie auf: `14 = G · 7 / 100`. Was ist hier der "Trick"?
 5. Welche der drei Folgen war für dich am leichtesten? Welche am schwersten? Warum?
 
 ## Didaktischer Kommentar
 
-**Die zentrale Grundvorstellung.** Prozentrechnung ist nicht "ein Verfahren mit drei Varianten", sondern *eine* Beziehung ( $W = G \cdot p/100$) aus drei Blickrichtungen. Wer das einmal verstanden hat, braucht keine Merkformeln wie "Prozentwert mal Hundert durch Grundwert"; er rechnet sich die jeweils gesuchte Größe aus der Grundgleichung aus. Diese Aufgabenfolge ist so aufgebaut, dass die Schüler in jeder Zeile *dieselbe* Beziehung sehen, nur jeweils mit einer anderen Unbekannten.
+**Die zentrale Grundvorstellung.** Prozentrechnung ist nicht "ein Verfahren mit drei Varianten", sondern *eine* Beziehung (`W = G · p/100`) aus drei Blickrichtungen. Wer das einmal verstanden hat, braucht keine Merkformeln wie "Prozentwert mal Hundert durch Grundwert"; er rechnet sich die jeweils gesuchte Größe aus der Grundgleichung aus. Diese Aufgabenfolge ist so aufgebaut, dass die Schüler in jeder Zeile *dieselbe* Beziehung sehen, nur jeweils mit einer anderen Unbekannten.
 
 **Was variiert in Folge A?**
 
@@ -82,7 +82,7 @@ Hier wird das Ergebnis als Anteil ausgedrückt. Aufgabe 22 ist diagnostisch zent
 **Häufige Fehlvorstellungen**
 
 - *"7 % von 200 ist 7."* Hier wird der Prozentsatz mit dem Prozentwert verwechselt. Hilft: Im Kopf zu 1 % = 2 € und dann 7 · 2 € rechnen.
-- *"Wenn 20 € = 25 %, dann ist 100 % = 100 €."* (statt 80 €). Hier wird einfach die Zahl multipliziert, ohne die Beziehung umzustellen. Hilft: Erst auf 1 % zurückrechnen ($20 / 25 = 0,80$), dann auf 100 % (`80 €`).
+- *"Wenn 20 € = 25 %, dann ist 100 % = 100 €."* (statt 80 €). Hier wird einfach die Zahl multipliziert, ohne die Beziehung umzustellen. Hilft: Erst auf 1 % zurückrechnen (`20 / 25 = 0,80`), dann auf 100 % (`80 €`).
 - *"Welcher Anteil sind 250 € von 200 €? – Geht nicht."* Hier wirkt die Vorstellung, Prozent sei immer kleiner als das Ganze. Hilft: Über das tägliche Leben argumentieren ("Einnahmen 125 % gegenüber dem Vorjahr" – jeder hat das schon gehört).
 
 **Möglicher Anschluss**

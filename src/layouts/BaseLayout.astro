@@ -1,43 +1,22 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import AdminEditFab from '../components/AdminEditFab.astro';
 import '../styles/global.css';
 
 export interface Props {
   title: string;
   beschreibung?: string;
   ogBild?: string;
-  /** Pfad zur Quelldatei dieser Seite relativ zum Repo-Root, z.B. "src/content/blog/foo.md". Wenn nicht gesetzt, wird automatisch aus der URL ableitet. */
-  editPath?: string;
 }
 
 const {
   title,
   beschreibung = 'Mathe-Didaktik, Aufgaben und diagnostische Fragen für Lehrkräfte – inspiriert von Forschung und Praxis.',
   ogBild = '/og-default.png',
-  editPath,
 } = Astro.props;
 
 const seitentitel = title === 'mathematik-unterrichten' ? title : `${title} – mathematik-unterrichten`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-
-// GitHub-Edit-URL für den Admin-FAB ableiten. Dynamische Seiten setzen editPath explizit;
-// für statische Seiten wird der Pfad aus dem URL-Pfadnamen rekonstruiert.
-const GITHUB_REPO = 'MichaelGlaubitz/mathematik-unterrichten';
-const GITHUB_BRANCH = 'main';
-function derivedEditPath(pathname: string): string {
-  const p = pathname.replace(/\/$/, '');
-  if (p === '' || p === '/') return 'src/pages/index.astro';
-  // Index-Seiten der Sammlungen (Ordner-Routen):
-  if (['/blog', '/aufgaben', '/quizzes'].includes(p)) {
-    return `src/pages${p}/index.astro`;
-  }
-  // Sonstige statische Seiten:
-  return `src/pages${p}.astro`;
-}
-const resolvedEditPath = editPath ?? derivedEditPath(Astro.url.pathname);
-const editUrl = `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/${resolvedEditPath}`;
 ---
 
 <!DOCTYPE html>
@@ -77,29 +56,13 @@ const editUrl = `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/${resol
     <meta name="twitter:title" content={seitentitel} />
     <meta name="twitter:description" content={beschreibung} />
 
-    <!-- KaTeX für mathematische Formeln -->
+    <!-- KaTeX für mathematische Formeln (optional, lädt nur wenn benutzt) -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
       integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
       crossorigin="anonymous"
     />
-    <!-- KaTeX-Browser-Renderer: rendert $...$ und $$...$$ in zur Laufzeit eingefügtem Text (z.B. Quiz-Optionen aus JSON) -->
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
-    ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
-      onload="renderMathInElement(document.body, {
-        delimiters: [
-          { left: '$$', right: '$$', display: true },
-          { left: '$',  right: '$',  display: false }
-        ],
-        throwOnError: false
-      });"
-    ></script>
   </head>
   <body class="min-h-screen bg-ink-50 text-ink-800 antialiased font-sans dark:bg-ink-900 dark:text-ink-200">
     <a
@@ -116,7 +79,5 @@ const editUrl = `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/${resol
     </main>
 
     <Footer />
-
-    <AdminEditFab editUrl={editUrl} />
   </body>
 </html>

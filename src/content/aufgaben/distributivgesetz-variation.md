@@ -17,31 +17,31 @@ Bearbeite die Aufgaben **in der gegebenen Reihenfolge**. Notiere bei *jeder* Auf
 
 | Nr. | Aufgabe | Lösung |
 |----:|:--------|:-------|
-| 1 | $3 \cdot (x + 2)$ | 3x + 6 |
-| 2 | $3 \cdot (x + 4)$ | 3x + 12 |
-| 3 | $3 \cdot (x + 5)$ | 3x + 15 |
-| 4 | $5 \cdot (x + 5)$ | 5x + 25 |
-| 5 | $5 \cdot (x - 5)$ | 5x − 25 |
-| 6 | $5 \cdot (x - 3)$ | 5x − 15 |
-| 7 | $-5 \cdot (x - 3)$ | −5x + 15 |
-| 8 | $-5 \cdot (3 - x)$ | −15 + 5x |
-| 9 | $(x + 4) \cdot 2$ | 2x + 8 |
-| 10 | $(2x + 4) \cdot 3$ | 6x + 12 |
-| 11 | $3 \cdot (2x + 4) - 6$ | 6x + 6 |
-| 12 | $3 \cdot (2x - 4) - 6 \cdot (x - 1)$ | −6 |
+| 1 | 3 · (x + 2) | 3x + 6 |
+| 2 | 3 · (x + 4) | 3x + 12 |
+| 3 | 3 · (x + 5) | 3x + 15 |
+| 4 | 5 · (x + 5) | 5x + 25 |
+| 5 | 5 · (x − 5) | 5x − 25 |
+| 6 | 5 · (x − 3) | 5x − 15 |
+| 7 | −5 · (x − 3) | −5x + 15 |
+| 8 | −5 · (3 − x) | −15 + 5x |
+| 9 | (x + 4) · 2 | 2x + 8 |
+| 10 | (2x + 4) · 3 | 6x + 12 |
+| 11 | 3 · (2x + 4) − 6 | 6x + 6 |
+| 12 | 3 · (2x − 4) − 6 · (x − 1) | −6 |
 
 ## Aufgabenfolge: Klammern setzen (Faktorisieren)
 
 | Nr. | Aufgabe | Lösung |
 |----:|:--------|:-------|
-| 13 | 4x + 8 | $4 \cdot (x + 2)$ |
-| 14 | 4x + 12 | $4 \cdot (x + 3)$ |
-| 15 | 6x + 12 | $6 \cdot (x + 2)$ |
-| 16 | 6x − 12 | $6 \cdot (x - 2)$ |
-| 17 | −6x + 12 | $-6 \cdot (x - 2)$ oder $6 \cdot (-x + 2)$ |
-| 18 | 6x + 9 | $3 \cdot (2x + 3)$ |
-| 19 | 12x + 8 | $4 \cdot (3x + 2)$ |
-| 20 | 12x − 8y | $4 \cdot (3x - 2y)$ |
+| 13 | 4x + 8 | 4 · (x + 2) |
+| 14 | 4x + 12 | 4 · (x + 3) |
+| 15 | 6x + 12 | 6 · (x + 2) |
+| 16 | 6x − 12 | 6 · (x − 2) |
+| 17 | −6x + 12 | −6 · (x − 2) oder 6 · (−x + 2) |
+| 18 | 6x + 9 | 3 · (2x + 3) |
+| 19 | 12x + 8 | 4 · (3x + 2) |
+| 20 | 12x − 8y | 4 · (3x − 2y) |
 
 ## Reflexionsfragen
 
@@ -61,7 +61,7 @@ Die Aufgaben sind so geordnet, dass jeweils nur ein Aspekt verändert wird:
 - **3 → 4:** Der Faktor vor der Klammer wechselt. Schüler beobachten, dass *beide* Summanden multipliziert werden – die häufigste Lehrleerstelle ist hier die Annahme, der Faktor wirke nur auf einen der beiden Klammerinhalte.
 - **4 → 5:** Vorzeichen in der Klammer wechselt. Vorbereitung auf die spätere Vorzeichenarbeit.
 - **6 → 7:** Vorzeichen *vor* der Klammer. Kritische Stelle. Hier vergessen Schüler oft, dass auch der zweite Summand sein Vorzeichen ändert.
-- **7 → 8:** Reihenfolge in der Klammer. Schüler erkennen, dass $(3 - x)$*nicht* dasselbe ist wie$(x - 3)$.
+- **7 → 8:** Reihenfolge in der Klammer. Schüler erkennen, dass `(3 − x)` *nicht* dasselbe ist wie `(x − 3)`.
 - **8 → 9:** Faktor *hinter* der Klammer. Stützt das Verständnis der Kommutativität der Multiplikation.
 - **10 → 11:** Distributivgesetz mit anschließender Subtraktion einer Konstante – Übergang zur Termvereinfachung.
 - **12:** Höhepunkt. Beide Klammern müssen aufgelöst und zusammengefasst werden; das `x` fällt weg, das Ergebnis ist eine Konstante. Diese "Überraschung" ist pädagogisch wertvoll.
@@ -78,11 +78,11 @@ Das Ausklammern ist die *Umkehrung*. Hier ist die zentrale Frage: Welcher gemein
 
 **Was Schüler typischerweise falsch machen**
 
-- Bei Aufgabe 7: Klammer wird nur "aufgelöst", das Vorzeichen *vor* der Klammer wird ignoriert. Häufiges Ergebnis: $-5x - 3$statt$-5x + 15$.
-- Bei Aufgabe 8: Reihenfolge in der Klammer wird nicht beachtet. Häufiges Ergebnis: $-15 - 5x$statt$-15 + 5x$ .
-- Bei Aufgabe 17: Schüler schreiben $6 \cdot (-x + 2)$und merken nicht, dass diese Form korrekt ist. Sie "korrigieren" zu$-6 \cdot (x + 2)$ und produzieren so einen Folgefehler.
+- Bei Aufgabe 7: Klammer wird nur "aufgelöst", das Vorzeichen *vor* der Klammer wird ignoriert. Häufiges Ergebnis: `−5x − 3` statt `−5x + 15`.
+- Bei Aufgabe 8: Reihenfolge in der Klammer wird nicht beachtet. Häufiges Ergebnis: `−15 − 5x` statt `−15 + 5x`.
+- Bei Aufgabe 17: Schüler schreiben `6 · (−x + 2)` und merken nicht, dass diese Form korrekt ist. Sie "korrigieren" zu `−6 · (x + 2)` und produzieren so einen Folgefehler.
 
 **Möglicher Anschluss**
 
 - Diagnose-Quiz zu Vorzeichenfehlern bei Klammern (siehe [/quizzes](/quizzes)).
-- Aufgabenfolge zum Multiplizieren von Klammern: $(x + 2)(x + 3)$.
+- Aufgabenfolge zum Multiplizieren von Klammern: `(x + 2)(x + 3)`.

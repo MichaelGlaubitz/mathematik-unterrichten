@@ -25,22 +25,6 @@ export interface Props {
 }
 
 const { fragen, id = 'quiz' } = Astro.props;
-
-// Plickers-Export: pro Frage eine Zeile mit "Frage X: ...", dann pro Antwort eine Zeile
-// (korrekte Antwort zuerst, keine A/B/C/D-Praefixe). Mathe in $$...$$.
-function toPlickersMath(s: string): string {
-  // Einfache $...$ -> $$...$$ (doppelte $$ bleiben unangetastet)
-  let result = s.replace(/(?<!\$)\$([^$\n]+)\$(?!\$)/g, (_m, inner) => `$$${inner}$$`);
-  // Markdown-Inline-Code `expr` -> $$expr$$ (in Quizfragen sind das immer Variablen wie f(t))
-  result = result.replace(/`([^`\n]+)`/g, (_m, inner) => `$$${inner}$$`);
-  return result;
-}
-const plickersText = fragen.map((f, fi) => {
-  const frageZeile = `Frage ${fi + 1}: ${toPlickersMath(f.frage)}`;
-  const sortiert = [...f.optionen].sort((a, b) => Number(b.korrekt) - Number(a.korrekt));
-  const antwortZeilen = sortiert.map((o) => toPlickersMath(o.text));
-  return [frageZeile, ...antwortZeilen].join('\n');
-}).join('\n');
 ---
 
 <section
@@ -153,63 +137,6 @@ const plickersText = fragen.map((f, fi) => {
   </article>
 </section>
 
-<details class="plickers-export not-prose mt-4 rounded-xl border border-ink-200 bg-white shadow-sm dark:border-ink-700 dark:bg-ink-800 dark:shadow-black/30">
-  <summary class="cursor-pointer select-none px-6 py-4 text-sm font-medium text-ink-700 hover:bg-ink-50 dark:text-ink-200 dark:hover:bg-ink-700/40 rounded-xl">
-    <span class="inline-flex items-center gap-2">
-      <svg class="plickers-logo h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
-        <!-- Hintergrund-Karte (heller Blauton, leicht versetzt) -->
-        <rect x="10" y="10" width="20" height="20" rx="3.5" fill="#A8C7FA"/>
-        <!-- Vordergrund-Karte (Plickers-Blau) -->
-        <rect x="2" y="2" width="22" height="22" rx="4" fill="#2563EB"/>
-        <!-- Weisses Haekchen -->
-        <path d="M6.5 13.5 L11.5 18.5 L18.5 9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Für Plickers-Import (Code)
-    </span>
-  </summary>
-  <div class="border-t border-ink-200 px-6 py-4 dark:border-ink-700">
-    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-      <p class="text-xs text-ink-500 dark:text-ink-400">
-        Korrekte Antwort steht jeweils oben. Mathe-Ausdrücke sind in <code class="text-[0.7rem]">$$…$$</code>.
-      </p>
-      <div class="flex items-center gap-2">
-        <a
-          href="https://www.plickers.com/seteditor/newSet"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="plickers-link inline-flex items-center gap-1.5 rounded-md bg-[#2563EB] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1D4ED8] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 dark:focus:ring-offset-ink-800"
-          aria-label="Neues Set bei Plickers anlegen (oeffnet in neuem Tab)"
-          title="Neues Set bei Plickers anlegen"
-        >
-          <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
-            <rect x="10" y="10" width="20" height="20" rx="3.5" fill="#fff" fill-opacity="0.45"/>
-            <rect x="2" y="2" width="22" height="22" rx="4" fill="#fff" fill-opacity="0.95"/>
-            <path d="M6.5 13.5 L11.5 18.5 L18.5 9" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="plickers-link-label">Neues Set in Plickers anlegen</span>
-          <svg class="h-3 w-3 shrink-0 opacity-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M7 17L17 7"/>
-            <path d="M7 7h10v10"/>
-          </svg>
-        </a>
-        <button
-          type="button"
-          class="plickers-copy inline-flex items-center gap-1.5 rounded-md border border-ink-300 bg-white px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 focus:outline-none focus:ring-2 focus:ring-accent-500 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-200 dark:hover:bg-ink-700"
-          aria-label="Block in die Zwischenablage kopieren"
-          title="In Zwischenablage kopieren"
-        >
-          <svg class="plickers-copy-icon h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          <span class="plickers-copy-label">Kopieren</span>
-        </button>
-      </div>
-    </div>
-    <pre class="plickers-code overflow-x-auto rounded-md bg-ink-50 p-4 text-xs leading-relaxed text-ink-800 dark:bg-ink-900 dark:text-ink-100"><code>{plickersText}</code></pre>
-  </div>
-</details>
-
 <script>
   type QuizState = {
     aktuell: number;
@@ -221,24 +148,6 @@ const plickersText = fragen.map((f, fi) => {
     'quiz-option group w-full text-left rounded-lg border border-ink-200 bg-white px-4 py-3 hover:border-accent-500 hover:bg-accent-50/50 focus:outline-none focus:ring-2 focus:ring-accent-500 transition dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-500 dark:hover:bg-accent-700/20';
   const LETTER_BASE_CLASS =
     'quiz-letter mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-semibold text-ink-700 group-hover:border-accent-500 group-hover:text-accent-700 dark:border-ink-600 dark:text-ink-200 dark:group-hover:border-accent-300 dark:group-hover:text-accent-100';
-
-  // Rendert $...$ und $$...$$ in einem Element nach Einfuegen dynamischer Inhalte.
-  // Das auto-render-Skript aus dem CDN setzt renderMathInElement auf window; falls noch nicht geladen,
-  // probieren wir es kurz spaeter erneut.
-  const renderMathIn = (el: HTMLElement) => {
-    const w = window as unknown as { renderMathInElement?: (el: HTMLElement, opts?: unknown) => void };
-    if (typeof w.renderMathInElement === 'function') {
-      w.renderMathInElement(el, {
-        delimiters: [
-          { left: '$$', right: '$$', display: true },
-          { left: '$',  right: '$',  display: false },
-        ],
-        throwOnError: false,
-      });
-    } else {
-      setTimeout(() => renderMathIn(el), 120);
-    }
-  };
 
   document.querySelectorAll<HTMLElement>('[data-quiz]').forEach((quiz) => {
     const fragen = Array.from(quiz.querySelectorAll<HTMLElement>('.quiz-frage'));
@@ -303,7 +212,6 @@ const plickersText = fragen.map((f, fi) => {
           istKorrekt ? 'bg-emerald-50/40' : 'bg-rose-50/40',
           istKorrekt ? 'dark:bg-emerald-900/20' : 'dark:bg-rose-900/20'
         );
-        renderMathIn(erklaerungBox);
       }
 
       if (alleAntwortenBtn) {
@@ -326,7 +234,6 @@ const plickersText = fragen.map((f, fi) => {
           if (erklaerungBox) {
             erklaerungBox.insertAdjacentHTML('beforeend', html);
             alleAntwortenBtn.classList.add('hidden');
-            renderMathIn(erklaerungBox);
           }
         };
       }
@@ -395,56 +302,5 @@ const plickersText = fragen.map((f, fi) => {
       });
     });
     quiz.querySelector<HTMLButtonElement>('.quiz-restart')?.addEventListener('click', restart);
-  });
-
-  // Plickers-Export: Text aus dem zugehoerigen Codeblock in die Zwischenablage kopieren.
-  const copyPlickersBlock = (host: HTMLElement): boolean => {
-    const codeEl = host.querySelector<HTMLElement>('.plickers-code code');
-    const text = codeEl?.textContent ?? '';
-    if (!text) return false;
-    try {
-      // Bevorzugte API
-      navigator.clipboard?.writeText(text).catch(() => {});
-    } catch {}
-    // Synchroner Fallback fuer aeltere Browser
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    } catch {}
-    return true;
-  };
-
-  // Kopier-Button
-  document.querySelectorAll<HTMLButtonElement>('.plickers-copy').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const details = btn.closest('details');
-      if (!details) return;
-      const label = btn.querySelector<HTMLElement>('.plickers-copy-label');
-      const originalLabel = label?.textContent ?? 'Kopieren';
-      const ok = copyPlickersBlock(details);
-      if (label) label.textContent = ok ? 'Kopiert ✓' : 'Fehler';
-      setTimeout(() => { if (label) label.textContent = originalLabel; }, 1800);
-    });
-  });
-
-  // "Neues Set in Plickers anlegen": erst Codeblock kopieren, dann Plickers oeffnen
-  document.querySelectorAll<HTMLAnchorElement>('.plickers-link').forEach((link) => {
-    link.addEventListener('click', () => {
-      const details = link.closest('details');
-      if (!details) return;
-      // Synchron kopieren, bevor der Browser in den neuen Tab navigiert
-      copyPlickersBlock(details);
-      // Kurze visuelle Rueckmeldung im aktuellen Tab (sichtbar wenn Nutzer zurueckkommt)
-      const label = link.querySelector<HTMLElement>('.plickers-link-label');
-      const originalLabel = label?.textContent ?? 'Neues Set in Plickers anlegen';
-      if (label) label.textContent = 'Kopiert – im neuen Tab einfügen ✓';
-      setTimeout(() => { if (label) label.textContent = originalLabel; }, 4000);
-    });
   });
 </script>
