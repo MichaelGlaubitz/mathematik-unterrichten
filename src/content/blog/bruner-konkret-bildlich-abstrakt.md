@@ -9,9 +9,9 @@ teaser: "Jerome Bruner hat in den 1960er Jahren beschrieben, wie Lernende Wissen
 entwurf: false
 ---
 
-Eine Schülerin in Klasse 7 löst eine Gleichung wie `3x + 5 = 17`. Sie zieht 5 ab, teilt durch 3, schreibt `x = 4`. Auf Nachfrage, *warum* das funktioniert, kommt: „Weil man das so macht." Auf die Frage „Was bedeutet x?" zuckt sie mit den Schultern.
+Eine Schülerin in Klasse 7 löst eine Gleichung wie $3x + 5 = 17$. Sie zieht $5$ ab, teilt durch $3$, schreibt $x = 4$. Auf Nachfrage, *warum* das funktioniert, kommt: „Weil man das so macht." Auf die Frage „Was bedeutet $x$?" zuckt sie mit den Schultern.
 
-Wir kennen das. Und wir wissen, dass das Problem nicht die Rechnung ist, sondern dass die Symbole `x`, `=`, `+` für die Schülerin keine Bedeutung tragen. Sie sind Knöpfe in einem Algorithmus. Jerome Bruner hat in den 1960er Jahren eine Theorie formuliert, die genau dieses Problem beschreibt – und einen Weg vorschlägt, wie man es lösen kann.
+Wir kennen das. Und wir wissen, dass das Problem nicht die Rechnung ist, sondern dass die Symbole $x$, $=$, $+$ für die Schülerin keine Bedeutung tragen. Sie sind Knöpfe in einem Algorithmus. Jerome Bruner hat in den 1960er Jahren eine Theorie formuliert, die genau dieses Problem beschreibt – und einen Weg vorschlägt, wie man es lösen kann.
 
 ## Bruners drei Repräsentationsformen
 
@@ -21,7 +21,7 @@ Bruner unterscheidet in *Toward a Theory of Instruction* (1966) drei Formen, in 
 
 **Ikonische Repräsentation (bildlich).** Wissen wird in Bildern und Diagrammen dargestellt. Der Kreis ist jetzt eine Zeichnung. Die Addition wird zu einem Punkt-Diagramm oder einem Streifenmodell.
 
-**Symbolische Repräsentation (abstrakt).** Wissen wird in Zeichen und Sprache codiert. Der Kreis wird zur Gleichung `x² + y² = r²`. Die Addition wird zu `3 + 4 = 7`.
+**Symbolische Repräsentation (abstrakt).** Wissen wird in Zeichen und Sprache codiert. Der Kreis wird zur Gleichung $x^2 + y^2 = r^2$. Die Addition wird zu $3 + 4 = 7$.
 
 Bruners Pointe: Diese drei Formen sind keine Entwicklungsstufen, die nacheinander abgelegt werden. Sie sind drei *parallel verfügbare* Modi, in denen Mathematik verstanden werden kann. Ein Mathematiker greift bei einer schwierigen Aufgabe auch dann auf ikonische Repräsentation zurück, wenn er die symbolische Form längst beherrscht – er zeichnet, um sich zu orientieren.
 
@@ -33,7 +33,7 @@ Das Ergebnis: Schüler, die symbolisch korrekt rechnen, aber bei einer Anwendung
 
 ## Ein Beispiel aus der Bruchrechnung
 
-Klasse 6 lernt: `1/2 + 1/3 = 5/6`. Wie wird das typisch eingeführt?
+Klasse 6 lernt: $\frac{1}{2} + \frac{1}{3} = \frac{5}{6}$. Wie wird das typisch eingeführt?
 
 - *Symbolisch zuerst:* „Suche den Hauptnenner. Erweitere. Addiere die Zähler." Die Schüler üben das Verfahren. Manche verstehen, viele führen aus.
 - *Mit Bruner:* Erst die enaktive Phase – Schüler falten ein Blatt in Hälften und Drittel und erleben, dass die Zerlegungen *nicht zusammenpassen*. Dann die ikonische Phase – ein Streifendiagramm, das Sechstel zeigt, in denen sowohl Hälften als auch Drittel sich finden lassen. Erst dann der symbolische Algorithmus – jetzt mit Bedeutung.
@@ -68,7 +68,7 @@ Bruners Pointe ist nicht „immer konkret zuerst". Es ist: *Mathematik ist nicht
 
 **Zweitens: Beginne mit der Geste, wenn möglich.** Vektoraddition wird greifbarer, wenn Schüler sich vorstellen, einen Vektor entlang zu „gehen". Funktionen werden greifbarer, wenn Schüler eine Größe „wachsen" lassen. Solche Handlungsbilder im Kopf sind enaktive Repräsentationen, auch ohne physisches Material.
 
-**Drittens: Lass mehrere Repräsentationen koexistieren.** Bei einer linearen Funktion `y = 2x + 3` zeigen Schüler die Wertetabelle, das Diagramm und die Gleichung *nebeneinander* und beziehen sie aufeinander. Verschiedene Wege, dieselbe Sache zu sehen. Bruner hätte das so gewollt.
+**Drittens: Lass mehrere Repräsentationen koexistieren.** Bei einer linearen Funktion $y = 2x + 3$ zeigen Schüler die Wertetabelle, das Diagramm und die Gleichung *nebeneinander* und beziehen sie aufeinander. Verschiedene Wege, dieselbe Sache zu sehen. Bruner hätte das so gewollt.
 
 ## Was du diese Woche tun kannst
 
