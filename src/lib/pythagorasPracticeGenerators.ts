@@ -86,11 +86,22 @@ export const QUADRATIC_FUNCTION_GENERATOR_IDS = [
   'qf_symmetrieachse',
 ] as const;
 
+/** Quadratische Gleichungen (Nullprodukt, Faktorisieren, Lösungsanzahl). */
+export const QUADRATIC_EQUATIONS_GENERATOR_IDS = [
+  'qg_faktorform',
+  'qg_ausklammern',
+  'qg_binomisch',
+  'qg_differenz_von_quadraten',
+  'qg_auf_null_bringen',
+  'qg_anzahl_loesungen',
+] as const;
+
 export const PRACTICE_GENERATOR_IDS = [
   ...PYTHAGORAS_GENERATOR_IDS,
   ...TRIGONOMETRY_GENERATOR_IDS,
   ...STRAHLENSATZ_GENERATOR_IDS,
   ...QUADRATIC_FUNCTION_GENERATOR_IDS,
+  ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
 ] as const;
 
 export type PracticeGeneratorId = (typeof PRACTICE_GENERATOR_IDS)[number];
@@ -508,6 +519,61 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Gib die Gleichung der Symmetrieachse der Parabel $f(x)=x^2${formatSignedInt(b)}x${formatSignedInt(c)}$.`,
         loesung: `Für $f(x)=x^2+bx+c$ ist die Symmetrieachse $x=-\\frac{b}{2}$. Hier $b=${b}$, also $x=-\\frac{${b}}{2}=${axis}$.`,
         diagram: svgParabolaScheitelform({ a: 1, p: axis, q: -0.25 * (u - v) * (u - v), roots: [u, v] }),
+      };
+    },
+    qg_faktorform() {
+      let u = 0;
+      let v = 0;
+      for (let t = 0; t < 20; t++) {
+        u = randInt(-6, 6);
+        v = randInt(-6, 6);
+        if (u !== v) break;
+      }
+      const fac = `${latexLinearFactorXMinus(u)}${latexLinearFactorXMinus(v)}`;
+      return {
+        frage: `Löse die Gleichung $${fac}=0$.`,
+        loesung: `Nach dem Satz vom Nullprodukt: ${latexLinearFactorXMinus(u)}=0 oder ${latexLinearFactorXMinus(v)}=0, also $x=${u}$ oder $x=${v}$.`,
+      };
+    },
+    qg_ausklammern() {
+      const r = randInt(-9, 9) || 5;
+      const b = -r;
+      return {
+        frage: `Löse die Gleichung $x^2${formatSignedInt(b)}x=0$.`,
+        loesung: `Ausklammern: $x(x${formatSignedInt(b)})=0$. Damit $x_1=0$ oder $x_2=${r}$.`,
+      };
+    },
+    qg_binomisch() {
+      const p = randInt(-8, 8) || 3;
+      const b = -2 * p;
+      const c = p * p;
+      return {
+        frage: `Löse die Gleichung $x^2${formatSignedInt(b)}x${formatSignedInt(c)}=0$.`,
+        loesung: `Binomische Formel: $(x${formatSignedInt(-p)})^2=0$. Daher doppelte Lösung $x=${p}$.`,
+      };
+    },
+    qg_differenz_von_quadraten() {
+      const a = randInt(2, 9);
+      return {
+        frage: `Löse die Gleichung $x^2-${a * a}=0$.`,
+        loesung: `Differenz von Quadraten: $(x-${a})(x+${a})=0$. Also $x_1=${a}$ und $x_2=${-a}$.`,
+      };
+    },
+    qg_auf_null_bringen() {
+      const r = randInt(-8, 8) || 4;
+      const s = randInt(-8, 8) || -1;
+      const b = r + s;
+      const c = -r * s;
+      return {
+        frage: `Löse die Gleichung $x^2${formatSignedInt(b)}x=${-c}$.`,
+        loesung: `Auf Null bringen: $x^2${formatSignedInt(b)}x${formatSignedInt(c)}=0=(x${formatSignedInt(-r)})(x${formatSignedInt(-s)})$. Also $x=${r}$ oder $x=${s}$.`,
+      };
+    },
+    qg_anzahl_loesungen() {
+      const k = randInt(1, 9);
+      return {
+        frage: `Wie viele reelle Lösungen hat die Gleichung $x^2+${k}=0$?`,
+        loesung: `Keine reelle Lösung, denn $x^2=-${k}$ ist in $\\mathbb{R}$ unmöglich.`,
       };
     },
   };

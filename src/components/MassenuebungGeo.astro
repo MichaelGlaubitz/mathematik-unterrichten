@@ -1,13 +1,14 @@
 ---
 import {
   PYTHAGORAS_GENERATOR_IDS,
+  QUADRATIC_EQUATIONS_GENERATOR_IDS,
   QUADRATIC_FUNCTION_GENERATOR_IDS,
   STRAHLENSATZ_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
 } from '../lib/pythagorasPracticeGenerators';
 
 export interface Props {
-  variant: 'pythagoras' | 'trigonometrie' | 'strahlensaetze' | 'quadratische-funktionen';
+  variant: 'pythagoras' | 'trigonometrie' | 'strahlensaetze' | 'quadratische-funktionen' | 'quadratische-gleichungen';
   backHref: string;
   h1: string;
 }
@@ -20,6 +21,8 @@ const allowedIds =
       ? TRIGONOMETRY_GENERATOR_IDS
       : variant === 'quadratische-funktionen'
         ? QUADRATIC_FUNCTION_GENERATOR_IDS
+        : variant === 'quadratische-gleichungen'
+          ? QUADRATIC_EQUATIONS_GENERATOR_IDS
         : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 ---
@@ -75,6 +78,16 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Koeffizienten und Koordinaten als ganze Zahlen. Zu jeder Aufgabe gibt es optional eine kleine Skizze der
             Parabel (Scheitel <em>S</em>).
+          </p>
+        </>
+      ) : variant === 'quadratische-gleichungen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>quadratischen Gleichungen</strong> – Fokus auf Nullprodukt, Faktorisieren und
+            das geschickte Auf-Null-Bringen. Wie gewohnt: Typen und Anzahl wählen, dann Whiteboard oder Arbeitsblatt.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Lösungen werden als reelle Zahlen angegeben; bei doppelten Lösungen wird das explizit genannt.
           </p>
         </>
       ) : (
@@ -232,6 +245,40 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="qf_symmetrieachse" checked />
                 <span>Symmetrieachse bei $x^2+bx+c$</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'quadratische-gleichungen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Quadratische Gleichungen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qg_faktorform" checked />
+                <span>Faktorform direkt lösen: $(x-r)(x-s)=0$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qg_ausklammern" checked />
+                <span>Ausklammern: $x^2+bx=0$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qg_binomisch" checked />
+                <span>Binomische Form erkennen: $(x-p)^2=0$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qg_differenz_von_quadraten" checked />
+                <span>Differenz von Quadraten: $x^2-a^2=0$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qg_auf_null_bringen" checked />
+                <span>Erst auf Null bringen, dann faktorisieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qg_anzahl_loesungen" checked />
+                <span>Anzahl reeller Lösungen beurteilen</span>
               </label>
             </div>
           </fieldset>
@@ -520,6 +567,29 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             Massenübung Strahlensätze
           </a>
+          {' · '}
+          <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Quadratische Gleichungen
+          </a>
+        </>
+      ) : variant === 'quadratische-gleichungen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Quadratische Funktionen
+          </a>
+          {' · '}
+          <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Pythagoras
+          </a>
+          {' · '}
+          <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Trigonometrie
+          </a>
+          {' · '}
+          <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Strahlensätze
+          </a>
         </>
       ) : (
         <>
@@ -601,6 +671,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
     const wbFrage = document.getElementById('ug-wb-frage');
     const wbLoesung = document.getElementById('ug-wb-loesung');
     const wbLoesungText = document.getElementById('ug-wb-loesung-text');
+    const steuerung = document.getElementById('ug-steuerung');
     const wbPrev = document.getElementById('ug-wb-prev');
     const wbNext = document.getElementById('ug-wb-next');
     const errEl = document.getElementById('ug-fehler');
@@ -735,6 +806,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           throwOnError: false,
         };
         try {
+          if (steuerung) window.renderMathInElement(steuerung, opts);
           if (layout === 'arbeitsblatt') {
             if (arbeitsblatt) window.renderMathInElement(arbeitsblatt, opts);
           } else {
