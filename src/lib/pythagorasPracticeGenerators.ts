@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie und /uebung/strahlensaetze — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze und /uebung/quadratische-funktionen — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -20,6 +20,13 @@ import {
   svgStrahlensatzV,
   svgStrahlensatzX,
 } from './strahlensatzDiagrams';
+import {
+  formatSignedInt,
+  latexBinomSquare,
+  latexLinearFactorXMinus,
+  latexStreckScheitel,
+  svgParabolaScheitelform,
+} from './quadratischeFunktionDiagrams';
 
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
 
@@ -69,10 +76,21 @@ export const STRAHLENSATZ_GENERATOR_IDS = [
   'strahl_spiegel_mast',
 ] as const;
 
+/** Quadratische Funktionen (Scheitel, Nullstellen, Symmetrie). */
+export const QUADRATIC_FUNCTION_GENERATOR_IDS = [
+  'qf_scheitel_form',
+  'qf_scheitel_gestreckt',
+  'qf_nullstellen',
+  'qf_funktionswert',
+  'qf_oeffnung',
+  'qf_symmetrieachse',
+] as const;
+
 export const PRACTICE_GENERATOR_IDS = [
   ...PYTHAGORAS_GENERATOR_IDS,
   ...TRIGONOMETRY_GENERATOR_IDS,
   ...STRAHLENSATZ_GENERATOR_IDS,
+  ...QUADRATIC_FUNCTION_GENERATOR_IDS,
 ] as const;
 
 export type PracticeGeneratorId = (typeof PRACTICE_GENERATOR_IDS)[number];
@@ -405,6 +423,91 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Du siehst die Spitze eines Mastes im Spiegel, der $${a}\\,\\text{m}$ vor deinen Füßen liegt. Du stehst $${b}\\,\\text{m}$ hinter dem Spiegel (in einer Linie mit Mast und Spiegel). Deine Augenhöhe beträgt etwa $${hAuge}\\,\\text{dm}$. Wie hoch ist der Mast (in dm), wenn Spiegel und Boden waagrecht sind?`,
         loesung: `Einfallswinkel = Ausfallswinkel; es entstehen ähnliche Dreiecke: $\\displaystyle\\frac{h_{\\text{Mast}}}{${a}+${b}}=\\frac{${hAuge}}{${a}}\\Rightarrow h_{\\text{Mast}}=${hMast}\\,\\text{dm}$.`,
         diagram: svgStrahlensatzSpiegel({ a, b, hAuge, hMast }),
+      };
+    },
+    qf_scheitel_form() {
+      const p = randInt(-2, 4);
+      const q = randInt(-3, 4);
+      const inner = latexBinomSquare(p);
+      return {
+        frage: `Bestimme den Scheitelpunkt der Parabel $f(x)=${inner}${formatSignedInt(q)}$.`,
+        loesung: `In der Scheitelpunktform $f(x)=(x-p)^2+q$ ist der Scheitel $S(p|q)$, hier $S(${p}|${q})$.`,
+        diagram: svgParabolaScheitelform({ a: 1, p, q }),
+      };
+    },
+    qf_scheitel_gestreckt() {
+      const a = pick([-2, -1, 1, 2] as const);
+      const p = randInt(-2, 3);
+      const q = randInt(-3, 3);
+      const expr = latexStreckScheitel(a, p, q);
+      const oeffnung = a > 0 ? 'nach oben' : 'nach unten';
+      return {
+        frage: `Lies Scheitelpunkt und Öffnung der Parabel $f(x)=${expr}$ ab.`,
+        loesung: `Scheitel $S(${p}|${q})$, Streckungsfaktor $a=${a}$, Parabel ist ${oeffnung} geöffnet.`,
+        diagram: svgParabolaScheitelform({ a, p, q }),
+      };
+    },
+    qf_nullstellen() {
+      let u = 0;
+      let v = 0;
+      for (let t = 0; t < 20; t++) {
+        u = randInt(-3, 4);
+        v = randInt(-3, 4);
+        if (u !== v) break;
+      }
+      const p = (u + v) / 2;
+      const q = -0.25 * (u - v) * (u - v);
+      const fac = `${latexLinearFactorXMinus(u)}${latexLinearFactorXMinus(v)}`;
+      return {
+        frage: `Bestimme alle reellen Nullstellen von $f(x)=${fac}$.`,
+        loesung: `Aus $${fac}=0$ folgt $\\mathbb{L}=\\{${Math.min(u, v)};\\,${Math.max(u, v)}\\}$.`,
+        diagram: svgParabolaScheitelform({ a: 1, p, q, roots: [u, v] }),
+      };
+    },
+    qf_funktionswert() {
+      let u = 0;
+      let v = 0;
+      for (let t = 0; t < 20; t++) {
+        u = randInt(-3, 4);
+        v = randInt(-3, 4);
+        if (u !== v) break;
+      }
+      const candidates = [-2, -1, 0, 1, 2, 3, 4, 5].filter((x) => x !== u && x !== v);
+      const t = pick(candidates);
+      const f = (t - u) * (t - v);
+      const p = (u + v) / 2;
+      const q = -0.25 * (u - v) * (u - v);
+      const fac = `${latexLinearFactorXMinus(u)}${latexLinearFactorXMinus(v)}`;
+      return {
+        frage: `Es sei $f(x)=${fac}$. Berechne $f(${t})$.`,
+        loesung: `$f(${t})=(${t}${formatSignedInt(-u)})(${t}${formatSignedInt(-v)})=${t - u}\\cdot${t - v}=${f}$`,
+        diagram: svgParabolaScheitelform({ a: 1, p, q, roots: [u, v] }),
+      };
+    },
+    qf_oeffnung() {
+      const a = pick([-3, -2, -1, 1, 2, 3] as const);
+      const q0 = randInt(1, 6);
+      return {
+        frage: `Ist die Parabel $f(x)=${a}x^2+${q0}$ nach oben oder nach unten geöffnet?`,
+        loesung: `Der Koeffizient vor $x^2$ ist $a=${a}$. ${a > 0 ? 'Da $a>0$, ist die Parabel nach oben geöffnet.' : 'Da $a<0$, ist die Parabel nach unten geöffnet.'}`,
+        diagram: svgParabolaScheitelform({ a, p: 0, q: q0 }),
+      };
+    },
+    qf_symmetrieachse() {
+      const symPairs: [number, number][] = [];
+      for (let i = -4; i <= 4; i++) {
+        for (let j = -4; j <= 4; j++) {
+          if (i !== j && (i + j) % 2 === 0) symPairs.push([i, j]);
+        }
+      }
+      const [u, v] = pick(symPairs);
+      const b = -(u + v);
+      const c = u * v;
+      const axis = (u + v) / 2;
+      return {
+        frage: `Gib die Gleichung der Symmetrieachse der Parabel $f(x)=x^2${formatSignedInt(b)}x${formatSignedInt(c)}$.`,
+        loesung: `Für $f(x)=x^2+bx+c$ ist die Symmetrieachse $x=-\\frac{b}{2}$. Hier $b=${b}$, also $x=-\\frac{${b}}{2}=${axis}$.`,
+        diagram: svgParabolaScheitelform({ a: 1, p: axis, q: -0.25 * (u - v) * (u - v), roots: [u, v] }),
       };
     },
   };

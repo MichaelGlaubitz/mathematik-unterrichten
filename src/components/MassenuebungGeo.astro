@@ -1,12 +1,13 @@
 ---
 import {
   PYTHAGORAS_GENERATOR_IDS,
+  QUADRATIC_FUNCTION_GENERATOR_IDS,
   STRAHLENSATZ_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
 } from '../lib/pythagorasPracticeGenerators';
 
 export interface Props {
-  variant: 'pythagoras' | 'trigonometrie' | 'strahlensaetze';
+  variant: 'pythagoras' | 'trigonometrie' | 'strahlensaetze' | 'quadratische-funktionen';
   backHref: string;
   h1: string;
 }
@@ -17,7 +18,9 @@ const allowedIds =
     ? PYTHAGORAS_GENERATOR_IDS
     : variant === 'trigonometrie'
       ? TRIGONOMETRY_GENERATOR_IDS
-      : STRAHLENSATZ_GENERATOR_IDS;
+      : variant === 'quadratische-funktionen'
+        ? QUADRATIC_FUNCTION_GENERATOR_IDS
+        : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 ---
 
@@ -60,6 +63,18 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Längen als ganze Zahlen (ohne Einheit), Winkel in Grad. Sonderwinkel wie 30°, 45° und 60° kommen vor; sonst
             auf eine Nachkommastelle runden.
+          </p>
+        </>
+      ) : variant === 'quadratische-funktionen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Parabeln</strong> (Scheitelpunktform, Nullstellen, Symmetrieachse) – gleicher
+            Ablauf wie bei den anderen Massenübungen: Typen und Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem
+            Klick auf <em>Aufgaben erzeugen</em> ein neuer Satz.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Koeffizienten und Koordinaten als ganze Zahlen. Zu jeder Aufgabe gibt es optional eine kleine Skizze der
+            Parabel (Scheitel <em>S</em>).
           </p>
         </>
       ) : (
@@ -183,6 +198,40 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="trig_winkel" checked />
                 <span>Winkel aus zwei Seiten (30°, 45°)</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'quadratische-funktionen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Quadratische Funktionen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qf_scheitel_form" checked />
+                <span>Scheitel aus Scheitelpunktform $(x-p)^2+q$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qf_scheitel_gestreckt" checked />
+                <span>Scheitel und Öffnung bei $a(x-p)^2+q$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qf_nullstellen" checked />
+                <span>Nullstellen aus Linearfaktoren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qf_funktionswert" checked />
+                <span>Funktionswert $f(t)$ bei faktorisierter Form</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qf_oeffnung" checked />
+                <span>Öffnung bei $ax^2+q$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="qf_symmetrieachse" checked />
+                <span>Symmetrieachse bei $x^2+bx+c$</span>
               </label>
             </div>
           </fieldset>
@@ -437,12 +486,35 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             Massenübung Trigonometrie
           </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Quadratische Funktionen
+          </a>
         </>
       ) : variant === 'trigonometrie' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             Massenübung Pythagoras
+          </a>
+          {' · '}
+          <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Strahlensätze
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Quadratische Funktionen
+          </a>
+        </>
+      ) : variant === 'quadratische-funktionen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Pythagoras
+          </a>
+          {' · '}
+          <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Trigonometrie
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
@@ -458,6 +530,10 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             Massenübung Trigonometrie
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Massenübung Quadratische Funktionen
           </a>
         </>
       )

@@ -167,9 +167,19 @@ const themenProBand = clusterReihenfolge
                     ]
                   : undefined
               }
-              generatorUebungHref={tv.slug === 'trigonometrie' ? '/uebung/trigonometrie' : undefined}
+              generatorUebungHref={
+                tv.slug === 'trigonometrie'
+                  ? '/uebung/trigonometrie'
+                  : tv.slug === 'quadratische-funktionen'
+                    ? '/uebung/quadratische-funktionen'
+                    : undefined
+              }
               generatorUebungLabel={
-                tv.slug === 'trigonometrie' ? 'Massenübung Trigonometrie' : 'Zufallsaufgaben (Whiteboard)'
+                tv.slug === 'trigonometrie'
+                  ? 'Massenübung Trigonometrie'
+                  : tv.slug === 'quadratische-funktionen'
+                    ? 'Massenübung Quadratische Funktionen'
+                    : 'Zufallsaufgaben (Whiteboard)'
               }
             />
           ))}
