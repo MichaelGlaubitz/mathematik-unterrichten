@@ -159,6 +159,18 @@ const themenProBand = clusterReihenfolge
               aufgaben={tv.aufgaben}
               quizzes={tv.quizzes}
               blog={tv.blog}
+              generatorUebungen={
+                tv.slug === 'geometrie'
+                  ? [
+                      { href: '/uebung/pythagoras', label: 'Massenübung Pythagoras' },
+                      { href: '/uebung/strahlensaetze', label: 'Massenübung Strahlensätze' },
+                    ]
+                  : undefined
+              }
+              generatorUebungHref={tv.slug === 'trigonometrie' ? '/uebung/trigonometrie' : undefined}
+              generatorUebungLabel={
+                tv.slug === 'trigonometrie' ? 'Massenübung Trigonometrie' : 'Zufallsaufgaben (Whiteboard)'
+              }
             />
           ))}
         </div>
