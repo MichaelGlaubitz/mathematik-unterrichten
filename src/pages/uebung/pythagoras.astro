@@ -1,0 +1,439 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Pythagoras üben"
+  beschreibung="Zufallsgenerierte Aufgaben zum Satz des Pythagoras – Anzahl und Aufgabentypen frei wählbar, als Arbeitsblatt oder im Whiteboard-Modus."
+>
+  <div class="container-wide pt-10 pb-16">
+
+    <!-- Header -->
+    <header class="mb-8">
+      <a
+        href="/themen#thema-geometrie"
+        class="text-sm text-ink-600 hover:text-accent-700 dark:text-ink-300 dark:hover:text-accent-100"
+      >
+        ← Zurück zur Themenübersicht
+      </a>
+      <p class="mt-2 text-xs uppercase tracking-wide text-accent-700 dark:text-accent-100">
+        Übungsgenerator · Klasse 9–10
+      </p>
+      <h1 class="font-serif text-4xl md:text-5xl font-semibold text-ink-900 mt-1 dark:text-ink-50">
+        Pythagoras üben
+      </h1>
+      <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+        Wähle aus, welche Aufgabentypen geübt werden sollen, wie viele Aufgaben
+        erscheinen und in welchem Layout. Bei jedem Klick auf
+        <em>Aufgaben erzeugen</em> werden frische, zufällige Aufgaben gewürfelt.
+      </p>
+    </header>
+
+    <!-- Steuerung -->
+    <section
+      aria-labelledby="ug-steuerung-titel"
+      class="rounded-xl border border-ink-200 bg-white p-5 md:p-6 mb-8 dark:border-ink-700 dark:bg-ink-800/60"
+    >
+      <h2 id="ug-steuerung-titel" class="sr-only">Steuerung</h2>
+
+      <div class="grid gap-6 md:grid-cols-3">
+        <!-- Typen -->
+        <fieldset>
+          <legend class="font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50">Aufgabentypen</legend>
+          <div class="space-y-1.5 text-sm">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="ug-typ accent-accent-600" value="hypotenuse" checked />
+              <span>Hypotenuse berechnen</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="ug-typ accent-accent-600" value="kathete" checked />
+              <span>Kathete berechnen</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="ug-typ accent-accent-600" value="erkennen" checked />
+              <span>Rechtwinklig? – Erkennen</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="ug-typ accent-accent-600" value="abstand" checked />
+              <span>Abstand zweier Punkte</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="ug-typ accent-accent-600" value="sachaufgabe" checked />
+              <span>Sachaufgabe</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Anzahl -->
+        <fieldset>
+          <legend class="font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50">Anzahl Aufgaben</legend>
+          <div id="ug-anzahl" class="inline-flex flex-wrap gap-1.5">
+            <button type="button" data-anzahl="5" class="ug-anzahl rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100">5</button>
+            <button type="button" data-anzahl="10" class="ug-anzahl rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100">10</button>
+            <button type="button" data-anzahl="15" class="ug-anzahl rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100">15</button>
+            <button type="button" data-anzahl="20" class="ug-anzahl rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100">20</button>
+          </div>
+        </fieldset>
+
+        <!-- Layout -->
+        <fieldset>
+          <legend class="font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50">Layout</legend>
+          <div id="ug-layout" class="inline-flex flex-wrap gap-1.5">
+            <button type="button" data-layout="arbeitsblatt" class="ug-layoutbtn rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100">📄 Arbeitsblatt</button>
+            <button type="button" data-layout="whiteboard" class="ug-layoutbtn rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100">🖥️ Whiteboard</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <button
+          id="ug-erzeugen"
+          type="button"
+          class="rounded-md bg-accent-600 px-5 py-2.5 text-white font-semibold hover:bg-accent-700 transition dark:bg-accent-500 dark:hover:bg-accent-600"
+        >
+          🎲 Aufgaben erzeugen
+        </button>
+        <button
+          id="ug-alle-aufdecken"
+          type="button"
+          class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+          hidden
+        >
+          Alle Lösungen aufdecken
+        </button>
+        <button
+          id="ug-alle-zuklappen"
+          type="button"
+          class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+          hidden
+        >
+          Alle Lösungen verbergen
+        </button>
+        <p id="ug-fehler" class="text-sm text-red-600 dark:text-red-300" hidden>
+          Mindestens einen Aufgabentyp auswählen.
+        </p>
+      </div>
+    </section>
+
+    <!-- Ausgabe: Arbeitsblatt -->
+    <section
+      id="ug-arbeitsblatt"
+      aria-label="Aufgaben (Arbeitsblatt)"
+      class="rounded-xl border border-ink-200 bg-white p-6 md:p-8 dark:border-ink-700 dark:bg-ink-800/60"
+      hidden
+    >
+      <ol id="ug-liste" class="list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400"></ol>
+    </section>
+
+    <!-- Ausgabe: Whiteboard -->
+    <section
+      id="ug-whiteboard"
+      aria-label="Aufgaben (Whiteboard-Modus)"
+      class="rounded-2xl border border-ink-200 bg-white p-8 md:p-14 lg:p-20 min-h-[50vh] flex flex-col items-center justify-center text-center dark:border-ink-700 dark:bg-ink-800/60"
+      hidden
+    >
+      <div id="ug-wb-leer" class="text-ink-500 dark:text-ink-400">
+        Klicke oben auf <em>Aufgaben erzeugen</em>.
+      </div>
+      <div id="ug-wb-content" hidden class="w-full space-y-8">
+        <p class="text-ink-500 dark:text-ink-400 text-sm uppercase tracking-wide">
+          Aufgabe <span id="ug-wb-i">1</span> von <span id="ug-wb-n">0</span>
+        </p>
+        <div id="ug-wb-frage" class="font-serif text-2xl md:text-4xl lg:text-5xl text-ink-900 dark:text-ink-50 leading-tight"></div>
+        <div
+          id="ug-wb-loesung"
+          class="mx-auto max-w-3xl rounded-xl border-l-4 border-accent-500 bg-accent-50 p-5 md:p-7 text-left dark:bg-accent-700/20 dark:border-accent-300"
+          hidden
+        >
+          <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-2 dark:text-accent-100">Lösung</p>
+          <div id="ug-wb-loesung-text" class="font-serif text-xl md:text-3xl text-ink-900 dark:text-ink-50"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Whiteboard-Steuerung (nur im Whiteboard-Layout sichtbar) -->
+    <div id="ug-wb-controls" class="mt-6 flex flex-wrap items-center justify-center gap-3" hidden>
+      <button id="ug-wb-prev" type="button" class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 disabled:opacity-40 disabled:pointer-events-none">← Zurück</button>
+      <button id="ug-wb-next" type="button" class="rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-600 text-lg">Lösung zeigen</button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    // ---------- Pythagoras-Tripel + Helfer ----------
+    const TRIPEL = [
+      [3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25],
+      [6, 8, 10], [9, 12, 15], [9, 40, 41], [10, 24, 26],
+      [12, 16, 20], [20, 21, 29], [12, 35, 37], [15, 20, 25],
+    ];
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function randInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ---------- Aufgabentypen ----------
+    const GEN = {
+      hypotenuse() {
+        const [a, b, c] = rand(TRIPEL);
+        const x = Math.random() < 0.5 ? a : b;
+        const y = x === a ? b : a;
+        return {
+          frage: `In einem rechtwinkligen Dreieck sind die Katheten $a=${x}$ und $b=${y}$. Berechne die Hypotenuse $c$.`,
+          loesung: `$c=\\sqrt{${x}^2+${y}^2}=\\sqrt{${x * x + y * y}}=${c}$`,
+        };
+      },
+      kathete() {
+        const [a, b, c] = rand(TRIPEL);
+        const bek = Math.random() < 0.5 ? a : b;
+        const ges = bek === a ? b : a;
+        return {
+          frage: `Die Hypotenuse eines rechtwinkligen Dreiecks ist $c=${c}$, eine Kathete $a=${bek}$. Berechne die zweite Kathete $b$.`,
+          loesung: `$b=\\sqrt{${c}^2-${bek}^2}=\\sqrt{${c * c - bek * bek}}=${ges}$`,
+        };
+      },
+      erkennen() {
+        const [a, b, c] = rand(TRIPEL);
+        const istRechtwinklig = Math.random() < 0.5;
+        let cNeu = c;
+        if (!istRechtwinklig) {
+          const delta = (Math.random() < 0.5 ? 1 : -1) * randInt(1, 2);
+          cNeu = c + delta;
+          if (cNeu <= Math.max(a, b)) cNeu = Math.max(a, b) + 1;
+        }
+        return {
+          frage: `Ein Dreieck hat die Seiten $a=${a}$, $b=${b}$, $c=${cNeu}$. Ist es rechtwinklig?`,
+          loesung: istRechtwinklig
+            ? `Ja. $${a}^2+${b}^2=${a * a + b * b}=${cNeu * cNeu}=${cNeu}^2$.`
+            : `Nein. $${a}^2+${b}^2=${a * a + b * b}$, aber $c^2=${cNeu * cNeu}$.`,
+        };
+      },
+      abstand() {
+        const [dx, dy, d] = rand(TRIPEL);
+        const x1 = randInt(-4, 4);
+        const y1 = randInt(-4, 4);
+        const sx = Math.random() < 0.5 ? 1 : -1;
+        const sy = Math.random() < 0.5 ? 1 : -1;
+        const x2 = x1 + sx * dx;
+        const y2 = y1 + sy * dy;
+        return {
+          frage: `Berechne den Abstand der Punkte $A(${x1}|${y1})$ und $B(${x2}|${y2})$.`,
+          loesung: `$d=\\sqrt{(${x2}-${x1})^2+(${y2}-${y1})^2}=\\sqrt{${dx * dx}+${dy * dy}}=\\sqrt{${dx * dx + dy * dy}}=${d}$`,
+        };
+      },
+      sachaufgabe() {
+        const [a, b, c] = rand(TRIPEL);
+        const szenen = [
+          () => ({
+            frage: `Eine Leiter ist $${c}\\,\\text{m}$ lang und steht $${a}\\,\\text{m}$ von der Wand entfernt. Wie hoch reicht sie an der Wand?`,
+            loesung: `$h=\\sqrt{${c}^2-${a}^2}=\\sqrt{${c * c - a * a}}=${b}\\,\\text{m}$`,
+          }),
+          () => ({
+            frage: `Ein Bildschirm ist $${a}\\,\\text{cm}$ breit und $${b}\\,\\text{cm}$ hoch. Wie lang ist die Bildschirmdiagonale?`,
+            loesung: `$d=\\sqrt{${a}^2+${b}^2}=\\sqrt{${a * a + b * b}}=${c}\\,\\text{cm}$`,
+          }),
+          () => ({
+            frage: `Ein Mast wird mit einem Seil verankert. Das Seil ist am Mast in $${a}\\,\\text{m}$ Höhe befestigt und am Boden $${b}\\,\\text{m}$ vom Mast entfernt. Wie lang ist das Seil?`,
+            loesung: `$\\ell=\\sqrt{${a}^2+${b}^2}=\\sqrt{${a * a + b * b}}=${c}\\,\\text{m}$`,
+          }),
+          () => ({
+            frage: `Ein rechteckiger Garten ist $${a}\\,\\text{m}$ lang und $${b}\\,\\text{m}$ breit. Wie lang ist der Weg quer über die Diagonale?`,
+            loesung: `$d=\\sqrt{${a}^2+${b}^2}=\\sqrt{${a * a + b * b}}=${c}\\,\\text{m}$`,
+          }),
+        ];
+        return rand(szenen)();
+      },
+    };
+
+    // ---------- State ----------
+    let layout = 'arbeitsblatt'; // 'arbeitsblatt' | 'whiteboard'
+    let anzahl = 10;
+    let aufgaben = [];
+    let wbIndex = 0;     // welcher Aufgaben-Index ist sichtbar
+    let wbZeigeLoesung = false;
+
+    // ---------- DOM ----------
+    const typBoxen = () => Array.from(document.querySelectorAll('.ug-typ'));
+    const anzahlBtns = () => Array.from(document.querySelectorAll('.ug-anzahl'));
+    const layoutBtns = () => Array.from(document.querySelectorAll('.ug-layoutbtn'));
+    const liste = document.getElementById('ug-liste');
+    const arbeitsblatt = document.getElementById('ug-arbeitsblatt');
+    const wbSection = document.getElementById('ug-whiteboard');
+    const wbControls = document.getElementById('ug-wb-controls');
+    const wbLeer = document.getElementById('ug-wb-leer');
+    const wbContent = document.getElementById('ug-wb-content');
+    const wbI = document.getElementById('ug-wb-i');
+    const wbN = document.getElementById('ug-wb-n');
+    const wbFrage = document.getElementById('ug-wb-frage');
+    const wbLoesung = document.getElementById('ug-wb-loesung');
+    const wbLoesungText = document.getElementById('ug-wb-loesung-text');
+    const wbPrev = document.getElementById('ug-wb-prev');
+    const wbNext = document.getElementById('ug-wb-next');
+    const errEl = document.getElementById('ug-fehler');
+    const erzeugenBtn = document.getElementById('ug-erzeugen');
+    const alleAufBtn = document.getElementById('ug-alle-aufdecken');
+    const alleZuBtn = document.getElementById('ug-alle-zuklappen');
+
+    // ---------- Active-State-Hilfen ----------
+    function setActive(btns, predicate) {
+      btns.forEach((b) => {
+        const aktiv = predicate(b);
+        b.classList.toggle('bg-accent-600', aktiv);
+        b.classList.toggle('text-white', aktiv);
+        b.classList.toggle('border-accent-600', aktiv);
+        b.classList.toggle('dark:bg-accent-500', aktiv);
+        b.classList.toggle('dark:border-accent-400', aktiv);
+      });
+    }
+    function refreshAktiv() {
+      setActive(anzahlBtns(), (b) => Number(b.dataset.anzahl) === anzahl);
+      setActive(layoutBtns(), (b) => b.dataset.layout === layout);
+    }
+
+    // ---------- Aufgaben erzeugen ----------
+    function aktiveTypen() {
+      return typBoxen().filter((c) => c.checked).map((c) => c.value);
+    }
+    function erzeuge() {
+      const typen = aktiveTypen();
+      if (typen.length === 0) {
+        errEl.hidden = false;
+        return;
+      }
+      errEl.hidden = true;
+      // Gleichverteilt: shuffle der Typen-Liste auf Anzahl strecken
+      aufgaben = [];
+      const pool = [];
+      // Erst jeden Typ einmal aufnehmen (Gleichgewicht), dann zufaellig auffuellen
+      while (pool.length < anzahl) {
+        for (const t of shuffle(typen)) {
+          if (pool.length < anzahl) pool.push(t);
+        }
+      }
+      for (const t of pool) {
+        aufgaben.push(GEN[t]());
+      }
+      wbIndex = 0;
+      wbZeigeLoesung = false;
+      render();
+    }
+
+    // ---------- Rendering ----------
+    function render() {
+      const hat = aufgaben.length > 0;
+      alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt');
+      alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt');
+      arbeitsblatt.hidden = layout !== 'arbeitsblatt';
+      wbSection.hidden = layout !== 'whiteboard';
+      wbControls.hidden = !(hat && layout === 'whiteboard');
+
+      if (layout === 'arbeitsblatt') renderArbeitsblatt();
+      else renderWhiteboard();
+
+      if (typeof window.renderMathInElement === 'function') {
+        const target = layout === 'arbeitsblatt' ? arbeitsblatt : wbSection;
+        window.renderMathInElement(target, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+          ],
+          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
+          ignoredClasses: ['katex'],
+          throwOnError: false,
+        });
+      }
+    }
+    function renderArbeitsblatt() {
+      liste.innerHTML = '';
+      if (aufgaben.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'text-ink-500 dark:text-ink-400 list-none';
+        li.textContent = 'Noch keine Aufgaben erzeugt.';
+        liste.appendChild(li);
+        return;
+      }
+      aufgaben.forEach((a, i) => {
+        const li = document.createElement('li');
+        li.className = 'pl-1';
+        li.innerHTML = `
+          <div class="text-ink-900 dark:text-ink-50 mb-2">${a.frage}</div>
+          <details class="group">
+            <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
+            <div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-ink-800 dark:bg-accent-700/20 dark:text-ink-100">${a.loesung}</div>
+          </details>
+        `;
+        liste.appendChild(li);
+      });
+    }
+    function renderWhiteboard() {
+      if (aufgaben.length === 0) {
+        wbLeer.hidden = false;
+        wbContent.hidden = true;
+        return;
+      }
+      wbLeer.hidden = true;
+      wbContent.hidden = false;
+      wbN.textContent = String(aufgaben.length);
+      wbI.textContent = String(wbIndex + 1);
+      wbFrage.innerHTML = aufgaben[wbIndex].frage;
+      wbLoesungText.innerHTML = aufgaben[wbIndex].loesung;
+      wbLoesung.hidden = !wbZeigeLoesung;
+      wbPrev.disabled = wbIndex === 0 && !wbZeigeLoesung;
+      const istLetzte = wbIndex === aufgaben.length - 1;
+      wbNext.textContent = wbZeigeLoesung
+        ? istLetzte ? 'Neu mischen 🎲' : 'Nächste Aufgabe →'
+        : 'Lösung zeigen';
+    }
+
+    // ---------- Events ----------
+    anzahlBtns().forEach((b) => b.addEventListener('click', () => { anzahl = Number(b.dataset.anzahl); refreshAktiv(); }));
+    layoutBtns().forEach((b) => b.addEventListener('click', () => { layout = b.dataset.layout; refreshAktiv(); render(); }));
+    erzeugenBtn.addEventListener('click', erzeuge);
+
+    alleAufBtn.addEventListener('click', () => {
+      liste.querySelectorAll('details').forEach((d) => d.open = true);
+    });
+    alleZuBtn.addEventListener('click', () => {
+      liste.querySelectorAll('details').forEach((d) => d.open = false);
+    });
+
+    wbNext.addEventListener('click', () => {
+      if (!wbZeigeLoesung) {
+        wbZeigeLoesung = true;
+      } else if (wbIndex < aufgaben.length - 1) {
+        wbIndex++;
+        wbZeigeLoesung = false;
+      } else {
+        erzeuge(); // neu mischen
+        return;
+      }
+      render();
+    });
+    wbPrev.addEventListener('click', () => {
+      if (wbZeigeLoesung) {
+        wbZeigeLoesung = false;
+      } else if (wbIndex > 0) {
+        wbIndex--;
+        wbZeigeLoesung = true;
+      }
+      render();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (layout !== 'whiteboard' || aufgaben.length === 0) return;
+      if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); wbNext.click(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); wbPrev.click(); }
+    });
+
+    // Initial-Zustand
+    refreshAktiv();
+    render();
+  })();
+</script>

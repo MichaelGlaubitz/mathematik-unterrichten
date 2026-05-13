@@ -79,5 +79,46 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </main>
 
     <Footer />
+
+    {/* KaTeX Auto-Render: rendert $...$ und $$...$$ im fertigen DOM (auch in dynamisch eingefuegtem Quiz-Inhalt). */}
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+      integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+      integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
+      crossorigin="anonymous"
+      onload="renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$',  right: '$',  display: false}
+        ],
+        ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
+        ignoredClasses: ['katex'],
+        throwOnError: false
+      });"
+    ></script>
+
+    <script is:inline>
+      // Re-Render nach Quiz-Interaktionen (Optionen-Auswahl, Reset, etc.):
+      // Die Quiz-Komponente fuegt Inhalt dynamisch ein - KaTeX muss dann erneut laufen.
+      document.addEventListener('quiz:rerender', () => {
+        if (typeof window.renderMathInElement === 'function') {
+          window.renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$',  right: '$',  display: false }
+            ],
+            ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
+            ignoredClasses: ['katex'],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
   </body>
 </html>

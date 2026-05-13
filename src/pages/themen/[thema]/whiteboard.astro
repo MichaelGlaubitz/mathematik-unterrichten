@@ -1,0 +1,299 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+// --- slugify (gleich wie in index.astro) ---
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// --- Eine statische Seite pro Thema, das whiteboardAufgaben hat ---
+export async function getStaticPaths() {
+  const themen = await getCollection('themen', ({ data }) => !data.entwurf);
+  return themen
+    .filter((t) => (t.data.whiteboardAufgaben ?? []).length > 0)
+    .map((t) => {
+      const slug = t.data.thema
+        .toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      return {
+        params: { thema: slug },
+        props: { thema: t },
+      };
+    });
+}
+
+const { thema } = Astro.props;
+const aufgaben = thema.data.whiteboardAufgaben;
+const total = aufgaben.length;
+const themaSlug = slugify(thema.data.thema);
+---
+
+<BaseLayout
+  title={`Whiteboard · ${thema.data.titel}`}
+  beschreibung={`Mini-Whiteboard-Aufgaben für ${thema.data.titel} – Klick für Klick: Aufgabe, Lösung, nächste Aufgabe.`}
+>
+  <div class="container-wide pt-8 pb-16">
+    <!-- Kopfzeile -->
+    <header class="flex flex-wrap items-center justify-between gap-3 mb-8">
+      <div>
+        <a
+          href={`/themen#thema-${themaSlug}`}
+          class="text-sm text-ink-600 hover:text-accent-700 dark:text-ink-300 dark:hover:text-accent-100"
+        >
+          ← Zurück zur Themenübersicht
+        </a>
+        <p class="mt-1 text-xs uppercase tracking-wide text-accent-700 dark:text-accent-100">
+          Whiteboard-Modus · {thema.data.klassenstufenAnzeige}
+        </p>
+        <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 mt-1 dark:text-ink-50">
+          {thema.data.titel}
+        </h1>
+      </div>
+      <div class="text-sm text-ink-500 dark:text-ink-400">
+        <span id="wb-zaehler" data-total={total}>0 / {total}</span>
+      </div>
+    </header>
+
+    <!-- Fortschritts-Punkte -->
+    <ol id="wb-punkte" class="flex flex-wrap gap-1.5 mb-10" aria-hidden="true">
+      {aufgaben.map((_, i) => (
+        <li
+          data-index={i}
+          class="h-1.5 w-8 rounded-full bg-ink-200 dark:bg-ink-700 transition-colors"
+        ></li>
+      ))}
+    </ol>
+
+    <!-- Buehne -->
+    <section
+      id="wb-buehne"
+      class="rounded-2xl border border-ink-200 bg-white p-8 md:p-14 lg:p-20 min-h-[50vh] flex flex-col items-center justify-center text-center dark:border-ink-700 dark:bg-ink-800/60"
+    >
+      <!-- Intro -->
+      <div id="wb-intro" class="space-y-4">
+        <p class="text-ink-500 dark:text-ink-400 text-sm uppercase tracking-wide">
+          {total} {total === 1 ? 'Aufgabe' : 'Aufgaben'} bereit
+        </p>
+        <p class="font-serif text-3xl md:text-5xl font-semibold text-ink-900 dark:text-ink-50">
+          Mini-Whiteboard
+        </p>
+        <p class="text-ink-600 text-base md:text-lg max-w-xl mx-auto dark:text-ink-300">
+          Frage einblenden – Schüler antworten auf dem Whiteboard – Lösung
+          aufdecken – nächste Frage. Klick für Klick.
+        </p>
+      </div>
+
+      <!-- Aufgaben-Schritte (alle ausgeblendet, JS schaltet um) -->
+      {aufgaben.map((w, i) => (
+        <div
+          class="wb-step space-y-8 w-full"
+          data-step={i}
+          hidden
+        >
+          <p class="text-ink-500 dark:text-ink-400 text-sm uppercase tracking-wide">
+            Aufgabe {i + 1} von {total}
+          </p>
+          <div class="wb-frage font-serif text-2xl md:text-4xl lg:text-5xl text-ink-900 dark:text-ink-50 leading-tight">
+            {w.frage}
+          </div>
+          <div
+            class="wb-loesung mx-auto max-w-3xl rounded-xl border-l-4 border-accent-500 bg-accent-50 p-5 md:p-7 text-left dark:bg-accent-700/20 dark:border-accent-300"
+            hidden
+          >
+            <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-2 dark:text-accent-100">
+              Lösung
+            </p>
+            <div class="font-serif text-xl md:text-3xl text-ink-900 dark:text-ink-50">
+              {w.loesung}
+            </div>
+          </div>
+        </div>
+      ))}
+
+      <!-- Ende -->
+      <div id="wb-ende" class="space-y-4" hidden>
+        <p class="text-6xl" aria-hidden="true">✓</p>
+        <p class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 dark:text-ink-50">
+          Geschafft.
+        </p>
+        <p class="text-ink-600 dark:text-ink-300">
+          {total} {total === 1 ? 'Aufgabe' : 'Aufgaben'} durchgegangen.
+        </p>
+      </div>
+    </section>
+
+    <!-- Steuerung -->
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <button
+        id="wb-prev"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm text-ink-700 hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-200 dark:hover:bg-ink-700 disabled:opacity-40 disabled:pointer-events-none"
+      >
+        ← Zurück
+      </button>
+      <button
+        id="wb-next"
+        type="button"
+        class="rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold hover:bg-accent-700 transition dark:bg-accent-500 dark:hover:bg-accent-600 text-lg"
+      >
+        Start ▶
+      </button>
+      <button
+        id="wb-reset"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm text-ink-700 hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-200 dark:hover:bg-ink-700"
+        hidden
+      >
+        Von vorn
+      </button>
+    </div>
+
+    <p class="mt-6 text-center text-xs text-ink-500 dark:text-ink-400">
+      Tipp: Mit der <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">Leertaste</kbd>
+      oder <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">→</kbd> einen Schritt weiter,
+      mit <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">←</kbd> zurück.
+    </p>
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ total }}>
+  (function () {
+    const intro = document.getElementById('wb-intro');
+    const ende = document.getElementById('wb-ende');
+    const buehne = document.getElementById('wb-buehne');
+    const steps = Array.from(document.querySelectorAll('.wb-step'));
+    const punkte = Array.from(document.querySelectorAll('#wb-punkte li'));
+    const zaehler = document.getElementById('wb-zaehler');
+    const btnNext = document.getElementById('wb-next');
+    const btnPrev = document.getElementById('wb-prev');
+    const btnReset = document.getElementById('wb-reset');
+
+    // Phase-Encoding:
+    //   -1            -> Intro
+    //   2*i           -> Frage i sichtbar (Lösung verdeckt)
+    //   2*i + 1       -> Frage i + Lösung sichtbar
+    //   2*total       -> Ende
+    let phase = -1;
+
+    function render() {
+      // Alles verstecken
+      intro.hidden = true;
+      ende.hidden = true;
+      steps.forEach((s) => (s.hidden = true));
+
+      if (phase === -1) {
+        intro.hidden = false;
+        btnNext.textContent = 'Start ▶';
+        btnPrev.disabled = true;
+        btnReset.hidden = true;
+      } else if (phase >= 2 * total) {
+        ende.hidden = false;
+        btnNext.textContent = 'Von vorn ↺';
+        btnPrev.disabled = false;
+        btnReset.hidden = true;
+      } else {
+        const i = Math.floor(phase / 2);
+        const zeigeLoesung = phase % 2 === 1;
+        const step = steps[i];
+        step.hidden = false;
+        const loesung = step.querySelector('.wb-loesung');
+        if (loesung) loesung.hidden = !zeigeLoesung;
+
+        btnNext.textContent = zeigeLoesung
+          ? i + 1 < total ? 'Nächste Aufgabe →' : 'Abschluss →'
+          : 'Lösung zeigen';
+        btnPrev.disabled = false;
+        btnReset.hidden = false;
+      }
+
+      // Zähler und Punkte
+      if (phase === -1) {
+        zaehler.textContent = `0 / ${total}`;
+      } else if (phase >= 2 * total) {
+        zaehler.textContent = `${total} / ${total}`;
+      } else {
+        zaehler.textContent = `${Math.floor(phase / 2) + 1} / ${total}`;
+      }
+      punkte.forEach((p, i) => {
+        p.classList.remove('bg-accent-500', 'bg-accent-300');
+        if (phase >= 2 * total) {
+          p.classList.add('bg-accent-500');
+        } else if (phase === -1) {
+          // alle grau
+        } else {
+          const cur = Math.floor(phase / 2);
+          if (i < cur) p.classList.add('bg-accent-500');
+          else if (i === cur) p.classList.add('bg-accent-300');
+        }
+      });
+    }
+
+    function next() {
+      if (phase >= 2 * total) {
+        phase = -1; // Von vorn
+      } else {
+        phase += 1;
+      }
+      render();
+      reRenderMath();
+    }
+
+    function prev() {
+      if (phase <= -1) return;
+      phase -= 1;
+      render();
+      reRenderMath();
+    }
+
+    function reset() {
+      phase = -1;
+      render();
+    }
+
+    function reRenderMath() {
+      // KaTeX wendet auf neu sichtbar gewordenen Inhalt erneut an
+      if (typeof window.renderMathInElement === 'function') {
+        window.renderMathInElement(buehne, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+          ],
+          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
+          ignoredClasses: ['katex'],
+          throwOnError: false,
+        });
+      }
+    }
+
+    btnNext.addEventListener('click', next);
+    btnPrev.addEventListener('click', prev);
+    btnReset.addEventListener('click', reset);
+
+    // Tastatur
+    document.addEventListener('keydown', (e) => {
+      if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
+        e.preventDefault();
+        next();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prev();
+      }
+    });
+
+    render();
+  })();
+</script>

@@ -1,0 +1,175 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TopicBlock from '../../components/TopicBlock.astro';
+
+// --- Daten laden ----------------------------------------------------------
+const themen = (await getCollection('themen', ({ data }) => !data.entwurf)).sort(
+  (a, b) => a.data.ordnung - b.data.ordnung
+);
+const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
+const quizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
+const blog = await getCollection('blog', ({ data }) => !data.entwurf);
+
+// --- Slug-Helfer ----------------------------------------------------------
+function slugify(s) {
+  return s
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// --- Cluster-Definition ---------------------------------------------------
+const clusterReihenfolge = ['5/6', '7/8', '9/10', 'Oberstufe'];
+
+const clusterLabel = {
+  '5/6': 'Klasse 5–6',
+  '7/8': 'Klasse 7–8',
+  '9/10': 'Klasse 9–10',
+  Oberstufe: 'Oberstufe',
+};
+
+const clusterSlug = {
+  '5/6': 'klasse-5-6',
+  '7/8': 'klasse-7-8',
+  '9/10': 'klasse-9-10',
+  Oberstufe: 'oberstufe',
+};
+
+// --- Verknüpfungen pro Thema ----------------------------------------------
+function aufgabenZu(thema) {
+  return aufgaben
+    .filter((a) => a.data.thema === thema)
+    .sort((a, b) => a.data.titel.localeCompare(b.data.titel, 'de'));
+}
+function quizzesZu(thema) {
+  return quizzes
+    .filter((q) => q.data.thema === thema)
+    .sort((a, b) => a.data.titel.localeCompare(b.data.titel, 'de'));
+}
+function blogZu(thema, blogTags) {
+  const aufgabenTags = aufgabenZu(thema).flatMap((a) => a.data.tags ?? []);
+  const pool = new Set(
+    [...blogTags, ...aufgabenTags].map((t) => t.toLowerCase())
+  );
+  if (pool.size === 0) return [];
+  return blog
+    .filter((b) =>
+      (b.data.tags ?? []).some((tag) => pool.has(tag.toLowerCase()))
+    )
+    .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf());
+}
+
+// Themen pro Band mit ausgewerteten Verknuepfungen
+const themenProBand = clusterReihenfolge
+  .map((band) => ({
+    band,
+    label: clusterLabel[band],
+    slug: clusterSlug[band],
+    themen: themen
+      .filter((t) => t.data.klassenstufeBand === band)
+      .map((t) => ({
+        slug: slugify(t.data.thema),
+        titel: t.data.titel,
+        klassenstufenAnzeige: t.data.klassenstufenAnzeige,
+        einfuehrung: t.data.einfuehrung,
+        fehlvorstellungen: t.data.fehlvorstellungen,
+        whiteboard: t.data.whiteboardAufgaben,
+        aufgaben: aufgabenZu(t.data.thema),
+        quizzes: quizzesZu(t.data.thema),
+        blog: blogZu(t.data.thema, t.data.blogTags),
+      })),
+  }))
+  .filter((g) => g.themen.length > 0);
+---
+
+<BaseLayout
+  title="Themen"
+  beschreibung="Mathematik-Themen der Sekundarstufe – Aufgaben, Diagnose-Fragen, Mini-Whiteboard-Übungen und Didaktik-Beiträge, nach Klassenstufen-Clustern geordnet."
+>
+  <section class="container-wide pt-12 pb-6 md:pt-16">
+    <div class="max-w-3xl">
+      <p class="text-accent-700 font-semibold tracking-wide uppercase text-xs mb-3 dark:text-accent-100">
+        Themen · Sekundarstufe I & Übergang Oberstufe
+      </p>
+      <h1 class="font-serif text-4xl md:text-5xl font-semibold leading-tight text-ink-900 mb-4 dark:text-ink-50">
+        Themenübersicht
+      </h1>
+      <p class="text-lg text-ink-700 leading-relaxed dark:text-ink-200">
+        Pro Thema: kurze didaktische Einordnung, typische Fehlvorstellungen,
+        passende Aufgabenfolgen, Diagnose-Quizzes, Mini-Whiteboard-Fragen für
+        die schnelle Abfrage und verwandte Blog-Beiträge.
+      </p>
+    </div>
+  </section>
+
+  <nav
+    aria-label="Themen-Bereiche"
+    class="sticky top-[64px] z-30 -mx-4 sm:mx-0 mb-8 backdrop-blur bg-ink-50/85 dark:bg-ink-900/85 border-y border-ink-200 dark:border-ink-700"
+  >
+    <div class="container-wide py-3 flex flex-wrap gap-2 text-sm">
+      <span class="text-ink-500 dark:text-ink-400 mr-1 hidden sm:inline">Springe zu:</span>
+      {themenProBand.map((g) => (
+        <a
+          href={`#${g.slug}`}
+          class="rounded-full border border-ink-300 bg-white px-3 py-1 text-ink-700 hover:border-accent-500 hover:text-accent-700 transition-colors dark:border-ink-600 dark:bg-ink-800 dark:text-ink-200 dark:hover:border-accent-300 dark:hover:text-accent-100"
+        >
+          {g.label}
+        </a>
+      ))}
+    </div>
+  </nav>
+
+  <div class="container-wide pb-20">
+    {themenProBand.map((gruppe) => (
+      <section id={gruppe.slug} class="mb-16 scroll-mt-32">
+        <header class="mb-6 flex items-end justify-between gap-4">
+          <h2 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 dark:text-ink-50">
+            {gruppe.label}
+          </h2>
+          <span class="text-sm text-ink-500 dark:text-ink-400">
+            {gruppe.themen.length} {gruppe.themen.length === 1 ? 'Thema' : 'Themen'}
+          </span>
+        </header>
+
+        <div class="mb-8 flex flex-wrap gap-2">
+          {gruppe.themen.map((tv) => (
+            <a
+              href={`#thema-${tv.slug}`}
+              class="rounded-md bg-ink-100 px-2.5 py-1 text-xs text-ink-700 hover:bg-accent-50 hover:text-accent-700 transition-colors dark:bg-ink-800 dark:text-ink-200 dark:hover:bg-accent-700/25 dark:hover:text-accent-100"
+            >
+              {tv.titel}
+            </a>
+          ))}
+        </div>
+
+        <div class="space-y-10">
+          {gruppe.themen.map((tv) => (
+            <TopicBlock
+              slug={tv.slug}
+              titel={tv.titel}
+              klassenstufenAnzeige={tv.klassenstufenAnzeige}
+              einfuehrung={tv.einfuehrung}
+              fehlvorstellungen={tv.fehlvorstellungen}
+              whiteboard={tv.whiteboard}
+              aufgaben={tv.aufgaben}
+              quizzes={tv.quizzes}
+              blog={tv.blog}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+
+    {themenProBand.length === 0 && (
+      <p class="text-ink-600 dark:text-ink-300">
+        Noch keine Themen veröffentlicht. Lege Themenbeschreibungen unter
+        <code class="bg-ink-100 px-1.5 py-0.5 rounded text-sm dark:bg-ink-800">src/content/themen/</code> an.
+      </p>
+    )}
+  </div>
+</BaseLayout>

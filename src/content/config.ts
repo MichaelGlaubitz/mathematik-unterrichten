@@ -71,4 +71,31 @@ const quizzes = defineCollection({
   }),
 });
 
-export const collections = { blog, aufgaben, quizzes };
+// Themen-Übersicht: Eine Themenseite (Klassenstufen-Cluster) bündelt Aufgaben,
+// Diagnose-Quizzes, Blog-Beiträge und Mini-Whiteboard-Aufgaben pro Thema.
+const themen = defineCollection({
+  type: 'data',
+  schema: z.object({
+    titel: z.string(),
+    // Join-Schlüssel: identisch mit `thema` in Aufgaben/Quizzes.
+    thema: z.string(),
+    klassenstufeBand: z.enum(['5/6', '7/8', '9/10', 'Oberstufe']),
+    klassenstufenAnzeige: z.string(), // z.B. "Klasse 5–6"
+    ordnung: z.number().default(100),
+    einfuehrung: z.string(),
+    fehlvorstellungen: z.array(z.string()).default([]),
+    whiteboardAufgaben: z
+      .array(
+        z.object({
+          frage: z.string(),
+          loesung: z.string(),
+        })
+      )
+      .default([]),
+    // Tags, über die verwandte Blog-Beiträge gefunden werden.
+    blogTags: z.array(z.string()).default([]),
+    entwurf: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog, aufgaben, quizzes, themen };
