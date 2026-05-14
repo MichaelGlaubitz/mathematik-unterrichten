@@ -1230,7 +1230,24 @@ function wbLabelFromHref(href: string): string {
       >
         Alle Lösungen verbergen
       </button>
+      <button
+        id="ug-route-speichern"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+        hidden
+      >
+        Whiteboard-Route speichern
+      </button>
+      <button
+        id="ug-route-laden"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+      >
+        Route laden
+      </button>
+      <input id="ug-route-datei" type="file" accept=".html,.json,text/html,application/json" class="sr-only" />
       <p id="ug-fehler" class="text-sm text-red-600 dark:text-red-300" hidden>Mindestens einen Aufgabentyp auswählen.</p>
+      <p id="ug-route-status" class="text-sm text-ink-600 dark:text-ink-300" aria-live="polite"></p>
     </div>
   </section>
 
@@ -1288,6 +1305,13 @@ function wbLabelFromHref(href: string): string {
         <div class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-ink-600">
           <span class="text-xs font-semibold uppercase tracking-wide text-ink-700 dark:text-ink-200">Whiteboard</span>
           <div class="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              id="ug-wb-route-speichern"
+              class="rounded-md border border-ink-300 bg-ink-100 px-3 py-2 text-sm font-medium text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-ink-500 dark:bg-ink-700 dark:text-ink-50 dark:hover:bg-ink-600"
+            >
+              Route speichern
+            </button>
             <button
               type="button"
               id="ug-wb-zu-arbeitsblatt"
@@ -1707,10 +1731,22 @@ function wbLabelFromHref(href: string): string {
   import { createPracticeGenerators } from '../lib/pythagorasPracticeGenerators';
   import {
     bindPracticeDiagramCheckbox,
+    effectiveDiagramVisibleByHash,
     hashPracticeTaskFrage,
+    readShowPracticeDiagrams,
+    setDiagramEffectiveVisibleForHash,
     syncPracticeDiagramUi,
     toggleDiagramForHash,
+    writeShowPracticeDiagrams,
   } from '../lib/practiceDiagramPreference';
+  import {
+    createWhiteboardRouteWindowNamePayload,
+    extractWhiteboardRouteFromText,
+    parseWhiteboardRouteFromWindowNamePayload,
+    serializeWhiteboardRouteHtml,
+    WHITEBOARD_ROUTE_KIND,
+    WHITEBOARD_ROUTE_VERSION,
+  } from '../lib/whiteboardRouteFile';
 
   const GEN = createPracticeGenerators(() => Math.random());
 
@@ -1811,6 +1847,11 @@ function wbLabelFromHref(href: string): string {
     const btnAlle = document.getElementById('ug-alle');
     const btnKeine = document.getElementById('ug-keine');
     const btnDruck = document.getElementById('ug-drucken');
+    const routeSpeichernBtn = document.getElementById('ug-route-speichern');
+    const wbRouteSpeichernBtn = document.getElementById('ug-wb-route-speichern');
+    const routeLadenBtn = document.getElementById('ug-route-laden');
+    const routeDateiInput = document.getElementById('ug-route-datei') as HTMLInputElement | null;
+    const routeStatus = document.getElementById('ug-route-status');
     const wbVorbereitung = document.getElementById('ug-wb-vorbereitung');
     const wbVorbZuAb = document.getElementById('ug-wb-vorbereitung-zu-ab');
 
@@ -1854,6 +1895,167 @@ function wbLabelFromHref(href: string): string {
         window.clearInterval(wbTimerId);
         wbTimerId = null;
       }
+    }
+
+    function setRouteStatus(message, isError = false) {
+      if (!routeStatus) return;
+      routeStatus.textContent = message;
+      routeStatus.classList.toggle('text-red-600', isError);
+      routeStatus.classList.toggle('dark:text-red-300', isError);
+      routeStatus.classList.toggle('text-ink-600', !isError);
+      routeStatus.classList.toggle('dark:text-ink-300', !isError);
+    }
+
+    function comparablePath(path) {
+      const p = String(path || '/').split('#')[0].split('?')[0] || '/';
+      return p.length > 1 ? p.replace(/\/+$/, '') : p;
+    }
+
+    function currentRoutePageUrl() {
+      return `${window.location.origin}${window.location.pathname}`;
+    }
+
+    function currentRouteVariant() {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      return parts[parts.length - 1] || '';
+    }
+
+    function collectDiagramScales() {
+      const out = {};
+      for (const a of aufgaben) {
+        if (!a?.diagram) continue;
+        const hash = hashPracticeTaskFrage(a.frage);
+        const scale = readDiagramScale(hash);
+        if (Math.abs(scale - 1) > 0.0001) out[hash] = scale;
+      }
+      return out;
+    }
+
+    function collectDiagramVisibility() {
+      const byHash = {};
+      for (const a of aufgaben) {
+        if (!a?.diagram) continue;
+        const hash = hashPracticeTaskFrage(a.frage);
+        byHash[hash] = effectiveDiagramVisibleByHash(hash);
+      }
+      return { global: readShowPracticeDiagrams(), byHash };
+    }
+
+    function buildWhiteboardRouteState() {
+      return {
+        kind: WHITEBOARD_ROUTE_KIND,
+        version: WHITEBOARD_ROUTE_VERSION,
+        title: document.title || 'Whiteboard-Route',
+        createdAt: new Date().toISOString(),
+        pagePath: window.location.pathname,
+        pageUrl: currentRoutePageUrl(),
+        variant: currentRouteVariant(),
+        selectedTaskTypes: aktiveTypen(),
+        layout,
+        anzahl,
+        wbIndex,
+        wbZeigeLoesung,
+        tasks: aufgaben,
+        diagramScales: collectDiagramScales(),
+        diagramVisibility: collectDiagramVisibility(),
+      };
+    }
+
+    function whiteboardRouteFilename() {
+      const slug = currentRouteVariant().replace(/[^a-z0-9-]+/gi, '-').replace(/^-+|-+$/g, '') || 'whiteboard';
+      const date = new Date().toISOString().slice(0, 10);
+      return `whiteboard-route-${slug}-${date}.html`;
+    }
+
+    function saveWhiteboardRoute() {
+      if (aufgaben.length === 0) {
+        setRouteStatus('Erzeuge zuerst Aufgaben, dann kann die Route gespeichert werden.', true);
+        return;
+      }
+      const route = buildWhiteboardRouteState();
+      const html = serializeWhiteboardRouteHtml(route);
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = whiteboardRouteFilename();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setRouteStatus('Whiteboard-Route gespeichert. Die HTML-Datei oeffnet diese Route per Doppelklick.');
+    }
+
+    function applyTaskTypeSelection(selectedTaskTypes) {
+      if (!Array.isArray(selectedTaskTypes) || selectedTaskTypes.length === 0) return;
+      const selected = new Set(selectedTaskTypes);
+      typBoxen().forEach((c) => {
+        c.checked = selected.has(c.value);
+      });
+    }
+
+    function applyDiagramSettingsFromRoute(route) {
+      diagramScaleByHash.clear();
+      Object.entries(route.diagramScales || {}).forEach(([hash, scale]) => {
+        setDiagramScale(hash, scale);
+      });
+      writeShowPracticeDiagrams(route.diagramVisibility.global);
+      const diagramCheckbox = document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null;
+      if (diagramCheckbox) diagramCheckbox.checked = route.diagramVisibility.global;
+      Object.entries(route.diagramVisibility.byHash || {}).forEach(([hash, visible]) => {
+        setDiagramEffectiveVisibleForHash(hash, visible);
+      });
+    }
+
+    function applyWhiteboardRoute(route) {
+      if (route.tasks.length === 0) {
+        setRouteStatus('Die Route enthaelt keine Aufgaben.', true);
+        return;
+      }
+      applyTaskTypeSelection(route.selectedTaskTypes);
+      applyDiagramSettingsFromRoute(route);
+      aufgaben = route.tasks;
+      anzahl = route.anzahl;
+      wbIndex = route.wbIndex;
+      wbZeigeLoesung = route.wbZeigeLoesung;
+      layout = route.layout;
+      refreshAktiv();
+      if (layout === 'whiteboard') startWbTimer();
+      else stopWbTimer();
+      render();
+      setRouteStatus('Whiteboard-Route geladen.');
+    }
+
+    function openOrApplyWhiteboardRoute(route) {
+      if (comparablePath(route.pagePath) !== comparablePath(window.location.pathname)) {
+        window.name = createWhiteboardRouteWindowNamePayload(route);
+        window.location.assign(route.pageUrl || route.pagePath);
+        return;
+      }
+      applyWhiteboardRoute(route);
+    }
+
+    async function loadWhiteboardRouteFile(file) {
+      try {
+        const text = await file.text();
+        const route = extractWhiteboardRouteFromText(text);
+        if (!route) {
+          setRouteStatus('Diese Datei enthaelt keine gueltige Whiteboard-Route.', true);
+          return;
+        }
+        openOrApplyWhiteboardRoute(route);
+      } catch (err) {
+        console.warn('[MassenuebungGeo] Whiteboard-Route laden:', err);
+        setRouteStatus('Die Whiteboard-Route konnte nicht gelesen werden.', true);
+      }
+    }
+
+    function consumeWindowNameRoute() {
+      const route = parseWhiteboardRouteFromWindowNamePayload(window.name || '');
+      if (!route) return false;
+      window.name = '';
+      openOrApplyWhiteboardRoute(route);
+      return true;
     }
 
     function shuffleTypen(arr) {
@@ -1912,6 +2114,8 @@ function wbLabelFromHref(href: string): string {
       if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt');
       if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt');
       if (btnDruck) btnDruck.hidden = !(hat && layout === 'arbeitsblatt');
+      if (routeSpeichernBtn) routeSpeichernBtn.hidden = !hat;
+      if (wbRouteSpeichernBtn) wbRouteSpeichernBtn.hidden = !hat;
       if (arbeitsblatt) arbeitsblatt.hidden = layout !== 'arbeitsblatt';
       if (wbOverlay) wbOverlay.hidden = !wbOverlayAktiv;
       document.documentElement.classList.toggle('mu-wb-overlay-open', wbOverlayAktiv);
@@ -2043,6 +2247,16 @@ function wbLabelFromHref(href: string): string {
     });
 
     btnDruck?.addEventListener('click', () => { window.print(); });
+    routeSpeichernBtn?.addEventListener('click', saveWhiteboardRoute);
+    wbRouteSpeichernBtn?.addEventListener('click', saveWhiteboardRoute);
+    routeLadenBtn?.addEventListener('click', () => {
+      routeDateiInput?.click();
+    });
+    routeDateiInput?.addEventListener('change', () => {
+      const file = routeDateiInput.files?.[0];
+      routeDateiInput.value = '';
+      if (file) void loadWhiteboardRouteFile(file);
+    });
 
     alleAufBtn?.addEventListener('click', () => {
       liste?.querySelectorAll('details').forEach((d) => { d.open = true; });
@@ -2122,7 +2336,9 @@ function wbLabelFromHref(href: string): string {
     );
 
     refreshAktiv();
-    render();
+    if (!consumeWindowNameRoute()) {
+      render();
+    }
   }
 
   if (typeof document !== 'undefined') {
