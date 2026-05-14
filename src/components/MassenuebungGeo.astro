@@ -1769,7 +1769,17 @@ function wbLabelFromHref(href: string): string {
       root.querySelectorAll('.mu-practice-diagram[data-mu-diagram-hash]').forEach((node) => {
         const hash = node.getAttribute('data-mu-diagram-hash');
         if (!hash) return;
-        node.style.setProperty('--mu-diagram-scale', String(readDiagramScale(hash)));
+        const scale = readDiagramScale(hash);
+        node.style.setProperty('--mu-diagram-scale', String(scale));
+        // Robust fallback: einige Browser/Layouts (insb. Flex-Container in der Whiteboard-
+        // Ansicht und schmale Viewports) berechnen die SVG-Breite über die CSS-Variable
+        // nicht zuverlässig neu. Daher die gewünschte Zielbreite zusätzlich direkt setzen.
+        node.querySelectorAll('svg').forEach((svg) => {
+          const targetWidth = Math.round(300 * scale);
+          svg.style.width = `${targetWidth}px`;
+          svg.style.maxWidth = 'none';
+          svg.style.height = 'auto';
+        });
       });
       root.querySelectorAll('[data-mu-diagram-zoom-label-for]').forEach((node) => {
         const hash = node.getAttribute('data-mu-diagram-zoom-label-for');
@@ -2190,10 +2200,15 @@ function wbLabelFromHref(href: string): string {
   }
   .mu-practice-diagram {
     --mu-diagram-scale: 1;
+    /* Erlaubt es, einen vergrößerten Funktionsgraphen horizontal zu scrollen,
+       falls er breiter als der Container wird (z. B. auf schmalen Viewports
+       oder im Whiteboard-Overlay). */
+    overflow-x: auto;
+    overflow-y: hidden;
   }
   .mu-practice-diagram svg {
     display: block;
-    width: min(100%, calc(300px * var(--mu-diagram-scale)));
+    width: calc(300px * var(--mu-diagram-scale));
     max-width: none;
     height: auto;
     margin-inline: auto;
