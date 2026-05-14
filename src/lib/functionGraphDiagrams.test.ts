@@ -18,7 +18,7 @@ describe('Funktionsgraph-Diagramme', () => {
     const svg = svgLineareGleichungSchnittpunkt({ m: 1, n: 2 }, { m: 0, n: 4 }, 2);
 
     expectFunctionGraphCoordinateStyle(svg);
-    expect(svg).toContain('Schnittpunkt: x = 2');
+    expect(svg).not.toContain('Schnittpunkt: x = 2');
     expect(svg).not.toContain('Koordinatensystem · Schnittpunkt');
   });
 

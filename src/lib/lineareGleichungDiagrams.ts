@@ -113,6 +113,5 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
   </g>
   ${axes}
   ${ticks}
-  <text x='${W / 2}' y='${H - 1}' font-size='10' fill='currentColor' text-anchor='middle' opacity='0.72' font-family='system-ui,sans-serif'>Schnittpunkt: x = ${xS}</text>
 </svg></figure>`;
 }
