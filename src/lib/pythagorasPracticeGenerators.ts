@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/bruchrechnung, /uebung/negative-zahlen, /uebung/algebra, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/bruchrechnung, /uebung/negative-zahlen, /uebung/algebra, /uebung/lineare-gleichungen, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -138,6 +138,16 @@ export const ALGEBRA_GENERATOR_IDS = [
   'alg_distributiv_zahl',
 ] as const;
 
+/** Lineare Gleichungen in einer Variablen (Klasse 7–8). */
+export const LINEARE_GLEICHUNGEN_GENERATOR_IDS = [
+  'lg_x_plus_a_eq_b',
+  'lg_ax_eq_b',
+  'lg_ax_plus_b_eq_c',
+  'lg_ax_plus_b_eq_cx_plus_d',
+  'lg_klammer_linear',
+  'lg_bruch_linear',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -177,6 +187,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...BRUCHRECHNUNG_GENERATOR_IDS,
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
   ...ALGEBRA_GENERATOR_IDS,
+  ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -1078,6 +1089,70 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Berechne mit dem Distributivgesetz: $${k}(${m}+${n})$.`,
         loesung: `$${k}(${m}+${n})=${k}\\cdot ${m}+${k}\\cdot ${n}=${k * m}+${k * n}=${s}$.`,
         diagram: svgDistributivFlaeche(k, m, n),
+      };
+    },
+    lg_x_plus_a_eq_b() {
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const a = randInt(-12, 12);
+      const b = x0 + a;
+      return {
+        frage: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$.`,
+        loesung: `Addition von $${-a}$ (bzw. Subtraktion von $${a}$) auf beiden Seiten: $x=${x0}$.`,
+      };
+    },
+    lg_ax_eq_b() {
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const a = randInt(2, 9);
+      const b = a * x0;
+      return {
+        frage: `Löse die Gleichung $${a}x=${b}$.`,
+        loesung: `Division durch $${a}$: $x=${x0}$.`,
+      };
+    },
+    lg_ax_plus_b_eq_c() {
+      const a = randInt(2, 7);
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const b = randInt(-14, 14);
+      const c = a * x0 + b;
+      return {
+        frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$.`,
+        loesung: `Zuerst $${formatSignedInt(-b)}$ auf beiden Seiten, dann durch $${a}$: $x=${x0}$.`,
+      };
+    },
+    lg_ax_plus_b_eq_cx_plus_d() {
+      let a = 2;
+      let c = 2;
+      for (let t = 0; t < 30; t++) {
+        a = randInt(2, 6);
+        c = randInt(2, 6);
+        if (a !== c) break;
+      }
+      const x0 = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6] as const);
+      const b = randInt(-12, 12);
+      const d = a * x0 + b - c * x0;
+      return {
+        frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}x${formatSignedInt(d)}$.`,
+        loesung: `$${c}x$ subtrahieren: $${a - c}x${formatSignedInt(b)}=${d}$. Daraus $x=${x0}$.`,
+      };
+    },
+    lg_klammer_linear() {
+      const k = randInt(2, 6);
+      const a = randInt(-5, 5);
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const rhs = k * (x0 + a);
+      return {
+        frage: `Löse die Gleichung $${k}(x${formatSignedInt(a)})=${rhs}$.`,
+        loesung: `Division durch $${k}$: $x${formatSignedInt(a)}=${rhs / k}$. Subtrahiere $${a}$ bzw. addiere $${-a}$: $x=${x0}$.`,
+      };
+    },
+    lg_bruch_linear() {
+      const b = randInt(2, 8);
+      const c = randInt(-7, 7);
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const a = c * b - x0;
+      return {
+        frage: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$.`,
+        loesung: `Mit $${b}$ multiplizieren: $x${formatSignedInt(a)}=${c * b}$, also $x=${x0}$.`,
       };
     },
     wr_vereinfachen() {

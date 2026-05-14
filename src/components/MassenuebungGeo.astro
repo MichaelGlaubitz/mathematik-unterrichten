@@ -4,6 +4,7 @@ import {
   BRUCHRECHNUNG_GENERATOR_IDS,
   CIRCLE_GEOMETRY_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
+  LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   NEGATIVE_ZAHLEN_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
@@ -24,6 +25,7 @@ export interface Props {
     | 'bruchrechnung'
     | 'negative-zahlen'
     | 'algebra'
+    | 'lineare-gleichungen'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -48,6 +50,8 @@ const allowedIds =
                 ? NEGATIVE_ZAHLEN_GENERATOR_IDS
                 : variant === 'algebra'
                   ? ALGEBRA_GENERATOR_IDS
+                : variant === 'lineare-gleichungen'
+                  ? LINEARE_GLEICHUNGEN_GENERATOR_IDS
                 : variant === 'wurzelrechnung'
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
@@ -64,6 +68,7 @@ const wbLabelByVariant = {
   bruchrechnung: 'WB Bruchrechnung',
   'negative-zahlen': 'WB Negative Zahlen',
   algebra: 'WB Algebra',
+  'lineare-gleichungen': 'WB Lineare Gleichungen',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -78,6 +83,7 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/bruchrechnung': 'WB Bruchrechnung',
   '/uebung/negative-zahlen': 'WB Negative Zahlen',
   '/uebung/algebra': 'WB Algebra',
+  '/uebung/lineare-gleichungen': 'WB Lineare Gleichungen',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -101,7 +107,7 @@ function wbLabelFromHref(href: string): string {
       {
         variant === 'bruchrechnung'
           ? 'Übungsgenerator · Klasse 5–6 · Mini-Whiteboard & Arbeitsblatt'
-          : variant === 'negative-zahlen' || variant === 'algebra'
+          : variant === 'negative-zahlen' || variant === 'algebra' || variant === 'lineare-gleichungen'
             ? 'Übungsgenerator · Klasse 7–8 · Mini-Whiteboard & Arbeitsblatt'
             : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
       }
@@ -194,6 +200,16 @@ function wbLabelFromHref(href: string): string {
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Eine Aufgabenart nutzt ein <strong>Flächenmodell</strong> zum Distributivgesetz (nur positive Zahlen).
+          </p>
+        </>
+      ) : variant === 'lineare-gleichungen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>linearen Gleichungen</strong> in einer Variablen – Äquivalenzumformungen,
+            Klammern und einfache Bruch-Terme; alles mit ganzzahliger Lösung.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen (rein algebraisch), passend zum Übergang vom Termumformen zur Lösungsmenge.
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -541,6 +557,40 @@ function wbLabelFromHref(href: string): string {
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_distributiv_zahl" checked />
                 <span>Distributivgesetz (nur Zahlen, Flächenmodell)</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'lineare-gleichungen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Lineare Gleichungen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lg_x_plus_a_eq_b" checked />
+                <span>Form $x+a=b$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_eq_b" checked />
+                <span>Form $ax=b$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_c" checked />
+                <span>Form $ax+b=c$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_cx_plus_d" checked />
+                <span>Variable auf beiden Seiten</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lg_klammer_linear" checked />
+                <span>Klammer: $k(x+a)=\ldots$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lg_bruch_linear" checked />
+                <span>Bruchterm {'$\\dfrac{x+a}{b}=c$'}</span>
               </label>
             </div>
           </fieldset>
@@ -986,6 +1036,10 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/algebra')}
           </a>
           {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
           <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/bruchrechnung')}
           </a>
@@ -1005,12 +1059,31 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/negative-zahlen')}
           </a>
           {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
           <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/bruchrechnung')}
           </a>
           {' · '}
           <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/bruchgleichungen')}
+          </a>
+        </>
+      ) : variant === 'lineare-gleichungen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/algebra" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/algebra')}
+          </a>
+          {' · '}
+          <a href="/uebung/negative-zahlen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/negative-zahlen')}
+          </a>
+          {' · '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
           </a>
         </>
       ) : variant === 'wurzelrechnung' ? (
