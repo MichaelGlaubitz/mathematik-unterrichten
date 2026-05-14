@@ -3,6 +3,7 @@ import {
   svgBruchErweiternKacheln,
   svgBruchMalRaster,
   svgBruchStreifen,
+  svgBruchVergleichAusgangsstreifen,
   svgBruchVergleichZweiRiegel,
   svgBruchZweiStreifen,
 } from './bruchrechnungDiagrams';
@@ -21,11 +22,19 @@ describe('bruchrechnungDiagrams', () => {
     expect(svgBruchStreifen(2, 5, '2/5', 'loesung')).toMatch(/<rect[^>]*fill='currentColor'/);
   });
 
-  it('Erweitern-Kacheln: d×k Raster mit Gitterlinien', () => {
-    const svg = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'loesung');
-    expect((svg.match(/<rect/g) || []).length).toBe(12);
-    const lines = svg.match(/<line/g) || [];
-    expect(lines.length).toBe(9);
+  it('Erweitern-Kacheln: Gitterlinien nur in der Lösung', () => {
+    const auf = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'aufgabe');
+    expect(auf.match(/<line/g)).toBeNull();
+    const loe = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'loesung');
+    expect((loe.match(/<rect/g) || []).length).toBe(12);
+    expect((loe.match(/<line/g) || []).length).toBe(9);
+  });
+
+  it('Vergleich: Aufgabe je Originalnenner, Lösung auf Hauptnenner', () => {
+    const aus = svgBruchVergleichAusgangsstreifen(1, 3, 2, 5, 'loesung');
+    expect((aus.match(/<rect/g) || []).length).toBe(8);
+    const haupt = svgBruchVergleichZweiRiegel(5, 6, 15, 'loesung');
+    expect((haupt.match(/<rect/g) || []).length).toBe(30);
   });
 
   it('Zwei Streifen und Vergleich: Aufgabe nur Umrisse', () => {

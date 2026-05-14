@@ -36,6 +36,7 @@ import {
   svgBruchErweiternKacheln,
   svgBruchMalRaster,
   svgBruchStreifen,
+  svgBruchVergleichAusgangsstreifen,
   svgBruchVergleichZweiRiegel,
   svgBruchZweiStreifen,
 } from './bruchrechnungDiagrams';
@@ -1032,7 +1033,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
         loesung: `Kreuzweise: $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$. Der größere Bruch ist ${gr}.`,
-        diagram: svgBruchVergleichZweiRiegel(nA, nB, L, 'aufgabe'),
+        diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
       };
     },

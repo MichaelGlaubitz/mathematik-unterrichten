@@ -136,11 +136,12 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(mul.diagramLoesung).toContain("fill-opacity='0.34'");
   });
 
-  it('br_erweitern nutzt Kachelraster mit Gitter (Erweiterungsfaktor sichtbar)', () => {
+  it('br_erweitern: Gitter nur in der Lösungsskizze', () => {
     const GEN = createPracticeGenerators(() => 0.1);
     const auf = GEN.br_erweitern();
-    expect(auf.diagram).toContain('<line');
-    expect(auf.diagram).toMatch(/<rect[^>]*fill-opacity='0.08'/);
+    expect(auf.diagram).toBeDefined();
+    expect(auf.diagramLoesung).toBeDefined();
+    expect(auf.diagram).not.toContain('<line');
     expect(auf.diagramLoesung).toContain('<line');
   });
 });
