@@ -209,6 +209,26 @@ export const TERMUMFORMUNGEN_GENERATOR_IDS = [
   'tu_hauptnenner',
 ] as const;
 
+/** Exponentialfunktionen (Wachstum/Zerfall, Parameter und einfache Gleichungen). */
+export const EXPONENTIALFUNKTIONEN_GENERATOR_IDS = [
+  'exp_wachstum_oder_zerfall',
+  'exp_parameter',
+  'exp_funktionswert',
+  'exp_faktor_aus_prozent',
+  'exp_verdopplung_halbierung',
+  'exp_einfache_gleichung',
+] as const;
+
+/** Logarithmen (Umkehrung, Regeln, Basiswechsel). */
+export const LOGARITHMEN_GENERATOR_IDS = [
+  'log_basis_zwei',
+  'log_zehner_differenz',
+  'log_exponentialgleichung',
+  'log_eins',
+  'log_basiswechsel',
+  'log_produktregel',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -255,6 +275,8 @@ export const PRACTICE_GENERATOR_IDS = [
   ...LINEARE_FUNKTIONEN_GENERATOR_IDS,
   ...LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS,
   ...TERMUMFORMUNGEN_GENERATOR_IDS,
+  ...EXPONENTIALFUNKTIONEN_GENERATOR_IDS,
+  ...LOGARITHMEN_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -1620,6 +1642,124 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Bringe auf einen Hauptnenner: $\\dfrac{1}{x}+\\dfrac{1}{x+${a}}$.`,
         loesung: `Hauptnenner $x(x+${a})$: $\\dfrac{1}{x}=\\dfrac{x+${a}}{x(x+${a})}$ und $\\dfrac{1}{x+${a}}=\\dfrac{x}{x(x+${a})}$. Summe: $\\dfrac{2x+${a}}{x(x+${a})}$.`,
+      };
+    },
+    exp_wachstum_oder_zerfall() {
+      const a = pick([50, 80, 100, 120, 200, 300] as const);
+      const q = pick([0.8, 0.9, 0.95, 1.05, 1.1, 1.2] as const);
+      const qStr = String(q).replace('.', ',');
+      return {
+        frage: `Gegeben ist $f(t)=${a}\\cdot ${qStr}^t$. Handelt es sich um Wachstum oder Zerfall und um wie viel Prozent pro Schritt?`,
+        loesung:
+          q > 1
+            ? `Da $q=${qStr}>1$, liegt Wachstum vor: ${Math.round((q - 1) * 100)}\\,\\% pro Schritt.`
+            : `Da $0<q=${qStr}<1$, liegt Zerfall vor: ${Math.round((1 - q) * 100)}\\,\\% pro Schritt.`,
+      };
+    },
+    exp_parameter() {
+      const a = pick([40, 60, 80, 100, 120, 200] as const);
+      const q = pick([0.8, 0.9, 0.95, 1.05, 1.1, 1.25] as const);
+      const qStr = String(q).replace('.', ',');
+      return {
+        frage: `Lies bei $f(t)=${a}\\cdot ${qStr}^t$ den Anfangswert und den Faktor ab.`,
+        loesung: `Anfangswert $a=${a}$, Faktor $q=${qStr}$.`,
+      };
+    },
+    exp_funktionswert() {
+      const a = pick([50, 80, 100, 120, 200] as const);
+      const q = pick([0.5, 0.8, 0.9, 1.1, 1.2, 2] as const);
+      const t = pick([2, 3, 4] as const);
+      const wert = Number((a * q ** t).toFixed(2));
+      return {
+        frage: `Berechne $f(${t})$ für $f(t)=${a}\\cdot ${String(q).replace('.', ',')}^t$.`,
+        loesung: `$f(${t})=${a}\\cdot ${String(q).replace('.', ',')}^{${t}}=${String(wert).replace('.', ',')}$`,
+      };
+    },
+    exp_faktor_aus_prozent() {
+      const p = pick([2, 4, 5, 8, 10, 12, 15, 20] as const);
+      if (random() < 0.5) {
+        return {
+          frage: `Welcher Exponentialfaktor $q$ gehört zu einem Wachstum von $${p}\\,\\%$ pro Schritt?`,
+          loesung: `$q=1+\\frac{${p}}{100}=1,${String(100 + p).slice(1)}$.`,
+        };
+      }
+      return {
+        frage: `Welcher Exponentialfaktor $q$ gehört zu einem Zerfall von $${p}\\,\\%$ pro Schritt?`,
+        loesung: `$q=1-\\frac{${p}}{100}=0,${String(100 - p).padStart(2, '0')}$.`,
+      };
+    },
+    exp_verdopplung_halbierung() {
+      if (random() < 0.5) {
+        const p = pick([5, 8, 10, 12, 15] as const);
+        const approx = Math.round(70 / p);
+        return {
+          frage: `Schätze die Verdopplungszeit bei einem Wachstum von $${p}\\,\\%$ pro Schritt (Faustregel).`,
+          loesung: `Faustregel $\\tfrac{70}{p}$: $\\tfrac{70}{${p}}\\approx ${approx}$ Schritte.`,
+        };
+      }
+      const p = pick([5, 8, 10, 12, 15] as const);
+      const approx = Math.round(70 / p);
+      return {
+        frage: `Schätze die Halbwertszeit bei einem Zerfall von $${p}\\,\\%$ pro Schritt (Faustregel).`,
+        loesung: `Faustregel $\\tfrac{70}{p}$: $\\tfrac{70}{${p}}\\approx ${approx}$ Schritte.`,
+      };
+    },
+    exp_einfache_gleichung() {
+      const basis = pick([2, 3, 5] as const);
+      const t = pick([2, 3, 4, 5] as const);
+      const ziel = basis ** t;
+      return {
+        frage: `Löse $${basis}^x=${ziel}$ nach $x$ auf.`,
+        loesung: `Da $${ziel}=${basis}^{${t}}$, gilt direkt $x=${t}$.`,
+      };
+    },
+    log_basis_zwei() {
+      const erg = pick([3, 4, 5, 6, 7, 8] as const);
+      const wert = 2 ** erg;
+      return {
+        frage: `Berechne $\\log_2(${wert})$.`,
+        loesung: `Gesucht ist die Hochzahl zu Basis $2$: $2^{${erg}}=${wert}$, also $\\log_2(${wert})=${erg}$.`,
+      };
+    },
+    log_zehner_differenz() {
+      const a = pick([3, 4, 5, 6] as const);
+      const b = pick([1, 2] as const);
+      return {
+        frage: `Berechne $\\log_{10}(10^{${a}})-\\log_{10}(10^{${b}})$.`,
+        loesung: `$\\log_{10}(10^{${a}})-\\log_{10}(10^{${b}})=${a}-${b}=${a - b}$.`,
+      };
+    },
+    log_exponentialgleichung() {
+      const basis = pick([2, 3, 5, 10] as const);
+      const x = pick([2, 3, 4] as const);
+      const ziel = basis ** x;
+      return {
+        frage: `Löse $${basis}^x=${ziel}$ mithilfe eines Logarithmus.`,
+        loesung: `$x=\\log_{${basis}}(${ziel})=${x}$.`,
+      };
+    },
+    log_eins() {
+      const basis = pick([2, 3, 5, 10] as const);
+      return {
+        frage: `Bestimme $\\log_{${basis}}(1)$.`,
+        loesung: `$\\log_{${basis}}(1)=0$, denn $${basis}^0=1$.`,
+      };
+    },
+    log_basiswechsel() {
+      const basis = pick([2, 3, 5, 7] as const);
+      const wert = pick([8, 9, 25, 49, 125, 343] as const);
+      const approx = Number((Math.log(wert) / Math.log(basis)).toFixed(3));
+      return {
+        frage: `Schreibe $\\log_{${basis}}(${wert})$ mit dem natürlichen Logarithmus um und gib einen Näherungswert an.`,
+        loesung: `$\\log_{${basis}}(${wert})=\\frac{\\ln(${wert})}{\\ln(${basis})}\\approx ${String(approx).replace('.', ',')}$.`,
+      };
+    },
+    log_produktregel() {
+      const a = pick([2, 3, 4, 5, 6] as const);
+      const b = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Vereinfache $\\ln(${a}\\cdot ${b})$ mithilfe einer Logarithmusregel.`,
+        loesung: `Produktregel: $\\ln(${a}\\cdot ${b})=\\ln(${a})+\\ln(${b})$.`,
       };
     },
     wr_vereinfachen() {

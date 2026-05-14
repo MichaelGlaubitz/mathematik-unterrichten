@@ -4,10 +4,12 @@ import {
   ALGEBRA_GENERATOR_IDS,
   BRUCHRECHNUNG_GENERATOR_IDS,
   CIRCLE_GEOMETRY_GENERATOR_IDS,
+  EXPONENTIALFUNKTIONEN_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
   LINEARE_FUNKTIONEN_GENERATOR_IDS,
   LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS,
+  LOGARITHMEN_GENERATOR_IDS,
   NEGATIVE_ZAHLEN_GENERATOR_IDS,
   PROZENTRECHNUNG_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
@@ -38,6 +40,8 @@ export interface Props {
     | 'lineare-funktionen'
     | 'lineare-gleichungssysteme'
     | 'termumformungen'
+    | 'exponentialfunktionen'
+    | 'logarithmen'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -76,6 +80,10 @@ const allowedIds =
                   ? LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS
                 : variant === 'termumformungen'
                   ? TERMUMFORMUNGEN_GENERATOR_IDS
+                : variant === 'exponentialfunktionen'
+                  ? EXPONENTIALFUNKTIONEN_GENERATOR_IDS
+                : variant === 'logarithmen'
+                  ? LOGARITHMEN_GENERATOR_IDS
                 : variant === 'wurzelrechnung'
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
@@ -99,6 +107,8 @@ const wbLabelByVariant = {
   'lineare-funktionen': 'WB Lineare Funktionen',
   'lineare-gleichungssysteme': 'WB Lineare Gleichungssysteme',
   termumformungen: 'WB Termumformungen',
+  exponentialfunktionen: 'WB Exponentialfunktionen',
+  logarithmen: 'WB Logarithmen',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -120,6 +130,8 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/lineare-funktionen': 'WB Lineare Funktionen',
   '/uebung/lineare-gleichungssysteme': 'WB Lineare Gleichungssysteme',
   '/uebung/termumformungen': 'WB Termumformungen',
+  '/uebung/exponentialfunktionen': 'WB Exponentialfunktionen',
+  '/uebung/logarithmen': 'WB Logarithmen',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -149,6 +161,8 @@ function wbLabelFromHref(href: string): string {
               variant === 'prozentrechnung' ||
               variant === 'stochastik'
             ? 'Übungsgenerator · Klasse 7–8 · Mini-Whiteboard & Arbeitsblatt'
+            : variant === 'exponentialfunktionen' || variant === 'logarithmen'
+              ? 'Übungsgenerator · Oberstufe · Mini-Whiteboard & Arbeitsblatt'
             : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
       }
     </p>
@@ -311,6 +325,26 @@ function wbLabelFromHref(href: string): string {
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Ohne Skizzen: Fokus auf Faktorstruktur und sauberes Arbeiten mit Nennerbedingungen.
+          </p>
+        </>
+      ) : variant === 'exponentialfunktionen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Exponentialfunktionen</strong> – Wachstum/Zerfall, Parameterdeutung,
+            Vermehrungsfaktor, Faustregeln und einfache Exponentialgleichungen.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Fokus auf funktionale Deutung und sichere Umrechnung zwischen Prozentangaben und Faktor $q$.
+          </p>
+        </>
+      ) : variant === 'logarithmen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Logarithmen</strong> – Umkehrung von Exponentialfunktionen, Regeln und
+            Basiswechsel.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Schwerpunkt auf „Mit welcher Hochzahl?“ sowie dem sicheren Anwenden grundlegender Logarithmusgesetze.
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -899,6 +933,74 @@ function wbLabelFromHref(href: string): string {
               </label>
             </div>
           </fieldset>
+        ) : variant === 'exponentialfunktionen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Exponentialfunktionen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_wachstum_oder_zerfall" checked />
+                <span>Wachstum oder Zerfall erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_parameter" checked />
+                <span>Anfangswert und Faktor ablesen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_funktionswert" checked />
+                <span>Funktionswert berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_faktor_aus_prozent" checked />
+                <span>Faktor $q$ aus Prozentangabe</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_verdopplung_halbierung" checked />
+                <span>Verdopplungs-/Halbwertszeit (Faustregel)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_einfache_gleichung" checked />
+                <span>Einfache Exponentialgleichung</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'logarithmen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Logarithmen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_basis_zwei" checked />
+                <span>Grundaufgaben mit Basis 2</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_zehner_differenz" checked />
+                <span>Zehnerlogarithmus und Differenzen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_exponentialgleichung" checked />
+                <span>Exponentialgleichung mit Logarithmus lösen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_eins" checked />
+                <span>Spezialwert: $\log_a(1)$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_basiswechsel" checked />
+                <span>Basiswechsel mit $\ln$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_produktregel" checked />
+                <span>Produktregel anwenden</span>
+              </label>
+            </div>
+          </fieldset>
         ) : variant === 'wurzelrechnung' ? (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -1042,7 +1144,9 @@ function wbLabelFromHref(href: string): string {
             variant !== 'prozentrechnung' &&
             variant !== 'stochastik' &&
             variant !== 'binomische-formeln' &&
-            variant !== 'termumformungen' && (
+            variant !== 'termumformungen' &&
+            variant !== 'exponentialfunktionen' &&
+            variant !== 'logarithmen' && (
             <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
               <input
                 type="checkbox"
@@ -1484,6 +1588,36 @@ function wbLabelFromHref(href: string): string {
           {' · '}
           <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/wurzelrechnung')}
+          </a>
+        </>
+      ) : variant === 'exponentialfunktionen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/logarithmen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/logarithmen')}
+          </a>
+          {' · '}
+          <a href="/uebung/prozentrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/prozentrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+        </>
+      ) : variant === 'logarithmen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/exponentialfunktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/exponentialfunktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/termumformungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/termumformungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/binomische-formeln" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/binomische-formeln')}
           </a>
         </>
       ) : variant === 'wurzelrechnung' ? (
