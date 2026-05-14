@@ -4,6 +4,7 @@ import {
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
   QUADRATIC_FUNCTION_GENERATOR_IDS,
+  ROOT_GENERATOR_IDS,
   STRAHLENSATZ_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
 } from '../lib/pythagorasPracticeGenerators';
@@ -15,7 +16,8 @@ export interface Props {
     | 'strahlensaetze'
     | 'quadratische-funktionen'
     | 'quadratische-gleichungen'
-    | 'bruchgleichungen';
+    | 'bruchgleichungen'
+    | 'wurzelrechnung';
   backHref: string;
   h1: string;
 }
@@ -32,6 +34,8 @@ const allowedIds =
           ? QUADRATIC_EQUATIONS_GENERATOR_IDS
           : variant === 'bruchgleichungen'
             ? FRACTION_EQUATION_GENERATOR_IDS
+            : variant === 'wurzelrechnung'
+              ? ROOT_GENERATOR_IDS
         : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 ---
@@ -107,6 +111,16 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Ohne grafische Elemente: Der Fokus liegt vollständig auf Algebra, Definitionsmenge und Lösungsprüfung.
+          </p>
+        </>
+      ) : variant === 'wurzelrechnung' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zur <strong>Wurzelrechnung</strong> – Vereinfachen, typische Fehlvorstellungen und einfache
+            Wurzelgleichungen im gleichen Whiteboarding-Ablauf wie bei den anderen Themen.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne grafische Elemente: Schwerpunkt auf Termumformung, Betragsverständnis und Lösungsmenge.
           </p>
         </>
       ) : (
@@ -335,6 +349,40 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
               </label>
             </div>
           </fieldset>
+        ) : variant === 'wurzelrechnung' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Wurzelrechnung
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="wr_vereinfachen" checked />
+                <span>Wurzelausdrücke vereinfachen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="wr_add_sub" checked />
+                <span>Wurzeln addieren / subtrahieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="wr_fehlschluss_summe" checked />
+                <span>Fehlschluss: Wurzel über Summen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="wr_gleichung_quadrat" checked />
+                <span>Gleichung $x^2=a$ lösen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="wr_betrag" checked />
+                <span>Regel $\sqrt(x^2)=|x|$ anwenden</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="wr_keine_reelle" checked />
+                <span>Keine reellen Lösungen erkennen</span>
+              </label>
+            </div>
+          </fieldset>
         ) : (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -405,7 +453,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
             class="ug-layoutbtn rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800">{'Whiteboard'}</button>
         </div>
         {
-          variant !== 'bruchgleichungen' && (
+          variant !== 'bruchgleichungen' && variant !== 'wurzelrechnung' && (
             <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
               <input
                 type="checkbox"
@@ -672,6 +720,25 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+        </>
+      ) : variant === 'wurzelrechnung' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             Whiteboarding
           </a>
         </>

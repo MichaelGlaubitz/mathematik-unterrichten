@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen und /uebung/bruchgleichungen — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen und /uebung/wurzelrechnung — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -106,6 +106,16 @@ export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_keine_loesung',
 ] as const;
 
+/** Wurzelrechnung (Vereinfachen, Fehlvorstellungen, einfache Gleichungen). */
+export const ROOT_GENERATOR_IDS = [
+  'wr_vereinfachen',
+  'wr_add_sub',
+  'wr_fehlschluss_summe',
+  'wr_gleichung_quadrat',
+  'wr_betrag',
+  'wr_keine_reelle',
+] as const;
+
 export const PRACTICE_GENERATOR_IDS = [
   ...PYTHAGORAS_GENERATOR_IDS,
   ...TRIGONOMETRY_GENERATOR_IDS,
@@ -113,6 +123,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...QUADRATIC_FUNCTION_GENERATOR_IDS,
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
+  ...ROOT_GENERATOR_IDS,
 ] as const;
 
 export type PracticeGeneratorId = (typeof PRACTICE_GENERATOR_IDS)[number];
@@ -650,6 +661,58 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}=0$.`,
         loesung: `Ein Bruch mit Zähler $1$ kann nie $0$ sein. Mit $x\\neq ${a}$ gibt es daher keine Lösung ($\\mathbb{L}=\\varnothing$).`,
+      };
+    },
+    wr_vereinfachen() {
+      const k = pick([2, 3, 5, 6, 7] as const);
+      const n = pick([2, 3, 4, 5, 6] as const);
+      const rad = n * n * k;
+      return {
+        frage: `Vereinfache $\\sqrt{${rad}}$.`,
+        loesung: `$\\sqrt{${rad}}=\\sqrt{${n * n}\\cdot ${k}}=${n}\\sqrt{${k}}$.`,
+      };
+    },
+    wr_add_sub() {
+      const s = pick([2, 3, 5, 6] as const);
+      const a = pick([2, 3, 4, 5] as const);
+      let b = pick([2, 3, 4, 5] as const);
+      for (let t = 0; t < 10 && b === a; t++) b = pick([2, 3, 4, 5] as const);
+      const sign = random() < 0.5 ? '+' : '-';
+      const res = sign === '+' ? a + b : a - b;
+      const radA = a * a * s;
+      const radB = b * b * s;
+      return {
+        frage: `Vereinfache $\\sqrt{${radA}}${sign}\\sqrt{${radB}}$.`,
+        loesung: `$\\sqrt{${radA}}${sign}\\sqrt{${radB}}=${a}\\sqrt{${s}}${sign}${b}\\sqrt{${s}}=${res}\\sqrt{${s}}$.`,
+      };
+    },
+    wr_fehlschluss_summe() {
+      const a = pick([4, 9, 16, 25] as const);
+      const b = pick([4, 9, 16, 25] as const);
+      return {
+        frage: `Ist die Aussage $\\sqrt{${a}+${b}}=\\sqrt{${a}}+\\sqrt{${b}}$ richtig?`,
+        loesung: `Nein. Gegenbeispiel: $\\sqrt{${a + b}}\\neq ${Math.sqrt(a)}+${Math.sqrt(b)}$. Das Wurzelziehen verteilt sich nicht über Summen.`,
+      };
+    },
+    wr_gleichung_quadrat() {
+      const n = pick([3, 4, 5, 6, 7, 8, 9] as const);
+      return {
+        frage: `Löse die Gleichung $x^2=${n * n}$.`,
+        loesung: `Beim Quadrieren entstehen zwei Lösungen: $x_1=${n}$ und $x_2=${-n}$.`,
+      };
+    },
+    wr_betrag() {
+      const n = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Vereinfache $\\sqrt{(-${n})^2}$.`,
+        loesung: `$\\sqrt{(-${n})^2}=|-${n}|=${n}$. Allgemein gilt: $\\sqrt{x^2}=|x|$.`,
+      };
+    },
+    wr_keine_reelle() {
+      const c = pick([1, 2, 3, 4, 5, 6, 7, 8] as const);
+      return {
+        frage: `Wie viele reelle Lösungen hat die Gleichung $x^2+${c}=0$?`,
+        loesung: `Keine. Denn $x^2=-${c}$ ist in $\\mathbb{R}$ unmöglich.`,
       };
     },
   };
