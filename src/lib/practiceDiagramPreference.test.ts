@@ -88,23 +88,28 @@ describe('practiceDiagramPreference', () => {
     expect(localStorage.getItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY)).toBeNull();
   });
 
-  it('syncPracticeDiagramUi setzt hidden und Button-Text', () => {
+  it('syncPracticeDiagramUi setzt hidden, Icon-Schalter und Zoom-Leiste', () => {
     writeShowPracticeDiagrams(false);
     const h = hashPracticeTaskFrage('dom');
     setDiagramEffectiveVisibleForHash(h, true);
     document.body.innerHTML = `
       <button type="button" class="ug-task-diagram-toggle" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="false">x</button>
+      <span data-mu-diagram-zoom-for="${h}" data-mu-diagram-default-hidden="false" class="zoom-wrap"></span>
       <div class="mu-practice-diagram" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="false">svg</div>
     `;
     syncPracticeDiagramUi(document.body);
     const div = document.querySelector('.mu-practice-diagram') as HTMLElement;
     const btn = document.querySelector('button') as HTMLButtonElement;
+    const zoomWrap = document.querySelector('.zoom-wrap') as HTMLElement;
     expect(div.classList.contains('hidden')).toBe(false);
-    expect(btn.textContent).toBe('Skizze ausblenden');
+    expect(btn.getAttribute('aria-label')).toBe('Skizze ausblenden');
+    expect(btn.querySelector('svg')).toBeTruthy();
+    expect(zoomWrap.classList.contains('hidden')).toBe(false);
     toggleDiagramForHash(h);
     syncPracticeDiagramUi(document.body);
     expect(div.classList.contains('hidden')).toBe(true);
-    expect(btn.textContent).toBe('Skizze einblenden');
+    expect(btn.getAttribute('aria-label')).toBe('Skizze einblenden');
+    expect(zoomWrap.classList.contains('hidden')).toBe(true);
   });
 
   it('syncPracticeDiagramUi: diagramDefaultHidden bei globalem An zunächst verborgen', () => {
@@ -112,12 +117,15 @@ describe('practiceDiagramPreference', () => {
     const h = hashPracticeTaskFrage('mul-dom');
     document.body.innerHTML = `
       <button type="button" class="ug-task-diagram-toggle" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="true">x</button>
+      <span data-mu-diagram-zoom-for="${h}" data-mu-diagram-default-hidden="true" class="zoom-wrap"></span>
       <div class="mu-practice-diagram" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="true">svg</div>
     `;
     syncPracticeDiagramUi(document.body);
     const div = document.querySelector('.mu-practice-diagram') as HTMLElement;
     const btn = document.querySelector('button') as HTMLButtonElement;
+    const zoomWrap = document.querySelector('.zoom-wrap') as HTMLElement;
     expect(div.classList.contains('hidden')).toBe(true);
-    expect(btn.textContent).toBe('Skizze einblenden');
+    expect(btn.getAttribute('aria-label')).toBe('Skizze einblenden');
+    expect(zoomWrap.classList.contains('hidden')).toBe(true);
   });
 });
