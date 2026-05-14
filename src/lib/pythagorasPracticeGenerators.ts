@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen und /uebung/wurzelrechnung — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -27,6 +27,7 @@ import {
   latexStreckScheitel,
   svgParabolaScheitelform,
 } from './quadratischeFunktionDiagrams';
+import { svgKreisRadiusDurchmesser, svgKreisSektor, svgKreisTangente } from './kreisgeometrieDiagrams';
 
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
 
@@ -116,6 +117,16 @@ export const ROOT_GENERATOR_IDS = [
   'wr_keine_reelle',
 ] as const;
 
+/** Kreisgeometrie (Radius, Durchmesser, Umfang, Fläche, Sektor, Tangente). */
+export const CIRCLE_GEOMETRY_GENERATOR_IDS = [
+  'kg_radius_zu_durchmesser',
+  'kg_durchmesser_zu_radius',
+  'kg_umfang',
+  'kg_flaeche',
+  'kg_sektor_anteil',
+  'kg_tangente_rechtwinklig',
+] as const;
+
 export const PRACTICE_GENERATOR_IDS = [
   ...PYTHAGORAS_GENERATOR_IDS,
   ...TRIGONOMETRY_GENERATOR_IDS,
@@ -124,6 +135,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
+  ...CIRCLE_GEOMETRY_GENERATOR_IDS,
 ] as const;
 
 export type PracticeGeneratorId = (typeof PRACTICE_GENERATOR_IDS)[number];
@@ -713,6 +725,60 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Wie viele reelle Lösungen hat die Gleichung $x^2+${c}=0$?`,
         loesung: `Keine. Denn $x^2=-${c}$ ist in $\\mathbb{R}$ unmöglich.`,
+      };
+    },
+    kg_radius_zu_durchmesser() {
+      const r = pick([3, 4, 5, 6, 7, 8, 9] as const);
+      return {
+        frage: `Im Kreis ist der Radius $r=${r}\\,\\text{cm}$. Bestimme den Durchmesser $d$.`,
+        loesung: `$d=2r=2\\cdot ${r}=${2 * r}\\,\\text{cm}$.`,
+        diagram: svgKreisRadiusDurchmesser({ radiusLabel: `${r}`, diameterLabel: '?' }),
+      };
+    },
+    kg_durchmesser_zu_radius() {
+      const r = pick([3, 4, 5, 6, 7, 8, 9] as const);
+      const d = 2 * r;
+      return {
+        frage: `Im Kreis ist der Durchmesser $d=${d}\\,\\text{cm}$. Bestimme den Radius $r$.`,
+        loesung: `$r=\\frac{d}{2}=\\frac{${d}}{2}=${r}\\,\\text{cm}$.`,
+        diagram: svgKreisRadiusDurchmesser({ radiusLabel: '?', diameterLabel: `${d}` }),
+      };
+    },
+    kg_umfang() {
+      const r = pick([3, 4, 5, 6, 7, 8] as const);
+      const approx = (2 * Math.PI * r).toFixed(1);
+      return {
+        frage: `Berechne den Umfang eines Kreises mit Radius $r=${r}\\,\\text{cm}$.`,
+        loesung: `$U=2\\pi r=2\\pi\\cdot ${r}=${2 * r}\\pi\\,\\text{cm}\\approx ${approx}\\,\\text{cm}$.`,
+        diagram: svgKreisRadiusDurchmesser({ radiusLabel: `${r}`, diameterLabel: `${2 * r}` }),
+      };
+    },
+    kg_flaeche() {
+      const r = pick([3, 4, 5, 6, 7] as const);
+      const approx = (Math.PI * r * r).toFixed(1);
+      return {
+        frage: `Berechne den Flächeninhalt eines Kreises mit Radius $r=${r}\\,\\text{cm}$.`,
+        loesung: `$A=\\pi r^2=\\pi\\cdot ${r}^2=${r * r}\\pi\\,\\text{cm}^2\\approx ${approx}\\,\\text{cm}^2$.`,
+        diagram: svgKreisRadiusDurchmesser({ radiusLabel: `${r}`, diameterLabel: `${2 * r}` }),
+      };
+    },
+    kg_sektor_anteil() {
+      const alpha = pick([30, 45, 60, 90, 120, 150, 180] as const);
+      const r = pick([4, 5, 6, 7, 8] as const);
+      const numerator = alpha;
+      const denominator = 360;
+      return {
+        frage: `Ein Kreissektor hat den Mittelpunktswinkel $${alpha}^\\circ$ und Radius $r=${r}\\,\\text{cm}$. Welchen Anteil der Kreisfläche hat der Sektor?`,
+        loesung: `Anteil: $\\frac{${numerator}}{${denominator}}=\\frac{${numerator / 15}}{${denominator / 15}}$. Damit $A_{\\text{Sektor}}=\\frac{${numerator}}{${denominator}}\\cdot \\pi\\cdot ${r}^2=\\frac{${numerator}}{${denominator}}\\cdot ${r * r}\\pi\\,\\text{cm}^2$.`,
+        diagram: svgKreisSektor({ grad: alpha, anteilLabel: `${alpha}/360 der Kreisfläche` }),
+      };
+    },
+    kg_tangente_rechtwinklig() {
+      const r = pick([4, 5, 6, 7, 8] as const);
+      return {
+        frage: `In der Skizze berührt eine Tangente den Kreis. Welchen Winkel bildet der Radius im Berührpunkt mit der Tangente?`,
+        loesung: `Immer $90^\\circ$. Radius und Tangente stehen im Berührpunkt senkrecht aufeinander.`,
+        diagram: svgKreisTangente({ radiusLabel: `${r}` }),
       };
     },
   };

@@ -1,6 +1,6 @@
 ---
 titel: "Pythagoras – Grundform und Anwendung"
-thema: "Geometrie"
+thema: "Pythagoras"
 klassenstufe: ["9", "10"]
 schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die den Satz des Pythagoras systematisch von der nackten Berechnung zur Anwendung führt – inklusive Aufgaben, in denen das rechtwinklige Dreieck erst *gefunden* werden muss. Die größte Hürde ist nicht die Formel, sondern das Erkennen der Geometrie. Diese Folge übt genau das."

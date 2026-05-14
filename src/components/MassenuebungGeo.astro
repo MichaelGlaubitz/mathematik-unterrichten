@@ -1,5 +1,6 @@
 ---
 import {
+  CIRCLE_GEOMETRY_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
@@ -17,7 +18,8 @@ export interface Props {
     | 'quadratische-funktionen'
     | 'quadratische-gleichungen'
     | 'bruchgleichungen'
-    | 'wurzelrechnung';
+    | 'wurzelrechnung'
+    | 'kreisgeometrie';
   backHref: string;
   h1: string;
 }
@@ -36,6 +38,8 @@ const allowedIds =
             ? FRACTION_EQUATION_GENERATOR_IDS
             : variant === 'wurzelrechnung'
               ? ROOT_GENERATOR_IDS
+              : variant === 'kreisgeometrie'
+                ? CIRCLE_GEOMETRY_GENERATOR_IDS
         : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 ---
@@ -121,6 +125,16 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Ohne grafische Elemente: Schwerpunkt auf Termumformung, Betragsverständnis und Lösungsmenge.
+          </p>
+        </>
+      ) : variant === 'kreisgeometrie' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zur <strong>Kreisgeometrie</strong> – Radius, Durchmesser, Umfang, Fläche und Sektoren.
+            Wie gewohnt: Typen und Anzahl wählen, dann Whiteboard oder Arbeitsblatt.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Mit grafischen Skizzen im bekannten Format zur direkten Veranschaulichung.
           </p>
         </>
       ) : (
@@ -380,6 +394,40 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="wr_keine_reelle" checked />
                 <span>Keine reellen Lösungen erkennen</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'kreisgeometrie' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Kreisgeometrie
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="kg_radius_zu_durchmesser" checked />
+                <span>Radius → Durchmesser</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="kg_durchmesser_zu_radius" checked />
+                <span>Durchmesser → Radius</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="kg_umfang" checked />
+                <span>Umfang berechnen: $U=2\pi r$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="kg_flaeche" checked />
+                <span>Flächeninhalt berechnen: $A=\pi r^2$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="kg_sektor_anteil" checked />
+                <span>Sektor-Anteil aus Mittelpunktswinkel</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="kg_tangente_rechtwinklig" checked />
+                <span>Tangente und Radius: rechter Winkel</span>
               </label>
             </div>
           </fieldset>
@@ -739,6 +787,21 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
           </a>
           {' · '}
           <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+        </>
+      ) : variant === 'kreisgeometrie' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             Whiteboarding
           </a>
         </>

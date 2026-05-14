@@ -1,6 +1,6 @@
 ---
 titel: "Strahlensätze – zwei Figuren, eine Idee"
-thema: "Geometrie"
+thema: "Strahlensätze"
 klassenstufe: ["9", "10"]
 schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die die zwei Standardfiguren der Strahlensätze (V-Figur und X-Figur) parallel übt – und dabei beide gleichzeitig als Anwendungen *eines* Prinzips sichtbar macht: Wenn Parallelen zwei Strahlen schneiden, sind die Streckenverhältnisse identisch. Schüler lernen, Figuren *als Strahlensatz-Konfiguration zu erkennen* – das ist die eigentliche Hürde, nicht das Auflösen einer Verhältnisgleichung."

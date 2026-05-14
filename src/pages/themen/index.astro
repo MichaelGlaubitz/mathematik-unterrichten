@@ -159,39 +159,36 @@ const themenProBand = clusterReihenfolge
               aufgaben={tv.aufgaben}
               quizzes={tv.quizzes}
               blog={tv.blog}
-              generatorUebungen={
-                tv.slug === 'geometrie'
-                  ? [
-                      { href: '/uebung/pythagoras', label: 'Whiteboarding' },
-                      { href: '/uebung/strahlensaetze', label: 'Whiteboarding' },
-                    ]
-                  : undefined
-              }
               generatorUebungHref={
-                tv.slug === 'trigonometrie'
-                  ? '/uebung/trigonometrie'
-                  : tv.slug === 'quadratische-funktionen'
-                    ? '/uebung/quadratische-funktionen'
-                    : tv.slug === 'quadratische-gleichungen'
-                      ? '/uebung/quadratische-gleichungen'
-                      : tv.slug === 'bruchgleichungen'
-                        ? '/uebung/bruchgleichungen'
-                        : tv.slug === 'wurzelrechnung'
-                          ? '/uebung/wurzelrechnung'
-                    : undefined
+                tv.slug === 'pythagoras'
+                  ? '/uebung/pythagoras'
+                  : tv.slug === 'strahlensaetze'
+                    ? '/uebung/strahlensaetze'
+                    : tv.slug === 'kreisgeometrie'
+                      ? '/uebung/kreisgeometrie'
+                      : tv.slug === 'trigonometrie'
+                        ? '/uebung/trigonometrie'
+                        : tv.slug === 'quadratische-funktionen'
+                          ? '/uebung/quadratische-funktionen'
+                          : tv.slug === 'quadratische-gleichungen'
+                            ? '/uebung/quadratische-gleichungen'
+                            : tv.slug === 'bruchgleichungen'
+                              ? '/uebung/bruchgleichungen'
+                              : tv.slug === 'wurzelrechnung'
+                                ? '/uebung/wurzelrechnung'
+                                : undefined
               }
               generatorUebungLabel={
-                tv.slug === 'trigonometrie'
+                tv.slug === 'pythagoras' ||
+                tv.slug === 'strahlensaetze' ||
+                tv.slug === 'kreisgeometrie' ||
+                tv.slug === 'trigonometrie' ||
+                tv.slug === 'quadratische-funktionen' ||
+                tv.slug === 'quadratische-gleichungen' ||
+                tv.slug === 'bruchgleichungen' ||
+                tv.slug === 'wurzelrechnung'
                   ? 'Whiteboarding'
-                  : tv.slug === 'quadratische-funktionen'
-                    ? 'Whiteboarding'
-                    : tv.slug === 'quadratische-gleichungen'
-                      ? 'Whiteboarding'
-                      : tv.slug === 'bruchgleichungen'
-                        ? 'Whiteboarding'
-                        : tv.slug === 'wurzelrechnung'
-                          ? 'Whiteboarding'
-                    : 'Zufallsaufgaben (Whiteboard)'
+                  : 'Zufallsaufgaben (Whiteboard)'
               }
             />
           ))}
