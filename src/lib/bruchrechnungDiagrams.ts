@@ -39,9 +39,10 @@ export function svgBruchZweiStreifen(
 /**
  * Erweitern: Kachelraster d×k — d Spalten (Grundnenner), k Zeilen (Erweiterungsfaktor).
  * Insgesamt D=d·k Felder, n·k Felder markiert (erste n Spalten vollständig).
+ * Modus `aufgabe`: je **Spalte** eine durchgehende Fläche (keine waagerechten Teilungen);
+ * die ersten **n** Spalten dunkel (Anteil **n/d** sichtbar), der Rest hell; Rahmen und senkrechte Linien.
+ * Beschriftung `zeile` nur **ohne** Ergebnis der Erweiterung (Aufrufer: z. B. nur `n/d`, nicht `n/d → N/D`).
  * Modus `loesung`: Zellen mit Schattierung und vollständigem Gitter (waagerecht/senkrecht).
- * Modus `aufgabe`: eine zusammenhängende Fläche ohne waagerechte Unterteilung; Rahmen und
- * senkrechte Linien nur für die d Ausgangsteile (keine k-fachen Waagerechten).
  */
 export function svgBruchErweiternKacheln(
   n: number,
@@ -66,7 +67,13 @@ export function svgBruchErweiternKacheln(
 
   let body = '';
   if (modus === 'aufgabe') {
-    body += `<rect x='${pad}' y='${pad}' width='${gw}' height='${gh}' fill='currentColor' fill-opacity='0.08'/>`;
+    let colsRects = '';
+    for (let col = 0; col < cols; col++) {
+      const x = pad + col * cellW;
+      const fillOp = col < n ? 0.34 : 0.07;
+      colsRects += `<rect x='${x}' y='${pad}' width='${cellW}' height='${gh}' fill='${ink}' fill-opacity='${fillOp}'/>`;
+    }
+    body += colsRects;
     let lines = '';
     for (let j = 0; j <= cols; j++) {
       const x = pad + j * cellW;

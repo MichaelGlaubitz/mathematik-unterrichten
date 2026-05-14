@@ -22,13 +22,16 @@ describe('bruchrechnungDiagrams', () => {
     expect(svgBruchStreifen(2, 5, '2/5', 'loesung')).toMatch(/<rect[^>]*fill='currentColor'/);
   });
 
-  it('Erweitern-Kacheln: Aufgabe durchgehend grau mit Rahmen und Senkrechten, Lösung volles Gitter', () => {
-    const auf = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'aufgabe');
-    expect((auf.match(/<rect/g) || []).length).toBe(1);
+  it('Erweitern-Kacheln: Aufgabe n/d-Spalten dunkel, ohne Lösungstext; Lösung volles Gitter mit Ergebniszeile', () => {
+    const auf = svgBruchErweiternKacheln(2, 4, 3, '2/4', 'aufgabe');
+    expect((auf.match(/<rect/g) || []).length).toBe(4);
+    expect(auf).toContain("fill-opacity='0.34'");
+    expect(auf).not.toContain('→');
     expect((auf.match(/<line/g) || []).length).toBe(7);
     const loe = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'loesung');
     expect((loe.match(/<rect/g) || []).length).toBe(12);
     expect((loe.match(/<line/g) || []).length).toBe(9);
+    expect(loe).toContain('→');
   });
 
   it('Vergleich: Aufgabe je Originalnenner, Lösung auf Hauptnenner', () => {
