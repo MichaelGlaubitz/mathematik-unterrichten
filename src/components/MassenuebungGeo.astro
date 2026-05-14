@@ -1207,6 +1207,14 @@ function wbLabelFromHref(href: string): string {
         Aufgaben erzeugen
       </button>
       <button
+        id="ug-route-speichern"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm font-medium hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+        hidden
+      >
+        Whiteboard-Route lokal speichern
+      </button>
+      <button
         id="ug-drucken"
         type="button"
         class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
@@ -1231,6 +1239,7 @@ function wbLabelFromHref(href: string): string {
         Alle Lösungen verbergen
       </button>
       <p id="ug-fehler" class="text-sm text-red-600 dark:text-red-300" hidden>Mindestens einen Aufgabentyp auswählen.</p>
+      <p id="ug-route-status" class="basis-full text-xs text-ink-600 dark:text-ink-400" hidden aria-live="polite"></p>
     </div>
   </section>
 
@@ -1708,11 +1717,37 @@ function wbLabelFromHref(href: string): string {
   import {
     bindPracticeDiagramCheckbox,
     hashPracticeTaskFrage,
+    PRACTICE_DIAGRAM_TASK_PREFS_KEY,
+    readShowPracticeDiagrams,
     syncPracticeDiagramUi,
     toggleDiagramForHash,
+    writeShowPracticeDiagrams,
   } from '../lib/practiceDiagramPreference';
 
   const GEN = createPracticeGenerators(() => Math.random());
+
+  type PracticeAufgabe = {
+    frage: string;
+    loesung: string;
+    diagram?: string;
+  };
+
+  type DiagramTaskPref = 'show' | 'hide';
+
+  type WhiteboardRouteFile = {
+    version: number;
+    savedAt: string;
+    targetPath: string;
+    anzahl: number;
+    layout: 'arbeitsblatt' | 'whiteboard';
+    aktiveTypen: string[];
+    wbIndex: number;
+    wbZeigeLoesung: boolean;
+    showPracticeDiagrams: boolean;
+    diagramTaskPrefs: Record<string, DiagramTaskPref>;
+    diagramZoomByHash: Record<string, number>;
+    aufgaben: Array<{ frage: string; loesung: string; diagram?: string | null }>;
+  };
 
   function readUgMassenAllowedIds(): string[] {
     const g = globalThis as typeof globalThis & { __UG_MASSEN_ALLOWED_IDS__?: unknown };
@@ -1740,31 +1775,36 @@ function wbLabelFromHref(href: string): string {
     bindPracticeDiagramCheckbox(
       document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null
     );
-    let layout = 'arbeitsblatt';
+
+    const WHITEBOARD_ROUTE_VERSION = 1;
+    const WHITEBOARD_ROUTE_HASH_KEY = 'wb-route';
+    const ROUTE_ALLOWED_ANZAHL = new Set([5, 10, 15, 20]);
+
+    let layout: 'arbeitsblatt' | 'whiteboard' = 'arbeitsblatt';
     let anzahl = 10;
-    let aufgaben = [];
+    let aufgaben: PracticeAufgabe[] = [];
     let wbIndex = 0;
     let wbZeigeLoesung = false;
     let wbSekunden = 0;
-    let wbTimerId = null;
+    let wbTimerId: number | null = null;
     const DIAGRAM_SCALE_STEP = 0.1;
     const DIAGRAM_SCALE_MIN = 0.5;
     const DIAGRAM_SCALE_MAX = 2;
-    const diagramScaleByHash = new Map();
+    const diagramScaleByHash = new Map<string, number>();
 
-    function clampDiagramScale(scale) {
+    function clampDiagramScale(scale: number): number {
       return Math.min(DIAGRAM_SCALE_MAX, Math.max(DIAGRAM_SCALE_MIN, Math.round(scale * 100) / 100));
     }
-    function readDiagramScale(hash) {
+    function readDiagramScale(hash: string): number {
       return diagramScaleByHash.get(hash) ?? 1;
     }
-    function setDiagramScale(hash, scale) {
+    function setDiagramScale(hash: string, scale: number): void {
       diagramScaleByHash.set(hash, clampDiagramScale(scale));
     }
-    function updateDiagramScale(hash, delta) {
+    function updateDiagramScale(hash: string, delta: number): void {
       setDiagramScale(hash, readDiagramScale(hash) + delta);
     }
-    function syncDiagramZoomUi(scope) {
+    function syncDiagramZoomUi(scope: Document | Element | null): void {
       const root = scope ?? document;
       root.querySelectorAll('.mu-practice-diagram[data-mu-diagram-hash]').forEach((node) => {
         const hash = node.getAttribute('data-mu-diagram-hash');
@@ -1786,9 +1826,9 @@ function wbLabelFromHref(href: string): string {
       });
     }
 
-    const typBoxen = () => Array.from(document.querySelectorAll('.ug-typ'));
-    const anzahlBtns = () => Array.from(document.querySelectorAll('.ug-anzahl'));
-    const layoutBtns = () => Array.from(document.querySelectorAll('.ug-layoutbtn'));
+    const typBoxen = () => Array.from(document.querySelectorAll<HTMLInputElement>('.ug-typ'));
+    const anzahlBtns = () => Array.from(document.querySelectorAll<HTMLButtonElement>('.ug-anzahl'));
+    const layoutBtns = () => Array.from(document.querySelectorAll<HTMLButtonElement>('.ug-layoutbtn'));
     const liste = document.getElementById('ug-liste');
     const arbeitsblatt = document.getElementById('ug-arbeitsblatt');
     const wbOverlay = document.getElementById('ug-wb-overlay');
@@ -1806,6 +1846,8 @@ function wbLabelFromHref(href: string): string {
     const wbNext = document.getElementById('ug-wb-next');
     const errEl = document.getElementById('ug-fehler');
     const erzeugenBtn = document.getElementById('ug-erzeugen');
+    const routeSaveBtn = document.getElementById('ug-route-speichern');
+    const routeStatusEl = document.getElementById('ug-route-status');
     const alleAufBtn = document.getElementById('ug-alle-aufdecken');
     const alleZuBtn = document.getElementById('ug-alle-zuklappen');
     const btnAlle = document.getElementById('ug-alle');
@@ -1818,29 +1860,302 @@ function wbLabelFromHref(href: string): string {
       document.body.appendChild(wbOverlay);
     }
 
-    function setActive(btns, predicate) {
+    function setRouteStatus(text: string, isError = false): void {
+      if (!routeStatusEl) return;
+      routeStatusEl.textContent = text;
+      routeStatusEl.hidden = !text;
+      routeStatusEl.classList.toggle('text-red-600', isError);
+      routeStatusEl.classList.toggle('dark:text-red-300', isError);
+      routeStatusEl.classList.toggle('text-ink-600', !isError);
+      routeStatusEl.classList.toggle('dark:text-ink-400', !isError);
+    }
+
+    function encodeBase64Utf8(value: string): string {
+      const bytes = new TextEncoder().encode(value);
+      let binary = '';
+      bytes.forEach((b) => {
+        binary += String.fromCharCode(b);
+      });
+      return btoa(binary);
+    }
+
+    function decodeBase64Utf8(value: string): string | null {
+      try {
+        const binary = atob(value);
+        const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+        return new TextDecoder().decode(bytes);
+      } catch {
+        return null;
+      }
+    }
+
+    function encodeRoutePayload(route: WhiteboardRouteFile): string {
+      return encodeBase64Utf8(JSON.stringify(route));
+    }
+
+    function decodeRoutePayload(encoded: string): WhiteboardRouteFile | null {
+      const json = decodeBase64Utf8(encoded);
+      if (!json) return null;
+      try {
+        const data = JSON.parse(json) as WhiteboardRouteFile;
+        return data && typeof data === 'object' ? data : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function readDiagramTaskPrefsMap(): Record<string, DiagramTaskPref> {
+      try {
+        const raw = localStorage.getItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        const out: Record<string, DiagramTaskPref> = {};
+        for (const [hash, pref] of Object.entries(parsed)) {
+          if (pref === 'show' || pref === 'hide') out[hash] = pref;
+        }
+        return out;
+      } catch {
+        return {};
+      }
+    }
+
+    function writeDiagramTaskPrefsMap(map: Record<string, DiagramTaskPref>): void {
+      if (Object.keys(map).length === 0) {
+        localStorage.removeItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY);
+        return;
+      }
+      localStorage.setItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY, JSON.stringify(map));
+    }
+
+    function normalizeRoutePath(path: unknown): string | null {
+      if (typeof path !== 'string' || !path.startsWith('/')) return null;
+      return path;
+    }
+
+    function routeTaskHashes(tasks: PracticeAufgabe[]): string[] {
+      return tasks.map((task) => hashPracticeTaskFrage(task.frage));
+    }
+
+    function buildRouteFileName(targetPath: string): string {
+      const topic = targetPath.split('/').filter(Boolean).pop() ?? 'route';
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `whiteboard-route-${topic}-${yyyy}${mm}${dd}-${hh}${min}.html`;
+    }
+
+    function buildRouteLauncherHtml(encodedRoute: string, targetPath: string): string {
+      return [
+        '<!doctype html>',
+        '<html lang="de">',
+        '<head>',
+        '  <meta charset="utf-8" />',
+        '  <meta name="viewport" content="width=device-width, initial-scale=1" />',
+        '  <title>Whiteboard-Route</title>',
+        '</head>',
+        '<body style="font-family: system-ui, -apple-system, sans-serif; padding: 1rem;">',
+        '  <p><strong>Whiteboard-Route wird geöffnet …</strong></p>',
+        '  <p>Falls keine Weiterleitung erfolgt, bitte auf den Link klicken.</p>',
+        '  <p><a id="wb-route-open-link" href="#">Whiteboard-Route öffnen</a></p>',
+        '  <script>',
+        `    const encodedRoute = ${JSON.stringify(encodedRoute)};`,
+        `    const targetPath = ${JSON.stringify(targetPath)};`,
+        `    const targetOrigin = ${JSON.stringify(window.location.origin)};`,
+        `    const hashKey = ${JSON.stringify(WHITEBOARD_ROUTE_HASH_KEY)};`,
+        '    const targetUrl = new URL(targetPath, targetOrigin);',
+        '    const hashParams = new URLSearchParams();',
+        '    hashParams.set(hashKey, encodedRoute);',
+        '    targetUrl.hash = hashParams.toString();',
+        '    const href = targetUrl.toString();',
+        '    const link = document.getElementById("wb-route-open-link");',
+        '    if (link) link.setAttribute("href", href);',
+        '    window.location.replace(href);',
+        '  </script>',
+        '</body>',
+        '</html>',
+      ].join('\n');
+    }
+
+    function createWhiteboardRouteFile(): WhiteboardRouteFile | null {
+      if (aufgaben.length === 0) return null;
+      const hashes = routeTaskHashes(aufgaben);
+      const hashSet = new Set(hashes);
+
+      const existingTaskPrefs = readDiagramTaskPrefsMap();
+      const filteredTaskPrefs: Record<string, DiagramTaskPref> = {};
+      for (const [hash, pref] of Object.entries(existingTaskPrefs)) {
+        if (hashSet.has(hash)) filteredTaskPrefs[hash] = pref;
+      }
+
+      const zoomByHash: Record<string, number> = {};
+      hashes.forEach((hash) => {
+        const scale = readDiagramScale(hash);
+        if (Math.abs(scale - 1) > 0.0001) {
+          zoomByHash[hash] = scale;
+        }
+      });
+
+      return {
+        version: WHITEBOARD_ROUTE_VERSION,
+        savedAt: new Date().toISOString(),
+        targetPath: window.location.pathname,
+        anzahl,
+        layout,
+        aktiveTypen: aktiveTypen(),
+        wbIndex,
+        wbZeigeLoesung,
+        showPracticeDiagrams: readShowPracticeDiagrams(),
+        diagramTaskPrefs: filteredTaskPrefs,
+        diagramZoomByHash: zoomByHash,
+        aufgaben: aufgaben.map((a) => ({
+          frage: a.frage,
+          loesung: a.loesung,
+          diagram: typeof a.diagram === 'string' ? a.diagram : null,
+        })),
+      };
+    }
+
+    function applyWhiteboardRouteFile(route: WhiteboardRouteFile): 'loaded' | 'redirected' | 'invalid' {
+      if (!route || typeof route !== 'object') return 'invalid';
+      if (route.version !== WHITEBOARD_ROUTE_VERSION) return 'invalid';
+      if (!Array.isArray(route.aufgaben) || route.aufgaben.length === 0) return 'invalid';
+
+      const targetPath = normalizeRoutePath(route.targetPath);
+      if (targetPath && targetPath !== window.location.pathname) {
+        const redirectUrl = new URL(targetPath, window.location.origin);
+        const hashParams = new URLSearchParams();
+        hashParams.set(WHITEBOARD_ROUTE_HASH_KEY, encodeRoutePayload(route));
+        redirectUrl.hash = hashParams.toString();
+        window.location.replace(redirectUrl.toString());
+        return 'redirected';
+      }
+
+      const sanitizedAufgaben: PracticeAufgabe[] = route.aufgaben
+        .filter(
+          (item): item is { frage: string; loesung: string; diagram?: string | null } =>
+            !!item &&
+            typeof item === 'object' &&
+            typeof item.frage === 'string' &&
+            typeof item.loesung === 'string'
+        )
+        .map((item) => ({
+          frage: item.frage,
+          loesung: item.loesung,
+          diagram: typeof item.diagram === 'string' ? item.diagram : undefined,
+        }));
+
+      if (sanitizedAufgaben.length === 0) return 'invalid';
+      if (typeof route.anzahl === 'number' && ROUTE_ALLOWED_ANZAHL.has(route.anzahl)) {
+        anzahl = route.anzahl;
+      }
+
+      if (Array.isArray(route.aktiveTypen) && route.aktiveTypen.length > 0) {
+        const aktiveRouteTypen = new Set(route.aktiveTypen.filter((id) => typeof id === 'string' && allowedSet.has(id)));
+        if (aktiveRouteTypen.size > 0) {
+          typBoxen().forEach((c) => {
+            c.checked = aktiveRouteTypen.has(c.value);
+          });
+        }
+      }
+
+      layout = route.layout === 'arbeitsblatt' ? 'arbeitsblatt' : 'whiteboard';
+      aufgaben = sanitizedAufgaben;
+      wbIndex = Math.min(Math.max(0, route.wbIndex ?? 0), Math.max(0, aufgaben.length - 1));
+      wbZeigeLoesung = !!route.wbZeigeLoesung;
+      if (wbIndex >= aufgaben.length) {
+        wbIndex = 0;
+        wbZeigeLoesung = false;
+      }
+
+      if (typeof route.showPracticeDiagrams === 'boolean') {
+        writeShowPracticeDiagrams(route.showPracticeDiagrams);
+      }
+      const diagramCheckbox = document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null;
+      if (diagramCheckbox) diagramCheckbox.checked = readShowPracticeDiagrams();
+
+      const taskHashes = routeTaskHashes(aufgaben);
+      const taskHashSet = new Set(taskHashes);
+      const mergedPrefs = readDiagramTaskPrefsMap();
+      taskHashSet.forEach((hash) => {
+        delete mergedPrefs[hash];
+      });
+      if (route.diagramTaskPrefs && typeof route.diagramTaskPrefs === 'object') {
+        for (const [hash, pref] of Object.entries(route.diagramTaskPrefs)) {
+          if (!taskHashSet.has(hash)) continue;
+          if (pref === 'show' || pref === 'hide') mergedPrefs[hash] = pref;
+        }
+      }
+      writeDiagramTaskPrefsMap(mergedPrefs);
+
+      diagramScaleByHash.clear();
+      const rawZoomMap = route.diagramZoomByHash && typeof route.diagramZoomByHash === 'object'
+        ? route.diagramZoomByHash
+        : {};
+      taskHashes.forEach((hash) => {
+        const scale = (rawZoomMap as Record<string, unknown>)[hash];
+        if (typeof scale === 'number' && Number.isFinite(scale)) {
+          setDiagramScale(hash, scale);
+        }
+      });
+
+      if (layout === 'whiteboard' && aufgaben.length > 0) startWbTimer();
+      else stopWbTimer();
+
+      return 'loaded';
+    }
+
+    function readRouteTokenFromLocation(): string | null {
+      const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+      if (hash) {
+        const hashParams = new URLSearchParams(hash);
+        const token = hashParams.get(WHITEBOARD_ROUTE_HASH_KEY);
+        if (token) return token;
+      }
+      const searchParams = new URLSearchParams(window.location.search);
+      return searchParams.get(WHITEBOARD_ROUTE_HASH_KEY);
+    }
+
+    function clearRouteTokenFromLocation(): void {
+      const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+      const hashParams = new URLSearchParams(hash);
+      const searchParams = new URLSearchParams(window.location.search);
+      const hadHashToken = hashParams.has(WHITEBOARD_ROUTE_HASH_KEY);
+      const hadSearchToken = searchParams.has(WHITEBOARD_ROUTE_HASH_KEY);
+      if (!hadHashToken && !hadSearchToken) return;
+      hashParams.delete(WHITEBOARD_ROUTE_HASH_KEY);
+      searchParams.delete(WHITEBOARD_ROUTE_HASH_KEY);
+      const nextSearch = searchParams.toString();
+      const nextHash = hashParams.toString();
+      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${nextHash ? `#${nextHash}` : ''}`;
+      window.history.replaceState(null, '', nextUrl);
+    }
+
+    function setActive(btns: HTMLButtonElement[], predicate: (btn: HTMLButtonElement) => boolean): void {
       btns.forEach((b) => {
         b.classList.toggle('ug--aktiv', predicate(b));
       });
     }
-    function refreshAktiv() {
+    function refreshAktiv(): void {
       setActive(anzahlBtns(), (b) => Number(b.dataset.anzahl) === anzahl);
       setActive(layoutBtns(), (b) => b.dataset.layout === layout);
     }
 
-    function closeWhiteboardOverlay() {
+    function closeWhiteboardOverlay(): void {
       layout = 'arbeitsblatt';
       refreshAktiv();
       stopWbTimer();
       render();
     }
 
-    function formatZeit(s) {
+    function formatZeit(s: number): string {
       const m = Math.floor(s / 60);
       const r = s % 60;
       return `${m}:${r.toString().padStart(2, '0')}`;
     }
-    function startWbTimer() {
+    function startWbTimer(): void {
       stopWbTimer();
       wbSekunden = 0;
       if (wbZeit) wbZeit.textContent = formatZeit(0);
@@ -1849,14 +2164,14 @@ function wbLabelFromHref(href: string): string {
         if (wbZeit) wbZeit.textContent = formatZeit(wbSekunden);
       }, 1000);
     }
-    function stopWbTimer() {
-      if (wbTimerId) {
+    function stopWbTimer(): void {
+      if (wbTimerId !== null) {
         window.clearInterval(wbTimerId);
         wbTimerId = null;
       }
     }
 
-    function shuffleTypen(arr) {
+    function shuffleTypen(arr: string[]): string[] {
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -1865,12 +2180,13 @@ function wbLabelFromHref(href: string): string {
       return a;
     }
 
-    function aktiveTypen() {
+    function aktiveTypen(): string[] {
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
         .map((c) => c.value);
     }
-    function erzeuge() {
+
+    function erzeuge(): void {
       const typen = aktiveTypen();
       if (typen.length === 0) {
         if (errEl) errEl.hidden = false;
@@ -1878,37 +2194,40 @@ function wbLabelFromHref(href: string): string {
       }
       if (errEl) errEl.hidden = true;
       aufgaben = [];
-      const pool = [];
+      const pool: string[] = [];
       while (pool.length < anzahl) {
         for (const t of shuffleTypen(typen)) {
           if (pool.length < anzahl) pool.push(t);
         }
       }
-      const usedFragen = new Set();
+      const usedFragen = new Set<string>();
       for (const t of pool) {
         const gen = GEN[t];
         if (!gen) continue;
-        let item;
+        let item: PracticeAufgabe | null = null;
         for (let k = 0; k < 40; k++) {
-          item = gen();
-          const key = item.frage.replace(/\s+/g, ' ').trim();
+          const generated = gen();
+          const key = generated.frage.replace(/\s+/g, ' ').trim();
           if (!usedFragen.has(key)) {
             usedFragen.add(key);
+            item = generated;
             break;
           }
         }
-        aufgaben.push(item);
+        if (item) aufgaben.push(item);
       }
       wbIndex = 0;
       wbZeigeLoesung = false;
       if (layout === 'whiteboard') startWbTimer();
       else stopWbTimer();
+      setRouteStatus('');
       render();
     }
 
-    function render() {
+    function render(): void {
       const hat = aufgaben.length > 0;
       const wbOverlayAktiv = layout === 'whiteboard' && hat;
+      if (routeSaveBtn) routeSaveBtn.hidden = !hat;
       if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt');
       if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt');
       if (btnDruck) btnDruck.hidden = !(hat && layout === 'arbeitsblatt');
@@ -1950,7 +2269,8 @@ function wbLabelFromHref(href: string): string {
       syncPracticeDiagramUi(document.body);
       syncDiagramZoomUi(document.body);
     }
-    function renderArbeitsblatt() {
+
+    function renderArbeitsblatt(): void {
       if (!liste) return;
       liste.innerHTML = '';
       if (aufgaben.length === 0) {
@@ -1986,7 +2306,8 @@ function wbLabelFromHref(href: string): string {
         liste.appendChild(li);
       });
     }
-    function renderWhiteboard() {
+
+    function renderWhiteboard(): void {
       if (!wbLeer || !wbContent) return;
       if (aufgaben.length === 0) {
         wbLeer.hidden = false;
@@ -2025,30 +2346,67 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
-    anzahlBtns().forEach((b) => b.addEventListener('click', () => { anzahl = Number(b.dataset.anzahl); refreshAktiv(); }));
+    anzahlBtns().forEach((b) => b.addEventListener('click', () => {
+      anzahl = Number(b.dataset.anzahl);
+      refreshAktiv();
+      setRouteStatus('');
+    }));
     layoutBtns().forEach((b) => b.addEventListener('click', () => {
-      layout = b.dataset.layout;
+      layout = b.dataset.layout === 'whiteboard' ? 'whiteboard' : 'arbeitsblatt';
       refreshAktiv();
       if (layout === 'arbeitsblatt') stopWbTimer();
       else if (aufgaben.length > 0) startWbTimer();
+      setRouteStatus('');
       render();
     }));
     erzeugenBtn?.addEventListener('click', erzeuge);
 
+    routeSaveBtn?.addEventListener('click', () => {
+      const route = createWhiteboardRouteFile();
+      if (!route) {
+        setRouteStatus('Bitte zuerst Aufgaben erzeugen, damit die Route gespeichert werden kann.', true);
+        return;
+      }
+      const encoded = encodeRoutePayload(route);
+      const html = buildRouteLauncherHtml(encoded, route.targetPath);
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = buildRouteFileName(route.targetPath);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setRouteStatus(
+        'Route-Datei gespeichert. Doppelklick öffnet direkt die passende Übungsseite mit Whiteboard-Route.'
+      );
+    });
+
     btnAlle?.addEventListener('click', () => {
-      typBoxen().forEach((c) => { c.checked = true; });
+      typBoxen().forEach((c) => {
+        c.checked = true;
+      });
     });
     btnKeine?.addEventListener('click', () => {
-      typBoxen().forEach((c) => { c.checked = false; });
+      typBoxen().forEach((c) => {
+        c.checked = false;
+      });
     });
 
-    btnDruck?.addEventListener('click', () => { window.print(); });
+    btnDruck?.addEventListener('click', () => {
+      window.print();
+    });
 
     alleAufBtn?.addEventListener('click', () => {
-      liste?.querySelectorAll('details').forEach((d) => { d.open = true; });
+      liste?.querySelectorAll('details').forEach((d) => {
+        d.open = true;
+      });
     });
     alleZuBtn?.addEventListener('click', () => {
-      liste?.querySelectorAll('details').forEach((d) => { d.open = false; });
+      liste?.querySelectorAll('details').forEach((d) => {
+        d.open = false;
+      });
     });
 
     wbNext?.addEventListener('click', () => {
@@ -2115,11 +2473,34 @@ function wbLabelFromHref(href: string): string {
         if (aufgaben.length === 0) return;
         if (e.target && (e.target as Element).closest('button.ug-task-diagram-toggle')) return;
         if (e.target && (e.target as Element).closest('#ug-wb-overlay button')) return;
-        if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); wbNext?.click(); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); wbPrev?.click(); }
+        if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
+          e.preventDefault();
+          wbNext?.click();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          wbPrev?.click();
+        }
       },
       true
     );
+
+    const initialToken = readRouteTokenFromLocation();
+    if (initialToken) {
+      const decodedRoute = decodeRoutePayload(initialToken);
+      if (!decodedRoute) {
+        setRouteStatus('Route-Datei konnte nicht gelesen werden.', true);
+      } else {
+        const applied = applyWhiteboardRouteFile(decodedRoute);
+        if (applied === 'loaded') {
+          clearRouteTokenFromLocation();
+          setRouteStatus('Whiteboard-Route geladen.');
+        } else if (applied === 'invalid') {
+          setRouteStatus('Route-Datei ist ungültig oder unvollständig.', true);
+        } else {
+          return;
+        }
+      }
+    }
 
     refreshAktiv();
     render();
