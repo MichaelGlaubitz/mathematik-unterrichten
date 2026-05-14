@@ -22,6 +22,21 @@ describe('bruchrechnungDiagrams', () => {
     expect(svgBruchStreifen(2, 5, '2/5', 'loesung')).toMatch(/<rect[^>]*fill='currentColor'/);
   });
 
+  it('Streifen Kürzen: je g benachbarte Zähler-Felder als ein Block mit fettem Rand', () => {
+    const g = 3;
+    const n = 6;
+    const d = 9;
+    const auf = svgBruchStreifen(n, d, '6/9', 'aufgabe', g);
+    const loe = svgBruchStreifen(n, d, '6/9', 'loesung', g);
+    const bloecke = n / g;
+    expect((auf.match(/stroke-width='2.75'/g) || []).length).toBe(bloecke);
+    expect((auf.match(/stroke-width='1.1'/g) || []).length).toBe(d);
+    expect((loe.match(/stroke-width='2.75'/g) || []).length).toBe(bloecke);
+    expect((loe.match(/stroke-width='1.1'/g) || []).length).toBe(d);
+    const ohne = svgBruchStreifen(2, 5, '2/5', 'loesung');
+    expect(ohne).not.toContain("stroke-width='2.75'");
+  });
+
   it('Erweitern-Kacheln: Aufgabe n/d-Spalten dunkel, ohne Lösungstext; Lösung volles Gitter mit Ergebniszeile', () => {
     const auf = svgBruchErweiternKacheln(2, 4, 3, '2/4', 'aufgabe');
     expect((auf.match(/<rect/g) || []).length).toBe(4);
