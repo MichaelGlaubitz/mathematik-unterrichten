@@ -1,10 +1,13 @@
 ---
 import {
+  BINOMISCHE_FORMELN_GENERATOR_IDS,
   ALGEBRA_GENERATOR_IDS,
   BRUCHRECHNUNG_GENERATOR_IDS,
   CIRCLE_GEOMETRY_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
+  LINEARE_FUNKTIONEN_GENERATOR_IDS,
   LINEARE_GLEICHUNGEN_GENERATOR_IDS,
+  LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS,
   NEGATIVE_ZAHLEN_GENERATOR_IDS,
   PROZENTRECHNUNG_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
@@ -13,6 +16,7 @@ import {
   ROOT_GENERATOR_IDS,
   STOCHASTIK_GENERATOR_IDS,
   STRAHLENSATZ_GENERATOR_IDS,
+  TERMUMFORMUNGEN_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
 } from '../lib/pythagorasPracticeGenerators';
 
@@ -30,6 +34,10 @@ export interface Props {
     | 'lineare-gleichungen'
     | 'prozentrechnung'
     | 'stochastik'
+    | 'binomische-formeln'
+    | 'lineare-funktionen'
+    | 'lineare-gleichungssysteme'
+    | 'termumformungen'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -60,6 +68,14 @@ const allowedIds =
                   ? PROZENTRECHNUNG_GENERATOR_IDS
                 : variant === 'stochastik'
                   ? STOCHASTIK_GENERATOR_IDS
+                : variant === 'binomische-formeln'
+                  ? BINOMISCHE_FORMELN_GENERATOR_IDS
+                : variant === 'lineare-funktionen'
+                  ? LINEARE_FUNKTIONEN_GENERATOR_IDS
+                : variant === 'lineare-gleichungssysteme'
+                  ? LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS
+                : variant === 'termumformungen'
+                  ? TERMUMFORMUNGEN_GENERATOR_IDS
                 : variant === 'wurzelrechnung'
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
@@ -79,6 +95,10 @@ const wbLabelByVariant = {
   'lineare-gleichungen': 'WB Lineare Gleichungen',
   prozentrechnung: 'WB Prozentrechnung',
   stochastik: 'WB Stochastik',
+  'binomische-formeln': 'WB Binomische Formeln',
+  'lineare-funktionen': 'WB Lineare Funktionen',
+  'lineare-gleichungssysteme': 'WB Lineare Gleichungssysteme',
+  termumformungen: 'WB Termumformungen',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -96,6 +116,10 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/lineare-gleichungen': 'WB Lineare Gleichungen',
   '/uebung/prozentrechnung': 'WB Prozentrechnung',
   '/uebung/stochastik': 'WB Stochastik',
+  '/uebung/binomische-formeln': 'WB Binomische Formeln',
+  '/uebung/lineare-funktionen': 'WB Lineare Funktionen',
+  '/uebung/lineare-gleichungssysteme': 'WB Lineare Gleichungssysteme',
+  '/uebung/termumformungen': 'WB Termumformungen',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -247,6 +271,46 @@ function wbLabelFromHref(href: string): string {
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Schwerpunkt auf Deutung: Unterschied zwischen sicher / unmöglich / wahrscheinlich und Bedeutung des Erwartungswerts.
+          </p>
+        </>
+      ) : variant === 'binomische-formeln' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>binomischen Formeln</strong> – ausmultiplizieren und rückwärts faktorisieren
+            im schnellen Whiteboard-Format.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Schwerpunkt: Vorzeichen sicher beherrschen und Strukturen $(a\\pm b)^2$, $(a+b)(a-b)$ erkennen.
+          </p>
+        </>
+      ) : variant === 'lineare-funktionen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>linearen Funktionen</strong> – Steigung, Achsenabschnitt, Nullstelle,
+            Funktionswert und Parallelen.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Mit optionalen Koordinatensystem-Skizzen zur direkten Verknüpfung von Term und Graph.
+          </p>
+        </>
+      ) : variant === 'lineare-gleichungssysteme' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>linearen Gleichungssystemen</strong> – Additions-, Einsetzungs- und
+            Gleichsetzungsverfahren plus Spezialfälle (keine / unendlich viele Lösungen).
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Teilweise mit Geradenskizze: Schnittpunkt entspricht dem Lösungspaar.
+          </p>
+        </>
+      ) : variant === 'termumformungen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Termumformungen mit Bruchtermen</strong> – kürzen, Definitionsmenge,
+            Hauptnenner sowie Addition und Multiplikation.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Fokus auf Faktorstruktur und sauberes Arbeiten mit Nennerbedingungen.
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -699,6 +763,142 @@ function wbLabelFromHref(href: string): string {
               </label>
             </div>
           </fieldset>
+        ) : variant === 'binomische-formeln' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Binomische Formeln
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_erste_formel" checked />
+                <span>Erste binomische Formel: $(x+a)^2$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_zweite_formel" checked />
+                <span>Zweite binomische Formel: $(x-a)^2$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_dritte_formel" checked />
+                <span>Dritte binomische Formel: $(x+a)(x-a)$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_faktorisieren_quadrat" checked />
+                <span>Quadratisches Trinom faktorisieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_faktorisieren_diff" checked />
+                <span>Differenz von Quadraten faktorisieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_ausmultiplizieren_mit_zahl" checked />
+                <span>Ausmultiplizieren mit Vorfaktor</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'lineare-funktionen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Lineare Funktionen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_gerade_m_b" checked />
+                <span>Gleichung aus Steigung und Achsenabschnitt</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_steigung_aus_punkten" checked />
+                <span>Steigung aus zwei Punkten</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_nullstelle" checked />
+                <span>Nullstelle bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_parallel" checked />
+                <span>Parallele Geraden und Steigung</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_funktionswert" checked />
+                <span>Funktionswert berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_achsenabschnitt" checked />
+                <span>y-Achsenabschnitt bestimmen</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'lineare-gleichungssysteme' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Lineare Gleichungssysteme
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_addition" checked />
+                <span>Additionsverfahren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_einsetzen" checked />
+                <span>Einsetzungsverfahren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_gleichsetzen" checked />
+                <span>Gleichsetzungsverfahren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_keine_loesung" checked />
+                <span>Keine Lösung erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_unendlich_viele" checked />
+                <span>Unendlich viele Lösungen erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_schnittpunkt" checked />
+                <span>Schnittpunkt zweier Geraden</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'termumformungen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Termumformungen · Bruchterme
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_kuerzen_faktor" checked />
+                <span>Kürzen über gemeinsame Faktoren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_nicht_kuerzbar_summe" checked />
+                <span>Fehlerdiagnose: Summen darf man nicht kürzen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_definitionsmenge" checked />
+                <span>Definitionsmenge bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_addition" checked />
+                <span>Bruchterme addieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_multiplikation" checked />
+                <span>Bruchterme multiplizieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_hauptnenner" checked />
+                <span>Auf Hauptnenner bringen</span>
+              </label>
+            </div>
+          </fieldset>
         ) : variant === 'wurzelrechnung' ? (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -840,7 +1040,9 @@ function wbLabelFromHref(href: string): string {
           variant !== 'bruchgleichungen' &&
             variant !== 'wurzelrechnung' &&
             variant !== 'prozentrechnung' &&
-            variant !== 'stochastik' && (
+            variant !== 'stochastik' &&
+            variant !== 'binomische-formeln' &&
+            variant !== 'termumformungen' && (
             <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
               <input
                 type="checkbox"
@@ -1222,6 +1424,66 @@ function wbLabelFromHref(href: string): string {
           {' · '}
           <a href="/uebung/algebra" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/algebra')}
+          </a>
+        </>
+      ) : variant === 'binomische-formeln' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/termumformungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/termumformungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/quadratische-gleichungen')}
+          </a>
+        </>
+      ) : variant === 'lineare-funktionen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/lineare-gleichungssysteme" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungssysteme')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
+          </a>
+        </>
+      ) : variant === 'lineare-gleichungssysteme' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/algebra" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/algebra')}
+          </a>
+        </>
+      ) : variant === 'termumformungen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/binomische-formeln" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/binomische-formeln')}
+          </a>
+          {' · '}
+          <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchgleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/wurzelrechnung')}
           </a>
         </>
       ) : variant === 'wurzelrechnung' ? (

@@ -169,6 +169,46 @@ export const STOCHASTIK_GENERATOR_IDS = [
   'st_erwartungswert_muenzwurf',
 ] as const;
 
+/** Binomische Formeln (ausmultiplizieren und faktorisieren). */
+export const BINOMISCHE_FORMELN_GENERATOR_IDS = [
+  'bf_erste_formel',
+  'bf_zweite_formel',
+  'bf_dritte_formel',
+  'bf_faktorisieren_quadrat',
+  'bf_faktorisieren_diff',
+  'bf_ausmultiplizieren_mit_zahl',
+] as const;
+
+/** Lineare Funktionen (Steigung, Achsenabschnitt, Nullstelle, Parallelitaet). */
+export const LINEARE_FUNKTIONEN_GENERATOR_IDS = [
+  'lf_gerade_m_b',
+  'lf_steigung_aus_punkten',
+  'lf_nullstelle',
+  'lf_parallel',
+  'lf_funktionswert',
+  'lf_achsenabschnitt',
+] as const;
+
+/** Lineare Gleichungssysteme in zwei Variablen. */
+export const LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS = [
+  'lgs_addition',
+  'lgs_einsetzen',
+  'lgs_gleichsetzen',
+  'lgs_keine_loesung',
+  'lgs_unendlich_viele',
+  'lgs_schnittpunkt',
+] as const;
+
+/** Termumformungen bei Bruchtermen. */
+export const TERMUMFORMUNGEN_GENERATOR_IDS = [
+  'tu_kuerzen_faktor',
+  'tu_nicht_kuerzbar_summe',
+  'tu_definitionsmenge',
+  'tu_addition',
+  'tu_multiplikation',
+  'tu_hauptnenner',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -211,6 +251,10 @@ export const PRACTICE_GENERATOR_IDS = [
   ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   ...PROZENTRECHNUNG_GENERATOR_IDS,
   ...STOCHASTIK_GENERATOR_IDS,
+  ...BINOMISCHE_FORMELN_GENERATOR_IDS,
+  ...LINEARE_FUNKTIONEN_GENERATOR_IDS,
+  ...LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS,
+  ...TERMUMFORMUNGEN_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -1317,6 +1361,265 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Eine faire Münze wird $${n}$-mal geworfen. Wie viele „Zahl“ erwartest du ungefähr?`,
         loesung: `Erwartungswert: $E=n\\cdot \\frac12=${n}\\cdot \\frac12=${n / 2}$.`,
+      };
+    },
+    bf_erste_formel() {
+      const a = randInt(2, 9);
+      const doppel = 2 * a;
+      const quad = a * a;
+      return {
+        frage: `Multipliziere aus: $(x+${a})^2$.`,
+        loesung: `Erste binomische Formel: $(x+${a})^2=x^2+2\\cdot ${a}x+${a}^2=x^2+${doppel}x+${quad}$.`,
+      };
+    },
+    bf_zweite_formel() {
+      const a = randInt(2, 9);
+      const doppel = 2 * a;
+      const quad = a * a;
+      return {
+        frage: `Multipliziere aus: $(x-${a})^2$.`,
+        loesung: `Zweite binomische Formel: $(x-${a})^2=x^2-2\\cdot ${a}x+${a}^2=x^2-${doppel}x+${quad}$.`,
+      };
+    },
+    bf_dritte_formel() {
+      const a = randInt(2, 12);
+      return {
+        frage: `Multipliziere aus: $(x+${a})(x-${a})$.`,
+        loesung: `Dritte binomische Formel: $(x+${a})(x-${a})=x^2-${a}^2=x^2-${a * a}$.`,
+      };
+    },
+    bf_faktorisieren_quadrat() {
+      const p = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const b = -2 * p;
+      const c = p * p;
+      return {
+        frage: `Faktorisiere $x^2${formatSignedInt(b)}x${formatSignedInt(c)}$.`,
+        loesung: `Binomische Struktur: $x^2${formatSignedInt(b)}x${formatSignedInt(c)}=(x${formatSignedInt(-p)})^2$.`,
+      };
+    },
+    bf_faktorisieren_diff() {
+      const a = randInt(2, 12);
+      return {
+        frage: `Faktorisiere $x^2-${a * a}$.`,
+        loesung: `Differenz von Quadraten: $x^2-${a * a}=(x-${a})(x+${a})$.`,
+      };
+    },
+    bf_ausmultiplizieren_mit_zahl() {
+      const k = randInt(2, 5);
+      const a = randInt(1, 8);
+      const b = randInt(1, 8);
+      const sum = a + b;
+      const prod = a * b;
+      return {
+        frage: `Multipliziere aus: $(${k}x+${a})(${k}x+${b})$.`,
+        loesung: `Ausmultiplizieren: $(${k}x+${a})(${k}x+${b})=${k * k}x^2+${k * sum}x+${prod}$.`,
+      };
+    },
+    lf_gerade_m_b() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = randInt(-8, 8);
+      return {
+        frage: `Bestimme die Gleichung der Geraden mit Steigung $m=${m}$ und y-Achsenabschnitt $b=${b}$.`,
+        loesung: `$y=${m}x${formatSignedInt(b)}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: b }, 0),
+      };
+    },
+    lf_steigung_aus_punkten() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const x1 = randInt(-3, 2);
+      const dx = pick([2, 3, 4] as const);
+      const x2 = x1 + dx;
+      const b = randInt(-6, 6);
+      const y1 = m * x1 + b;
+      const y2 = m * x2 + b;
+      return {
+        frage: `Die Gerade geht durch $A(${x1}|${y1})$ und $B(${x2}|${y2})$. Bestimme ihre Steigung und Gleichung.`,
+        loesung: `Steigung: $m=\\frac{${y2}-${y1}}{${x2}-${x1}}=${m}$. Mit $A$: $${y1}=${m}\\cdot ${x1}+b\\Rightarrow b=${b}$. Also $y=${m}x${formatSignedInt(b)}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: y1 }, x1),
+      };
+    },
+    lf_nullstelle() {
+      const m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const b = -m * x0;
+      return {
+        frage: `Bestimme die Nullstelle der Funktion $f(x)=${m}x${formatSignedInt(b)}$.`,
+        loesung: `Für die Nullstelle gilt $0=${m}x${formatSignedInt(b)}\\Rightarrow x=${x0}$. Schnittpunkt mit der x-Achse: $(${x0}|0)$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: 0 }, x0),
+      };
+    },
+    lf_parallel() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = randInt(-8, 8);
+      return {
+        frage: `Welche Steigung hat jede Gerade, die parallel zu $y=${m}x${formatSignedInt(b)}$ verläuft?`,
+        loesung: `Parallele Geraden haben dieselbe Steigung. Also $m=${m}$.`,
+      };
+    },
+    lf_funktionswert() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = randInt(-9, 9);
+      const x = randInt(-4, 6);
+      const y = m * x + b;
+      return {
+        frage: `Berechne den Funktionswert von $f(x)=${m}x${formatSignedInt(b)}$ an der Stelle $x=${x}$.`,
+        loesung: `$f(${x})=${m}\\cdot ${x}${formatSignedInt(b)}=${y}$.`,
+      };
+    },
+    lf_achsenabschnitt() {
+      const m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const b = randInt(-9, 9);
+      return {
+        frage: `Bestimme den y-Achsenabschnitt der Geraden $y=${m}x${formatSignedInt(b)}$.`,
+        loesung: `Bei $x=0$ gilt $y=${b}$. Der y-Achsenabschnitt ist also $b=${b}$ (Punkt $(0|${b})$).`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: b }, 0),
+      };
+    },
+    lgs_addition() {
+      const x0 = randInt(-6, 6);
+      const y0 = randInt(-6, 6);
+      const s1 = x0 + y0;
+      const s2 = x0 - y0;
+      return {
+        frage: `Löse das Gleichungssystem $\\begin{cases}x+y=${s1}\\\\x-y=${s2}\\end{cases}$.`,
+        loesung: `Addieren liefert $2x=${s1 + s2}\\Rightarrow x=${x0}$. Danach $y=${s1}-${x0}=${y0}$. Lösung: $(${x0}|${y0})$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: -1, n: s1 }, { m: 1, n: -s2 }, x0),
+      };
+    },
+    lgs_einsetzen() {
+      const x0 = randInt(-6, 6);
+      const y0 = randInt(-6, 6);
+      const a = pick([-3, -2, -1, 1, 2, 3] as const);
+      const b = x0 - a * y0;
+      const c = pick([-3, -2, -1, 1, 2, 3] as const);
+      const d = pick([-4, -3, -2, 2, 3, 4] as const);
+      const e = c * x0 + d * y0;
+      return {
+        frage: `Löse durch Einsetzen: $\\begin{cases}x=${a}y${formatSignedInt(b)}\\\\${c}x${formatSignedInt(
+          d
+        )}y=${e}\\end{cases}$.`,
+        loesung: `Setze $x=${a}y${formatSignedInt(b)}$ in die zweite Gleichung ein. Danach ergibt sich $y=${y0}$ und damit $x=${x0}$. Lösung: $(${x0}|${y0})$.`,
+      };
+    },
+    lgs_gleichsetzen() {
+      const x0 = randInt(-5, 6);
+      const y0 = randInt(-6, 6);
+      let m1 = 1;
+      let m2 = 2;
+      for (let t = 0; t < 20; t++) {
+        m1 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+        m2 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+        if (m1 !== m2) break;
+      }
+      const n1 = y0 - m1 * x0;
+      const n2 = y0 - m2 * x0;
+      return {
+        frage: `Löse durch Gleichsetzen: $\\begin{cases}y=${m1}x${formatSignedInt(
+          n1
+        )}\\\\y=${m2}x${formatSignedInt(n2)}\\end{cases}$.`,
+        loesung: `Gleichsetzen: $${m1}x${formatSignedInt(n1)}=${m2}x${formatSignedInt(
+          n2
+        )}\\Rightarrow x=${x0}$. Dann $y=${y0}$. Lösung: $(${x0}|${y0})$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: m1, n: n1 }, { m: m2, n: n2 }, x0),
+      };
+    },
+    lgs_keine_loesung() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const n1 = randInt(-6, 2);
+      const n2 = n1 + randInt(2, 7);
+      return {
+        frage: `Wie viele Lösungen hat das System $\\begin{cases}y=${m}x${formatSignedInt(
+          n1
+        )}\\\\y=${m}x${formatSignedInt(n2)}\\end{cases}$?`,
+        loesung: `Beide Geraden haben dieselbe Steigung $m=${m}$, aber verschiedene Achsenabschnitte ($${n1}$ und $${n2}$). Sie sind parallel: keine Lösung.`,
+      };
+    },
+    lgs_unendlich_viele() {
+      const a = pick([1, 2, 3] as const);
+      const b = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const c = randInt(-8, 8);
+      const f = pick([2, 3, 4] as const);
+      return {
+        frage: `Wie viele Lösungen hat $\\begin{cases}${a}x${formatSignedInt(b)}y=${c}\\\\${a * f}x${formatSignedInt(
+          b * f
+        )}y=${c * f}\\end{cases}$?`,
+        loesung: `Die zweite Gleichung ist ein Vielfaches der ersten. Beide beschreiben dieselbe Gerade: unendlich viele Lösungen.`,
+      };
+    },
+    lgs_schnittpunkt() {
+      const x0 = randInt(-5, 5);
+      const y0 = randInt(-5, 5);
+      let m1 = 1;
+      let m2 = 2;
+      for (let t = 0; t < 20; t++) {
+        m1 = pick([-3, -2, -1, 1, 2, 3] as const);
+        m2 = pick([-3, -2, -1, 1, 2, 3] as const);
+        if (m1 !== m2) break;
+      }
+      const n1 = y0 - m1 * x0;
+      const n2 = y0 - m2 * x0;
+      return {
+        frage: `Bestimme den Schnittpunkt der Geraden $y=${m1}x${formatSignedInt(n1)}$ und $y=${m2}x${formatSignedInt(
+          n2
+        )}$.`,
+        loesung: `Am Schnittpunkt sind die y-Werte gleich: $${m1}x${formatSignedInt(n1)}=${m2}x${formatSignedInt(
+          n2
+        )}$. Daraus $x=${x0}$ und anschließend $y=${y0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: m1, n: n1 }, { m: m2, n: n2 }, x0),
+      };
+    },
+    tu_kuerzen_faktor() {
+      const g = pick([2, 3, 4, 5, 6] as const);
+      const a = randInt(1, 7);
+      const b = pick([2, 3, 4, 5] as const);
+      return {
+        frage: `Kürze den Term $\\dfrac{${g}x${formatSignedInt(g * a)}}{${g * b}}$ so weit wie möglich.`,
+        loesung: `$\\dfrac{${g}x${formatSignedInt(g * a)}}{${g * b}}=\\dfrac{${g}(x${formatSignedInt(a)})}{${g}\\cdot ${b}}=\\dfrac{x${formatSignedInt(
+          a
+        )}}{${b}}$.`,
+      };
+    },
+    tu_nicht_kuerzbar_summe() {
+      const a = randInt(2, 8);
+      const b = randInt(2, 8);
+      return {
+        frage: `Darf man $\\dfrac{x+${a}}{x+${b}}$ zu $\\dfrac{${a}}{${b}}$ kürzen? Begründe kurz.`,
+        loesung: `Nein. Kürzen ist nur bei gemeinsamen Faktoren erlaubt, nicht bei Summanden. $x+${a}$ und $x+${b}$ sind Summen.`,
+      };
+    },
+    tu_definitionsmenge() {
+      const a = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
+      return {
+        frage: `Bestimme die Definitionsmenge von $\\dfrac{1}{x${formatSignedInt(-a)}}$.`,
+        loesung: `Nenner $\\neq 0$: $x${formatSignedInt(-a)}\\neq 0\\Rightarrow x\\neq ${a}$. Also $D=\\mathbb{R}\\setminus\\{${a}\\}$.`,
+      };
+    },
+    tu_addition() {
+      const a = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = a + pick([1, 2, 3, 4] as const);
+      const sum = a + b;
+      return {
+        frage: `Addiere: $\\dfrac{1}{x${formatSignedInt(-a)}}+\\dfrac{1}{x${formatSignedInt(-b)}}$.`,
+        loesung: `Hauptnenner: $(x${formatSignedInt(-a)})(x${formatSignedInt(
+          -b
+        )})$. Zähler: $(x${formatSignedInt(-b)})+(x${formatSignedInt(-a)})=2x${formatSignedInt(
+          -sum
+        )}$. Ergebnis: $\\dfrac{2x${formatSignedInt(-sum)}}{(x${formatSignedInt(-a)})(x${formatSignedInt(-b)})}$.`,
+      };
+    },
+    tu_multiplikation() {
+      const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const b = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Vereinfache $\\dfrac{x${formatSignedInt(-a)}}{${b}}\\cdot\\dfrac{${b}}{x${formatSignedInt(-a)}}$.`,
+        loesung: `Kürzen von Faktor $${b}$ und $x${formatSignedInt(-a)}$ (mit $x\\neq ${a}$): Ergebnis $1$.`,
+      };
+    },
+    tu_hauptnenner() {
+      const a = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Bringe auf einen Hauptnenner: $\\dfrac{1}{x}+\\dfrac{1}{x+${a}}$.`,
+        loesung: `Hauptnenner $x(x+${a})$: $\\dfrac{1}{x}=\\dfrac{x+${a}}{x(x+${a})}$ und $\\dfrac{1}{x+${a}}=\\dfrac{x}{x(x+${a})}$. Summe: $\\dfrac{2x+${a}}{x(x+${a})}$.`,
       };
     },
     wr_vereinfachen() {
