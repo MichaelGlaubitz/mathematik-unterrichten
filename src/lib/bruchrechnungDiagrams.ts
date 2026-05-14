@@ -116,9 +116,10 @@ export function svgBruchErweiternKacheln(
 /**
  * Ein Streifen n/d (v. a. für Kürzen).
  *
- * Optional `kuerzungsZahl` (gemeinsamer Faktor / ggT): Genau so viele der ersten
- * Zähler-Teilflächen (Indizes 0 … kuerzungsZahl-1) erhalten einen deutlich dickeren
- * Rand – visuell zur Kürzungszahl passend, ohne die Lösung vorwegzunehmen.
+ * Optional `kuerzungsZahl` (gemeinsamer Faktor / ggT): Der Zählerstreifen wird in
+ * Blöcke zu je `g` benachbarten Feldern gegliedert; jeder vollständige Zähler-Block
+ * erhält **eine** dicke Außenlinie (n/g Umrandungen). Einzelfelder behalten dünne
+ * Gitterkanten.
  */
 export function svgBruchStreifen(
   n: number,
@@ -137,16 +138,30 @@ export function svgBruchStreifen(
     kuerzungsZahl != null && kuerzungsZahl > 0
       ? Math.min(Math.floor(kuerzungsZahl), n)
       : null;
+  const blockRahmen =
+    g != null && g >= 2 && n % g === 0 ? g : null;
+
   let rects = '';
   for (let i = 0; i < d; i++) {
     const x = i * seg;
     const filled = i < n;
     const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
     const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
-    const sw = g != null && filled && i < g ? strokeFett : strokeDuenn;
-    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='${sw}'/>`;
+    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='${strokeDuenn}'/>`;
   }
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h + 14}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}<text x='${
+
+  let blockOutlines = '';
+  if (blockRahmen != null) {
+    const innerH = h - 8;
+    const numBlocks = n / blockRahmen;
+    for (let b = 0; b < numBlocks; b++) {
+      const x = b * blockRahmen * seg + 0.5;
+      const bw = blockRahmen * seg - 1;
+      blockOutlines += `<rect x='${x}' y='4' width='${bw}' height='${innerH}' rx='0.8' fill='none' stroke='currentColor' stroke-width='${strokeFett}'/>`;
+    }
+  }
+
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h + 14}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}${blockOutlines}<text x='${
     w / 2
   }' y='${h + 10}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.85'>${zeile}</text></svg>`;
 }
