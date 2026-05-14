@@ -2191,10 +2191,12 @@ function wbLabelFromHref(href: string): string {
   .mu-practice-diagram {
     --mu-diagram-scale: 1;
   }
+  /* !important: muss Tailwind-Utilities auf dem SVG (z. B. max-w-full) und die gleich starke
+     Regel .mu-geo-diagram svg überschreiben, sonst bleibt die Breite bei 300px und Zoom wirkt nicht. */
   .mu-practice-diagram svg {
     display: block;
-    width: min(100%, calc(300px * var(--mu-diagram-scale)));
-    max-width: none;
+    width: min(100%, calc(300px * var(--mu-diagram-scale, 1))) !important;
+    max-width: none !important;
     height: auto;
     margin-inline: auto;
     transition: width 120ms ease;
