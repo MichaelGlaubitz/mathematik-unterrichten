@@ -1190,6 +1190,7 @@ function wbLabelFromHref(href: string): string {
                   class="mt-0.5 block max-w-full break-words text-xs font-normal text-ink-600 dark:text-ink-400"
                 >
                   Voreinstellung: Skizzen aus. Pro Aufgabe gibt es „Skizze ein-/ausblenden“ (wird ebenfalls gespeichert).
+                  Über „Route speichern“ bzw. „Starter-HTML“ landen globale und pro-Aufgabe-Sichtbarkeit in der Datei.
                 </span>
               </span>
             </label>
@@ -1229,6 +1230,33 @@ function wbLabelFromHref(href: string): string {
         hidden
       >
         Alle Lösungen verbergen
+      </button>
+      <input id="ug-route-file" type="file" accept="application/json,.json" class="sr-only" tabindex="-1" aria-hidden="true" />
+      <button
+        id="ug-route-speichern"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+        hidden
+        title="Aufgaben, Whiteboard-Position, Zoom und Skizzen-Sichtbarkeit als JSON sichern"
+      >
+        Route speichern …
+      </button>
+      <button
+        id="ug-route-starter-html"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+        hidden
+        title="Kleine HTML-Datei: Doppelklick öffnet die Seite und stellt dieselbe Route wieder her (wenn die Daten nicht zu groß sind)"
+      >
+        Starter-HTML …
+      </button>
+      <button
+        id="ug-route-laden"
+        type="button"
+        class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700"
+        title="Zuvor gespeicherte JSON-Route einlesen (gleiche Übungsseite)"
+      >
+        Route laden …
       </button>
       <p id="ug-fehler" class="text-sm text-red-600 dark:text-red-300" hidden>Mindestens einen Aufgabentyp auswählen.</p>
     </div>
@@ -1703,14 +1731,31 @@ function wbLabelFromHref(href: string): string {
   </p>
 </div>
 
-<script>
+<script define:vars={{ muMassenVariant: variant }}>
   import { createPracticeGenerators } from '../lib/pythagorasPracticeGenerators';
   import {
     bindPracticeDiagramCheckbox,
     hashPracticeTaskFrage,
+    mergeTaskDiagramPrefsFromRouteImport,
+    readPracticeDiagramTaskPrefsCopy,
+    readShowPracticeDiagrams,
     syncPracticeDiagramUi,
     toggleDiagramForHash,
+    writeShowPracticeDiagrams,
   } from '../lib/practiceDiagramPreference';
+  import {
+    MU_WB_ROUTE_MAX_FRAGMENT_CHARS,
+    base64UrlToUtf8Json,
+    buildMuWhiteboardRouteSnapshot,
+    buildStarterHtmlRedirect,
+    filterDiagramScalesForTasks,
+    filterTaskDiagramPrefsForTasks,
+    parseMuWhiteboardRouteJsonText,
+    parseMuWhiteboardRouteSnapshot,
+    taskHashesFromSnapshot,
+    utf8JsonToBase64Url,
+    type MuWhiteboardRouteSnapshot,
+  } from '../lib/muWhiteboardRouteSnapshot';
 
   const GEN = createPracticeGenerators(() => Math.random());
 
@@ -1737,9 +1782,25 @@ function wbLabelFromHref(href: string): string {
       );
     }
 
-    bindPracticeDiagramCheckbox(
-      document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null
-    );
+    function tryConsumeHashImport() {
+      if (typeof window === 'undefined') return null;
+      const h = window.location.hash;
+      if (!h.startsWith('#muWb=')) return null;
+      const raw = h.slice('#muWb='.length);
+      let data: unknown;
+      try {
+        data = base64UrlToUtf8Json(raw);
+      } catch {
+        return null;
+      }
+      const snap = parseMuWhiteboardRouteSnapshot(data, muMassenVariant);
+      if (!snap) return null;
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      return snap;
+    }
+
+    const routeHashSnap = tryConsumeHashImport();
+
     let layout = 'arbeitsblatt';
     let anzahl = 10;
     let aufgaben = [];
@@ -1813,6 +1874,11 @@ function wbLabelFromHref(href: string): string {
     const btnDruck = document.getElementById('ug-drucken');
     const wbVorbereitung = document.getElementById('ug-wb-vorbereitung');
     const wbVorbZuAb = document.getElementById('ug-wb-vorbereitung-zu-ab');
+    const btnRouteSpeichern = document.getElementById('ug-route-speichern');
+    const btnRouteStarter = document.getElementById('ug-route-starter-html');
+    const btnRouteLaden = document.getElementById('ug-route-laden');
+    const routeFileInput = document.getElementById('ug-route-file') as HTMLInputElement | null;
+    const diagramGlobalCb = document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null;
 
     if (wbOverlay && wbOverlay.parentElement !== document.body) {
       document.body.appendChild(wbOverlay);
@@ -1908,6 +1974,8 @@ function wbLabelFromHref(href: string): string {
 
     function render() {
       const hat = aufgaben.length > 0;
+      if (btnRouteSpeichern) btnRouteSpeichern.hidden = !hat;
+      if (btnRouteStarter) btnRouteStarter.hidden = !hat;
       const wbOverlayAktiv = layout === 'whiteboard' && hat;
       if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt');
       if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt');
@@ -2025,6 +2093,82 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
+    function normalizeAnzahl(n: number): number {
+      const opts = [5, 10, 15, 20];
+      if (opts.includes(n)) return n;
+      return opts.reduce((best, o) => (Math.abs(o - n) < Math.abs(best - n) ? o : best), 10);
+    }
+
+    function triggerDownload(filename: string, mime: string, body: string): void {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([body], { type: mime }));
+      a.download = filename;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 500);
+    }
+
+    function buildCurrentSnapshot(): MuWhiteboardRouteSnapshot {
+      const hashes = aufgaben.map((a) => hashPracticeTaskFrage(a.frage));
+      const prefsFiltered = filterTaskDiagramPrefsForTasks(readPracticeDiagramTaskPrefsCopy(), hashes);
+      const scalesFiltered: Record<string, number> = {};
+      for (const h of hashes) {
+        scalesFiltered[h] = readDiagramScale(h);
+      }
+      return buildMuWhiteboardRouteSnapshot({
+        variant: muMassenVariant,
+        path: window.location.pathname,
+        anzahl,
+        layout,
+        types: aktiveTypen(),
+        showDiagramsGlobal: readShowPracticeDiagrams(),
+        taskDiagramPrefs: prefsFiltered,
+        diagramScales: scalesFiltered,
+        tasks: aufgaben.slice(),
+        wbIndex,
+        wbZeigeLoesung,
+      });
+    }
+
+    function applyRouteSnapshot(snap: MuWhiteboardRouteSnapshot) {
+      writeShowPracticeDiagrams(snap.showDiagramsGlobal);
+      const hashes = taskHashesFromSnapshot(snap);
+      mergeTaskDiagramPrefsFromRouteImport(hashes, filterTaskDiagramPrefsForTasks(snap.taskDiagramPrefs, hashes));
+      diagramScaleByHash.clear();
+      const scales = filterDiagramScalesForTasks(snap.diagramScales, hashes);
+      for (const [k, v] of Object.entries(scales)) {
+        diagramScaleByHash.set(k, clampDiagramScale(v));
+      }
+      anzahl = normalizeAnzahl(snap.anzahl);
+      layout = snap.layout;
+      let anyTyp = false;
+      typBoxen().forEach((c) => {
+        const on = snap.types.includes(c.value) && allowedSet.has(c.value);
+        c.checked = on;
+        if (on) anyTyp = true;
+      });
+      if (!anyTyp) {
+        window.alert('Die gespeicherte Route enthält auf dieser Seite keine gültigen Aufgabentypen. Import abgebrochen.');
+        return;
+      }
+      aufgaben = snap.tasks.slice();
+      wbIndex = Math.min(Math.max(0, snap.wbIndex), aufgaben.length - 1);
+      wbZeigeLoesung = snap.wbZeigeLoesung;
+      if (layout === 'whiteboard' && aufgaben.length > 0) {
+        startWbTimer();
+      } else {
+        stopWbTimer();
+      }
+      if (diagramGlobalCb) diagramGlobalCb.checked = readShowPracticeDiagrams();
+      syncPracticeDiagramUi(document.body);
+      refreshAktiv();
+      render();
+    }
+
+    bindPracticeDiagramCheckbox(diagramGlobalCb);
+
     anzahlBtns().forEach((b) => b.addEventListener('click', () => { anzahl = Number(b.dataset.anzahl); refreshAktiv(); }));
     layoutBtns().forEach((b) => b.addEventListener('click', () => {
       layout = b.dataset.layout;
@@ -2121,8 +2265,58 @@ function wbLabelFromHref(href: string): string {
       true
     );
 
-    refreshAktiv();
-    render();
+    btnRouteSpeichern?.addEventListener('click', () => {
+      if (aufgaben.length === 0) return;
+      const snap = buildCurrentSnapshot();
+      const body = `${JSON.stringify(snap, null, 2)}\n`;
+      const stamp = new Date().toISOString().slice(0, 10);
+      triggerDownload(`whiteboard-route-${muMassenVariant}-${stamp}.json`, 'application/json', body);
+    });
+    btnRouteStarter?.addEventListener('click', () => {
+      if (aufgaben.length === 0) return;
+      const snap = buildCurrentSnapshot();
+      const b64 = utf8JsonToBase64Url(snap);
+      const base = `${window.location.origin}${window.location.pathname}`;
+      const fullUrl = `${base}#muWb=${b64}`;
+      if (fullUrl.length > MU_WB_ROUTE_MAX_FRAGMENT_CHARS) {
+        window.alert(
+          `Die Route ist zu umfangreich für die Starter-HTML-Datei (${fullUrl.length} Zeichen, Grenze ${MU_WB_ROUTE_MAX_FRAGMENT_CHARS}). Bitte „Route speichern“ (JSON) nutzen und unter „Route laden“ einlesen.`
+        );
+        return;
+      }
+      const html = buildStarterHtmlRedirect(fullUrl);
+      const stamp = new Date().toISOString().slice(0, 10);
+      triggerDownload(`whiteboard-route-${muMassenVariant}-${stamp}.html`, 'text/html;charset=utf-8', html);
+    });
+    btnRouteLaden?.addEventListener('click', () => {
+      routeFileInput?.click();
+    });
+    routeFileInput?.addEventListener('change', () => {
+      const f = routeFileInput.files && routeFileInput.files[0];
+      if (routeFileInput) routeFileInput.value = '';
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = typeof reader.result === 'string' ? reader.result : '';
+        const snap = parseMuWhiteboardRouteJsonText(text, muMassenVariant);
+        if (!snap) {
+          window.alert('Die Datei ist keine gültige Whiteboard-Route für diese Übung oder das Schema wird nicht unterstützt.');
+          return;
+        }
+        applyRouteSnapshot(snap);
+      };
+      reader.onerror = () => {
+        window.alert('Die Datei konnte nicht gelesen werden.');
+      };
+      reader.readAsText(f, 'utf-8');
+    });
+
+    if (routeHashSnap) {
+      applyRouteSnapshot(routeHashSnap);
+    } else {
+      refreshAktiv();
+      render();
+    }
   }
 
   if (typeof document !== 'undefined') {

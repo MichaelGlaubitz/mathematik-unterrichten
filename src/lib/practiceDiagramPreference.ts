@@ -51,6 +51,31 @@ function writeTaskMap(map: Record<string, 'show' | 'hide'>): void {
   localStorage.setItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY, JSON.stringify(map));
 }
 
+/** Kopie der gespeicherten Skizzen-Overrides (z. B. für Export einer Whiteboard-Route). */
+export function readPracticeDiagramTaskPrefsCopy(): Record<string, 'show' | 'hide'> {
+  return { ...readTaskMap() };
+}
+
+/**
+ * Beim Import einer Route: Overrides nur für die genannten Hashes setzen bzw. entfernen,
+ * wenn sie in der Datei nicht vorkommen (globale Vorgabe greift). Andere Seiten-Einträge bleiben.
+ */
+export function mergeTaskDiagramPrefsFromRouteImport(
+  taskHashes: readonly string[],
+  incoming: Record<string, 'show' | 'hide'>
+): void {
+  const map = { ...readTaskMap() };
+  for (const h of taskHashes) {
+    if (Object.prototype.hasOwnProperty.call(incoming, h)) {
+      const v = incoming[h];
+      if (v === 'show' || v === 'hide') map[h] = v;
+    } else {
+      delete map[h];
+    }
+  }
+  writeTaskMap(map);
+}
+
 /** Effektive Sichtbarkeit: Override „show“/„hide“ oder globale Checkbox. */
 export function effectiveDiagramVisibleByHash(hash: string): boolean {
   const p = readTaskMap()[hash];
