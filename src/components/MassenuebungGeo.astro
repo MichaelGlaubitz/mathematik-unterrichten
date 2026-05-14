@@ -1923,7 +1923,7 @@ function wbLabelFromHref(href: string): string {
     function collectDiagramScales() {
       const out = {};
       for (const a of aufgaben) {
-        if (!a?.diagram) continue;
+        if (!a?.diagram && !a?.diagramLoesung) continue;
         const hash = hashPracticeTaskFrage(a.frage);
         const scale = readDiagramScale(hash);
         if (Math.abs(scale - 1) > 0.0001) out[hash] = scale;
@@ -1934,7 +1934,7 @@ function wbLabelFromHref(href: string): string {
     function collectDiagramVisibility() {
       const byHash = {};
       for (const a of aufgaben) {
-        if (!a?.diagram) continue;
+        if (!a?.diagram && !a?.diagramLoesung) continue;
         const hash = hashPracticeTaskFrage(a.frage);
         byHash[hash] = effectiveDiagramVisibleByHash(hash);
       }
@@ -2168,7 +2168,7 @@ function wbLabelFromHref(href: string): string {
         const li = document.createElement('li');
         li.className = 'pl-1';
         const hash = hashPracticeTaskFrage(a.frage);
-        const diagramToggle = a.diagram
+        const diagramToggle = a.diagram || a.diagramLoesung
           ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
               <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
               <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
@@ -2177,13 +2177,14 @@ function wbLabelFromHref(href: string): string {
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
               </span>
             </div>
-            <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}">${a.diagram}</div>`
+            <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}">${a.diagram ?? ''}</div>`
           : '';
         li.innerHTML = `
           ${diagramToggle}
           <div class="text-ink-900 dark:text-ink-50 mb-2">${a.frage}</div>
           <details class="group">
             <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
+            ${a.diagramLoesung ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}">${a.diagramLoesung}</div>` : ''}
             <div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-ink-800 dark:bg-accent-700/20 dark:text-ink-100">${a.loesung}</div>
           </details>
         `;
@@ -2204,7 +2205,11 @@ function wbLabelFromHref(href: string): string {
       if (wbI) wbI.textContent = String(wbIndex + 1);
       const cur = aufgaben[wbIndex];
       const hash = hashPracticeTaskFrage(cur.frage);
-      const dia = cur.diagram
+      const diagramSvg =
+        wbZeigeLoesung && cur.diagramLoesung
+          ? cur.diagramLoesung
+          : (cur.diagram ?? '');
+      const dia = cur.diagram || cur.diagramLoesung
         ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
             <div class="flex flex-wrap items-center justify-center gap-2">
               <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
@@ -2215,7 +2220,7 @@ function wbLabelFromHref(href: string): string {
               </span>
             </div>
           </div>
-          <div class="mu-practice-diagram max-w-full" data-mu-diagram-hash="${hash}">${cur.diagram}</div><div class="mt-2">`
+          <div class="mu-practice-diagram max-w-full" data-mu-diagram-hash="${hash}">${diagramSvg}</div><div class="mt-2">`
         : '<div>';
       if (wbFrage) wbFrage.innerHTML = `${dia}${cur.frage}</div>`;
       if (wbLoesungText) wbLoesungText.innerHTML = aufgaben[wbIndex].loesung;

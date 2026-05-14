@@ -126,6 +126,17 @@ describe('Generator hypotenuse()', () => {
   });
 });
 
+describe('Bruchrechnung-Generatoren', () => {
+  it('liefern getrennte Skizzen für Aufgabe (ohne Lösungsschattierung) und Lösung', () => {
+    const GEN = createPracticeGenerators(() => 0.42);
+    const mul = GEN.br_mul_frac();
+    expect(mul.diagram).toBeDefined();
+    expect(mul.diagramLoesung).toBeDefined();
+    expect(mul.diagram).not.toContain("fill-opacity='0.34'");
+    expect(mul.diagramLoesung).toContain("fill-opacity='0.34'");
+  });
+});
+
 describe('alle PRACTICE_GENERATOR_IDS', () => {
   it('liefern nicht-leere Frage und Lösung', () => {
     const GEN = createPracticeGenerators(Math.random);
