@@ -26,6 +26,7 @@ Wenn ein Pflichtparameter fehlt, wird **kein Code** erzeugt. Stattdessen folgen 
 - Labels, Winkelmarken und Kanten dürfen sich nicht unleserlich überlagern.
 - Standard: gegebene Werte als Integer; nicht-ganzzahlige Resultate auf eine Dezimalstelle, sofern nicht anders gefordert.
 - **Pflicht für Koordinatensysteme:** Immer beide Achsen beschriften (mit Variablennamen), auf beiden Achsen Skalenticks anzeigen und Pfeilspitzen in positiver Richtung setzen.
+- **Pflicht für alle Diagramme:** Inline-Zoom mit `+` / `−` bereitstellen (feinstufige Vergrößerung/Verkleinerung), damit SVGs ohne Pixelation skaliert werden können.
 
 ### 3) Didaktische Variation (Variation Theory)
 
