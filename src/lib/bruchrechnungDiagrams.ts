@@ -121,7 +121,8 @@ export function svgBruchErweiternKacheln(
  * - **Aufgabe:** Zähler wie in der Lösung schattiert (kein „Auslesen“ über Blockrahmen),
  *   aber **ohne** dicke Blockumrandung.
  * - **Lösung:** Zusätzlich je `g` benachbarte Zähler-Felder mit **roter** dicker Außenlinie
- *   (n/g Blöcke); Zellgitter und Füllfarben unverändert `currentColor`.
+ *   (n/g Blöcke) und je `g` benachbarte **Nicht-Zähler**-Felder mit **blauer** dicker Außenlinie
+ *   ((d−n)/g Blöcke); Zellgitter und Füllfarben unverändert `currentColor`.
  */
 export function svgBruchStreifen(
   n: number,
@@ -136,8 +137,10 @@ export function svgBruchStreifen(
   const h = 32;
   const strokeDuenn = 1.1;
   const strokeFett = 2.75;
-  /** Rot für Blockrahmen in der Lösung (gut lesbar auf hellem und dunklem Grund). */
-  const strokeBlockLoesung = '#dc2626';
+  /** Rot für Zähler-Blockrahmen in der Lösung (gut lesbar auf hellem und dunklem Grund). */
+  const strokeBlockZaehler = '#dc2626';
+  /** Blau für Blockrahmen des restlichen Streifens (Nenner ohne Zähler). */
+  const strokeBlockRest = '#2563eb';
   const g =
     kuerzungsZahl != null && kuerzungsZahl > 0
       ? Math.min(Math.floor(kuerzungsZahl), n)
@@ -161,11 +164,18 @@ export function svgBruchStreifen(
   let blockOutlines = '';
   if (modus === 'loesung' && blockRahmen != null) {
     const innerH = h - 8;
-    const numBlocks = n / blockRahmen;
-    for (let b = 0; b < numBlocks; b++) {
+    const numZaehlerBloecke = n / blockRahmen;
+    for (let b = 0; b < numZaehlerBloecke; b++) {
       const x = b * blockRahmen * seg + 0.5;
       const bw = blockRahmen * seg - 1;
-      blockOutlines += `<rect x='${x}' y='4' width='${bw}' height='${innerH}' rx='0.8' fill='none' stroke='${strokeBlockLoesung}' stroke-width='${strokeFett}'/>`;
+      blockOutlines += `<rect x='${x}' y='4' width='${bw}' height='${innerH}' rx='0.8' fill='none' stroke='${strokeBlockZaehler}' stroke-width='${strokeFett}'/>`;
+    }
+    const restFelder = d - n;
+    const numRestBloecke = restFelder / blockRahmen;
+    for (let b = 0; b < numRestBloecke; b++) {
+      const x = (n + b * blockRahmen) * seg + 0.5;
+      const bw = blockRahmen * seg - 1;
+      blockOutlines += `<rect x='${x}' y='4' width='${bw}' height='${innerH}' rx='0.8' fill='none' stroke='${strokeBlockRest}' stroke-width='${strokeFett}'/>`;
     }
   }
 
