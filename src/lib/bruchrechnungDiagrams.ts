@@ -1,9 +1,11 @@
 /**
  * SVG-Veranschaulichungen für Bruchrechnung (Streifen-, Kreis-, Flächen-, Erweitern-Kachelraster).
  *
- * `modus === 'aufgabe'`: keine markante Schattierung der Anteile (kein „Auslesen“ der Lösung),
- * ausgenommen `svgBruchStreifen` mit gesetztem Kürzungsfaktor (Zähler sichtbar, ohne Lösungsrahmen).
- * `modus === 'loesung'`: übliche Darstellung mit erkennbar markierten Teilflächen.
+ * `modus === 'aufgabe'`: beim **Flächenmodell** (`svgBruchMalRaster`) keine markante Schattierung
+ * des Produkts (kein Auslesen des Ergebnisses). Streifen für Addition/Subtraktion/Vergleich
+ * sind in beiden Modi schattiert. `svgBruchStreifen` ohne Kürzungsfaktor: Aufgabe ohne Zähler-Füllung;
+ * mit Kürzungsfaktor: Zähler sichtbar, ohne Lösungsblockrahmen.
+ * `modus === 'loesung'`: vollständige Markierung inkl. ggf. Lösungshilfen (z. B. Kürzungsrahmen).
  */
 
 export type BruchdiagrammModus = 'aufgabe' | 'loesung';
@@ -13,7 +15,7 @@ export function svgBruchZweiStreifen(
   a: number,
   d: number,
   b: number,
-  modus: BruchdiagrammModus = 'loesung'
+  _modus: BruchdiagrammModus = 'loesung'
 ): string {
   if (d < 2 || d > 16) return '';
   const pad = 20;
@@ -25,8 +27,8 @@ export function svgBruchZweiStreifen(
     for (let i = 0; i < d; i++) {
       const x = pad + i * seg;
       const filled = i < n;
-      const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
-      const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
+      const fill = filled ? 'currentColor' : 'none';
+      const fillOp = filled ? 0.32 : 0;
       s += `<rect x='${x + 0.4}' y='${y}' width='${seg - 0.8}' height='${hr - 2}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1.1'/>`;
     }
     return s;
@@ -243,7 +245,7 @@ export function svgBruchVergleichAusgangsstreifen(
   d1: number,
   b: number,
   d2: number,
-  modus: BruchdiagrammModus = 'loesung'
+  _modus: BruchdiagrammModus = 'loesung'
 ): string {
   if (d1 < 2 || d2 < 2 || a < 1 || b < 1 || a >= d1 || b >= d2 || d1 > 16 || d2 > 16) return '';
   const pad = 14;
@@ -255,8 +257,8 @@ export function svgBruchVergleichAusgangsstreifen(
     for (let i = 0; i < d; i++) {
       const x = pad + i * seg;
       const filled = i < n;
-      const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
-      const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
+      const fill = filled ? 'currentColor' : 'none';
+      const fillOp = filled ? 0.32 : 0;
       s += `<rect x='${x + 0.35}' y='${y}' width='${seg - 0.7}' height='${hr - 2}' rx='0.5' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1'/>`;
     }
     return `<text x='2' y='${y + 18}' font-size='12' fill='currentColor' font-family='system-ui,sans-serif'>${mark}</text>${s}`;

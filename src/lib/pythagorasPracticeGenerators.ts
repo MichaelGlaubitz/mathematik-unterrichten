@@ -62,10 +62,15 @@ function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boo
 export type PracticeAufgabe = {
   frage: string;
   loesung: string;
-  /** Skizze zur Aufgabenstellung (ohne Lösungshinweis in der Schattierung). */
+  /** Skizze zur Aufgabenstellung (bei Malaufgaben ohne markante Produktfläche im Raster). */
   diagram?: string;
   /** Optional: Skizze mit vollständiger Markierung — z. B. in „Lösung zeigen“. */
   diagramLoesung?: string;
+  /**
+   * Wenn wahr: Skizze zur Aufgabe ist zunächst ausgeblendet, auch wenn „Grafiken anzeigen“ aktiv ist
+   * (Bruchmultiplikation: Raster erst nach „Skizze einblenden“).
+   */
+  diagramDefaultHidden?: boolean;
 };
 
 export type RandomFn = () => number;
@@ -1003,6 +1008,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: `$\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}=\\frac{${pn}}{${pd}}${tail}$.`,
         diagram: svgBruchMalRaster(n1, d1, n2, d2, 'aufgabe'),
         diagramLoesung: svgBruchMalRaster(n1, d1, n2, d2, 'loesung'),
+        diagramDefaultHidden: true,
       };
     },
     br_vergleich() {
