@@ -39,7 +39,8 @@ export function svgBruchZweiStreifen(
 /**
  * Erweitern: Kachelraster d×k — d Spalten (Grundnenner), k Zeilen (Erweiterungsfaktor).
  * Insgesamt D=d·k Felder, n·k Felder markiert (erste n Spalten vollständig).
- * Orthogonales Gitter: senkrechte Linien trennen die d Ausgangsteile, waagerechte die k Unterteilungen.
+ * Orthogonales Gitter (nur Modus `loesung`): senkrechte/waagerechte Linien zeigen d Teile und k-fache Unterteilung.
+ * Im Modus `aufgabe` keine Gitterlinien, damit die Erweiterungsstruktur nicht vorgezeichnet wird.
  */
 export function svgBruchErweiternKacheln(
   n: number,
@@ -71,20 +72,26 @@ export function svgBruchErweiternKacheln(
     }
   }
 
-  let grid = '';
-  const ink = 'currentColor';
-  for (let j = 0; j <= cols; j++) {
-    const x = pad + j * cellW;
-    const sw = j === 0 || j === cols ? 1.35 : 1.15;
-    grid += `<line x1='${x}' y1='${pad}' x2='${x}' y2='${pad + gh}' stroke='${ink}' stroke-width='${sw}'/>`;
-  }
-  for (let r = 0; r <= rows; r++) {
-    const y = pad + r * cellH;
-    const sw = r === 0 || r === rows ? 1.35 : 1;
-    grid += `<line x1='${pad}' y1='${y}' x2='${pad + gw}' y2='${y}' stroke='${ink}' stroke-width='${sw}'/>`;
-  }
+  const grid =
+    modus === 'loesung'
+      ? (() => {
+          let g = '';
+          const ink = 'currentColor';
+          for (let j = 0; j <= cols; j++) {
+            const x = pad + j * cellW;
+            const sw = j === 0 || j === cols ? 1.35 : 1.15;
+            g += `<line x1='${x}' y1='${pad}' x2='${x}' y2='${pad + gh}' stroke='${ink}' stroke-width='${sw}'/>`;
+          }
+          for (let r = 0; r <= rows; r++) {
+            const y = pad + r * cellH;
+            const sw = r === 0 || r === rows ? 1.35 : 1;
+            g += `<line x1='${pad}' y1='${y}' x2='${pad + gw}' y2='${y}' stroke='${ink}' stroke-width='${sw}'/>`;
+          }
+          return `<g fill='none' stroke-linecap='square'>${g}</g>`;
+        })()
+      : '';
 
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}<g fill='none' stroke-linecap='square'>${grid}</g><text x='${
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}${grid}<text x='${
     vbW / 2
   }' y='${pad + gh + labelH - 1}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.88'>${zeile}</text></svg>`;
 }
@@ -161,6 +168,41 @@ export function svgBruchMalRaster(
     }
   }
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' class='mx-auto max-h-44 w-auto text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}</svg>`;
+}
+
+/**
+ * Vergleich — **Aufgabe**: je Bruch mit **eigenem** Nenner (z. B. Drittel und Fünftel), gleiche Balkenlänge.
+ * Nicht den Hauptnenner vorwegnehmen; dazu `svgBruchVergleichZweiRiegel` in der Lösung.
+ */
+export function svgBruchVergleichAusgangsstreifen(
+  a: number,
+  d1: number,
+  b: number,
+  d2: number,
+  modus: BruchdiagrammModus = 'loesung'
+): string {
+  if (d1 < 2 || d2 < 2 || a < 1 || b < 1 || a >= d1 || b >= d2 || d1 > 16 || d2 > 16) return '';
+  const pad = 14;
+  const bw = 246;
+  const hr = 26;
+  const mkrow = (n: number, d: number, y: number, mark: string) => {
+    const seg = bw / d;
+    let s = '';
+    for (let i = 0; i < d; i++) {
+      const x = pad + i * seg;
+      const filled = i < n;
+      const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
+      const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
+      s += `<rect x='${x + 0.35}' y='${y}' width='${seg - 0.7}' height='${hr - 2}' rx='0.5' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1'/>`;
+    }
+    return `<text x='2' y='${y + 18}' font-size='12' fill='currentColor' font-family='system-ui,sans-serif'>${mark}</text>${s}`;
+  };
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${pad + bw + 8} 68' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${mkrow(
+    a,
+    d1,
+    6,
+    'A'
+  )}${mkrow(b, d2, 38, 'B')}</svg>`;
 }
 
 /** Vergleich zweier Brüche auf gemeinsamen Nenner L gebracht (Streifen A und B). */
