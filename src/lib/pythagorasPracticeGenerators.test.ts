@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   createPracticeGenerators,
+  funGraphLinearAxisInterceptsInRange,
   PRACTICE_GENERATOR_IDS,
   parseErkennenSeiten,
   validateErkennenAufgabe,
@@ -14,6 +15,24 @@ function makeLcg(seed: number): () => number {
     return s / 2 ** 32;
   };
 }
+
+describe('funGraphLinearAxisInterceptsInRange', () => {
+  it('akzeptiert typische Geraden mit Achsenschnitten in [-8, 8]', () => {
+    expect(funGraphLinearAxisInterceptsInRange(2, 8)).toBe(true);
+    expect(funGraphLinearAxisInterceptsInRange(-1, 0)).toBe(true);
+    expect(funGraphLinearAxisInterceptsInRange(0, 7)).toBe(true);
+    expect(funGraphLinearAxisInterceptsInRange(1, 8)).toBe(true);
+  });
+
+  it('lehnt y-Achsenabschnitte außerhalb von [-8, 8] ab', () => {
+    expect(funGraphLinearAxisInterceptsInRange(1, 9)).toBe(false);
+    expect(funGraphLinearAxisInterceptsInRange(2, -17)).toBe(false);
+  });
+
+  it('lehnt x-Achsenabschnitte außerhalb von [-8, 8] ab (bei kleinem |m|)', () => {
+    expect(funGraphLinearAxisInterceptsInRange(0.5, 5)).toBe(false);
+  });
+});
 
 describe('validateErkennenAufgabe / parseErkennenSeiten', () => {
   it('parst die Standard-Frage (Tripel 9-40-41)', () => {

@@ -41,6 +41,21 @@ import {
 import { svgLineareGleichungSchnittpunkt } from './lineareGleichungDiagrams';
 import { svgDistributivFlaeche } from './algebraDiagrams';
 
+/** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: grundsätzlich in diesem Bereich. */
+export const FUN_GRAPH_AXIS_INTERCEPT_MAX = 8;
+
+/** Prüft $y=mx+n$: existierende Achsenschnitte $(0|n)$ und $(-n/m|0)$ liegen in $[-A,A]$ (waagrechte Gerade $m=0$: nur $(0|n)$). */
+export function funGraphLinearAxisInterceptsInRange(m: number, n: number): boolean {
+  const A = FUN_GRAPH_AXIS_INTERCEPT_MAX;
+  if (Math.abs(n) > A) return false;
+  if (Math.abs(m) < 1e-12) return true;
+  return Math.abs(-n / m) <= A;
+}
+
+function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boolean {
+  return Math.abs(a * p * p + q) <= FUN_GRAPH_AXIS_INTERCEPT_MAX;
+}
+
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
 
 export type RandomFn = () => number;
@@ -646,8 +661,17 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     qf_scheitel_form() {
-      const p = randInt(-2, 4);
-      const q = randInt(-3, 4);
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 40; t++) {
+        p = randInt(-2, 4);
+        q = randInt(-3, 4);
+        if (funGraphScheitelYInterceptInRange(1, p, q)) break;
+      }
+      if (!funGraphScheitelYInterceptInRange(1, p, q)) {
+        p = 0;
+        q = 0;
+      }
       const inner = latexBinomSquare(p);
       return {
         frage: `Bestimme den Scheitelpunkt der Parabel $f(x)=${inner}${formatSignedInt(q)}$.`,
@@ -656,9 +680,20 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     qf_scheitel_gestreckt() {
-      const a = pick([-2, -1, 1, 2] as const);
-      const p = randInt(-2, 3);
-      const q = randInt(-3, 3);
+      let a = 1;
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 40; t++) {
+        a = pick([-2, -1, 1, 2] as const);
+        p = randInt(-2, 3);
+        q = randInt(-3, 3);
+        if (funGraphScheitelYInterceptInRange(a, p, q)) break;
+      }
+      if (!funGraphScheitelYInterceptInRange(a, p, q)) {
+        a = 1;
+        p = 0;
+        q = 0;
+      }
       const expr = latexStreckScheitel(a, p, q);
       const oeffnung = a > 0 ? 'nach oben' : 'nach unten';
       return {
@@ -670,10 +705,16 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     qf_nullstellen() {
       let u = 0;
       let v = 0;
-      for (let t = 0; t < 20; t++) {
-        u = randInt(-3, 4);
-        v = randInt(-3, 4);
-        if (u !== v) break;
+      for (let t = 0; t < 40; t++) {
+        u = randInt(-8, 8);
+        v = randInt(-8, 8);
+        if (u === v) continue;
+        if (Math.abs(u * v) > FUN_GRAPH_AXIS_INTERCEPT_MAX) continue;
+        break;
+      }
+      if (u === v || Math.abs(u * v) > FUN_GRAPH_AXIS_INTERCEPT_MAX) {
+        u = 1;
+        v = -1;
       }
       const p = (u + v) / 2;
       const q = -0.25 * (u - v) * (u - v);
@@ -687,12 +728,20 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     qf_funktionswert() {
       let u = 0;
       let v = 0;
-      for (let t = 0; t < 20; t++) {
-        u = randInt(-3, 4);
-        v = randInt(-3, 4);
-        if (u !== v) break;
+      for (let t = 0; t < 40; t++) {
+        u = randInt(-8, 8);
+        v = randInt(-8, 8);
+        if (u === v) continue;
+        if (Math.abs(u * v) > FUN_GRAPH_AXIS_INTERCEPT_MAX) continue;
+        break;
       }
-      const candidates = [-2, -1, 0, 1, 2, 3, 4, 5].filter((x) => x !== u && x !== v);
+      if (u === v || Math.abs(u * v) > FUN_GRAPH_AXIS_INTERCEPT_MAX) {
+        u = 1;
+        v = -1;
+      }
+      const candidates = Array.from({ length: 2 * FUN_GRAPH_AXIS_INTERCEPT_MAX + 1 }, (_, i) => i - FUN_GRAPH_AXIS_INTERCEPT_MAX).filter(
+        (x) => x !== u && x !== v
+      );
       const t = pick(candidates);
       const f = (t - u) * (t - v);
       const p = (u + v) / 2;
@@ -717,7 +766,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const symPairs: [number, number][] = [];
       for (let i = -4; i <= 4; i++) {
         for (let j = -4; j <= 4; j++) {
-          if (i !== j && (i + j) % 2 === 0) symPairs.push([i, j]);
+          if (i !== j && (i + j) % 2 === 0 && Math.abs(i * j) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) symPairs.push([i, j]);
         }
       }
       const [u, v] = pick(symPairs);
@@ -1182,7 +1231,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lg_x_plus_a_eq_b() {
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const a = pick([-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const);
+      const a = pick([-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8] as const);
       const b = x0 + a;
       return {
         frage: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$.`,
@@ -1191,9 +1240,15 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lg_ax_eq_b() {
-      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const a = randInt(2, 9);
-      const b = a * x0;
+      let x0 = 1;
+      let a = 2;
+      let b = 0;
+      for (let t = 0; t < 50; t++) {
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        a = randInt(2, 9);
+        b = a * x0;
+        if (Math.abs(b) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+      }
       return {
         frage: `Löse die Gleichung $${a}x=${b}$.`,
         loesung: `Division durch $${a}$: $x=${x0}$.`,
@@ -1201,10 +1256,17 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lg_ax_plus_b_eq_c() {
-      const a = randInt(2, 7);
-      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const b = pick([-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] as const);
-      const c = a * x0 + b;
+      let a = 2;
+      let x0 = 2;
+      let b = 0;
+      let c = 0;
+      for (let t = 0; t < 80; t++) {
+        a = randInt(2, 7);
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        b = randInt(-8, 8);
+        c = a * x0 + b;
+        if (Math.abs(c) <= FUN_GRAPH_AXIS_INTERCEPT_MAX && funGraphLinearAxisInterceptsInRange(a, b)) break;
+      }
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$.`,
         loesung: `Zuerst $${formatSignedInt(-b)}$ auf beiden Seiten, dann durch $${a}$: $x=${x0}$.`,
@@ -1214,14 +1276,24 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     lg_ax_plus_b_eq_cx_plus_d() {
       let a = 2;
       let c = 2;
-      for (let t = 0; t < 30; t++) {
+      let x0 = 2;
+      let b = 0;
+      let d = 0;
+      for (let t = 0; t < 60; t++) {
         a = randInt(2, 6);
         c = randInt(2, 6);
-        if (a !== c) break;
+        if (a === c) continue;
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        b = randInt(-8, 8);
+        d = a * x0 + b - c * x0;
+        if (
+          Math.abs(d) <= FUN_GRAPH_AXIS_INTERCEPT_MAX &&
+          funGraphLinearAxisInterceptsInRange(a, b) &&
+          funGraphLinearAxisInterceptsInRange(c, d)
+        ) {
+          break;
+        }
       }
-      const x0 = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6] as const);
-      const b = randInt(-12, 12);
-      const d = a * x0 + b - c * x0;
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}x${formatSignedInt(d)}$.`,
         loesung: `$${c}x$ subtrahieren: $${a - c}x${formatSignedInt(b)}=${d}$. Daraus $x=${x0}$.`,
@@ -1229,10 +1301,17 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lg_klammer_linear() {
-      const k = randInt(2, 6);
-      const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
-      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const rhs = k * (x0 + a);
+      let k = 2;
+      let a = 0;
+      let x0 = 2;
+      let rhs = 0;
+      for (let t = 0; t < 50; t++) {
+        k = randInt(2, 6);
+        a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        rhs = k * (x0 + a);
+        if (Math.abs(x0 + a) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+      }
       return {
         frage: `Löse die Gleichung $${k}(x${formatSignedInt(a)})=${rhs}$.`,
         loesung: `Division durch $${k}$: $x${formatSignedInt(a)}=${rhs / k}$. Subtrahiere $${a}$ bzw. addiere $${-a}$: $x=${x0}$.`,
@@ -1240,10 +1319,17 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lg_bruch_linear() {
-      const b = randInt(2, 8);
-      const c = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
-      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const a = c * b - x0;
+      let b = 2;
+      let c = 1;
+      let x0 = 2;
+      let a = 0;
+      for (let t = 0; t < 80; t++) {
+        b = randInt(2, 8);
+        c = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        a = c * b - x0;
+        if (Math.abs(a) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+      }
       return {
         frage: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$.`,
         loesung: `Mit $${b}$ multiplizieren: $x${formatSignedInt(a)}=${c * b}$, also $x=${x0}$.`,
@@ -1447,12 +1533,21 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lf_steigung_aus_punkten() {
-      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
-      const x1 = randInt(-3, 2);
-      const dx = pick([2, 3, 4] as const);
-      const x2 = x1 + dx;
-      const b = randInt(-6, 6);
-      const y1 = m * x1 + b;
+      let m = 1;
+      let x1 = 0;
+      let dx = 2;
+      let x2 = 2;
+      let b = 0;
+      let y1 = 0;
+      for (let t = 0; t < 60; t++) {
+        m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+        x1 = randInt(-3, 2);
+        dx = pick([2, 3, 4] as const);
+        x2 = x1 + dx;
+        y1 = randInt(-8, 8);
+        b = y1 - m * x1;
+        if (b >= -6 && b <= 6 && funGraphLinearAxisInterceptsInRange(m, b)) break;
+      }
       const y2 = m * x2 + b;
       return {
         frage: `Die Gerade geht durch $A(${x1}|${y1})$ und $B(${x2}|${y2})$. Bestimme ihre Steigung und Gleichung.`,
@@ -1461,9 +1556,15 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lf_nullstelle() {
-      const m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
-      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const b = -m * x0;
+      let m = 1;
+      let x0 = 2;
+      let b = 0;
+      for (let t = 0; t < 50; t++) {
+        m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        b = -m * x0;
+        if (Math.abs(b) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+      }
       return {
         frage: `Bestimme die Nullstelle der Funktion $f(x)=${m}x${formatSignedInt(b)}$.`,
         loesung: `Für die Nullstelle gilt $0=${m}x${formatSignedInt(b)}\\Rightarrow x=${x0}$. Schnittpunkt mit der x-Achse: $(${x0}|0)$.`,
@@ -1480,7 +1581,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lf_funktionswert() {
       const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
-      const b = randInt(-9, 9);
+      const b = randInt(-8, 8);
       const x = randInt(-4, 6);
       const y = m * x + b;
       return {
@@ -1490,7 +1591,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lf_achsenabschnitt() {
       const m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
-      const b = randInt(-9, 9);
+      const b = randInt(-8, 8);
       return {
         frage: `Bestimme den y-Achsenabschnitt der Geraden $y=${m}x${formatSignedInt(b)}$.`,
         loesung: `Bei $x=0$ gilt $y=${b}$. Der y-Achsenabschnitt ist also $b=${b}$ (Punkt $(0|${b})$).`,
@@ -1498,8 +1599,15 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lgs_addition() {
-      const x0 = randInt(-6, 6);
-      const y0 = randInt(-6, 6);
+      let x0 = 0;
+      let y0 = 0;
+      for (let t = 0; t < 50; t++) {
+        x0 = randInt(-6, 6);
+        y0 = randInt(-6, 6);
+        if (Math.abs(x0 + y0) <= FUN_GRAPH_AXIS_INTERCEPT_MAX && Math.abs(x0 - y0) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) {
+          break;
+        }
+      }
       const s1 = x0 + y0;
       const s2 = x0 - y0;
       return {
@@ -1524,17 +1632,29 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lgs_gleichsetzen() {
-      const x0 = randInt(-5, 6);
-      const y0 = randInt(-6, 6);
+      let x0 = 0;
+      let y0 = 0;
       let m1 = 1;
       let m2 = 2;
-      for (let t = 0; t < 20; t++) {
-        m1 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
-        m2 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
-        if (m1 !== m2) break;
+      let n1 = 0;
+      let n2 = 0;
+      for (let t = 0; t < 60; t++) {
+        x0 = randInt(-5, 6);
+        y0 = randInt(-6, 6);
+        for (let s = 0; s < 20; s++) {
+          m1 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+          m2 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+          if (m1 !== m2) break;
+        }
+        n1 = y0 - m1 * x0;
+        n2 = y0 - m2 * x0;
+        if (
+          Math.abs(n1) <= FUN_GRAPH_AXIS_INTERCEPT_MAX &&
+          Math.abs(n2) <= FUN_GRAPH_AXIS_INTERCEPT_MAX
+        ) {
+          break;
+        }
       }
-      const n1 = y0 - m1 * x0;
-      const n2 = y0 - m2 * x0;
       return {
         frage: `Löse durch Gleichsetzen: $\\begin{cases}y=${m1}x${formatSignedInt(
           n1
@@ -1569,17 +1689,29 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     lgs_schnittpunkt() {
-      const x0 = randInt(-5, 5);
-      const y0 = randInt(-5, 5);
+      let x0 = 0;
+      let y0 = 0;
       let m1 = 1;
       let m2 = 2;
-      for (let t = 0; t < 20; t++) {
-        m1 = pick([-3, -2, -1, 1, 2, 3] as const);
-        m2 = pick([-3, -2, -1, 1, 2, 3] as const);
-        if (m1 !== m2) break;
+      let n1 = 0;
+      let n2 = 0;
+      for (let t = 0; t < 60; t++) {
+        x0 = randInt(-5, 5);
+        y0 = randInt(-5, 5);
+        for (let s = 0; s < 20; s++) {
+          m1 = pick([-3, -2, -1, 1, 2, 3] as const);
+          m2 = pick([-3, -2, -1, 1, 2, 3] as const);
+          if (m1 !== m2) break;
+        }
+        n1 = y0 - m1 * x0;
+        n2 = y0 - m2 * x0;
+        if (
+          Math.abs(n1) <= FUN_GRAPH_AXIS_INTERCEPT_MAX &&
+          Math.abs(n2) <= FUN_GRAPH_AXIS_INTERCEPT_MAX
+        ) {
+          break;
+        }
       }
-      const n1 = y0 - m1 * x0;
-      const n2 = y0 - m2 * x0;
       return {
         frage: `Bestimme den Schnittpunkt der Geraden $y=${m1}x${formatSignedInt(n1)}$ und $y=${m2}x${formatSignedInt(
           n2
