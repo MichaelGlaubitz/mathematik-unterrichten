@@ -1793,10 +1793,7 @@ function wbLabelFromHref(href: string): string {
       } catch {
         return null;
       }
-      const snap = parseMuWhiteboardRouteSnapshot(data, muMassenVariant);
-      if (!snap) return null;
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      return snap;
+      return parseMuWhiteboardRouteSnapshot(data, muMassenVariant);
     }
 
     const routeHashSnap = tryConsumeHashImport();
@@ -2133,6 +2130,8 @@ function wbLabelFromHref(href: string): string {
     }
 
     function applyRouteSnapshot(snap: MuWhiteboardRouteSnapshot) {
+      const clearHash =
+        typeof window !== 'undefined' && window.location.hash.startsWith('#muWb=');
       writeShowPracticeDiagrams(snap.showDiagramsGlobal);
       const hashes = taskHashesFromSnapshot(snap);
       mergeTaskDiagramPrefsFromRouteImport(hashes, filterTaskDiagramPrefsForTasks(snap.taskDiagramPrefs, hashes));
@@ -2163,6 +2162,9 @@ function wbLabelFromHref(href: string): string {
       }
       if (diagramGlobalCb) diagramGlobalCb.checked = readShowPracticeDiagrams();
       syncPracticeDiagramUi(document.body);
+      if (clearHash) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
       refreshAktiv();
       render();
     }
