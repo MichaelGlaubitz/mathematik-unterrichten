@@ -89,6 +89,10 @@ const themen = defineCollection({
         z.object({
           frage: z.string(),
           loesung: z.string(),
+          /** Optional: Inline-SVG (trusted, aus Repo) unter der Frage */
+          abbildungFrage: z.string().optional(),
+          /** Optional: Inline-SVG unter der Lösung */
+          abbildungLoesung: z.string().optional(),
         })
       )
       .default([]),

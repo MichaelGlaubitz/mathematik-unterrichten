@@ -115,6 +115,12 @@ const themaSlug = slugify(thema.data.thema);
           <div class="wb-frage font-serif text-2xl md:text-4xl lg:text-5xl text-ink-900 dark:text-ink-50 leading-tight">
             {w.frage}
           </div>
+          {w.abbildungFrage && (
+            <div
+              class="wb-abbildung mt-6 w-full flex justify-center px-2 [&_svg]:max-h-[min(14rem,45vh)] [&_svg]:w-auto [&_svg]:max-w-full [&_svg]:shrink-0"
+              set:html={w.abbildungFrage}
+            />
+          )}
           <div
             class="wb-loesung mx-auto max-w-3xl rounded-xl border-l-4 border-accent-500 bg-accent-50 p-5 md:p-7 text-left dark:bg-accent-700/20 dark:border-accent-300"
             hidden
@@ -125,6 +131,12 @@ const themaSlug = slugify(thema.data.thema);
             <div class="font-serif text-xl md:text-3xl text-ink-900 dark:text-ink-50">
               {w.loesung}
             </div>
+            {w.abbildungLoesung && (
+              <div
+                class="wb-abbildung-loesung mt-5 flex justify-center [&_svg]:max-h-[min(12rem,40vh)] [&_svg]:w-auto [&_svg]:max-w-full"
+                set:html={w.abbildungLoesung}
+              />
+            )}
           </div>
         </div>
       ))}
