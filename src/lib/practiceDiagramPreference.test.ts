@@ -69,13 +69,32 @@ describe('practiceDiagramPreference', () => {
     expect(effectiveDiagramVisibleByHash(h)).toBe(true);
   });
 
+  it('diagramDefaultHidden: bei globalem An zunächst aus', () => {
+    writeShowPracticeDiagrams(true);
+    const h = hashPracticeTaskFrage('Mal');
+    expect(effectiveDiagramVisibleByHash(h, true)).toBe(false);
+    toggleDiagramForHash(h, true);
+    expect(effectiveDiagramVisibleByHash(h, true)).toBe(true);
+    toggleDiagramForHash(h, true);
+    expect(effectiveDiagramVisibleByHash(h, true)).toBe(false);
+  });
+
+  it('setDiagramEffectiveVisibleForHash mit diagramDefaultHidden: Eintrag nur bei Abweichung vom impliziten Default', () => {
+    const h = hashPracticeTaskFrage('mul-x');
+    writeShowPracticeDiagrams(true);
+    setDiagramEffectiveVisibleForHash(h, true, true);
+    expect(localStorage.getItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY)).toContain('show');
+    setDiagramEffectiveVisibleForHash(h, false, true);
+    expect(localStorage.getItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY)).toBeNull();
+  });
+
   it('syncPracticeDiagramUi setzt hidden und Button-Text', () => {
     writeShowPracticeDiagrams(false);
     const h = hashPracticeTaskFrage('dom');
     setDiagramEffectiveVisibleForHash(h, true);
     document.body.innerHTML = `
-      <button type="button" class="ug-task-diagram-toggle" data-mu-diagram-hash="${h}">x</button>
-      <div class="mu-practice-diagram" data-mu-diagram-hash="${h}">svg</div>
+      <button type="button" class="ug-task-diagram-toggle" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="false">x</button>
+      <div class="mu-practice-diagram" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="false">svg</div>
     `;
     syncPracticeDiagramUi(document.body);
     const div = document.querySelector('.mu-practice-diagram') as HTMLElement;
@@ -84,6 +103,20 @@ describe('practiceDiagramPreference', () => {
     expect(btn.textContent).toBe('Skizze ausblenden');
     toggleDiagramForHash(h);
     syncPracticeDiagramUi(document.body);
+    expect(div.classList.contains('hidden')).toBe(true);
+    expect(btn.textContent).toBe('Skizze einblenden');
+  });
+
+  it('syncPracticeDiagramUi: diagramDefaultHidden bei globalem An zunächst verborgen', () => {
+    writeShowPracticeDiagrams(true);
+    const h = hashPracticeTaskFrage('mul-dom');
+    document.body.innerHTML = `
+      <button type="button" class="ug-task-diagram-toggle" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="true">x</button>
+      <div class="mu-practice-diagram" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="true">svg</div>
+    `;
+    syncPracticeDiagramUi(document.body);
+    const div = document.querySelector('.mu-practice-diagram') as HTMLElement;
+    const btn = document.querySelector('button') as HTMLButtonElement;
     expect(div.classList.contains('hidden')).toBe(true);
     expect(btn.textContent).toBe('Skizze einblenden');
   });

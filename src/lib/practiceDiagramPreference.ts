@@ -51,21 +51,30 @@ function writeTaskMap(map: Record<string, 'show' | 'hide'>): void {
   localStorage.setItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY, JSON.stringify(map));
 }
 
-/** Effektive Sichtbarkeit: Override „show“/„hide“ oder globale Checkbox. */
-export function effectiveDiagramVisibleByHash(hash: string): boolean {
+/** Effektive Sichtbarkeit: Override „show“/„hide“, sonst Aufgaben-Standard oder globale Checkbox. */
+export function effectiveDiagramVisibleByHash(
+  hash: string,
+  diagramDefaultHidden?: boolean
+): boolean {
   const p = readTaskMap()[hash];
   if (p === 'hide') return false;
   if (p === 'show') return true;
+  if (diagramDefaultHidden) return false;
   return readShowPracticeDiagrams();
 }
 
 /**
- * Setzt die effektive Sichtbarkeit der Skizze für diese Aufgabe und speichert nur bei Abweichung von der globalen Vorgabe.
+ * Setzt die effektive Sichtbarkeit der Skizze für diese Aufgabe und speichert nur bei Abweichung von der impliziten Vorgabe (global bzw. `diagramDefaultHidden`).
  */
-export function setDiagramEffectiveVisibleForHash(hash: string, effectiveVisible: boolean): void {
+export function setDiagramEffectiveVisibleForHash(
+  hash: string,
+  effectiveVisible: boolean,
+  diagramDefaultHidden?: boolean
+): void {
   const global = readShowPracticeDiagrams();
+  const implicitDefault = diagramDefaultHidden ? false : global;
   const map = { ...readTaskMap() };
-  if (effectiveVisible === global) {
+  if (effectiveVisible === implicitDefault) {
     delete map[hash];
   } else if (effectiveVisible) {
     map[hash] = 'show';
@@ -75,8 +84,12 @@ export function setDiagramEffectiveVisibleForHash(hash: string, effectiveVisible
   writeTaskMap(map);
 }
 
-export function toggleDiagramForHash(hash: string): void {
-  setDiagramEffectiveVisibleForHash(hash, !effectiveDiagramVisibleByHash(hash));
+export function toggleDiagramForHash(hash: string, diagramDefaultHidden?: boolean): void {
+  setDiagramEffectiveVisibleForHash(
+    hash,
+    !effectiveDiagramVisibleByHash(hash, diagramDefaultHidden),
+    diagramDefaultHidden
+  );
 }
 
 /** DOM: Skizzen-Wrapper (`hidden`) und Schalter-Beschriftung an Overrides anpassen. */
@@ -85,12 +98,14 @@ export function syncPracticeDiagramUi(root: Document | Element = document): void
   root.querySelectorAll('.mu-practice-diagram[data-mu-diagram-hash]').forEach((el) => {
     const hash = el.getAttribute('data-mu-diagram-hash');
     if (!hash) return;
-    el.classList.toggle('hidden', !effectiveDiagramVisibleByHash(hash));
+    const defaultHidden = el.getAttribute('data-mu-diagram-default-hidden') === 'true';
+    el.classList.toggle('hidden', !effectiveDiagramVisibleByHash(hash, defaultHidden));
   });
   root.querySelectorAll('button.ug-task-diagram-toggle[data-mu-diagram-hash]').forEach((btn) => {
     const hash = btn.getAttribute('data-mu-diagram-hash');
     if (!hash) return;
-    const vis = effectiveDiagramVisibleByHash(hash);
+    const defaultHidden = btn.getAttribute('data-mu-diagram-default-hidden') === 'true';
+    const vis = effectiveDiagramVisibleByHash(hash, defaultHidden);
     btn.textContent = vis ? 'Skizze ausblenden' : 'Skizze einblenden';
     btn.setAttribute('aria-pressed', vis ? 'true' : 'false');
   });

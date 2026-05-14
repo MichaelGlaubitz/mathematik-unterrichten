@@ -132,8 +132,16 @@ describe('Bruchrechnung-Generatoren', () => {
     const mul = GEN.br_mul_frac();
     expect(mul.diagram).toBeDefined();
     expect(mul.diagramLoesung).toBeDefined();
+    expect(mul.diagramDefaultHidden).toBe(true);
     expect(mul.diagram).not.toContain("fill-opacity='0.34'");
     expect(mul.diagramLoesung).toContain("fill-opacity='0.34'");
+  });
+
+  it('Bruchaddition: Aufgaben-Skizze zeigt Anteile schattiert', () => {
+    const GEN = createPracticeGenerators(() => 0.42);
+    const add = GEN.br_add_like();
+    expect(add.diagram).toBeDefined();
+    expect(add.diagram).toContain("fill-opacity='0.32'");
   });
 
   it('br_erweitern: Aufgaben-Skizze ohne Ergebnis-Pfeil, Lösung mit Pfeil', () => {

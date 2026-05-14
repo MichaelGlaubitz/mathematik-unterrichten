@@ -64,10 +64,15 @@ describe('bruchrechnungDiagrams', () => {
     expect((haupt.match(/<rect/g) || []).length).toBe(30);
   });
 
-  it('Zwei Streifen und Vergleich: Aufgabe nur Umrisse', () => {
-    expect(svgBruchZweiStreifen(2, 6, 3, 'aufgabe')).not.toMatch(/<rect[^>]*fill='currentColor'/);
-    expect(svgBruchZweiStreifen(2, 6, 3, 'loesung')).toMatch(/<rect[^>]*fill='currentColor'/);
-    expect(svgBruchVergleichZweiRiegel(4, 5, 12, 'aufgabe')).not.toMatch(/<rect[^>]*fill='currentColor'/);
-    expect(svgBruchVergleichZweiRiegel(4, 5, 12, 'loesung')).toMatch(/<rect[^>]*fill='currentColor'/);
+  it('Zwei Streifen: Aufgabe und Lösung mit Zähler-Schattierung', () => {
+    const auf = svgBruchZweiStreifen(2, 6, 3, 'aufgabe');
+    const loe = svgBruchZweiStreifen(2, 6, 3, 'loesung');
+    expect((auf.match(/fill-opacity='0.32'/g) || []).length).toBe(5);
+    expect((loe.match(/fill-opacity='0.32'/g) || []).length).toBe(5);
+  });
+
+  it('Vergleich Ausgangsstreifen: Aufgabe mit Schattierung der Anteile', () => {
+    const auf = svgBruchVergleichAusgangsstreifen(1, 3, 2, 5, 'aufgabe');
+    expect((auf.match(/fill-opacity='0.32'/g) || []).length).toBe(3);
   });
 });

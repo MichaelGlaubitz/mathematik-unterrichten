@@ -1936,7 +1936,7 @@ function wbLabelFromHref(href: string): string {
       for (const a of aufgaben) {
         if (!a?.diagram && !a?.diagramLoesung) continue;
         const hash = hashPracticeTaskFrage(a.frage);
-        byHash[hash] = effectiveDiagramVisibleByHash(hash);
+        byHash[hash] = effectiveDiagramVisibleByHash(hash, a.diagramDefaultHidden === true);
       }
       return { global: readShowPracticeDiagrams(), byHash };
     }
@@ -2002,8 +2002,12 @@ function wbLabelFromHref(href: string): string {
       writeShowPracticeDiagrams(route.diagramVisibility.global);
       const diagramCheckbox = document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null;
       if (diagramCheckbox) diagramCheckbox.checked = route.diagramVisibility.global;
+      const taskByHash = new Map(
+        (route.tasks || []).map((t) => [hashPracticeTaskFrage(t.frage), t])
+      );
       Object.entries(route.diagramVisibility.byHash || {}).forEach(([hash, visible]) => {
-        setDiagramEffectiveVisibleForHash(hash, visible);
+        const task = taskByHash.get(hash);
+        setDiagramEffectiveVisibleForHash(hash, visible, task?.diagramDefaultHidden === true);
       });
     }
 
@@ -2168,23 +2172,24 @@ function wbLabelFromHref(href: string): string {
         const li = document.createElement('li');
         li.className = 'pl-1';
         const hash = hashPracticeTaskFrage(a.frage);
+        const diaDefHidden = a.diagramDefaultHidden === true ? 'true' : 'false';
         const diagramToggle = a.diagram || a.diagramLoesung
           ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="true">Skizze ausblenden</button>
               <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
                 <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
               </span>
             </div>
-            <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}">${a.diagram ?? ''}</div>`
+            <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagram ?? ''}</div>`
           : '';
         li.innerHTML = `
           ${diagramToggle}
           <div class="text-ink-900 dark:text-ink-50 mb-2">${a.frage}</div>
           <details class="group">
             <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
-            ${a.diagramLoesung ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}">${a.diagramLoesung}</div>` : ''}
+            ${a.diagramLoesung ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagramLoesung}</div>` : ''}
             <div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-ink-800 dark:bg-accent-700/20 dark:text-ink-100">${a.loesung}</div>
           </details>
         `;
@@ -2205,6 +2210,7 @@ function wbLabelFromHref(href: string): string {
       if (wbI) wbI.textContent = String(wbIndex + 1);
       const cur = aufgaben[wbIndex];
       const hash = hashPracticeTaskFrage(cur.frage);
+      const diaDefHidden = cur.diagramDefaultHidden === true ? 'true' : 'false';
       const diagramSvg =
         wbZeigeLoesung && cur.diagramLoesung
           ? cur.diagramLoesung
@@ -2212,7 +2218,7 @@ function wbLabelFromHref(href: string): string {
       const dia = cur.diagram || cur.diagramLoesung
         ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
             <div class="flex flex-wrap items-center justify-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="true">Skizze ausblenden</button>
               <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
                 <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
@@ -2220,7 +2226,7 @@ function wbLabelFromHref(href: string): string {
               </span>
             </div>
           </div>
-          <div class="mu-practice-diagram max-w-full" data-mu-diagram-hash="${hash}">${diagramSvg}</div><div class="mt-2">`
+          <div class="mu-practice-diagram max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${diagramSvg}</div><div class="mt-2">`
         : '<div>';
       if (wbFrage) wbFrage.innerHTML = `${dia}${cur.frage}</div>`;
       if (wbLoesungText) wbLoesungText.innerHTML = aufgaben[wbIndex].loesung;
@@ -2316,8 +2322,9 @@ function wbLabelFromHref(href: string): string {
       if (!t || !t.getAttribute('data-mu-diagram-hash')) return;
       const hash = t.getAttribute('data-mu-diagram-hash');
       if (!hash) return;
+      const defaultHidden = t.getAttribute('data-mu-diagram-default-hidden') === 'true';
       e.preventDefault();
-      toggleDiagramForHash(hash);
+      toggleDiagramForHash(hash, defaultHidden);
       syncPracticeDiagramUi(document.body);
     });
 
