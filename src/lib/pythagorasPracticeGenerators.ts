@@ -33,6 +33,7 @@ import {
   svgZahlenstrahlZweiWerte,
 } from './negativeZahlenDiagrams';
 import {
+  svgBruchErweiternKacheln,
   svgBruchMalRaster,
   svgBruchStreifen,
   svgBruchVergleichZweiRiegel,
@@ -958,8 +959,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (${k}-fach erweitern).`,
-        diagram: svgBruchStreifen(n, d, `${n}/${d}`, 'aufgabe'),
-        diagramLoesung: svgBruchStreifen(n, d, `${n}/${d}`, 'loesung'),
+        diagram: svgBruchErweiternKacheln(n, d, k, `${n}/${d} → ${N}/${D}`, 'aufgabe'),
+        diagramLoesung: svgBruchErweiternKacheln(n, d, k, `${n}/${d} → ${N}/${D}`, 'loesung'),
       };
     },
     br_kuerzen() {

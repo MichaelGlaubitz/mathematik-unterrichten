@@ -1,5 +1,5 @@
 /**
- * SVG-Veranschaulichungen für Bruchrechnung (Streifen-, Kreis-, Flächenmodell).
+ * SVG-Veranschaulichungen für Bruchrechnung (Streifen-, Kreis-, Flächen-, Erweitern-Kachelraster).
  *
  * `modus === 'aufgabe'`: keine markante Schattierung der Anteile (kein „Auslesen“ der Lösung).
  * `modus === 'loesung'`: übliche Darstellung mit erkennbar markierten Teilflächen.
@@ -36,7 +36,60 @@ export function svgBruchZweiStreifen(
   )}<text x='2' y='58' font-size='13' fill='currentColor' font-family='system-ui,sans-serif'>②</text>${mkrow(b, 42)}</svg>`;
 }
 
-/** Ein Streifen n/d (für Kürzen, Erweitern, Vergleich). */
+/**
+ * Erweitern: Kachelraster d×k — d Spalten (Grundnenner), k Zeilen (Erweiterungsfaktor).
+ * Insgesamt D=d·k Felder, n·k Felder markiert (erste n Spalten vollständig).
+ * Orthogonales Gitter: senkrechte Linien trennen die d Ausgangsteile, waagerechte die k Unterteilungen.
+ */
+export function svgBruchErweiternKacheln(
+  n: number,
+  d: number,
+  k: number,
+  zeile: string,
+  modus: BruchdiagrammModus = 'loesung'
+): string {
+  if (d < 2 || k < 2 || n < 1 || n >= d || d > 16 || k > 8) return '';
+  const cols = d;
+  const rows = k;
+  const pad = 3;
+  const labelH = 14;
+  const cellW = Math.min(28, Math.floor(268 / cols));
+  const cellH = Math.min(26, Math.floor(112 / rows));
+  const gw = cols * cellW;
+  const gh = rows * cellH;
+  const vbW = gw + pad * 2;
+  const vbH = gh + pad * 2 + labelH;
+
+  let rects = '';
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = pad + col * cellW;
+      const y = pad + row * cellH;
+      const shaded = col < n;
+      const fillOp = modus === 'loesung' ? (shaded ? 0.34 : 0.07) : 0.08;
+      rects += `<rect x='${x + 0.35}' y='${y + 0.35}' width='${cellW - 0.7}' height='${cellH - 0.7}' fill='currentColor' fill-opacity='${fillOp}'/>`;
+    }
+  }
+
+  let grid = '';
+  const ink = 'currentColor';
+  for (let j = 0; j <= cols; j++) {
+    const x = pad + j * cellW;
+    const sw = j === 0 || j === cols ? 1.35 : 1.15;
+    grid += `<line x1='${x}' y1='${pad}' x2='${x}' y2='${pad + gh}' stroke='${ink}' stroke-width='${sw}'/>`;
+  }
+  for (let r = 0; r <= rows; r++) {
+    const y = pad + r * cellH;
+    const sw = r === 0 || r === rows ? 1.35 : 1;
+    grid += `<line x1='${pad}' y1='${y}' x2='${pad + gw}' y2='${y}' stroke='${ink}' stroke-width='${sw}'/>`;
+  }
+
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}<g fill='none' stroke-linecap='square'>${grid}</g><text x='${
+    vbW / 2
+  }' y='${pad + gh + labelH - 1}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.88'>${zeile}</text></svg>`;
+}
+
+/** Ein Streifen n/d (für Kürzen, Vergleich). */
 export function svgBruchStreifen(
   n: number,
   d: number,
