@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/bruchrechnung, /uebung/negative-zahlen, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/bruchrechnung, /uebung/negative-zahlen, /uebung/algebra, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -38,6 +38,7 @@ import {
   svgBruchVergleichZweiRiegel,
   svgBruchZweiStreifen,
 } from './bruchrechnungDiagrams';
+import { svgDistributivFlaeche } from './algebraDiagrams';
 
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
 
@@ -127,6 +128,16 @@ export const NEGATIVE_ZAHLEN_GENERATOR_IDS = [
   'nz_klammer_punkt_vor_strich',
 ] as const;
 
+/** Algebra: Klammern, Distributivgesetz, Terme (Klasse 7–8). */
+export const ALGEBRA_GENERATOR_IDS = [
+  'alg_klammer_mal',
+  'alg_minus_klammer_plus',
+  'alg_ausklammern',
+  'alg_klammer_weg',
+  'alg_terme_zusammen',
+  'alg_distributiv_zahl',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -165,6 +176,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
   ...BRUCHRECHNUNG_GENERATOR_IDS,
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
+  ...ALGEBRA_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -246,6 +258,19 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
   }
   function texMulFactor(n: number): string {
     return n < 0 ? `(${n})` : String(n);
+  }
+
+  function linTerm(coeff: number, v = 'x'): string {
+    if (coeff === 0) return '0';
+    if (coeff === 1) return v;
+    if (coeff === -1) return `-${v}`;
+    return `${coeff}${v}`;
+  }
+
+  function linBinom(a: number, b: number, v = 'x'): string {
+    const t = linTerm(a, v);
+    if (b === 0) return t;
+    return `${t}${formatSignedInt(b)}`;
   }
 
   const GEN: PracticeGeneratorMap = {
@@ -966,6 +991,93 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Berechne $${a}+${b}\\cdot${texMulFactor(c)}$.`,
         loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}+${prod}=${res}$.`,
         diagram: svgZahlenstrahlSprung(a, prod),
+      };
+    },
+    alg_klammer_mal() {
+      const k = randInt(2, 6);
+      const ca = randInt(2, 5);
+      let cb = 0;
+      for (let t = 0; t < 25; t++) {
+        cb = randInt(-7, 7);
+        if (cb === 0) continue;
+        break;
+      }
+      const inner = linBinom(ca, cb);
+      return {
+        frage: `Multipliziere aus: $${k}(${inner})$.`,
+        loesung: `$${k}(${inner})=${linBinom(k * ca, k * cb)}$.`,
+      };
+    },
+    alg_minus_klammer_plus() {
+      const ia = randInt(2, 5);
+      const innerB = randInt(1, 9);
+      let ta = randInt(1, 7);
+      for (let t = 0; t < 12 && ta === ia; t++) ta = randInt(1, 7);
+      return {
+        frage: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.`,
+        loesung: `$-(${ia}x-${innerB})+${linTerm(ta)}=-${ia}x+${innerB}+${linTerm(ta)}=${linBinom(
+          ta - ia,
+          innerB
+        )}$.`,
+      };
+    },
+    alg_ausklammern() {
+      const g = pick([2, 3, 4, 5, 6] as const);
+      const ca = randInt(2, 5);
+      let cb = 0;
+      for (let t = 0; t < 25; t++) {
+        cb = randInt(-6, 6);
+        if (cb === 0) continue;
+        break;
+      }
+      const expanded = linBinom(g * ca, g * cb);
+      return {
+        frage: `Klammere so weit wie möglich aus: $${expanded}$.`,
+        loesung: `$${expanded}=${g}(${linBinom(ca, cb)})$.`,
+      };
+    },
+    alg_klammer_weg() {
+      const fx = randInt(5, 9);
+      const gx = randInt(2, fx - 1);
+      const h = randInt(-7, 7);
+      const inner = linBinom(gx, h);
+      return {
+        frage: `Vereinfache $${linTerm(fx)}-(${inner})$.`,
+        loesung: `$${linTerm(fx)}-(${inner})=${linTerm(fx)}-${linTerm(gx)}${formatSignedInt(-h)}=${linBinom(
+          fx - gx,
+          -h
+        )}$.`,
+      };
+    },
+    alg_terme_zusammen() {
+      let a = 0;
+      let c = 0;
+      for (let t = 0; t < 30; t++) {
+        a = randInt(1, 5);
+        c = randInt(-4, 4);
+        if (c === 0) continue;
+        if (a + c === 0) continue;
+        break;
+      }
+      const b = randInt(-8, 8);
+      const d = randInt(-8, 8);
+      return {
+        frage: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.`,
+        loesung: `$${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}=${linBinom(
+          a + c,
+          b + d
+        )}$.`,
+      };
+    },
+    alg_distributiv_zahl() {
+      const k = randInt(2, 7);
+      const m = randInt(2, 6);
+      const n = randInt(2, 6);
+      const s = k * (m + n);
+      return {
+        frage: `Berechne mit dem Distributivgesetz: $${k}(${m}+${n})$.`,
+        loesung: `$${k}(${m}+${n})=${k}\\cdot ${m}+${k}\\cdot ${n}=${k * m}+${k * n}=${s}$.`,
+        diagram: svgDistributivFlaeche(k, m, n),
       };
     },
     wr_vereinfachen() {
