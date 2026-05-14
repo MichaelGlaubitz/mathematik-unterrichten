@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze und /uebung/quadratische-funktionen — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen und /uebung/bruchgleichungen — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -96,12 +96,23 @@ export const QUADRATIC_EQUATIONS_GENERATOR_IDS = [
   'qg_anzahl_loesungen',
 ] as const;
 
+/** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
+export const FRACTION_EQUATION_GENERATOR_IDS = [
+  'bg_definitionsmenge',
+  'bg_einfach_linear',
+  'bg_hauptnenner',
+  'bg_kreuzprodukt',
+  'bg_ausgeschlossene_loesung',
+  'bg_keine_loesung',
+] as const;
+
 export const PRACTICE_GENERATOR_IDS = [
   ...PYTHAGORAS_GENERATOR_IDS,
   ...TRIGONOMETRY_GENERATOR_IDS,
   ...STRAHLENSATZ_GENERATOR_IDS,
   ...QUADRATIC_FUNCTION_GENERATOR_IDS,
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
+  ...FRACTION_EQUATION_GENERATOR_IDS,
 ] as const;
 
 export type PracticeGeneratorId = (typeof PRACTICE_GENERATOR_IDS)[number];
@@ -574,6 +585,71 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Wie viele reelle Lösungen hat die Gleichung $x^2+${k}=0$?`,
         loesung: `Keine reelle Lösung, denn $x^2=-${k}$ ist in $\\mathbb{R}$ unmöglich.`,
+      };
+    },
+    bg_definitionsmenge() {
+      const a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6] as const);
+      const b = randInt(-5, 8);
+      return {
+        frage: `Bestimme die Definitionsmenge der Bruchgleichung $\\displaystyle\\frac{x${formatSignedInt(b)}}{x${formatSignedInt(-a)}}=2$.`,
+        loesung: `Nenner darf nicht $0$ sein: $x${formatSignedInt(-a)}\\neq 0 \\Rightarrow x\\neq ${a}$. Also $D=\\mathbb{R}\\setminus\\{${a}\\}$.`,
+      };
+    },
+    bg_einfach_linear() {
+      const a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const d = pick([2, 3, 4, 5, 6] as const);
+      const x = a + d;
+      return {
+        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}=\\frac{1}{${d}}$.`,
+        loesung: `Mit $x\\neq ${a}$ gilt nach Multiplikation mit $${d}(x${formatSignedInt(-a)})$: $x${formatSignedInt(-a)}=${d}$, also $x=${x}$.`,
+      };
+    },
+    bg_hauptnenner() {
+      const a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const d = pick([2, 3, 4, 5] as const);
+      const x = a + d;
+      return {
+        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}+\\frac{1}{x${formatSignedInt(-a)}}=\\frac{2}{${d}}$.`,
+        loesung: `Hauptnenner $x${formatSignedInt(-a)}$ (mit $x\\neq ${a}$): $\\frac{2}{x${formatSignedInt(-a)}}=\\frac{2}{${d}}\\Rightarrow x${formatSignedInt(-a)}=${d}\\Rightarrow x=${x}$.`,
+      };
+    },
+    bg_kreuzprodukt() {
+      let a = 1;
+      let b = 3;
+      let x = 0;
+      let m = 2;
+      let n = 3;
+      for (let t = 0; t < 80; t++) {
+        a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+        b = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+        if (a === b) continue;
+        x = randInt(-3, 8);
+        if (x === a || x === b) continue;
+        m = randInt(1, 4);
+        const den = x - a;
+        const num = m * (x - b);
+        if (num % den !== 0) continue;
+        n = num / den;
+        if (n === 0 || Math.abs(n) > 9) continue;
+        break;
+      }
+      return {
+        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{${m}}{x${formatSignedInt(-a)}}=\\frac{${n}}{x${formatSignedInt(-b)}}$.`,
+        loesung: `Einschränkung: $x\\neq ${a},\\,x\\neq ${b}$. Kreuzprodukt: $${m}(x${formatSignedInt(-b)})=${n}(x${formatSignedInt(-a)})$. Daraus folgt $x=${x}$.`,
+      };
+    },
+    bg_ausgeschlossene_loesung() {
+      const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      return {
+        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{x${formatSignedInt(-a)}}{x${formatSignedInt(-a)}}=2$.`,
+        loesung: `Definitionsmenge: $x\\neq ${a}$. Der Term links ist für alle erlaubten $x$ gleich $1$ und kann nie $2$ sein. Also keine Lösung ($\\mathbb{L}=\\varnothing$).`,
+      };
+    },
+    bg_keine_loesung() {
+      const a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}=0$.`,
+        loesung: `Ein Bruch mit Zähler $1$ kann nie $0$ sein. Mit $x\\neq ${a}$ gibt es daher keine Lösung ($\\mathbb{L}=\\varnothing$).`,
       };
     },
   };

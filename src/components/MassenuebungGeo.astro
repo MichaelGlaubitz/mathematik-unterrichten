@@ -1,5 +1,6 @@
 ---
 import {
+  FRACTION_EQUATION_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
   QUADRATIC_FUNCTION_GENERATOR_IDS,
@@ -8,7 +9,13 @@ import {
 } from '../lib/pythagorasPracticeGenerators';
 
 export interface Props {
-  variant: 'pythagoras' | 'trigonometrie' | 'strahlensaetze' | 'quadratische-funktionen' | 'quadratische-gleichungen';
+  variant:
+    | 'pythagoras'
+    | 'trigonometrie'
+    | 'strahlensaetze'
+    | 'quadratische-funktionen'
+    | 'quadratische-gleichungen'
+    | 'bruchgleichungen';
   backHref: string;
   h1: string;
 }
@@ -23,6 +30,8 @@ const allowedIds =
         ? QUADRATIC_FUNCTION_GENERATOR_IDS
         : variant === 'quadratische-gleichungen'
           ? QUADRATIC_EQUATIONS_GENERATOR_IDS
+          : variant === 'bruchgleichungen'
+            ? FRACTION_EQUATION_GENERATOR_IDS
         : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 ---
@@ -60,7 +69,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
         <>
           <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
             Zufällige Aufgaben zu Sinus, Kosinus und Tangens im <strong>rechtwinkligen Dreieck</strong> – gleicher
-            Ablauf wie bei der Pythagoras-Massenübung: Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem Klick auf{' '}
+            Ablauf wie beim Pythagoras-Whiteboarding: Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem Klick auf{' '}
             <em>Aufgaben erzeugen</em> ein neuer Satz.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
@@ -72,7 +81,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
         <>
           <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
             Zufällige Aufgaben zu <strong>Parabeln</strong> (Scheitelpunktform, Nullstellen, Symmetrieachse) – gleicher
-            Ablauf wie bei den anderen Massenübungen: Typen und Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem
+            Ablauf wie bei den anderen Whiteboard-Übungen: Typen und Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem
             Klick auf <em>Aufgaben erzeugen</em> ein neuer Satz.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
@@ -90,11 +99,21 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
             Lösungen werden als reelle Zahlen angegeben; bei doppelten Lösungen wird das explizit genannt.
           </p>
         </>
+      ) : variant === 'bruchgleichungen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Bruchgleichungen</strong> – mit Fokus auf Definitionsmenge, Hauptnenner und
+            Kreuzprodukt. Wie gewohnt: Typen und Anzahl wählen, dann Whiteboard oder Arbeitsblatt.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne grafische Elemente: Der Fokus liegt vollständig auf Algebra, Definitionsmenge und Lösungsprüfung.
+          </p>
+        </>
       ) : (
         <>
           <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
             Zufällige Aufgaben zu <strong>Strahlensätzen</strong> (V- und X-Figur, Schatten, Spiegel) – gleicher Ablauf
-            wie bei den anderen Massenübungen: Typen und Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem Klick
+            wie bei den anderen Whiteboard-Übungen: Typen und Anzahl wählen, Whiteboard oder Arbeitsblatt, bei jedem Klick
             auf <em>Aufgaben erzeugen</em> ein neuer Satz.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
@@ -282,6 +301,40 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
               </label>
             </div>
           </fieldset>
+        ) : variant === 'bruchgleichungen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Bruchgleichungen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bg_definitionsmenge" checked />
+                <span>Definitionsmenge bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bg_einfach_linear" checked />
+                <span>Einfache lineare Bruchgleichung</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bg_hauptnenner" checked />
+                <span>Mit Hauptnenner lösen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bg_kreuzprodukt" checked />
+                <span>Zwei Brüche · Kreuzprodukt</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bg_ausgeschlossene_loesung" checked />
+                <span>Ausgeschlossene Lösung erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bg_keine_loesung" checked />
+                <span>Keine Lösung begründen</span>
+              </label>
+            </div>
+          </fieldset>
         ) : (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -351,23 +404,27 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
             data-layout="whiteboard"
             class="ug-layoutbtn rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800">{'Whiteboard'}</button>
         </div>
-        <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
-          <input
-            type="checkbox"
-            id="mu-practice-diagrams-checkbox"
-            class="mt-0.5 shrink-0 accent-accent-600"
-            aria-describedby="mu-practice-diagrams-hint"
-          />
-          <span class="min-w-0 flex-1">
-            <span class="font-medium text-ink-900 dark:text-ink-50">Grafiken / Skizzen anzeigen</span>
-            <span
-              id="mu-practice-diagrams-hint"
-              class="mt-0.5 block max-w-full break-words text-xs font-normal text-ink-600 dark:text-ink-400"
-            >
-              Voreinstellung: Skizzen aus. Pro Aufgabe gibt es „Skizze ein-/ausblenden“ (wird ebenfalls gespeichert).
-            </span>
-          </span>
-        </label>
+        {
+          variant !== 'bruchgleichungen' && (
+            <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
+              <input
+                type="checkbox"
+                id="mu-practice-diagrams-checkbox"
+                class="mt-0.5 shrink-0 accent-accent-600"
+                aria-describedby="mu-practice-diagrams-hint"
+              />
+              <span class="min-w-0 flex-1">
+                <span class="font-medium text-ink-900 dark:text-ink-50">Grafiken / Skizzen anzeigen</span>
+                <span
+                  id="mu-practice-diagrams-hint"
+                  class="mt-0.5 block max-w-full break-words text-xs font-normal text-ink-600 dark:text-ink-400"
+                >
+                  Voreinstellung: Skizzen aus. Pro Aufgabe gibt es „Skizze ein-/ausblenden“ (wird ebenfalls gespeichert).
+                </span>
+              </span>
+            </label>
+          )
+        }
       </fieldset>
     </div>
 
@@ -413,7 +470,15 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
     hidden
     role="status"
   >
-    <p class="font-medium text-ink-900 dark:text-ink-50">Whiteboard-Modus ist aktiv.</p>
+    <p class="font-medium text-ink-900 dark:text-ink-50">Whiteboarding</p>
+    <div class="mt-2 flex items-center text-ink-700 dark:text-ink-200" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3.5" y="4.5" width="17" height="11" rx="1.5"></rect>
+        <path d="M8 20h8"></path>
+        <path d="M12 15.5V20"></path>
+        <path d="M7 9h10"></path>
+      </svg>
+    </div>
     <p class="mt-1 text-ink-700 dark:text-ink-200">
       Wähle oben Aufgabentypen und Anzahl, dann <strong>Aufgaben erzeugen</strong>. Die Vollbild-Whiteboard-Ansicht erscheint erst, wenn Aufgaben da sind.
     </p>
@@ -447,7 +512,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
     <div class="my-auto flex w-full max-w-4xl flex-col gap-4">
       <section
         id="ug-whiteboard"
-        aria-label="Aufgaben (Whiteboard-Modus)"
+        aria-label="Aufgaben (Whiteboarding)"
         class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-ink-600 dark:bg-ink-800 dark:shadow-black/40"
       >
         <div class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-ink-600">
@@ -527,83 +592,102 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
         <>
           Passend dazu:{' '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Strahlensätze
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Trigonometrie
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Quadratische Funktionen
+            Whiteboarding
           </a>
         </>
       ) : variant === 'trigonometrie' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Pythagoras
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Strahlensätze
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Quadratische Funktionen
+            Whiteboarding
           </a>
         </>
       ) : variant === 'quadratische-funktionen' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Pythagoras
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Trigonometrie
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Strahlensätze
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Quadratische Gleichungen
+            Whiteboarding
           </a>
         </>
       ) : variant === 'quadratische-gleichungen' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Quadratische Funktionen
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Pythagoras
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Trigonometrie
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Strahlensätze
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+        </>
+      ) : variant === 'bruchgleichungen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
+          </a>
+          {' · '}
+          <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            Whiteboarding
           </a>
         </>
       ) : (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Pythagoras
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Trigonometrie
+            Whiteboarding
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Massenübung Quadratische Funktionen
+            Whiteboarding
           </a>
         </>
       )
