@@ -1189,7 +1189,7 @@ function wbLabelFromHref(href: string): string {
                   id="mu-practice-diagrams-hint"
                   class="mt-0.5 block max-w-full break-words text-xs font-normal text-ink-600 dark:text-ink-400"
                 >
-                  Voreinstellung: Skizzen aus. Pro Aufgabe gibt es „Skizze ein-/ausblenden“ (wird ebenfalls gespeichert).
+                  Voreinstellung: Skizzen aus. Pro Aufgabe gibt es ein Augen-Symbol zum Ein- und Ausblenden (wird ebenfalls gespeichert).
                 </span>
               </span>
             </label>
@@ -1733,6 +1733,8 @@ function wbLabelFromHref(href: string): string {
     bindPracticeDiagramCheckbox,
     effectiveDiagramVisibleByHash,
     hashPracticeTaskFrage,
+    practiceDiagramToggleAriaLabel,
+    practiceDiagramToggleIconMarkup,
     readShowPracticeDiagrams,
     setDiagramEffectiveVisibleForHash,
     syncPracticeDiagramUi,
@@ -2173,10 +2175,12 @@ function wbLabelFromHref(href: string): string {
         li.className = 'pl-1';
         const hash = hashPracticeTaskFrage(a.frage);
         const diaDefHidden = a.diagramDefaultHidden === true ? 'true' : 'false';
+        const diagramVis = effectiveDiagramVisibleByHash(hash, a.diagramDefaultHidden === true);
+        const diaToggleLabel = practiceDiagramToggleAriaLabel(diagramVis);
         const diagramToggle = a.diagram || a.diagramLoesung
           ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="true">Skizze ausblenden</button>
-              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
+              <button type="button" class="ug-task-diagram-toggle inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-white hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVis ? 'true' : 'false'}" aria-label="${diaToggleLabel}" title="${diaToggleLabel}">${practiceDiagramToggleIconMarkup(diagramVis)}</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800" data-mu-diagram-zoom-for="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
                 <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
@@ -2211,6 +2215,8 @@ function wbLabelFromHref(href: string): string {
       const cur = aufgaben[wbIndex];
       const hash = hashPracticeTaskFrage(cur.frage);
       const diaDefHidden = cur.diagramDefaultHidden === true ? 'true' : 'false';
+      const diagramVisWb = effectiveDiagramVisibleByHash(hash, cur.diagramDefaultHidden === true);
+      const diaToggleLabelWb = practiceDiagramToggleAriaLabel(diagramVisWb);
       const diagramSvg =
         wbZeigeLoesung && cur.diagramLoesung
           ? cur.diagramLoesung
@@ -2218,8 +2224,8 @@ function wbLabelFromHref(href: string): string {
       const dia = cur.diagram || cur.diagramLoesung
         ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
             <div class="flex flex-wrap items-center justify-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="true">Skizze ausblenden</button>
-              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
+              <button type="button" class="ug-task-diagram-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-white hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVisWb ? 'true' : 'false'}" aria-label="${diaToggleLabelWb}" title="${diaToggleLabelWb}">${practiceDiagramToggleIconMarkup(diagramVisWb)}</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800" data-mu-diagram-zoom-for="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
                 <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
