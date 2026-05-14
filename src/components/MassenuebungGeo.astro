@@ -1747,6 +1747,44 @@ function wbLabelFromHref(href: string): string {
     let wbZeigeLoesung = false;
     let wbSekunden = 0;
     let wbTimerId = null;
+    const DIAGRAM_SCALE_STEP = 0.1;
+    const DIAGRAM_SCALE_MIN = 0.5;
+    const DIAGRAM_SCALE_MAX = 2;
+    const diagramScaleByHash = new Map();
+
+    function clampDiagramScale(scale) {
+      return Math.min(DIAGRAM_SCALE_MAX, Math.max(DIAGRAM_SCALE_MIN, Math.round(scale * 100) / 100));
+    }
+    function readDiagramScale(hash) {
+      return diagramScaleByHash.get(hash) ?? 1;
+    }
+    function setDiagramScale(hash, scale) {
+      diagramScaleByHash.set(hash, clampDiagramScale(scale));
+    }
+    function updateDiagramScale(hash, delta) {
+      setDiagramScale(hash, readDiagramScale(hash) + delta);
+    }
+    function syncDiagramZoomUi(scope) {
+      const root = scope ?? document;
+      root.querySelectorAll('.mu-practice-diagram[data-mu-diagram-hash]').forEach((node) => {
+        const hash = node.getAttribute('data-mu-diagram-hash');
+        if (!hash) return;
+        node.style.setProperty('--mu-diagram-scale', String(readDiagramScale(hash)));
+      });
+      root.querySelectorAll('[data-mu-diagram-zoom-label-for]').forEach((node) => {
+        const hash = node.getAttribute('data-mu-diagram-zoom-label-for');
+        if (!hash) return;
+        node.textContent = `${Math.round(readDiagramScale(hash) * 100)}%`;
+      });
+      root.querySelectorAll('.ug-task-diagram-zoom[data-mu-diagram-hash]').forEach((btn) => {
+        const hash = btn.getAttribute('data-mu-diagram-hash');
+        const delta = Number(btn.getAttribute('data-mu-diagram-zoom-step'));
+        if (!hash || !Number.isFinite(delta)) return;
+        const atMin = readDiagramScale(hash) <= DIAGRAM_SCALE_MIN + 0.0001;
+        const atMax = readDiagramScale(hash) >= DIAGRAM_SCALE_MAX - 0.0001;
+        btn.toggleAttribute('disabled', (delta < 0 && atMin) || (delta > 0 && atMax));
+      });
+    }
 
     const typBoxen = () => Array.from(document.querySelectorAll('.ug-typ'));
     const anzahlBtns = () => Array.from(document.querySelectorAll('.ug-anzahl'));
@@ -1910,6 +1948,7 @@ function wbLabelFromHref(href: string): string {
         }
       }
       syncPracticeDiagramUi(document.body);
+      syncDiagramZoomUi(document.body);
     }
     function renderArbeitsblatt() {
       if (!liste) return;
@@ -1926,8 +1965,13 @@ function wbLabelFromHref(href: string): string {
         li.className = 'pl-1';
         const hash = hashPracticeTaskFrage(a.frage);
         const diagramToggle = a.diagram
-          ? `<div class="mb-2 print:hidden">
+          ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
               <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+              </span>
             </div>
             <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}">${a.diagram}</div>`
           : '';
@@ -1958,7 +2002,14 @@ function wbLabelFromHref(href: string): string {
       const hash = hashPracticeTaskFrage(cur.frage);
       const dia = cur.diagram
         ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
-            <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+              </span>
+            </div>
           </div>
           <div class="mu-practice-diagram flex justify-center max-w-full" data-mu-diagram-hash="${hash}">${cur.diagram}</div><div class="mt-2">`
         : '<div>';
@@ -2032,6 +2083,16 @@ function wbLabelFromHref(href: string): string {
     });
 
     document.addEventListener('click', (e) => {
+      const zoomBtn = e.target && (e.target as Element).closest('button.ug-task-diagram-zoom');
+      if (zoomBtn) {
+        const hash = zoomBtn.getAttribute('data-mu-diagram-hash');
+        const step = Number(zoomBtn.getAttribute('data-mu-diagram-zoom-step'));
+        if (!hash || !Number.isFinite(step)) return;
+        e.preventDefault();
+        updateDiagramScale(hash, step);
+        syncDiagramZoomUi(document.body);
+        return;
+      }
       const t = e.target && (e.target as Element).closest('button.ug-task-diagram-toggle');
       if (!t || !t.getAttribute('data-mu-diagram-hash')) return;
       const hash = t.getAttribute('data-mu-diagram-hash');
@@ -2125,11 +2186,16 @@ function wbLabelFromHref(href: string): string {
     max-width: min(100%, 300px);
     height: auto;
   }
+  .mu-practice-diagram {
+    --mu-diagram-scale: 1;
+  }
   .mu-practice-diagram svg {
     display: block;
-    max-width: min(100%, 300px);
+    width: min(100%, calc(300px * var(--mu-diagram-scale)));
+    max-width: none;
     height: auto;
     margin-inline: auto;
+    transition: width 120ms ease;
   }
   .mu-geo-diagram svg text {
     font-family: 'Inter', system-ui, sans-serif;
