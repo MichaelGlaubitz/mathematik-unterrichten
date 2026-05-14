@@ -1778,6 +1778,7 @@ function wbLabelFromHref(href: string): string {
 
     const WHITEBOARD_ROUTE_VERSION = 1;
     const WHITEBOARD_ROUTE_HASH_KEY = 'wb-route';
+    const WHITEBOARD_ROUTE_WINDOW_NAME_PREFIX = 'MU_WB_ROUTE:';
     const ROUTE_ALLOWED_ANZAHL = new Set([5, 10, 15, 20]);
 
     let layout: 'arbeitsblatt' | 'whiteboard' = 'arbeitsblatt';
@@ -1965,15 +1966,21 @@ function wbLabelFromHref(href: string): string {
         `    const targetPath = ${JSON.stringify(targetPath)};`,
         `    const targetOrigin = ${JSON.stringify(window.location.origin)};`,
         `    const hashKey = ${JSON.stringify(WHITEBOARD_ROUTE_HASH_KEY)};`,
+        `    const routePrefix = ${JSON.stringify(WHITEBOARD_ROUTE_WINDOW_NAME_PREFIX)};`,
+        '    const routeInWindowName = routePrefix + encodedRoute;',
+        '    window.name = routeInWindowName;',
         '    const targetUrl = new URL(targetPath, targetOrigin);',
         '    const hashParams = new URLSearchParams();',
-        '    hashParams.set(hashKey, encodedRoute);',
+        '    hashParams.set(hashKey, "window-name");',
         '    targetUrl.hash = hashParams.toString();',
         '    const href = targetUrl.toString();',
         '    const link = document.getElementById("wb-route-open-link");',
-        '    if (link) link.setAttribute("href", href);',
+        '    if (link) {',
+        '      link.setAttribute("href", href);',
+        '      link.addEventListener("click", () => { window.name = routeInWindowName; });',
+        '    }',
         '    window.location.replace(href);',
-        '  </script>',
+        '  </scr' + 'ipt>',
         '</body>',
         '</html>',
       ].join('\n');
@@ -2003,7 +2010,7 @@ function wbLabelFromHref(href: string): string {
         savedAt: new Date().toISOString(),
         targetPath: window.location.pathname,
         anzahl,
-        layout,
+        layout: 'whiteboard',
         aktiveTypen: aktiveTypen(),
         wbIndex,
         wbZeigeLoesung,
@@ -2025,9 +2032,10 @@ function wbLabelFromHref(href: string): string {
 
       const targetPath = normalizeRoutePath(route.targetPath);
       if (targetPath && targetPath !== window.location.pathname) {
+        window.name = `${WHITEBOARD_ROUTE_WINDOW_NAME_PREFIX}${encodeRoutePayload(route)}`;
         const redirectUrl = new URL(targetPath, window.location.origin);
         const hashParams = new URLSearchParams();
-        hashParams.set(WHITEBOARD_ROUTE_HASH_KEY, encodeRoutePayload(route));
+        hashParams.set(WHITEBOARD_ROUTE_HASH_KEY, 'window-name');
         redirectUrl.hash = hashParams.toString();
         window.location.replace(redirectUrl.toString());
         return 'redirected';
@@ -2107,15 +2115,25 @@ function wbLabelFromHref(href: string): string {
       return 'loaded';
     }
 
+    function readRouteTokenFromWindowName(): string | null {
+      if (!window.name || !window.name.startsWith(WHITEBOARD_ROUTE_WINDOW_NAME_PREFIX)) return null;
+      const token = window.name.slice(WHITEBOARD_ROUTE_WINDOW_NAME_PREFIX.length);
+      window.name = '';
+      return token || null;
+    }
+
     function readRouteTokenFromLocation(): string | null {
       const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
       if (hash) {
         const hashParams = new URLSearchParams(hash);
         const token = hashParams.get(WHITEBOARD_ROUTE_HASH_KEY);
+        if (token === 'window-name') return readRouteTokenFromWindowName();
         if (token) return token;
       }
       const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get(WHITEBOARD_ROUTE_HASH_KEY);
+      const token = searchParams.get(WHITEBOARD_ROUTE_HASH_KEY);
+      if (token === 'window-name') return readRouteTokenFromWindowName();
+      return token;
     }
 
     function clearRouteTokenFromLocation(): void {
