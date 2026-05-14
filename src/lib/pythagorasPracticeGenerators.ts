@@ -38,6 +38,7 @@ import {
   svgBruchVergleichZweiRiegel,
   svgBruchZweiStreifen,
 } from './bruchrechnungDiagrams';
+import { svgLineareGleichungSchnittpunkt } from './lineareGleichungDiagrams';
 import { svgDistributivFlaeche } from './algebraDiagrams';
 
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
@@ -148,6 +149,86 @@ export const LINEARE_GLEICHUNGEN_GENERATOR_IDS = [
   'lg_bruch_linear',
 ] as const;
 
+/** Prozentrechnung (Grundwert, Prozentwert, Prozentsatz, Faktor, vor-/rueckwaerts). */
+export const PROZENTRECHNUNG_GENERATOR_IDS = [
+  'pr_prozentwert',
+  'pr_prozentsatz',
+  'pr_grundwert',
+  'pr_vermehrungsfaktor',
+  'pr_reduzierter_preis',
+  'pr_ausgangswert_nach_erhoehung',
+] as const;
+
+/** Stochastik (Lageparameter und einfache Wahrscheinlichkeiten). */
+export const STOCHASTIK_GENERATOR_IDS = [
+  'st_mittelwert_median',
+  'st_ausreisser_effekt',
+  'st_wuerfelsumme_sieben',
+  'st_mindestens_einmal',
+  'st_unmoeglich_sicher',
+  'st_erwartungswert_muenzwurf',
+] as const;
+
+/** Binomische Formeln (ausmultiplizieren und faktorisieren). */
+export const BINOMISCHE_FORMELN_GENERATOR_IDS = [
+  'bf_erste_formel',
+  'bf_zweite_formel',
+  'bf_dritte_formel',
+  'bf_faktorisieren_quadrat',
+  'bf_faktorisieren_diff',
+  'bf_ausmultiplizieren_mit_zahl',
+] as const;
+
+/** Lineare Funktionen (Steigung, Achsenabschnitt, Nullstelle, Parallelitaet). */
+export const LINEARE_FUNKTIONEN_GENERATOR_IDS = [
+  'lf_gerade_m_b',
+  'lf_steigung_aus_punkten',
+  'lf_nullstelle',
+  'lf_parallel',
+  'lf_funktionswert',
+  'lf_achsenabschnitt',
+] as const;
+
+/** Lineare Gleichungssysteme in zwei Variablen. */
+export const LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS = [
+  'lgs_addition',
+  'lgs_einsetzen',
+  'lgs_gleichsetzen',
+  'lgs_keine_loesung',
+  'lgs_unendlich_viele',
+  'lgs_schnittpunkt',
+] as const;
+
+/** Termumformungen bei Bruchtermen. */
+export const TERMUMFORMUNGEN_GENERATOR_IDS = [
+  'tu_kuerzen_faktor',
+  'tu_nicht_kuerzbar_summe',
+  'tu_definitionsmenge',
+  'tu_addition',
+  'tu_multiplikation',
+  'tu_hauptnenner',
+] as const;
+
+/** Exponentialfunktionen (Wachstum/Zerfall, Parameter und einfache Gleichungen). */
+export const EXPONENTIALFUNKTIONEN_GENERATOR_IDS = [
+  'exp_wachstum_oder_zerfall',
+  'exp_parameter',
+  'exp_funktionswert',
+  'exp_faktor_aus_prozent',
+  'exp_verdopplung_halbierung',
+  'exp_einfache_gleichung',
+] as const;
+
+/** Logarithmen (Umkehrung, Regeln, Basiswechsel). */
+export const LOGARITHMEN_GENERATOR_IDS = [
+  'log_basis_zwei',
+  'log_zehner_differenz',
+  'log_exponentialgleichung',
+  'log_eins',
+  'log_basiswechsel',
+  'log_produktregel',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -188,6 +269,14 @@ export const PRACTICE_GENERATOR_IDS = [
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
   ...ALGEBRA_GENERATOR_IDS,
   ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
+  ...PROZENTRECHNUNG_GENERATOR_IDS,
+  ...STOCHASTIK_GENERATOR_IDS,
+  ...BINOMISCHE_FORMELN_GENERATOR_IDS,
+  ...LINEARE_FUNKTIONEN_GENERATOR_IDS,
+  ...LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS,
+  ...TERMUMFORMUNGEN_GENERATOR_IDS,
+  ...EXPONENTIALFUNKTIONEN_GENERATOR_IDS,
+  ...LOGARITHMEN_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -895,7 +984,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const s = a + b;
       return {
-        frage: `Berechne $${a}${formatSignedInt(b)}$.`,
+        frage: `Berechne die Summe $${a}${formatSignedInt(b)}$.`,
         loesung: `$${a}${formatSignedInt(b)}=${s}$.`,
         diagram: svgZahlenstrahlSprung(a, b),
       };
@@ -911,7 +1000,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const s = a - b;
       return {
-        frage: `Berechne $${a}-${texSubtrahend(b)}$.`,
+        frage: `Berechne die Differenz $${a}-${texSubtrahend(b)}$.`,
         loesung: `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
         diagram: svgZahlenstrahlSprung(a, -b),
       };
@@ -1093,11 +1182,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lg_x_plus_a_eq_b() {
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const a = randInt(-12, 12);
+      const a = pick([-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const);
       const b = x0 + a;
       return {
         frage: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$.`,
         loesung: `Addition von $${-a}$ (bzw. Subtraktion von $${a}$) auf beiden Seiten: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: b }, x0),
       };
     },
     lg_ax_eq_b() {
@@ -1107,16 +1197,18 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $${a}x=${b}$.`,
         loesung: `Division durch $${a}$: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: 0 }, { m: 0, n: b }, x0),
       };
     },
     lg_ax_plus_b_eq_c() {
       const a = randInt(2, 7);
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const b = randInt(-14, 14);
+      const b = pick([-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] as const);
       const c = a * x0 + b;
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$.`,
         loesung: `Zuerst $${formatSignedInt(-b)}$ auf beiden Seiten, dann durch $${a}$: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: 0, n: c }, x0),
       };
     },
     lg_ax_plus_b_eq_cx_plus_d() {
@@ -1133,26 +1225,541 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}x${formatSignedInt(d)}$.`,
         loesung: `$${c}x$ subtrahieren: $${a - c}x${formatSignedInt(b)}=${d}$. Daraus $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: c, n: d }, x0),
       };
     },
     lg_klammer_linear() {
       const k = randInt(2, 6);
-      const a = randInt(-5, 5);
+      const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
       const rhs = k * (x0 + a);
       return {
         frage: `Löse die Gleichung $${k}(x${formatSignedInt(a)})=${rhs}$.`,
         loesung: `Division durch $${k}$: $x${formatSignedInt(a)}=${rhs / k}$. Subtrahiere $${a}$ bzw. addiere $${-a}$: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: rhs / k }, x0),
       };
     },
     lg_bruch_linear() {
       const b = randInt(2, 8);
-      const c = randInt(-7, 7);
+      const c = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
       const a = c * b - x0;
       return {
         frage: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$.`,
         loesung: `Mit $${b}$ multiplizieren: $x${formatSignedInt(a)}=${c * b}$, also $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: c * b }, x0),
+      };
+    },
+    pr_prozentwert() {
+      const grundwert = pick([80, 100, 120, 160, 200, 240, 300, 400, 500] as const);
+      const p = pick([5, 10, 20, 25, 40, 50] as const);
+      const prozentwert = (grundwert * p) / 100;
+      return {
+        frage: `Berechne den Prozentwert: $${p}\\,\\%$ von $${grundwert}$.`,
+        loesung: `$W=\\frac{${p}}{100}\\cdot ${grundwert}=${prozentwert}$.`,
+      };
+    },
+    pr_prozentsatz() {
+      const grundwert = pick([80, 100, 120, 160, 200, 240, 300, 400] as const);
+      const p = pick([5, 10, 15, 20, 25, 30, 40, 50] as const);
+      const prozentwert = (grundwert * p) / 100;
+      return {
+        frage: `Wie groß ist der Prozentsatz, wenn $W=${prozentwert}$ und $G=${grundwert}$ gilt?`,
+        loesung: `$p=\\frac{W}{G}\\cdot 100\\,\\%=\\frac{${prozentwert}}{${grundwert}}\\cdot 100\\,\\%=${p}\\,\\%$.`,
+      };
+    },
+    pr_grundwert() {
+      const p = pick([5, 10, 20, 25, 40, 50] as const);
+      const grundwert = pick([80, 100, 120, 160, 200, 240, 300, 400] as const);
+      const prozentwert = (grundwert * p) / 100;
+      return {
+        frage: `Berechne den Grundwert $G$, wenn $${p}\\,\\%$ genau $${prozentwert}$ sind.`,
+        loesung: `$G=\\frac{W}{p/100}=\\frac{${prozentwert}}{${p / 100}}=${grundwert}$.`,
+      };
+    },
+    pr_vermehrungsfaktor() {
+      const p = pick([4, 5, 8, 10, 12, 15, 20] as const);
+      if (random() < 0.5) {
+        return {
+          frage: `Welcher Vermehrungsfaktor gehört zu einer Erhöhung um $${p}\\,\\%$?`,
+          loesung: `Erhöhung um $${p}\\,\\%$: $q=1+\\frac{${p}}{100}=1${formatSignedInt(p / 100)}=1,${String(
+            100 + p
+          ).slice(1)}$.`,
+        };
+      }
+      return {
+        frage: `Welcher Faktor gehört zu einer Reduktion um $${p}\\,\\%$?`,
+        loesung: `Reduktion um $${p}\\,\\%$: $q=1-\\frac{${p}}{100}=0,${String(100 - p).padStart(2, '0')}$.`,
+      };
+    },
+    pr_reduzierter_preis() {
+      const preis = pick([40, 60, 80, 100, 120, 160, 200] as const);
+      const p = pick([5, 10, 20, 25, 30, 40] as const);
+      const neu = (preis * (100 - p)) / 100;
+      return {
+        frage: `Ein Preis von $${preis}\\,€$ wird um $${p}\\,\\%$ reduziert. Wie hoch ist der neue Preis?`,
+        loesung: `Mit dem Faktor $q=1-\\frac{${p}}{100}=\\frac{${100 - p}}{100}$: $${preis}\\cdot ${(
+          (100 - p) /
+          100
+        ).toFixed(2).replace('.', ',')}=${neu}\\,€$.`,
+      };
+    },
+    pr_ausgangswert_nach_erhoehung() {
+      const alt = pick([25, 40, 50, 80, 100, 120, 200] as const);
+      const p = pick([5, 8, 10, 20, 25, 40] as const);
+      const neu = (alt * (100 + p)) / 100;
+      return {
+        frage: `Nach einer Erhöhung um $${p}\\,\\%$ beträgt ein Wert $${neu}$. Wie groß war der Ausgangswert?`,
+        loesung: `Rückwärts mit $q=1+\\frac{${p}}{100}=\\frac{${100 + p}}{100}$: $${neu}:${
+          ((100 + p) / 100).toFixed(2).replace('.', ',')
+        }=${alt}$.`,
+      };
+    },
+    st_mittelwert_median() {
+      const a = randInt(1, 5);
+      const b = a + randInt(1, 3);
+      const c = b + randInt(0, 2);
+      const d = c + randInt(1, 3);
+      const e = d + randInt(1, 3);
+      const daten = [a, b, c, d, e];
+      const mittelwert = (a + b + c + d + e) / 5;
+      const median = c;
+      return {
+        frage: `Datensatz: ${daten.join(', ')}. Bestimme Mittelwert und Median.`,
+        loesung: `Mittelwert $=\\frac{${a + b + c + d + e}}{5}=${mittelwert}$, Median $=${median}$.`,
+      };
+    },
+    st_ausreisser_effekt() {
+      const x = randInt(2, 6);
+      const y = x + randInt(1, 4);
+      const z = y + randInt(1, 4);
+      const ausreisser = pick([40, 50, 60, 80, 100] as const);
+      const altMittel = Number(((x + y + z) / 3).toFixed(2));
+      const neuMittel = Number(((x + y + z + ausreisser) / 4).toFixed(2));
+      return {
+        frage: `Die Werte ${x}, ${y}, ${z} haben Mittelwert ${altMittel}. Was passiert mit dem Mittelwert, wenn ${ausreisser} dazukommt?`,
+        loesung: `Neuer Mittelwert: $\\frac{${x + y + z + ausreisser}}{4}=${String(neuMittel).replace('.', ',')}$. Der Ausreißer zieht den Mittelwert deutlich nach oben.`,
+      };
+    },
+    st_wuerfelsumme_sieben() {
+      return {
+        frage: 'Zwei faire Würfel werden geworfen. Wie groß ist die Wahrscheinlichkeit für die Augensumme 7?',
+        loesung: `Günstige Paare: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$, also $6$ von $36$. Damit $P=\\frac{6}{36}=\\frac{1}{6}$.`,
+      };
+    },
+    st_mindestens_einmal() {
+      if (random() < 0.5) {
+        return {
+          frage: 'Zwei faire Münzwürfe: Wie groß ist die Wahrscheinlichkeit für „mindestens einmal Zahl“?',
+          loesung: `Komplement: „keinmal Zahl“ bedeutet zweimal Kopf mit $\\frac14$. Also $1-\\frac14=\\frac34$.`,
+        };
+      }
+      return {
+        frage: 'Ein fairer Würfel wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit für „mindestens einmal eine 6“?',
+        loesung: `Komplement: „keine 6“ hat Wahrscheinlichkeit $\\left(\\frac56\\right)^2=\\frac{25}{36}$. Also $1-\\frac{25}{36}=\\frac{11}{36}$.`,
+      };
+    },
+    st_unmoeglich_sicher() {
+      const typ = pick(['unmoeglich', 'sicher', 'wahrscheinlich'] as const);
+      if (typ === 'unmoeglich') {
+        return {
+          frage: 'Ein fairer Würfel wird einmal geworfen. Wie groß ist die Wahrscheinlichkeit für „Augenzahl 7“?',
+          loesung: `Unmögliches Ereignis: $P=0$.`,
+        };
+      }
+      if (typ === 'sicher') {
+        return {
+          frage: 'Ein fairer Würfel wird einmal geworfen. Wie groß ist die Wahrscheinlichkeit für „Augenzahl höchstens 6“?',
+          loesung: `Sicheres Ereignis: $P=1$.`,
+        };
+      }
+      return {
+        frage: 'Ein fairer Würfel wird einmal geworfen. Wie groß ist die Wahrscheinlichkeit für „gerade Augenzahl“?',
+        loesung: `Günstig: $\\{2,4,6\\}$, also $3$ von $6$. Damit $P=\\frac{3}{6}=\\frac12$.`,
+      };
+    },
+    st_erwartungswert_muenzwurf() {
+      const n = pick([10, 20, 30, 40, 50, 80, 100] as const);
+      return {
+        frage: `Eine faire Münze wird $${n}$-mal geworfen. Wie viele „Zahl“ erwartest du ungefähr?`,
+        loesung: `Erwartungswert: $E=n\\cdot \\frac12=${n}\\cdot \\frac12=${n / 2}$.`,
+      };
+    },
+    bf_erste_formel() {
+      const a = randInt(2, 9);
+      const doppel = 2 * a;
+      const quad = a * a;
+      return {
+        frage: `Multipliziere aus: $(x+${a})^2$.`,
+        loesung: `Erste binomische Formel: $(x+${a})^2=x^2+2\\cdot ${a}x+${a}^2=x^2+${doppel}x+${quad}$.`,
+      };
+    },
+    bf_zweite_formel() {
+      const a = randInt(2, 9);
+      const doppel = 2 * a;
+      const quad = a * a;
+      return {
+        frage: `Multipliziere aus: $(x-${a})^2$.`,
+        loesung: `Zweite binomische Formel: $(x-${a})^2=x^2-2\\cdot ${a}x+${a}^2=x^2-${doppel}x+${quad}$.`,
+      };
+    },
+    bf_dritte_formel() {
+      const a = randInt(2, 12);
+      return {
+        frage: `Multipliziere aus: $(x+${a})(x-${a})$.`,
+        loesung: `Dritte binomische Formel: $(x+${a})(x-${a})=x^2-${a}^2=x^2-${a * a}$.`,
+      };
+    },
+    bf_faktorisieren_quadrat() {
+      const p = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const b = -2 * p;
+      const c = p * p;
+      return {
+        frage: `Faktorisiere $x^2${formatSignedInt(b)}x${formatSignedInt(c)}$.`,
+        loesung: `Binomische Struktur: $x^2${formatSignedInt(b)}x${formatSignedInt(c)}=(x${formatSignedInt(-p)})^2$.`,
+      };
+    },
+    bf_faktorisieren_diff() {
+      const a = randInt(2, 12);
+      return {
+        frage: `Faktorisiere $x^2-${a * a}$.`,
+        loesung: `Differenz von Quadraten: $x^2-${a * a}=(x-${a})(x+${a})$.`,
+      };
+    },
+    bf_ausmultiplizieren_mit_zahl() {
+      const k = randInt(2, 5);
+      const a = randInt(1, 8);
+      const b = randInt(1, 8);
+      const sum = a + b;
+      const prod = a * b;
+      return {
+        frage: `Multipliziere aus: $(${k}x+${a})(${k}x+${b})$.`,
+        loesung: `Ausmultiplizieren: $(${k}x+${a})(${k}x+${b})=${k * k}x^2+${k * sum}x+${prod}$.`,
+      };
+    },
+    lf_gerade_m_b() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = randInt(-8, 8);
+      return {
+        frage: `Bestimme die Gleichung der Geraden mit Steigung $m=${m}$ und y-Achsenabschnitt $b=${b}$.`,
+        loesung: `$y=${m}x${formatSignedInt(b)}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: b }, 0),
+      };
+    },
+    lf_steigung_aus_punkten() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const x1 = randInt(-3, 2);
+      const dx = pick([2, 3, 4] as const);
+      const x2 = x1 + dx;
+      const b = randInt(-6, 6);
+      const y1 = m * x1 + b;
+      const y2 = m * x2 + b;
+      return {
+        frage: `Die Gerade geht durch $A(${x1}|${y1})$ und $B(${x2}|${y2})$. Bestimme ihre Steigung und Gleichung.`,
+        loesung: `Steigung: $m=\\frac{${y2}-${y1}}{${x2}-${x1}}=${m}$. Mit $A$: $${y1}=${m}\\cdot ${x1}+b\\Rightarrow b=${b}$. Also $y=${m}x${formatSignedInt(b)}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: y1 }, x1),
+      };
+    },
+    lf_nullstelle() {
+      const m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const b = -m * x0;
+      return {
+        frage: `Bestimme die Nullstelle der Funktion $f(x)=${m}x${formatSignedInt(b)}$.`,
+        loesung: `Für die Nullstelle gilt $0=${m}x${formatSignedInt(b)}\\Rightarrow x=${x0}$. Schnittpunkt mit der x-Achse: $(${x0}|0)$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: 0 }, x0),
+      };
+    },
+    lf_parallel() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = randInt(-8, 8);
+      return {
+        frage: `Welche Steigung hat jede Gerade, die parallel zu $y=${m}x${formatSignedInt(b)}$ verläuft?`,
+        loesung: `Parallele Geraden haben dieselbe Steigung. Also $m=${m}$.`,
+      };
+    },
+    lf_funktionswert() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = randInt(-9, 9);
+      const x = randInt(-4, 6);
+      const y = m * x + b;
+      return {
+        frage: `Berechne den Funktionswert von $f(x)=${m}x${formatSignedInt(b)}$ an der Stelle $x=${x}$.`,
+        loesung: `$f(${x})=${m}\\cdot ${x}${formatSignedInt(b)}=${y}$.`,
+      };
+    },
+    lf_achsenabschnitt() {
+      const m = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const b = randInt(-9, 9);
+      return {
+        frage: `Bestimme den y-Achsenabschnitt der Geraden $y=${m}x${formatSignedInt(b)}$.`,
+        loesung: `Bei $x=0$ gilt $y=${b}$. Der y-Achsenabschnitt ist also $b=${b}$ (Punkt $(0|${b})$).`,
+        diagram: svgLineareGleichungSchnittpunkt({ m, n: b }, { m: 0, n: b }, 0),
+      };
+    },
+    lgs_addition() {
+      const x0 = randInt(-6, 6);
+      const y0 = randInt(-6, 6);
+      const s1 = x0 + y0;
+      const s2 = x0 - y0;
+      return {
+        frage: `Löse das Gleichungssystem $\\begin{cases}x+y=${s1}\\\\x-y=${s2}\\end{cases}$.`,
+        loesung: `Addieren liefert $2x=${s1 + s2}\\Rightarrow x=${x0}$. Danach $y=${s1}-${x0}=${y0}$. Lösung: $(${x0}|${y0})$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: -1, n: s1 }, { m: 1, n: -s2 }, x0),
+      };
+    },
+    lgs_einsetzen() {
+      const x0 = randInt(-6, 6);
+      const y0 = randInt(-6, 6);
+      const a = pick([-3, -2, -1, 1, 2, 3] as const);
+      const b = x0 - a * y0;
+      const c = pick([-3, -2, -1, 1, 2, 3] as const);
+      const d = pick([-4, -3, -2, 2, 3, 4] as const);
+      const e = c * x0 + d * y0;
+      return {
+        frage: `Löse durch Einsetzen: $\\begin{cases}x=${a}y${formatSignedInt(b)}\\\\${c}x${formatSignedInt(
+          d
+        )}y=${e}\\end{cases}$.`,
+        loesung: `Setze $x=${a}y${formatSignedInt(b)}$ in die zweite Gleichung ein. Danach ergibt sich $y=${y0}$ und damit $x=${x0}$. Lösung: $(${x0}|${y0})$.`,
+      };
+    },
+    lgs_gleichsetzen() {
+      const x0 = randInt(-5, 6);
+      const y0 = randInt(-6, 6);
+      let m1 = 1;
+      let m2 = 2;
+      for (let t = 0; t < 20; t++) {
+        m1 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+        m2 = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+        if (m1 !== m2) break;
+      }
+      const n1 = y0 - m1 * x0;
+      const n2 = y0 - m2 * x0;
+      return {
+        frage: `Löse durch Gleichsetzen: $\\begin{cases}y=${m1}x${formatSignedInt(
+          n1
+        )}\\\\y=${m2}x${formatSignedInt(n2)}\\end{cases}$.`,
+        loesung: `Gleichsetzen: $${m1}x${formatSignedInt(n1)}=${m2}x${formatSignedInt(
+          n2
+        )}\\Rightarrow x=${x0}$. Dann $y=${y0}$. Lösung: $(${x0}|${y0})$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: m1, n: n1 }, { m: m2, n: n2 }, x0),
+      };
+    },
+    lgs_keine_loesung() {
+      const m = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const n1 = randInt(-6, 2);
+      const n2 = n1 + randInt(2, 7);
+      return {
+        frage: `Wie viele Lösungen hat das System $\\begin{cases}y=${m}x${formatSignedInt(
+          n1
+        )}\\\\y=${m}x${formatSignedInt(n2)}\\end{cases}$?`,
+        loesung: `Beide Geraden haben dieselbe Steigung $m=${m}$, aber verschiedene Achsenabschnitte ($${n1}$ und $${n2}$). Sie sind parallel: keine Lösung.`,
+      };
+    },
+    lgs_unendlich_viele() {
+      const a = pick([1, 2, 3] as const);
+      const b = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const c = randInt(-8, 8);
+      const f = pick([2, 3, 4] as const);
+      return {
+        frage: `Wie viele Lösungen hat $\\begin{cases}${a}x${formatSignedInt(b)}y=${c}\\\\${a * f}x${formatSignedInt(
+          b * f
+        )}y=${c * f}\\end{cases}$?`,
+        loesung: `Die zweite Gleichung ist ein Vielfaches der ersten. Beide beschreiben dieselbe Gerade: unendlich viele Lösungen.`,
+      };
+    },
+    lgs_schnittpunkt() {
+      const x0 = randInt(-5, 5);
+      const y0 = randInt(-5, 5);
+      let m1 = 1;
+      let m2 = 2;
+      for (let t = 0; t < 20; t++) {
+        m1 = pick([-3, -2, -1, 1, 2, 3] as const);
+        m2 = pick([-3, -2, -1, 1, 2, 3] as const);
+        if (m1 !== m2) break;
+      }
+      const n1 = y0 - m1 * x0;
+      const n2 = y0 - m2 * x0;
+      return {
+        frage: `Bestimme den Schnittpunkt der Geraden $y=${m1}x${formatSignedInt(n1)}$ und $y=${m2}x${formatSignedInt(
+          n2
+        )}$.`,
+        loesung: `Am Schnittpunkt sind die y-Werte gleich: $${m1}x${formatSignedInt(n1)}=${m2}x${formatSignedInt(
+          n2
+        )}$. Daraus $x=${x0}$ und anschließend $y=${y0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: m1, n: n1 }, { m: m2, n: n2 }, x0),
+      };
+    },
+    tu_kuerzen_faktor() {
+      const g = pick([2, 3, 4, 5, 6] as const);
+      const a = randInt(1, 7);
+      const b = pick([2, 3, 4, 5] as const);
+      return {
+        frage: `Kürze den Term $\\dfrac{${g}x${formatSignedInt(g * a)}}{${g * b}}$ so weit wie möglich.`,
+        loesung: `$\\dfrac{${g}x${formatSignedInt(g * a)}}{${g * b}}=\\dfrac{${g}(x${formatSignedInt(a)})}{${g}\\cdot ${b}}=\\dfrac{x${formatSignedInt(
+          a
+        )}}{${b}}$.`,
+      };
+    },
+    tu_nicht_kuerzbar_summe() {
+      const a = randInt(2, 8);
+      const b = randInt(2, 8);
+      return {
+        frage: `Darf man $\\dfrac{x+${a}}{x+${b}}$ zu $\\dfrac{${a}}{${b}}$ kürzen? Begründe kurz.`,
+        loesung: `Nein. Kürzen ist nur bei gemeinsamen Faktoren erlaubt, nicht bei Summanden. $x+${a}$ und $x+${b}$ sind Summen.`,
+      };
+    },
+    tu_definitionsmenge() {
+      const a = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
+      return {
+        frage: `Bestimme die Definitionsmenge von $\\dfrac{1}{x${formatSignedInt(-a)}}$.`,
+        loesung: `Nenner $\\neq 0$: $x${formatSignedInt(-a)}\\neq 0\\Rightarrow x\\neq ${a}$. Also $D=\\mathbb{R}\\setminus\\{${a}\\}$.`,
+      };
+    },
+    tu_addition() {
+      const a = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const b = a + pick([1, 2, 3, 4] as const);
+      const sum = a + b;
+      return {
+        frage: `Addiere: $\\dfrac{1}{x${formatSignedInt(-a)}}+\\dfrac{1}{x${formatSignedInt(-b)}}$.`,
+        loesung: `Hauptnenner: $(x${formatSignedInt(-a)})(x${formatSignedInt(
+          -b
+        )})$. Zähler: $(x${formatSignedInt(-b)})+(x${formatSignedInt(-a)})=2x${formatSignedInt(
+          -sum
+        )}$. Ergebnis: $\\dfrac{2x${formatSignedInt(-sum)}}{(x${formatSignedInt(-a)})(x${formatSignedInt(-b)})}$.`,
+      };
+    },
+    tu_multiplikation() {
+      const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      const b = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Vereinfache $\\dfrac{x${formatSignedInt(-a)}}{${b}}\\cdot\\dfrac{${b}}{x${formatSignedInt(-a)}}$.`,
+        loesung: `Kürzen von Faktor $${b}$ und $x${formatSignedInt(-a)}$ (mit $x\\neq ${a}$): Ergebnis $1$.`,
+      };
+    },
+    tu_hauptnenner() {
+      const a = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Bringe auf einen Hauptnenner: $\\dfrac{1}{x}+\\dfrac{1}{x+${a}}$.`,
+        loesung: `Hauptnenner $x(x+${a})$: $\\dfrac{1}{x}=\\dfrac{x+${a}}{x(x+${a})}$ und $\\dfrac{1}{x+${a}}=\\dfrac{x}{x(x+${a})}$. Summe: $\\dfrac{2x+${a}}{x(x+${a})}$.`,
+      };
+    },
+    exp_wachstum_oder_zerfall() {
+      const a = pick([50, 80, 100, 120, 200, 300] as const);
+      const q = pick([0.8, 0.9, 0.95, 1.05, 1.1, 1.2] as const);
+      const qStr = String(q).replace('.', ',');
+      return {
+        frage: `Gegeben ist $f(t)=${a}\\cdot ${qStr}^t$. Handelt es sich um Wachstum oder Zerfall und um wie viel Prozent pro Schritt?`,
+        loesung:
+          q > 1
+            ? `Da $q=${qStr}>1$, liegt Wachstum vor: ${Math.round((q - 1) * 100)}\\,\\% pro Schritt.`
+            : `Da $0<q=${qStr}<1$, liegt Zerfall vor: ${Math.round((1 - q) * 100)}\\,\\% pro Schritt.`,
+      };
+    },
+    exp_parameter() {
+      const a = pick([40, 60, 80, 100, 120, 200] as const);
+      const q = pick([0.8, 0.9, 0.95, 1.05, 1.1, 1.25] as const);
+      const qStr = String(q).replace('.', ',');
+      return {
+        frage: `Lies bei $f(t)=${a}\\cdot ${qStr}^t$ den Anfangswert und den Faktor ab.`,
+        loesung: `Anfangswert $a=${a}$, Faktor $q=${qStr}$.`,
+      };
+    },
+    exp_funktionswert() {
+      const a = pick([50, 80, 100, 120, 200] as const);
+      const q = pick([0.5, 0.8, 0.9, 1.1, 1.2, 2] as const);
+      const t = pick([2, 3, 4] as const);
+      const wert = Number((a * q ** t).toFixed(2));
+      return {
+        frage: `Berechne $f(${t})$ für $f(t)=${a}\\cdot ${String(q).replace('.', ',')}^t$.`,
+        loesung: `$f(${t})=${a}\\cdot ${String(q).replace('.', ',')}^{${t}}=${String(wert).replace('.', ',')}$`,
+      };
+    },
+    exp_faktor_aus_prozent() {
+      const p = pick([2, 4, 5, 8, 10, 12, 15, 20] as const);
+      if (random() < 0.5) {
+        return {
+          frage: `Welcher Exponentialfaktor $q$ gehört zu einem Wachstum von $${p}\\,\\%$ pro Schritt?`,
+          loesung: `$q=1+\\frac{${p}}{100}=1,${String(100 + p).slice(1)}$.`,
+        };
+      }
+      return {
+        frage: `Welcher Exponentialfaktor $q$ gehört zu einem Zerfall von $${p}\\,\\%$ pro Schritt?`,
+        loesung: `$q=1-\\frac{${p}}{100}=0,${String(100 - p).padStart(2, '0')}$.`,
+      };
+    },
+    exp_verdopplung_halbierung() {
+      if (random() < 0.5) {
+        const p = pick([5, 8, 10, 12, 15] as const);
+        const approx = Math.round(70 / p);
+        return {
+          frage: `Schätze die Verdopplungszeit bei einem Wachstum von $${p}\\,\\%$ pro Schritt (Faustregel).`,
+          loesung: `Faustregel $\\tfrac{70}{p}$: $\\tfrac{70}{${p}}\\approx ${approx}$ Schritte.`,
+        };
+      }
+      const p = pick([5, 8, 10, 12, 15] as const);
+      const approx = Math.round(70 / p);
+      return {
+        frage: `Schätze die Halbwertszeit bei einem Zerfall von $${p}\\,\\%$ pro Schritt (Faustregel).`,
+        loesung: `Faustregel $\\tfrac{70}{p}$: $\\tfrac{70}{${p}}\\approx ${approx}$ Schritte.`,
+      };
+    },
+    exp_einfache_gleichung() {
+      const basis = pick([2, 3, 5] as const);
+      const t = pick([2, 3, 4, 5] as const);
+      const ziel = basis ** t;
+      return {
+        frage: `Löse $${basis}^x=${ziel}$ nach $x$ auf.`,
+        loesung: `Da $${ziel}=${basis}^{${t}}$, gilt direkt $x=${t}$.`,
+      };
+    },
+    log_basis_zwei() {
+      const erg = pick([3, 4, 5, 6, 7, 8] as const);
+      const wert = 2 ** erg;
+      return {
+        frage: `Berechne $\\log_2(${wert})$.`,
+        loesung: `Gesucht ist die Hochzahl zu Basis $2$: $2^{${erg}}=${wert}$, also $\\log_2(${wert})=${erg}$.`,
+      };
+    },
+    log_zehner_differenz() {
+      const a = pick([3, 4, 5, 6] as const);
+      const b = pick([1, 2] as const);
+      return {
+        frage: `Berechne $\\log_{10}(10^{${a}})-\\log_{10}(10^{${b}})$.`,
+        loesung: `$\\log_{10}(10^{${a}})-\\log_{10}(10^{${b}})=${a}-${b}=${a - b}$.`,
+      };
+    },
+    log_exponentialgleichung() {
+      const basis = pick([2, 3, 5, 10] as const);
+      const x = pick([2, 3, 4] as const);
+      const ziel = basis ** x;
+      return {
+        frage: `Löse $${basis}^x=${ziel}$ mithilfe eines Logarithmus.`,
+        loesung: `$x=\\log_{${basis}}(${ziel})=${x}$.`,
+      };
+    },
+    log_eins() {
+      const basis = pick([2, 3, 5, 10] as const);
+      return {
+        frage: `Bestimme $\\log_{${basis}}(1)$.`,
+        loesung: `$\\log_{${basis}}(1)=0$, denn $${basis}^0=1$.`,
+      };
+    },
+    log_basiswechsel() {
+      const basis = pick([2, 3, 5, 7] as const);
+      const wert = pick([8, 9, 25, 49, 125, 343] as const);
+      const approx = Number((Math.log(wert) / Math.log(basis)).toFixed(3));
+      return {
+        frage: `Schreibe $\\log_{${basis}}(${wert})$ mit dem natürlichen Logarithmus um und gib einen Näherungswert an.`,
+        loesung: `$\\log_{${basis}}(${wert})=\\frac{\\ln(${wert})}{\\ln(${basis})}\\approx ${String(approx).replace('.', ',')}$.`,
+      };
+    },
+    log_produktregel() {
+      const a = pick([2, 3, 4, 5, 6] as const);
+      const b = pick([2, 3, 4, 5, 6] as const);
+      return {
+        frage: `Vereinfache $\\ln(${a}\\cdot ${b})$ mithilfe einer Logarithmusregel.`,
+        loesung: `Produktregel: $\\ln(${a}\\cdot ${b})=\\ln(${a})+\\ln(${b})$.`,
       };
     },
     wr_vereinfachen() {

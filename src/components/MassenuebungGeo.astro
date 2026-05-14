@@ -1,16 +1,24 @@
 ---
 import {
+  BINOMISCHE_FORMELN_GENERATOR_IDS,
   ALGEBRA_GENERATOR_IDS,
   BRUCHRECHNUNG_GENERATOR_IDS,
   CIRCLE_GEOMETRY_GENERATOR_IDS,
+  EXPONENTIALFUNKTIONEN_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
+  LINEARE_FUNKTIONEN_GENERATOR_IDS,
   LINEARE_GLEICHUNGEN_GENERATOR_IDS,
+  LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS,
+  LOGARITHMEN_GENERATOR_IDS,
   NEGATIVE_ZAHLEN_GENERATOR_IDS,
+  PROZENTRECHNUNG_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
   QUADRATIC_FUNCTION_GENERATOR_IDS,
   ROOT_GENERATOR_IDS,
+  STOCHASTIK_GENERATOR_IDS,
   STRAHLENSATZ_GENERATOR_IDS,
+  TERMUMFORMUNGEN_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
 } from '../lib/pythagorasPracticeGenerators';
 
@@ -26,6 +34,14 @@ export interface Props {
     | 'negative-zahlen'
     | 'algebra'
     | 'lineare-gleichungen'
+    | 'prozentrechnung'
+    | 'stochastik'
+    | 'binomische-formeln'
+    | 'lineare-funktionen'
+    | 'lineare-gleichungssysteme'
+    | 'termumformungen'
+    | 'exponentialfunktionen'
+    | 'logarithmen'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -52,6 +68,22 @@ const allowedIds =
                   ? ALGEBRA_GENERATOR_IDS
                 : variant === 'lineare-gleichungen'
                   ? LINEARE_GLEICHUNGEN_GENERATOR_IDS
+                : variant === 'prozentrechnung'
+                  ? PROZENTRECHNUNG_GENERATOR_IDS
+                : variant === 'stochastik'
+                  ? STOCHASTIK_GENERATOR_IDS
+                : variant === 'binomische-formeln'
+                  ? BINOMISCHE_FORMELN_GENERATOR_IDS
+                : variant === 'lineare-funktionen'
+                  ? LINEARE_FUNKTIONEN_GENERATOR_IDS
+                : variant === 'lineare-gleichungssysteme'
+                  ? LINEARE_GLEICHUNGSSYSTEME_GENERATOR_IDS
+                : variant === 'termumformungen'
+                  ? TERMUMFORMUNGEN_GENERATOR_IDS
+                : variant === 'exponentialfunktionen'
+                  ? EXPONENTIALFUNKTIONEN_GENERATOR_IDS
+                : variant === 'logarithmen'
+                  ? LOGARITHMEN_GENERATOR_IDS
                 : variant === 'wurzelrechnung'
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
@@ -69,6 +101,14 @@ const wbLabelByVariant = {
   'negative-zahlen': 'WB Negative Zahlen',
   algebra: 'WB Algebra',
   'lineare-gleichungen': 'WB Lineare Gleichungen',
+  prozentrechnung: 'WB Prozentrechnung',
+  stochastik: 'WB Stochastik',
+  'binomische-formeln': 'WB Binomische Formeln',
+  'lineare-funktionen': 'WB Lineare Funktionen',
+  'lineare-gleichungssysteme': 'WB Lineare Gleichungssysteme',
+  termumformungen: 'WB Termumformungen',
+  exponentialfunktionen: 'WB Exponentialfunktionen',
+  logarithmen: 'WB Logarithmen',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -84,6 +124,14 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/negative-zahlen': 'WB Negative Zahlen',
   '/uebung/algebra': 'WB Algebra',
   '/uebung/lineare-gleichungen': 'WB Lineare Gleichungen',
+  '/uebung/prozentrechnung': 'WB Prozentrechnung',
+  '/uebung/stochastik': 'WB Stochastik',
+  '/uebung/binomische-formeln': 'WB Binomische Formeln',
+  '/uebung/lineare-funktionen': 'WB Lineare Funktionen',
+  '/uebung/lineare-gleichungssysteme': 'WB Lineare Gleichungssysteme',
+  '/uebung/termumformungen': 'WB Termumformungen',
+  '/uebung/exponentialfunktionen': 'WB Exponentialfunktionen',
+  '/uebung/logarithmen': 'WB Logarithmen',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -107,8 +155,14 @@ function wbLabelFromHref(href: string): string {
       {
         variant === 'bruchrechnung'
           ? 'Übungsgenerator · Klasse 5–6 · Mini-Whiteboard & Arbeitsblatt'
-          : variant === 'negative-zahlen' || variant === 'algebra' || variant === 'lineare-gleichungen'
+          : variant === 'negative-zahlen' ||
+              variant === 'algebra' ||
+              variant === 'lineare-gleichungen' ||
+              variant === 'prozentrechnung' ||
+              variant === 'stochastik'
             ? 'Übungsgenerator · Klasse 7–8 · Mini-Whiteboard & Arbeitsblatt'
+            : variant === 'exponentialfunktionen' || variant === 'logarithmen'
+              ? 'Übungsgenerator · Oberstufe · Mini-Whiteboard & Arbeitsblatt'
             : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
       }
     </p>
@@ -209,7 +263,108 @@ function wbLabelFromHref(href: string): string {
             Klammern und einfache Bruch-Terme; alles mit ganzzahliger Lösung.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
-            Ohne Skizzen (rein algebraisch), passend zum Übergang vom Termumformen zur Lösungsmenge.
+            Optional: <strong>Koordinatensystem</strong> mit zwei Geraden und markiertem Schnittpunkt (x-Koordinate =
+            Lösung). Skizzen lassen sich global oder pro Aufgabe ein- und ausblenden.
+          </p>
+          <section class="mt-4 max-w-3xl rounded-lg border border-ink-200 bg-ink-50/80 p-3.5 text-sm text-ink-700 dark:border-ink-700 dark:bg-ink-800/50 dark:text-ink-200">
+            <h2 class="font-semibold text-ink-900 dark:text-ink-50">Barton-Workflow in dieser Route</h2>
+            <ol class="mt-2 list-decimal space-y-1.5 pl-5">
+              <li>
+                <strong>Lernziel &amp; Menge:</strong> sichere Äquivalenzumformungen in den auswählbaren Sätzen
+                (5/10/15/20 Aufgaben).
+              </li>
+              <li>
+                <strong>Variation:</strong> vom Basismuster $x+a=b$ über $ax+b=c$ bis zu Klammer- und Bruchformen;
+                pro Typ wird die Struktur gezielt variiert.
+              </li>
+              <li>
+                <strong>Numerische Constraints:</strong> ganzzahlige Lösungen, keine Dezimal- oder Bruchlösungen.
+              </li>
+              <li>
+                <strong>Technische Darstellung:</strong> deterministische Generatoren mit optionaler SVG-Skizze
+                (Geradenschnitt als Lösungsbild).
+              </li>
+            </ol>
+          </section>
+        </>
+      ) : variant === 'prozentrechnung' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zur <strong>Prozentrechnung</strong> – Prozentwert, Grundwert, Prozentsatz,
+            Vermehrungsfaktor sowie Vorwärts- und Rückwärtsrechnen in Alltagskontexten.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Fokus auf den Beziehungen zwischen $G$, $W$, $p\\,\\%$ und dem passenden Faktor $q$.
+          </p>
+        </>
+      ) : variant === 'stochastik' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Stochastik</strong> – Mittelwert und Median, Ausreißer-Effekte sowie
+            einfache Wahrscheinlichkeiten (Würfel, Münzen, Komplementregel).
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Schwerpunkt auf Deutung: Unterschied zwischen sicher / unmöglich / wahrscheinlich und Bedeutung des Erwartungswerts.
+          </p>
+        </>
+      ) : variant === 'binomische-formeln' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>binomischen Formeln</strong> – ausmultiplizieren und rückwärts faktorisieren
+            im schnellen Whiteboard-Format.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Schwerpunkt: Vorzeichen sicher beherrschen und Strukturen $(a\\pm b)^2$, $(a+b)(a-b)$ erkennen.
+          </p>
+        </>
+      ) : variant === 'lineare-funktionen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>linearen Funktionen</strong> – Steigung, Achsenabschnitt, Nullstelle,
+            Funktionswert und Parallelen.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Mit optionalen Koordinatensystem-Skizzen zur direkten Verknüpfung von Term und Graph.
+          </p>
+        </>
+      ) : variant === 'lineare-gleichungssysteme' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>linearen Gleichungssystemen</strong> – Additions-, Einsetzungs- und
+            Gleichsetzungsverfahren plus Spezialfälle (keine / unendlich viele Lösungen).
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Teilweise mit Geradenskizze: Schnittpunkt entspricht dem Lösungspaar.
+          </p>
+        </>
+      ) : variant === 'termumformungen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Termumformungen mit Bruchtermen</strong> – kürzen, Definitionsmenge,
+            Hauptnenner sowie Addition und Multiplikation.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Fokus auf Faktorstruktur und sauberes Arbeiten mit Nennerbedingungen.
+          </p>
+        </>
+      ) : variant === 'exponentialfunktionen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Exponentialfunktionen</strong> – Wachstum/Zerfall, Parameterdeutung,
+            Vermehrungsfaktor, Faustregeln und einfache Exponentialgleichungen.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Fokus auf funktionale Deutung und sichere Umrechnung zwischen Prozentangaben und Faktor $q$.
+          </p>
+        </>
+      ) : variant === 'logarithmen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Logarithmen</strong> – Umkehrung von Exponentialfunktionen, Regeln und
+            Basiswechsel.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Schwerpunkt auf „Mit welcher Hochzahl?“ sowie dem sicheren Anwenden grundlegender Logarithmusgesetze.
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -568,6 +723,9 @@ function wbLabelFromHref(href: string): string {
               Lineare Gleichungen
             </legend>
             <div class="space-y-1.5 text-sm">
+              <p class="pt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Phase A · Grundmuster
+              </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_x_plus_a_eq_b" checked />
                 <span>Form $x+a=b$</span>
@@ -576,6 +734,9 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_eq_b" checked />
                 <span>Form $ax=b$</span>
               </label>
+              <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Phase B · eine Zusatzoperation
+              </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_c" checked />
                 <span>Form $ax+b=c$</span>
@@ -584,13 +745,288 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_cx_plus_d" checked />
                 <span>Variable auf beiden Seiten</span>
               </label>
+              <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Phase C · Strukturwechsel
+              </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_klammer_linear" checked />
                 <span>Klammer: $k(x+a)=\ldots$</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_bruch_linear" checked />
-                <span>Bruchterm {'$\\dfrac{x+a}{b}=c$'}</span>
+                <span>Bruchterm (x + a) / b = c</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'prozentrechnung' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Prozentrechnung
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_prozentwert" checked />
+                <span>Prozentwert berechnen ($W=p\\,\\%\\cdot G$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_prozentsatz" checked />
+                <span>Prozentsatz berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_grundwert" checked />
+                <span>Grundwert berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_vermehrungsfaktor" checked />
+                <span>Vermehrungs- und Verminderungsfaktor</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_reduzierter_preis" checked />
+                <span>Preis nach Reduktion</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_ausgangswert_nach_erhoehung" checked />
+                <span>Ausgangswert nach Erhöhung rückwärts</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'stochastik' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Stochastik
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_mittelwert_median" checked />
+                <span>Mittelwert und Median</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_ausreisser_effekt" checked />
+                <span>Ausreißer-Effekt auf den Mittelwert</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_wuerfelsumme_sieben" checked />
+                <span>Wahrscheinlichkeit: Augensumme 7</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_mindestens_einmal" checked />
+                <span>„Mindestens einmal“ mit Komplementregel</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_unmoeglich_sicher" checked />
+                <span>Sicher / unmöglich / wahrscheinlich</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_erwartungswert_muenzwurf" checked />
+                <span>Erwartungswert bei Münzwürfen</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'binomische-formeln' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Binomische Formeln
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_erste_formel" checked />
+                <span>Erste binomische Formel: $(x+a)^2$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_zweite_formel" checked />
+                <span>Zweite binomische Formel: $(x-a)^2$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_dritte_formel" checked />
+                <span>Dritte binomische Formel: $(x+a)(x-a)$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_faktorisieren_quadrat" checked />
+                <span>Quadratisches Trinom faktorisieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_faktorisieren_diff" checked />
+                <span>Differenz von Quadraten faktorisieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="bf_ausmultiplizieren_mit_zahl" checked />
+                <span>Ausmultiplizieren mit Vorfaktor</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'lineare-funktionen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Lineare Funktionen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_gerade_m_b" checked />
+                <span>Gleichung aus Steigung und Achsenabschnitt</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_steigung_aus_punkten" checked />
+                <span>Steigung aus zwei Punkten</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_nullstelle" checked />
+                <span>Nullstelle bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_parallel" checked />
+                <span>Parallele Geraden und Steigung</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_funktionswert" checked />
+                <span>Funktionswert berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_achsenabschnitt" checked />
+                <span>y-Achsenabschnitt bestimmen</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'lineare-gleichungssysteme' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Lineare Gleichungssysteme
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_addition" checked />
+                <span>Additionsverfahren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_einsetzen" checked />
+                <span>Einsetzungsverfahren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_gleichsetzen" checked />
+                <span>Gleichsetzungsverfahren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_keine_loesung" checked />
+                <span>Keine Lösung erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_unendlich_viele" checked />
+                <span>Unendlich viele Lösungen erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_schnittpunkt" checked />
+                <span>Schnittpunkt zweier Geraden</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'termumformungen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Termumformungen · Bruchterme
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_kuerzen_faktor" checked />
+                <span>Kürzen über gemeinsame Faktoren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_nicht_kuerzbar_summe" checked />
+                <span>Fehlerdiagnose: Summen darf man nicht kürzen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_definitionsmenge" checked />
+                <span>Definitionsmenge bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_addition" checked />
+                <span>Bruchterme addieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_multiplikation" checked />
+                <span>Bruchterme multiplizieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="tu_hauptnenner" checked />
+                <span>Auf Hauptnenner bringen</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'exponentialfunktionen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Exponentialfunktionen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_wachstum_oder_zerfall" checked />
+                <span>Wachstum oder Zerfall erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_parameter" checked />
+                <span>Anfangswert und Faktor ablesen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_funktionswert" checked />
+                <span>Funktionswert berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_faktor_aus_prozent" checked />
+                <span>Faktor $q$ aus Prozentangabe</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_verdopplung_halbierung" checked />
+                <span>Verdopplungs-/Halbwertszeit (Faustregel)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="exp_einfache_gleichung" checked />
+                <span>Einfache Exponentialgleichung</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'logarithmen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Logarithmen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_basis_zwei" checked />
+                <span>Grundaufgaben mit Basis 2</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_zehner_differenz" checked />
+                <span>Zehnerlogarithmus und Differenzen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_exponentialgleichung" checked />
+                <span>Exponentialgleichung mit Logarithmus lösen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_eins" checked />
+                <span>Spezialwert: $\log_a(1)$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_basiswechsel" checked />
+                <span>Basiswechsel mit $\ln$</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="log_produktregel" checked />
+                <span>Produktregel anwenden</span>
               </label>
             </div>
           </fieldset>
@@ -732,7 +1168,14 @@ function wbLabelFromHref(href: string): string {
             class="ug-layoutbtn rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800">{'Whiteboard'}</button>
         </div>
         {
-          variant !== 'bruchgleichungen' && variant !== 'wurzelrechnung' && (
+          variant !== 'bruchgleichungen' &&
+            variant !== 'wurzelrechnung' &&
+            variant !== 'prozentrechnung' &&
+            variant !== 'stochastik' &&
+            variant !== 'binomische-formeln' &&
+            variant !== 'termumformungen' &&
+            variant !== 'exponentialfunktionen' &&
+            variant !== 'logarithmen' && (
             <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
               <input
                 type="checkbox"
@@ -1086,6 +1529,126 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/bruchrechnung')}
           </a>
         </>
+      ) : variant === 'prozentrechnung' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/stochastik" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/stochastik')}
+          </a>
+          {' · '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/negative-zahlen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/negative-zahlen')}
+          </a>
+        </>
+      ) : variant === 'stochastik' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/prozentrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/prozentrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/algebra" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/algebra')}
+          </a>
+        </>
+      ) : variant === 'binomische-formeln' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/termumformungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/termumformungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/quadratische-gleichungen')}
+          </a>
+        </>
+      ) : variant === 'lineare-funktionen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/lineare-gleichungssysteme" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungssysteme')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
+          </a>
+        </>
+      ) : variant === 'lineare-gleichungssysteme' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/algebra" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/algebra')}
+          </a>
+        </>
+      ) : variant === 'termumformungen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/binomische-formeln" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/binomische-formeln')}
+          </a>
+          {' · '}
+          <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchgleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/wurzelrechnung')}
+          </a>
+        </>
+      ) : variant === 'exponentialfunktionen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/logarithmen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/logarithmen')}
+          </a>
+          {' · '}
+          <a href="/uebung/prozentrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/prozentrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+        </>
+      ) : variant === 'logarithmen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/exponentialfunktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/exponentialfunktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/termumformungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/termumformungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/binomische-formeln" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/binomische-formeln')}
+          </a>
+        </>
       ) : variant === 'wurzelrechnung' ? (
         <>
           Passend dazu:{' '}
@@ -1184,6 +1747,44 @@ function wbLabelFromHref(href: string): string {
     let wbZeigeLoesung = false;
     let wbSekunden = 0;
     let wbTimerId = null;
+    const DIAGRAM_SCALE_STEP = 0.1;
+    const DIAGRAM_SCALE_MIN = 0.5;
+    const DIAGRAM_SCALE_MAX = 2;
+    const diagramScaleByHash = new Map();
+
+    function clampDiagramScale(scale) {
+      return Math.min(DIAGRAM_SCALE_MAX, Math.max(DIAGRAM_SCALE_MIN, Math.round(scale * 100) / 100));
+    }
+    function readDiagramScale(hash) {
+      return diagramScaleByHash.get(hash) ?? 1;
+    }
+    function setDiagramScale(hash, scale) {
+      diagramScaleByHash.set(hash, clampDiagramScale(scale));
+    }
+    function updateDiagramScale(hash, delta) {
+      setDiagramScale(hash, readDiagramScale(hash) + delta);
+    }
+    function syncDiagramZoomUi(scope) {
+      const root = scope ?? document;
+      root.querySelectorAll('.mu-practice-diagram[data-mu-diagram-hash]').forEach((node) => {
+        const hash = node.getAttribute('data-mu-diagram-hash');
+        if (!hash) return;
+        node.style.setProperty('--mu-diagram-scale', String(readDiagramScale(hash)));
+      });
+      root.querySelectorAll('[data-mu-diagram-zoom-label-for]').forEach((node) => {
+        const hash = node.getAttribute('data-mu-diagram-zoom-label-for');
+        if (!hash) return;
+        node.textContent = `${Math.round(readDiagramScale(hash) * 100)}%`;
+      });
+      root.querySelectorAll('.ug-task-diagram-zoom[data-mu-diagram-hash]').forEach((btn) => {
+        const hash = btn.getAttribute('data-mu-diagram-hash');
+        const delta = Number(btn.getAttribute('data-mu-diagram-zoom-step'));
+        if (!hash || !Number.isFinite(delta)) return;
+        const atMin = readDiagramScale(hash) <= DIAGRAM_SCALE_MIN + 0.0001;
+        const atMax = readDiagramScale(hash) >= DIAGRAM_SCALE_MAX - 0.0001;
+        btn.toggleAttribute('disabled', (delta < 0 && atMin) || (delta > 0 && atMax));
+      });
+    }
 
     const typBoxen = () => Array.from(document.querySelectorAll('.ug-typ'));
     const anzahlBtns = () => Array.from(document.querySelectorAll('.ug-anzahl'));
@@ -1347,6 +1948,7 @@ function wbLabelFromHref(href: string): string {
         }
       }
       syncPracticeDiagramUi(document.body);
+      syncDiagramZoomUi(document.body);
     }
     function renderArbeitsblatt() {
       if (!liste) return;
@@ -1363,8 +1965,13 @@ function wbLabelFromHref(href: string): string {
         li.className = 'pl-1';
         const hash = hashPracticeTaskFrage(a.frage);
         const diagramToggle = a.diagram
-          ? `<div class="mb-2 print:hidden">
+          ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
               <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+              </span>
             </div>
             <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}">${a.diagram}</div>`
           : '';
@@ -1395,7 +2002,14 @@ function wbLabelFromHref(href: string): string {
       const hash = hashPracticeTaskFrage(cur.frage);
       const dia = cur.diagram
         ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
-            <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button type="button" class="ug-task-diagram-toggle rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" aria-pressed="true">Skizze ausblenden</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800">
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+              </span>
+            </div>
           </div>
           <div class="mu-practice-diagram flex justify-center max-w-full" data-mu-diagram-hash="${hash}">${cur.diagram}</div><div class="mt-2">`
         : '<div>';
@@ -1469,6 +2083,16 @@ function wbLabelFromHref(href: string): string {
     });
 
     document.addEventListener('click', (e) => {
+      const zoomBtn = e.target && (e.target as Element).closest('button.ug-task-diagram-zoom');
+      if (zoomBtn) {
+        const hash = zoomBtn.getAttribute('data-mu-diagram-hash');
+        const step = Number(zoomBtn.getAttribute('data-mu-diagram-zoom-step'));
+        if (!hash || !Number.isFinite(step)) return;
+        e.preventDefault();
+        updateDiagramScale(hash, step);
+        syncDiagramZoomUi(document.body);
+        return;
+      }
       const t = e.target && (e.target as Element).closest('button.ug-task-diagram-toggle');
       if (!t || !t.getAttribute('data-mu-diagram-hash')) return;
       const hash = t.getAttribute('data-mu-diagram-hash');
@@ -1538,6 +2162,7 @@ function wbLabelFromHref(href: string): string {
     --mu-geo-second: #047857;
     --mu-geo-second-soft: rgba(4, 120, 87, 0.18);
     --mu-geo-third: #b45309;
+    --mu-geo-grid: rgba(37, 99, 235, 0.22);
     --mu-geo-helper: #64748b;
     --mu-geo-text: #0f172a;
     --mu-geo-text-soft: #475569;
@@ -1552,6 +2177,7 @@ function wbLabelFromHref(href: string): string {
     --mu-geo-second: #6ee7b7;
     --mu-geo-second-soft: rgba(110, 231, 183, 0.22);
     --mu-geo-third: #fcd34d;
+    --mu-geo-grid: rgba(147, 197, 253, 0.24);
     --mu-geo-helper: #94a3b8;
     --mu-geo-text: #f1f5f9;
     --mu-geo-text-soft: #cbd5e1;
@@ -1559,8 +2185,19 @@ function wbLabelFromHref(href: string): string {
   }
   .mu-geo-diagram svg {
     display: block;
-    max-width: min(100%, 360px);
+    max-width: min(100%, 300px);
     height: auto;
+  }
+  .mu-practice-diagram {
+    --mu-diagram-scale: 1;
+  }
+  .mu-practice-diagram svg {
+    display: block;
+    width: min(100%, calc(300px * var(--mu-diagram-scale)));
+    max-width: none;
+    height: auto;
+    margin-inline: auto;
+    transition: width 120ms ease;
   }
   .mu-geo-diagram svg text {
     font-family: 'Inter', system-ui, sans-serif;
