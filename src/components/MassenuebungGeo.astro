@@ -6,10 +6,12 @@ import {
   FRACTION_EQUATION_GENERATOR_IDS,
   LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   NEGATIVE_ZAHLEN_GENERATOR_IDS,
+  PROZENTRECHNUNG_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
   QUADRATIC_FUNCTION_GENERATOR_IDS,
   ROOT_GENERATOR_IDS,
+  STOCHASTIK_GENERATOR_IDS,
   STRAHLENSATZ_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
 } from '../lib/pythagorasPracticeGenerators';
@@ -26,6 +28,8 @@ export interface Props {
     | 'negative-zahlen'
     | 'algebra'
     | 'lineare-gleichungen'
+    | 'prozentrechnung'
+    | 'stochastik'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -52,6 +56,10 @@ const allowedIds =
                   ? ALGEBRA_GENERATOR_IDS
                 : variant === 'lineare-gleichungen'
                   ? LINEARE_GLEICHUNGEN_GENERATOR_IDS
+                : variant === 'prozentrechnung'
+                  ? PROZENTRECHNUNG_GENERATOR_IDS
+                : variant === 'stochastik'
+                  ? STOCHASTIK_GENERATOR_IDS
                 : variant === 'wurzelrechnung'
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
@@ -69,6 +77,8 @@ const wbLabelByVariant = {
   'negative-zahlen': 'WB Negative Zahlen',
   algebra: 'WB Algebra',
   'lineare-gleichungen': 'WB Lineare Gleichungen',
+  prozentrechnung: 'WB Prozentrechnung',
+  stochastik: 'WB Stochastik',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -84,6 +94,8 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/negative-zahlen': 'WB Negative Zahlen',
   '/uebung/algebra': 'WB Algebra',
   '/uebung/lineare-gleichungen': 'WB Lineare Gleichungen',
+  '/uebung/prozentrechnung': 'WB Prozentrechnung',
+  '/uebung/stochastik': 'WB Stochastik',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -107,7 +119,11 @@ function wbLabelFromHref(href: string): string {
       {
         variant === 'bruchrechnung'
           ? 'Übungsgenerator · Klasse 5–6 · Mini-Whiteboard & Arbeitsblatt'
-          : variant === 'negative-zahlen' || variant === 'algebra' || variant === 'lineare-gleichungen'
+          : variant === 'negative-zahlen' ||
+              variant === 'algebra' ||
+              variant === 'lineare-gleichungen' ||
+              variant === 'prozentrechnung' ||
+              variant === 'stochastik'
             ? 'Übungsgenerator · Klasse 7–8 · Mini-Whiteboard & Arbeitsblatt'
             : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
       }
@@ -211,6 +227,26 @@ function wbLabelFromHref(href: string): string {
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Optional: <strong>Koordinatensystem</strong> mit zwei Geraden und markiertem Schnittpunkt (x-Koordinate =
             Lösung). Skizzen lassen sich global oder pro Aufgabe ein- und ausblenden.
+          </p>
+        </>
+      ) : variant === 'prozentrechnung' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zur <strong>Prozentrechnung</strong> – Prozentwert, Grundwert, Prozentsatz,
+            Vermehrungsfaktor sowie Vorwärts- und Rückwärtsrechnen in Alltagskontexten.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Fokus auf den Beziehungen zwischen $G$, $W$, $p\\,\\%$ und dem passenden Faktor $q$.
+          </p>
+        </>
+      ) : variant === 'stochastik' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Stochastik</strong> – Mittelwert und Median, Ausreißer-Effekte sowie
+            einfache Wahrscheinlichkeiten (Würfel, Münzen, Komplementregel).
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Schwerpunkt auf Deutung: Unterschied zwischen sicher / unmöglich / wahrscheinlich und Bedeutung des Erwartungswerts.
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -595,6 +631,74 @@ function wbLabelFromHref(href: string): string {
               </label>
             </div>
           </fieldset>
+        ) : variant === 'prozentrechnung' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Prozentrechnung
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_prozentwert" checked />
+                <span>Prozentwert berechnen ($W=p\\,\\%\\cdot G$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_prozentsatz" checked />
+                <span>Prozentsatz berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_grundwert" checked />
+                <span>Grundwert berechnen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_vermehrungsfaktor" checked />
+                <span>Vermehrungs- und Verminderungsfaktor</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_reduzierter_preis" checked />
+                <span>Preis nach Reduktion</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="pr_ausgangswert_nach_erhoehung" checked />
+                <span>Ausgangswert nach Erhöhung rückwärts</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'stochastik' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Stochastik
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_mittelwert_median" checked />
+                <span>Mittelwert und Median</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_ausreisser_effekt" checked />
+                <span>Ausreißer-Effekt auf den Mittelwert</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_wuerfelsumme_sieben" checked />
+                <span>Wahrscheinlichkeit: Augensumme 7</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_mindestens_einmal" checked />
+                <span>„Mindestens einmal“ mit Komplementregel</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_unmoeglich_sicher" checked />
+                <span>Sicher / unmöglich / wahrscheinlich</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_erwartungswert_muenzwurf" checked />
+                <span>Erwartungswert bei Münzwürfen</span>
+              </label>
+            </div>
+          </fieldset>
         ) : variant === 'wurzelrechnung' ? (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -733,7 +837,10 @@ function wbLabelFromHref(href: string): string {
             class="ug-layoutbtn rounded-md border border-ink-300 bg-white px-3 py-1.5 text-sm dark:border-ink-600 dark:bg-ink-800">{'Whiteboard'}</button>
         </div>
         {
-          variant !== 'bruchgleichungen' && variant !== 'wurzelrechnung' && (
+          variant !== 'bruchgleichungen' &&
+            variant !== 'wurzelrechnung' &&
+            variant !== 'prozentrechnung' &&
+            variant !== 'stochastik' && (
             <label class="mt-4 flex w-full min-w-0 cursor-pointer items-start gap-2 text-sm text-ink-800 dark:text-ink-200">
               <input
                 type="checkbox"
@@ -1085,6 +1192,36 @@ function wbLabelFromHref(href: string): string {
           {' · '}
           <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+        </>
+      ) : variant === 'prozentrechnung' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/stochastik" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/stochastik')}
+          </a>
+          {' · '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/negative-zahlen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/negative-zahlen')}
+          </a>
+        </>
+      ) : variant === 'stochastik' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/prozentrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/prozentrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-gleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/algebra" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/algebra')}
           </a>
         </>
       ) : variant === 'wurzelrechnung' ? (

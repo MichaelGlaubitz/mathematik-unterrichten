@@ -149,6 +149,26 @@ export const LINEARE_GLEICHUNGEN_GENERATOR_IDS = [
   'lg_bruch_linear',
 ] as const;
 
+/** Prozentrechnung (Grundwert, Prozentwert, Prozentsatz, Faktor, vor-/rueckwaerts). */
+export const PROZENTRECHNUNG_GENERATOR_IDS = [
+  'pr_prozentwert',
+  'pr_prozentsatz',
+  'pr_grundwert',
+  'pr_vermehrungsfaktor',
+  'pr_reduzierter_preis',
+  'pr_ausgangswert_nach_erhoehung',
+] as const;
+
+/** Stochastik (Lageparameter und einfache Wahrscheinlichkeiten). */
+export const STOCHASTIK_GENERATOR_IDS = [
+  'st_mittelwert_median',
+  'st_ausreisser_effekt',
+  'st_wuerfelsumme_sieben',
+  'st_mindestens_einmal',
+  'st_unmoeglich_sicher',
+  'st_erwartungswert_muenzwurf',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -189,6 +209,8 @@ export const PRACTICE_GENERATOR_IDS = [
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
   ...ALGEBRA_GENERATOR_IDS,
   ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
+  ...PROZENTRECHNUNG_GENERATOR_IDS,
+  ...STOCHASTIK_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -1160,6 +1182,141 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$.`,
         loesung: `Mit $${b}$ multiplizieren: $x${formatSignedInt(a)}=${c * b}$, also $x=${x0}$.`,
         diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: c * b }, x0),
+      };
+    },
+    pr_prozentwert() {
+      const grundwert = pick([80, 100, 120, 160, 200, 240, 300, 400, 500] as const);
+      const p = pick([5, 10, 20, 25, 40, 50] as const);
+      const prozentwert = (grundwert * p) / 100;
+      return {
+        frage: `Berechne den Prozentwert: $${p}\\,\\%$ von $${grundwert}$.`,
+        loesung: `$W=\\frac{${p}}{100}\\cdot ${grundwert}=${prozentwert}$.`,
+      };
+    },
+    pr_prozentsatz() {
+      const grundwert = pick([80, 100, 120, 160, 200, 240, 300, 400] as const);
+      const p = pick([5, 10, 15, 20, 25, 30, 40, 50] as const);
+      const prozentwert = (grundwert * p) / 100;
+      return {
+        frage: `Wie groß ist der Prozentsatz, wenn $W=${prozentwert}$ und $G=${grundwert}$ gilt?`,
+        loesung: `$p=\\frac{W}{G}\\cdot 100\\,\\%=\\frac{${prozentwert}}{${grundwert}}\\cdot 100\\,\\%=${p}\\,\\%$.`,
+      };
+    },
+    pr_grundwert() {
+      const p = pick([5, 10, 20, 25, 40, 50] as const);
+      const grundwert = pick([80, 100, 120, 160, 200, 240, 300, 400] as const);
+      const prozentwert = (grundwert * p) / 100;
+      return {
+        frage: `Berechne den Grundwert $G$, wenn $${p}\\,\\%$ genau $${prozentwert}$ sind.`,
+        loesung: `$G=\\frac{W}{p/100}=\\frac{${prozentwert}}{${p / 100}}=${grundwert}$.`,
+      };
+    },
+    pr_vermehrungsfaktor() {
+      const p = pick([4, 5, 8, 10, 12, 15, 20] as const);
+      if (random() < 0.5) {
+        return {
+          frage: `Welcher Vermehrungsfaktor gehört zu einer Erhöhung um $${p}\\,\\%$?`,
+          loesung: `Erhöhung um $${p}\\,\\%$: $q=1+\\frac{${p}}{100}=1${formatSignedInt(p / 100)}=1,${String(
+            100 + p
+          ).slice(1)}$.`,
+        };
+      }
+      return {
+        frage: `Welcher Faktor gehört zu einer Reduktion um $${p}\\,\\%$?`,
+        loesung: `Reduktion um $${p}\\,\\%$: $q=1-\\frac{${p}}{100}=0,${String(100 - p).padStart(2, '0')}$.`,
+      };
+    },
+    pr_reduzierter_preis() {
+      const preis = pick([40, 60, 80, 100, 120, 160, 200] as const);
+      const p = pick([5, 10, 20, 25, 30, 40] as const);
+      const neu = (preis * (100 - p)) / 100;
+      return {
+        frage: `Ein Preis von $${preis}\\,€$ wird um $${p}\\,\\%$ reduziert. Wie hoch ist der neue Preis?`,
+        loesung: `Mit dem Faktor $q=1-\\frac{${p}}{100}=\\frac{${100 - p}}{100}$: $${preis}\\cdot ${(
+          (100 - p) /
+          100
+        ).toFixed(2).replace('.', ',')}=${neu}\\,€$.`,
+      };
+    },
+    pr_ausgangswert_nach_erhoehung() {
+      const alt = pick([25, 40, 50, 80, 100, 120, 200] as const);
+      const p = pick([5, 8, 10, 20, 25, 40] as const);
+      const neu = (alt * (100 + p)) / 100;
+      return {
+        frage: `Nach einer Erhöhung um $${p}\\,\\%$ beträgt ein Wert $${neu}$. Wie groß war der Ausgangswert?`,
+        loesung: `Rückwärts mit $q=1+\\frac{${p}}{100}=\\frac{${100 + p}}{100}$: $${neu}:${
+          ((100 + p) / 100).toFixed(2).replace('.', ',')
+        }=${alt}$.`,
+      };
+    },
+    st_mittelwert_median() {
+      const a = randInt(1, 5);
+      const b = a + randInt(1, 3);
+      const c = b + randInt(0, 2);
+      const d = c + randInt(1, 3);
+      const e = d + randInt(1, 3);
+      const daten = [a, b, c, d, e];
+      const mittelwert = (a + b + c + d + e) / 5;
+      const median = c;
+      return {
+        frage: `Datensatz: ${daten.join(', ')}. Bestimme Mittelwert und Median.`,
+        loesung: `Mittelwert $=\\frac{${a + b + c + d + e}}{5}=${mittelwert}$, Median $=${median}$.`,
+      };
+    },
+    st_ausreisser_effekt() {
+      const x = randInt(2, 6);
+      const y = x + randInt(1, 4);
+      const z = y + randInt(1, 4);
+      const ausreisser = pick([40, 50, 60, 80, 100] as const);
+      const altMittel = Number(((x + y + z) / 3).toFixed(2));
+      const neuMittel = Number(((x + y + z + ausreisser) / 4).toFixed(2));
+      return {
+        frage: `Die Werte ${x}, ${y}, ${z} haben Mittelwert ${altMittel}. Was passiert mit dem Mittelwert, wenn ${ausreisser} dazukommt?`,
+        loesung: `Neuer Mittelwert: $\\frac{${x + y + z + ausreisser}}{4}=${String(neuMittel).replace('.', ',')}$. Der Ausreißer zieht den Mittelwert deutlich nach oben.`,
+      };
+    },
+    st_wuerfelsumme_sieben() {
+      return {
+        frage: 'Zwei faire Würfel werden geworfen. Wie groß ist die Wahrscheinlichkeit für die Augensumme 7?',
+        loesung: `Günstige Paare: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$, also $6$ von $36$. Damit $P=\\frac{6}{36}=\\frac{1}{6}$.`,
+      };
+    },
+    st_mindestens_einmal() {
+      if (random() < 0.5) {
+        return {
+          frage: 'Zwei faire Münzwürfe: Wie groß ist die Wahrscheinlichkeit für „mindestens einmal Zahl“?',
+          loesung: `Komplement: „keinmal Zahl“ bedeutet zweimal Kopf mit $\\frac14$. Also $1-\\frac14=\\frac34$.`,
+        };
+      }
+      return {
+        frage: 'Ein fairer Würfel wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit für „mindestens einmal eine 6“?',
+        loesung: `Komplement: „keine 6“ hat Wahrscheinlichkeit $\\left(\\frac56\\right)^2=\\frac{25}{36}$. Also $1-\\frac{25}{36}=\\frac{11}{36}$.`,
+      };
+    },
+    st_unmoeglich_sicher() {
+      const typ = pick(['unmoeglich', 'sicher', 'wahrscheinlich'] as const);
+      if (typ === 'unmoeglich') {
+        return {
+          frage: 'Ein fairer Würfel wird einmal geworfen. Wie groß ist die Wahrscheinlichkeit für „Augenzahl 7“?',
+          loesung: `Unmögliches Ereignis: $P=0$.`,
+        };
+      }
+      if (typ === 'sicher') {
+        return {
+          frage: 'Ein fairer Würfel wird einmal geworfen. Wie groß ist die Wahrscheinlichkeit für „Augenzahl höchstens 6“?',
+          loesung: `Sicheres Ereignis: $P=1$.`,
+        };
+      }
+      return {
+        frage: 'Ein fairer Würfel wird einmal geworfen. Wie groß ist die Wahrscheinlichkeit für „gerade Augenzahl“?',
+        loesung: `Günstig: $\\{2,4,6\\}$, also $3$ von $6$. Damit $P=\\frac{3}{6}=\\frac12$.`,
+      };
+    },
+    st_erwartungswert_muenzwurf() {
+      const n = pick([10, 20, 30, 40, 50, 80, 100] as const);
+      return {
+        frage: `Eine faire Münze wird $${n}$-mal geworfen. Wie viele „Zahl“ erwartest du ungefähr?`,
+        loesung: `Erwartungswert: $E=n\\cdot \\frac12=${n}\\cdot \\frac12=${n / 2}$.`,
       };
     },
     wr_vereinfachen() {
