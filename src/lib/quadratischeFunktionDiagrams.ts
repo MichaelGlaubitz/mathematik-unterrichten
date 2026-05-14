@@ -67,6 +67,40 @@ export function svgParabolaScheitelform(opts: {
   const yAxisX = X(0);
   const drawXAxis = ymin <= 0 && ymax >= 0;
   const drawYAxis = xs[0]! <= 0 && xs[xs.length - 1]! >= 0;
+  const xi0 = Math.ceil(xs[0]!);
+  const xi1 = Math.floor(xs[xs.length - 1]!);
+  const yi0 = Math.ceil(ymin);
+  const yi1 = Math.floor(ymax);
+  const markerId = `qf-axis-${Math.abs(Math.round(1000 * a + 37 * p + 53 * q))}`;
+
+  let grid = '';
+  for (let xi = xi0; xi <= xi1; xi++) {
+    if (xi === 0) continue;
+    grid += `<line x1="${X(xi)}" y1="${padT}" x2="${X(xi)}" y2="${H - padB}" stroke="${HELPER}" stroke-width="0.7" opacity="0.2" vector-effect="non-scaling-stroke" />`;
+  }
+  for (let yi = yi0; yi <= yi1; yi++) {
+    if (yi === 0) continue;
+    grid += `<line x1="${padL}" y1="${Ymath(yi)}" x2="${W - padR}" y2="${Ymath(yi)}" stroke="${HELPER}" stroke-width="0.7" opacity="0.2" vector-effect="non-scaling-stroke" />`;
+  }
+
+  let axisTicks = '';
+  let axisValues = '';
+  for (let xi = xi0; xi <= xi1; xi++) {
+    if (Math.abs(xi) > 12 || !drawXAxis) continue;
+    const xx = X(xi);
+    axisTicks += `<line x1="${xx}" y1="${xAxisY - 4}" x2="${xx}" y2="${xAxisY + 4}" stroke="${HELPER}" stroke-width="1.1" opacity="0.85" vector-effect="non-scaling-stroke" />`;
+    if (xi !== 0) {
+      axisValues += `<text x="${xx}" y="${xAxisY + 15}" font-size="10" fill="${TEXT_SOFT}" text-anchor="middle">${xi}</text>`;
+    }
+  }
+  for (let yi = yi0; yi <= yi1; yi++) {
+    if (Math.abs(yi) > 12 || !drawYAxis) continue;
+    const yy = Ymath(yi);
+    axisTicks += `<line x1="${yAxisX - 4}" y1="${yy}" x2="${yAxisX + 4}" y2="${yy}" stroke="${HELPER}" stroke-width="1.1" opacity="0.85" vector-effect="non-scaling-stroke" />`;
+    if (yi !== 0) {
+      axisValues += `<text x="${yAxisX - 8}" y="${yy + 3}" font-size="10" fill="${TEXT_SOFT}" text-anchor="end">${yi}</text>`;
+    }
+  }
 
   let rootDots = '';
   if (roots) {
@@ -83,11 +117,19 @@ export function svgParabolaScheitelform(opts: {
 
   return `<figure class="mu-geo-diagram" role="img" aria-label="Skizze Parabel">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" focusable="false">
+  <defs>
+    <marker id="${markerId}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="${HELPER}" />
+    </marker>
+  </defs>
   <rect x="0" y="0" width="${W}" height="${H}" fill="transparent" />
-  ${drawXAxis ? `<line x1="${padL}" y1="${xAxisY}" x2="${W - padR}" y2="${xAxisY}" stroke="${HELPER}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-    <text x="${W - padR + 4}" y="${xAxisY + 4}" font-size="13" fill="${TEXT_SOFT}" font-style="italic">x</text>` : ''}
-  ${drawYAxis ? `<line x1="${yAxisX}" y1="${padT}" x2="${yAxisX}" y2="${H - padB}" stroke="${HELPER}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-    <text x="${yAxisX + 6}" y="${padT + 4}" font-size="13" fill="${TEXT_SOFT}" font-style="italic">y</text>` : ''}
+  ${grid}
+  ${drawXAxis ? `<line x1="${padL + 1}" y1="${xAxisY}" x2="${W - padR - 1}" y2="${xAxisY}" stroke="${HELPER}" stroke-width="2.4" marker-end="url(#${markerId})" vector-effect="non-scaling-stroke" />` : ''}
+  ${drawYAxis ? `<line x1="${yAxisX}" y1="${H - padB - 1}" x2="${yAxisX}" y2="${padT + 1}" stroke="${HELPER}" stroke-width="2.4" marker-end="url(#${markerId})" vector-effect="non-scaling-stroke" />` : ''}
+  ${axisTicks}
+  ${axisValues}
+  ${drawXAxis ? `<text x="${W - padR - 14}" y="${Math.max(padT + 14, xAxisY - 8)}" font-size="13" fill="${TEXT_MAIN}" font-style="italic">x</text>` : ''}
+  ${drawYAxis ? `<text x="${yAxisX + 8}" y="${padT + 13}" font-size="13" fill="${TEXT_MAIN}" font-style="italic">y</text>` : ''}
   <path d="${d}" fill="none" stroke="${STROKE_MAIN}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
   ${rootDots}
   ${vertexDot}
