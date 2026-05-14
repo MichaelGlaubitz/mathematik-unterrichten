@@ -81,16 +81,59 @@ export function svgParabolaScheitelform(opts: {
   const vertexDot = `<circle cx="${vx}" cy="${vy}" r="6" fill="${STROKE_ACCENT}" stroke="${TEXT_MAIN}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
     <text x="${vx + 10}" y="${vy - 8}" font-size="14" fill="${TEXT_MAIN}" font-style="italic">S</text>`;
 
+  const clipId = `pf-clip-${Math.abs(Math.round(1000 * a + 100 * p + 100 * q + 17 * xs[0]! + 19 * ymin))}`;
+  const arrowId = `pf-arr-${clipId}`;
+
+  let grid = '';
+  const xi0 = Math.ceil(xs[0]!);
+  const xi1 = Math.floor(xs[xs.length - 1]!);
+  for (let xi = xi0; xi <= xi1; xi++) {
+    const xPx = X(xi);
+    grid += `<line x1="${xPx}" y1="${padT}" x2="${xPx}" y2="${H - padB}" stroke="${HELPER}" stroke-width="0.7" stroke-opacity="0.34" vector-effect="non-scaling-stroke"/>`;
+  }
+  const yi0 = Math.ceil(ymin);
+  const yi1 = Math.floor(ymax);
+  for (let yi = yi0; yi <= yi1; yi++) {
+    const yPx = Ymath(yi);
+    grid += `<line x1="${padL}" y1="${yPx}" x2="${W - padR}" y2="${yPx}" stroke="${HELPER}" stroke-width="0.7" stroke-opacity="0.34" vector-effect="non-scaling-stroke"/>`;
+  }
+
+  const axisStroke = STROKE_MAIN;
+  const axisW = 2.75;
+  const xAxisSeg = drawXAxis
+    ? `<line x1="${padL}" y1="${xAxisY}" x2="${W - padR}" y2="${xAxisY}" stroke="${axisStroke}" stroke-width="${axisW}" marker-end="url(#${arrowId})" vector-effect="non-scaling-stroke"/>`
+    : '';
+  const yAxisSeg = drawYAxis
+    ? `<line x1="${yAxisX}" y1="${H - padB}" x2="${yAxisX}" y2="${padT}" stroke="${axisStroke}" stroke-width="${axisW}" marker-end="url(#${arrowId})" vector-effect="non-scaling-stroke"/>`
+    : '';
+
+  const xLabY = xAxisY < H * 0.52 ? xAxisY + 16 : xAxisY - 8;
+  const xAxisLabel = drawXAxis
+    ? `<text x="${W - padR - 20}" y="${xLabY}" font-size="14" fill="${TEXT_SOFT}" font-style="italic" text-anchor="end" dominant-baseline="middle">x</text>`
+    : '';
+  const yAxisLabel = drawYAxis
+    ? `<text x="${yAxisX + 10}" y="${padT + 18}" font-size="14" fill="${TEXT_SOFT}" font-style="italic" text-anchor="start" dominant-baseline="middle">y</text>`
+    : '';
+
   return `<figure class="mu-geo-diagram" role="img" aria-label="Skizze Parabel">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" focusable="false">
-  <rect x="0" y="0" width="${W}" height="${H}" fill="transparent" />
-  ${drawXAxis ? `<line x1="${padL}" y1="${xAxisY}" x2="${W - padR}" y2="${xAxisY}" stroke="${HELPER}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-    <text x="${W - padR + 4}" y="${xAxisY + 4}" font-size="13" fill="${TEXT_SOFT}" font-style="italic">x</text>` : ''}
-  ${drawYAxis ? `<line x1="${yAxisX}" y1="${padT}" x2="${yAxisX}" y2="${H - padB}" stroke="${HELPER}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-    <text x="${yAxisX + 6}" y="${padT + 4}" font-size="13" fill="${TEXT_SOFT}" font-style="italic">y</text>` : ''}
-  <path d="${d}" fill="none" stroke="${STROKE_MAIN}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
-  ${rootDots}
+  <defs>
+    <clipPath id="${clipId}"><rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}"/></clipPath>
+    <marker id="${arrowId}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="${axisStroke}"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/>
+  <g clip-path="url(#${clipId})">${grid}</g>
+  ${xAxisSeg}
+  ${yAxisSeg}
+  <g clip-path="url(#${clipId})">
+    <path d="${d}" fill="none" stroke="${STROKE_MAIN}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    ${rootDots}
+  </g>
   ${vertexDot}
+  ${xAxisLabel}
+  ${yAxisLabel}
 </svg></figure>`;
 }
 
