@@ -1300,7 +1300,7 @@ function wbLabelFromHref(href: string): string {
 
   <div
     id="ug-wb-overlay"
-    class="ug-wb-overlay pointer-events-auto fixed inset-0 z-[9999] flex flex-col items-center overflow-y-auto overscroll-y-contain bg-neutral-900/80 p-4 py-6 backdrop-blur-sm dark:bg-black/80 print:hidden"
+    class="ug-wb-overlay pointer-events-auto fixed inset-0 z-[9999] flex flex-col items-center overflow-y-auto overscroll-y-contain bg-neutral-900/80 p-4 py-6 backdrop-blur-sm dark:bg-slate-950/80 dark:backdrop-blur-md print:hidden"
     hidden
     role="dialog"
     aria-modal="true"
@@ -1310,29 +1310,33 @@ function wbLabelFromHref(href: string): string {
       <section
         id="ug-whiteboard"
         aria-label={`Aufgaben (${wbLabel})`}
-        class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-ink-600 dark:bg-ink-800 dark:shadow-black/40"
+        class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-slate-600/70 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-[0_28px_64px_-18px_rgba(0,0,0,0.55),0_0_0_1px_rgba(59,130,246,0.14),0_0_120px_-48px_rgba(59,130,246,0.18)]"
       >
-        <div class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-ink-600">
-          <span class="text-xs font-semibold uppercase tracking-wide text-ink-700 dark:text-ink-200">Whiteboard</span>
+        <div
+          class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-slate-700/80"
+        >
+          <span
+            class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-ink-700 before:inline-block before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-accent-500 before:content-[''] dark:text-slate-200 dark:before:bg-accent-400"
+            >Whiteboard</span>
           <div class="flex shrink-0 items-center gap-2">
             <button
               type="button"
               id="ug-wb-route-speichern"
-              class="rounded-md border border-ink-300 bg-ink-100 px-3 py-2 text-sm font-medium text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-ink-500 dark:bg-ink-700 dark:text-ink-50 dark:hover:bg-ink-600"
+              class="rounded-md border border-ink-300 bg-ink-100 px-3 py-2 text-sm font-medium text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-slate-500 dark:bg-slate-800/90 dark:text-slate-100 dark:shadow-sm dark:shadow-black/30 dark:hover:border-slate-400 dark:hover:bg-slate-700/95"
             >
               Route speichern
             </button>
             <button
               type="button"
               id="ug-wb-zu-arbeitsblatt"
-              class="rounded-md border border-ink-300 bg-ink-100 px-3 py-2 text-sm font-medium text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-ink-500 dark:bg-ink-700 dark:text-ink-50 dark:hover:bg-ink-600"
+              class="rounded-md border border-ink-300 bg-ink-100 px-3 py-2 text-sm font-medium text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-slate-500 dark:bg-slate-800/90 dark:text-slate-100 dark:shadow-sm dark:shadow-black/30 dark:hover:border-slate-400 dark:hover:bg-slate-700/95"
             >
               Zurück zur Steuerung
             </button>
             <button
               type="button"
               id="ug-wb-overlay-schliessen"
-              class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-ink-100 text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-ink-500 dark:bg-ink-700 dark:text-ink-50 dark:hover:bg-ink-600"
+              class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-ink-100 text-ink-900 shadow-sm hover:bg-ink-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-slate-500 dark:bg-slate-800/90 dark:text-slate-100 dark:shadow-sm dark:shadow-black/30 dark:hover:border-slate-400 dark:hover:bg-slate-700/95"
               aria-label="Whiteboard schließen"
               title="Schließen (Esc)"
             >
@@ -1344,26 +1348,28 @@ function wbLabelFromHref(href: string): string {
         </div>
 
         <div class="flex min-h-[10rem] flex-1 flex-col items-center justify-center text-center">
-          <div id="ug-wb-leer" class="text-ink-600 dark:text-ink-300">
+          <div id="ug-wb-leer" class="text-ink-600 dark:text-slate-400">
             Wähle Typen und Anzahl, dann <em>Aufgaben erzeugen</em>.
           </div>
           <div id="ug-wb-content" hidden class="w-full space-y-6">
-            <div class="flex flex-wrap items-center justify-center gap-3 text-sm text-ink-600 dark:text-ink-400">
+            <div class="flex flex-wrap items-center justify-center gap-3 text-sm text-ink-600 dark:text-slate-400">
               <span class="uppercase tracking-wide">
                 Aufgabe <span id="ug-wb-i">1</span> / <span id="ug-wb-n">0</span>
               </span>
-              <span class="hidden sm:inline text-ink-300 dark:text-ink-600">·</span>
+              <span class="hidden sm:inline text-ink-300 dark:text-slate-600">·</span>
               <span id="ug-wb-zeit" class="font-mono tabular-nums" aria-live="polite">0:00</span>
             </div>
-            <div id="ug-wb-frage" class="font-serif text-xl md:text-3xl lg:text-4xl text-ink-900 dark:text-ink-50 leading-tight">
+            <div id="ug-wb-frage" class="font-serif text-xl md:text-3xl lg:text-4xl text-ink-900 dark:text-slate-50 leading-tight">
             </div>
             <div
               id="ug-wb-loesung"
-              class="mx-auto max-w-3xl rounded-xl border-l-4 border-accent-500 bg-accent-50 p-5 md:p-7 text-left dark:bg-accent-700/20 dark:border-accent-300"
+              class="mx-auto max-w-3xl rounded-xl border-l-4 border-accent-500 bg-accent-50 p-5 md:p-7 text-left dark:border-accent-400 dark:bg-gradient-to-br dark:from-accent-600/25 dark:via-slate-900/70 dark:to-slate-950 dark:ring-1 dark:ring-inset dark:ring-accent-500/15"
               hidden
             >
-              <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-2 dark:text-accent-100">Lösung</p>
-              <div id="ug-wb-loesung-text" class="font-serif text-lg md:text-2xl text-ink-900 dark:text-ink-50"></div>
+              <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-2 dark:text-accent-200">
+                Lösung
+              </p>
+              <div id="ug-wb-loesung-text" class="font-serif text-lg md:text-2xl text-ink-900 dark:text-slate-50"></div>
             </div>
           </div>
         </div>
@@ -1372,19 +1378,23 @@ function wbLabelFromHref(href: string): string {
           <button
             id="ug-wb-prev"
             type="button"
-            class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 disabled:opacity-40 disabled:pointer-events-none">← Zurück</button>
+            class="rounded-md border border-ink-300 bg-white px-4 py-2 text-sm dark:border-slate-500 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:bg-slate-700/90 disabled:opacity-40 disabled:pointer-events-none"
+            >← Zurück</button>
           <button
             id="ug-wb-next"
             type="button"
-            class="rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-600 text-lg">Lösung zeigen</button>
+            class="rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-accent-900/25 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400 dark:shadow-lg dark:shadow-accent-600/35 text-lg"
+            >Lösung zeigen</button>
         </div>
 
-        <p class="mt-4 border-t border-ink-200 pt-4 text-center text-xs text-ink-600 print:hidden dark:border-ink-600 dark:text-ink-400">
-          Tipp: <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-200">Leertaste</kbd>
+        <p
+          class="mt-4 border-t border-ink-200 pt-4 text-center text-xs text-ink-600 print:hidden dark:border-slate-700 dark:text-slate-500"
+        >
+          Tipp: <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">Leertaste</kbd>
           {' '}
-          oder <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-200">→</kbd> wie „Weiter“,
+          oder <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">→</kbd> wie „Weiter“,
           {' '}
-          <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-ink-600 dark:bg-ink-900 dark:text-ink-200">←</kbd> zurück · Esc schließt.
+          <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">←</kbd> zurück · Esc schließt.
         </p>
       </section>
     </div>
@@ -2234,11 +2244,11 @@ function wbLabelFromHref(href: string): string {
       const dia = cur.diagram || cur.diagramLoesung
         ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
             <div class="flex flex-wrap items-center justify-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-white hover:bg-ink-50 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVisWb ? 'true' : 'false'}" aria-label="${diaToggleLabelWb}" title="${diaToggleLabelWb}">${practiceDiagramToggleIconMarkup(diagramVisWb)}</button>
-              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-ink-600 dark:bg-ink-800" data-mu-diagram-zoom-for="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">
-                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
-                <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${hash}">100%</span>
-                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-700 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+              <button type="button" class="ug-task-diagram-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-white hover:bg-ink-50 dark:border-slate-500 dark:bg-slate-800/90 dark:text-slate-100 dark:hover:border-slate-400 dark:hover:bg-slate-700/95" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVisWb ? 'true' : 'false'}" aria-label="${diaToggleLabelWb}" title="${diaToggleLabelWb}">${practiceDiagramToggleIconMarkup(diagramVisWb)}</button>
+              <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-slate-500 dark:bg-slate-800/90" data-mu-diagram-zoom-for="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-slate-200 dark:hover:bg-slate-700/90 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-slate-400" data-mu-diagram-zoom-label-for="${hash}">100%</span>
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-slate-200 dark:hover:bg-slate-700/90 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
               </span>
             </div>
           </div>
