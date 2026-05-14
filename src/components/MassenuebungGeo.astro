@@ -42,6 +42,30 @@ const allowedIds =
                 ? CIRCLE_GEOMETRY_GENERATOR_IDS
         : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
+const wbLabelByVariant = {
+  pythagoras: 'WB Pythagoras',
+  trigonometrie: 'WB Trigonometrie',
+  strahlensaetze: 'WB Strahlensaetze',
+  'quadratische-funktionen': 'WB Quadratische Funktionen',
+  'quadratische-gleichungen': 'WB Quadratische Gleichungen',
+  bruchgleichungen: 'WB Bruchgleichungen',
+  wurzelrechnung: 'WB Wurzelrechnung',
+  kreisgeometrie: 'WB Kreisgeometrie',
+} as const;
+const wbLabel = wbLabelByVariant[variant];
+const wbLabelByHref: Record<string, string> = {
+  '/uebung/pythagoras': 'WB Pythagoras',
+  '/uebung/trigonometrie': 'WB Trigonometrie',
+  '/uebung/strahlensaetze': 'WB Strahlensaetze',
+  '/uebung/quadratische-funktionen': 'WB Quadratische Funktionen',
+  '/uebung/quadratische-gleichungen': 'WB Quadratische Gleichungen',
+  '/uebung/bruchgleichungen': 'WB Bruchgleichungen',
+  '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
+  '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
+};
+function wbLabelFromHref(href: string): string {
+  return wbLabelByHref[href] ?? 'WB';
+}
 ---
 
 <div class="container-wide pt-10 pb-16" data-mu-massen-ui="wb-v2">
@@ -566,7 +590,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
     hidden
     role="status"
   >
-    <p class="font-medium text-ink-900 dark:text-ink-50">Whiteboarding</p>
+    <p class="font-medium text-ink-900 dark:text-ink-50">{wbLabel}</p>
     <div class="mt-2 flex items-center text-ink-700 dark:text-ink-200" aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3.5" y="4.5" width="17" height="11" rx="1.5"></rect>
@@ -608,7 +632,7 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
     <div class="my-auto flex w-full max-w-4xl flex-col gap-4">
       <section
         id="ug-whiteboard"
-        aria-label="Aufgaben (Whiteboarding)"
+        aria-label={`Aufgaben (${wbLabel})`}
         class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-ink-600 dark:bg-ink-800 dark:shadow-black/40"
       >
         <div class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-ink-600">
@@ -688,136 +712,136 @@ const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
         <>
           Passend dazu:{' '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/strahlensaetze')}
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
           </a>
         </>
       ) : variant === 'trigonometrie' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/pythagoras')}
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/strahlensaetze')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
           </a>
         </>
       ) : variant === 'quadratische-funktionen' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/pythagoras')}
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/strahlensaetze')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-gleichungen')}
           </a>
         </>
       ) : variant === 'quadratische-gleichungen' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
           </a>
           {' · '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/pythagoras')}
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/strahlensaetze')}
           </a>
           {' · '}
           <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/bruchgleichungen')}
           </a>
         </>
       ) : variant === 'bruchgleichungen' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-gleichungen')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
           {' · '}
           <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/wurzelrechnung')}
           </a>
         </>
       ) : variant === 'wurzelrechnung' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-gleichungen')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
           </a>
           {' · '}
           <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/bruchgleichungen')}
           </a>
         </>
       ) : variant === 'kreisgeometrie' ? (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/pythagoras')}
           </a>
           {' · '}
           <a href="/uebung/strahlensaetze" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/strahlensaetze')}
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
         </>
       ) : (
         <>
           Passend dazu:{' '}
           <a href="/uebung/pythagoras" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/pythagoras')}
           </a>
           {' · '}
           <a href="/uebung/trigonometrie" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
-            Whiteboarding
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
           </a>
         </>
       )
