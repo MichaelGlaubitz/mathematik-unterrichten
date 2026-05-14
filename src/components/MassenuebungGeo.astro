@@ -1,5 +1,6 @@
 ---
 import {
+  BRUCHRECHNUNG_GENERATOR_IDS,
   CIRCLE_GEOMETRY_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
@@ -18,6 +19,7 @@ export interface Props {
     | 'quadratische-funktionen'
     | 'quadratische-gleichungen'
     | 'bruchgleichungen'
+    | 'bruchrechnung'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -36,11 +38,13 @@ const allowedIds =
           ? QUADRATIC_EQUATIONS_GENERATOR_IDS
           : variant === 'bruchgleichungen'
             ? FRACTION_EQUATION_GENERATOR_IDS
-            : variant === 'wurzelrechnung'
-              ? ROOT_GENERATOR_IDS
-              : variant === 'kreisgeometrie'
-                ? CIRCLE_GEOMETRY_GENERATOR_IDS
-        : STRAHLENSATZ_GENERATOR_IDS;
+            : variant === 'bruchrechnung'
+              ? BRUCHRECHNUNG_GENERATOR_IDS
+              : variant === 'wurzelrechnung'
+                ? ROOT_GENERATOR_IDS
+                : variant === 'kreisgeometrie'
+                  ? CIRCLE_GEOMETRY_GENERATOR_IDS
+                  : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 const wbLabelByVariant = {
   pythagoras: 'WB Pythagoras',
@@ -49,6 +53,7 @@ const wbLabelByVariant = {
   'quadratische-funktionen': 'WB Quadratische Funktionen',
   'quadratische-gleichungen': 'WB Quadratische Gleichungen',
   bruchgleichungen: 'WB Bruchgleichungen',
+  bruchrechnung: 'WB Bruchrechnung',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -60,6 +65,7 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/quadratische-funktionen': 'WB Quadratische Funktionen',
   '/uebung/quadratische-gleichungen': 'WB Quadratische Gleichungen',
   '/uebung/bruchgleichungen': 'WB Bruchgleichungen',
+  '/uebung/bruchrechnung': 'WB Bruchrechnung',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -80,7 +86,11 @@ function wbLabelFromHref(href: string): string {
       ← Zurück zur Themenübersicht
     </a>
     <p class="mt-2 text-xs uppercase tracking-wide text-accent-700 dark:text-accent-100">
-      Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt
+      {
+        variant === 'bruchrechnung'
+          ? 'Übungsgenerator · Klasse 5–6 · Mini-Whiteboard & Arbeitsblatt'
+          : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
+      }
     </p>
     <h1 class="font-serif text-4xl md:text-5xl font-semibold text-ink-900 mt-1 dark:text-ink-50">
       {h1}
@@ -139,6 +149,17 @@ function wbLabelFromHref(href: string): string {
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Ohne grafische Elemente: Der Fokus liegt vollständig auf Algebra, Definitionsmenge und Lösungsprüfung.
+          </p>
+        </>
+      ) : variant === 'bruchrechnung' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zur <strong>Bruchrechnung</strong> gleichnamiger Brüche, Erweitern und Kürzen,
+            Multiplikation mit Mal-Raster sowie Größenvergleich – im gleichen Ablauf wie die anderen Whiteboards:
+            Typen und Anzahl wählen, dann Arbeitsblatt oder Vollbild-Whiteboard.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Zu vielen Aufgaben gibt es kleine SVG-Hilfsbilder (Streifen, Raster). Du kannst sie optional ausblenden.
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -384,6 +405,40 @@ function wbLabelFromHref(href: string): string {
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="bg_keine_loesung" checked />
                 <span>Keine Lösung begründen</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'bruchrechnung' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Bruchrechnung
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_like" checked />
+                <span>Addition gleichnamiger Brüche</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="br_sub_like" checked />
+                <span>Subtraktion gleichnamiger Brüche</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="br_erweitern" checked />
+                <span>Erweitern auf vorgegebenen Nenner</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="br_kuerzen" checked />
+                <span>Kürzen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="br_mul_frac" checked />
+                <span>Multiplikation zweier Brüche (Raster)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="br_vergleich" checked />
+                <span>Größenvergleich zweier Brüche</span>
               </label>
             </div>
           </fieldset>
@@ -783,6 +838,10 @@ function wbLabelFromHref(href: string): string {
       ) : variant === 'bruchgleichungen' ? (
         <>
           Passend dazu:{' '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+          {' · '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/quadratische-gleichungen')}
           </a>
@@ -799,9 +858,28 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/wurzelrechnung')}
           </a>
         </>
+      ) : variant === 'bruchrechnung' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchgleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/wurzelrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/quadratische-gleichungen')}
+          </a>
+        </>
       ) : variant === 'wurzelrechnung' ? (
         <>
           Passend dazu:{' '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+          {' · '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/quadratische-gleichungen')}
           </a>

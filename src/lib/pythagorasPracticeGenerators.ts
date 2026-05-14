@@ -28,6 +28,12 @@ import {
   svgParabolaScheitelform,
 } from './quadratischeFunktionDiagrams';
 import { svgKreisRadiusDurchmesser, svgKreisSektor, svgKreisTangente } from './kreisgeometrieDiagrams';
+import {
+  svgBruchMalRaster,
+  svgBruchStreifen,
+  svgBruchVergleichZweiRiegel,
+  svgBruchZweiStreifen,
+} from './bruchrechnungDiagrams';
 
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
 
@@ -97,6 +103,16 @@ export const QUADRATIC_EQUATIONS_GENERATOR_IDS = [
   'qg_anzahl_loesungen',
 ] as const;
 
+/** Bruchrechnung (Grundschule / sek. I Einstieg): Addition, kürzen, erweitern, Malnehmen, Vergleich. */
+export const BRUCHRECHNUNG_GENERATOR_IDS = [
+  'br_add_like',
+  'br_sub_like',
+  'br_erweitern',
+  'br_kuerzen',
+  'br_mul_frac',
+  'br_vergleich',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -133,6 +149,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...STRAHLENSATZ_GENERATOR_IDS,
   ...QUADRATIC_FUNCTION_GENERATOR_IDS,
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
+  ...BRUCHRECHNUNG_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -197,6 +214,17 @@ function makeHelpers(random: RandomFn) {
  */
 export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap {
   const { pick, randInt, shuffle } = makeHelpers(random);
+
+  function gcd(a: number, b: number): number {
+    let x = Math.abs(a);
+    let y = Math.abs(b);
+    while (y) {
+      const t = y;
+      y = x % y;
+      x = t;
+    }
+    return x || 1;
+  }
 
   const GEN: PracticeGeneratorMap = {
     seiten_hyp() {
@@ -673,6 +701,128 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}=0$.`,
         loesung: `Ein Bruch mit Zähler $1$ kann nie $0$ sein. Mit $x\\neq ${a}$ gibt es daher keine Lösung ($\\mathbb{L}=\\varnothing$).`,
+      };
+    },
+    br_add_like() {
+      const d = pick([5, 6, 7, 8, 9, 10] as const);
+      const a = randInt(1, d - 2);
+      const b = randInt(1, d - a);
+      const s = a + b;
+      const g = gcd(s, d);
+      const loes =
+        g === 1
+          ? `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
+          : `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$.`,
+        loesung: loes,
+        diagram: svgBruchZweiStreifen(a, d, b),
+      };
+    },
+    br_sub_like() {
+      const d = pick([6, 7, 8, 9, 10, 12] as const);
+      const a = randInt(2, d - 1);
+      const b = randInt(1, a - 1);
+      const s = a - b;
+      const g = gcd(s, d);
+      const loes =
+        g === 1
+          ? `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
+          : `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$.`,
+        loesung: loes,
+        diagram: svgBruchZweiStreifen(a, d, b),
+      };
+    },
+    br_erweitern() {
+      let n = 1;
+      let d = 4;
+      let k = 2;
+      for (let t = 0; t < 40; t++) {
+        n = randInt(1, 7);
+        d = randInt(3, 9);
+        if (n >= d) continue;
+        if (gcd(n, d) !== 1) continue;
+        k = pick([2, 3, 4, 5] as const);
+        break;
+      }
+      const N = n * k;
+      const D = d * k;
+      return {
+        frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
+        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (${k}-fach erweitern).`,
+        diagram: svgBruchStreifen(n, d, `${n}/${d}`),
+      };
+    },
+    br_kuerzen() {
+      let n = 6;
+      let d = 8;
+      let g = 2;
+      for (let t = 0; t < 40; t++) {
+        n = randInt(2, 14);
+        d = randInt(3, 16);
+        g = gcd(n, d);
+        if (g >= 2 && n < d) break;
+      }
+      return {
+        frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
+        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gemeinsamer Faktor $${g}$).`,
+        diagram: svgBruchStreifen(n, d, `${n}/${d}`),
+      };
+    },
+    br_mul_frac() {
+      let n1 = 2,
+        d1 = 3,
+        n2 = 1,
+        d2 = 2;
+      for (let t = 0; t < 50; t++) {
+        n1 = randInt(1, 4);
+        d1 = randInt(2, 5);
+        n2 = randInt(1, 4);
+        d2 = randInt(2, 5);
+        if (n1 >= d1 || n2 >= d2) continue;
+        break;
+      }
+      const pn = n1 * n2;
+      const pd = d1 * d2;
+      const g = gcd(pn, pd);
+      const tail = g > 1 ? `=\\frac{${pn / g}}{${pd / g}}` : '';
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$.`,
+        loesung: `$\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}=\\frac{${pn}}{${pd}}${tail}$.`,
+        diagram: svgBruchMalRaster(n1, d1, n2, d2),
+      };
+    },
+    br_vergleich() {
+      let d1 = 3,
+        d2 = 4,
+        a = 2,
+        b = 3;
+      for (let t = 0; t < 60; t++) {
+        d1 = randInt(3, 10);
+        d2 = randInt(3, 10);
+        if (d1 === d2) continue;
+        const L = (d1 * d2) / gcd(d1, d2);
+        if (L > 18) continue;
+        a = randInt(1, d1 - 1);
+        b = randInt(1, d2 - 1);
+        const c1 = a * d2;
+        const c2 = b * d1;
+        if (c1 === c2) continue;
+        break;
+      }
+      const L = (d1 * d2) / gcd(d1, d2);
+      const nA = (a * L) / d1;
+      const nB = (b * L) / d2;
+      const gr =
+        a * d2 > b * d1
+          ? `$\\displaystyle\\frac{${a}}{${d1}}$`
+          : `$\\displaystyle\\frac{${b}}{${d2}}$`;
+      return {
+        frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
+        loesung: `Kreuzweise: $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$. Der größere Bruch ist ${gr}.`,
+        diagram: svgBruchVergleichZweiRiegel(nA, nB, L),
       };
     },
     wr_vereinfachen() {

@@ -69,12 +69,47 @@ const themaSlug = slugify(thema.data.thema);
         </h1>
       </div>
       <div class="text-sm text-ink-500 dark:text-ink-400">
-        <span id="wb-zaehler" data-total={total}>0 / {total}</span>
+        <span class="wb-zaehler" data-total={total}>0 / {total}</span>
       </div>
     </header>
 
+    <!-- Präsentations-Backdrop (hinter dem Fokus-Block, schließt bei Klick) -->
+    <div
+      id="wb-overlay-backdrop"
+      class="fixed inset-0 z-[9998] bg-neutral-900/80 backdrop-blur-sm dark:bg-black/80 print:hidden pointer-events-auto"
+      hidden
+      aria-hidden="true"
+    ></div>
+
+    <!-- Fortschritt, Bühne, Steuerung (normal eingebettet oder als Vollbild-Overlay) -->
+    <div
+      id="wb-fokus-wrap"
+      class="relative"
+      role="region"
+      aria-label="Mini-Whiteboard"
+    >
+      <div id="wb-fokus-inner" class="mx-auto flex w-full max-w-5xl flex-col">
+        <div
+          id="wb-overlay-bar"
+          class="mb-4 hidden w-full flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ink-200 bg-white/95 px-4 py-3 text-ink-800 shadow-lg dark:border-ink-600 dark:bg-ink-800/95 dark:text-ink-100 print:hidden pointer-events-auto"
+        >
+          <span class="text-sm font-semibold">
+            Mini-Whiteboard · {thema.data.titel}
+            <span class="ml-2 font-normal text-ink-500 dark:text-ink-400">
+              (<span class="wb-zaehler" data-total={total}>0 / {total}</span>)
+            </span>
+          </span>
+          <button
+            id="wb-overlay-close"
+            type="button"
+            class="rounded-md border border-ink-300 bg-ink-50 px-3 py-1.5 text-sm font-medium text-ink-800 hover:bg-ink-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:border-ink-500 dark:bg-ink-700 dark:text-ink-50 dark:hover:bg-ink-600"
+          >
+            Schließen (Esc)
+          </button>
+        </div>
+
     <!-- Fortschritts-Punkte -->
-    <ol id="wb-punkte" class="flex flex-wrap gap-1.5 mb-10" aria-hidden="true">
+    <ol id="wb-punkte" class="flex flex-wrap gap-1.5 mb-10 pointer-events-auto" aria-hidden="true">
       {aufgaben.map((_, i) => (
         <li
           data-index={i}
@@ -86,7 +121,7 @@ const themaSlug = slugify(thema.data.thema);
     <!-- Buehne -->
     <section
       id="wb-buehne"
-      class="rounded-2xl border border-ink-200 bg-white p-8 md:p-14 lg:p-20 min-h-[50vh] flex flex-col items-center justify-center text-center dark:border-ink-700 dark:bg-ink-800/60"
+      class="wb-buehne-karte rounded-2xl border border-ink-200 bg-white p-8 md:p-14 lg:p-20 min-h-[50vh] flex flex-col items-center justify-center text-center dark:border-ink-700 dark:bg-ink-800/60 pointer-events-auto transition-shadow duration-200"
     >
       <!-- Intro -->
       <div id="wb-intro" class="space-y-4">
@@ -154,7 +189,15 @@ const themaSlug = slugify(thema.data.thema);
     </section>
 
     <!-- Steuerung -->
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3 pointer-events-auto print:hidden">
+      <button
+        id="wb-overlay-toggle"
+        type="button"
+        class="rounded-md border border-accent-600 bg-accent-50 px-4 py-2 text-sm font-semibold text-accent-800 hover:bg-accent-100 dark:border-accent-400 dark:bg-accent-700/25 dark:text-accent-100 dark:hover:bg-accent-700/40"
+        title="Vollbild mit abgedunkeltem Hintergrund (Beamer / Tafel)"
+      >
+        Präsentationsmodus (Vollbild)
+      </button>
       <button
         id="wb-prev"
         type="button"
@@ -179,13 +222,27 @@ const themaSlug = slugify(thema.data.thema);
       </button>
     </div>
 
-    <p class="mt-6 text-center text-xs text-ink-500 dark:text-ink-400">
+    <p class="mt-6 text-center text-xs text-ink-500 dark:text-ink-400 pointer-events-auto print:hidden">
       Tipp: Mit der <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">Leertaste</kbd>
       oder <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">→</kbd> einen Schritt weiter,
       mit <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">←</kbd> zurück.
+      Im Präsentationsmodus schließt <kbd class="px-1.5 py-0.5 bg-ink-100 rounded text-[0.7rem] dark:bg-ink-800">Esc</kbd> das Vollbild.
     </p>
+      </div>
+    </div>
   </div>
 </BaseLayout>
+
+<style is:global>
+  html.mu-themen-wb-overlay-open,
+  html.mu-themen-wb-overlay-open body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  #wb-overlay-backdrop[hidden] {
+    display: none !important;
+  }
+</style>
 
 <script is:inline define:vars={{ total }}>
   (function () {
@@ -194,10 +251,56 @@ const themaSlug = slugify(thema.data.thema);
     const buehne = document.getElementById('wb-buehne');
     const steps = Array.from(document.querySelectorAll('.wb-step'));
     const punkte = Array.from(document.querySelectorAll('#wb-punkte li'));
-    const zaehler = document.getElementById('wb-zaehler');
+    const zaehlerEls = () => Array.from(document.querySelectorAll('.wb-zaehler'));
     const btnNext = document.getElementById('wb-next');
     const btnPrev = document.getElementById('wb-prev');
     const btnReset = document.getElementById('wb-reset');
+    const backdrop = document.getElementById('wb-overlay-backdrop');
+    const fokusWrap = document.getElementById('wb-fokus-wrap');
+    const fokusInner = document.getElementById('wb-fokus-inner');
+    const overlayBar = document.getElementById('wb-overlay-bar');
+    const overlayToggle = document.getElementById('wb-overlay-toggle');
+    const overlayClose = document.getElementById('wb-overlay-close');
+
+    let overlayAuf = false;
+
+    function setzeOverlay(aktiv) {
+      overlayAuf = !!aktiv;
+      if (backdrop) {
+        backdrop.hidden = !overlayAuf;
+        backdrop.setAttribute('aria-hidden', overlayAuf ? 'false' : 'true');
+      }
+      if (overlayBar) overlayBar.classList.toggle('hidden', !overlayAuf);
+      if (overlayToggle) {
+        overlayToggle.textContent = overlayAuf ? 'Vollbild beenden' : 'Präsentationsmodus (Vollbild)';
+      }
+      if (fokusWrap && fokusInner) {
+        if (overlayAuf) {
+          fokusWrap.className =
+            'fixed inset-0 z-[9999] flex flex-col items-center overflow-y-auto overscroll-y-contain p-4 sm:p-6 pointer-events-none print:hidden';
+          fokusInner.classList.add('pointer-events-auto');
+          buehne?.classList.add('shadow-2xl', 'dark:shadow-black/50', 'ring-1', 'ring-ink-200/80', 'dark:ring-ink-600/80');
+        } else {
+          fokusWrap.className = 'relative';
+          fokusInner.classList.remove('pointer-events-auto');
+          buehne?.classList.remove('shadow-2xl', 'dark:shadow-black/50', 'ring-1', 'ring-ink-200/80', 'dark:ring-ink-600/80');
+        }
+      }
+      document.documentElement.classList.toggle('mu-themen-wb-overlay-open', overlayAuf);
+      reRenderMath();
+    }
+
+    backdrop?.addEventListener('click', function () {
+      if (overlayAuf) setzeOverlay(false);
+    });
+    overlayToggle?.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setzeOverlay(!overlayAuf);
+    });
+    overlayClose?.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setzeOverlay(false);
+    });
 
     // Phase-Encoding:
     //   -1            -> Intro
@@ -238,13 +341,15 @@ const themaSlug = slugify(thema.data.thema);
       }
 
       // Zähler und Punkte
-      if (phase === -1) {
-        zaehler.textContent = `0 / ${total}`;
-      } else if (phase >= 2 * total) {
-        zaehler.textContent = `${total} / ${total}`;
-      } else {
-        zaehler.textContent = `${Math.floor(phase / 2) + 1} / ${total}`;
-      }
+      const text =
+        phase === -1
+          ? `0 / ${total}`
+          : phase >= 2 * total
+            ? `${total} / ${total}`
+            : `${Math.floor(phase / 2) + 1} / ${total}`;
+      zaehlerEls().forEach(function (el) {
+        el.textContent = text;
+      });
       punkte.forEach((p, i) => {
         p.classList.remove('bg-accent-500', 'bg-accent-300');
         if (phase >= 2 * total) {
@@ -301,8 +406,13 @@ const themaSlug = slugify(thema.data.thema);
     btnReset.addEventListener('click', reset);
 
     // Tastatur
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', function (e) {
       if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.key === 'Escape' && overlayAuf) {
+        e.preventDefault();
+        setzeOverlay(false);
+        return;
+      }
       if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
         e.preventDefault();
         next();
