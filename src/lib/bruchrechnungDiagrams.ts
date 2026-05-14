@@ -113,24 +113,38 @@ export function svgBruchErweiternKacheln(
   }' y='${pad + gh + labelH - 1}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.88'>${zeile}</text></svg>`;
 }
 
-/** Ein Streifen n/d (für Kürzen, Vergleich). */
+/**
+ * Ein Streifen n/d (v. a. für Kürzen).
+ *
+ * Optional `kuerzungsZahl` (gemeinsamer Faktor / ggT): Genau so viele der ersten
+ * Zähler-Teilflächen (Indizes 0 … kuerzungsZahl-1) erhalten einen deutlich dickeren
+ * Rand – visuell zur Kürzungszahl passend, ohne die Lösung vorwegzunehmen.
+ */
 export function svgBruchStreifen(
   n: number,
   d: number,
   zeile: string,
-  modus: BruchdiagrammModus = 'loesung'
+  modus: BruchdiagrammModus = 'loesung',
+  kuerzungsZahl?: number
 ): string {
   if (d < 2 || d > 24) return '';
   const w = Math.min(280, 12 * d);
   const seg = w / d;
   const h = 32;
+  const strokeDuenn = 1.1;
+  const strokeFett = 2.75;
+  const g =
+    kuerzungsZahl != null && kuerzungsZahl > 0
+      ? Math.min(Math.floor(kuerzungsZahl), n)
+      : null;
   let rects = '';
   for (let i = 0; i < d; i++) {
     const x = i * seg;
     const filled = i < n;
     const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
     const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
-    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1.1'/>`;
+    const sw = g != null && filled && i < g ? strokeFett : strokeDuenn;
+    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='${sw}'/>`;
   }
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h + 14}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}<text x='${
     w / 2
