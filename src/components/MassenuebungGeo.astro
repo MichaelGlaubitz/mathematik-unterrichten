@@ -3,6 +3,7 @@ import {
   BRUCHRECHNUNG_GENERATOR_IDS,
   CIRCLE_GEOMETRY_GENERATOR_IDS,
   FRACTION_EQUATION_GENERATOR_IDS,
+  NEGATIVE_ZAHLEN_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
   QUADRATIC_FUNCTION_GENERATOR_IDS,
@@ -20,6 +21,7 @@ export interface Props {
     | 'quadratische-gleichungen'
     | 'bruchgleichungen'
     | 'bruchrechnung'
+    | 'negative-zahlen'
     | 'wurzelrechnung'
     | 'kreisgeometrie';
   backHref: string;
@@ -40,7 +42,9 @@ const allowedIds =
             ? FRACTION_EQUATION_GENERATOR_IDS
             : variant === 'bruchrechnung'
               ? BRUCHRECHNUNG_GENERATOR_IDS
-              : variant === 'wurzelrechnung'
+              : variant === 'negative-zahlen'
+                ? NEGATIVE_ZAHLEN_GENERATOR_IDS
+                : variant === 'wurzelrechnung'
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
                   ? CIRCLE_GEOMETRY_GENERATOR_IDS
@@ -54,6 +58,7 @@ const wbLabelByVariant = {
   'quadratische-gleichungen': 'WB Quadratische Gleichungen',
   bruchgleichungen: 'WB Bruchgleichungen',
   bruchrechnung: 'WB Bruchrechnung',
+  'negative-zahlen': 'WB Negative Zahlen',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
 } as const;
@@ -66,6 +71,7 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/quadratische-gleichungen': 'WB Quadratische Gleichungen',
   '/uebung/bruchgleichungen': 'WB Bruchgleichungen',
   '/uebung/bruchrechnung': 'WB Bruchrechnung',
+  '/uebung/negative-zahlen': 'WB Negative Zahlen',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
 };
@@ -89,7 +95,9 @@ function wbLabelFromHref(href: string): string {
       {
         variant === 'bruchrechnung'
           ? 'Übungsgenerator · Klasse 5–6 · Mini-Whiteboard & Arbeitsblatt'
-          : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
+          : variant === 'negative-zahlen'
+            ? 'Übungsgenerator · Klasse 7 · Mini-Whiteboard & Arbeitsblatt'
+            : 'Übungsgenerator · Klasse 9–10 · Mini-Whiteboard & Arbeitsblatt'
       }
     </p>
     <h1 class="font-serif text-4xl md:text-5xl font-semibold text-ink-900 mt-1 dark:text-ink-50">
@@ -155,11 +163,21 @@ function wbLabelFromHref(href: string): string {
         <>
           <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
             Zufällige Aufgaben zur <strong>Bruchrechnung</strong> gleichnamiger Brüche, Erweitern und Kürzen,
-            Multiplikation mit Mal-Raster sowie Größenvergleich – im gleichen Ablauf wie die anderen Whiteboards:
+            Multiplikation mit Raster sowie Größenvergleich – im gleichen Ablauf wie die anderen Whiteboards:
             Typen und Anzahl wählen, dann Arbeitsblatt oder Vollbild-Whiteboard.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Zu vielen Aufgaben gibt es kleine SVG-Hilfsbilder (Streifen, Raster). Du kannst sie optional ausblenden.
+          </p>
+        </>
+      ) : variant === 'negative-zahlen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>ganzen Zahlen und Vorzeichen</strong> – Addition, Subtraktion,
+            Multiplikation, Division, Größenvergleich auf dem Zahlenstrahl sowie Klammer- und Punkt-vor-Strich-Aufgaben.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Wo es passt, gibt es einen <strong>Zahlenstrahl</strong> mit Sprung oder zwei markierten Werten (A/B).
           </p>
         </>
       ) : variant === 'wurzelrechnung' ? (
@@ -439,6 +457,40 @@ function wbLabelFromHref(href: string): string {
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="br_vergleich" checked />
                 <span>Größenvergleich zweier Brüche</span>
+              </label>
+            </div>
+          </fieldset>
+        ) : variant === 'negative-zahlen' ? (
+          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+            <legend
+              class="font-semibold text-sm text-ink-900 mb-3 dark:text-ink-50 border-b border-ink-200 pb-1 w-full dark:border-ink-600"
+            >
+              Negative Zahlen · ganze Zahlen
+            </legend>
+            <div class="space-y-1.5 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="nz_add" checked />
+                <span>Addition ($a+b$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="nz_sub" checked />
+                <span>Subtraktion (auch $a-(-b)$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="nz_mul" checked />
+                <span>Multiplikation · Vorzeichenregeln</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="nz_div" checked />
+                <span>Division ganzer Zahlen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="nz_vergleich" checked />
+                <span>Größer/kleiner (Zahlenstrahl A/B)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="nz_klammer_punkt_vor_strich" checked />
+                <span>Klammern, $-(-n)$ und Punkt vor Strich</span>
               </label>
             </div>
           </fieldset>
@@ -865,12 +917,31 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/bruchgleichungen')}
           </a>
           {' · '}
+          <a href="/uebung/negative-zahlen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/negative-zahlen')}
+          </a>
+          {' · '}
           <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/wurzelrechnung')}
           </a>
           {' · '}
           <a href="/uebung/quadratische-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/quadratische-gleichungen')}
+          </a>
+        </>
+      ) : variant === 'negative-zahlen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchgleichungen')}
+          </a>
+          {' · '}
+          <a href="/uebung/wurzelrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/wurzelrechnung')}
           </a>
         </>
       ) : variant === 'wurzelrechnung' ? (

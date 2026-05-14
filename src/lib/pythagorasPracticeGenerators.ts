@@ -1,5 +1,5 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/bruchrechnung, /uebung/negative-zahlen, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
  */
 
 import {
@@ -28,6 +28,10 @@ import {
   svgParabolaScheitelform,
 } from './quadratischeFunktionDiagrams';
 import { svgKreisRadiusDurchmesser, svgKreisSektor, svgKreisTangente } from './kreisgeometrieDiagrams';
+import {
+  svgZahlenstrahlSprung,
+  svgZahlenstrahlZweiWerte,
+} from './negativeZahlenDiagrams';
 import {
   svgBruchMalRaster,
   svgBruchStreifen,
@@ -113,6 +117,16 @@ export const BRUCHRECHNUNG_GENERATOR_IDS = [
   'br_vergleich',
 ] as const;
 
+/** Ganze Zahlen & Vorzeichen (Klasse 7). */
+export const NEGATIVE_ZAHLEN_GENERATOR_IDS = [
+  'nz_add',
+  'nz_sub',
+  'nz_mul',
+  'nz_div',
+  'nz_vergleich',
+  'nz_klammer_punkt_vor_strich',
+] as const;
+
 /** Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt). */
 export const FRACTION_EQUATION_GENERATOR_IDS = [
   'bg_definitionsmenge',
@@ -150,6 +164,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...QUADRATIC_FUNCTION_GENERATOR_IDS,
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
   ...BRUCHRECHNUNG_GENERATOR_IDS,
+  ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
@@ -224,6 +239,13 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       x = t;
     }
     return x || 1;
+  }
+
+  function texSubtrahend(b: number): string {
+    return b >= 0 ? String(b) : `(${b})`;
+  }
+  function texMulFactor(n: number): string {
+    return n < 0 ? `(${n})` : String(n);
   }
 
   const GEN: PracticeGeneratorMap = {
@@ -823,6 +845,127 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
         loesung: `Kreuzweise: $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$. Der größere Bruch ist ${gr}.`,
         diagram: svgBruchVergleichZweiRiegel(nA, nB, L),
+      };
+    },
+    nz_add() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 35; t++) {
+        a = randInt(-9, 9);
+        b = randInt(-9, 9);
+        if (b === 0) continue;
+        if (a === 0 && random() < 0.65) continue;
+        break;
+      }
+      const s = a + b;
+      return {
+        frage: `Berechne $${a}${formatSignedInt(b)}$.`,
+        loesung: `$${a}${formatSignedInt(b)}=${s}$.`,
+        diagram: svgZahlenstrahlSprung(a, b),
+      };
+    },
+    nz_sub() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 35; t++) {
+        a = randInt(-9, 9);
+        b = randInt(-9, 9);
+        if (a - b === 0) continue;
+        break;
+      }
+      const s = a - b;
+      return {
+        frage: `Berechne $${a}-${texSubtrahend(b)}$.`,
+        loesung: `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
+        diagram: svgZahlenstrahlSprung(a, -b),
+      };
+    },
+    nz_mul() {
+      const negA = random() < 0.5;
+      const negB = random() < 0.5;
+      const a = (negA ? -1 : 1) * randInt(2, 9);
+      const b = (negB ? -1 : 1) * randInt(2, 9);
+      const p = a * b;
+      const rule =
+        negA && negB
+          ? 'Minus mal minus ergibt plus.'
+          : negA === negB
+            ? 'Gleiche Vorzeichen ergeben plus.'
+            : 'Unterschiedliche Vorzeichen ergeben minus.';
+      return {
+        frage: `Berechne $${texMulFactor(a)}\\cdot${texMulFactor(b)}$.`,
+        loesung: `$${texMulFactor(a)}\\cdot${texMulFactor(b)}=${p}$ (${rule})`,
+      };
+    },
+    nz_div() {
+      const den = pick([2, 3, 4, 5, 6] as const);
+      const q = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const num = q * den;
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${num}}{${den}}$.`,
+        loesung: `$\\displaystyle\\frac{${num}}{${den}}=${q}$.`,
+      };
+    },
+    nz_vergleich() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 45; t++) {
+        a = randInt(-9, 9);
+        b = randInt(-9, 9);
+        if (a === b) continue;
+        break;
+      }
+      const gr = Math.max(a, b);
+      const kl = Math.min(a, b);
+      const grIstA = gr === a;
+      return {
+        frage: `Welche Zahl ist größer: $${a}$ oder $${b}$? (Skizze: A gehört zur ersten Zahl, B zur zweiten.)`,
+        loesung: `${grIstA ? 'A' : 'B'} ist größer: $${gr} > ${kl}$. Auf dem Zahlenstrahl liegt die größere Zahl weiter rechts.`,
+        diagram: svgZahlenstrahlZweiWerte(a, b),
+      };
+    },
+    nz_klammer_punkt_vor_strich() {
+      const r = random();
+      if (r < 0.34) {
+        const n = randInt(2, 9);
+        return {
+          frage: `Berechne $-(-${n})$.`,
+          loesung: `$-(-${n})=${n}$.`,
+        };
+      }
+      if (r < 0.62) {
+        let innerA = 5;
+        let innerB = 3;
+        for (let t = 0; t < 22; t++) {
+          innerA = randInt(2, 11);
+          innerB = randInt(2, 11);
+          if (innerA === innerB) continue;
+          break;
+        }
+        const inner = innerA - innerB;
+        const res = -inner;
+        return {
+          frage: `Berechne $-(${innerA}-${innerB})$.`,
+          loesung: `$-(${innerA}-${innerB})=-(${inner})=${res}$.`,
+        };
+      }
+      const a = pick([-6, -5, -4, -3, -2, 2, 3, 4, 5, 6] as const);
+      const b = randInt(2, 5);
+      const c = pick([-5, -4, -3, -2, 2, 3, 4, 5] as const);
+      const prod = b * c;
+      if (random() < 0.5) {
+        const res = a - prod;
+        return {
+          frage: `Berechne $${a}-${b}\\cdot${texMulFactor(c)}$.`,
+          loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}-${prod}=${res}$.`,
+          diagram: svgZahlenstrahlSprung(a, -prod),
+        };
+      }
+      const res = a + prod;
+      return {
+        frage: `Berechne $${a}+${b}\\cdot${texMulFactor(c)}$.`,
+        loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}+${prod}=${res}$.`,
+        diagram: svgZahlenstrahlSprung(a, prod),
       };
     },
     wr_vereinfachen() {
