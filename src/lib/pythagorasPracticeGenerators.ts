@@ -984,7 +984,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const s = a + b;
       return {
-        frage: `Berechne $${a}${formatSignedInt(b)}$.`,
+        frage: `Berechne die Summe $${a}${formatSignedInt(b)}$.`,
         loesung: `$${a}${formatSignedInt(b)}=${s}$.`,
         diagram: svgZahlenstrahlSprung(a, b),
       };
@@ -1182,7 +1182,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lg_x_plus_a_eq_b() {
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const a = randInt(-12, 12);
+      const a = pick([-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const);
       const b = x0 + a;
       return {
         frage: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$.`,
@@ -1203,7 +1203,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     lg_ax_plus_b_eq_c() {
       const a = randInt(2, 7);
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
-      const b = randInt(-14, 14);
+      const b = pick([-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] as const);
       const c = a * x0 + b;
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$.`,
@@ -1230,7 +1230,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lg_klammer_linear() {
       const k = randInt(2, 6);
-      const a = randInt(-5, 5);
+      const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
       const rhs = k * (x0 + a);
       return {
@@ -1241,7 +1241,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     lg_bruch_linear() {
       const b = randInt(2, 8);
-      const c = randInt(-7, 7);
+      const c = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
       const a = c * b - x0;
       return {

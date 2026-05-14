@@ -266,6 +266,26 @@ function wbLabelFromHref(href: string): string {
             Optional: <strong>Koordinatensystem</strong> mit zwei Geraden und markiertem Schnittpunkt (x-Koordinate =
             Lösung). Skizzen lassen sich global oder pro Aufgabe ein- und ausblenden.
           </p>
+          <section class="mt-4 max-w-3xl rounded-lg border border-ink-200 bg-ink-50/80 p-3.5 text-sm text-ink-700 dark:border-ink-700 dark:bg-ink-800/50 dark:text-ink-200">
+            <h2 class="font-semibold text-ink-900 dark:text-ink-50">Barton-Workflow in dieser Route</h2>
+            <ol class="mt-2 list-decimal space-y-1.5 pl-5">
+              <li>
+                <strong>Lernziel &amp; Menge:</strong> sichere Äquivalenzumformungen in den auswählbaren Sätzen
+                (5/10/15/20 Aufgaben).
+              </li>
+              <li>
+                <strong>Variation:</strong> vom Basismuster $x+a=b$ über $ax+b=c$ bis zu Klammer- und Bruchformen;
+                pro Typ wird die Struktur gezielt variiert.
+              </li>
+              <li>
+                <strong>Numerische Constraints:</strong> ganzzahlige Lösungen, keine Dezimal- oder Bruchlösungen.
+              </li>
+              <li>
+                <strong>Technische Darstellung:</strong> deterministische Generatoren mit optionaler SVG-Skizze
+                (Geradenschnitt als Lösungsbild).
+              </li>
+            </ol>
+          </section>
         </>
       ) : variant === 'prozentrechnung' ? (
         <>
@@ -703,6 +723,9 @@ function wbLabelFromHref(href: string): string {
               Lineare Gleichungen
             </legend>
             <div class="space-y-1.5 text-sm">
+              <p class="pt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Phase A · Grundmuster
+              </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_x_plus_a_eq_b" checked />
                 <span>Form $x+a=b$</span>
@@ -711,6 +734,9 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_eq_b" checked />
                 <span>Form $ax=b$</span>
               </label>
+              <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Phase B · eine Zusatzoperation
+              </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_c" checked />
                 <span>Form $ax+b=c$</span>
@@ -719,13 +745,16 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_cx_plus_d" checked />
                 <span>Variable auf beiden Seiten</span>
               </label>
+              <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Phase C · Strukturwechsel
+              </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_klammer_linear" checked />
                 <span>Klammer: $k(x+a)=\ldots$</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_bruch_linear" checked />
-                <span>Bruchterm {'$\\dfrac{x+a}{b}=c$'}</span>
+                <span>Bruchterm (x + a) / b = c</span>
               </label>
             </div>
           </fieldset>
