@@ -12,6 +12,27 @@
     color-scheme: dark;
   }
 
+  /* Leichte Farbtiefe: weiche „Mesh“-Verläufe statt flachem Grau/Beige */
+  .mu-page-bg {
+    background-color: theme('colors.ink.50');
+    background-image:
+      radial-gradient(1200px 520px at 8% -5%, theme('colors.accent.100'), transparent 58%),
+      radial-gradient(900px 440px at 96% 2%, theme('colors.violet.100'), transparent 52%),
+      radial-gradient(760px 400px at 42% 108%, theme('colors.teal.100'), transparent 48%);
+    background-attachment: fixed;
+  }
+
+  .dark .mu-page-bg {
+    /* Leicht „kühler“ getönter Grundton statt flachem Braun-Grau */
+    background-color: rgb(26 22 35);
+    background-image:
+      radial-gradient(1100px 480px at 10% -8%, rgb(59 130 246 / 0.28), transparent 55%),
+      radial-gradient(820px 420px at 92% 0%, rgb(167 139 250 / 0.22), transparent 50%),
+      radial-gradient(700px 360px at 48% 105%, rgb(45 212 191 / 0.2), transparent 46%),
+      radial-gradient(640px 320px at 72% 55%, rgb(251 146 60 / 0.1), transparent 52%);
+    background-attachment: fixed;
+  }
+
   h1, h2, h3, h4 {
     font-family: theme('fontFamily.serif');
     font-weight: 600;
@@ -33,7 +54,7 @@
     color: theme('colors.ink.900');
   }
   .dark ::selection {
-    background-color: theme('colors.accent.600');
+    background-color: rgb(45 212 191 / 0.45);
     color: theme('colors.ink.50');
   }
 }
@@ -56,17 +77,21 @@
   }
 
   .badge-accent {
-    @apply badge bg-accent-50 text-accent-700 dark:bg-accent-700/25 dark:text-accent-100;
+    @apply badge bg-gradient-to-br from-accent-50 to-teal-50 text-accent-800 ring-1 ring-inset ring-accent-200/80
+           dark:from-accent-600/20 dark:via-violet-600/15 dark:to-teal-600/20 dark:text-teal-100 dark:ring-teal-400/35;
   }
 
   .card {
-    @apply bg-white rounded-lg border border-ink-200 p-6 hover:shadow-md transition-shadow
-           dark:bg-ink-800 dark:border-ink-700 dark:hover:shadow-black/40;
+    @apply bg-white/90 rounded-xl border border-ink-200/90 p-6 shadow-sm backdrop-blur-[2px]
+           transition-[box-shadow,transform,border-color] duration-200
+           hover:shadow-md hover:border-accent-200/80 hover:-translate-y-0.5
+           dark:bg-ink-800/85 dark:border-violet-500/20 dark:shadow-[0_8px_30px_-10px_rgba(0,0,0,0.55)]
+           dark:hover:border-teal-400/45 dark:hover:shadow-[0_12px_40px_-12px_rgba(45,212,191,0.12)];
   }
 
   .link-arrow {
-    @apply inline-flex items-center gap-1 text-accent-600 hover:text-accent-700 font-medium
-           dark:text-accent-100 dark:hover:text-white;
+    @apply inline-flex items-center gap-1 text-accent-600 hover:text-teal-600 font-medium
+           dark:text-accent-100 dark:hover:text-teal-200;
   }
   .link-arrow::after {
     content: '→';
