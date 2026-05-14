@@ -5,6 +5,7 @@
 
 import {
   clamp,
+  FUN_GRAPH_AXIS_RANGE_MAX,
   renderFunctionGraphArrowMarker,
   renderFunctionGraphAxisLabel,
   renderFunctionGraphGridLine,
@@ -85,11 +86,11 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
 
   let ticks = '';
   for (let xi = xi0; xi <= xi1; xi++) {
-    if (Math.abs(xi) > 12) continue;
+    if (Math.abs(xi) > FUN_GRAPH_AXIS_RANGE_MAX) continue;
     if (xi !== 0) ticks += renderFunctionGraphTickLabel(xi, sx(xi), clamp(xAxisY + 15, margin + 14, H - margin - 4));
   }
   for (let yi = yi0; yi <= yi1; yi++) {
-    if (Math.abs(yi) > 12 || yi === 0) continue;
+    if (Math.abs(yi) > FUN_GRAPH_AXIS_RANGE_MAX || yi === 0) continue;
     const labelLeftOfAxis = yAxisX > W - margin - 28;
     ticks += renderFunctionGraphTickLabel(
       yi,

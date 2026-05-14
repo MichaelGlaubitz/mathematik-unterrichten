@@ -40,9 +40,10 @@ import {
 } from './bruchrechnungDiagrams';
 import { svgLineareGleichungSchnittpunkt } from './lineareGleichungDiagrams';
 import { svgDistributivFlaeche } from './algebraDiagrams';
+import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 
-/** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: grundsätzlich in diesem Bereich. */
-export const FUN_GRAPH_AXIS_INTERCEPT_MAX = 8;
+/** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: gleicher Rahmen wie Achsen-Ticks (`FUN_GRAPH_AXIS_RANGE_MAX`). */
+export const FUN_GRAPH_AXIS_INTERCEPT_MAX = FUN_GRAPH_AXIS_RANGE_MAX;
 
 /** Prüft $y=mx+n$: existierende Achsenschnitte $(0|n)$ und $(-n/m|0)$ liegen in $[-A,A]$ (waagrechte Gerade $m=0$: nur $(0|n)$). */
 export function funGraphLinearAxisInterceptsInRange(m: number, n: number): boolean {

@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 import {
   createPracticeGenerators,
   funGraphLinearAxisInterceptsInRange,
+  FUN_GRAPH_AXIS_INTERCEPT_MAX,
   PRACTICE_GENERATOR_IDS,
   parseErkennenSeiten,
   validateErkennenAufgabe,
@@ -17,6 +19,10 @@ function makeLcg(seed: number): () => number {
 }
 
 describe('funGraphLinearAxisInterceptsInRange', () => {
+  it('stimmt mit FUN_GRAPH_AXIS_RANGE_MAX (Tick-Grenzen in den SVGs) überein', () => {
+    expect(FUN_GRAPH_AXIS_INTERCEPT_MAX).toBe(FUN_GRAPH_AXIS_RANGE_MAX);
+  });
+
   it('akzeptiert typische Geraden mit Achsenschnitten in [-8, 8]', () => {
     expect(funGraphLinearAxisInterceptsInRange(2, 8)).toBe(true);
     expect(funGraphLinearAxisInterceptsInRange(-1, 0)).toBe(true);
