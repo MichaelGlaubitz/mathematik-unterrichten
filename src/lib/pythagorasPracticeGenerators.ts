@@ -1000,7 +1000,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const s = a - b;
       return {
-        frage: `Berechne $${a}-${texSubtrahend(b)}$.`,
+        frage: `Berechne die Differenz $${a}-${texSubtrahend(b)}$.`,
         loesung: `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
         diagram: svgZahlenstrahlSprung(a, -b),
       };
