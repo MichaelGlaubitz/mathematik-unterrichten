@@ -39,8 +39,9 @@ export function svgBruchZweiStreifen(
 /**
  * Erweitern: Kachelraster d×k — d Spalten (Grundnenner), k Zeilen (Erweiterungsfaktor).
  * Insgesamt D=d·k Felder, n·k Felder markiert (erste n Spalten vollständig).
- * Orthogonales Gitter (nur Modus `loesung`): senkrechte/waagerechte Linien zeigen d Teile und k-fache Unterteilung.
- * Im Modus `aufgabe` keine Gitterlinien, damit die Erweiterungsstruktur nicht vorgezeichnet wird.
+ * Modus `loesung`: Zellen mit Schattierung und vollständigem Gitter (waagerecht/senkrecht).
+ * Modus `aufgabe`: eine zusammenhängende Fläche ohne waagerechte Unterteilung; Rahmen und
+ * senkrechte Linien nur für die d Ausgangsteile (keine k-fachen Waagerechten).
  */
 export function svgBruchErweiternKacheln(
   n: number,
@@ -61,37 +62,46 @@ export function svgBruchErweiternKacheln(
   const vbW = gw + pad * 2;
   const vbH = gh + pad * 2 + labelH;
 
-  let rects = '';
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const x = pad + col * cellW;
-      const y = pad + row * cellH;
-      const shaded = col < n;
-      const fillOp = modus === 'loesung' ? (shaded ? 0.34 : 0.07) : 0.08;
-      rects += `<rect x='${x + 0.35}' y='${y + 0.35}' width='${cellW - 0.7}' height='${cellH - 0.7}' fill='currentColor' fill-opacity='${fillOp}'/>`;
+  const ink = 'currentColor';
+
+  let body = '';
+  if (modus === 'aufgabe') {
+    body += `<rect x='${pad}' y='${pad}' width='${gw}' height='${gh}' fill='currentColor' fill-opacity='0.08'/>`;
+    let lines = '';
+    for (let j = 0; j <= cols; j++) {
+      const x = pad + j * cellW;
+      const sw = j === 0 || j === cols ? 1.35 : 1.15;
+      lines += `<line x1='${x}' y1='${pad}' x2='${x}' y2='${pad + gh}' stroke='${ink}' stroke-width='${sw}'/>`;
     }
+    lines += `<line x1='${pad}' y1='${pad}' x2='${pad + gw}' y2='${pad}' stroke='${ink}' stroke-width='1.35'/>`;
+    lines += `<line x1='${pad}' y1='${pad + gh}' x2='${pad + gw}' y2='${pad + gh}' stroke='${ink}' stroke-width='1.35'/>`;
+    body += `<g fill='none' stroke-linecap='square'>${lines}</g>`;
+  } else {
+    let rects = '';
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = pad + col * cellW;
+        const y = pad + row * cellH;
+        const shaded = col < n;
+        const fillOp = shaded ? 0.34 : 0.07;
+        rects += `<rect x='${x}' y='${y}' width='${cellW}' height='${cellH}' fill='${ink}' fill-opacity='${fillOp}'/>`;
+      }
+    }
+    let grid = '';
+    for (let j = 0; j <= cols; j++) {
+      const x = pad + j * cellW;
+      const sw = j === 0 || j === cols ? 1.35 : 1.15;
+      grid += `<line x1='${x}' y1='${pad}' x2='${x}' y2='${pad + gh}' stroke='${ink}' stroke-width='${sw}'/>`;
+    }
+    for (let r = 0; r <= rows; r++) {
+      const y = pad + r * cellH;
+      const sw = r === 0 || r === rows ? 1.35 : 1;
+      grid += `<line x1='${pad}' y1='${y}' x2='${pad + gw}' y2='${y}' stroke='${ink}' stroke-width='${sw}'/>`;
+    }
+    body = `${rects}<g fill='none' stroke-linecap='square'>${grid}</g>`;
   }
 
-  const grid =
-    modus === 'loesung'
-      ? (() => {
-          let g = '';
-          const ink = 'currentColor';
-          for (let j = 0; j <= cols; j++) {
-            const x = pad + j * cellW;
-            const sw = j === 0 || j === cols ? 1.35 : 1.15;
-            g += `<line x1='${x}' y1='${pad}' x2='${x}' y2='${pad + gh}' stroke='${ink}' stroke-width='${sw}'/>`;
-          }
-          for (let r = 0; r <= rows; r++) {
-            const y = pad + r * cellH;
-            const sw = r === 0 || r === rows ? 1.35 : 1;
-            g += `<line x1='${pad}' y1='${y}' x2='${pad + gw}' y2='${y}' stroke='${ink}' stroke-width='${sw}'/>`;
-          }
-          return `<g fill='none' stroke-linecap='square'>${g}</g>`;
-        })()
-      : '';
-
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}${grid}<text x='${
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${body}<text x='${
     vbW / 2
   }' y='${pad + gh + labelH - 1}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.88'>${zeile}</text></svg>`;
 }

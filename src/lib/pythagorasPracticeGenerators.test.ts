@@ -136,13 +136,15 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(mul.diagramLoesung).toContain("fill-opacity='0.34'");
   });
 
-  it('br_erweitern: Gitter nur in der Lösungsskizze', () => {
+  it('br_erweitern: Aufgabe mit Rahmen/Senkrechten, volles Gitter nur in der Lösung', () => {
     const GEN = createPracticeGenerators(() => 0.1);
     const auf = GEN.br_erweitern();
     expect(auf.diagram).toBeDefined();
     expect(auf.diagramLoesung).toBeDefined();
-    expect(auf.diagram).not.toContain('<line');
-    expect(auf.diagramLoesung).toContain('<line');
+    expect(auf.diagram).toContain('<line');
+    expect((auf.diagram.match(/<line/g) || []).length).toBeLessThan(
+      (auf.diagramLoesung.match(/<line/g) || []).length
+    );
   });
 });
 
