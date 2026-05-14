@@ -24,7 +24,7 @@ const route: WhiteboardRouteState = {
   wbIndex: 1,
   wbZeigeLoesung: true,
   tasks: [
-    { frage: 'Aufgabe 1', loesung: 'Loesung 1', diagram: '<svg></svg>' },
+    { frage: 'Aufgabe 1', loesung: 'Loesung 1', diagram: '<svg></svg>', diagramLoesung: '<svg class="loesung"></svg>' },
     { frage: 'Aufgabe 2', loesung: 'Loesung 2' },
   ],
   diagramScales: { abc: 1.4 },

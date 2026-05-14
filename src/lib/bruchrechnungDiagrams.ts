@@ -1,10 +1,20 @@
 /**
  * SVG-Veranschaulichungen für Bruchrechnung (Streifen-, Kreis-, Flächenmodell).
+ *
+ * `modus === 'aufgabe'`: keine markante Schattierung der Anteile (kein „Auslesen“ der Lösung).
+ * `modus === 'loesung'`: übliche Darstellung mit erkennbar markierten Teilflächen.
  */
 
+export type BruchdiagrammModus = 'aufgabe' | 'loesung';
+
 /** Zwei Streifen gleicher Länge (gleicher Nenner), für Addition/Subtraktion. */
-export function svgBruchZweiStreifen(a: number, d: number, b: number): string {
-   if (d < 2 || d > 16) return '';
+export function svgBruchZweiStreifen(
+  a: number,
+  d: number,
+  b: number,
+  modus: BruchdiagrammModus = 'loesung'
+): string {
+  if (d < 2 || d > 16) return '';
   const pad = 20;
   const bw = 232;
   const seg = bw / d;
@@ -14,9 +24,9 @@ export function svgBruchZweiStreifen(a: number, d: number, b: number): string {
     for (let i = 0; i < d; i++) {
       const x = pad + i * seg;
       const filled = i < n;
-      s += `<rect x='${x + 0.4}' y='${y}' width='${seg - 0.8}' height='${hr - 2}' rx='0.8' fill='${
-        filled ? 'currentColor' : 'none'
-      }' fill-opacity='${filled ? 0.32 : 0}' stroke='currentColor' stroke-width='1.1'/>`;
+      const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
+      const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
+      s += `<rect x='${x + 0.4}' y='${y}' width='${seg - 0.8}' height='${hr - 2}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1.1'/>`;
     }
     return s;
   };
@@ -27,7 +37,12 @@ export function svgBruchZweiStreifen(a: number, d: number, b: number): string {
 }
 
 /** Ein Streifen n/d (für Kürzen, Erweitern, Vergleich). */
-export function svgBruchStreifen(n: number, d: number, zeile: string): string {
+export function svgBruchStreifen(
+  n: number,
+  d: number,
+  zeile: string,
+  modus: BruchdiagrammModus = 'loesung'
+): string {
   if (d < 2 || d > 24) return '';
   const w = Math.min(280, 12 * d);
   const seg = w / d;
@@ -36,9 +51,9 @@ export function svgBruchStreifen(n: number, d: number, zeile: string): string {
   for (let i = 0; i < d; i++) {
     const x = i * seg;
     const filled = i < n;
-    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${
-      filled ? 'currentColor' : 'none'
-    }' fill-opacity='${filled ? 0.32 : 0}' stroke='currentColor' stroke-width='1.1'/>`;
+    const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
+    const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
+    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1.1'/>`;
   }
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h + 14}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}<text x='${
     w / 2
@@ -46,7 +61,7 @@ export function svgBruchStreifen(n: number, d: number, zeile: string): string {
 }
 
 /** Kreisteilungen (Grundvorstellung Bruchteil eines Ganzen). */
-export function svgBruchKreis(n: number, d: number): string {
+export function svgBruchKreis(n: number, d: number, modus: BruchdiagrammModus = 'loesung'): string {
   if (d < 2 || d > 14 || n < 0 || n > d) return '';
   const cx = 48;
   const cy = 48;
@@ -61,15 +76,22 @@ export function svgBruchKreis(n: number, d: number): string {
     const y1 = cy + r * Math.sin(a1);
     const large = a1 - a0 > Math.PI + 0.01 ? 1 : 0;
     const filled = i < n;
-    paths += `<path d='M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z' fill='${
-      filled ? 'currentColor' : 'none'
-    }' fill-opacity='${filled ? 0.34 : 0.06}' stroke='currentColor' stroke-width='1.1'/>`;
+    const fillOp =
+      modus === 'loesung' ? (filled ? 0.34 : 0.06) : 0.09;
+    const fill = 'currentColor';
+    paths += `<path d='M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1.1'/>`;
   }
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' class='h-24 w-auto text-ink-800 dark:text-ink-200' aria-hidden='true'>${paths}</svg>`;
 }
 
 /** Flächenmodell: n1/d1 · n2/d2 — im Raster d1×d2 sind n1·n2 Felder markiert. */
-export function svgBruchMalRaster(n1: number, d1: number, n2: number, d2: number): string {
+export function svgBruchMalRaster(
+  n1: number,
+  d1: number,
+  n2: number,
+  d2: number,
+  modus: BruchdiagrammModus = 'loesung'
+): string {
   if (d1 < 2 || d2 < 2 || d1 > 8 || d2 > 8) return '';
   const cell = 20;
   const w = cell * d1;
@@ -80,16 +102,21 @@ export function svgBruchMalRaster(n1: number, d1: number, n2: number, d2: number
       const x = col * cell;
       const y = row * cell;
       const shaded = col < n1 && row < n2;
-      rects += `<rect x='${x + 1}' y='${y + 1}' width='${cell - 2}' height='${cell - 2}' fill='${
-        shaded ? 'currentColor' : 'none'
-      }' fill-opacity='${shaded ? 0.34 : 0.07}' stroke='currentColor' stroke-width='1'/>`;
+      const fillOp =
+        modus === 'loesung' ? (shaded ? 0.34 : 0.07) : 0.08;
+      rects += `<rect x='${x + 1}' y='${y + 1}' width='${cell - 2}' height='${cell - 2}' fill='currentColor' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1'/>`;
     }
   }
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' class='mx-auto max-h-44 w-auto text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}</svg>`;
 }
 
 /** Vergleich zweier Brüche auf gemeinsamen Nenner L gebracht (Streifen A und B). */
-export function svgBruchVergleichZweiRiegel(nA: number, nB: number, L: number): string {
+export function svgBruchVergleichZweiRiegel(
+  nA: number,
+  nB: number,
+  L: number,
+  modus: BruchdiagrammModus = 'loesung'
+): string {
   if (L < 2 || L > 20) return '';
   const pad = 14;
   const bw = 246;
@@ -100,9 +127,9 @@ export function svgBruchVergleichZweiRiegel(nA: number, nB: number, L: number): 
     for (let i = 0; i < L; i++) {
       const x = pad + i * seg;
       const filled = i < n;
-      s += `<rect x='${x + 0.35}' y='${y}' width='${seg - 0.7}' height='${hr - 2}' rx='0.5' fill='${
-        filled ? 'currentColor' : 'none'
-      }' fill-opacity='${filled ? 0.32 : 0}' stroke='currentColor' stroke-width='1'/>`;
+      const fill = modus === 'loesung' && filled ? 'currentColor' : 'none';
+      const fillOp = modus === 'loesung' && filled ? 0.32 : 0;
+      s += `<rect x='${x + 0.35}' y='${y}' width='${seg - 0.7}' height='${hr - 2}' rx='0.5' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1'/>`;
     }
     return `<text x='2' y='${y + 18}' font-size='12' fill='currentColor' font-family='system-ui,sans-serif'>${mark}</text>${s}`;
   };

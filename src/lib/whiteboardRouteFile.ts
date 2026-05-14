@@ -7,6 +7,7 @@ export type WhiteboardRouteTask = {
   frage: string;
   loesung: string;
   diagram?: string;
+  diagramLoesung?: string;
 };
 
 export type WhiteboardRouteState = {
@@ -48,9 +49,11 @@ function normalizedStringArray(value: unknown): string[] | undefined {
 function normalizedTask(value: unknown): WhiteboardRouteTask | null {
   if (!isRecord(value) || typeof value.frage !== 'string' || typeof value.loesung !== 'string') return null;
   if (typeof value.diagram !== 'undefined' && typeof value.diagram !== 'string') return null;
-  return typeof value.diagram === 'string'
-    ? { frage: value.frage, loesung: value.loesung, diagram: value.diagram }
-    : { frage: value.frage, loesung: value.loesung };
+  if (typeof value.diagramLoesung !== 'undefined' && typeof value.diagramLoesung !== 'string') return null;
+  const base: WhiteboardRouteTask = { frage: value.frage, loesung: value.loesung };
+  if (typeof value.diagram === 'string') base.diagram = value.diagram;
+  if (typeof value.diagramLoesung === 'string') base.diagramLoesung = value.diagramLoesung;
+  return base;
 }
 
 function normalizedNumberMap(value: unknown): Record<string, number> {

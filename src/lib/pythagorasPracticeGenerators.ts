@@ -57,7 +57,14 @@ function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boo
   return Math.abs(a * p * p + q) <= FUN_GRAPH_AXIS_INTERCEPT_MAX;
 }
 
-export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
+export type PracticeAufgabe = {
+  frage: string;
+  loesung: string;
+  /** Skizze zur Aufgabenstellung (ohne Lösungshinweis in der Schattierung). */
+  diagram?: string;
+  /** Optional: Skizze mit vollständiger Markierung — z. B. in „Lösung zeigen“. */
+  diagramLoesung?: string;
+};
 
 export type RandomFn = () => number;
 
@@ -913,7 +920,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$.`,
         loesung: loes,
-        diagram: svgBruchZweiStreifen(a, d, b),
+        diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
+        diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
       };
     },
     br_sub_like() {
@@ -929,7 +937,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$.`,
         loesung: loes,
-        diagram: svgBruchZweiStreifen(a, d, b),
+        diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
+        diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
       };
     },
     br_erweitern() {
@@ -949,7 +958,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (${k}-fach erweitern).`,
-        diagram: svgBruchStreifen(n, d, `${n}/${d}`),
+        diagram: svgBruchStreifen(n, d, `${n}/${d}`, 'aufgabe'),
+        diagramLoesung: svgBruchStreifen(n, d, `${n}/${d}`, 'loesung'),
       };
     },
     br_kuerzen() {
@@ -965,7 +975,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gemeinsamer Faktor $${g}$).`,
-        diagram: svgBruchStreifen(n, d, `${n}/${d}`),
+        diagram: svgBruchStreifen(n, d, `${n}/${d}`, 'aufgabe'),
+        diagramLoesung: svgBruchStreifen(n, d, `${n}/${d}`, 'loesung'),
       };
     },
     br_mul_frac() {
@@ -988,7 +999,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$.`,
         loesung: `$\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}=\\frac{${pn}}{${pd}}${tail}$.`,
-        diagram: svgBruchMalRaster(n1, d1, n2, d2),
+        diagram: svgBruchMalRaster(n1, d1, n2, d2, 'aufgabe'),
+        diagramLoesung: svgBruchMalRaster(n1, d1, n2, d2, 'loesung'),
       };
     },
     br_vergleich() {
@@ -1019,7 +1031,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
         loesung: `Kreuzweise: $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$. Der größere Bruch ist ${gr}.`,
-        diagram: svgBruchVergleichZweiRiegel(nA, nB, L),
+        diagram: svgBruchVergleichZweiRiegel(nA, nB, L, 'aufgabe'),
+        diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
       };
     },
     nz_add() {
