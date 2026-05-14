@@ -3,13 +3,19 @@
  * Koordinaten: mathematisch x nach rechts, y nach oben (y-Achse im Plot nach oben wachsend).
  */
 
+import {
+  clamp,
+  renderFunctionGraphArrowMarker,
+  renderFunctionGraphAxisLabel,
+  renderFunctionGraphGridLine,
+  renderFunctionGraphTickLabel,
+  renderFunctionGraphXAxis,
+  renderFunctionGraphYAxis,
+} from './functionGraphStyle';
+
 const STROKE_MAIN = 'var(--mu-geo-stroke)';
 const STROKE_ACCENT = 'var(--mu-geo-accent)';
-const STROKE_SECOND = 'var(--mu-geo-second)';
 const TEXT_MAIN = 'var(--mu-geo-text)';
-const TEXT_SOFT = 'var(--mu-geo-text-soft)';
-const HELPER = 'var(--mu-geo-helper)';
-const FILL_SOFT = 'var(--mu-geo-fill-soft)';
 
 /**
  * Parabel $y = a(x-p)^2 + q$ mit Scheitel $(p|q)$, optional markierten Nullstellen auf der $x$-Achse.
@@ -28,11 +34,16 @@ export function svgParabolaScheitelform(opts: {
   const padT = 28;
   const padB = 40;
 
-  const xs: number[] = [];
-  for (let i = 0; i <= 48; i++) xs.push(p - 3.2 + (6.4 * i) / 48);
+  let xmin = p - 3.2;
+  let xmax = p + 3.2;
+  if (xmin > 0) xmin = -0.45;
+  if (xmax < 0) xmax = 0.45;
 
-  let ymin = q;
-  let ymax = q;
+  const xs: number[] = [];
+  for (let i = 0; i <= 64; i++) xs.push(xmin + ((xmax - xmin) * i) / 64);
+
+  let ymin = Math.min(q, 0);
+  let ymax = Math.max(q, 0);
   const ys = xs.map((x) => {
     const y = a * (x - p) * (x - p) + q;
     ymin = Math.min(ymin, y);
@@ -50,13 +61,15 @@ export function svgParabolaScheitelform(opts: {
     ymin = mid - 1.25;
     ymax = mid + 1.25;
   }
+  if (ymin > 0) ymin = -0.45;
+  if (ymax < 0) ymax = 0.45;
 
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
-  const sx = plotW / (xs[xs.length - 1]! - xs[0]!);
+  const sx = plotW / (xmax - xmin);
   const sy = plotH / (ymax - ymin);
 
-  const X = (x: number) => padL + (x - xs[0]!) * sx;
+  const X = (x: number) => padL + (x - xmin) * sx;
   const Ymath = (y: number) => padT + (ymax - y) * sy;
 
   const d = xs
@@ -65,8 +78,47 @@ export function svgParabolaScheitelform(opts: {
 
   const xAxisY = Ymath(0);
   const yAxisX = X(0);
-  const drawXAxis = ymin <= 0 && ymax >= 0;
-  const drawYAxis = xs[0]! <= 0 && xs[xs.length - 1]! >= 0;
+  const markerId = `qf-${Math.abs(
+    Math.round(1000 * a + 101 * p + 17 * q + 13 * (roots?.[0] ?? 0) + 19 * (roots?.[1] ?? 0))
+  )}-axis-arrow`;
+  const xAxisEnd = W - padR - 8;
+  const yAxisTop = padT + 8;
+  const xAxisLabelY = clamp(xAxisY - 8, padT + 14, H - padB - 8);
+  const yAxisLabelX = clamp(yAxisX + 12, padL + 14, W - padR - 14);
+  const yAxisLabelY = padT + 18;
+
+  let grid = '';
+  const xi0 = Math.ceil(xmin);
+  const xi1 = Math.floor(xmax);
+  for (let xi = xi0; xi <= xi1; xi++) {
+    grid += renderFunctionGraphGridLine(X(xi), padT, X(xi), H - padB);
+  }
+  const yi0 = Math.ceil(ymin);
+  const yi1 = Math.floor(ymax);
+  for (let yi = yi0; yi <= yi1; yi++) {
+    grid += renderFunctionGraphGridLine(padL, Ymath(yi), W - padR, Ymath(yi));
+  }
+
+  const axes = `${renderFunctionGraphXAxis(padL, xAxisEnd, xAxisY, markerId)}
+    ${renderFunctionGraphYAxis(yAxisX, H - padB, yAxisTop, markerId)}
+    ${renderFunctionGraphAxisLabel('x', xAxisEnd - 13, xAxisLabelY)}
+    ${renderFunctionGraphAxisLabel('y', yAxisLabelX, yAxisLabelY)}`;
+
+  let ticks = '';
+  for (let xi = xi0; xi <= xi1; xi++) {
+    if (Math.abs(xi) > 12 || xi === 0) continue;
+    ticks += renderFunctionGraphTickLabel(xi, X(xi), clamp(xAxisY + 15, padT + 14, H - padB - 4));
+  }
+  for (let yi = yi0; yi <= yi1; yi++) {
+    if (Math.abs(yi) > 12 || yi === 0) continue;
+    const labelLeftOfAxis = yAxisX > W - padR - 28;
+    ticks += renderFunctionGraphTickLabel(
+      yi,
+      labelLeftOfAxis ? yAxisX - 7 : yAxisX + 7,
+      Ymath(yi) + 3,
+      labelLeftOfAxis ? 'end' : 'start'
+    );
+  }
 
   let rootDots = '';
   if (roots) {
@@ -83,12 +135,12 @@ export function svgParabolaScheitelform(opts: {
 
   return `<figure class="mu-geo-diagram" role="img" aria-label="Skizze Parabel">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" focusable="false">
-  <rect x="0" y="0" width="${W}" height="${H}" fill="transparent" />
-  ${drawXAxis ? `<line x1="${padL}" y1="${xAxisY}" x2="${W - padR}" y2="${xAxisY}" stroke="${HELPER}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-    <text x="${W - padR + 4}" y="${xAxisY + 4}" font-size="13" fill="${TEXT_SOFT}" font-style="italic">x</text>` : ''}
-  ${drawYAxis ? `<line x1="${yAxisX}" y1="${padT}" x2="${yAxisX}" y2="${H - padB}" stroke="${HELPER}" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-    <text x="${yAxisX + 6}" y="${padT + 4}" font-size="13" fill="${TEXT_SOFT}" font-style="italic">y</text>` : ''}
+  <defs>${renderFunctionGraphArrowMarker(markerId)}</defs>
+  <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="currentColor" fill-opacity="0.03" stroke="currentColor" stroke-width="1" opacity="0.18" rx="2" />
+  ${grid}
   <path d="${d}" fill="none" stroke="${STROKE_MAIN}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+  ${axes}
+  ${ticks}
   ${rootDots}
   ${vertexDot}
 </svg></figure>`;

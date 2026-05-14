@@ -3,6 +3,16 @@
  * (deutet die Lösung der zugehörigen linearen Gleichung an).
  */
 
+import {
+  clamp,
+  renderFunctionGraphArrowMarker,
+  renderFunctionGraphAxisLabel,
+  renderFunctionGraphGridLine,
+  renderFunctionGraphTickLabel,
+  renderFunctionGraphXAxis,
+  renderFunctionGraphYAxis,
+} from './functionGraphStyle';
+
 export type GeradeMN = { m: number; n: number };
 
 export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: number): string {
@@ -46,42 +56,63 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
   };
 
   const clipId = `lgc-${Math.abs(Math.round(1000 * xS + 13 * g1.m + 17 * g1.n + 19 * g2.m + 23 * g2.n))}`;
+  const markerId = `${clipId}-axis-arrow`;
 
-  let axes = '';
-  if (xmin <= 0 && xmax >= 0) {
-    axes += `<line x1='${sx(0)}' y1='${margin}' x2='${sx(0)}' y2='${H - margin}' stroke='currentColor' stroke-width='1.25' opacity='0.4'/>`;
-  }
-  if (ymin <= 0 && ymax >= 0) {
-    axes += `<line x1='${margin}' y1='${sy(0)}' x2='${W - margin}' y2='${sy(0)}' stroke='currentColor' stroke-width='1.25' opacity='0.4'/>`;
-  }
+  const xAxisY = sy(0);
+  const yAxisX = sx(0);
+  const xAxisEnd = W - margin - 8;
+  const yAxisTop = margin + 8;
+  const xAxisLabelY = clamp(xAxisY - 8, margin + 14, H - margin - 8);
+  const yAxisLabelX = clamp(yAxisX + 12, margin + 14, W - margin - 14);
+  const yAxisLabelY = margin + 18;
 
   let grid = '';
   const xi0 = Math.ceil(xmin);
   const xi1 = Math.floor(xmax);
   for (let xi = xi0; xi <= xi1; xi++) {
-    grid += `<line x1='${sx(xi)}' y1='${margin}' x2='${sx(xi)}' y2='${H - margin}' stroke='currentColor' stroke-width='0.55' opacity='0.06'/>`;
+    grid += renderFunctionGraphGridLine(sx(xi), margin, sx(xi), H - margin);
   }
   const yi0 = Math.ceil(ymin);
   const yi1 = Math.floor(ymax);
   for (let yi = yi0; yi <= yi1; yi++) {
-    grid += `<line x1='${margin}' y1='${sy(yi)}' x2='${W - margin}' y2='${sy(yi)}' stroke='currentColor' stroke-width='0.55' opacity='0.06'/>`;
+    grid += renderFunctionGraphGridLine(margin, sy(yi), W - margin, sy(yi));
   }
+
+  const axes = `${renderFunctionGraphXAxis(margin, xAxisEnd, xAxisY, markerId)}
+    ${renderFunctionGraphYAxis(yAxisX, H - margin, yAxisTop, markerId)}
+    ${renderFunctionGraphAxisLabel('x', xAxisEnd - 13, xAxisLabelY)}
+    ${renderFunctionGraphAxisLabel('y', yAxisLabelX, yAxisLabelY)}`;
 
   let ticks = '';
   for (let xi = xi0; xi <= xi1; xi++) {
     if (Math.abs(xi) > 12) continue;
-    ticks += `<text x='${sx(xi)}' y='${H - 12}' font-size='9' fill='currentColor' opacity='0.55' text-anchor='middle' font-family='system-ui,sans-serif'>${xi}</text>`;
+    if (xi !== 0) ticks += renderFunctionGraphTickLabel(xi, sx(xi), clamp(xAxisY + 15, margin + 14, H - margin - 4));
+  }
+  for (let yi = yi0; yi <= yi1; yi++) {
+    if (Math.abs(yi) > 12 || yi === 0) continue;
+    const labelLeftOfAxis = yAxisX > W - margin - 28;
+    ticks += renderFunctionGraphTickLabel(
+      yi,
+      labelLeftOfAxis ? yAxisX - 7 : yAxisX + 7,
+      sy(yi) + 3,
+      labelLeftOfAxis ? 'end' : 'start'
+    );
   }
 
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>
-  <defs><clipPath id='${clipId}'><rect x='${margin}' y='${margin}' width='${pw}' height='${ph}' rx='2'/></clipPath></defs>
-  <rect x='${margin}' y='${margin}' width='${pw}' height='${ph}' fill='currentColor' fill-opacity='0.04' stroke='currentColor' stroke-width='1' opacity='0.22' rx='2'/>
-  <g clip-path='url(#${clipId})'>${grid}${axes}
+  return `<figure class="mu-geo-diagram" role="img" aria-label="Koordinatensystem mit zwei Geraden">
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>
+  <defs>
+    <clipPath id='${clipId}'><rect x='${margin}' y='${margin}' width='${pw}' height='${ph}' rx='2'/></clipPath>
+    ${renderFunctionGraphArrowMarker(markerId)}
+  </defs>
+  <rect x='${margin}' y='${margin}' width='${pw}' height='${ph}' fill='currentColor' fill-opacity='0.03' stroke='currentColor' stroke-width='1' opacity='0.18' rx='2'/>
+  <g clip-path='url(#${clipId})'>${grid}
     <path d='${linePath(g1)}' fill='none' stroke='currentColor' stroke-width='2.25' stroke-opacity='0.88'/>
     <path d='${linePath(g2)}' fill='none' stroke='currentColor' stroke-width='2.25' stroke-opacity='0.42' stroke-dasharray='7 5'/>
     <circle cx='${sx(xS)}' cy='${sy(yS1)}' r='5' fill='currentColor' fill-opacity='0.5' stroke='currentColor' stroke-width='1.2'/>
   </g>
+  ${axes}
   ${ticks}
-  <text x='${W / 2}' y='${H - 1}' font-size='10' fill='currentColor' text-anchor='middle' opacity='0.72' font-family='system-ui,sans-serif'>Koordinatensystem · Schnittpunkt (x = ${xS})</text>
-</svg>`;
+  <text x='${W / 2}' y='${H - 1}' font-size='10' fill='currentColor' text-anchor='middle' opacity='0.72' font-family='system-ui,sans-serif'>Schnittpunkt: x = ${xS}</text>
+</svg></figure>`;
 }
