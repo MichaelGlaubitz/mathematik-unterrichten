@@ -38,6 +38,7 @@ import {
   svgBruchVergleichZweiRiegel,
   svgBruchZweiStreifen,
 } from './bruchrechnungDiagrams';
+import { svgLineareGleichungSchnittpunkt } from './lineareGleichungDiagrams';
 import { svgDistributivFlaeche } from './algebraDiagrams';
 
 export type PracticeAufgabe = { frage: string; loesung: string; diagram?: string };
@@ -1098,6 +1099,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$.`,
         loesung: `Addition von $${-a}$ (bzw. Subtraktion von $${a}$) auf beiden Seiten: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: b }, x0),
       };
     },
     lg_ax_eq_b() {
@@ -1107,6 +1109,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $${a}x=${b}$.`,
         loesung: `Division durch $${a}$: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: 0 }, { m: 0, n: b }, x0),
       };
     },
     lg_ax_plus_b_eq_c() {
@@ -1117,6 +1120,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$.`,
         loesung: `Zuerst $${formatSignedInt(-b)}$ auf beiden Seiten, dann durch $${a}$: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: 0, n: c }, x0),
       };
     },
     lg_ax_plus_b_eq_cx_plus_d() {
@@ -1133,6 +1137,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}x${formatSignedInt(d)}$.`,
         loesung: `$${c}x$ subtrahieren: $${a - c}x${formatSignedInt(b)}=${d}$. Daraus $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: c, n: d }, x0),
       };
     },
     lg_klammer_linear() {
@@ -1143,6 +1148,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $${k}(x${formatSignedInt(a)})=${rhs}$.`,
         loesung: `Division durch $${k}$: $x${formatSignedInt(a)}=${rhs / k}$. Subtrahiere $${a}$ bzw. addiere $${-a}$: $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: rhs / k }, x0),
       };
     },
     lg_bruch_linear() {
@@ -1153,6 +1159,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$.`,
         loesung: `Mit $${b}$ multiplizieren: $x${formatSignedInt(a)}=${c * b}$, also $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: c * b }, x0),
       };
     },
     wr_vereinfachen() {
