@@ -2,6 +2,9 @@ const AXIS = 'var(--mu-geo-text, #0f172a)';
 const GRID = 'var(--mu-geo-grid, rgba(37, 99, 235, 0.22))';
 const TEXT_SOFT = 'var(--mu-geo-text-soft, #475569)';
 
+/** Einheitlicher Zahlenrahmen für Achsen-Ticks und (in den Generatoren) Achsenschnitte der Funktionsgraphen. */
+export const FUN_GRAPH_AXIS_RANGE_MAX = 8;
+
 export function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }

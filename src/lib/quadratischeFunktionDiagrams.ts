@@ -5,6 +5,7 @@
 
 import {
   clamp,
+  FUN_GRAPH_AXIS_RANGE_MAX,
   renderFunctionGraphArrowMarker,
   renderFunctionGraphAxisLabel,
   renderFunctionGraphGridLine,
@@ -106,11 +107,11 @@ export function svgParabolaScheitelform(opts: {
 
   let ticks = '';
   for (let xi = xi0; xi <= xi1; xi++) {
-    if (Math.abs(xi) > 12 || xi === 0) continue;
+    if (Math.abs(xi) > FUN_GRAPH_AXIS_RANGE_MAX || xi === 0) continue;
     ticks += renderFunctionGraphTickLabel(xi, X(xi), clamp(xAxisY + 15, padT + 14, H - padB - 4));
   }
   for (let yi = yi0; yi <= yi1; yi++) {
-    if (Math.abs(yi) > 12 || yi === 0) continue;
+    if (Math.abs(yi) > FUN_GRAPH_AXIS_RANGE_MAX || yi === 0) continue;
     const labelLeftOfAxis = yAxisX > W - padR - 28;
     ticks += renderFunctionGraphTickLabel(
       yi,
