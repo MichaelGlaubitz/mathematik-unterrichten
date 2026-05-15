@@ -218,32 +218,39 @@ describe('Bruchrechnung-Generatoren', () => {
   });
 });
 
-describe('nz_sub (Negative Zahlen)', () => {
-  it('einfache natürliche Subtraktion: eine Gleichungszeile, kein „z.B.“', () => {
-    let hit = null;
-    for (let seed = 0; seed < 30000 && !hit; seed++) {
-      const t = createPracticeGenerators(makeLcg(seed)).nz_sub();
-      if (!t.loesung.includes('z.')) hit = t;
+describe('nz_add / nz_sub (Negative Zahlen): Lösung ersetzt Aufgabenkern', () => {
+  it('nz_add: frageMitLoesungHighlight ist reine Gleichung wie im Aufgabenteil', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (let k = 0; k < 30; k++) {
+      const t = GEN.nz_add();
+      expect(t.frageMitLoesungHighlight).toBe(t.loesung);
+      expect(t.loesung).not.toContain('Berechne');
+      expect(t.frage).toMatch(/^Berechne die Summe /);
     }
-    expect(hit).not.toBeNull();
-    expect(hit!.diagramDefaultScale).toBe(2);
-    expect(hit!.frageMitLoesungHighlight).toBe(hit!.loesung);
-    expect(hit!.diagram).toBeDefined();
-    expect(hit!.diagramLoesung).toBeDefined();
-    expect(hit!.diagram).not.toContain('Start');
-    expect(hit!.diagramLoesung).toContain('Start');
-    expect(hit!.frage).toMatch(/Berechne die Differenz/);
   });
 
-  it('mit mindestens einem negativen Operanden: Hinweis zur Schreibweise als Addition', () => {
+  it('nz_sub: gleiche Gleichungszeile für alle Operanden, kein „z.B.“', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (let k = 0; k < 30; k++) {
+      const t = GEN.nz_sub();
+      expect(t.frageMitLoesungHighlight).toBe(t.loesung);
+      expect(t.loesung).not.toMatch(/z\./);
+      expect(t.loesung).not.toContain('Berechne');
+      expect(t.frage).toMatch(/^Berechne die Differenz /);
+    }
+  });
+
+  it('nz_sub: bei klammeriertem Subtrahenden stimmt Highlight mit Aufgabe überein', () => {
     let hit = null;
     for (let seed = 0; seed < 30000 && !hit; seed++) {
       const t = createPracticeGenerators(makeLcg(seed)).nz_sub();
-      if (t.loesung.includes('z.')) hit = t;
+      if (t.frage.includes('(-')) hit = t;
     }
     expect(hit).not.toBeNull();
+    expect(hit!.frageMitLoesungHighlight).toBe(hit!.loesung);
     expect(hit!.diagramDefaultScale).toBe(2);
     expect(hit!.diagram).not.toContain('Start');
+    expect(hit!.diagramLoesung).toContain('Start');
   });
 });
 
