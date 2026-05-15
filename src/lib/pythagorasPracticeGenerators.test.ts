@@ -153,6 +153,15 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(auf.diagramLoesung).not.toContain('<text');
   });
 
+  it('br_vergleich: grüne Hervorhebung nur in der Frage, nicht in der Lösung', () => {
+    const GEN = createPracticeGenerators(() => 0.55);
+    const v = GEN.br_vergleich();
+    expect(v.frage).toContain('bg-green-50');
+    expect(v.frage).toContain('border-green-600');
+    expect(v.loesung).not.toContain('bg-green-50');
+    expect(v.loesung).not.toContain('border-green-600');
+  });
+
   it('br_erweitern: Diagramme ohne Bruch-Beschriftung in der Grafik', () => {
     const GEN = createPracticeGenerators(() => 0.1);
     const auf = GEN.br_erweitern();
