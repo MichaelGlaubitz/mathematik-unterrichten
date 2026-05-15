@@ -73,7 +73,7 @@ export type PracticeAufgabe = {
   diagramLoesung?: string;
   /**
    * Wenn wahr: Skizze zur Aufgabe ist zunächst ausgeblendet, auch wenn „Grafiken anzeigen“ aktiv ist
-   * (Bruchmultiplikation: Raster erst nach „Skizze einblenden“).
+   * (Bruchmultiplikation: Raster erst nach „Skizze einblenden“; Größenvergleich: keine Streifen zuerst).
    */
   diagramDefaultHidden?: boolean;
   /**
@@ -1072,6 +1072,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$, $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. Wegen $${zfVgl}$ ist ${gr} größer.`,
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
+        diagramDefaultHidden: true,
       };
     },
     nz_add() {
