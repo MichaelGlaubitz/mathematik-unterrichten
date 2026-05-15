@@ -2313,9 +2313,13 @@ function wbLabelFromHref(href: string): string {
       if (wbPrev) wbPrev.disabled = wbIndex === 0 && !wbZeigeLoesung;
       const istLetzte = wbIndex === aufgaben.length - 1;
       if (wbNext) {
+        const neuMischen = wbZeigeLoesung && istLetzte;
         wbNext.textContent = wbZeigeLoesung
           ? istLetzte ? 'Neu mischen' : 'Nächste Aufgabe →'
           : 'Lösung zeigen';
+        wbNext.className = neuMischen
+          ? 'rounded-md bg-red-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-red-900/25 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 dark:shadow-lg dark:shadow-red-600/35 text-lg'
+          : 'rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-accent-900/25 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400 dark:shadow-lg dark:shadow-accent-600/35 text-lg';
       }
     }
 
