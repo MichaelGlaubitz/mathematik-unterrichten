@@ -15,10 +15,23 @@
   /* Leichte Farbtiefe: weiche „Mesh“-Verläufe statt flachem Grau/Beige */
   .mu-page-bg {
     background-color: theme('colors.ink.50');
+    /* Verläufe leicht in Richtung Seitengrundton mischen, damit keine kalten „Weißflecken“ entstehen */
     background-image:
-      radial-gradient(1200px 520px at 8% -5%, theme('colors.accent.100'), transparent 58%),
-      radial-gradient(900px 440px at 96% 2%, theme('colors.violet.100'), transparent 52%),
-      radial-gradient(760px 400px at 42% 108%, theme('colors.teal.100'), transparent 48%);
+      radial-gradient(
+        1200px 520px at 8% -5%,
+        color-mix(in srgb, theme('colors.accent.100') 78%, theme('colors.ink.50') 22%),
+        transparent 58%
+      ),
+      radial-gradient(
+        900px 440px at 96% 2%,
+        color-mix(in srgb, theme('colors.violet.100') 78%, theme('colors.ink.50') 22%),
+        transparent 52%
+      ),
+      radial-gradient(
+        760px 400px at 42% 108%,
+        color-mix(in srgb, theme('colors.teal.100') 78%, theme('colors.ink.50') 22%),
+        transparent 48%
+      );
     background-attachment: fixed;
   }
 
@@ -77,12 +90,12 @@
   }
 
   .badge-accent {
-    @apply badge bg-gradient-to-br from-accent-50 to-teal-50 text-accent-800 ring-1 ring-inset ring-accent-200/80
+    @apply badge bg-gradient-to-br from-accent-50/90 to-teal-50/90 text-accent-800 ring-1 ring-inset ring-accent-200/80
            dark:from-accent-600/20 dark:via-violet-600/15 dark:to-teal-600/20 dark:text-teal-100 dark:ring-teal-400/35;
   }
 
   .card {
-    @apply bg-white/90 rounded-xl border border-ink-200/90 p-6 shadow-sm backdrop-blur-[2px]
+    @apply bg-surface/90 rounded-xl border border-ink-200/90 p-6 shadow-sm backdrop-blur-[2px]
            transition-[box-shadow,transform,border-color] duration-200
            hover:shadow-md hover:border-accent-200/80 hover:-translate-y-0.5
            dark:bg-ink-800/85 dark:border-violet-500/20 dark:shadow-[0_8px_30px_-10px_rgba(0,0,0,0.55)]
