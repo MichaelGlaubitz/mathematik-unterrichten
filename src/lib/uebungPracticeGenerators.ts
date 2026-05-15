@@ -1095,19 +1095,13 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       const s = a + b;
-      const einfacheNatuerlicheSumme = a >= 0 && b >= 0;
-      const voll = `$${a}+${b}=${s}$`;
+      const exprSumme = `${a}${formatSignedInt(b)}`;
+      const voll = `$${exprSumme}=${s}$`;
       return {
-        frage: einfacheNatuerlicheSumme
-          ? `Berechne die Summe $${a}+${b}$.`
-          : `Berechne die Summe $${a}${formatSignedInt(b)}$.`,
-        ...(einfacheNatuerlicheSumme
-          ? {
-              frageMitLoesungHighlight: voll,
-              loesung: voll,
-              loesungInlineNachFrage: true as const,
-            }
-          : { loesung: `$${a}${formatSignedInt(b)}=${s}$.` }),
+        frage: `Berechne die Summe $${exprSumme}$.`,
+        frageMitLoesungHighlight: voll,
+        loesung: voll,
+        loesungInlineNachFrage: true,
         diagram: svgZahlenstrahlSprung(a, b, 'aufgabe'),
         diagramLoesung: svgZahlenstrahlSprung(a, b, 'loesung'),
         diagramDefaultScale: 2,
@@ -1123,19 +1117,13 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       const s = a - b;
-      const einfacheNatuerlicheSubtraktion = a >= 0 && b >= 0;
-      const voll = `$${a}-${b}=${s}$`;
+      const exprDiff = `${a}-${texSubtrahend(b)}`;
+      const voll = `$${exprDiff}=${s}$`;
       return {
-        frage: `Berechne die Differenz $${a}-${texSubtrahend(b)}$.`,
-        ...(einfacheNatuerlicheSubtraktion
-          ? {
-              frageMitLoesungHighlight: voll,
-              loesung: voll,
-              loesungInlineNachFrage: true as const,
-            }
-          : {
-              loesung: `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
-            }),
+        frage: `Berechne die Differenz $${exprDiff}$.`,
+        frageMitLoesungHighlight: voll,
+        loesung: voll,
+        loesungInlineNachFrage: true,
         diagram: svgZahlenstrahlSprung(a, -b, 'aufgabe'),
         diagramLoesung: svgZahlenstrahlSprung(a, -b, 'loesung'),
         diagramDefaultScale: 2,
