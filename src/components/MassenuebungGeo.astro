@@ -1881,6 +1881,34 @@ function wbLabelFromHref(href: string): string {
     const wbVorbereitung = document.getElementById('ug-wb-vorbereitung');
     const wbVorbZuAb = document.getElementById('ug-wb-vorbereitung-zu-ab');
 
+    liste?.addEventListener(
+      'toggle',
+      (e) => {
+        const details = e.target;
+        if (!(details instanceof HTMLDetailsElement) || !details.classList.contains('ug-task-details')) return;
+        const li = details.closest('li');
+        if (!li) return;
+        const fr = li.querySelector('.ug-task-frage[data-mu-frage-highlight]');
+        if (!(fr instanceof HTMLElement)) return;
+        const encHi = fr.getAttribute('data-mu-frage-highlight');
+        const encNeu = fr.getAttribute('data-mu-frage-neutral');
+        if (!encHi || !encNeu) return;
+        try {
+          fr.innerHTML = details.open ? decodeURIComponent(encHi) : decodeURIComponent(encNeu);
+        } catch {
+          return;
+        }
+        if (typeof window.renderMathInElement === 'function') {
+          try {
+            window.renderMathInElement(fr, muPracticeKatexOpts());
+          } catch (err) {
+            console.warn('[MassenuebungGeo] KaTeX (Frage bei Lösung ein/aus):', err);
+          }
+        }
+      },
+      true
+    );
+
     if (wbOverlay && wbOverlay.parentElement !== document.body) {
       document.body.appendChild(wbOverlay);
     }
@@ -2146,6 +2174,23 @@ function wbLabelFromHref(href: string): string {
       return f.startsWith('Berechne die Summe ') || f.startsWith('Berechne die Differenz ');
     }
 
+    /** Fragentext: optional `frageMitLoesungHighlight` erst, wenn die Lösung sichtbar ist (Whiteboard). */
+    function practiceFrageAnzeigeHtml(a, loesungSichtbar) {
+      return loesungSichtbar && a.frageMitLoesungHighlight ? a.frageMitLoesungHighlight : a.frage;
+    }
+
+    function muPracticeKatexOpts() {
+      return {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+        ],
+        ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
+        ignoredClasses: ['katex', 'mu-geo-diagram'],
+        throwOnError: false,
+      };
+    }
+
     function aktiveTypen() {
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
@@ -2209,15 +2254,7 @@ function wbLabelFromHref(href: string): string {
       }
 
       if (typeof window.renderMathInElement === 'function') {
-        const opts = {
-          delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false },
-          ],
-          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
-          ignoredClasses: ['katex', 'mu-geo-diagram'],
-          throwOnError: false,
-        };
+        const opts = muPracticeKatexOpts();
         try {
           if (steuerung) window.renderMathInElement(steuerung, opts);
           if (layout === 'arbeitsblatt') {
@@ -2271,10 +2308,14 @@ function wbLabelFromHref(href: string): string {
         const loesungTextBlock = inlineL
           ? `<div class="mt-1 text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
           : `<div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
+        const frageHighlightAttrs =
+          a.frageMitLoesungHighlight
+            ? ` data-mu-frage-neutral="${encodeURIComponent(a.frage)}" data-mu-frage-highlight="${encodeURIComponent(a.frageMitLoesungHighlight)}"`
+            : '';
         li.innerHTML = `
           ${diagramToggle}
-          <div class="text-ink-900 dark:text-ink-50 mb-2">${a.frage}</div>
-          <details class="group">
+          <div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${a.frage}</div>
+          <details class="group ug-task-details">
             <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
             ${loesungImDetails}
             ${loesungTextBlock}
@@ -2325,7 +2366,7 @@ function wbLabelFromHref(href: string): string {
         wbZeigeLoesung && inlineL
           ? ` <span class="text-ink-800 dark:text-slate-100">${cur.loesung}</span>`
           : '';
-      if (wbFrage) wbFrage.innerHTML = `${dia}${cur.frage}${loesungAnWhiteboardFrage}</div>`;
+      if (wbFrage) wbFrage.innerHTML = `${dia}${practiceFrageAnzeigeHtml(cur, wbZeigeLoesung)}${loesungAnWhiteboardFrage}</div>`;
       if (wbLoesungText) wbLoesungText.innerHTML = inlineL ? '' : aufgaben[wbIndex].loesung;
       if (wbLoesung) wbLoesung.hidden = !wbZeigeLoesung || inlineL;
       if (wbPrev) wbPrev.disabled = wbIndex === 0 && !wbZeigeLoesung;

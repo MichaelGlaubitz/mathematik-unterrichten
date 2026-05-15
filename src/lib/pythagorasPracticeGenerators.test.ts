@@ -153,11 +153,12 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(auf.diagramLoesung).not.toContain('<text');
   });
 
-  it('br_vergleich: grüne Hervorhebung nur in der Frage, nicht in der Lösung', () => {
+  it('br_vergleich: grüne Hervorhebung nur in frageMitLoesungHighlight, neutrale frage und Lösung ohne grün', () => {
     const GEN = createPracticeGenerators(() => 0.55);
     const v = GEN.br_vergleich();
-    expect(v.frage).toContain('bg-green-50');
-    expect(v.frage).toContain('border-green-600');
+    expect(v.frage).not.toContain('bg-green-50');
+    expect(v.frageMitLoesungHighlight).toBeDefined();
+    expect(v.frageMitLoesungHighlight).toContain('bg-green-50');
     expect(v.loesung).not.toContain('bg-green-50');
     expect(v.loesung).not.toContain('border-green-600');
   });
