@@ -12,12 +12,12 @@ export function buildGithubEditUrl(repo: string, branch: string, filePath: strin
 }
 
 /**
- * Strg+Shift+E bzw. Cmd+Shift+E: Quelldatei auf GitHub öffnen (wenn konfiguriert).
+ * Strg+Shift+E bzw. Cmd+Shift+E: Quelldatei auf GitHub öffnen.
  *
  * Voraussetzungen im gerenderten HTML:
- * - `<meta name="mu-github-source-path" content="src/content/…" />` (setzt z. B. BaseLayout über `githubEditPath`)
- * - `document.body` mit `data-gh-repo="Owner/name"` und optional `data-gh-branch` (Standard `main`),
- *   gesetzt über `PUBLIC_GITHUB_REPO` / `PUBLIC_GITHUB_BRANCH` in `.env`
+ * - `<meta name="mu-github-source-path" content="src/…" />` — `BaseLayout`:
+ *   `sourceFile` (Page im Repo), optional überschrieben durch `githubEditPath` (z. B. Content-`.md`).
+ * - `data-gh-repo` / `data-gh-branch` am `body` (Standard-Repo oder `PUBLIC_GITHUB_*`).
  */
 export function registerGithubSourceShortcut(): void {
   if (typeof document === 'undefined') return;
