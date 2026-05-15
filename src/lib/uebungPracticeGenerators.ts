@@ -1180,7 +1180,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const kl = Math.min(a, b);
       const grIstA = gr === a;
       return {
-        frage: `Welche Zahl ist größer: $${a}$ oder $${b}$? (Skizze: A gehört zur ersten Zahl, B zur zweiten.)`,
+        frage: `Welche Zahl ist größer: $${a}$ oder $${b}$?`,
         loesung: `${grIstA ? 'A' : 'B'} ist größer: $${gr} > ${kl}$. Auf dem Zahlenstrahl liegt die größere Zahl weiter rechts.`,
         diagram: svgZahlenstrahlZweiWerte(a, b, 'aufgabe'),
         diagramLoesung: svgZahlenstrahlZweiWerte(a, b, 'loesung'),
