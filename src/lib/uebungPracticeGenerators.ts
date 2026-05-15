@@ -1321,10 +1321,16 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const m = randInt(2, 6);
       const n = randInt(2, 6);
       const s = k * (m + n);
+      const dia = svgDistributivFlaeche(k, m, n);
       return {
         frage: `Berechne mit dem Distributivgesetz: $${k}(${m}+${n})$.`,
         loesung: `$${k}(${m}+${n})=${k}\\cdot ${m}+${k}\\cdot ${n}=${k * m}+${k * n}=${s}$.`,
-        diagram: svgDistributivFlaeche(k, m, n),
+        ...(dia
+          ? {
+              diagramLoesung: dia,
+              diagramDefaultHidden: true,
+            }
+          : {}),
       };
     },
     lg_x_plus_a_eq_b() {

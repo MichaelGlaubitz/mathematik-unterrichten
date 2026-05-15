@@ -254,6 +254,19 @@ describe('nz_add / nz_sub (Negative Zahlen): Lösung ersetzt Aufgabenkern', () =
   });
 });
 
+describe('alg_distributiv_zahl (Algebra)', () => {
+  it('liefert nur diagramLoesung, kein Aufgaben-Diagramm', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (let k = 0; k < 20; k++) {
+      const t = GEN.alg_distributiv_zahl();
+      expect(t.diagram).toBeUndefined();
+      expect(t.diagramLoesung).toBeDefined();
+      expect(t.diagramLoesung).toContain('<svg');
+      expect(t.diagramDefaultHidden).toBe(true);
+    }
+  });
+});
+
 describe('nz_div (Negative Zahlen)', () => {
   it('Lösung nennt eine Vorzeichenregel zur Division', () => {
     const GEN = createPracticeGenerators(Math.random);

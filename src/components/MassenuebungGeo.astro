@@ -254,7 +254,8 @@ function wbLabelFromHref(href: string): string {
             ausklammern, wie in den Whiteboard-Beispielen des Themas.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
-            Eine Aufgabenart nutzt ein <strong>Flächenmodell</strong> zum Distributivgesetz (nur positive Zahlen).
+            Eine Aufgabenart nutzt ein <strong>Flächenmodell</strong> zum Distributivgesetz (nur positive Zahlen); die
+            Grafik erscheint erst bei eingeblendeter Lösung.
           </p>
         </>
       ) : variant === 'lineare-gleichungen' ? (
@@ -1934,22 +1935,26 @@ function wbLabelFromHref(href: string): string {
         const li = details.closest('li');
         if (!li) return;
         const fr = li.querySelector('.ug-task-frage[data-mu-frage-highlight]');
-        if (!(fr instanceof HTMLElement)) return;
-        const encHi = fr.getAttribute('data-mu-frage-highlight');
-        const encNeu = fr.getAttribute('data-mu-frage-neutral');
-        if (!encHi || !encNeu) return;
-        try {
-          fr.innerHTML = details.open ? decodeURIComponent(encHi) : decodeURIComponent(encNeu);
-        } catch {
-          return;
-        }
-        if (typeof window.renderMathInElement === 'function') {
-          try {
-            window.renderMathInElement(fr, muPracticeKatexOpts());
-          } catch (err) {
-            console.warn('[MassenuebungGeo] KaTeX (Frage bei Lösung ein/aus):', err);
+        if (fr instanceof HTMLElement) {
+          const encHi = fr.getAttribute('data-mu-frage-highlight');
+          const encNeu = fr.getAttribute('data-mu-frage-neutral');
+          if (encHi && encNeu) {
+            try {
+              fr.innerHTML = details.open ? decodeURIComponent(encHi) : decodeURIComponent(encNeu);
+            } catch {
+              /* ungültige data-mu-frage-* */
+            }
+            if (typeof window.renderMathInElement === 'function') {
+              try {
+                window.renderMathInElement(fr, muPracticeKatexOpts());
+              } catch (err) {
+                console.warn('[MassenuebungGeo] KaTeX (Frage bei Lösung ein/aus):', err);
+              }
+            }
           }
         }
+        syncPracticeDiagramUi(li);
+        syncDiagramZoomUi(li);
       },
       true
     );
@@ -2345,22 +2350,41 @@ function wbLabelFromHref(href: string): string {
         li.className = 'pl-1';
         const prefKey = diagramTaskPreferenceKey(a.frage, idx);
         const diaDefHidden = a.diagramDefaultHidden === true ? 'true' : 'false';
-        const diagramVis = effectiveDiagramVisibleByHash(prefKey, a.diagramDefaultHidden === true);
-        const diaToggleLabel = practiceDiagramToggleAriaLabel(diagramVis);
-        const diagramToggle = a.diagram || a.diagramLoesung
+        const hasOnlyLoesungDiagram = !a.diagram && !!a.diagramLoesung;
+        const diagramVisTop = effectiveDiagramVisibleByHash(prefKey, a.diagramDefaultHidden === true);
+        const diaToggleLabelTop = practiceDiagramToggleAriaLabel(diagramVisTop);
+        const diagramBodyTop = a.diagram
+          ? `<div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagram}</div>`
+          : '';
+        const showTopDiagramChrome = !!a.diagram || (!!a.diagramLoesung && !hasOnlyLoesungDiagram);
+        const diagramChromeTop = showTopDiagramChrome
           ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-surface hover:bg-ink-50 dark:border-slate-600/55 dark:bg-slate-900/75 dark:text-ink-100 dark:hover:bg-slate-800/85" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVis ? 'true' : 'false'}" aria-label="${diaToggleLabel}" title="${diaToggleLabel}">${practiceDiagramToggleIconMarkup(diagramVis)}</button>
+              <button type="button" class="ug-task-diagram-toggle inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-surface hover:bg-ink-50 dark:border-slate-600/55 dark:bg-slate-900/75 dark:text-ink-100 dark:hover:bg-slate-800/85" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVisTop ? 'true' : 'false'}" aria-label="${diaToggleLabelTop}" title="${diaToggleLabelTop}">${practiceDiagramToggleIconMarkup(diagramVisTop)}</button>
               <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-surface px-1 py-0.5 dark:border-slate-600/55 dark:bg-slate-900/75" data-mu-diagram-zoom-for="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}">
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-slate-800/85 disabled:opacity-35" data-mu-diagram-hash="${prefKey}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
                 <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${prefKey}">100%</span>
                 <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-slate-800/85 disabled:opacity-35" data-mu-diagram-hash="${prefKey}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
               </span>
             </div>
-            <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagram ?? ''}</div>`
+            ${diagramBodyTop}`
           : '';
         const inlineL = practiceAufgabeHatLoesungInlineNachFrage(a);
+        const diagramVisLoesungChrome = hasOnlyLoesungDiagram
+          ? effectiveDiagramVisibleByHash(prefKey, a.diagramDefaultHidden === true, true)
+          : diagramVisTop;
+        const diaToggleLabelLoesung = practiceDiagramToggleAriaLabel(diagramVisLoesungChrome);
         const loesungImDetails = a.diagramLoesung
-          ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" data-mu-diagram-loesung-grafik="true">${a.diagramLoesung}</div>`
+          ? hasOnlyLoesungDiagram
+            ? `<div class="mb-2 print:hidden flex flex-wrap items-center gap-2">
+                <button type="button" class="ug-task-diagram-toggle inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-surface hover:bg-ink-50 dark:border-slate-600/55 dark:bg-slate-900/75 dark:text-ink-100 dark:hover:bg-slate-800/85" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" data-mu-diagram-loesung-grafik="true" aria-pressed="${diagramVisLoesungChrome ? 'true' : 'false'}" aria-label="${diaToggleLabelLoesung}" title="${diaToggleLabelLoesung}">${practiceDiagramToggleIconMarkup(diagramVisLoesungChrome)}</button>
+                <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-surface px-1 py-0.5 dark:border-slate-600/55 dark:bg-slate-900/75" data-mu-diagram-zoom-for="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" data-mu-diagram-loesung-grafik="true">
+                  <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-slate-800/85 disabled:opacity-35" data-mu-diagram-hash="${prefKey}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                  <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-ink-300" data-mu-diagram-zoom-label-for="${prefKey}">100%</span>
+                  <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-slate-800/85 disabled:opacity-35" data-mu-diagram-hash="${prefKey}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+                </span>
+              </div>
+              <div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" data-mu-diagram-loesung-grafik="true">${a.diagramLoesung}</div>`
+            : `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${prefKey}" data-mu-diagram-default-hidden="${diaDefHidden}" data-mu-diagram-loesung-grafik="true">${a.diagramLoesung}</div>`
           : '';
         const loesungTextBlock =
           inlineL && a.frageMitLoesungHighlight
@@ -2373,7 +2397,7 @@ function wbLabelFromHref(href: string): string {
             ? ` data-mu-frage-neutral="${encodeURIComponent(a.frage)}" data-mu-frage-highlight="${encodeURIComponent(a.frageMitLoesungHighlight)}"`
             : '';
         li.innerHTML = `
-          ${diagramToggle}
+          ${diagramChromeTop}
           <div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${a.frage}</div>
           <details class="group ug-task-details">
             <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
