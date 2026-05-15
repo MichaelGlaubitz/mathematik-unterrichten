@@ -965,8 +965,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (${k}-fach erweitern).`,
-        diagram: svgBruchErweiternKacheln(n, d, k, `${n}/${d}`, 'aufgabe'),
-        diagramLoesung: svgBruchErweiternKacheln(n, d, k, `${n}/${d} → ${N}/${D}`, 'loesung'),
+        diagram: svgBruchErweiternKacheln(n, d, k, '', 'aufgabe'),
+        diagramLoesung: svgBruchErweiternKacheln(n, d, k, '', 'loesung'),
       };
     },
     br_kuerzen() {
@@ -982,8 +982,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gemeinsamer Faktor $${g}$).`,
-        diagram: svgBruchStreifen(n, d, `${n}/${d}`, 'aufgabe', g),
-        diagramLoesung: svgBruchStreifen(n, d, `${n}/${d}`, 'loesung', g),
+        diagram: svgBruchStreifen(n, d, '', 'aufgabe', g),
+        diagramLoesung: svgBruchStreifen(n, d, '', 'loesung', g),
       };
     },
     br_mul_frac() {
@@ -1037,9 +1037,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           ? `$\\displaystyle\\frac{${a}}{${d1}}$`
           : `$\\displaystyle\\frac{${b}}{${d2}}$`;
       const zfVgl = nA > nB ? `${nA} > ${nB}` : `${nA} < ${nB}`;
+      const grMitBox = `<span class="inline-block rounded-md border border-green-600 bg-green-50 px-2 py-0.5 align-middle dark:border-green-400 dark:bg-green-950/55">${gr}</span>`;
       return {
         frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
-        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$, $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. Wegen $${zfVgl}$ ist ${gr} größer. Kreuzweise (Kreuzmethode): $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$ — ebenfalls ${gr}.`,
+        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$, $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. Wegen $${zfVgl}$ ist ${grMitBox} größer.`,
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
       };

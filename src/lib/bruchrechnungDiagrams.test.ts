@@ -22,12 +22,12 @@ describe('bruchrechnungDiagrams', () => {
     expect(svgBruchStreifen(2, 5, '2/5', 'loesung')).toMatch(/<rect[^>]*fill='currentColor'/);
   });
 
-  it('Streifen Kürzen: Aufgabe schattiert ohne Blockrahmen; Lösung rote und blaue Blockrahmen', () => {
+  it('Streifen Kürzen: Aufgabe schattiert ohne Blockrahmen; Lösung rote und blaue Blockrahmen; ohne Untertitel wenn zeile leer', () => {
     const g = 3;
     const n = 6;
     const d = 9;
-    const auf = svgBruchStreifen(n, d, '6/9', 'aufgabe', g);
-    const loe = svgBruchStreifen(n, d, '6/9', 'loesung', g);
+    const auf = svgBruchStreifen(n, d, '', 'aufgabe', g);
+    const loe = svgBruchStreifen(n, d, '', 'loesung', g);
     const zaehlerBloecke = n / g;
     const restBloecke = (d - n) / g;
     const blockRahmenAnzahl = zaehlerBloecke + restBloecke;
@@ -41,20 +41,30 @@ describe('bruchrechnungDiagrams', () => {
     expect((loe.match(/stroke-width='1.1'/g) || []).length).toBe(d);
     expect((loe.match(/stroke='#dc2626'/g) || []).length).toBe(zaehlerBloecke);
     expect((loe.match(/stroke='#2563eb'/g) || []).length).toBe(restBloecke);
-    const ohne = svgBruchStreifen(2, 5, '2/5', 'loesung');
+    expect(auf).not.toContain('<text');
+    expect(loe).not.toContain('<text');
+    const ohne = svgBruchStreifen(2, 5, '', 'loesung');
     expect(ohne).not.toContain("stroke-width='2.75'");
   });
 
-  it('Erweitern-Kacheln: Aufgabe n/d-Spalten dunkel, ohne Lösungstext; Lösung volles Gitter mit Ergebniszeile', () => {
-    const auf = svgBruchErweiternKacheln(2, 4, 3, '2/4', 'aufgabe');
+  it('Erweitern-Kacheln: Aufgabe n/d-Spalten dunkel; Lösung volles Gitter; ohne Untertitel wenn zeile leer', () => {
+    const auf = svgBruchErweiternKacheln(2, 4, 3, '', 'aufgabe');
     expect((auf.match(/<rect/g) || []).length).toBe(4);
     expect(auf).toContain("fill-opacity='0.34'");
+    expect(auf).not.toContain('<text');
     expect(auf).not.toContain('→');
     expect((auf.match(/<line/g) || []).length).toBe(7);
-    const loe = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'loesung');
+    const loe = svgBruchErweiternKacheln(2, 4, 3, '', 'loesung');
     expect((loe.match(/<rect/g) || []).length).toBe(12);
     expect((loe.match(/<line/g) || []).length).toBe(9);
-    expect(loe).toContain('→');
+    expect(loe).not.toContain('<text');
+    expect(loe).not.toContain('→');
+  });
+
+  it('Erweitern-Kacheln: optional Beschriftung unter dem Raster', () => {
+    const mit = svgBruchErweiternKacheln(2, 4, 3, '2/4 → 6/12', 'loesung');
+    expect(mit).toContain('<text');
+    expect(mit).toContain('→');
   });
 
   it('Vergleich: Aufgabe je Originalnenner, Lösung auf Hauptnenner', () => {

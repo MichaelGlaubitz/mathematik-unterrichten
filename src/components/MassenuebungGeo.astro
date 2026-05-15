@@ -2140,6 +2140,12 @@ function wbLabelFromHref(href: string): string {
       return a;
     }
 
+    /** Ganze Zahlen: Addition/Subtraktion (nz_add, nz_sub) — Lösung ohne Kasten, direkt an die Frage. */
+    function practiceAufgabeLoesungInlineNachFrage(a) {
+      const f = a.frage;
+      return f.startsWith('Berechne die Summe ') || f.startsWith('Berechne die Differenz ');
+    }
+
     function aktiveTypen() {
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
@@ -2258,13 +2264,20 @@ function wbLabelFromHref(href: string): string {
             </div>
             <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagram ?? ''}</div>`
           : '';
+        const inlineL = practiceAufgabeLoesungInlineNachFrage(a);
+        const loesungImDetails = a.diagramLoesung
+          ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagramLoesung}</div>`
+          : '';
+        const loesungTextBlock = inlineL
+          ? `<div class="mt-1 text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
+          : `<div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
         li.innerHTML = `
           ${diagramToggle}
           <div class="text-ink-900 dark:text-ink-50 mb-2">${a.frage}</div>
           <details class="group">
             <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
-            ${a.diagramLoesung ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagramLoesung}</div>` : ''}
-            <div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>
+            ${loesungImDetails}
+            ${loesungTextBlock}
           </details>
         `;
         liste.appendChild(li);
@@ -2307,15 +2320,24 @@ function wbLabelFromHref(href: string): string {
       const dia = cur.diagram || cur.diagramLoesung
         ? `<div class="mu-practice-diagram mb-3 max-w-full print:hidden" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${diagramSvg}</div><div class="mt-2">`
         : '<div>';
-      if (wbFrage) wbFrage.innerHTML = `${dia}${cur.frage}</div>`;
-      if (wbLoesungText) wbLoesungText.innerHTML = aufgaben[wbIndex].loesung;
-      if (wbLoesung) wbLoesung.hidden = !wbZeigeLoesung;
+      const inlineL = practiceAufgabeLoesungInlineNachFrage(cur);
+      const loesungAnWhiteboardFrage =
+        wbZeigeLoesung && inlineL
+          ? ` <span class="text-ink-800 dark:text-slate-100">${cur.loesung}</span>`
+          : '';
+      if (wbFrage) wbFrage.innerHTML = `${dia}${cur.frage}${loesungAnWhiteboardFrage}</div>`;
+      if (wbLoesungText) wbLoesungText.innerHTML = inlineL ? '' : aufgaben[wbIndex].loesung;
+      if (wbLoesung) wbLoesung.hidden = !wbZeigeLoesung || inlineL;
       if (wbPrev) wbPrev.disabled = wbIndex === 0 && !wbZeigeLoesung;
       const istLetzte = wbIndex === aufgaben.length - 1;
       if (wbNext) {
+        const neuMischen = wbZeigeLoesung && istLetzte;
         wbNext.textContent = wbZeigeLoesung
           ? istLetzte ? 'Neu mischen' : 'Nächste Aufgabe →'
           : 'Lösung zeigen';
+        wbNext.className = neuMischen
+          ? 'rounded-md bg-red-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-red-900/25 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 dark:shadow-lg dark:shadow-red-600/35 text-lg'
+          : 'rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-accent-900/25 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400 dark:shadow-lg dark:shadow-accent-600/35 text-lg';
       }
     }
 

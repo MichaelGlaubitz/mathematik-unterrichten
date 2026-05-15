@@ -44,7 +44,7 @@ export function svgBruchZweiStreifen(
  * Insgesamt D=d·k Felder, n·k Felder markiert (erste n Spalten vollständig).
  * Modus `aufgabe`: je **Spalte** eine durchgehende Fläche (keine waagerechten Teilungen);
  * die ersten **n** Spalten dunkel (Anteil **n/d** sichtbar), der Rest hell; Rahmen und senkrechte Linien.
- * Beschriftung `zeile` nur **ohne** Ergebnis der Erweiterung (Aufrufer: z. B. nur `n/d`, nicht `n/d → N/D`).
+ * Beschriftung `zeile`: bei **leerem** String kein Untertitel (Aufgabe/Lösung ohne Bruchangabe in der Grafik).
  * Modus `loesung`: Zellen mit Schattierung und vollständigem Gitter (waagerecht/senkrecht).
  */
 export function svgBruchErweiternKacheln(
@@ -58,7 +58,7 @@ export function svgBruchErweiternKacheln(
   const cols = d;
   const rows = k;
   const pad = 3;
-  const labelH = 14;
+  const labelH = zeile.trim() ? 14 : 0;
   const cellW = Math.min(28, Math.floor(268 / cols));
   const cellH = Math.min(26, Math.floor(112 / rows));
   const gw = cols * cellW;
@@ -111,9 +111,11 @@ export function svgBruchErweiternKacheln(
     body = `${rects}<g fill='none' stroke-linecap='square'>${grid}</g>`;
   }
 
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${body}<text x='${
-    vbW / 2
-  }' y='${pad + gh + labelH - 1}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.88'>${zeile}</text></svg>`;
+  const unten =
+    labelH > 0
+      ? `<text x='${vbW / 2}' y='${pad + gh + labelH - 1}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.88'>${zeile}</text>`
+      : '';
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${vbW} ${vbH}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${body}${unten}</svg>`;
 }
 
 /**
@@ -125,6 +127,7 @@ export function svgBruchErweiternKacheln(
  * - **Lösung:** Zusätzlich je `g` benachbarte Zähler-Felder mit **roter** dicker Außenlinie
  *   (n/g Blöcke) und je `g` benachbarte **Nicht-Zähler**-Felder mit **blauer** dicker Außenlinie
  *   ((d−n)/g Blöcke); Zellgitter und Füllfarben unverändert `currentColor`.
+ * Untertitel aus `zeile` entfällt bei **leerem** String.
  */
 export function svgBruchStreifen(
   n: number,
@@ -181,9 +184,12 @@ export function svgBruchStreifen(
     }
   }
 
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h + 14}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}${blockOutlines}<text x='${
-    w / 2
-  }' y='${h + 10}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.85'>${zeile}</text></svg>`;
+  const labelPad = zeile.trim() ? 14 : 0;
+  const unten =
+    labelPad > 0
+      ? `<text x='${w / 2}' y='${h + 10}' font-size='10' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.85'>${zeile}</text>`
+      : '';
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h + labelPad}' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'>${rects}${blockOutlines}${unten}</svg>`;
 }
 
 /** Kreisteilungen (Grundvorstellung Bruchteil eines Ganzen). */
