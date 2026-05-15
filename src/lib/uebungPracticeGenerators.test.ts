@@ -219,15 +219,19 @@ describe('Bruchrechnung-Generatoren', () => {
 });
 
 describe('nz_sub (Negative Zahlen)', () => {
-  it('bei zwei nicht-negativen Operanden: kurze Lösung ohne „z.B.“ und Skizze-Standard 200 %', () => {
+  it('einfache natürliche Subtraktion: eine Gleichungszeile, kein „z.B.“', () => {
     let hit = null;
     for (let seed = 0; seed < 30000 && !hit; seed++) {
       const t = createPracticeGenerators(makeLcg(seed)).nz_sub();
-      if (t.diagramDefaultScale === 2) hit = t;
+      if (!t.loesung.includes('z.')) hit = t;
     }
     expect(hit).not.toBeNull();
-    expect(hit!.loesung).not.toMatch(/z\./);
-    expect(hit!.loesung).not.toContain('als $');
+    expect(hit!.diagramDefaultScale).toBe(2);
+    expect(hit!.frageMitLoesungHighlight).toBe(hit!.loesung);
+    expect(hit!.diagram).toBeDefined();
+    expect(hit!.diagramLoesung).toBeDefined();
+    expect(hit!.diagram).not.toContain('Start');
+    expect(hit!.diagramLoesung).toContain('Start');
     expect(hit!.frage).toMatch(/Berechne die Differenz/);
   });
 
@@ -235,10 +239,11 @@ describe('nz_sub (Negative Zahlen)', () => {
     let hit = null;
     for (let seed = 0; seed < 30000 && !hit; seed++) {
       const t = createPracticeGenerators(makeLcg(seed)).nz_sub();
-      if (t.diagramDefaultScale !== 2) hit = t;
+      if (t.loesung.includes('z.')) hit = t;
     }
     expect(hit).not.toBeNull();
-    expect(hit!.loesung).toContain('z.');
+    expect(hit!.diagramDefaultScale).toBe(2);
+    expect(hit!.diagram).not.toContain('Start');
   });
 });
 
