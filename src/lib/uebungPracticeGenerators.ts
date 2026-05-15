@@ -995,7 +995,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const D = d * k;
       return {
         frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
-        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (${k}-fach erweitern).`,
+        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (erweitert mit ${k}.`,
         diagram: svgBruchErweiternKacheln(n, d, k, '', 'aufgabe'),
         diagramLoesung: svgBruchErweiternKacheln(n, d, k, '', 'loesung'),
       };
