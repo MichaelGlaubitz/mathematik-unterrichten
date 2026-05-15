@@ -1300,17 +1300,17 @@ function wbLabelFromHref(href: string): string {
 
   <div
     id="ug-wb-overlay"
-    class="ug-wb-overlay pointer-events-auto fixed inset-0 z-[9999] flex min-h-0 flex-col items-center overflow-y-auto overscroll-y-contain bg-neutral-900/80 p-3 py-4 backdrop-blur-sm sm:p-4 sm:py-6 dark:bg-slate-950/80 dark:backdrop-blur-md print:hidden"
+    class="ug-wb-overlay pointer-events-auto fixed inset-0 z-[9999] flex flex-col items-center overflow-y-auto overscroll-y-contain bg-neutral-900/80 p-4 py-6 backdrop-blur-sm dark:bg-slate-950/80 dark:backdrop-blur-md print:hidden"
     hidden
     role="dialog"
     aria-modal="true"
     aria-label="Whiteboard"
   >
-    <div class="mx-auto flex w-full max-w-4xl flex-col gap-3 py-1 sm:gap-4 sm:py-2">
+    <div class="my-auto flex w-full max-w-4xl flex-col gap-4">
       <section
         id="ug-whiteboard"
         aria-label={`Aufgaben (${wbLabel})`}
-        class="mu-katex-skip flex max-h-[calc(100dvh-2rem)] min-h-[min(36svh,16rem)] flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white p-5 shadow-2xl sm:p-8 md:p-10 dark:border-slate-600/70 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-[0_28px_64px_-18px_rgba(0,0,0,0.55),0_0_0_1px_rgba(59,130,246,0.14),0_0_120px_-48px_rgba(59,130,246,0.18)]"
+        class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-slate-600/70 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-[0_28px_64px_-18px_rgba(0,0,0,0.55),0_0_0_1px_rgba(59,130,246,0.14),0_0_120px_-48px_rgba(59,130,246,0.18)]"
       >
         <div
           class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-slate-700/80"
@@ -1347,13 +1347,11 @@ function wbLabelFromHref(href: string): string {
           </div>
         </div>
 
-        <div
-          class="flex min-h-0 flex-1 flex-col items-center overflow-y-auto overscroll-y-contain py-1 text-center sm:py-0"
-        >
-          <div id="ug-wb-leer" class="flex flex-1 flex-col items-center justify-center text-ink-600 dark:text-slate-400">
+        <div class="flex min-h-[10rem] flex-1 flex-col items-center justify-center text-center">
+          <div id="ug-wb-leer" class="text-ink-600 dark:text-slate-400">
             Wähle Typen und Anzahl, dann <em>Aufgaben erzeugen</em>.
           </div>
-          <div id="ug-wb-content" hidden class="w-full shrink-0 space-y-4 sm:space-y-6">
+          <div id="ug-wb-content" hidden class="w-full space-y-6">
             <div class="flex flex-wrap items-center justify-center gap-3 text-sm text-ink-600 dark:text-slate-400">
               <span class="uppercase tracking-wide">
                 Aufgabe <span id="ug-wb-i">1</span> / <span id="ug-wb-n">0</span>
@@ -1376,7 +1374,7 @@ function wbLabelFromHref(href: string): string {
           </div>
         </div>
 
-        <div id="ug-wb-controls" class="mt-4 flex shrink-0 flex-wrap items-center justify-center gap-3 print:hidden sm:mt-6" hidden>
+        <div id="ug-wb-controls" class="mt-6 flex flex-wrap items-center justify-center gap-3 print:hidden" hidden>
           <button
             id="ug-wb-prev"
             type="button"
@@ -1390,7 +1388,7 @@ function wbLabelFromHref(href: string): string {
         </div>
 
         <p
-          class="mt-4 shrink-0 border-t border-ink-200 pt-4 text-center text-xs text-ink-600 print:hidden dark:border-slate-700 dark:text-slate-500"
+          class="mt-4 border-t border-ink-200 pt-4 text-center text-xs text-ink-600 print:hidden dark:border-slate-700 dark:text-slate-500"
         >
           Tipp: <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">Leertaste</kbd>
           {' '}
