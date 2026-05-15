@@ -1012,7 +1012,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       return {
         frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
-        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gemeinsamer Faktor $${g}$).`,
+        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gekürzt mit $${g}$).`,
         diagram: svgBruchStreifen(n, d, '', 'aufgabe', g),
         diagramLoesung: svgBruchStreifen(n, d, '', 'loesung', g),
       };
