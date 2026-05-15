@@ -79,6 +79,25 @@ describe('practiceDiagramPreference', () => {
     expect(effectiveDiagramVisibleByHash(h, true)).toBe(false);
   });
 
+  it('loesungGrafik: trotz diagramDefaultHidden sichtbar, außer bei explizitem hide', () => {
+    writeShowPracticeDiagrams(false);
+    const h = hashPracticeTaskFrage('Vgl');
+    expect(effectiveDiagramVisibleByHash(h, true, true)).toBe(true);
+    setDiagramEffectiveVisibleForHash(h, false, true, true);
+    expect(effectiveDiagramVisibleByHash(h, true, true)).toBe(false);
+    setDiagramEffectiveVisibleForHash(h, true, true, true);
+    expect(effectiveDiagramVisibleByHash(h, true, true)).toBe(true);
+  });
+
+  it('toggleDiagramForHash mit loesungGrafik speichert hide gegen impliziten Default sichtbar', () => {
+    const h = hashPracticeTaskFrage('wb-loes');
+    expect(effectiveDiagramVisibleByHash(h, true, true)).toBe(true);
+    toggleDiagramForHash(h, true, true);
+    expect(effectiveDiagramVisibleByHash(h, true, true)).toBe(false);
+    toggleDiagramForHash(h, true, true);
+    expect(effectiveDiagramVisibleByHash(h, true, true)).toBe(true);
+  });
+
   it('setDiagramEffectiveVisibleForHash mit diagramDefaultHidden: Eintrag nur bei Abweichung vom impliziten Default', () => {
     const h = hashPracticeTaskFrage('mul-x');
     writeShowPracticeDiagrams(true);
@@ -110,6 +129,19 @@ describe('practiceDiagramPreference', () => {
     expect(div.classList.contains('hidden')).toBe(true);
     expect(btn.getAttribute('aria-label')).toBe('Skizze einblenden');
     expect(zoomWrap.classList.contains('hidden')).toBe(true);
+  });
+
+  it('syncPracticeDiagramUi: Lösungsgrafik-DIV sichtbar trotz diagramDefaultHidden', () => {
+    writeShowPracticeDiagrams(true);
+    const h = hashPracticeTaskFrage('loesung-dom');
+    document.body.innerHTML = `
+      <button type="button" class="ug-task-diagram-toggle" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="true">x</button>
+      <span data-mu-diagram-zoom-for="${h}" data-mu-diagram-default-hidden="true" class="zoom-wrap"></span>
+      <div class="mu-practice-diagram" data-mu-diagram-hash="${h}" data-mu-diagram-default-hidden="true" data-mu-diagram-loesung-grafik="true">svg-loesung</div>
+    `;
+    syncPracticeDiagramUi(document.body);
+    const div = document.querySelector('.mu-practice-diagram') as HTMLElement;
+    expect(div.classList.contains('hidden')).toBe(false);
   });
 
   it('syncPracticeDiagramUi: diagramDefaultHidden bei globalem An zunächst verborgen', () => {

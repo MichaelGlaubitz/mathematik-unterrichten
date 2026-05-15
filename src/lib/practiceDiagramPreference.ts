@@ -51,14 +51,21 @@ function writeTaskMap(map: Record<string, 'show' | 'hide'>): void {
   localStorage.setItem(PRACTICE_DIAGRAM_TASK_PREFS_KEY, JSON.stringify(map));
 }
 
-/** Effektive Sichtbarkeit: Override „show“/„hide“, sonst Aufgaben-Standard oder globale Checkbox. */
+/**
+ * Effektive Sichtbarkeit: Override „show“/„hide“, sonst Aufgaben-Standard oder globale Checkbox.
+ *
+ * @param loesungGrafik Wenn wahr: Lösungs-Skizze (z. B. in „Lösung zeigen“) standardmäßig sichtbar,
+ *   solange der Nutzer nicht explizit „Skizze aus“ gewählt hat (`hide` im Task-Map).
+ */
 export function effectiveDiagramVisibleByHash(
   hash: string,
-  diagramDefaultHidden?: boolean
+  diagramDefaultHidden?: boolean,
+  loesungGrafik?: boolean
 ): boolean {
   const p = readTaskMap()[hash];
   if (p === 'hide') return false;
   if (p === 'show') return true;
+  if (loesungGrafik) return true;
   if (diagramDefaultHidden) return false;
   return readShowPracticeDiagrams();
 }
@@ -69,10 +76,11 @@ export function effectiveDiagramVisibleByHash(
 export function setDiagramEffectiveVisibleForHash(
   hash: string,
   effectiveVisible: boolean,
-  diagramDefaultHidden?: boolean
+  diagramDefaultHidden?: boolean,
+  loesungGrafik?: boolean
 ): void {
   const global = readShowPracticeDiagrams();
-  const implicitDefault = diagramDefaultHidden ? false : global;
+  const implicitDefault = loesungGrafik ? true : diagramDefaultHidden ? false : global;
   const map = { ...readTaskMap() };
   if (effectiveVisible === implicitDefault) {
     delete map[hash];
@@ -84,11 +92,16 @@ export function setDiagramEffectiveVisibleForHash(
   writeTaskMap(map);
 }
 
-export function toggleDiagramForHash(hash: string, diagramDefaultHidden?: boolean): void {
+export function toggleDiagramForHash(
+  hash: string,
+  diagramDefaultHidden?: boolean,
+  loesungGrafik?: boolean
+): void {
   setDiagramEffectiveVisibleForHash(
     hash,
-    !effectiveDiagramVisibleByHash(hash, diagramDefaultHidden),
-    diagramDefaultHidden
+    !effectiveDiagramVisibleByHash(hash, diagramDefaultHidden, loesungGrafik),
+    diagramDefaultHidden,
+    loesungGrafik
   );
 }
 
@@ -113,13 +126,18 @@ export function syncPracticeDiagramUi(root: Document | Element = document): void
     const hash = el.getAttribute('data-mu-diagram-hash');
     if (!hash) return;
     const defaultHidden = el.getAttribute('data-mu-diagram-default-hidden') === 'true';
-    el.classList.toggle('hidden', !effectiveDiagramVisibleByHash(hash, defaultHidden));
+    const loesungGrafik = el.getAttribute('data-mu-diagram-loesung-grafik') === 'true';
+    el.classList.toggle(
+      'hidden',
+      !effectiveDiagramVisibleByHash(hash, defaultHidden, loesungGrafik)
+    );
   });
   root.querySelectorAll('button.ug-task-diagram-toggle[data-mu-diagram-hash]').forEach((btn) => {
     const hash = btn.getAttribute('data-mu-diagram-hash');
     if (!hash) return;
     const defaultHidden = btn.getAttribute('data-mu-diagram-default-hidden') === 'true';
-    const vis = effectiveDiagramVisibleByHash(hash, defaultHidden);
+    const loesungGrafik = btn.getAttribute('data-mu-diagram-loesung-grafik') === 'true';
+    const vis = effectiveDiagramVisibleByHash(hash, defaultHidden, loesungGrafik);
     btn.innerHTML = practiceDiagramToggleIconMarkup(vis);
     const label = practiceDiagramToggleAriaLabel(vis);
     btn.setAttribute('aria-label', label);
@@ -130,7 +148,8 @@ export function syncPracticeDiagramUi(root: Document | Element = document): void
     const hash = el.getAttribute('data-mu-diagram-zoom-for');
     if (!hash) return;
     const defaultHidden = el.getAttribute('data-mu-diagram-default-hidden') === 'true';
-    const vis = effectiveDiagramVisibleByHash(hash, defaultHidden);
+    const loesungGrafik = el.getAttribute('data-mu-diagram-loesung-grafik') === 'true';
+    const vis = effectiveDiagramVisibleByHash(hash, defaultHidden, loesungGrafik);
     el.classList.toggle('hidden', !vis);
   });
 }
