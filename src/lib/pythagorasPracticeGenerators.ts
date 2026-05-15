@@ -965,8 +965,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (${k}-fach erweitern).`,
-        diagram: svgBruchErweiternKacheln(n, d, k, `${n}/${d}`, 'aufgabe'),
-        diagramLoesung: svgBruchErweiternKacheln(n, d, k, `${n}/${d} → ${N}/${D}`, 'loesung'),
+        diagram: svgBruchErweiternKacheln(n, d, k, '', 'aufgabe'),
+        diagramLoesung: svgBruchErweiternKacheln(n, d, k, '', 'loesung'),
       };
     },
     br_kuerzen() {
@@ -982,8 +982,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gemeinsamer Faktor $${g}$).`,
-        diagram: svgBruchStreifen(n, d, `${n}/${d}`, 'aufgabe', g),
-        diagramLoesung: svgBruchStreifen(n, d, `${n}/${d}`, 'loesung', g),
+        diagram: svgBruchStreifen(n, d, '', 'aufgabe', g),
+        diagramLoesung: svgBruchStreifen(n, d, '', 'loesung', g),
       };
     },
     br_mul_frac() {

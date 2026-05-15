@@ -144,13 +144,24 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(add.diagram).toContain("fill-opacity='0.32'");
   });
 
-  it('br_erweitern: Aufgaben-Skizze ohne Ergebnis-Pfeil, Lösung mit Pfeil', () => {
+  it('br_kuerzen: Diagramme ohne Bruch-Beschriftung in der Grafik', () => {
+    const GEN = createPracticeGenerators(() => 0.55);
+    const auf = GEN.br_kuerzen();
+    expect(auf.diagram).toBeDefined();
+    expect(auf.diagramLoesung).toBeDefined();
+    expect(auf.diagram).not.toContain('<text');
+    expect(auf.diagramLoesung).not.toContain('<text');
+  });
+
+  it('br_erweitern: Diagramme ohne Bruch-Beschriftung in der Grafik', () => {
     const GEN = createPracticeGenerators(() => 0.1);
     const auf = GEN.br_erweitern();
     expect(auf.diagram).toBeDefined();
     expect(auf.diagramLoesung).toBeDefined();
     expect(auf.diagram).not.toContain('→');
-    expect(auf.diagramLoesung).toContain('→');
+    expect(auf.diagramLoesung).not.toContain('→');
+    expect(auf.diagram).not.toContain('<text');
+    expect(auf.diagramLoesung).not.toContain('<text');
     expect(auf.diagram).toContain('<line');
     expect((auf.diagram.match(/<line/g) || []).length).toBeLessThan(
       (auf.diagramLoesung.match(/<line/g) || []).length
