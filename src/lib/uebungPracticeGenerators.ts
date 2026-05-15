@@ -1073,7 +1073,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Welcher Bruch ist größer: ${fracA} oder ${fracB}?`,
         frageMitLoesungHighlight: `Welcher Bruch ist größer: ${winnerIsA ? grMitBox(fracA) : fracA} oder ${winnerIsA ? fracB : grMitBox(fracB)}?`,
-        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$ und $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. <br>Wegen $${zfVgl}$ ist ${gr} größer.`,
+        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$ und $\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. <br>Wegen $${zfVgl}$ ist ${gr} größer.`,
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
         diagramDefaultHidden: true,
