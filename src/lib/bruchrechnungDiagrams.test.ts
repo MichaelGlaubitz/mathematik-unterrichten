@@ -33,12 +33,14 @@ describe('bruchrechnungDiagrams', () => {
     const blockRahmenAnzahl = zaehlerBloecke + restBloecke;
     expect((auf.match(/fill-opacity='0.32'/g) || []).length).toBe(n);
     expect((auf.match(/stroke-width='2.75'/g) || []).length).toBe(0);
-    expect((auf.match(/stroke-width='1.1'/g) || []).length).toBe(d);
+    expect((auf.match(/stroke-width='0.62'/g) || []).length).toBe(d);
+    expect((auf.match(/stroke-opacity='0.52'/g) || []).length).toBe(d);
     expect((auf.match(/stroke='#dc2626'/g) || []).length).toBe(0);
     expect((auf.match(/stroke='#2563eb'/g) || []).length).toBe(0);
     expect((loe.match(/fill-opacity='0.32'/g) || []).length).toBe(n);
     expect((loe.match(/stroke-width='2.75'/g) || []).length).toBe(blockRahmenAnzahl);
-    expect((loe.match(/stroke-width='1.1'/g) || []).length).toBe(d);
+    expect((loe.match(/stroke-width='0.62'/g) || []).length).toBe(d);
+    expect((loe.match(/stroke-opacity='0.52'/g) || []).length).toBe(d);
     expect((loe.match(/stroke='#dc2626'/g) || []).length).toBe(zaehlerBloecke);
     expect((loe.match(/stroke='#2563eb'/g) || []).length).toBe(restBloecke);
     expect(auf).not.toContain('<text');

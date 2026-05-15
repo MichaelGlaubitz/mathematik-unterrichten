@@ -8,6 +8,8 @@ export type WhiteboardRouteTask = {
   loesung: string;
   diagram?: string;
   diagramLoesung?: string;
+  /** Wie `PracticeAufgabe.frageMitLoesungHighlight` — nur sichtbar, wenn die Lösung eingeblendet wird. */
+  frageMitLoesungHighlight?: string;
 };
 
 export type WhiteboardRouteState = {
@@ -50,9 +52,15 @@ function normalizedTask(value: unknown): WhiteboardRouteTask | null {
   if (!isRecord(value) || typeof value.frage !== 'string' || typeof value.loesung !== 'string') return null;
   if (typeof value.diagram !== 'undefined' && typeof value.diagram !== 'string') return null;
   if (typeof value.diagramLoesung !== 'undefined' && typeof value.diagramLoesung !== 'string') return null;
+  if (
+    typeof value.frageMitLoesungHighlight !== 'undefined' &&
+    typeof value.frageMitLoesungHighlight !== 'string'
+  )
+    return null;
   const base: WhiteboardRouteTask = { frage: value.frage, loesung: value.loesung };
   if (typeof value.diagram === 'string') base.diagram = value.diagram;
   if (typeof value.diagramLoesung === 'string') base.diagramLoesung = value.diagramLoesung;
+  if (typeof value.frageMitLoesungHighlight === 'string') base.frageMitLoesungHighlight = value.frageMitLoesungHighlight;
   return base;
 }
 

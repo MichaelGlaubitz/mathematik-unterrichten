@@ -140,7 +140,9 @@ export function svgBruchStreifen(
   const w = Math.min(280, 12 * d);
   const seg = w / d;
   const h = 32;
-  const strokeDuenn = 1.1;
+  /** Zellgitter: deutlich leichter als die roten/blauen Kürzungs-Blockrahmen (Lösung). */
+  const strokeDuenn = 0.62;
+  const strokeInnenOpacity = 0.52;
   const strokeFett = 2.75;
   /** Rot für Zähler-Blockrahmen in der Lösung (gut lesbar auf hellem und dunklem Grund). */
   const strokeBlockZaehler = '#dc2626';
@@ -163,7 +165,7 @@ export function svgBruchStreifen(
       filled && (modus === 'loesung' || zaehlerSchattierungInAufgabe);
     const fill = fillOn ? 'currentColor' : 'none';
     const fillOp = fillOn ? 0.32 : 0;
-    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='${strokeDuenn}'/>`;
+    rects += `<rect x='${x + 0.5}' y='4' width='${seg - 1}' height='${h - 8}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='${strokeDuenn}' stroke-opacity='${strokeInnenOpacity}'/>`;
   }
 
   let blockOutlines = '';

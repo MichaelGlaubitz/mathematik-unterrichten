@@ -71,6 +71,11 @@ export type PracticeAufgabe = {
    * (Bruchmultiplikation: Raster erst nach „Skizze einblenden“).
    */
   diagramDefaultHidden?: boolean;
+  /**
+   * Optional: Fragestellung mit Zusatzmarkierung, sobald die Lösung sichtbar ist (z. B. grüner Rahmen
+   * beim größeren Bruch bei `br_vergleich`). `frage` bleibt neutral bis dahin.
+   */
+  frageMitLoesungHighlight?: string;
 };
 
 export type RandomFn = () => number;
@@ -1032,15 +1037,17 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const L = (d1 * d2) / gcd(d1, d2);
       const nA = (a * L) / d1;
       const nB = (b * L) / d2;
-      const gr =
-        a * d2 > b * d1
-          ? `$\\displaystyle\\frac{${a}}{${d1}}$`
-          : `$\\displaystyle\\frac{${b}}{${d2}}$`;
+      const fracA = `$\\displaystyle\\frac{${a}}{${d1}}$`;
+      const fracB = `$\\displaystyle\\frac{${b}}{${d2}}$`;
+      const gr = a * d2 > b * d1 ? fracA : fracB;
       const zfVgl = nA > nB ? `${nA} > ${nB}` : `${nA} < ${nB}`;
-      const grMitBox = `<span class="inline-block rounded-md border border-green-600 bg-green-50 px-2 py-0.5 align-middle dark:border-green-400 dark:bg-green-950/55">${gr}</span>`;
+      const grMitBox = (tex: string) =>
+        `<span class="inline-block rounded-md border border-green-600 bg-green-50 px-2 py-0.5 align-middle dark:border-green-400 dark:bg-green-950/55">${tex}</span>`;
+      const winnerIsA = a * d2 > b * d1;
       return {
-        frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
-        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$, $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. Wegen $${zfVgl}$ ist ${grMitBox} größer.`,
+        frage: `Welcher Bruch ist größer: ${fracA} oder ${fracB}?`,
+        frageMitLoesungHighlight: `Welcher Bruch ist größer: ${winnerIsA ? grMitBox(fracA) : fracA} oder ${winnerIsA ? fracB : grMitBox(fracB)}?`,
+        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$, $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. Wegen $${zfVgl}$ ist ${gr} größer.`,
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
       };
