@@ -7,16 +7,21 @@ export interface Props {
   title: string;
   beschreibung?: string;
   ogBild?: string;
+  /** Relativer Repo-Pfad zur Content-Datei (z. B. `src/content/blog/foo.md`) für Strg+Shift+E → GitHub-Edit */
+  githubEditPath?: string;
 }
 
 const {
   title,
   beschreibung = 'Mathe-Didaktik, Aufgaben und diagnostische Fragen für Lehrkräfte – inspiriert von Forschung und Praxis.',
   ogBild = '/og-default.png',
+  githubEditPath,
 } = Astro.props;
 
 const seitentitel = title === 'mathematik-unterrichten' ? title : `${title} – mathematik-unterrichten`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const githubRepo = (import.meta.env.PUBLIC_GITHUB_REPO as string | undefined)?.trim() ?? '';
+const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined)?.trim() || 'main';
 ---
 
 <!DOCTYPE html>
@@ -63,6 +68,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:title" content={seitentitel} />
     <meta name="twitter:description" content={beschreibung} />
 
+    {githubEditPath && githubEditPath.length > 0 && (
+      <meta name="mu-github-source-path" content={githubEditPath} />
+    )}
+
     <!-- KaTeX für mathematische Formeln (optional, lädt nur wenn benutzt) -->
     <link
       rel="stylesheet"
@@ -71,7 +80,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       crossorigin="anonymous"
     />
   </head>
-  <body class="min-h-screen mu-page-bg text-ink-800 antialiased font-sans dark:text-ink-200">
+  <body
+    class="min-h-screen mu-page-bg text-ink-800 antialiased font-sans dark:text-ink-200"
+    data-gh-repo={githubRepo || undefined}
+    data-gh-branch={githubRepo ? githubBranch : undefined}
+  >
     <a
       href="#hauptinhalt"
       class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-surface dark:focus:bg-slate-800 dark:focus:text-ink-50 focus:px-4 focus:py-2 focus:rounded focus:shadow"

@@ -14,7 +14,11 @@ export async function getStaticPaths() {
 const { quiz } = Astro.props;
 ---
 
-<BaseLayout title={quiz.data.titel} beschreibung={quiz.data.didaktischerKontext}>
+<BaseLayout
+  title={quiz.data.titel}
+  beschreibung={quiz.data.didaktischerKontext}
+  githubEditPath={`src/content/quizzes/${quiz.id}`}
+>
   <article class="container-prose py-12">
     <header class="mb-8 pb-6 border-b border-ink-200 dark:border-violet-500/20">
       <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2 dark:text-accent-100">
