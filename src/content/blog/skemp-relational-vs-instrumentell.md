@@ -83,7 +83,7 @@ Beide gehören in die Stunde. Wer nur die erste stellt, lässt offen, ob die Kla
 
 ## Quellen
 
-- Skemp, R. R. (1976). *Relational Understanding and Instrumental Understanding.* Mathematics Teaching, 77, 20–26.
+- Skemp, R. R. (1976). *Relational Understanding and Instrumental Understanding.* Mathematics Teaching, 77, 20–26. [Volltext (PDF, frei zugänglich)](https://www.atm.org.uk/write/mediauploads/resources/richard_skemp.pdf)
 - Skemp, R. R. (1987). *The Psychology of Learning Mathematics.* Lawrence Erlbaum.
 - Hiebert, J., & Carpenter, T. P. (1992). *Learning and Teaching with Understanding.* In Grouws, D. A. (Ed.), *Handbook of Research on Mathematics Teaching and Learning*, 65–97.
 - Schoenfeld, A. H. (1992). *Learning to Think Mathematically.* In Grouws, D. A. (Ed.), *Handbook of Research on Mathematics Teaching and Learning*, 334–370.

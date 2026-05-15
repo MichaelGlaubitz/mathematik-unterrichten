@@ -80,5 +80,5 @@ Frage dich nach der Stunde: Welche Schüler haben das Symbol verstanden, weil si
 
 - Bruner, J. S. (1966). *Toward a Theory of Instruction.* Harvard University Press.
 - Bruner, J. S. (1960). *The Process of Education.* Harvard University Press.
-- Leong, Y. H., Ho, W. K., & Cheng, L. P. (2015). *Concrete-Pictorial-Abstract: Surveying its origins and charting its future.* The Mathematics Educator, 16(1), 1–18.
+- Leong, Y. H., Ho, W. K., & Cheng, L. P. (2015). *Concrete-Pictorial-Abstract: Surveying its origins and charting its future.* The Mathematics Educator, 16(1), 1–18. [Volltext (PDF, frei zugänglich)](https://math.nie.edu.sg/ame/matheduc/tme/tmeV16_1/TME16_1.pdf)
 - Marton, F., & Pang, M. F. (2006). *On Some Necessary Conditions of Learning.* Journal of the Learning Sciences, 15(2), 193–220.

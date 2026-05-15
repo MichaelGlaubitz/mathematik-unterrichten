@@ -78,8 +78,8 @@ Wenn du das ein paarmal gemacht hast, weißt du, was die Forschung schon lange w
 
 ## Quellen
 
-- Sweller, J. (1988). *Cognitive Load During Problem Solving: Effects on Learning.* Cognitive Science, 12(2), 257–285.
+- Sweller, J. (1988). *Cognitive Load During Problem Solving: Effects on Learning.* Cognitive Science, 12(2), 257–285. [Volltext (Open Access, Wiley)](https://doi.org/10.1207/s15516709cog1202_4)
 - Kalyuga, S., Ayres, P., Chandler, P., & Sweller, J. (2003). *The Expertise Reversal Effect.* Educational Psychologist, 38(1), 23–31.
 - Renkl, A. (2014). *Toward an Instructionally Oriented Theory of Example-Based Learning.* Cognitive Science, 38(1), 1–37.
-- Kirschner, P. A., Sweller, J., & Clark, R. E. (2006). *Why Minimal Guidance During Instruction Does Not Work: An Analysis of the Failure of Constructivist, Discovery, Problem-Based, Experiential, and Inquiry-Based Teaching.* Educational Psychologist, 41(2), 75–86.
-- Rosenshine, B. (2012). *Principles of Instruction.* American Educator, Spring 2012, 12–39.
+- Kirschner, P. A., Sweller, J., & Clark, R. E. (2006). *Why Minimal Guidance During Instruction Does Not Work: An Analysis of the Failure of Constructivist, Discovery, Problem-Based, Experiential, and Inquiry-Based Teaching.* Educational Psychologist, 41(2), 75–86. [Volltext (PDF, frei zugänglich)](https://itgs.ict.usc.edu/papers/Constructivism_KirschnerEtAl_EP_06.pdf)
+- Rosenshine, B. (2012). *Principles of Instruction.* American Educator, Spring 2012, 12–39. [Volltext (PDF, frei zugänglich)](https://www.aft.org/sites/default/files/Rosenshine.pdf)

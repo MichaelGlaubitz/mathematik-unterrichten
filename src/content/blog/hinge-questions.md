@@ -90,6 +90,6 @@ Eine Stunde mit zwei oder drei Hinge Questions ist anstrengender für die Lehrkr
 ## Quellen
 
 - Wiliam, D. (2011). *Embedded Formative Assessment.* Solution Tree Press.
-- Black, P., & Wiliam, D. (1998). *Assessment and Classroom Learning.* Assessment in Education, 5(1), 7–74.
+- Black, P., & Wiliam, D. (1998). *Assessment and Classroom Learning.* Assessment in Education, 5(1), 7–74. [Volltext (PDF, frei zugänglich)](https://www.gla.ac.uk/t4/learningandteaching/files/PGCTHE/BlackandWiliam1998.pdf)
 - Barton, C. (2018). *How I Wish I'd Taught Maths.* John Catt.
 - Hattie, J. (2009). *Visible Learning.* Routledge.
