@@ -1314,11 +1314,25 @@ function wbLabelFromHref(href: string): string {
           class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-slate-600/70 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-[0_28px_64px_-18px_rgba(0,0,0,0.55),0_0_0_1px_rgba(59,130,246,0.14),0_0_120px_-48px_rgba(59,130,246,0.18)]"
         >
         <div
-          class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-slate-700/80"
+          class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-3 border-b border-ink-200 pb-4 dark:border-slate-700/80"
         >
           <span
-            class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-ink-700 before:inline-block before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-accent-500 before:content-[''] dark:text-slate-200 dark:before:bg-accent-400"
+            class="inline-flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-ink-700 before:inline-block before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-accent-500 before:content-[''] dark:text-slate-200 dark:before:bg-accent-400"
             >Whiteboard</span>
+          <div
+            id="ug-wb-header-center"
+            class="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-ink-600 dark:text-slate-400 sm:justify-end md:justify-center"
+          >
+            <span class="uppercase tracking-wide">
+              Aufgabe <span id="ug-wb-i">1</span> / <span id="ug-wb-n">0</span>
+            </span>
+            <span class="hidden sm:inline text-ink-300 dark:text-slate-600" aria-hidden="true">·</span>
+            <span id="ug-wb-zeit" class="font-mono tabular-nums" aria-live="polite">0:00</span>
+            <div
+              id="ug-wb-header-diagram-ui"
+              class="flex flex-wrap items-center justify-center gap-2 empty:hidden"
+            ></div>
+          </div>
           <div class="flex shrink-0 items-center gap-2">
             <button
               type="button"
@@ -1353,13 +1367,6 @@ function wbLabelFromHref(href: string): string {
             Wähle Typen und Anzahl, dann <em>Aufgaben erzeugen</em>.
           </div>
           <div id="ug-wb-content" hidden class="w-full space-y-6">
-            <div class="flex flex-wrap items-center justify-center gap-3 text-sm text-ink-600 dark:text-slate-400">
-              <span class="uppercase tracking-wide">
-                Aufgabe <span id="ug-wb-i">1</span> / <span id="ug-wb-n">0</span>
-              </span>
-              <span class="hidden sm:inline text-ink-300 dark:text-slate-600">·</span>
-              <span id="ug-wb-zeit" class="font-mono tabular-nums" aria-live="polite">0:00</span>
-            </div>
             <div id="ug-wb-frage" class="font-serif text-xl md:text-3xl lg:text-4xl text-ink-900 dark:text-slate-50 leading-tight">
             </div>
             <div
@@ -1852,6 +1859,7 @@ function wbLabelFromHref(href: string): string {
     const wbI = document.getElementById('ug-wb-i');
     const wbN = document.getElementById('ug-wb-n');
     const wbZeit = document.getElementById('ug-wb-zeit');
+    const wbHeaderDiagramUi = document.getElementById('ug-wb-header-diagram-ui');
     const wbFrage = document.getElementById('ug-wb-frage');
     const wbLoesung = document.getElementById('ug-wb-loesung');
     const wbLoesungText = document.getElementById('ug-wb-loesung-text');
@@ -2267,6 +2275,7 @@ function wbLabelFromHref(href: string): string {
       if (aufgaben.length === 0) {
         wbLeer.hidden = false;
         wbContent.hidden = true;
+        if (wbHeaderDiagramUi) wbHeaderDiagramUi.innerHTML = '';
         stopWbTimer();
         return;
       }
@@ -2283,18 +2292,20 @@ function wbLabelFromHref(href: string): string {
         wbZeigeLoesung && cur.diagramLoesung
           ? cur.diagramLoesung
           : (cur.diagram ?? '');
-      const dia = cur.diagram || cur.diagramLoesung
-        ? `<div class="mb-3 flex flex-col items-center gap-2 print:hidden">
-            <div class="flex flex-wrap items-center justify-center gap-2">
-              <button type="button" class="ug-task-diagram-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-white hover:bg-ink-50 dark:border-slate-500 dark:bg-slate-800/90 dark:text-slate-100 dark:hover:border-slate-400 dark:hover:bg-slate-700/95" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVisWb ? 'true' : 'false'}" aria-label="${diaToggleLabelWb}" title="${diaToggleLabelWb}">${practiceDiagramToggleIconMarkup(diagramVisWb)}</button>
+      if (wbHeaderDiagramUi) {
+        if (cur.diagram || cur.diagramLoesung) {
+          wbHeaderDiagramUi.innerHTML = `<button type="button" class="ug-task-diagram-toggle inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-ink-300 bg-white hover:bg-ink-50 dark:border-slate-500 dark:bg-slate-800/90 dark:text-slate-100 dark:hover:border-slate-400 dark:hover:bg-slate-700/95 sm:h-9 sm:w-9" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}" aria-pressed="${diagramVisWb ? 'true' : 'false'}" aria-label="${diaToggleLabelWb}" title="${diaToggleLabelWb}">${practiceDiagramToggleIconMarkup(diagramVisWb)}</button>
               <span class="inline-flex items-center gap-1 rounded-md border border-ink-300 bg-white px-1 py-0.5 dark:border-slate-500 dark:bg-slate-800/90" data-mu-diagram-zoom-for="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">
-                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-slate-200 dark:hover:bg-slate-700/90 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-slate-200 dark:hover:bg-slate-700/90 disabled:opacity-35 sm:h-8 sm:w-8" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="-${DIAGRAM_SCALE_STEP}" aria-label="Skizze verkleinern" title="Skizze verkleinern">−</button>
                 <span class="min-w-[3rem] text-center text-xs font-medium text-ink-600 dark:text-slate-400" data-mu-diagram-zoom-label-for="${hash}">100%</span>
-                <button type="button" class="ug-task-diagram-zoom inline-flex h-8 w-8 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-slate-200 dark:hover:bg-slate-700/90 disabled:opacity-35" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
-              </span>
-            </div>
-          </div>
-          <div class="mu-practice-diagram max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${diagramSvg}</div><div class="mt-2">`
+                <button type="button" class="ug-task-diagram-zoom inline-flex h-7 w-7 items-center justify-center rounded text-base font-semibold text-ink-800 hover:bg-ink-100 dark:text-slate-200 dark:hover:bg-slate-700/90 disabled:opacity-35 sm:h-8 sm:w-8" data-mu-diagram-hash="${hash}" data-mu-diagram-zoom-step="${DIAGRAM_SCALE_STEP}" aria-label="Skizze vergrößern" title="Skizze vergrößern">+</button>
+              </span>`;
+        } else {
+          wbHeaderDiagramUi.innerHTML = '';
+        }
+      }
+      const dia = cur.diagram || cur.diagramLoesung
+        ? `<div class="mu-practice-diagram mb-3 max-w-full print:hidden" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${diagramSvg}</div><div class="mt-2">`
         : '<div>';
       if (wbFrage) wbFrage.innerHTML = `${dia}${cur.frage}</div>`;
       if (wbLoesungText) wbLoesungText.innerHTML = aufgaben[wbIndex].loesung;
