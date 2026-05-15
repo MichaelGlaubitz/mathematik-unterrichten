@@ -8,7 +8,7 @@ import {
   PRACTICE_GENERATOR_IDS,
   parseErkennenSeiten,
   validateErkennenAufgabe,
-} from './pythagorasPracticeGenerators';
+} from './uebungPracticeGenerators';
 
 /** Deterministischer PRNG für reproduzierbare Tests (32-Bit LCG). */
 function makeLcg(seed: number): () => number {

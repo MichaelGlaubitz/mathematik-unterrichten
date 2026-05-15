@@ -1,5 +1,9 @@
 /**
- * Zufallsaufgaben für /uebung/pythagoras, /uebung/trigonometrie, /uebung/strahlensaetze, /uebung/quadratische-funktionen, /uebung/quadratische-gleichungen, /uebung/bruchgleichungen, /uebung/bruchrechnung, /uebung/negative-zahlen, /uebung/algebra, /uebung/lineare-gleichungen, /uebung/wurzelrechnung und /uebung/kreisgeometrie — reine Logik, testbar mit injizierbarem PRNG.
+ * Zufallsaufgaben für alle Whiteboard-/Massenübungs-Routen unter `/uebung/*`
+ * (siehe `MassenuebungGeo.astro`): Geometrie, Brüche, Algebra, Gleichungen usw.
+ * Reine Logik, testbar mit injizierbarem PRNG.
+ *
+ * Historischer Dateiname: `pythagorasPracticeGenerators.ts` (ursprünglich nur Pythagoras).
  */
 
 import {
