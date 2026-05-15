@@ -1852,6 +1852,17 @@ function wbLabelFromHref(href: string): string {
     function setDiagramScale(hash, scale) {
       diagramScaleByHash.set(hash, clampDiagramScale(scale));
     }
+    /** Setzt Skalen-Vorgaben aus `diagramDefaultScale`, wenn noch kein Eintrag (z. B. frisch erzeugte Aufgaben). */
+    function ensureDiagramScalesForAufgaben() {
+      aufgaben.forEach((a, i) => {
+        if (!a?.diagram && !a?.diagramLoesung) return;
+        const prefKey = diagramTaskPreferenceKey(a.frage, i);
+        if (diagramScaleByHash.has(prefKey)) return;
+        if (typeof a.diagramDefaultScale === 'number') {
+          diagramScaleByHash.set(prefKey, clampDiagramScale(a.diagramDefaultScale));
+        }
+      });
+    }
     function updateDiagramScale(hash, delta) {
       setDiagramScale(hash, readDiagramScale(hash) + delta);
     }
@@ -2142,6 +2153,7 @@ function wbLabelFromHref(href: string): string {
         const legacyH = hashPracticeTaskFrage(task.frage);
         const scale = scales[prefKey] ?? scales[legacyH];
         if (typeof scale === 'number') setDiagramScale(prefKey, scale);
+        else if (typeof task.diagramDefaultScale === 'number') setDiagramScale(prefKey, task.diagramDefaultScale);
         const visible = visMap[prefKey] ?? visMap[legacyH];
         if (typeof visible === 'boolean') {
           setDiagramEffectiveVisibleForHash(
@@ -2245,6 +2257,7 @@ function wbLabelFromHref(href: string): string {
         return;
       }
       if (errEl) errEl.hidden = true;
+      diagramScaleByHash.clear();
       aufgaben = [];
       const pool = [];
       while (pool.length < anzahl) {
@@ -2276,6 +2289,7 @@ function wbLabelFromHref(href: string): string {
 
     function render() {
       const hat = aufgaben.length > 0;
+      ensureDiagramScalesForAufgaben();
       const wbOverlayAktiv = layout === 'whiteboard' && hat;
       if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt');
       if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt');
