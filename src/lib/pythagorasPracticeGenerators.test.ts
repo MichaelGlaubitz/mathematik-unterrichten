@@ -4,6 +4,7 @@ import {
   createPracticeGenerators,
   funGraphLinearAxisInterceptsInRange,
   FUN_GRAPH_AXIS_INTERCEPT_MAX,
+  practiceAufgabeHatLoesungInlineNachFrage,
   PRACTICE_GENERATOR_IDS,
   parseErkennenSeiten,
   validateErkennenAufgabe,
@@ -142,6 +143,39 @@ describe('Bruchrechnung-Generatoren', () => {
     const add = GEN.br_add_like();
     expect(add.diagram).toBeDefined();
     expect(add.diagram).toContain("fill-opacity='0.32'");
+  });
+
+  it('br_add_like / br_sub_like: Lösung inline (ohne Lösungskasten in der UI)', () => {
+    const GEN = createPracticeGenerators(() => 0.42);
+    const add = GEN.br_add_like();
+    const sub = GEN.br_sub_like();
+    expect(add.loesungInlineNachFrage).toBe(true);
+    expect(sub.loesungInlineNachFrage).toBe(true);
+    expect(practiceAufgabeHatLoesungInlineNachFrage(add)).toBe(true);
+    expect(practiceAufgabeHatLoesungInlineNachFrage(sub)).toBe(true);
+    expect(add.loesung).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}\+/);
+    expect(sub.loesung).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}-/);
+  });
+
+  it('practiceAufgabeHatLoesungInlineNachFrage: erkennt gleichnamige Brüche auch ohne Flag (alte Routen)', () => {
+    expect(
+      practiceAufgabeHatLoesungInlineNachFrage({
+        frage: 'Berechne $\\displaystyle\\frac{1}{6}+\\frac{3}{6}$.',
+        loesung: 'x',
+      })
+    ).toBe(true);
+    expect(
+      practiceAufgabeHatLoesungInlineNachFrage({
+        frage: 'Berechne $\\displaystyle\\frac{5}{6}-\\frac{1}{6}$.',
+        loesung: 'x',
+      })
+    ).toBe(true);
+    expect(
+      practiceAufgabeHatLoesungInlineNachFrage({
+        frage: 'Berechne $\\displaystyle\\frac{1}{2}\\cdot\\frac{1}{3}$.',
+        loesung: 'x',
+      })
+    ).toBe(false);
   });
 
   it('br_kuerzen: Diagramme ohne Bruch-Beschriftung in der Grafik', () => {
