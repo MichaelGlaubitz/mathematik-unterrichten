@@ -86,7 +86,7 @@ Drei Spalten, mehr nicht. Was ich dadurch verloren habe: die Idee, dass eine "gu
 
 ## Quellen
 
-- Sweller, J. (1988). *Cognitive Load During Problem Solving: Effects on Learning.* Cognitive Science, 12(2), 257–285.
-- Sweller, J., van Merriënboer, J. J. G., & Paas, F. (2019). *Cognitive Architecture and Instructional Design: 20 Years Later.* Educational Psychology Review, 31(2), 261–292.
+- Sweller, J. (1988). *Cognitive Load During Problem Solving: Effects on Learning.* Cognitive Science, 12(2), 257–285. [Volltext (Open Access, Wiley)](https://doi.org/10.1207/s15516709cog1202_4)
+- Sweller, J., van Merriënboer, J. J. G., & Paas, F. (2019). *Cognitive Architecture and Instructional Design: 20 Years Later.* Educational Psychology Review, 31(2), 261–292. [Volltext (Open Access, Springer)](https://doi.org/10.1007/s10648-019-09465-5)
 - Barton, C. (2018). *How I Wish I'd Taught Maths.* John Catt.
-- Kirschner, P. A., Sweller, J., & Clark, R. E. (2006). *Why Minimal Guidance During Instruction Does Not Work.* Educational Psychologist, 41(2), 75–86.
+- Kirschner, P. A., Sweller, J., & Clark, R. E. (2006). *Why Minimal Guidance During Instruction Does Not Work.* Educational Psychologist, 41(2), 75–86. [Volltext (PDF, frei zugänglich)](https://itgs.ict.usc.edu/papers/Constructivism_KirschnerEtAl_EP_06.pdf)

@@ -77,4 +77,4 @@ Genau das ist, glaube ich, das Ziel des Mathematikunterrichts: nicht Definitione
 - Pimm, D. (1987). *Speaking Mathematically: Communication in Mathematics Classrooms.* Routledge.
 - Schleppegrell, M. J. (2007). *The Linguistic Challenges of Mathematics Teaching and Learning: A Research Review.* Reading & Writing Quarterly, 23(2), 139–159.
 - Lemke, J. L. (1990). *Talking Science: Language, Learning, and Values.* Ablex.
-- Prediger, S., & Wessel, L. (2013). *Fostering German-Language Learners' Constructions of Meanings for Fractions: Design and Effects of a Language- and Mathematics-Integrated Intervention.* Mathematics Education Research Journal, 25(3), 435–456.
+- Prediger, S., & Wessel, L. (2013). *Fostering German-Language Learners' Constructions of Meanings for Fractions: Design and Effects of a Language- and Mathematics-Integrated Intervention.* Mathematics Education Research Journal, 25(3), 435–456. [Volltext (Open Access, Springer)](https://doi.org/10.1007/s13394-013-0079-2)
