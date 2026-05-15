@@ -408,33 +408,35 @@ function wbLabelFromHref(href: string): string {
     aria-labelledby="ug-steuerung-titel"
     class="rounded-xl border border-accent-200/70 bg-gradient-to-br from-accent-50/80 via-surface to-teal-50/50 p-4 shadow-md shadow-accent-900/5 ring-1 ring-accent-100/60 md:p-5 mb-6 print:hidden text-ink-800 dark:border-accent-800/40 dark:from-ink-900/80 dark:via-accent-900/30 dark:to-teal-900/25 dark:shadow-black/30 dark:ring-accent-900/40 dark:text-ink-100 mu-katex-skip"
   >
-    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-      <h2
-        id="ug-steuerung-titel"
-        class="flex items-center gap-2.5 font-serif text-lg font-semibold text-ink-900 dark:text-ink-50"
-      >
-        <span
-          class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
-          aria-hidden="true"></span>
-        Aufgabentypen
-      </h2>
-      <div class="flex flex-wrap gap-2">
-        <button
-          type="button"
-          id="ug-alle"
-          class="rounded-md border border-teal-300 bg-teal-50 px-3 py-1.5 text-sm font-medium text-teal-900 shadow-sm transition hover:border-teal-400 hover:bg-teal-100 dark:border-teal-600 dark:bg-teal-900/45 dark:text-teal-50 dark:hover:border-teal-500 dark:hover:bg-teal-800/55"
-        >
-          Alle auswählen
-        </button>
-        <button
-          type="button"
-          id="ug-keine"
-          class="rounded-md border border-coral-300 bg-coral-50 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-sm transition hover:border-coral-400 hover:bg-coral-100 dark:border-orange-700/80 dark:bg-orange-950/40 dark:text-orange-50 dark:hover:border-orange-600 dark:hover:bg-orange-900/50"
-        >
-          Alle abwählen
-        </button>
-      </div>
-    </div>
+    <h2
+      id="ug-steuerung-titel"
+      class="mb-2 flex items-center gap-2.5 font-serif text-lg font-semibold text-ink-900 dark:text-ink-50"
+    >
+      <span
+        class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
+        aria-hidden="true"></span>
+      Aufgabentypen
+    </h2>
+    {
+      variant !== 'bruchrechnung' ? (
+        <div class="mb-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            id="ug-alle"
+            class="rounded-md border border-teal-300 bg-teal-50 px-3 py-1.5 text-sm font-medium text-teal-900 shadow-sm transition hover:border-teal-400 hover:bg-teal-100 dark:border-teal-600 dark:bg-teal-900/45 dark:text-teal-50 dark:hover:border-teal-500 dark:hover:bg-teal-800/55"
+          >
+            Alle auswählen
+          </button>
+          <button
+            type="button"
+            id="ug-keine"
+            class="rounded-md border border-coral-300 bg-coral-50 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-sm transition hover:border-coral-400 hover:bg-coral-100 dark:border-orange-700/80 dark:bg-orange-950/40 dark:text-orange-50 dark:hover:border-orange-600 dark:hover:bg-orange-900/50"
+          >
+            Alle abwählen
+          </button>
+        </div>
+      ) : null
+    }
 
     <div class="grid gap-4 lg:grid-cols-2">
       {
@@ -446,7 +448,7 @@ function wbLabelFromHref(href: string): string {
               >
                 Seiten benennen
               </legend>
-              <div class="space-y-1 text-sm">
+              <div class="ug-typ-grid text-sm">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" class="ug-typ accent-accent-600" value="seiten_hyp" checked />
                   <span>Hypotenuse aus zwei Seiten (Skizze mit ?)</span>
@@ -459,7 +461,7 @@ function wbLabelFromHref(href: string): string {
               >
                 Pythagoras
               </legend>
-              <div class="space-y-1 text-sm">
+              <div class="ug-typ-grid text-sm">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" class="ug-typ accent-accent-600" value="hypotenuse" checked />
                   <span>Hypotenuse berechnen</span>
@@ -490,7 +492,7 @@ function wbLabelFromHref(href: string): string {
             >
               Trigonometrie · Sinus, Kosinus, Tangens
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="trig_ratio" checked />
                 <span>Sinus, Kosinus, Tangens aus Katheten und Hypotenuse</span>
@@ -524,7 +526,7 @@ function wbLabelFromHref(href: string): string {
             >
               Quadratische Funktionen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="qf_scheitel_form" checked />
                 <span>Scheitel aus Scheitelpunktform $(x-p)^2+q$</span>
@@ -558,7 +560,7 @@ function wbLabelFromHref(href: string): string {
             >
               Quadratische Gleichungen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="qg_faktorform" checked />
                 <span>Faktorform direkt lösen: $(x-r)(x-s)=0$</span>
@@ -592,7 +594,7 @@ function wbLabelFromHref(href: string): string {
             >
               Bruchgleichungen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="bg_definitionsmenge" checked />
                 <span>Definitionsmenge bestimmen</span>
@@ -626,7 +628,23 @@ function wbLabelFromHref(href: string): string {
             >
               Bruchrechnung
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="mb-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                id="ug-alle"
+                class="rounded-md border border-teal-300 bg-teal-50 px-3 py-1.5 text-sm font-medium text-teal-900 shadow-sm transition hover:border-teal-400 hover:bg-teal-100 dark:border-teal-600 dark:bg-teal-900/45 dark:text-teal-50 dark:hover:border-teal-500 dark:hover:bg-teal-800/55"
+              >
+                Alle auswählen
+              </button>
+              <button
+                type="button"
+                id="ug-keine"
+                class="rounded-md border border-coral-300 bg-coral-50 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-sm transition hover:border-coral-400 hover:bg-coral-100 dark:border-orange-700/80 dark:bg-orange-950/40 dark:text-orange-50 dark:hover:border-orange-600 dark:hover:bg-orange-900/50"
+              >
+                Alle abwählen
+              </button>
+            </div>
+            <div class="ug-typ-grid ug-typ-grid--bruch text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_like" checked />
                 <span>Addition gleichnamiger Brüche</span>
@@ -660,7 +678,7 @@ function wbLabelFromHref(href: string): string {
             >
               Negative Zahlen · ganze Zahlen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="nz_add" checked />
                 <span>Addition ($a+b$)</span>
@@ -694,7 +712,7 @@ function wbLabelFromHref(href: string): string {
             >
               Algebra · Terme
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_klammer_mal" checked />
                 <span>Klammer ausmultiplizieren ($k(ax+b)$)</span>
@@ -728,8 +746,8 @@ function wbLabelFromHref(href: string): string {
             >
               Lineare Gleichungen
             </legend>
-            <div class="space-y-1 text-sm">
-              <p class="pt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+            <div class="ug-typ-grid text-sm">
+              <p class="ug-typ-grid-phase pt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Phase A · Grundmuster
               </p>
               <label class="flex items-center gap-2 cursor-pointer">
@@ -740,7 +758,7 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_eq_b" checked />
                 <span>Form $ax=b$</span>
               </label>
-              <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Phase B · eine Zusatzoperation
               </p>
               <label class="flex items-center gap-2 cursor-pointer">
@@ -751,7 +769,7 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lg_ax_plus_b_eq_cx_plus_d" checked />
                 <span>Variable auf beiden Seiten</span>
               </label>
-              <p class="pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Phase C · Strukturwechsel
               </p>
               <label class="flex items-center gap-2 cursor-pointer">
@@ -771,7 +789,7 @@ function wbLabelFromHref(href: string): string {
             >
               Prozentrechnung
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="pr_prozentwert" checked />
                 <span>Prozentwert berechnen ($W=p\\,\\%\\cdot G$)</span>
@@ -805,7 +823,7 @@ function wbLabelFromHref(href: string): string {
             >
               Stochastik
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="st_mittelwert_median" checked />
                 <span>Mittelwert und Median</span>
@@ -839,7 +857,7 @@ function wbLabelFromHref(href: string): string {
             >
               Binomische Formeln
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="bf_erste_formel" checked />
                 <span>Erste binomische Formel: $(x+a)^2$</span>
@@ -873,7 +891,7 @@ function wbLabelFromHref(href: string): string {
             >
               Lineare Funktionen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lf_gerade_m_b" checked />
                 <span>Gleichung aus Steigung und Achsenabschnitt</span>
@@ -907,7 +925,7 @@ function wbLabelFromHref(href: string): string {
             >
               Lineare Gleichungssysteme
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="lgs_addition" checked />
                 <span>Additionsverfahren</span>
@@ -941,7 +959,7 @@ function wbLabelFromHref(href: string): string {
             >
               Termumformungen · Bruchterme
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="tu_kuerzen_faktor" checked />
                 <span>Kürzen über gemeinsame Faktoren</span>
@@ -975,7 +993,7 @@ function wbLabelFromHref(href: string): string {
             >
               Exponentialfunktionen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="exp_wachstum_oder_zerfall" checked />
                 <span>Wachstum oder Zerfall erkennen</span>
@@ -1009,7 +1027,7 @@ function wbLabelFromHref(href: string): string {
             >
               Logarithmen
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="log_basis_zwei" checked />
                 <span>Grundaufgaben mit Basis 2</span>
@@ -1043,7 +1061,7 @@ function wbLabelFromHref(href: string): string {
             >
               Wurzelrechnung
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="wr_vereinfachen" checked />
                 <span>Wurzelausdrücke vereinfachen</span>
@@ -1077,7 +1095,7 @@ function wbLabelFromHref(href: string): string {
             >
               Kreisgeometrie
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="kg_radius_zu_durchmesser" checked />
                 <span>Radius → Durchmesser</span>
@@ -1111,7 +1129,7 @@ function wbLabelFromHref(href: string): string {
             >
               Strahlensätze
             </legend>
-            <div class="space-y-1 text-sm">
+            <div class="ug-typ-grid text-sm">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="strahl_zweiter_strecke" checked />
                 <span>V-Figur: parallele Strecke (zweiter Strahlensatz)</span>
@@ -2608,6 +2626,39 @@ function wbLabelFromHref(href: string): string {
   }
   html.dark #ug-steuerung .ug-gruppe label:hover {
     background-color: rgb(30 58 138 / 0.28);
+  }
+
+  #ug-steuerung .ug-typ-grid {
+    display: grid;
+    gap: 0.3rem 0.85rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 520px) {
+    #ug-steuerung .ug-typ-grid:not(.ug-typ-grid--bruch) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    #ug-steuerung .ug-typ-grid:not(.ug-typ-grid--bruch) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* Bruchrechnung: 3×2, spaltenweise von einfach zu komplex (pro Spalte oben → unten) */
+  @media (min-width: 640px) {
+    #ug-steuerung .ug-typ-grid--bruch {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(2, auto);
+      grid-auto-flow: column;
+      gap: 0.35rem 1rem;
+      align-items: start;
+    }
+  }
+  #ug-steuerung .ug-typ-grid > .ug-typ-grid-phase {
+    grid-column: 1 / -1;
+    margin-top: 0.15rem;
+  }
+  #ug-steuerung .ug-typ-grid > .ug-typ-grid-phase:first-child {
+    margin-top: 0;
   }
 
   #ug-steuerung .ug-anzahl:not(.ug--aktiv) {
