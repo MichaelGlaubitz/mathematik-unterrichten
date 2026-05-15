@@ -1300,18 +1300,19 @@ function wbLabelFromHref(href: string): string {
 
   <div
     id="ug-wb-overlay"
-    class="ug-wb-overlay pointer-events-auto fixed inset-0 z-[9999] flex flex-col items-center overflow-y-auto overscroll-y-contain bg-neutral-900/80 p-4 py-6 backdrop-blur-sm dark:bg-slate-950/80 dark:backdrop-blur-md print:hidden"
+    class="ug-wb-overlay pointer-events-auto fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden overscroll-none bg-neutral-900/80 p-3 py-4 backdrop-blur-sm sm:p-4 sm:py-6 dark:bg-slate-950/80 dark:backdrop-blur-md print:hidden"
     hidden
     role="dialog"
     aria-modal="true"
     aria-label="Whiteboard"
   >
-    <div class="my-auto flex w-full max-w-4xl flex-col gap-4">
-      <section
-        id="ug-whiteboard"
-        aria-label={`Aufgaben (${wbLabel})`}
-        class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-slate-600/70 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-[0_28px_64px_-18px_rgba(0,0,0,0.55),0_0_0_1px_rgba(59,130,246,0.14),0_0_120px_-48px_rgba(59,130,246,0.18)]"
-      >
+    <div id="ug-wb-scale-box" class="ug-wb-scale-box w-full max-w-4xl shrink-0 overflow-hidden">
+      <div id="ug-wb-scale-inner" class="ug-wb-scale-inner origin-top-left">
+        <section
+          id="ug-whiteboard"
+          aria-label={`Aufgaben (${wbLabel})`}
+          class="mu-katex-skip flex flex-col rounded-2xl border border-ink-200 bg-white p-6 shadow-2xl sm:p-8 md:p-10 min-h-[min(52vh,30rem)] dark:border-slate-600/70 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-[0_28px_64px_-18px_rgba(0,0,0,0.55),0_0_0_1px_rgba(59,130,246,0.14),0_0_120px_-48px_rgba(59,130,246,0.18)]"
+        >
         <div
           class="mb-4 flex w-full shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-slate-700/80"
         >
@@ -1386,17 +1387,8 @@ function wbLabelFromHref(href: string): string {
             class="rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-accent-900/25 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400 dark:shadow-lg dark:shadow-accent-600/35 text-lg"
             >Lösung zeigen</button>
         </div>
-
-        <p
-          class="mt-4 border-t border-ink-200 pt-4 text-center text-xs text-ink-600 print:hidden dark:border-slate-700 dark:text-slate-500"
-        >
-          Tipp: <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">Leertaste</kbd>
-          {' '}
-          oder <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">→</kbd> wie „Weiter“,
-          {' '}
-          <kbd class="rounded border border-ink-300 bg-ink-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">←</kbd> zurück · Esc schließt.
-        </p>
-      </section>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -1805,6 +1797,7 @@ function wbLabelFromHref(href: string): string {
     let wbZeigeLoesung = false;
     let wbSekunden = 0;
     let wbTimerId = null;
+    let wbOverlayScaleRaf = 0;
     const DIAGRAM_SCALE_STEP = 0.1;
     const DIAGRAM_SCALE_MIN = 0.5;
     const DIAGRAM_SCALE_MAX = 2;
@@ -1850,6 +1843,9 @@ function wbLabelFromHref(href: string): string {
     const liste = document.getElementById('ug-liste');
     const arbeitsblatt = document.getElementById('ug-arbeitsblatt');
     const wbOverlay = document.getElementById('ug-wb-overlay');
+    const wbScaleBox = document.getElementById('ug-wb-scale-box');
+    const wbScaleInner = document.getElementById('ug-wb-scale-inner');
+    const wbCard = document.getElementById('ug-whiteboard');
     const wbControls = document.getElementById('ug-wb-controls');
     const wbLeer = document.getElementById('ug-wb-leer');
     const wbContent = document.getElementById('ug-wb-content');
@@ -1917,6 +1913,49 @@ function wbLabelFromHref(href: string): string {
         window.clearInterval(wbTimerId);
         wbTimerId = null;
       }
+    }
+
+    function wbOverlayInnerAvail(overlay) {
+      const cs = getComputedStyle(overlay);
+      const pl = parseFloat(cs.paddingLeft) || 0;
+      const pr = parseFloat(cs.paddingRight) || 0;
+      const pt = parseFloat(cs.paddingTop) || 0;
+      const pb = parseFloat(cs.paddingBottom) || 0;
+      return {
+        w: Math.max(0, overlay.clientWidth - pl - pr),
+        h: Math.max(0, overlay.clientHeight - pt - pb),
+      };
+    }
+
+    function applyWbOverlayScaleFit() {
+      if (!wbOverlay || wbOverlay.hidden || !wbScaleBox || !wbScaleInner || !wbCard) return;
+      wbScaleInner.style.removeProperty('transform');
+      wbScaleInner.style.removeProperty('transform-origin');
+      wbScaleInner.style.removeProperty('width');
+      wbScaleBox.style.removeProperty('width');
+      wbScaleBox.style.removeProperty('height');
+      const natW = wbCard.offsetWidth;
+      const natH = wbCard.offsetHeight;
+      if (natW < 1 || natH < 1) return;
+      const { w: avW, h: avH } = wbOverlayInnerAvail(wbOverlay);
+      if (avW < 1 || avH < 1) return;
+      const s = Math.min(1, avW / natW, avH / natH);
+      wbScaleBox.style.width = `${Math.max(1, Math.round(natW * s))}px`;
+      wbScaleBox.style.height = `${Math.max(1, Math.round(natH * s))}px`;
+      wbScaleInner.style.width = `${natW}px`;
+      wbScaleInner.style.transform = `scale(${s})`;
+      wbScaleInner.style.transformOrigin = 'top left';
+    }
+
+    function scheduleWbOverlayScaleFit() {
+      if (!wbOverlay || wbOverlay.hidden) return;
+      if (wbOverlayScaleRaf) cancelAnimationFrame(wbOverlayScaleRaf);
+      wbOverlayScaleRaf = requestAnimationFrame(() => {
+        wbOverlayScaleRaf = 0;
+        requestAnimationFrame(() => {
+          applyWbOverlayScaleFit();
+        });
+      });
     }
 
     function setRouteStatus(message, isError = false) {
@@ -2179,6 +2218,9 @@ function wbLabelFromHref(href: string): string {
       }
       syncPracticeDiagramUi(document.body);
       syncDiagramZoomUi(document.body);
+      if (layout === 'whiteboard' && hat) {
+        scheduleWbOverlayScaleFit();
+      }
     }
     function renderArbeitsblatt() {
       if (!liste) return;
@@ -2342,6 +2384,7 @@ function wbLabelFromHref(href: string): string {
         e.preventDefault();
         updateDiagramScale(hash, step);
         syncDiagramZoomUi(document.body);
+        scheduleWbOverlayScaleFit();
         return;
       }
       const t = e.target && (e.target as Element).closest('button.ug-task-diagram-toggle');
@@ -2352,6 +2395,7 @@ function wbLabelFromHref(href: string): string {
       e.preventDefault();
       toggleDiagramForHash(hash, defaultHidden);
       syncPracticeDiagramUi(document.body);
+      scheduleWbOverlayScaleFit();
     });
 
     document.addEventListener(
@@ -2372,6 +2416,13 @@ function wbLabelFromHref(href: string): string {
       },
       true
     );
+
+    window.addEventListener('resize', scheduleWbOverlayScaleFit, { passive: true });
+    if (typeof ResizeObserver !== 'undefined' && wbOverlay && wbCard) {
+      const wbScaleRo = new ResizeObserver(() => scheduleWbOverlayScaleFit());
+      wbScaleRo.observe(wbOverlay);
+      wbScaleRo.observe(wbCard);
+    }
 
     refreshAktiv();
     if (!consumeWindowNameRoute()) {
@@ -2560,6 +2611,11 @@ function wbLabelFromHref(href: string): string {
 
   #ug-wb-overlay {
     isolation: isolate;
+  }
+
+  #ug-wb-overlay .ug-wb-scale-inner {
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   /* Tailwind-Utilities wie .flex haben dieselbe Spezifität wie [hidden] und stehen später in
