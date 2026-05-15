@@ -53,6 +53,14 @@ describe('whiteboardRouteFile', () => {
     expect(parsed?.tasks[0].frageMitLoesungHighlight).toBe('<span class="x">h</span>');
   });
 
+  it('normalisiert optionales loesungInlineNachFrage pro Aufgabe', () => {
+    const parsed = parseWhiteboardRoutePayload({
+      ...route,
+      tasks: [{ frage: 'f', loesung: 'l', loesungInlineNachFrage: true }],
+    });
+    expect(parsed?.tasks[0].loesungInlineNachFrage).toBe(true);
+  });
+
   it('lehnt fremde oder unvollstaendige Payloads ab', () => {
     expect(parseWhiteboardRoutePayload({ ...route, kind: 'other' })).toBeNull();
     expect(parseWhiteboardRoutePayload({ ...route, pagePath: 'https://example.test/uebung/pythagoras' })).toBeNull();

@@ -62,6 +62,11 @@ function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boo
 export type PracticeAufgabe = {
   frage: string;
   loesung: string;
+  /**
+   * Wenn wahr: Lösung ohne farbigen Lösungskasten — direkt an die Frage (Whiteboard) bzw. schlicht im
+   * „Lösung zeigen“-Bereich (Arbeitsblatt), z. B. Rechenweg `\\frac{a}{d}+\\frac{b}{d}=…`.
+   */
+  loesungInlineNachFrage?: boolean;
   /** Skizze zur Aufgabenstellung (bei Malaufgaben ohne markante Produktfläche im Raster). */
   diagram?: string;
   /** Optional: Skizze mit vollständiger Markierung — z. B. in „Lösung zeigen“. */
@@ -77,6 +82,19 @@ export type PracticeAufgabe = {
    */
   frageMitLoesungHighlight?: string;
 };
+
+/**
+ * Lösung ohne farbigen Lösungskasten: direkt an die Frage (Whiteboard) bzw. ohne Kasten im Detail (Arbeitsblatt).
+ * U.a. ganze Zahlen (nz_add/nz_sub) und gleichnamige Brüche (br_add_like/br_sub_like).
+ */
+export function practiceAufgabeHatLoesungInlineNachFrage(a: PracticeAufgabe): boolean {
+  if (a.loesungInlineNachFrage === true) return true;
+  const f = a.frage;
+  if (f.startsWith('Berechne die Summe ') || f.startsWith('Berechne die Differenz ')) return true;
+  /* Gespeicherte Routen ohne Flag: gleichnamige Brüche (Frage „Berechne $\displaystyle\frac…+\frac…$“) */
+  if (f.startsWith('Berechne $') && (f.includes('}+\\frac{') || f.includes('}-\\frac{'))) return true;
+  return false;
+}
 
 export type RandomFn = () => number;
 
@@ -932,6 +950,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$.`,
         loesung: loes,
+        loesungInlineNachFrage: true,
         diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
         diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
       };
@@ -949,6 +968,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$.`,
         loesung: loes,
+        loesungInlineNachFrage: true,
         diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
         diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
       };

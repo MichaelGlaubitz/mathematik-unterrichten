@@ -6,6 +6,8 @@ export const WHITEBOARD_ROUTE_WINDOW_NAME_KIND = 'mu-whiteboard-route-window-nam
 export type WhiteboardRouteTask = {
   frage: string;
   loesung: string;
+  /** Wie `PracticeAufgabe.loesungInlineNachFrage`. */
+  loesungInlineNachFrage?: boolean;
   diagram?: string;
   diagramLoesung?: string;
   /** Wie `PracticeAufgabe.frageMitLoesungHighlight` — nur sichtbar, wenn die Lösung eingeblendet wird. */
@@ -57,10 +59,16 @@ function normalizedTask(value: unknown): WhiteboardRouteTask | null {
     typeof value.frageMitLoesungHighlight !== 'string'
   )
     return null;
+  if (
+    typeof value.loesungInlineNachFrage !== 'undefined' &&
+    typeof value.loesungInlineNachFrage !== 'boolean'
+  )
+    return null;
   const base: WhiteboardRouteTask = { frage: value.frage, loesung: value.loesung };
   if (typeof value.diagram === 'string') base.diagram = value.diagram;
   if (typeof value.diagramLoesung === 'string') base.diagramLoesung = value.diagramLoesung;
   if (typeof value.frageMitLoesungHighlight === 'string') base.frageMitLoesungHighlight = value.frageMitLoesungHighlight;
+  if (value.loesungInlineNachFrage === true) base.loesungInlineNachFrage = true;
   return base;
 }
 

@@ -1747,7 +1747,7 @@ function wbLabelFromHref(href: string): string {
 </div>
 
 <script>
-  import { createPracticeGenerators } from '../lib/pythagorasPracticeGenerators';
+  import { createPracticeGenerators, practiceAufgabeHatLoesungInlineNachFrage } from '../lib/pythagorasPracticeGenerators';
   import {
     bindPracticeDiagramCheckbox,
     effectiveDiagramVisibleByHash,
@@ -2168,12 +2168,6 @@ function wbLabelFromHref(href: string): string {
       return a;
     }
 
-    /** Ganze Zahlen: Addition/Subtraktion (nz_add, nz_sub) — Lösung ohne Kasten, direkt an die Frage. */
-    function practiceAufgabeLoesungInlineNachFrage(a) {
-      const f = a.frage;
-      return f.startsWith('Berechne die Summe ') || f.startsWith('Berechne die Differenz ');
-    }
-
     /** Fragentext: optional `frageMitLoesungHighlight` erst, wenn die Lösung sichtbar ist (Whiteboard). */
     function practiceFrageAnzeigeHtml(a, loesungSichtbar) {
       return loesungSichtbar && a.frageMitLoesungHighlight ? a.frageMitLoesungHighlight : a.frage;
@@ -2301,7 +2295,7 @@ function wbLabelFromHref(href: string): string {
             </div>
             <div class="mu-practice-diagram mb-3 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagram ?? ''}</div>`
           : '';
-        const inlineL = practiceAufgabeLoesungInlineNachFrage(a);
+        const inlineL = practiceAufgabeHatLoesungInlineNachFrage(a);
         const loesungImDetails = a.diagramLoesung
           ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagramLoesung}</div>`
           : '';
@@ -2361,7 +2355,7 @@ function wbLabelFromHref(href: string): string {
       const dia = cur.diagram || cur.diagramLoesung
         ? `<div class="mu-practice-diagram mb-3 max-w-full print:hidden" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${diagramSvg}</div><div class="mt-2">`
         : '<div>';
-      const inlineL = practiceAufgabeLoesungInlineNachFrage(cur);
+      const inlineL = practiceAufgabeHatLoesungInlineNachFrage(cur);
       const loesungAnWhiteboardFrage =
         wbZeigeLoesung && inlineL
           ? ` <span class="text-ink-800 dark:text-slate-100">${cur.loesung}</span>`
