@@ -1036,9 +1036,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         a * d2 > b * d1
           ? `$\\displaystyle\\frac{${a}}{${d1}}$`
           : `$\\displaystyle\\frac{${b}}{${d2}}$`;
+      const zfVgl = nA > nB ? `${nA} > ${nB}` : `${nA} < ${nB}`;
       return {
         frage: `Welcher Bruch ist größer: $\\displaystyle\\frac{${a}}{${d1}}$ oder $\\displaystyle\\frac{${b}}{${d2}}$?`,
-        loesung: `Kreuzweise: $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$. Der größere Bruch ist ${gr}.`,
+        loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\displaystyle\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$, $\\displaystyle\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. Wegen $${zfVgl}$ ist ${gr} größer. Kreuzweise (Kreuzmethode): $${a}\\cdot ${d2}=${a * d2}$ und $${b}\\cdot ${d1}=${b * d1}$ — ebenfalls ${gr}.`,
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
       };
