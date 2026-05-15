@@ -86,7 +86,15 @@
   }
 
   .badge-ink {
-    @apply badge bg-ink-100 text-ink-700 dark:bg-ink-800 dark:text-ink-200;
+    @apply badge bg-ink-100 text-ink-700 dark:bg-slate-800/90 dark:text-ink-200 dark:ring-1 dark:ring-sky-400/20;
+  }
+
+  /**
+   * Große Flächen im Dark Mode: kühler Seitengrund + Verlauf + Sky-Rand/Ring
+   * (wie die drei Säulen-Kacheln auf der Startseite, ohne warmes ink-800-Braun).
+   */
+  .mu-dark-glass-panel {
+    @apply dark:border-sky-500/30 dark:bg-gradient-to-br dark:from-[rgb(26_22_35)/0.95] dark:via-violet-950/20 dark:to-sky-950/40 dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.6)] dark:ring-1 dark:ring-sky-400/20;
   }
 
   .badge-accent {
@@ -96,10 +104,10 @@
 
   .card {
     @apply bg-surface/90 rounded-xl border border-ink-200/90 p-6 shadow-sm backdrop-blur-[2px]
+           mu-dark-glass-panel
            transition-[box-shadow,transform,border-color] duration-200
            hover:shadow-md hover:border-accent-200/80 hover:-translate-y-0.5
-           dark:bg-ink-800/85 dark:border-violet-500/20 dark:shadow-[0_8px_30px_-10px_rgba(0,0,0,0.55)]
-           dark:hover:border-teal-400/45 dark:hover:shadow-[0_12px_40px_-12px_rgba(45,212,191,0.12)];
+           dark:hover:border-teal-400/50 dark:hover:shadow-[0_12px_40px_-12px_rgba(45,212,191,0.12)];
   }
 
   .link-arrow {
