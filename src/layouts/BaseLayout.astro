@@ -7,7 +7,11 @@ export interface Props {
   title: string;
   beschreibung?: string;
   ogBild?: string;
-  /** Relativer Repo-Pfad zur Content-Datei (z. B. `src/content/blog/foo.md`) für Strg+Shift+E → GitHub-Edit */
+  /** Relativer Pfad zur Page-Datei im Repo, z. B. `src/pages/index.astro` (für Strg+Shift+E). */
+  sourceFile: string;
+  /**
+   * Optional: andere Quelle als die Page-Datei (z. B. `src/content/blog/…md` statt `[slug].astro`).
+   */
   githubEditPath?: string;
 }
 
@@ -15,12 +19,19 @@ const {
   title,
   beschreibung = 'Mathe-Didaktik, Aufgaben und diagnostische Fragen für Lehrkräfte – inspiriert von Forschung und Praxis.',
   ogBild = '/og-default.png',
-  githubEditPath,
+  sourceFile,
+  githubEditPath: githubEditPathProp,
 } = Astro.props;
+
+const explicitPath = githubEditPathProp?.trim();
+const githubEditPath = explicitPath || sourceFile?.trim();
 
 const seitentitel = title === 'mathematik-unterrichten' ? title : `${title} – mathematik-unterrichten`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const githubRepo = (import.meta.env.PUBLIC_GITHUB_REPO as string | undefined)?.trim() ?? '';
+/** Öffentliches Repo für „Auf GitHub bearbeiten“ (Strg+Shift+E). Forks: `PUBLIC_GITHUB_REPO` setzen. */
+const githubRepo =
+  (import.meta.env.PUBLIC_GITHUB_REPO as string | undefined)?.trim() ||
+  'MichaelGlaubitz/mathematik-unterrichten';
 const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined)?.trim() || 'main';
 ---
 
@@ -82,8 +93,8 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
   </head>
   <body
     class="min-h-screen mu-page-bg text-ink-800 antialiased font-sans dark:text-ink-200"
-    data-gh-repo={githubRepo || undefined}
-    data-gh-branch={githubRepo ? githubBranch : undefined}
+    data-gh-repo={githubRepo}
+    data-gh-branch={githubBranch}
   >
     <a
       href="#hauptinhalt"
