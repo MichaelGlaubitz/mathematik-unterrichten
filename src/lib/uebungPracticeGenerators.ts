@@ -81,8 +81,8 @@ export type PracticeAufgabe = {
    */
   diagramDefaultHidden?: boolean;
   /**
-   * Optional: Start-Skalierung der Aufgaben-Skizze (0,5–2,0), z. B. 2 für 200 % bei einfachen
-   * Zahlenstrahl-Aufgaben (`nz_sub` mit zwei nicht-negativen Operanden).
+   * Optional: Start-Skalierung der Aufgaben-Skizze (0,5–2,0), z. B. 2 für 200 % bei allen
+   * Zahlenstrahl-Skizzen im Thema „Negative Zahlen“.
    */
   diagramDefaultScale?: number;
   /**
@@ -1095,10 +1095,22 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       const s = a + b;
+      const einfacheNatuerlicheSumme = a >= 0 && b >= 0;
+      const voll = `$${a}+${b}=${s}$`;
       return {
-        frage: `Berechne die Summe $${a}${formatSignedInt(b)}$.`,
-        loesung: `$${a}${formatSignedInt(b)}=${s}$.`,
-        diagram: svgZahlenstrahlSprung(a, b),
+        frage: einfacheNatuerlicheSumme
+          ? `Berechne die Summe $${a}+${b}$.`
+          : `Berechne die Summe $${a}${formatSignedInt(b)}$.`,
+        ...(einfacheNatuerlicheSumme
+          ? {
+              frageMitLoesungHighlight: voll,
+              loesung: voll,
+              loesungInlineNachFrage: true as const,
+            }
+          : { loesung: `$${a}${formatSignedInt(b)}=${s}$.` }),
+        diagram: svgZahlenstrahlSprung(a, b, 'aufgabe'),
+        diagramLoesung: svgZahlenstrahlSprung(a, b, 'loesung'),
+        diagramDefaultScale: 2,
       };
     },
     nz_sub() {
@@ -1112,13 +1124,21 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const s = a - b;
       const einfacheNatuerlicheSubtraktion = a >= 0 && b >= 0;
+      const voll = `$${a}-${b}=${s}$`;
       return {
         frage: `Berechne die Differenz $${a}-${texSubtrahend(b)}$.`,
-        loesung: einfacheNatuerlicheSubtraktion
-          ? `$${a}-${b}=${s}$.`
-          : `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
-        diagram: svgZahlenstrahlSprung(a, -b),
-        ...(einfacheNatuerlicheSubtraktion ? { diagramDefaultScale: 2 } : {}),
+        ...(einfacheNatuerlicheSubtraktion
+          ? {
+              frageMitLoesungHighlight: voll,
+              loesung: voll,
+              loesungInlineNachFrage: true as const,
+            }
+          : {
+              loesung: `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
+            }),
+        diagram: svgZahlenstrahlSprung(a, -b, 'aufgabe'),
+        diagramLoesung: svgZahlenstrahlSprung(a, -b, 'loesung'),
+        diagramDefaultScale: 2,
       };
     },
     nz_mul() {
@@ -1162,7 +1182,9 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Welche Zahl ist größer: $${a}$ oder $${b}$? (Skizze: A gehört zur ersten Zahl, B zur zweiten.)`,
         loesung: `${grIstA ? 'A' : 'B'} ist größer: $${gr} > ${kl}$. Auf dem Zahlenstrahl liegt die größere Zahl weiter rechts.`,
-        diagram: svgZahlenstrahlZweiWerte(a, b),
+        diagram: svgZahlenstrahlZweiWerte(a, b, 'aufgabe'),
+        diagramLoesung: svgZahlenstrahlZweiWerte(a, b, 'loesung'),
+        diagramDefaultScale: 2,
       };
     },
     nz_klammer_punkt_vor_strich() {
@@ -1199,14 +1221,18 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         return {
           frage: `Berechne $${a}-${b}\\cdot${texMulFactor(c)}$.`,
           loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}-${prod}=${res}$.`,
-          diagram: svgZahlenstrahlSprung(a, -prod),
+          diagram: svgZahlenstrahlSprung(a, -prod, 'aufgabe'),
+          diagramLoesung: svgZahlenstrahlSprung(a, -prod, 'loesung'),
+          diagramDefaultScale: 2,
         };
       }
       const res = a + prod;
       return {
         frage: `Berechne $${a}+${b}\\cdot${texMulFactor(c)}$.`,
         loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}+${prod}=${res}$.`,
-        diagram: svgZahlenstrahlSprung(a, prod),
+        diagram: svgZahlenstrahlSprung(a, prod, 'aufgabe'),
+        diagramLoesung: svgZahlenstrahlSprung(a, prod, 'loesung'),
+        diagramDefaultScale: 2,
       };
     },
     alg_klammer_mal() {

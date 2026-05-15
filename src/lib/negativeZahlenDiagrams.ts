@@ -2,6 +2,9 @@
  * SVG-Zahlenstrahl für Vorzeichen & ganze Zahlen (Sprünge, Vergleich).
  */
 
+/** `aufgabe`: nur Strahl und Skalenticks, Zahlenbeschriftung nur bei 0. `loesung`: vollständige Markierungen. */
+export type ZahlenstrahlModus = 'aufgabe' | 'loesung';
+
 function clampRange(values: number[], pad: number): [number, number] {
   let lo = Math.min(...values);
   let hi = Math.max(...values);
@@ -15,10 +18,33 @@ function xAt(v: number, min: number, max: number, padL: number, lineW: number): 
   return padL + ((v - min) / (max - min)) * lineW;
 }
 
-const svgCls = "mx-auto max-w-full text-ink-800 dark:text-ink-200";
+const svgCls = 'mx-auto max-w-full text-ink-800 dark:text-ink-200';
+
+function tickBlock(
+  min: number,
+  max: number,
+  padL: number,
+  lineW: number,
+  lineY: number,
+  modus: ZahlenstrahlModus
+): string {
+  let ticks = '';
+  for (let t = min; t <= max; t++) {
+    const x = xAt(t, min, max, padL, lineW);
+    ticks += `<line x1='${x}' y1='${lineY}' x2='${x}' y2='${lineY + 5}' stroke='currentColor' stroke-width='1' opacity='0.45'/>`;
+    if (modus === 'loesung' || t === 0) {
+      ticks += `<text x='${x}' y='${lineY + 20}' font-size='11' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.9'>${t}</text>`;
+    }
+  }
+  return ticks;
+}
 
 /** Zwei verschiedene ganze Zahlen als Marken auf einem Strahl (Ordnung). */
-export function svgZahlenstrahlZweiWerte(a: number, b: number): string {
+export function svgZahlenstrahlZweiWerte(
+  a: number,
+  b: number,
+  modus: ZahlenstrahlModus = 'loesung'
+): string {
   if (a === b) return '';
   const span = Math.abs(a - b);
   const pad = span <= 4 ? 1 : 2;
@@ -29,11 +55,12 @@ export function svgZahlenstrahlZweiWerte(a: number, b: number): string {
   const w = padL + lineW + padR;
   const lineY = 36;
   const h = 58;
-  let ticks = '';
-  for (let t = min; t <= max; t++) {
-    const x = xAt(t, min, max, padL, lineW);
-    ticks += `<line x1='${x}' y1='${lineY}' x2='${x}' y2='${lineY + 5}' stroke='currentColor' stroke-width='1' opacity='0.45'/>`;
-    ticks += `<text x='${x}' y='${lineY + 20}' font-size='11' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.9'>${t}</text>`;
+  const ticks = tickBlock(min, max, padL, lineW, lineY, modus);
+  if (modus === 'aufgabe') {
+    return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' class='${svgCls}' aria-hidden='true'>
+  <line x1='${padL}' y1='${lineY}' x2='${padL + lineW}' y2='${lineY}' stroke='currentColor' stroke-width='1.6'/>
+  ${ticks}
+</svg>`;
   }
   const xa = xAt(a, min, max, padL, lineW);
   const xb = xAt(b, min, max, padL, lineW);
@@ -50,7 +77,11 @@ export function svgZahlenstrahlZweiWerte(a: number, b: number): string {
 }
 
 /** Sprung von start um delta (Addition – delta kann negativ sein). */
-export function svgZahlenstrahlSprung(start: number, delta: number): string {
+export function svgZahlenstrahlSprung(
+  start: number,
+  delta: number,
+  modus: ZahlenstrahlModus = 'loesung'
+): string {
   const end = start + delta;
   const pad = Math.max(1, Math.min(3, 1 + Math.floor(Math.abs(delta) / 6)));
   const [min, max] = clampRange([start, end], pad);
@@ -61,16 +92,17 @@ export function svgZahlenstrahlSprung(start: number, delta: number): string {
   const lineY = 40;
   const yA = 22;
   const h = 62;
-  let ticks = '';
-  for (let t = min; t <= max; t++) {
-    const x = xAt(t, min, max, padL, lineW);
-    ticks += `<line x1='${x}' y1='${lineY}' x2='${x}' y2='${lineY + 5}' stroke='currentColor' stroke-width='1' opacity='0.45'/>`;
-    ticks += `<text x='${x}' y='${lineY + 20}' font-size='11' fill='currentColor' text-anchor='middle' font-family='system-ui,sans-serif' opacity='0.9'>${t}</text>`;
-  }
+  const ticks = tickBlock(min, max, padL, lineW, lineY, modus);
   const x0 = xAt(start, min, max, padL, lineW);
   const x1 = xAt(end, min, max, padL, lineW);
   if (Math.abs(x1 - x0) < 2) {
-    return svgZahlenstrahlZweiWerte(start, end) || '';
+    return svgZahlenstrahlZweiWerte(start, end, modus) || '';
+  }
+  if (modus === 'aufgabe') {
+    return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' class='${svgCls}' aria-hidden='true'>
+  <line x1='${padL}' y1='${lineY}' x2='${padL + lineW}' y2='${lineY}' stroke='currentColor' stroke-width='1.6'/>
+  ${ticks}
+</svg>`;
   }
   const dir = x1 >= x0 ? 1 : -1;
   const tipX = x1;
