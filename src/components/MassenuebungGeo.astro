@@ -2299,9 +2299,12 @@ function wbLabelFromHref(href: string): string {
         const loesungImDetails = a.diagramLoesung
           ? `<div class="mu-practice-diagram mb-2 max-w-full" data-mu-diagram-hash="${hash}" data-mu-diagram-default-hidden="${diaDefHidden}">${a.diagramLoesung}</div>`
           : '';
-        const loesungTextBlock = inlineL
-          ? `<div class="mt-1 text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
-          : `<div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
+        const loesungTextBlock =
+          inlineL && a.frageMitLoesungHighlight
+            ? ''
+            : inlineL
+              ? `<div class="mt-1 text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
+              : `<div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
         const frageHighlightAttrs =
           a.frageMitLoesungHighlight
             ? ` data-mu-frage-neutral="${encodeURIComponent(a.frage)}" data-mu-frage-highlight="${encodeURIComponent(a.frageMitLoesungHighlight)}"`
@@ -2357,7 +2360,7 @@ function wbLabelFromHref(href: string): string {
         : '<div>';
       const inlineL = practiceAufgabeHatLoesungInlineNachFrage(cur);
       const loesungAnWhiteboardFrage =
-        wbZeigeLoesung && inlineL
+        wbZeigeLoesung && inlineL && !cur.frageMitLoesungHighlight
           ? ` <span class="text-ink-800 dark:text-slate-100">${cur.loesung}</span>`
           : '';
       if (wbFrage) wbFrage.innerHTML = `${dia}${practiceFrageAnzeigeHtml(cur, wbZeigeLoesung)}${loesungAnWhiteboardFrage}</div>`;
