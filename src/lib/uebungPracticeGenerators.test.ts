@@ -218,6 +218,30 @@ describe('Bruchrechnung-Generatoren', () => {
   });
 });
 
+describe('nz_sub (Negative Zahlen)', () => {
+  it('bei zwei nicht-negativen Operanden: kurze Lösung ohne „z.B.“ und Skizze-Standard 200 %', () => {
+    let hit = null;
+    for (let seed = 0; seed < 30000 && !hit; seed++) {
+      const t = createPracticeGenerators(makeLcg(seed)).nz_sub();
+      if (t.diagramDefaultScale === 2) hit = t;
+    }
+    expect(hit).not.toBeNull();
+    expect(hit!.loesung).not.toMatch(/z\./);
+    expect(hit!.loesung).not.toContain('als $');
+    expect(hit!.frage).toMatch(/Berechne die Differenz/);
+  });
+
+  it('mit mindestens einem negativen Operanden: Hinweis zur Schreibweise als Addition', () => {
+    let hit = null;
+    for (let seed = 0; seed < 30000 && !hit; seed++) {
+      const t = createPracticeGenerators(makeLcg(seed)).nz_sub();
+      if (t.diagramDefaultScale !== 2) hit = t;
+    }
+    expect(hit).not.toBeNull();
+    expect(hit!.loesung).toContain('z.');
+  });
+});
+
 describe('alle PRACTICE_GENERATOR_IDS', () => {
   it('liefern nicht-leere Frage und Lösung', () => {
     const GEN = createPracticeGenerators(Math.random);

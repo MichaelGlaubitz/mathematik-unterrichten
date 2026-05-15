@@ -81,6 +81,11 @@ export type PracticeAufgabe = {
    */
   diagramDefaultHidden?: boolean;
   /**
+   * Optional: Start-Skalierung der Aufgaben-Skizze (0,5–2,0), z. B. 2 für 200 % bei einfachen
+   * Zahlenstrahl-Aufgaben (`nz_sub` mit zwei nicht-negativen Operanden).
+   */
+  diagramDefaultScale?: number;
+  /**
    * Optional: Fragestellung mit Zusatzmarkierung, sobald die Lösung sichtbar ist (z. B. grüner Rahmen
    * beim größeren Bruch bei `br_vergleich`). `frage` bleibt neutral bis dahin.
    */
@@ -1106,10 +1111,14 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       const s = a - b;
+      const einfacheNatuerlicheSubtraktion = a >= 0 && b >= 0;
       return {
         frage: `Berechne die Differenz $${a}-${texSubtrahend(b)}$.`,
-        loesung: `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
+        loesung: einfacheNatuerlicheSubtraktion
+          ? `$${a}-${b}=${s}$.`
+          : `$${a}-${texSubtrahend(b)}=${s}$ (z.\,B. als $${a}+(${-b})=${s}$).`,
         diagram: svgZahlenstrahlSprung(a, -b),
+        ...(einfacheNatuerlicheSubtraktion ? { diagramDefaultScale: 2 } : {}),
       };
     },
     nz_mul() {
