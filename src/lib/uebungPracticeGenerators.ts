@@ -166,7 +166,7 @@ export const QUADRATIC_EQUATIONS_GENERATOR_IDS = [
   'qg_anzahl_loesungen',
 ] as const;
 
-/** Bruchrechnung (Grundschule / sek. I Einstieg): Addition, kürzen, erweitern, Malnehmen, Vergleich. */
+/** Bruchrechnung: Reihenfolge der IDs = UI & Generator (einfach → komplex). */
 export const BRUCHRECHNUNG_GENERATOR_IDS = [
   'br_add_like',
   'br_sub_like',
