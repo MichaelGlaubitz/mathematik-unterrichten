@@ -5,10 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Hellmodus: erhöhte Flächen (Karten, Header) — cremiges „Papier“, kein reines Weiß
+        surface: '#faf8f2',
         // Warmes, akademisches Farbschema
         ink: {
-          50: '#f8f7f4',
-          100: '#efece4',
+          50: '#f3efe6',
+          100: '#e9e3d5',
           200: '#dcd5c5',
           300: '#bfb39c',
           400: '#a08f72',
