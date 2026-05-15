@@ -422,6 +422,20 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return n < 0 ? `(${n})` : String(n);
   }
 
+  /** Vorzeichenregel für $\frac{\text{Zähler}}{\text{Nenner}}$ in der Kurzform der Multiplikationsregeln (Division). */
+  function divisionVorzeichenRegel(num: number, den: number): string {
+    const sn = num === 0 ? 0 : num > 0 ? 1 : -1;
+    const sd = den === 0 ? 0 : den > 0 ? 1 : -1;
+    const prod = sn * sd;
+    if (prod > 0) {
+      return sn > 0 ? 'Plus durch plus ergibt plus.' : 'Minus durch minus ergibt plus.';
+    }
+    if (prod < 0) {
+      return sn > 0 ? 'Plus durch minus ergibt minus.' : 'Minus durch plus ergibt minus.';
+    }
+    return '';
+  }
+
   function linTerm(coeff: number, v = 'x'): string {
     if (coeff === 0) return '0';
     if (coeff === 1) return v;
@@ -1150,9 +1164,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const den = pick([2, 3, 4, 5, 6] as const);
       const q = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
       const num = q * den;
+      const rule = divisionVorzeichenRegel(num, den);
       return {
         frage: `Berechne $\\displaystyle\\frac{${num}}{${den}}$.`,
-        loesung: `$\\displaystyle\\frac{${num}}{${den}}=${q}$.`,
+        loesung: rule
+          ? `$\\displaystyle\\frac{${num}}{${den}}=${q}$ (${rule})`
+          : `$\\displaystyle\\frac{${num}}{${den}}=${q}$.`,
       };
     },
     nz_vergleich() {

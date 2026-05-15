@@ -254,6 +254,16 @@ describe('nz_add / nz_sub (Negative Zahlen): Lösung ersetzt Aufgabenkern', () =
   });
 });
 
+describe('nz_div (Negative Zahlen)', () => {
+  it('Lösung nennt eine Vorzeichenregel zur Division', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (let k = 0; k < 25; k++) {
+      const t = GEN.nz_div();
+      expect(t.loesung).toMatch(/Plus durch plus|Minus durch plus|Plus durch minus|Minus durch minus/);
+    }
+  });
+});
+
 describe('alle PRACTICE_GENERATOR_IDS', () => {
   it('liefern nicht-leere Frage und Lösung', () => {
     const GEN = createPracticeGenerators(Math.random);
