@@ -943,13 +943,14 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const b = randInt(1, d - a);
       const s = a + b;
       const g = gcd(s, d);
-      const loes =
+      const voll =
         g === 1
           ? `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
           : `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
-        frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$.`,
-        loesung: loes,
+        frage: `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$`,
+        frageMitLoesungHighlight: voll,
+        loesung: voll,
         loesungInlineNachFrage: true,
         diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
         diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
@@ -961,13 +962,14 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const b = randInt(1, a - 1);
       const s = a - b;
       const g = gcd(s, d);
-      const loes =
+      const voll =
         g === 1
           ? `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
           : `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
-        frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$.`,
-        loesung: loes,
+        frage: `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$`,
+        frageMitLoesungHighlight: voll,
+        loesung: voll,
         loesungInlineNachFrage: true,
         diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
         diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),

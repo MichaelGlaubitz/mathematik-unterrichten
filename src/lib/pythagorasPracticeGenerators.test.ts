@@ -145,7 +145,7 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(add.diagram).toContain("fill-opacity='0.32'");
   });
 
-  it('br_add_like / br_sub_like: Lösung inline (ohne Lösungskasten in der UI)', () => {
+  it('br_add_like / br_sub_like: schlichte Aufgabenzeile, bei Lösung eine durchgängige Gleichungszeile', () => {
     const GEN = createPracticeGenerators(() => 0.42);
     const add = GEN.br_add_like();
     const sub = GEN.br_sub_like();
@@ -153,8 +153,12 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(sub.loesungInlineNachFrage).toBe(true);
     expect(practiceAufgabeHatLoesungInlineNachFrage(add)).toBe(true);
     expect(practiceAufgabeHatLoesungInlineNachFrage(sub)).toBe(true);
-    expect(add.loesung).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}\+/);
-    expect(sub.loesung).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}-/);
+    expect(add.frage).not.toContain('Berechne');
+    expect(sub.frage).not.toContain('Berechne');
+    expect(add.frageMitLoesungHighlight).toBe(add.loesung);
+    expect(sub.frageMitLoesungHighlight).toBe(sub.loesung);
+    expect(add.frageMitLoesungHighlight).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}\+\\frac\{[0-9]+\}\{[0-9]+\}=/);
+    expect(sub.frageMitLoesungHighlight).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}-\\frac\{[0-9]+\}\{[0-9]+\}=/);
   });
 
   it('practiceAufgabeHatLoesungInlineNachFrage: erkennt gleichnamige Brüche auch ohne Flag (alte Routen)', () => {
