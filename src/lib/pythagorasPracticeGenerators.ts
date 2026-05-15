@@ -945,8 +945,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(s, d);
       const loes =
         g === 1
-          ? `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
-          : `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
+          ? `$\\displaystyle\\frac{${s}}{${d}}$`
+          : `$\\displaystyle\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
         frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$.`,
         loesung: loes,
@@ -963,8 +963,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(s, d);
       const loes =
         g === 1
-          ? `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
-          : `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
+          ? `$\\displaystyle\\frac{${s}}{${d}}$`
+          : `$\\displaystyle\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
         frage: `Berechne $\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$.`,
         loesung: loes,

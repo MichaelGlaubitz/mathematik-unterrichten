@@ -153,8 +153,10 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(sub.loesungInlineNachFrage).toBe(true);
     expect(practiceAufgabeHatLoesungInlineNachFrage(add)).toBe(true);
     expect(practiceAufgabeHatLoesungInlineNachFrage(sub)).toBe(true);
-    expect(add.loesung).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}\+/);
-    expect(sub.loesung).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}-/);
+    expect(add.loesung).toMatch(/\\displaystyle\\frac\{/);
+    expect(sub.loesung).toMatch(/\\displaystyle\\frac\{/);
+    expect(add.loesung).not.toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}\+\\frac/);
+    expect(sub.loesung).not.toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}-\\frac/);
   });
 
   it('practiceAufgabeHatLoesungInlineNachFrage: erkennt gleichnamige Brüche auch ohne Flag (alte Routen)', () => {
