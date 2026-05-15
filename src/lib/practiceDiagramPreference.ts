@@ -25,6 +25,15 @@ export function hashPracticeTaskFrage(frage: string): string {
   return (h >>> 0).toString(36);
 }
 
+/**
+ * Schlüssel für Skizzen-Sichtbarkeit und Zoom pro Eintrag in der Aufgabenliste.
+ * Ohne Listenindex würden zwei Aufgaben mit gleichem Fragentext (oder seltene Hash-Kollision)
+ * dieselbe localStorage-Vorgabe teilen — dann wäre nur die erste sinnvoll „standard aus“.
+ */
+export function diagramTaskPreferenceKey(frage: string, listeIndex: number): string {
+  return `${hashPracticeTaskFrage(frage)}::i${listeIndex}`;
+}
+
 function readTaskMap(): Record<string, 'show' | 'hide'> {
   if (typeof localStorage === 'undefined') return {};
   try {

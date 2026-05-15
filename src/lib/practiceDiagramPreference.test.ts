@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   PRACTICE_DIAGRAMS_STORAGE_KEY,
   PRACTICE_DIAGRAM_TASK_PREFS_KEY,
+  diagramTaskPreferenceKey,
   readShowPracticeDiagrams,
   writeShowPracticeDiagrams,
   hashPracticeTaskFrage,
@@ -26,6 +27,24 @@ describe('practiceDiagramPreference', () => {
 
   it('hashPracticeTaskFrage ist stabil', () => {
     expect(hashPracticeTaskFrage('a  =  3')).toBe(hashPracticeTaskFrage('a = 3'));
+  });
+
+  it('diagramTaskPreferenceKey unterscheidet Listeneinträge mit gleicher Frage', () => {
+    const f = 'Berechne $\\displaystyle\\frac{1}{2}\\cdot\\frac{1}{3}$.';
+    const k0 = diagramTaskPreferenceKey(f, 0);
+    const k1 = diagramTaskPreferenceKey(f, 1);
+    expect(k0).not.toBe(k1);
+    expect(k0.startsWith(hashPracticeTaskFrage(f))).toBe(true);
+  });
+
+  it('zwei Listeneinträge: getrennte Skizzen-Präferenz trotz gleicher Frage', () => {
+    writeShowPracticeDiagrams(true);
+    const f = 'Gleiche Frage.';
+    const k0 = diagramTaskPreferenceKey(f, 0);
+    const k1 = diagramTaskPreferenceKey(f, 1);
+    setDiagramEffectiveVisibleForHash(k0, true, true);
+    expect(effectiveDiagramVisibleByHash(k0, true)).toBe(true);
+    expect(effectiveDiagramVisibleByHash(k1, true)).toBe(false);
   });
 
   it('ohne Override: folgt global', () => {
