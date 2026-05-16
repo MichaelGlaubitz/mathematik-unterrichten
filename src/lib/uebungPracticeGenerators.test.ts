@@ -138,6 +138,31 @@ describe('Bruchrechnung-Generatoren', () => {
     }
   });
 
+  it('br_add_unlike / br_sub_unlike: Lösung in Box (nicht inline)', () => {
+    const GEN = createPracticeGenerators(() => 0.31);
+    const u = GEN.br_add_unlike();
+    const v = GEN.br_sub_unlike();
+    expect(u.loesungInlineNachFrage).toBe(false);
+    expect(v.loesungInlineNachFrage).toBe(false);
+    expect(practiceAufgabeHatLoesungInlineNachFrage(u)).toBe(false);
+    expect(practiceAufgabeHatLoesungInlineNachFrage(v)).toBe(false);
+  });
+
+  it('practiceAufgabeHatLoesungInlineNachFrage: gleichnamige „Berechne …“-Brüche inline, ungleichnamig nicht', () => {
+    expect(
+      practiceAufgabeHatLoesungInlineNachFrage({
+        frage: 'Berechne $\\displaystyle\\frac{1}{4}+\\frac{3}{4}$.',
+        loesung: 'x',
+      })
+    ).toBe(true);
+    expect(
+      practiceAufgabeHatLoesungInlineNachFrage({
+        frage: 'Berechne $\\displaystyle\\frac{1}{3}+\\frac{2}{5}$.',
+        loesung: 'x',
+      })
+    ).toBe(false);
+  });
+
   it('liefern getrennte Skizzen für Aufgabe (ohne Lösungsschattierung) und Lösung', () => {
     const GEN = createPracticeGenerators(() => 0.42);
     const mul = GEN.br_mul_frac();

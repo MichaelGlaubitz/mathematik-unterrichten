@@ -97,11 +97,22 @@ export type PracticeAufgabe = {
  * U.a. ganze Zahlen (nz_add/nz_sub) und gleichnamige Brüche (br_add_like/br_sub_like).
  */
 export function practiceAufgabeHatLoesungInlineNachFrage(a: PracticeAufgabe): boolean {
+  if (a.loesungInlineNachFrage === false) return false;
   if (a.loesungInlineNachFrage === true) return true;
   const f = a.frage;
   if (f.startsWith('Berechne die Summe ') || f.startsWith('Berechne die Differenz ')) return true;
-  /* Gespeicherte Routen ohne Flag: gleichnamige Brüche (Frage „Berechne $\displaystyle\frac…+\frac…$“) */
-  if (f.startsWith('Berechne $') && (f.includes('}+\\frac{') || f.includes('}-\\frac{'))) return true;
+  /* Gleichnamige Brüche: „Berechne $\displaystyle\frac…+\frac…$“ mit gleichem Nenner (eine \frac-Kette) */
+  if (f.startsWith('Berechne $') && (f.includes('}+\\frac{') || f.includes('}-\\frac{'))) {
+    const m = f.match(/\\frac\{[^}]+\}\{([^}]+)\}/g);
+    if (m && m.length >= 2) {
+      const denoms = m.map((t) => {
+        const mm = t.match(/\\frac\{[^}]+\}\{([^}]+)\}$/);
+        return mm ? mm[1] : '';
+      });
+      if (denoms[0] && denoms.every((d) => d === denoms[0])) return true;
+    }
+    return false;
+  }
   return false;
 }
 
@@ -1147,6 +1158,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$.`,
         loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}=\\frac{${n1 * (L / d1)}}{${L}}+\\frac{${n2 * (L / d2)}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
+        loesungInlineNachFrage: false,
       };
     },
     br_sub_unlike() {
@@ -1187,6 +1199,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$.`,
         loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}=\\frac{${N1}}{${L}}-\\frac{${N2}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
+        loesungInlineNachFrage: false,
       };
     },
     br_div_frac() {

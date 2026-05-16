@@ -140,7 +140,7 @@ function wbLabelFromHref(href: string): string {
 }
 ---
 
-<div class="container-wide pt-8 pb-14" data-mu-massen-ui="wb-v2">
+<div class="container-wide pt-8 pb-14" data-mu-massen-ui="wb-v2" data-mu-massen-variant={variant}>
   <!-- mu-massen: Whiteboard-Vollbild nur mit Aufgaben; Vorbereitung-Banner ohne Overlay -->
   <script is:inline set:html={`globalThis.__UG_MASSEN_ALLOWED_IDS__=${ugMassenAllowedJson};`} />
 
@@ -419,7 +419,7 @@ function wbLabelFromHref(href: string): string {
       <span
         class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
         aria-hidden="true"></span>
-      Aufgabentypen
+      {variant === 'bruchrechnung' ? 'Massenübung' : 'Aufgabentypen'}
     </h2>
     {
       variant !== 'bruchrechnung' ? (
@@ -626,140 +626,21 @@ function wbLabelFromHref(href: string): string {
             </div>
           </fieldset>
         ) : variant === 'bruchrechnung' ? (
-          <>
-            <div class="mb-3 flex flex-wrap gap-2 lg:col-span-2">
-              <button
-                type="button"
-                id="ug-alle"
-                class="rounded-md border border-teal-300 bg-teal-50 px-3 py-1.5 text-sm font-medium text-teal-900 shadow-sm transition hover:border-teal-400 hover:bg-teal-100 dark:border-teal-600 dark:bg-teal-900/45 dark:text-teal-50 dark:hover:border-teal-500 dark:hover:bg-teal-800/55"
+          <div class="ug-gruppe min-w-0 lg:col-span-2 rounded-lg border border-ink-200/90 bg-ink-50/90 p-4 text-sm text-ink-800 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50 dark:text-ink-100">
+            <p class="font-medium text-ink-900 dark:text-ink-50 mb-2">Aufgabentypen wählst du auf der Themenseite</p>
+            <p class="leading-relaxed text-ink-700 dark:text-ink-200">
+              Unter <strong>Unterthemen</strong> kannst du die Stichworte anklicken (Auswahl wird invertiert dargestellt).
+              Diese Auswahl gilt hier für <strong>Aufgaben erzeugen</strong>. Ohne Auswahl werden alle Typen gemischt.
+            </p>
+            <p class="mt-3">
+              <a
+                href={backHref}
+                class="text-accent-700 font-medium underline underline-offset-2 hover:text-accent-800 dark:text-accent-100 dark:hover:text-accent-50"
               >
-                Alle auswählen
-              </button>
-              <button
-                type="button"
-                id="ug-keine"
-                class="rounded-md border border-coral-300 bg-coral-50 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-sm transition hover:border-coral-400 hover:bg-coral-100 dark:border-orange-700/80 dark:bg-orange-950/40 dark:text-orange-50 dark:hover:border-orange-600 dark:hover:bg-orange-900/50"
-              >
-                Alle abwählen
-              </button>
-            </div>
-            <fieldset class="ug-gruppe min-w-0">
-              <legend
-                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
-              >
-                Grundrechenarten
-              </legend>
-              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Addieren, subtrahieren, multiplizieren, dividieren</p>
-              <div class="ug-typ-grid text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_like" checked />
-                  <span>Addition gleichnamiger Brüche</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_sub_like" checked />
-                  <span>Subtraktion gleichnamiger Brüche</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_unlike" checked />
-                  <span>Addition ungleichnamiger Brüche</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_sub_unlike" checked />
-                  <span>Subtraktion ungleichnamiger Brüche</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_mul_frac" checked />
-                  <span>Multiplikation zweier Brüche (Raster)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_div_frac" checked />
-                  <span>Division zweier Brüche (Kehrwert)</span>
-                </label>
-              </div>
-            </fieldset>
-            <fieldset class="ug-gruppe min-w-0">
-              <legend
-                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
-              >
-                Brüche und ganze Zahlen
-              </legend>
-              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Vermischte Aufgaben mit Brüchen und ganzen Zahlen</p>
-              <div class="ug-typ-grid text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_int_mul_frac" checked />
-                  <span>Ganze Zahl mal Bruch</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_frac_div_int" checked />
-                  <span>Bruch durch ganze Zahl</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_int_div_frac" checked />
-                  <span>Ganze Zahl durch Bruch</span>
-                </label>
-              </div>
-            </fieldset>
-            <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
-              <legend
-                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
-              >
-                Umgang mit Brüchen
-              </legend>
-              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Kürzen, umformen, vergleichen</p>
-              <div class="ug-typ-grid text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_erweitern" checked />
-                  <span>Erweitern auf vorgegebenen Nenner</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_kuerzen" checked />
-                  <span>Kürzen</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_gleichwert_zaehler" checked />
-                  <span>Gleichwertiger Bruch (Zähler ergänzen)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ergaenze_auf_1" checked />
-                  <span>Ergänzen auf 1 (gleicher Nenner)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_improper_gemischt" checked />
-                  <span>Unechter Bruch → gemischte Zahl</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_gemischt_improper" checked />
-                  <span>Gemischte Zahl → unechter Bruch</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_vergleich" checked />
-                  <span>Größenvergleich zweier Brüche</span>
-                </label>
-              </div>
-            </fieldset>
-            <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
-              <legend
-                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
-              >
-                Bruchteile von Größen
-              </legend>
-              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Anteil finden, Ausgangsgröße finden</p>
-              <div class="ug-typ-grid text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ant_stammbruch" checked />
-                  <span>Stammbruchteil (Sachaufgabe)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ant_bruchteil" checked />
-                  <span>Bruchteil einer Menge (Sachaufgabe)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ant_umkehr" checked />
-                  <span>Umkehraufgabe (ganze Größe)</span>
-                </label>
-              </div>
-            </fieldset>
-          </>
+                ← Zurück zur Themenseite Bruchrechnung
+              </a>
+            </p>
+          </div>
         ) : variant === 'negative-zahlen' ? (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -1272,7 +1153,18 @@ function wbLabelFromHref(href: string): string {
                 type="button"
                 data-anzahl="20"
                 class="ug-anzahl rounded-md border px-3 py-1.5 text-sm font-medium transition-colors">{20}</button>
-            </div>
+              <button
+                type="button"
+                data-anzahl="30"
+                class="ug-anzahl rounded-md border px-3 py-1.5 text-sm font-medium transition-colors">{30}</button>
+              <button
+                type="button"
+                data-anzahl="40"
+                class="ug-anzahl rounded-md border px-3 py-1.5 text-sm font-medium transition-colors">{40}</button>
+              <button
+                type="button"
+                data-anzahl="50"
+                class="ug-anzahl rounded-md border px-3 py-1.5 text-sm font-medium transition-colors">{50}</button>
           </div>
           <div class="min-w-0">
             <p class="mb-1 text-xs font-medium text-violet-800 dark:text-violet-200/90">Darstellung</p>
@@ -1868,7 +1760,12 @@ function wbLabelFromHref(href: string): string {
 </div>
 
 <script>
-  import { createPracticeGenerators, practiceAufgabeHatLoesungInlineNachFrage } from '../lib/uebungPracticeGenerators';
+  import {
+    BRUCHRECHNUNG_GENERATOR_IDS,
+    createPracticeGenerators,
+    practiceAufgabeHatLoesungInlineNachFrage,
+  } from '../lib/uebungPracticeGenerators';
+  import { BRUCH_WB_STOR_KEY, expandBruchWbStichworte } from '../lib/bruchrechnungWbKeywordMap';
   import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
@@ -1914,6 +1811,28 @@ function wbLabelFromHref(href: string): string {
       console.warn(
         '[MassenuebungGeo] Keine erlaubten Aufgaben-IDs (Prelude fehlt oder läuft nach diesem Skript). Seite neu laden.'
       );
+    }
+
+    const massenHost = document.querySelector('[data-mu-massen-ui="wb-v2"]');
+    const isBruchMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruchrechnung';
+
+    function allBruchIdsFiltered() {
+      return BRUCHRECHNUNG_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+
+    function readBruchTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(BRUCH_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allBruchIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('br_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allBruchIdsFiltered();
+        }
+        const fromKw = expandBruchWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allBruchIdsFiltered();
+      } catch {
+        return allBruchIdsFiltered();
+      }
     }
 
     bindPracticeDiagramCheckbox(
@@ -2231,6 +2150,14 @@ function wbLabelFromHref(href: string): string {
 
     function applyTaskTypeSelection(selectedTaskTypes) {
       if (!Array.isArray(selectedTaskTypes) || selectedTaskTypes.length === 0) return;
+      if (isBruchMassen) {
+        try {
+          sessionStorage.setItem(BRUCH_WB_STOR_KEY, JSON.stringify(selectedTaskTypes));
+        } catch {
+          /* sessionStorage blockiert */
+        }
+        return;
+      }
       const selected = new Set(selectedTaskTypes);
       typBoxen().forEach((c) => {
         c.checked = selected.has(c.value);
@@ -2339,6 +2266,7 @@ function wbLabelFromHref(href: string): string {
     }
 
     function aktiveTypen() {
+      if (isBruchMassen) return readBruchTypenFromStorage();
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
         .map((c) => c.value);
