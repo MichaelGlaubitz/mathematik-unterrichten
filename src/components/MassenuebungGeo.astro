@@ -1952,7 +1952,6 @@ function wbLabelFromHref(href: string): string {
   import {
     BRUCH_WB_STOR_KEY,
     bruchStichwortClusterIndex,
-    clusterTitelZeileFuerBruchGeneratorIds,
     expandBruchWbStichworte,
     sortBruchAbStichworte,
     stichwortLabelsFromBruchSessionRaw,
@@ -2979,10 +2978,8 @@ function wbLabelFromHref(href: string): string {
         }
       });
       try {
-        const typen = aktiveTypen();
         const meta = {
           thema: 'Bruchrechnung',
-          unterthemaZeile: clusterTitelZeileFuerBruchGeneratorIds(typen) || 'WB Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const r = await erzeugeBruchArbeitsblattPdf({

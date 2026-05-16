@@ -13,8 +13,6 @@ export const BRUCH_AB_LATEX_HTTP_ENDPOINT = 'https://latex.ytotech.com/builds/sy
 export type BruchAbPdfMeta = {
   /** z. B. „Bruchrechnung“ */
   thema: string;
-  /** Kurzbeschreibung der Cluster, z. B. „Umgang mit Brüchen · …“ */
-  unterthemaZeile: string;
   /** Gewählte Stichworte oder Kurzform „alle Typen gemischt“ */
   stichworteZeile: string;
 };
@@ -186,7 +184,7 @@ export function buildBruchArbeitsblattTex(opts: {
   diagramPngPaths: ReadonlyArray<{ taskIndex: number; suffix: 'a' | 'l'; path: string }>;
 }): string {
   const { aufgaben, meta, mitLoesungen, diagramPngPaths } = opts;
-  const headLeftRaw = `${meta.thema} · ${meta.unterthemaZeile} · ${meta.stichworteZeile}`;
+  const headLeftRaw = `${meta.thema} · ${meta.stichworteZeile}`;
   const headLeft = escapeLatexText(headLeftRaw);
   const loeTitle = escapeLatexText(mitLoesungen ? 'Arbeitsblatt (mit Lösungen)' : 'Arbeitsblatt');
 
@@ -223,7 +221,8 @@ export function buildBruchArbeitsblattTex(opts: {
         loeBlock = `\\par\\medskip\n\\fcolorbox{black!18}{black!4}{\\begin{minipage}{0.96\\linewidth}\n\\textbf{${escapeLatexText('Lösung')}.}\\par\\smallskip\n${loeTex}${loeTex && diaL ? '\\par\\smallskip\n' : ''}${diaL}\\end{minipage}}\n`;
       }
     }
-    const itemCore = `${diaAuf}${frageBody}${loeBlock}`;
+    const zeilenumbruchNachNummerWennDiagramm = pa ? '\\leavevmode\\par\n' : '';
+    const itemCore = `${zeilenumbruchNachNummerWennDiagramm}${diaAuf}${frageBody}${loeBlock}`;
     blocks.push(`\\Needspace{5\\baselineskip}\n\\item\\nopagebreak[3]\n${itemCore}`);
   });
 
