@@ -18,6 +18,7 @@ const blog = defineCollection({
       'Reflexion',
       'Unterrichtsdesign',
       'Werkzeug',
+      'Meinung',
     ]).default('Didaktik'),
     teaser: z.string(),
     bild: z.string().optional(),
