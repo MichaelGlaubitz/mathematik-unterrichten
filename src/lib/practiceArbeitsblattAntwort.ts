@@ -33,6 +33,29 @@ export function rationalGleich(
   return un * expectDen === expectNum * ud;
 }
 
+function gcdPos(a: number, b: number): number {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y) {
+    const t = x % y;
+    x = y;
+    y = t;
+  }
+  return x || 1;
+}
+
+/** Nach positivem Nenner: Zähler und Nenner teilerfremd (vollständig gekürzt). */
+export function bruchIstVollstaendigGekuerzt(zaehler: number, nenner: number): boolean {
+  if (nenner === 0) return false;
+  let z = zaehler;
+  let n = nenner;
+  if (n < 0) {
+    z = -z;
+    n = -n;
+  }
+  return gcdPos(z, n) === 1;
+}
+
 export function slotIstRichtig(shell: HTMLElement, spec: PracticeAbAntwortSlot): boolean {
   const kind = shell.getAttribute('data-mu-ab-kind');
   if (kind === 'int') {
@@ -42,12 +65,15 @@ export function slotIstRichtig(shell: HTMLElement, spec: PracticeAbAntwortSlot):
     return v === spec.expect;
   }
   if (kind === 'frac') {
+    if (spec.kind !== 'frac') return false;
     const zn = shell.querySelector<HTMLInputElement>('input.mu-ab-z');
     const nn = shell.querySelector<HTMLInputElement>('input.mu-ab-n');
     const z = zn ? parseIntFlexible(zn.value) : null;
     const n = nn ? parseIntFlexible(nn.value) : null;
     if (z === null || n === null) return false;
-    return rationalGleich(z, n, spec.expectNum, spec.expectDen);
+    if (!rationalGleich(z, n, spec.expectNum, spec.expectDen)) return false;
+    if (spec.requireFullyReduced && !bruchIstVollstaendigGekuerzt(z, n)) return false;
+    return true;
   }
   if (kind === 'choice') {
     const sel = shell.querySelector<HTMLInputElement>('input.mu-ab-ch:checked');

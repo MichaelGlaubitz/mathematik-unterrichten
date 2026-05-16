@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   bruchAbMotivation,
+  bruchIstVollstaendigGekuerzt,
   parseIntFlexible,
   rationalGleich,
   replaceBruchAbFragePlaceholders,
@@ -19,6 +20,14 @@ describe('practiceArbeitsblattAntwort', () => {
     expect(rationalGleich(10, 15, 2, 3)).toBe(true);
     expect(rationalGleich(2, 3, 3, 4)).toBe(false);
     expect(rationalGleich(-2, 3, 2, -3)).toBe(true);
+  });
+
+  it('bruchIstVollstaendigGekuerzt lehnt nicht vollständig gekürzte Darstellungen ab', () => {
+    expect(bruchIstVollstaendigGekuerzt(1, 2)).toBe(true);
+    expect(bruchIstVollstaendigGekuerzt(2, 4)).toBe(false);
+    expect(bruchIstVollstaendigGekuerzt(8, 16)).toBe(false);
+    expect(bruchIstVollstaendigGekuerzt(-1, 2)).toBe(true);
+    expect(bruchIstVollstaendigGekuerzt(1, -2)).toBe(true);
   });
 
   it('replaceBruchAbFragePlaceholders ersetzt alle Indizes', () => {
