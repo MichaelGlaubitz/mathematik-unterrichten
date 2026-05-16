@@ -4,7 +4,7 @@ autor: "Michael Glaubitz"
 datum: 2026-05-16
 tags: ["QuaMath", "Fortbildung", "Bildungspolitik", "Mathematikunterricht"]
 kategorie: "Meinung"
-teaser: "Ein Kommentar zu hierarchischen Fortbildungsketten, zum 5×5-Rahmen und zur Kluft zwischen Konzeptpapieren und dem Puls des Klassenzimmers – inklusive einer pragmatischen 15-Stunden-Regel für den Kollegiumsalltag."
+teaser: "Ein Kommentar zu hierarchischen Fortbildungsketten, zum 5x5-Rahmen und zur Kluft zwischen Konzeptpapieren und dem Puls des Klassenzimmers – inklusive einer pragmatischen 15-Stunden-Regel für den Kollegiumsalltag."
 entwurf: false
 ---
 
