@@ -145,6 +145,7 @@ describe('bruchArbeitsblattLatex', () => {
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.message).toContain('COMPILATION_ERROR');
+      expect(r.log).toContain('HTTP 400');
       expect(r.log).toContain('__main_document__.log');
       expect(r.log).toContain('pdfTeX error');
     }

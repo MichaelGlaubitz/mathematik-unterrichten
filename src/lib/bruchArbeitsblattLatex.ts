@@ -177,7 +177,7 @@ export async function rasterizeSvgZuJpegBase64(svgXml: string, uiScale: number):
     ctx.drawImage(img, 0, 0, pixelW, pixelH);
     const data = canvas.toDataURL('image/jpeg', 0.9);
     const i = data.indexOf(',');
-    if (i < 0) throw new Error('JPEG-Kodierung fehlgeschlagen.');
+    if (i < 0 || data.slice(0, i).indexOf('image/jpeg') < 0) throw new Error('JPEG-Kodierung fehlgeschlagen.');
     return data.slice(i + 1);
   } finally {
     URL.revokeObjectURL(url);
@@ -223,6 +223,17 @@ export async function rasterizeSvgZuPngBase64(svgXml: string, uiScale: number): 
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/** SVG → Raster für pdfLaTeX; zuerst JPEG, bei Fehler oder leerem Ergebnis PNG. */
+export async function rasterizeSvgFuerLatexPdf(svgXml: string, uiScale: number): Promise<{ ext: 'jpg' | 'png'; base64: string }> {
+  try {
+    const base64 = await rasterizeSvgZuJpegBase64(svgXml, uiScale);
+    if (base64.length > 80) return { ext: 'jpg', base64 };
+  } catch {
+    /* JPEG nicht möglich → PNG */
+  }
+  return { ext: 'png', base64: await rasterizeSvgZuPngBase64(svgXml, uiScale) };
 }
 
 export function buildBruchArbeitsblattTex(opts: {
@@ -333,10 +344,11 @@ export async function compileLatexOnHttpPdf(opts: {
   if (res.ok && (ct.includes('pdf') || istPdfMagic)) {
     return { ok: true, pdf: buf };
   }
-  let log = '';
+  const txt = new TextDecoder().decode(buf);
+  const httpKopf = `HTTP ${res.status}\nContent-Type: ${res.headers.get('content-type') || '(nicht gesetzt)'}\n`;
   let message = `PDF-Dienst antwortete mit HTTP ${res.status}.`;
+  let logTeile: string[] = [];
   try {
-    const txt = new TextDecoder().decode(buf);
     const j = JSON.parse(txt) as {
       error?: string;
       message?: string;
@@ -345,18 +357,19 @@ export async function compileLatexOnHttpPdf(opts: {
     };
     if (j.error) message = String(j.error);
     if (j.message) message = `${message} ${j.message}`;
-    const logTeile: string[] = [];
     if (j.log) logTeile.push(String(j.log));
     if (j.log_files && typeof j.log_files === 'object') {
       for (const [name, inhalt] of Object.entries(j.log_files)) {
         if (typeof inhalt === 'string' && inhalt.length > 0) logTeile.push(`--- ${name} ---\n${inhalt}`);
       }
     }
-    if (logTeile.length) log = logTeile.join('\n\n');
   } catch {
-    const head = new TextDecoder().decode(buf.slice(0, 400));
-    log = head;
+    logTeile.push(`--- Antwort (kein JSON) ---\n${txt.slice(0, 20000)}`);
   }
+  if (logTeile.length === 0 || logTeile.join('').length < 80) {
+    logTeile.push(`--- Antwort-Text (Anfang) ---\n${txt.slice(0, 20000)}`);
+  }
+  const log = `${httpKopf}\n${logTeile.join('\n\n')}`;
   return { ok: false, message, log };
 }
 
@@ -374,14 +387,16 @@ export async function erzeugeBruchArbeitsblattPdf(opts: {
     const sc = opts.diagramUiScale(i);
     const svgA = bruchDiagramSvgFuerAufgabe(a);
     if (svgA) {
-      const path = `d${i}a.jpg`;
+      const { ext, base64 } = await rasterizeSvgFuerLatexPdf(svgA, sc);
+      const path = `d${i}a.${ext}`;
       diagramPngPaths.push({ taskIndex: i, suffix: 'a', path });
-      binFiles.push({ path, fileBase64: await rasterizeSvgZuJpegBase64(svgA, sc) });
+      binFiles.push({ path, fileBase64: base64 });
     }
     if (opts.mitLoesungen && a.diagramLoesung && a.diagram && a.diagramLoesung !== a.diagram) {
-      const path = `d${i}l.jpg`;
+      const { ext, base64 } = await rasterizeSvgFuerLatexPdf(a.diagramLoesung, sc);
+      const path = `d${i}l.${ext}`;
       diagramPngPaths.push({ taskIndex: i, suffix: 'l', path });
-      binFiles.push({ path, fileBase64: await rasterizeSvgZuJpegBase64(a.diagramLoesung, sc) });
+      binFiles.push({ path, fileBase64: base64 });
     }
   }
 
