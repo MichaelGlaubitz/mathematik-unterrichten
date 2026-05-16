@@ -50,7 +50,6 @@ describe('bruchArbeitsblattLatex', () => {
       aufgaben: [{ frage: 'Frage', loesung: '$1$' }],
       meta: {
         thema: 'Bruchrechnung',
-        unterthemaZeile: 'Test',
         stichworteZeile: 'x',
       },
       mitLoesungen: false,
@@ -58,6 +57,7 @@ describe('bruchArbeitsblattLatex', () => {
     });
     expect(tex).toContain('style=nextline');
     expect(tex).toContain(`width=${BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH},keepaspectratio=true`);
+    expect(tex).toContain('\\leavevmode\\par');
   });
 
   it('buildBruchArbeitsblattTex enthält Kopfzeile und Aufzählung', () => {
@@ -72,7 +72,6 @@ describe('bruchArbeitsblattLatex', () => {
       ],
       meta: {
         thema: 'Bruchrechnung',
-        unterthemaZeile: 'Umgang mit Brüchen',
         stichworteZeile: 'Kürzen',
       },
       mitLoesungen: false,
