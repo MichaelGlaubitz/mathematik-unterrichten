@@ -64,7 +64,7 @@ const quizzes = defineCollection({
           })
         ).min(2).max(6),
       })
-    ).min(1),
+    ).length(6),
     datum: z.coerce.date(),
     aktualisiert: z.coerce.date().optional(),
     entwurf: z.boolean().default(false),

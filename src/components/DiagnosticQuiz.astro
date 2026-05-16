@@ -25,13 +25,22 @@ export interface Props {
 }
 
 const { fragen, id = 'quiz' } = Astro.props;
+const headingId = `diagnostische-fragen-${id}`;
 ---
 
 <section
   class="not-prose my-8 rounded-xl border border-ink-200 bg-surface p-6 shadow-sm mu-dark-glass-panel"
   data-quiz
   data-quiz-id={id}
+  aria-labelledby={headingId}
 >
+  <h2
+    id={headingId}
+    class="font-serif text-2xl md:text-3xl font-semibold text-ink-900 dark:text-ink-50 mb-6"
+  >
+    Diagnostische Fragen
+  </h2>
+
   {fragen.map((f, fi) => (
     <article
       class="quiz-frage"
@@ -62,7 +71,7 @@ const { fragen, id = 'quiz' } = Astro.props;
 
       <ul class="grid gap-2.5" role="radiogroup" aria-label="Antwortoptionen">
         {f.optionen.map((opt, oi) => (
-          <li>
+          <li class="quiz-option-block">
             <button
               type="button"
               class="quiz-option group w-full text-left rounded-lg border border-ink-200 bg-surface px-4 py-3 hover:border-accent-500 hover:bg-accent-50/50 focus:outline-none focus:ring-2 focus:ring-accent-500 transition dark:border-slate-600/50 dark:bg-slate-950/55 dark:ring-1 dark:ring-inset dark:ring-sky-400/10 dark:hover:border-teal-400/45 dark:hover:bg-violet-950/35"
@@ -82,26 +91,19 @@ const { fragen, id = 'quiz' } = Astro.props;
                 <span class="quiz-option-text text-ink-800 dark:text-ink-100">{opt.text}</span>
               </span>
             </button>
+            <div
+              class="quiz-option-feedback hidden mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed"
+              data-option-feedback
+              aria-hidden="true"
+            ></div>
           </li>
         ))}
       </ul>
 
-      <div
-        class="quiz-erklaerung mt-5 hidden rounded-lg border-l-4 p-4"
-        role="status"
-        aria-live="polite"
-      ></div>
-
-      <footer class="mt-5 flex items-center justify-between">
+      <footer class="mt-5 flex justify-end">
         <button
           type="button"
-          class="quiz-show-all text-sm text-ink-600 hover:text-accent-700 underline-offset-2 hover:underline hidden dark:text-ink-300 dark:hover:text-accent-100"
-        >
-          Alle Antworten erklären
-        </button>
-        <button
-          type="button"
-          class="quiz-next ml-auto inline-flex items-center gap-1 rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-accent-500 dark:hover:bg-accent-600"
+          class="quiz-next inline-flex items-center gap-1 rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-accent-500 dark:hover:bg-accent-600"
           disabled
         >
           Weiter
@@ -195,11 +197,8 @@ const { fragen, id = 'quiz' } = Astro.props;
 
     const beantworteFrage = (frageEl: HTMLElement, klickedButton: HTMLButtonElement) => {
       const optionen = frageEl.querySelectorAll<HTMLButtonElement>('.quiz-option');
-      const erklaerungBox = frageEl.querySelector<HTMLElement>('.quiz-erklaerung');
       const weiterBtn = frageEl.querySelector<HTMLButtonElement>('.quiz-next');
-      const alleAntwortenBtn = frageEl.querySelector<HTMLButtonElement>('.quiz-show-all');
       const istKorrekt = klickedButton.dataset.korrekt === 'true';
-      const erklaerung = klickedButton.dataset.erklaerung || '';
 
       // Markiere alle Optionen visuell
       optionen.forEach((opt) => {
@@ -222,46 +221,38 @@ const { fragen, id = 'quiz' } = Astro.props;
         }
       });
 
-      if (erklaerungBox) {
-        erklaerungBox.innerHTML = `
-          <p class="text-xs font-semibold uppercase tracking-wide ${istKorrekt ? 'text-emerald-700 dark:text-emerald-200' : 'text-rose-700 dark:text-rose-200'} mb-1">
-            ${istKorrekt ? 'Richtig' : 'Typischer Fehler'}
-          </p>
-          <p class="text-ink-800 text-sm leading-relaxed dark:text-ink-100">${erklaerung}</p>
+      // Kommentar je Antwortoption direkt unter dem Button
+      optionen.forEach((opt) => {
+        const block = opt.closest('.quiz-option-block');
+        const feedback = block?.querySelector<HTMLElement>('[data-option-feedback]');
+        if (!feedback) return;
+        const ok = opt.dataset.korrekt === 'true';
+        const gewaehlt = opt === klickedButton;
+        const erkl = opt.dataset.erklaerung || '';
+        const label = ok ? 'Richtig' : 'Typischer Fehler';
+        const labelClass = ok
+          ? 'text-emerald-700 dark:text-emerald-200'
+          : 'text-rose-700 dark:text-rose-200';
+        let boxClass =
+          'border-ink-200 bg-ink-50/50 text-ink-800 dark:border-slate-600/60 dark:bg-slate-900/40 dark:text-ink-100';
+        if (ok) {
+          boxClass =
+            'border-emerald-500 bg-emerald-50/50 text-ink-800 dark:border-emerald-400 dark:bg-emerald-900/25 dark:text-ink-100';
+        } else if (gewaehlt) {
+          boxClass =
+            'border-rose-400 bg-rose-50/50 text-ink-800 dark:border-rose-400 dark:bg-rose-900/25 dark:text-ink-100';
+        }
+        feedback.className =
+          `quiz-option-feedback mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed ${boxClass}`;
+        feedback.innerHTML = `
+          <p class="text-xs font-semibold uppercase tracking-wide ${labelClass} mb-1">${label}</p>
+          <p class="whitespace-pre-line text-ink-800 dark:text-ink-100">${erkl}</p>
         `;
-        erklaerungBox.classList.remove('hidden');
-        erklaerungBox.classList.add(
-          istKorrekt ? 'border-emerald-500' : 'border-rose-400',
-          istKorrekt ? 'bg-emerald-50/40' : 'bg-rose-50/40',
-          istKorrekt ? 'dark:bg-emerald-900/20' : 'dark:bg-rose-900/20'
-        );
-        renderKatex(erklaerungBox);
-      }
+        feedback.classList.remove('hidden');
+        feedback.setAttribute('aria-hidden', 'false');
+      });
 
-      if (alleAntwortenBtn) {
-        alleAntwortenBtn.classList.remove('hidden');
-        alleAntwortenBtn.onclick = () => {
-          let html = '<dl class="space-y-3 mt-4 text-sm">';
-          optionen.forEach((opt) => {
-            const ok = opt.dataset.korrekt === 'true';
-            const text = opt.querySelector('.quiz-option-text')?.textContent ?? '';
-            const erkl = opt.dataset.erklaerung || '';
-            html += `
-              <div>
-                <dt class="font-semibold ${ok ? 'text-emerald-700 dark:text-emerald-200' : 'text-ink-700 dark:text-ink-200'}">
-                  ${ok ? '✓' : '✗'} ${text}
-                </dt>
-                <dd class="text-ink-600 mt-0.5 dark:text-ink-300">${erkl}</dd>
-              </div>`;
-          });
-          html += '</dl>';
-          if (erklaerungBox) {
-            erklaerungBox.insertAdjacentHTML('beforeend', html);
-            alleAntwortenBtn.classList.add('hidden');
-            renderKatex(erklaerungBox);
-          }
-        };
-      }
+      renderKatex(frageEl);
 
       if (weiterBtn) {
         weiterBtn.disabled = false;
@@ -290,9 +281,8 @@ const { fragen, id = 'quiz' } = Astro.props;
       // alle Fragen zurücksetzen
       fragen.forEach((f) => {
         const optionen = f.querySelectorAll<HTMLButtonElement>('.quiz-option');
-        const erklaerungBox = f.querySelector<HTMLElement>('.quiz-erklaerung');
         const weiterBtn = f.querySelector<HTMLButtonElement>('.quiz-next');
-        const alleAntwortenBtn = f.querySelector<HTMLButtonElement>('.quiz-show-all');
+        const feedbacks = f.querySelectorAll<HTMLElement>('[data-option-feedback]');
         optionen.forEach((opt) => {
           opt.disabled = false;
           opt.setAttribute('aria-checked', 'false');
@@ -300,13 +290,16 @@ const { fragen, id = 'quiz' } = Astro.props;
           const letter = opt.querySelector('.quiz-letter');
           if (letter) letter.className = LETTER_BASE_CLASS;
         });
-        erklaerungBox?.classList.add('hidden');
-        if (erklaerungBox) erklaerungBox.innerHTML = '';
+        feedbacks.forEach((fb) => {
+          fb.innerHTML = '';
+          fb.className =
+            'quiz-option-feedback hidden mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed';
+          fb.setAttribute('aria-hidden', 'true');
+        });
         if (weiterBtn) {
           weiterBtn.disabled = true;
           weiterBtn.innerHTML = 'Weiter <span aria-hidden="true">→</span>';
         }
-        alleAntwortenBtn?.classList.add('hidden');
       });
       if (zusammenfassung) zusammenfassung.style.display = 'none';
       zeigeFrage(0);

@@ -2,7 +2,7 @@
   "titel": "Wahrscheinlichkeit – Grundvorstellungen testen",
   "thema": "Stochastik",
   "klassenstufe": ["7", "8"],
-  "didaktischerKontext": "Vier Fragen zu den hartnäckigsten Fehlvorstellungen in der elementaren Stochastik: 'Equiprobability Bias' (alle Ergebnisse seien gleich wahrscheinlich), 'Gambler's Fallacy' (das Gesetz vom kleinen Ausgleich), Verwechslung gemeinsamer und unabhängiger Ereignisse, sowie das Verwechseln subjektiver Wahrscheinlichkeit mit relativer Häufigkeit. Diese Fehlvorstellungen sind erstaunlich resistent gegen reines Vorrechnen – sie verschwinden erst, wenn die Schüler ihre eigene Intuition explizit konfrontieren. Diagnose vor und nach der Erarbeitung sinnvoll.",
+  "didaktischerKontext": "Sechs Fragen zu typischen Fehlvorstellungen in der elementaren Stochastik: Laplace-Zählung beim Würfeln, Spielerirrtum, Unabhängigkeit und Multiplikationsregel, bedingte Anteile, Laplace-Wahrscheinlichkeit bei gleich großen Ergebnismengen sowie der Unterschied zwischen P(A∩B) und P(A|B). Diagnose vor und nach der Erarbeitung sinnvoll.",
   "datum": "2026-05-29",
   "entwurf": false,
   "fragen": [
@@ -103,6 +103,56 @@
           "text": "50 % – ungefähr gleich viele.",
           "korrekt": false,
           "erklaerung": "Intuitive Schätzung, aber falsch. Sowohl der höhere Mädchenanteil in der Klasse (60 %) als auch die höhere Brillenrate bei Mädchen (30 % vs. 20 %) ziehen den Anteil über 50 %. Diese Frage ist eine Übung zum bedingten und umgekehrt-bedingten Zählen."
+        }
+      ]
+    },
+    {
+      "frage": "Du ziehst aus einem Skatspiel (32 Karten) blind eine Karte. Wie groß ist die Wahrscheinlichkeit, ein Ass zu ziehen?",
+      "optionen": [
+        {
+          "text": "4/32 = 1/8",
+          "korrekt": true,
+          "erklaerung": "Richtig. Es gibt vier Asse, 32 Karten insgesamt – Laplace: günstige durch mögliche."
+        },
+        {
+          "text": "4/52",
+          "korrekt": false,
+          "erklaerung": "Das wäre ein französisches Blatt mit 52 Karten. Im Skatspiel sind es 32 Karten – der Nenner muss zur Grundmenge passen."
+        },
+        {
+          "text": "1/4",
+          "korrekt": false,
+          "erklaerung": "Vier Asse existieren, aber die Wahrscheinlichkeit ist nicht '1 zu 4' im Sinne von 25 % – der Nenner ist die Anzahl aller Karten."
+        },
+        {
+          "text": "1/32",
+          "korrekt": false,
+          "erklaerung": "Das wäre die Chance für *ein bestimmtes* einzelnes As, wenn man unterscheidet – hier sind aber alle vier Asse günstig."
+        }
+      ]
+    },
+    {
+      "frage": "Ereignis A: 'Die Summe zweier Würfel ist 6.' Ereignis B: 'Der erste Würfel zeigt 1.' Sind A und B unabhängig?",
+      "optionen": [
+        {
+          "text": "Nein – wenn der erste Würfel 1 zeigt, ist die Summe 6 weniger wahrscheinlich als ohne diese Bedingung.",
+          "korrekt": true,
+          "erklaerung": "Richtig. P(A) = 5/36 (Summe 6). Unter der Bedingung erster Wurf 1 braucht der zweite eine 5 – nur eine von 6 Möglichkeiten: P(A|B) = 1/6. Da P(A) ≠ P(A|B), sind die Ereignisse abhängig."
+        },
+        {
+          "text": "Ja – die Würfel beeinflussen sich nicht.",
+          "korrekt": false,
+          "erklaerung": "Die Würfel sind unabhängig, aber die *Ereignisse* beziehen sich auf dieselbe Zufallsrealisation. Die Information über den ersten Würfel ändert die Wahrscheinlichkeit für die Summe."
+        },
+        {
+          "text": "Ja – weil P(A ∩ B) > 0.",
+          "korrekt": false,
+          "erklaerung": "Gemeinsames Eintreten ist nicht gleich Unabhängigkeit. Unabhängigkeit verlangt P(A∩B) = P(A)·P(B)."
+        },
+        {
+          "text": "Nein – weil A und B sich ausschließen.",
+          "korrekt": false,
+          "erklaerung": "Sie schließen sich nicht aus: (1,5) erfüllt beides."
         }
       ]
     }
