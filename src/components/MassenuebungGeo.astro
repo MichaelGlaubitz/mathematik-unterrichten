@@ -1767,6 +1767,12 @@ function wbLabelFromHref(href: string): string {
   } from '../lib/uebungPracticeGenerators';
   import { BRUCH_WB_STOR_KEY, expandBruchWbStichworte } from '../lib/bruchrechnungWbKeywordMap';
   import {
+    readBruchMassenAnzahl,
+    readBruchMassenLayout,
+    writeBruchMassenAnzahl,
+    writeBruchMassenLayout,
+  } from '../lib/massenBruchrechnungPrefs';
+  import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
     effectiveDiagramVisibleByHash,
@@ -1840,6 +1846,10 @@ function wbLabelFromHref(href: string): string {
     );
     let layout = 'arbeitsblatt';
     let anzahl = 10;
+    if (isBruchMassen) {
+      anzahl = readBruchMassenAnzahl();
+      layout = readBruchMassenLayout();
+    }
     let aufgaben = [];
     let wbIndex = 0;
     let wbZeigeLoesung = false;
@@ -2487,14 +2497,25 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
-    anzahlBtns().forEach((b) => b.addEventListener('click', () => { anzahl = Number(b.dataset.anzahl); refreshAktiv(); }));
-    layoutBtns().forEach((b) => b.addEventListener('click', () => {
-      layout = b.dataset.layout;
-      refreshAktiv();
-      if (layout === 'arbeitsblatt') stopWbTimer();
-      else if (aufgaben.length > 0) startWbTimer();
-      render();
-    }));
+    anzahlBtns().forEach((b) =>
+      b.addEventListener('click', () => {
+        anzahl = Number(b.dataset.anzahl);
+        if (isBruchMassen) writeBruchMassenAnzahl(anzahl);
+        refreshAktiv();
+      })
+    );
+    layoutBtns().forEach((b) =>
+      b.addEventListener('click', () => {
+        const next = b.dataset.layout;
+        if (next !== 'arbeitsblatt' && next !== 'whiteboard') return;
+        layout = next;
+        if (isBruchMassen) writeBruchMassenLayout(layout);
+        refreshAktiv();
+        if (layout === 'arbeitsblatt') stopWbTimer();
+        else if (aufgaben.length > 0) startWbTimer();
+        render();
+      })
+    );
     erzeugenBtn?.addEventListener('click', erzeuge);
 
     btnAlle?.addEventListener('click', () => {

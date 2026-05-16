@@ -266,8 +266,83 @@ const themenProBand = clusterReihenfolge
   <!-- Bruch-WB-Stichworte: Skript hier, damit Astro es bündelt (nicht in prop-bedingtem TopicBlock-Fragment). -->
   <script>
     import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../../lib/bruchrechnungWbKeywordMap';
+    import {
+      readBruchMassenAnzahl,
+      readBruchMassenLayout,
+      writeBruchMassenAnzahl,
+      writeBruchMassenLayout,
+    } from '../../lib/massenBruchrechnungPrefs';
+    import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
     let bruchKwAbort: AbortController | null = null;
+
+    const FEEHLV_STOR_PREFIX = 'mu-thema-fehlvorstellungen:';
+
+    function bootFehlvorstellungenAccordion() {
+      document.querySelectorAll<HTMLDetailsElement>('details.mu-fehlvorstellungen-acc[data-mu-fehlv-slug]').forEach((el) => {
+        const slug = el.getAttribute('data-mu-fehlv-slug');
+        if (!slug || el.dataset.muFehlvBound === '1') return;
+        el.dataset.muFehlvBound = '1';
+        const key = `${FEEHLV_STOR_PREFIX}${slug}`;
+        try {
+          el.open = localStorage.getItem(key) === '1';
+        } catch {
+          el.open = false;
+        }
+        el.addEventListener('toggle', () => {
+          try {
+            localStorage.setItem(key, el.open ? '1' : '0');
+          } catch {
+            /* */
+          }
+        });
+      });
+    }
+
+    function stripeApplyBruchThema(root: HTMLElement) {
+      const anzahl = readBruchMassenAnzahl();
+      const layout = readBruchMassenLayout();
+      root.querySelectorAll<HTMLButtonElement>('.mu-bruch-stripe-anzahl').forEach((b) => {
+        const n = Number(b.dataset.anzahl);
+        b.classList.toggle('mu-bruch-stripe--aktiv', Number.isFinite(n) && n === anzahl);
+      });
+      root.querySelectorAll<HTMLButtonElement>('.mu-bruch-stripe-layout').forEach((b) => {
+        const l = b.dataset.layout;
+        b.classList.toggle('mu-bruch-stripe--aktiv', l === layout);
+      });
+      const cb = root.querySelector<HTMLInputElement>('#mu-bruch-thema-diagrams-cb');
+      if (cb) cb.checked = readShowPracticeDiagrams();
+    }
+
+    function bootBruchThemaStripe() {
+      const root = document.getElementById('thema-bruchrechnung');
+      if (!root) return;
+      const stripe = root.querySelector<HTMLElement>('#mu-bruch-thema-stripe');
+      if (!stripe || stripe.dataset.muStripeBound === '1') return;
+      stripe.dataset.muStripeBound = '1';
+      stripeApplyBruchThema(root);
+      stripe.addEventListener('click', (ev: MouseEvent) => {
+        const az = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-stripe-anzahl');
+        if (az && stripe.contains(az)) {
+          const n = Number((az as HTMLButtonElement).dataset.anzahl);
+          if (!Number.isFinite(n)) return;
+          writeBruchMassenAnzahl(n);
+          stripeApplyBruchThema(root);
+          return;
+        }
+        const ly = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-stripe-layout');
+        if (ly && stripe.contains(ly)) {
+          const l = (ly as HTMLButtonElement).dataset.layout;
+          if (l !== 'arbeitsblatt' && l !== 'whiteboard') return;
+          writeBruchMassenLayout(l);
+          stripeApplyBruchThema(root);
+        }
+      });
+      const cb = root.querySelector<HTMLInputElement>('#mu-bruch-thema-diagrams-cb');
+      cb?.addEventListener('change', () => {
+        writeShowPracticeDiagrams(!!cb.checked);
+      });
+    }
 
     function applyBruchKwVisual(root: HTMLElement) {
       const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'));
@@ -326,6 +401,8 @@ const themenProBand = clusterReihenfolge
 
     function scheduleBruchKwBoot() {
       requestAnimationFrame(() => {
+        bootFehlvorstellungenAccordion();
+        bootBruchThemaStripe();
         bootBruchWbKeywords();
       });
     }
