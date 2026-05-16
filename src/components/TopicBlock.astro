@@ -61,6 +61,12 @@ const {
       >
         Unterthemen
       </h4>
+      {slug === 'bruchrechnung' && generatorUebungHref && (
+        <p class="text-xs text-ink-600 dark:text-ink-300 mb-3 max-w-3xl">
+          Für <strong>WB Bruchrechnung</strong>: Stichworte anklicken — ausgewählte erscheinen invertiert. Ohne Auswahl
+          werden dort alle Aufgabentypen gemischt.
+        </p>
+      )}
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {unterthemenBloecke.map((b) => (
           <div
@@ -75,11 +81,22 @@ const {
             <ul class="flex flex-wrap gap-2 list-none p-0 m-0">
               {b.punkte.map((p) => (
                 <li>
-                  <span
-                    class="inline-block rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-xs font-medium text-accent-800 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50"
-                  >
-                    {p}
-                  </span>
+                  {slug === 'bruchrechnung' && generatorUebungHref ? (
+                    <button
+                      type="button"
+                      class="mu-bruch-wb-kw inline-block max-w-full rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-left text-xs font-medium text-accent-800 shadow-sm transition hover:border-accent-600 hover:bg-accent-50 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50 dark:hover:border-accent-300 dark:hover:bg-slate-800/80"
+                      data-stichwort={p}
+                      aria-pressed="false"
+                    >
+                      {p}
+                    </button>
+                  ) : (
+                    <span
+                      class="inline-block rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-xs font-medium text-accent-800 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50"
+                    >
+                      {p}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -87,6 +104,78 @@ const {
         ))}
       </div>
     </section>
+  )}
+
+  {slug === 'bruchrechnung' && generatorUebungHref && unterthemenBloecke && unterthemenBloecke.length > 0 && (
+    <>
+      <style>
+        {`#thema-bruchrechnung .mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+          background-color: rgb(91 33 182);
+          border-color: rgb(91 33 182);
+          color: white;
+        }
+        html.dark #thema-bruchrechnung .mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+          background-color: rgb(167 139 250);
+          border-color: rgb(167 139 250);
+          color: rgb(15 23 42);
+        }`}
+      </style>
+      <script>
+        import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../lib/bruchrechnungWbKeywordMap';
+
+        function applyBruchKwVisual(root: HTMLElement) {
+          const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'));
+          let sel = new Set<string>();
+          try {
+            const raw = JSON.parse(sessionStorage.getItem(BRUCH_WB_STOR_KEY) || 'null');
+            if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === 'string' && raw[0].startsWith('br_')) {
+              sel = new Set(stichworteFuerBruchIds(raw));
+            } else if (Array.isArray(raw)) {
+              sel = new Set(raw.filter((x: unknown) => typeof x === 'string') as string[]);
+            }
+          } catch {
+            sel = new Set();
+          }
+          const all = new Set(buttons.map((b) => b.dataset.stichwort ?? '').filter(Boolean));
+          sel = new Set([...sel].filter((k) => all.has(k)));
+          buttons.forEach((b) => {
+            const k = b.dataset.stichwort ?? '';
+            const on = sel.has(k);
+            b.classList.toggle('mu-bruch-wb-kw--an', on);
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        }
+
+        function persistBruchKw(root: HTMLElement) {
+          const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw.mu-bruch-wb-kw--an'))
+            .map((b) => b.dataset.stichwort ?? '')
+            .filter(Boolean);
+          try {
+            sessionStorage.setItem(BRUCH_WB_STOR_KEY, JSON.stringify(sel));
+          } catch {
+            /* sessionStorage blockiert */
+          }
+        }
+
+        function bootBruchWbKeywords() {
+          const root = document.getElementById('thema-bruchrechnung');
+          if (!root) return;
+          applyBruchKwVisual(root);
+          if (root.dataset.muBruchKwDeleg === '1') return;
+          root.dataset.muBruchKwDeleg = '1';
+          root.addEventListener('click', (ev) => {
+            const t = (ev.target as HTMLElement | null)?.closest?.('.mu-bruch-wb-kw');
+            if (!t || !root.contains(t)) return;
+            t.classList.toggle('mu-bruch-wb-kw--an');
+            t.setAttribute('aria-pressed', t.classList.contains('mu-bruch-wb-kw--an') ? 'true' : 'false');
+            persistBruchKw(root);
+          });
+        }
+
+        bootBruchWbKeywords();
+        document.addEventListener('astro:page-load', bootBruchWbKeywords);
+      </script>
+    </>
   )}
 
   {fehlvorstellungen.length > 0 && (
