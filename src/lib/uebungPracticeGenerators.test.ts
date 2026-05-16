@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 import {
+  BRUCHRECHNUNG_GENERATOR_IDS,
   createPracticeGenerators,
   funGraphLinearAxisInterceptsInRange,
   FUN_GRAPH_AXIS_INTERCEPT_MAX,
@@ -128,6 +129,15 @@ describe('Generator hypotenuse()', () => {
 });
 
 describe('Bruchrechnung-Generatoren', () => {
+  it('alle BRUCHRECHNUNG_GENERATOR_IDS liefern Frage und Lösung', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of BRUCHRECHNUNG_GENERATOR_IDS) {
+      const a = GEN[id]();
+      expect(a.frage.length, id).toBeGreaterThan(5);
+      expect(a.loesung.length, id).toBeGreaterThan(5);
+    }
+  });
+
   it('liefern getrennte Skizzen für Aufgabe (ohne Lösungsschattierung) und Lösung', () => {
     const GEN = createPracticeGenerators(() => 0.42);
     const mul = GEN.br_mul_frac();

@@ -228,12 +228,14 @@ function wbLabelFromHref(href: string): string {
       ) : variant === 'bruchrechnung' ? (
         <>
           <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
-            Zufällige Aufgaben zur <strong>Bruchrechnung</strong> gleichnamiger Brüche, Erweitern und Kürzen,
-            Multiplikation mit Raster sowie Größenvergleich – im gleichen Ablauf wie die anderen Whiteboards:
-            Typen und Anzahl wählen, dann Arbeitsblatt oder Vollbild-Whiteboard.
+            Zufällige Aufgaben zur <strong>Bruchrechnung</strong> in vier Bereichen: Grundrechenarten (inkl. ungleichnamig
+            und Division), Brüche mit ganzen Zahlen, Umgang mit Brüchen (u. a. gleichwertig, Ergänzen auf 1,
+            gemischt/unecht, Vergleich) sowie einfache Sachaufgaben zu Bruchteilen – wie gewohnt Typen und Anzahl wählen,
+            dann Arbeitsblatt oder Vollbild-Whiteboard.
           </p>
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
-            Zu vielen Aufgaben gibt es kleine SVG-Hilfsbilder (Streifen, Raster). Du kannst sie optional ausblenden.
+            Zu vielen Aufgaben gibt es SVG-Hilfsbilder (Streifen, Raster); andere sind rein algebraisch oder als kurzer
+            Textkontext formuliert. Grafiken lassen sich optional ausblenden.
           </p>
         </>
       ) : variant === 'negative-zahlen' ? (
@@ -624,13 +626,8 @@ function wbLabelFromHref(href: string): string {
             </div>
           </fieldset>
         ) : variant === 'bruchrechnung' ? (
-          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
-            <legend
-              class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
-            >
-              Bruchrechnung
-            </legend>
-            <div class="mb-2 flex flex-wrap gap-2">
+          <>
+            <div class="mb-3 flex flex-wrap gap-2 lg:col-span-2">
               <button
                 type="button"
                 id="ug-alle"
@@ -646,33 +643,123 @@ function wbLabelFromHref(href: string): string {
                 Alle abwählen
               </button>
             </div>
-            <div class="ug-typ-grid ug-typ-grid--bruch text-sm">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_like" checked />
-                <span>Addition gleichnamiger Brüche</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="br_sub_like" checked />
-                <span>Subtraktion gleichnamiger Brüche</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="br_erweitern" checked />
-                <span>Erweitern auf vorgegebenen Nenner</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="br_kuerzen" checked />
-                <span>Kürzen</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="br_mul_frac" checked />
-                <span>Multiplikation zweier Brüche (Raster)</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="br_vergleich" checked />
-                <span>Größenvergleich zweier Brüche</span>
-              </label>
-            </div>
-          </fieldset>
+            <fieldset class="ug-gruppe min-w-0">
+              <legend
+                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
+              >
+                Grundrechenarten
+              </legend>
+              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Addieren, subtrahieren, multiplizieren, dividieren</p>
+              <div class="ug-typ-grid text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_like" checked />
+                  <span>Addition gleichnamiger Brüche</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_sub_like" checked />
+                  <span>Subtraktion gleichnamiger Brüche</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_add_unlike" checked />
+                  <span>Addition ungleichnamiger Brüche</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_sub_unlike" checked />
+                  <span>Subtraktion ungleichnamiger Brüche</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_mul_frac" checked />
+                  <span>Multiplikation zweier Brüche (Raster)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_div_frac" checked />
+                  <span>Division zweier Brüche (Kehrwert)</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="ug-gruppe min-w-0">
+              <legend
+                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
+              >
+                Brüche und ganze Zahlen
+              </legend>
+              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Vermischte Aufgaben mit Brüchen und ganzen Zahlen</p>
+              <div class="ug-typ-grid text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_int_mul_frac" checked />
+                  <span>Ganze Zahl mal Bruch</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_frac_div_int" checked />
+                  <span>Bruch durch ganze Zahl</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_int_div_frac" checked />
+                  <span>Ganze Zahl durch Bruch</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+              <legend
+                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
+              >
+                Umgang mit Brüchen
+              </legend>
+              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Kürzen, umformen, vergleichen</p>
+              <div class="ug-typ-grid text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_erweitern" checked />
+                  <span>Erweitern auf vorgegebenen Nenner</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_kuerzen" checked />
+                  <span>Kürzen</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_gleichwert_zaehler" checked />
+                  <span>Gleichwertiger Bruch (Zähler ergänzen)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ergaenze_auf_1" checked />
+                  <span>Ergänzen auf 1 (gleicher Nenner)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_improper_gemischt" checked />
+                  <span>Unechter Bruch → gemischte Zahl</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_gemischt_improper" checked />
+                  <span>Gemischte Zahl → unechter Bruch</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_vergleich" checked />
+                  <span>Größenvergleich zweier Brüche</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
+              <legend
+                class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
+              >
+                Bruchteile von Größen
+              </legend>
+              <p class="text-xs text-ink-500 dark:text-ink-400 mb-2">Anteil finden, Ausgangsgröße finden</p>
+              <div class="ug-typ-grid text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ant_stammbruch" checked />
+                  <span>Stammbruchteil (Sachaufgabe)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ant_bruchteil" checked />
+                  <span>Bruchteil einer Menge (Sachaufgabe)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="ug-typ accent-accent-600" value="br_ant_umkehr" checked />
+                  <span>Umkehraufgabe (ganze Größe)</span>
+                </label>
+              </div>
+            </fieldset>
+          </>
         ) : variant === 'negative-zahlen' ? (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
             <legend
@@ -2682,7 +2769,7 @@ function wbLabelFromHref(href: string): string {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
-  /* Bruchrechnung: 3×2, spaltenweise von einfach zu komplex (pro Spalte oben → unten) */
+  /* Bruchrechnung (Legacy): 3×2-Raster — aktuell nutzen die WB-Bruch-Checkboxen ein Standard-ug-typ-grid. */
   @media (min-width: 640px) {
     #ug-steuerung .ug-typ-grid--bruch {
       grid-template-columns: repeat(3, minmax(0, 1fr));
