@@ -10,6 +10,7 @@ import {
   parseErkennenSeiten,
   validateErkennenAufgabe,
 } from './uebungPracticeGenerators';
+import { zaehleAbPlatzhalter } from './practiceArbeitsblattAntwort';
 
 /** Deterministischer PRNG für reproduzierbare Tests (32-Bit LCG). */
 function makeLcg(seed: number): () => number {
@@ -135,6 +136,16 @@ describe('Bruchrechnung-Generatoren', () => {
       const a = GEN[id]();
       expect(a.frage.length, id).toBeGreaterThan(5);
       expect(a.loesung.length, id).toBeGreaterThan(5);
+    }
+  });
+
+  it('Bruch-AB: frageArbeitsblatt-Platzhalter passen zu abSlots', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of BRUCHRECHNUNG_GENERATOR_IDS) {
+      const a = GEN[id]();
+      expect(a.frageArbeitsblatt, id).toBeDefined();
+      expect(a.abSlots?.length, id).toBeGreaterThan(0);
+      expect(zaehleAbPlatzhalter(a.frageArbeitsblatt!), id).toBe(a.abSlots!.length);
     }
   });
 
