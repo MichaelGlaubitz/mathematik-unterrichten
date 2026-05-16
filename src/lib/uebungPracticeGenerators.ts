@@ -66,7 +66,13 @@ function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boo
 /** Antwortlücken für das Arbeitsblatt „WB Bruchrechnung“ (`[[MU_AB:n]]` in `frageArbeitsblatt`). */
 export type PracticeAbAntwortSlot =
   | { kind: 'int'; expect: number }
-  | { kind: 'frac'; expectNum: number; expectDen: number }
+  | {
+      kind: 'frac';
+      expectNum: number;
+      expectDen: number;
+      /** Wenn wahr: nur vollständig gekürzte Darstellung (ggT(Zähler, Nenner) = 1), z. B. bei „Kürze vollständig“. */
+      requireFullyReduced?: boolean;
+    }
   | { kind: 'choice'; expect: 0 | 1; labels: [string, string] };
 
 export type PracticeAufgabe = {
@@ -1079,7 +1085,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
         frageArbeitsblatt: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig: [[MU_AB:0]]`,
-        abSlots: [{ kind: 'frac', expectNum: n / g, expectDen: d / g }],
+        abSlots: [{ kind: 'frac', expectNum: n / g, expectDen: d / g, requireFullyReduced: true }],
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gekürzt mit $${g}$).`,
         diagram: svgBruchStreifen(n, d, '', 'aufgabe', g),
         diagramLoesung: svgBruchStreifen(n, d, '', 'loesung', g),
