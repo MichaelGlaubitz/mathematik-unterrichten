@@ -1,13 +1,27 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { BRUCHRECHNUNG_GENERATOR_IDS, createPracticeGenerators } from './uebungPracticeGenerators';
 import {
   BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH,
   buildBruchArbeitsblattTex,
+  compileLatexOnHttpPdf,
   escapeLatexText,
   htmlFrageZuLatexInhalt,
   loesungHtmlZuLatexSegmente,
   replaceAbPlaceholdersLatex,
   stripHtmlTags,
 } from './bruchArbeitsblattLatex';
+
+function dollarCount(s: string): number {
+  return (s.match(/\$/g) ?? []).length;
+}
+
+function makeLcg(seed: number): () => number {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(1664525, s) + 1013904223) >>> 0;
+    return s / 2 ** 32;
+  };
+}
 
 describe('bruchArbeitsblattLatex', () => {
   it('escapeLatexText schützt Sonderzeichen', () => {
@@ -55,7 +69,7 @@ describe('bruchArbeitsblattLatex', () => {
         stichworteZeile: 'x',
       },
       mitLoesungen: false,
-      diagramPngPaths: [{ taskIndex: 0, suffix: 'a', path: 'd0a.png' }],
+      diagramPngPaths: [{ taskIndex: 0, suffix: 'a', path: 'd0a.jpg' }],
     });
     expect(tex).toContain('style=nextline');
     expect(tex).toContain(`width=${BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH},keepaspectratio=true`);
@@ -87,5 +101,52 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('\\end{enumerate}');
     expect(tex).toContain('\\begin{multicols}{2}');
     expect(tex).toContain('\\LARGE');
+  });
+
+  it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {
+    for (const id of BRUCHRECHNUNG_GENERATOR_IDS) {
+      for (let seed = 0; seed < 120; seed++) {
+        const g = createPracticeGenerators(makeLcg(seed * 7919 + id.length * 17 + id.charCodeAt(0)));
+        const a = g[id]();
+        const abs = a.abSlots ?? [];
+        const fAb = a.frageArbeitsblatt;
+        expect(fAb, id).toBeDefined();
+        const hBlank = htmlFrageZuLatexInhalt(fAb!, { abSlots: abs, mitLoesungen: false });
+        const hFill = htmlFrageZuLatexInhalt(fAb!, { abSlots: abs, mitLoesungen: true });
+        expect(dollarCount(hBlank) % 2, `${id} frage blank @${seed}`).toBe(0);
+        expect(dollarCount(hFill) % 2, `${id} frage fill @${seed}`).toBe(0);
+        const fHi = a.frageMitLoesungHighlight;
+        if (fHi) {
+          const hh = htmlFrageZuLatexInhalt(fHi, { abSlots: abs, mitLoesungen: true });
+          expect(dollarCount(hh) % 2, `${id} highlight @${seed}`).toBe(0);
+        }
+        const loe = loesungHtmlZuLatexSegmente(a.loesung);
+        expect(dollarCount(loe) % 2, `${id} loesung @${seed}`).toBe(0);
+      }
+    }
+  });
+
+  it('compileLatexOnHttpPdf: log_files aus API-Fehlerantwort wird in log übernommen', async () => {
+    const stub = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: 'COMPILATION_ERROR',
+          log_files: { '__main_document__.log': '!pdfTeX error: test marker\n' },
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+    vi.stubGlobal('fetch', stub);
+    const r = await compileLatexOnHttpPdf({
+      texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
+      binFiles: [],
+    });
+    vi.unstubAllGlobals();
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.message).toContain('COMPILATION_ERROR');
+      expect(r.log).toContain('__main_document__.log');
+      expect(r.log).toContain('pdfTeX error');
+    }
   });
 });
