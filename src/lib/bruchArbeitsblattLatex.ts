@@ -5,6 +5,9 @@
 import type { PracticeAbAntwortSlot, PracticeAufgabe } from './uebungPracticeGenerators';
 import { practiceAufgabeHatLoesungInlineNachFrage } from './uebungPracticeGenerators';
 
+/** Maximale Breite eingebetteter Diagramme relativ zur Seitenbreite (Aufgaben + Lösung). */
+export const BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH = '0.33\\textwidth';
+
 export const BRUCH_AB_LATEX_HTTP_ENDPOINT = 'https://latex.ytotech.com/builds/sync';
 
 export type BruchAbPdfMeta = {
@@ -202,14 +205,17 @@ export function buildBruchArbeitsblattTex(opts: {
     const frageBody = htmlFrageZuLatexInhalt(frageSrc, { abSlots, mitLoesungen });
     const pa = diagramPath(idx, 'a');
     const pl = diagramPath(idx, 'l');
-    const diaAuf = pa ? `\\Needspace{7.5\\baselineskip}\n\\includegraphics[width=0.92\\linewidth]{${pa}}\n\\par\\smallskip\n` : '';
+    const diaW = BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH;
+    const diaAuf = pa
+      ? `\\Needspace{5\\baselineskip}\n\\noindent\\includegraphics[width=${diaW},keepaspectratio=true]{${pa}}\n\\par\\smallskip\n`
+      : '';
     const inlineL = practiceAufgabeHatLoesungInlineNachFrage(a);
     let loeBlock = '';
     if (mitLoesungen) {
       const loeTex = loesungHtmlZuLatexSegmente(a.loesung);
       const diaL =
         pl && a.diagramLoesung && a.diagramLoesung !== a.diagram
-          ? `\\Needspace{7\\baselineskip}\n\\includegraphics[width=0.92\\linewidth]{${pl}}\n\\par\\smallskip\n`
+          ? `\\Needspace{4.5\\baselineskip}\n\\noindent\\includegraphics[width=${diaW},keepaspectratio=true]{${pl}}\n\\par\\smallskip\n`
           : '';
       if (inlineL && loeTex) {
         loeBlock = `\\par\\smallskip\n{\\color{teal}\\textbf{${escapeLatexText('Lösung')}.}\\quad ${loeTex}}\n`;
@@ -238,7 +244,7 @@ export function buildBruchArbeitsblattTex(opts: {
 \\fancyhead[R]{\\footnotesize\\sffamily Seite~\\thepage}
 \\renewcommand{\\headrulewidth}{0.35pt}
 \\setlength{\\headheight}{22pt}
-\\setlist[enumerate,1]{label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=1.05em, parsep=0.2em, topsep=0.6em}
+\\setlist[enumerate,1]{style=nextline, label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=1.05em, parsep=0.2em, topsep=0.6em, labelsep=0.45em}
 \\title{\\sffamily\\large ${loeTitle}}
 \\author{}
 \\date{}
