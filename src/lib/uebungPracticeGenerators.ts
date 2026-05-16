@@ -63,6 +63,12 @@ function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boo
   return Math.abs(a * p * p + q) <= FUN_GRAPH_AXIS_INTERCEPT_MAX;
 }
 
+/** Antwortlücken für das Arbeitsblatt „WB Bruchrechnung“ (`[[MU_AB:n]]` in `frageArbeitsblatt`). */
+export type PracticeAbAntwortSlot =
+  | { kind: 'int'; expect: number }
+  | { kind: 'frac'; expectNum: number; expectDen: number }
+  | { kind: 'choice'; expect: 0 | 1; labels: [string, string] };
+
 export type PracticeAufgabe = {
   frage: string;
   loesung: string;
@@ -90,6 +96,13 @@ export type PracticeAufgabe = {
    * beim größeren Bruch bei `br_vergleich`). `frage` bleibt neutral bis dahin.
    */
   frageMitLoesungHighlight?: string;
+  /**
+   * Nur Arbeitsblatt (WB Bruchrechnung): Fragentext mit Platzhaltern `[[MU_AB:0]]`, `[[MU_AB:1]]`, …
+   * Eingebettetes HTML (z. B. `<span class="mu-katex-skip">`) zulässig; KaTeX ignoriert `mu-katex-skip`.
+   */
+  frageArbeitsblatt?: string;
+  /** Metadaten zu den Platzhaltern — Reihenfolge entspricht den Indizes. */
+  abSlots?: readonly PracticeAbAntwortSlot[];
 };
 
 /**
@@ -1000,6 +1013,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           : `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
         frage: `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$`,
+        frageArbeitsblatt: `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: s / g, expectDen: d / g }],
         frageMitLoesungHighlight: voll,
         loesung: voll,
         loesungInlineNachFrage: true,
@@ -1019,6 +1034,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           : `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
         frage: `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$`,
+        frageArbeitsblatt: `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: s / g, expectDen: d / g }],
         frageMitLoesungHighlight: voll,
         loesung: voll,
         loesungInlineNachFrage: true,
@@ -1042,6 +1059,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const D = d * k;
       return {
         frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
+        frageArbeitsblatt: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$. Neuer Zähler: [[MU_AB:0]]`,
+        abSlots: [{ kind: 'int', expect: N }],
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (erweitert mit ${k}).`,
         diagram: svgBruchErweiternKacheln(n, d, k, '', 'aufgabe'),
         diagramLoesung: svgBruchErweiternKacheln(n, d, k, '', 'loesung'),
@@ -1059,6 +1078,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       return {
         frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
+        frageArbeitsblatt: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig: [[MU_AB:0]]`,
+        abSlots: [{ kind: 'frac', expectNum: n / g, expectDen: d / g }],
         loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gekürzt mit $${g}$).`,
         diagram: svgBruchStreifen(n, d, '', 'aufgabe', g),
         diagramLoesung: svgBruchStreifen(n, d, '', 'loesung', g),
@@ -1083,6 +1104,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const tail = g > 1 ? `=\\frac{${pn / g}}{${pd / g}}` : '';
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: pn / g, expectDen: pd / g }],
         loesung: `$\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}=\\frac{${pn}}{${pd}}${tail}$.`,
         diagram: svgBruchMalRaster(n1, d1, n2, d2, 'aufgabe'),
         diagramLoesung: svgBruchMalRaster(n1, d1, n2, d2, 'loesung'),
@@ -1119,6 +1142,14 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const winnerIsA = a * d2 > b * d1;
       return {
         frage: `Welcher Bruch ist größer: ${fracA} oder ${fracB}?`,
+        frageArbeitsblatt: `Welcher Bruch ist größer: ${fracA} oder ${fracB}? [[MU_AB:0]]`,
+        abSlots: [
+          {
+            kind: 'choice',
+            expect: winnerIsA ? (0 as const) : (1 as const),
+            labels: ['Erster Bruch', 'Zweiter Bruch'],
+          },
+        ],
         frageMitLoesungHighlight: `Welcher Bruch ist größer: ${winnerIsA ? grMitBox(fracA) : fracA} oder ${winnerIsA ? fracB : grMitBox(fracB)}?`,
         loesung: `Auf den Hauptnenner $${L}$ erweitern: $\\frac{${a}}{${d1}}=\\frac{${nA}}{${L}}$ und $\\frac{${b}}{${d2}}=\\frac{${nB}}{${L}}$. <br>Wegen $${zfVgl}$ ist ${gr} größer.`,
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
@@ -1157,6 +1188,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const tail = g > 1 ? `=\\frac{${N / g}}{${L / g}}` : '';
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: N / g, expectDen: L / g }],
         loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}=\\frac{${n1 * (L / d1)}}{${L}}+\\frac{${n2 * (L / d2)}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
         loesungInlineNachFrage: false,
       };
@@ -1198,6 +1231,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const tail = g > 1 ? `=\\frac{${N / g}}{${L / g}}` : '';
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: N / g, expectDen: L / g }],
         loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}=\\frac{${N1}}{${L}}-\\frac{${N2}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
         loesungInlineNachFrage: false,
       };
@@ -1221,6 +1256,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
       return {
         frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: num / g, expectDen: den / g }],
         loesung: `Mit dem Kehrwert: $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}=\\frac{${n1}}{${d1}}\\cdot\\frac{${d2}}{${n2}}=\\frac{${num}}{${den}}${tail}$.`,
       };
     },
@@ -1240,6 +1277,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
       return {
         frage: `Berechne $\\displaystyle ${k}\\cdot\\frac{${n}}{${d}}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle ${k}\\cdot\\frac{${n}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: num / g, expectDen: den / g }],
         loesung: `$\\displaystyle ${k}\\cdot\\frac{${n}}{${d}}=\\frac{${num}}{${den}}${tail}$.`,
       };
     },
@@ -1259,6 +1298,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
       return {
         frage: `Berechne $\\displaystyle\\frac{${n}}{${d}}:${k}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n}}{${d}}:${k}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: num / g, expectDen: den / g }],
         loesung: `$\\displaystyle\\frac{${n}}{${d}}:${k}=\\frac{${n}}{${d}\\cdot ${k}}=\\frac{${num}}{${den}}${tail}$.`,
       };
     },
@@ -1283,6 +1324,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const res = (k * d) / n;
       return {
         frage: `Berechne $\\displaystyle ${k}:\\frac{${n}}{${d}}$.`,
+        frageArbeitsblatt: `Berechne $\\displaystyle ${k}:\\frac{${n}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: res }],
         loesung: `$\\displaystyle ${k}:\\frac{${n}}{${d}}=${k}\\cdot\\frac{${d}}{${n}}=\\frac{${k * d}}{${n}}=${res}$.`,
       };
     },
@@ -1307,6 +1350,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const x = n * f;
       return {
         frage: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=\\frac{?}{${L}}$.`,
+        frageArbeitsblatt: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=$ [[MU_AB:0]] <span class="text-base text-ink-800 dark:text-ink-100">/ $${L}$</span>`,
+        abSlots: [{ kind: 'int', expect: x }],
         loesung: `Erweitern mit $${f}$: $\\displaystyle\\frac{${n}}{${d}}=\\frac{${x}}{${L}}$ — der fehlende Zähler ist $${x}$.`,
       };
     },
@@ -1316,6 +1361,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const b = d - a;
       return {
         frage: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+\\frac{?}{${d}}=1$.`,
+        frageArbeitsblatt: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+$ [[MU_AB:0]] <span class="text-base text-ink-800 dark:text-ink-100">/ $${d}$ $= 1$</span>`,
+        abSlots: [{ kind: 'int', expect: b }],
         loesung: `Wegen $\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${d}}{${d}}=1$ ist der gesuchte Zähler $${b}$.`,
       };
     },
@@ -1337,8 +1384,21 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         rest === 0
           ? `$\\displaystyle\\frac{${n}}{${d}}=${ganz}$`
           : `$\\displaystyle\\frac{${n}}{${d}}=${ganz}\\tfrac{${rest}}{${d0}}$`;
+      if (rest === 0) {
+        return {
+          frage: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl.`,
+          frageArbeitsblatt: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl: [[MU_AB:0]]`,
+          abSlots: [{ kind: 'int', expect: ganz }],
+          loesung: lo,
+        };
+      }
       return {
         frage: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl.`,
+        frageArbeitsblatt: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl: <span class="mu-katex-skip inline-flex flex-wrap items-center gap-2 align-middle text-base">[[MU_AB:0]]<span class="text-ink-500 dark:text-slate-400">und</span>[[MU_AB:1]]</span>`,
+        abSlots: [
+          { kind: 'int', expect: ganz },
+          { kind: 'frac', expectNum: rest, expectDen: d0 },
+        ],
         loesung: lo,
       };
     },
@@ -1349,6 +1409,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const n = ganz * d + rest;
       return {
         frage: `Schreibe $\\displaystyle${ganz}\\tfrac{${rest}}{${d}}$ als unechten Bruch.`,
+        frageArbeitsblatt: `Schreibe $\\displaystyle${ganz}\\tfrac{${rest}}{${d}}$ als unechten Bruch: [[MU_AB:0]]`,
+        abSlots: [{ kind: 'frac', expectNum: n, expectDen: d }],
         loesung: `$\\displaystyle${ganz}\\tfrac{${rest}}{${d}}=\\frac{${ganz}\\cdot ${d}+${rest}}{${d}}=\\frac{${n}}{${d}}$`,
       };
     },
@@ -1359,6 +1421,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const loes = m;
       return {
         frage: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens?`,
+        frageArbeitsblatt: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens? [[MU_AB:0]]`,
+        abSlots: [{ kind: 'int', expect: loes }],
         loesung: `Stammbruch $\\frac{1}{${d}}$ von ${g} Stücken: ${g}:${d}=${loes}$ Stück.`,
       };
     },
@@ -1378,6 +1442,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const ant = (g * n) / d;
       return {
         frage: `In einer Klasse sind ${g} Kinder. $\\displaystyle\\frac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das?`,
+        frageArbeitsblatt: `In einer Klasse sind ${g} Kinder. $\\displaystyle\\frac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das? [[MU_AB:0]]`,
+        abSlots: [{ kind: 'int', expect: ant }],
         loesung: `Rechnung: ${g} $\\cdot\\,\\frac{${n}}{${d}}=${ant}$. Es sind ${ant} Kinder.`,
       };
     },
@@ -1402,6 +1468,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const G = (A * d) / n;
       return {
         frage: `Von einem Geldbetrag sind $\\displaystyle\\frac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag?`,
+        frageArbeitsblatt: `Von einem Geldbetrag sind $\\displaystyle\\frac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag? [[MU_AB:0]] <span class="text-sm text-ink-600 dark:text-ink-300">(Euro)</span>`,
+        abSlots: [{ kind: 'int', expect: G }],
         loesung: `Umkehraufgabe: ${A} Euro $\\cdot\\,\\frac{${d}}{${n}}=${G}$ Euro.`,
       };
     },

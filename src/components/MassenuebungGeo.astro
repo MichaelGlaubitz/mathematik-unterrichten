@@ -1382,10 +1382,44 @@ function wbLabelFromHref(href: string): string {
     {
       variant === 'bruchrechnung' && (
         <div
+          id="ug-ab-bruch-check-overlay"
+          class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
+          hidden
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ug-ab-bruch-check-stat"
+        >
+          <div class="relative w-full max-w-md rounded-2xl border border-emerald-200/80 bg-surface p-6 shadow-2xl dark:border-emerald-700/40 dark:bg-slate-900 dark:shadow-black/40">
+            <p id="ug-ab-bruch-check-stat" class="text-center font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50"></p>
+            <p id="ug-ab-bruch-check-mot" class="mt-4 text-center text-base leading-relaxed text-ink-700 dark:text-ink-200"></p>
+            <button
+              type="button"
+              id="ug-ab-bruch-check-schliessen"
+              class="mt-6 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+            >
+              Schließen
+            </button>
+          </div>
+        </div>
+      )
+    }
+    {
+      variant === 'bruchrechnung' && (
+        <div
           id="ug-ab-bruch-actions"
           class="mt-6 space-y-3 print:hidden"
           hidden
         >
+          <button
+            type="button"
+            id="ug-ab-bruch-check"
+            class="inline-flex w-full min-h-[2.75rem] items-center justify-center gap-2 rounded-xl border-2 border-emerald-600/90 bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-950 shadow-sm transition hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-400/80 dark:bg-emerald-950/45 dark:text-emerald-50 dark:hover:bg-emerald-900/55"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Überprüfen
+          </button>
           <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
             <button
               type="button"
@@ -1903,6 +1937,11 @@ function wbLabelFromHref(href: string): string {
 </div>
 
 <script>
+  import {
+    bruchAbMotivation,
+    replaceBruchAbFragePlaceholders,
+    wendeBruchAbCheckAufListeAn,
+  } from '../lib/practiceArbeitsblattAntwort';
   import {
     BRUCHRECHNUNG_GENERATOR_IDS,
     createPracticeGenerators,
@@ -2548,7 +2587,7 @@ function wbLabelFromHref(href: string): string {
           { left: '$', right: '$', display: false },
         ],
         ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
-        ignoredClasses: ['katex', 'mu-geo-diagram'],
+        ignoredClasses: ['katex', 'mu-geo-diagram', 'mu-katex-skip', 'mu-ab-slot-shell'],
         throwOnError: false,
       };
     }
@@ -2608,6 +2647,13 @@ function wbLabelFromHref(href: string): string {
       const abChrome = document.getElementById('ug-bruch-ab-chrome');
       if (meta) meta.hidden = !bruchSheet;
       if (foot) foot.hidden = !bruchSheet;
+      if (!bruchSheet) {
+        const chkOv = document.getElementById('ug-ab-bruch-check-overlay');
+        if (chkOv instanceof HTMLElement) {
+          chkOv.hidden = true;
+          document.documentElement.classList.remove('mu-ab-bruch-check-open');
+        }
+      }
       if (fullChrome && abChrome) {
         if (bruchSheet) {
           fullChrome.hidden = true;
@@ -2721,8 +2767,17 @@ function wbLabelFromHref(href: string): string {
             : inlineL
               ? `<div class="mt-1 text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
               : `<div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
+        const abInteraktiv =
+          isBruchMassen &&
+          !!a.frageArbeitsblatt &&
+          Array.isArray(a.abSlots) &&
+          a.abSlots.length > 0;
+        const frageBody =
+          abInteraktiv && a.frageArbeitsblatt && a.abSlots
+            ? replaceBruchAbFragePlaceholders(a.frageArbeitsblatt, idx, a.abSlots)
+            : a.frage;
         const frageHighlightAttrs =
-          a.frageMitLoesungHighlight
+          a.frageMitLoesungHighlight && !abInteraktiv
             ? ` data-mu-frage-neutral="${encodeURIComponent(a.frage)}" data-mu-frage-highlight="${encodeURIComponent(a.frageMitLoesungHighlight)}"`
             : '';
         const detailsId = `ug-ab-bruch-d-${idx}`;
@@ -2731,10 +2786,10 @@ function wbLabelFromHref(href: string): string {
           : `<summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>`;
         const frageRowHtml = isBruchMassen
           ? `<div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="ug-task-frage min-w-0 flex-1 text-base font-medium leading-snug text-ink-900 dark:text-ink-50 sm:text-lg"${frageHighlightAttrs}>${a.frage}</div>
+              <div class="ug-task-frage min-w-0 flex-1 text-base font-medium leading-snug text-ink-900 dark:text-ink-50 sm:text-lg"${frageHighlightAttrs}>${frageBody}</div>
               <button type="button" class="ug-ab-bruch-loesung-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-300/90 bg-surface text-violet-800 shadow-sm hover:bg-violet-50 dark:border-violet-500/50 dark:bg-slate-900/80 dark:text-violet-100 dark:hover:bg-violet-950/50" aria-controls="${detailsId}" aria-expanded="false" aria-label="Lösung zu Aufgabe ${idx + 1} ein- oder ausblenden" title="Lösung ein-/ausblenden">${practiceDiagramToggleIconMarkup(false)}</button>
             </div>`
-          : `<div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${a.frage}</div>`;
+          : `<div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${frageBody}</div>`;
         const detailsAttrs = isBruchMassen ? ` id="${detailsId}"` : '';
         const detailsClass = isBruchMassen
           ? 'group ug-task-details mt-3 border-t border-violet-200/70 pt-3 dark:border-violet-600/30'
@@ -2903,6 +2958,40 @@ function wbLabelFromHref(href: string): string {
         });
       });
     });
+
+    const bruchCheckOverlay = document.getElementById('ug-ab-bruch-check-overlay');
+    const bruchCheckStat = document.getElementById('ug-ab-bruch-check-stat');
+    const bruchCheckMot = document.getElementById('ug-ab-bruch-check-mot');
+    const bruchCheckBtn = document.getElementById('ug-ab-bruch-check');
+    const bruchCheckSchliessen = document.getElementById('ug-ab-bruch-check-schliessen');
+    function schliesseBruchAbCheckOverlay() {
+      if (bruchCheckOverlay instanceof HTMLElement) bruchCheckOverlay.hidden = true;
+      document.documentElement.classList.remove('mu-ab-bruch-check-open');
+    }
+    function oeffneBruchAbCheckOverlay(statText, motText) {
+      if (bruchCheckStat) bruchCheckStat.textContent = statText;
+      if (bruchCheckMot) bruchCheckMot.textContent = motText;
+      if (bruchCheckOverlay instanceof HTMLElement) bruchCheckOverlay.hidden = false;
+      document.documentElement.classList.add('mu-ab-bruch-check-open');
+      if (bruchCheckSchliessen instanceof HTMLButtonElement) bruchCheckSchliessen.focus();
+    }
+    bruchCheckBtn?.addEventListener('click', () => {
+      if (!liste || !isBruchMassen) return;
+      const { richtig, gesamt } = wendeBruchAbCheckAufListeAn(liste, aufgaben);
+      const statText = gesamt > 0 ? `${richtig} von ${gesamt} richtig.` : 'Keine Antwortfelder gefunden.';
+      oeffneBruchAbCheckOverlay(statText, bruchAbMotivation(richtig, gesamt));
+    });
+    bruchCheckSchliessen?.addEventListener('click', () => schliesseBruchAbCheckOverlay());
+    bruchCheckOverlay?.addEventListener('click', (e) => {
+      if (e.target === bruchCheckOverlay) schliesseBruchAbCheckOverlay();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (!document.documentElement.classList.contains('mu-ab-bruch-check-open')) return;
+      e.preventDefault();
+      schliesseBruchAbCheckOverlay();
+    });
+
     routeSpeichernBtn?.addEventListener('click', saveWhiteboardRoute);
     wbRouteSpeichernBtn?.addEventListener('click', saveWhiteboardRoute);
     routeLadenBtn?.addEventListener('click', () => {
@@ -3244,6 +3333,33 @@ function wbLabelFromHref(href: string): string {
   html.mu-wb-overlay-open body {
     overflow: hidden;
     overscroll-behavior: none;
+  }
+
+  html.mu-ab-bruch-check-open,
+  html.mu-ab-bruch-check-open body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .mu-ab-slot-shell.mu-ab-slot-shell--richtig {
+    border-color: rgb(22 163 74);
+    background-color: rgb(240 253 244 / 0.92);
+    box-shadow: 0 2px 8px rgb(22 163 74 / 0.18);
+  }
+  html.dark .mu-ab-slot-shell.mu-ab-slot-shell--richtig {
+    border-color: rgb(74 222 128);
+    background-color: rgb(6 78 59 / 0.45);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+  }
+  .mu-ab-slot-shell.mu-ab-slot-shell--falsch {
+    border-color: rgb(220 38 38);
+    background-color: rgb(254 242 242 / 0.95);
+    box-shadow: 0 2px 8px rgb(220 38 38 / 0.2);
+  }
+  html.dark .mu-ab-slot-shell.mu-ab-slot-shell--falsch {
+    border-color: rgb(248 113 113);
+    background-color: rgb(69 10 10 / 0.45);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
   }
 
   #ug-wb-overlay {
