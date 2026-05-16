@@ -2989,8 +2989,13 @@ function wbLabelFromHref(href: string): string {
           diagramUiScale: (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i)),
         });
         if (!r.ok) {
-          const tail = r.log ? `\n\n${r.log.slice(0, 4000)}` : '';
-          window.alert(`PDF konnte nicht erzeugt werden: ${r.message}${tail}`);
+          console.error('[Bruch-Arbeitsblatt PDF]', { message: r.message, log: r.log });
+          const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);
+          window.alert(
+            'Das PDF konnte nicht erzeugt werden.\n\n' +
+              `Kurzinfo: ${kurz}\n\n` +
+              'Ausführliche technische Details (HTTP-Status, LaTeX-Log) stehen in der Browser-Konsole: F12 → Tab „Konsole“.'
+          );
           return;
         }
         const tag = new Date().toISOString().slice(0, 10);
