@@ -1429,7 +1429,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens?`,
         frageArbeitsblatt: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens? [[MU_AB:0]]`,
         abSlots: [{ kind: 'int', expect: loes }],
-        loesung: `Stammbruch $\\frac{1}{${d}}$ von ${g} Stücken: ${g}:${d}=${loes}$ Stück.`,
+        loesung: `Stammbruch $\\frac{1}{${d}}$ von ${g} Stücken — Rechnung: ${g}:${d}=${loes} Stück.`,
       };
     },
     br_ant_bruchteil() {
