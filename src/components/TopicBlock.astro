@@ -108,20 +108,23 @@ const {
 
   {slug === 'bruchrechnung' && generatorUebungHref && unterthemenBloecke && unterthemenBloecke.length > 0 && (
     <>
-      <style>
-        {`#thema-bruchrechnung .mu-bruch-wb-kw.mu-bruch-wb-kw--an {
-          background-color: rgb(91 33 182);
-          border-color: rgb(91 33 182);
-          color: white;
+      <style is:global>
+        /* Tailwind-Utilities auf den Buttons überschreiben — Auswahl muss sichtbar bleiben */
+        #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+          background-color: rgb(91 33 182) !important;
+          border-color: rgb(91 33 182) !important;
+          color: #fff !important;
         }
-        html.dark #thema-bruchrechnung .mu-bruch-wb-kw.mu-bruch-wb-kw--an {
-          background-color: rgb(167 139 250);
-          border-color: rgb(167 139 250);
-          color: rgb(15 23 42);
-        }`}
+        html.dark #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+          background-color: rgb(167 139 250) !important;
+          border-color: rgb(167 139 250) !important;
+          color: rgb(15 23 42) !important;
+        }
       </style>
       <script>
         import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../lib/bruchrechnungWbKeywordMap';
+
+        let bruchKwAbort: AbortController | null = null;
 
         function applyBruchKwVisual(root: HTMLElement) {
           const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'));
@@ -161,19 +164,31 @@ const {
           const root = document.getElementById('thema-bruchrechnung');
           if (!root) return;
           applyBruchKwVisual(root);
-          if (root.dataset.muBruchKwDeleg === '1') return;
-          root.dataset.muBruchKwDeleg = '1';
-          root.addEventListener('click', (ev) => {
-            const t = (ev.target as HTMLElement | null)?.closest?.('.mu-bruch-wb-kw');
-            if (!t || !root.contains(t)) return;
-            t.classList.toggle('mu-bruch-wb-kw--an');
-            t.setAttribute('aria-pressed', t.classList.contains('mu-bruch-wb-kw--an') ? 'true' : 'false');
-            persistBruchKw(root);
+          bruchKwAbort?.abort();
+          bruchKwAbort = new AbortController();
+          const { signal } = bruchKwAbort;
+          root.addEventListener(
+            'click',
+            (ev: MouseEvent) => {
+              const t = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-wb-kw');
+              if (!t || !root.contains(t)) return;
+              ev.preventDefault();
+              t.classList.toggle('mu-bruch-wb-kw--an');
+              t.setAttribute('aria-pressed', t.classList.contains('mu-bruch-wb-kw--an') ? 'true' : 'false');
+              persistBruchKw(root);
+            },
+            { signal }
+          );
+        }
+
+        function scheduleBruchKwBoot() {
+          requestAnimationFrame(() => {
+            bootBruchWbKeywords();
           });
         }
 
-        bootBruchWbKeywords();
-        document.addEventListener('astro:page-load', bootBruchWbKeywords);
+        scheduleBruchKwBoot();
+        document.addEventListener('astro:page-load', scheduleBruchKwBoot);
       </script>
     </>
   )}
