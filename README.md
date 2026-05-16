@@ -8,7 +8,7 @@ Statisch generierte Mathe-Didaktik-Seite für Lehrkräfte – inspiriert von [mr
 |---|---|---|
 | **Blog** | Markdown (.md/.mdx) – didaktische Artikel | `src/content/blog/` |
 | **Aufgabensammlung** | Markdown – Aufgaben mit Lösungen + Kommentar | `src/content/aufgaben/` |
-| **Diagnose-Fragen** | JSON – interaktive MC-Quizzes | `src/content/quizzes/` |
+| **Diagnostische Fragen** | JSON – interaktive MC-Quizzes | `src/content/quizzes/` |
 
 ## Voraussetzungen
 
@@ -80,7 +80,7 @@ datum: 2026-05-10
 …
 ```
 
-### Neues Diagnose-Quiz
+### Diagnostische Fragen anlegen (Quiz-JSON)
 
 Lege eine `.json`-Datei unter `src/content/quizzes/` an:
 

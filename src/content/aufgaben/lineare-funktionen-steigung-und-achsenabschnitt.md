@@ -137,6 +137,6 @@ Sachkontext-Übersetzung. Schüler müssen erkennen: Was ist im Text der konstan
 **Möglicher Anschluss**
 
 - Aufgabenfolge zur Schnittpunktberechnung zweier linearer Funktionen (verbindet mit linearen Gleichungssystemen).
-- Diagnose-Quiz zu typischen Fehlern bei linearen Funktionen.
+- Diagnostische Fragen zu typischen Fehlern bei linearen Funktionen.
 - Anwendungsaufgaben: Tarife, Kosten-Modelle, Geschwindigkeit-Zeit-Diagramme.
 - Erweiterung in Klasse 9: Übergang zu nichtlinearen Funktionen (quadratisch, exponentiell) – mit dem Bezug, was *gleich bleibt* (Funktionsbegriff, Graphen, y-Achsenabschnitt) und was *anders wird* (keine konstante Steigung mehr).

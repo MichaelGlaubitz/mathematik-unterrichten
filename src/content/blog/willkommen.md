@@ -14,9 +14,9 @@ Diese Seite sammelt Material und Reflexionen, die beim **Mathematik-Unterrichten
 
 ## Vier Bereiche – und ein roter Faden
 
-1. **[Themen](/themen)** – Einstieg nach Fachgebiet und Klassenstufen-Cluster. Zu jedem Thema findest du verknüpfte **Aufgabenfolgen**, **Diagnose-Fragen**, **Mini-Whiteboard-Übungen** (inkl. Vollbild-Whiteboard) und passende **Blog**-Beiträge an einem Ort.
+1. **[Themen](/themen)** – Einstieg nach Fachgebiet und Klassenstufen-Cluster. Zu jedem Thema findest du verknüpfte **Aufgabenfolgen**, **Diagnostische Fragen**, **Mini-Whiteboard-Übungen** (inkl. Vollbild-Whiteboard) und passende **Blog**-Beiträge an einem Ort.
 2. **[Aufgabensammlung](/aufgaben)** – Aufgaben mit Lösungswegen *und* didaktischem Kommentar. Was ist das Ziel der Aufgabe? Welche Variation steckt drin? Was machen Schüler typischerweise falsch?
-3. **[Diagnose-Fragen](/quizzes)** – Multiple-Choice-Fragen im Stil von Craig Bartons *Diagnostic Questions*: Jede falsche Antwort entspricht einem typischen Denkfehler. So wird die *Verteilung* der Antworten zur Diagnose.
+3. **[Diagnostische Fragen](/quizzes)** – Multiple-Choice-Fragen im Stil von Craig Bartons *Diagnostic Questions*: Jede falsche Antwort entspricht einem typischen Denkfehler. So wird die *Verteilung* der Antworten zur Diagnose.
 4. **[Blog](/blog)** – Reflexionen, Forschungsfundstücke, Praxisberichte. Eher kurz und konkret als lang und allumfassend.
 
 ## Wieso *noch* eine Seite?

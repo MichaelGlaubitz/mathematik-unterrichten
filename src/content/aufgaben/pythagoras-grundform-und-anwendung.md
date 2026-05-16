@@ -121,5 +121,5 @@ Die Umkehrung. Schüler erleben, dass die Beziehung `a² + b² = c²` *charakter
 **Möglicher Anschluss**
 
 - Aufgabenfolge zu Strahlensätzen (Geometrie 9/10).
-- Diagnose-Quiz zu typischen Pythagoras-Anwendungsfehlern.
+- Diagnostische Fragen zu typischen Pythagoras-Anwendungsfehlern.
 - Aufgaben zur räumlichen Anwendung des Satzes (Pythagoras in der Pyramide, im Quader).

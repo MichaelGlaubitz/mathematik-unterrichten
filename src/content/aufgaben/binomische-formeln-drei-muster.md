@@ -114,4 +114,4 @@ Hier wird das Erkennen unter „Tarnung" geübt. Aufgabe 28 ist ein Lieblings-Be
 
 - Aufgabenfolge zu quadratischer Ergänzung (baut direkt auf der 1. und 2. Formel auf).
 - Anwendung beim Lösen quadratischer Gleichungen über den Satz vom Nullprodukt.
-- Diagnose-Quiz zu typischen Fehlern beim Quadrieren.
+- Diagnostische Fragen zu typischen Fehlern beim Quadrieren.

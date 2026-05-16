@@ -84,5 +84,5 @@ Das Ausklammern ist die *Umkehrung*. Hier ist die zentrale Frage: Welcher gemein
 
 **Möglicher Anschluss**
 
-- Diagnose-Quiz zu Vorzeichenfehlern bei Klammern (siehe [/quizzes](/quizzes)).
+- Diagnostische Fragen zu Vorzeichenfehlern bei Klammern (siehe [/quizzes](/quizzes)).
 - Aufgabenfolge zum Multiplizieren von Klammern: `(x + 2)(x + 3)`.

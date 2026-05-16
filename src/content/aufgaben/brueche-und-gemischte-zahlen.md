@@ -74,5 +74,5 @@ Setze `<`, `=` oder `>`.
 **Möglicher Anschluss**
 
 - Aufgabenfolge zum Erweitern und Kürzen.
-- Diagnose-Quiz zur Bruchaddition (siehe [/quizzes](/quizzes)).
+- Diagnostische Fragen zur Bruchaddition (siehe [/quizzes](/quizzes)).
 - Brüche auf der Zahlengeraden eintragen.

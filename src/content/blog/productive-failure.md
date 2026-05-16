@@ -86,7 +86,7 @@ Hier kommt die Pointe, die ich in Lehrerfortbildungen gerne mache: Beide Ansätz
 Eine grobe Faustregel:
 
 - **Ganz neuer Stoff ohne Vorwissen** → Worked Examples. Direkte Instruktion. Atomisierung.
-- **Konsolidierung und Vertiefung** → Übungsaufgaben mit Variation, Diagnose-Fragen.
+- **Konsolidierung und Vertiefung** → Übungsaufgaben mit Variation sowie diagnostischen Fragen.
 - **Erweiterung in einen tieferen Bereich, an dem Schüler schon anknüpfen können** → Productive Failure. Erst probieren, dann erklären.
 
 Wer behauptet, Mathematik müsse immer entdeckend gelernt werden, ignoriert die Cognitive-Load-Forschung. Wer behauptet, Mathematik müsse immer direkt instruiert werden, ignoriert Kapur. Beide haben unrecht. Die Frage ist nicht, *welche* Methode, sondern *wann*.
