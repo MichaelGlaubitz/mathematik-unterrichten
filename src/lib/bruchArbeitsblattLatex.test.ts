@@ -26,7 +26,7 @@ describe('bruchArbeitsblattLatex', () => {
     ];
     const t = 'A [[MU_AB:0]] und [[MU_AB:1]]';
     expect(replaceAbPlaceholdersLatex(t, slots, 'blank')).toMatch(/rule/);
-    expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toContain('$\\boxed{7}$');
+    expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toContain('\\ensuremath{\\boxed{7}}');
     expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toMatch(/tfrac\{3\}\{4\}/);
   });
 
@@ -38,7 +38,9 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: false,
     });
     expect(s).toContain('$\\displaystyle\\frac{1}{2}$');
-    expect(s).toContain('$\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}$');
+    expect(s).toContain(
+      '\\ensuremath{\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}}'
+    );
   });
 
   it('loesungHtmlZuLatexSegmente ersetzt br-Tags', () => {
