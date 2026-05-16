@@ -46,9 +46,11 @@ export interface Props {
     | 'kreisgeometrie';
   backHref: string;
   h1: string;
+  /** Nur Bruchrechnung: Titel der Unterthemen-Cluster für die AB-Ansicht (Themenseite-Inhalt). */
+  bruchAbUnterthemen?: string[];
 }
 
-const { variant, backHref, h1 } = Astro.props;
+const { variant, backHref, h1, bruchAbUnterthemen = [] } = Astro.props;
 const allowedIds =
   variant === 'pythagoras'
     ? PYTHAGORAS_GENERATOR_IDS
@@ -144,6 +146,10 @@ function wbLabelFromHref(href: string): string {
   <!-- mu-massen: Whiteboard-Vollbild nur mit Aufgaben; Vorbereitung-Banner ohne Overlay -->
   <script is:inline set:html={`globalThis.__UG_MASSEN_ALLOWED_IDS__=${ugMassenAllowedJson};`} />
 
+  <div
+    class:list={[variant !== 'bruchrechnung' && 'contents']}
+    id={variant === 'bruchrechnung' ? 'ug-bruch-full-chrome' : undefined}
+  >
   <header class="mb-8 print:hidden">
     <a
       href={backHref}
@@ -1292,6 +1298,31 @@ function wbLabelFromHref(href: string): string {
       Zum Arbeitsblatt wechseln
     </button>
   </div>
+  </div>
+
+  {
+    variant === 'bruchrechnung' && (
+      <div id="ug-bruch-ab-chrome" class="mb-6" hidden>
+        <a
+          href={backHref}
+          class="text-sm text-ink-600 hover:text-accent-700 dark:text-ink-300 dark:hover:text-accent-100 print:hidden"
+        >
+          ← Zurück zur Themenübersicht
+        </a>
+        <h1 class="font-serif text-3xl font-semibold text-ink-900 dark:text-ink-50 md:text-4xl mt-3">AB Bruchrechnung</h1>
+        {bruchAbUnterthemen.length > 0 && (
+          <>
+            <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Unterthemen</p>
+            <ul class="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-base text-ink-700 dark:text-ink-200">
+              {bruchAbUnterthemen.map((titel) => (
+                <li>{titel}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    )
+  }
 
   <section
     id="ug-arbeitsblatt"
@@ -2507,8 +2538,19 @@ function wbLabelFromHref(href: string): string {
       const meta = document.getElementById('ug-ab-bruch-meta');
       const foot = document.getElementById('ug-ab-bruch-actions');
       const bruchSheet = isBruchMassen && hat && layout === 'arbeitsblatt';
+      const fullChrome = document.getElementById('ug-bruch-full-chrome');
+      const abChrome = document.getElementById('ug-bruch-ab-chrome');
       if (meta) meta.hidden = !bruchSheet;
       if (foot) foot.hidden = !bruchSheet;
+      if (fullChrome && abChrome) {
+        if (bruchSheet) {
+          fullChrome.hidden = true;
+          abChrome.hidden = false;
+        } else {
+          fullChrome.hidden = false;
+          abChrome.hidden = true;
+        }
+      }
       if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt') || isBruchMassen;
       if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt') || isBruchMassen;
       if (btnDruck) btnDruck.hidden = !(hat && layout === 'arbeitsblatt') || isBruchMassen;
@@ -3156,7 +3198,9 @@ function wbLabelFromHref(href: string): string {
   #ug-wb-content[hidden],
   #ug-wb-loesung[hidden],
   #ug-wb-leer[hidden],
-  #ug-arbeitsblatt[hidden] {
+  #ug-arbeitsblatt[hidden],
+  #ug-bruch-full-chrome[hidden],
+  #ug-bruch-ab-chrome[hidden] {
     display: none !important;
   }
 

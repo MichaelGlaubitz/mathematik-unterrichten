@@ -1,6 +1,10 @@
 ---
+import { getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+
+const themaBruch = await getEntry('themen', 'bruchrechnung');
+const bruchAbUnterthemen = themaBruch?.data.unterthemenBloecke?.map((b) => b.titel) ?? [];
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/bruchrechnung.astro"
@@ -12,5 +16,6 @@ import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
     variant="bruchrechnung"
     backHref="/themen#thema-bruchrechnung"
     h1="WB Bruchrechnung"
+    bruchAbUnterthemen={bruchAbUnterthemen}
   />
 </BaseLayout>
