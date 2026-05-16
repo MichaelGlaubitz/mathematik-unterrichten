@@ -72,18 +72,18 @@ function escapeFuerTextInMath(s: string): string {
 
 export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled'): string {
   if (mode === 'blank') {
-    if (spec.kind === 'int') return '\\,\\rule{2.4cm}{0.4pt}\\,';
+    if (spec.kind === 'int') return '\\ensuremath{\\,\\rule{2.4cm}{0.4pt}\\,}';
     if (spec.kind === 'frac')
-      return '$\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}$';
-    return '\\,\\rule{3.2cm}{0.4pt}\\,';
+      return '\\ensuremath{\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}}';
+    return '\\ensuremath{\\,\\rule{3.2cm}{0.4pt}\\,}';
   }
-  if (spec.kind === 'int') return `$\\boxed{${spec.expect}}$`;
+  if (spec.kind === 'int') return `\\ensuremath{\\boxed{${spec.expect}}}`;
   if (spec.kind === 'frac') {
     const inner = fracTex(spec.expectNum, spec.expectDen);
-    return `$\\boxed{\\displaystyle ${inner}}$`;
+    return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;
   }
   const lab = spec.labels[spec.expect] ?? '';
-  return `$\\boxed{\\displaystyle\\text{${escapeFuerTextInMath(lab)}}}$`;
+  return `\\ensuremath{\\boxed{\\displaystyle\\text{${escapeFuerTextInMath(lab)}}}}`;
 }
 
 export function replaceAbPlaceholdersLatex(
