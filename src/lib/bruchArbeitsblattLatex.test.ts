@@ -38,14 +38,14 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: false,
     });
     expect(s).toContain('$\\displaystyle\\frac{1}{2}$');
-    expect(s).toMatch(/rule/);
+    expect(s).toContain('$\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}$');
   });
 
   it('loesungHtmlZuLatexSegmente ersetzt br-Tags', () => {
     expect(loesungHtmlZuLatexSegmente('a<br>b')).toBe('a\\par\\medskip\nb');
   });
 
-  it('buildBruchArbeitsblattTex: Nummer in eigener Zeile, Diagramm max. ein Drittel der Seitenbreite', () => {
+  it('buildBruchArbeitsblattTex: zweispaltig, Diagramm an Spaltenbreite, Umbruch vor Grafik', () => {
     const tex = buildBruchArbeitsblattTex({
       aufgaben: [{ frage: 'Frage', loesung: '$1$' }],
       meta: {
@@ -58,6 +58,8 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('style=nextline');
     expect(tex).toContain(`width=${BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH},keepaspectratio=true`);
     expect(tex).toContain('\\leavevmode\\par');
+    expect(tex).toContain('\\begin{multicols}{2}');
+    expect(tex).toContain('\\end{multicols}');
   });
 
   it('buildBruchArbeitsblattTex enthält Kopfzeile und Aufzählung', () => {
@@ -81,5 +83,7 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('Bruchrechnung');
     expect(tex).toContain('\\begin{enumerate}');
     expect(tex).toContain('\\end{enumerate}');
+    expect(tex).toContain('\\begin{multicols}{2}');
+    expect(tex).toContain('\\LARGE');
   });
 });
