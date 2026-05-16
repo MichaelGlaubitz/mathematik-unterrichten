@@ -2625,9 +2625,35 @@ function wbLabelFromHref(href: string): string {
       wbScaleRo.observe(wbCard);
     }
 
+    function runBruchAutoStartFromUrl() {
+      if (!isBruchMassen) return;
+      let stripTo = '';
+      try {
+        const u = new URL(window.location.href);
+        if (u.searchParams.get('muAuto') !== '1') return;
+        u.searchParams.delete('muAuto');
+        const qs = u.searchParams.toString();
+        stripTo = u.pathname + (qs ? `?${qs}` : '') + u.hash;
+      } catch {
+        return;
+      }
+      try {
+        history.replaceState({}, '', stripTo);
+      } catch {
+        /* */
+      }
+      erzeuge();
+      if (layout === 'arbeitsblatt') {
+        requestAnimationFrame(() => {
+          document.getElementById('ug-arbeitsblatt')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    }
+
     refreshAktiv();
     if (!consumeWindowNameRoute()) {
       render();
+      runBruchAutoStartFromUrl();
     }
   }
 
