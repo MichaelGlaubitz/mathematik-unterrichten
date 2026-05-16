@@ -10,6 +10,14 @@ export const BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH = '0.92\\linewidth';
 
 export const BRUCH_AB_LATEX_HTTP_ENDPOINT = 'https://latex.ytotech.com/builds/sync';
 
+/** Öffentlicher LaTeX-on-HTTP-Dienst (YtoTech); gelegentlich 5xx bei Last — kurze Wiederholungen helfen. */
+const LATEX_HTTP_MAX_ATTEMPTS = 3;
+const LATEX_HTTP_RETRY_STATUS = new Set([500, 502, 503, 504]);
+
+function latexHttpBackoffMs(attemptIndex: number): number {
+  return 550 * 2 ** attemptIndex;
+}
+
 export type BruchAbPdfMeta = {
   /** z. B. „Bruchrechnung“ */
   thema: string;
@@ -327,50 +335,74 @@ export async function compileLatexOnHttpPdf(opts: {
   for (const f of opts.binFiles) {
     resources.push({ path: f.path, file: f.fileBase64 });
   }
-  let res: Response;
-  try {
-    res = await fetch(BRUCH_AB_LATEX_HTTP_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ compiler: 'pdflatex', resources }),
-    });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return { ok: false, message: `Netzwerkfehler beim PDF-Dienst: ${msg}` };
-  }
-  const buf = new Uint8Array(await res.arrayBuffer());
-  const ct = (res.headers.get('content-type') || '').toLowerCase();
-  const istPdfMagic = buf.length >= 4 && buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46; /* %PDF */
-  if (res.ok && (ct.includes('pdf') || istPdfMagic)) {
-    return { ok: true, pdf: buf };
-  }
-  const txt = new TextDecoder().decode(buf);
-  const httpKopf = `HTTP ${res.status}\nContent-Type: ${res.headers.get('content-type') || '(nicht gesetzt)'}\n`;
-  let message = `PDF-Dienst antwortete mit HTTP ${res.status}.`;
-  let logTeile: string[] = [];
-  try {
-    const j = JSON.parse(txt) as {
-      error?: string;
-      message?: string;
-      log?: string;
-      log_files?: Record<string, string>;
-    };
-    if (j.error) message = String(j.error);
-    if (j.message) message = `${message} ${j.message}`;
-    if (j.log) logTeile.push(String(j.log));
-    if (j.log_files && typeof j.log_files === 'object') {
-      for (const [name, inhalt] of Object.entries(j.log_files)) {
-        if (typeof inhalt === 'string' && inhalt.length > 0) logTeile.push(`--- ${name} ---\n${inhalt}`);
+  const body = JSON.stringify({ compiler: 'pdflatex', resources });
+
+  let lastNetworkMsg: string | undefined;
+  for (let attempt = 0; attempt < LATEX_HTTP_MAX_ATTEMPTS; attempt++) {
+    let res: Response;
+    try {
+      res = await fetch(BRUCH_AB_LATEX_HTTP_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
+    } catch (e) {
+      lastNetworkMsg = e instanceof Error ? e.message : String(e);
+      if (attempt < LATEX_HTTP_MAX_ATTEMPTS - 1) {
+        await new Promise((r) => setTimeout(r, latexHttpBackoffMs(attempt)));
+        continue;
       }
+      return { ok: false, message: `Netzwerkfehler beim PDF-Dienst: ${lastNetworkMsg}` };
     }
-  } catch {
-    logTeile.push(`--- Antwort (kein JSON) ---\n${txt.slice(0, 20000)}`);
+
+    const buf = new Uint8Array(await res.arrayBuffer());
+    const ct = (res.headers.get('content-type') || '').toLowerCase();
+    const istPdfMagic = buf.length >= 4 && buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46; /* %PDF */
+    if (res.ok && (ct.includes('pdf') || istPdfMagic)) {
+      return { ok: true, pdf: buf };
+    }
+
+    const shouldRetry =
+      LATEX_HTTP_RETRY_STATUS.has(res.status) && attempt < LATEX_HTTP_MAX_ATTEMPTS - 1;
+    if (shouldRetry) {
+      await new Promise((r) => setTimeout(r, latexHttpBackoffMs(attempt)));
+      continue;
+    }
+
+    const txt = new TextDecoder().decode(buf);
+    const httpKopf = `HTTP ${res.status}\nContent-Type: ${res.headers.get('content-type') || '(nicht gesetzt)'}\n`;
+    let message = `PDF-Dienst antwortete mit HTTP ${res.status}.`;
+    let logTeile: string[] = [];
+    try {
+      const j = JSON.parse(txt) as {
+        error?: string;
+        message?: string;
+        log?: string;
+        log_files?: Record<string, string>;
+      };
+      if (j.error) message = String(j.error);
+      if (j.message) message = `${message} ${j.message}`;
+      if (j.log) logTeile.push(String(j.log));
+      if (j.log_files && typeof j.log_files === 'object') {
+        for (const [name, inhalt] of Object.entries(j.log_files)) {
+          if (typeof inhalt === 'string' && inhalt.length > 0) logTeile.push(`--- ${name} ---\n${inhalt}`);
+        }
+      }
+    } catch {
+      logTeile.push(`--- Antwort (kein JSON) ---\n${txt.slice(0, 20000)}`);
+    }
+    if (logTeile.length === 0 || logTeile.join('').length < 80) {
+      logTeile.push(`--- Antwort-Text (Anfang) ---\n${txt.slice(0, 20000)}`);
+    }
+    const log = `${httpKopf}\n${logTeile.join('\n\n')}`;
+    return { ok: false, message, log };
   }
-  if (logTeile.length === 0 || logTeile.join('').length < 80) {
-    logTeile.push(`--- Antwort-Text (Anfang) ---\n${txt.slice(0, 20000)}`);
-  }
-  const log = `${httpKopf}\n${logTeile.join('\n\n')}`;
-  return { ok: false, message, log };
+
+  return {
+    ok: false,
+    message: 'PDF-Dienst: interner Fehler (bitte Seite neu laden und erneut versuchen).',
+    log: lastNetworkMsg,
+  };
 }
 
 export async function erzeugeBruchArbeitsblattPdf(opts: {
