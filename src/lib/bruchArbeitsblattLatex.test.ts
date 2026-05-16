@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH,
   buildBruchArbeitsblattTex,
   escapeLatexText,
   htmlFrageZuLatexInhalt,
@@ -42,6 +43,21 @@ describe('bruchArbeitsblattLatex', () => {
 
   it('loesungHtmlZuLatexSegmente ersetzt br-Tags', () => {
     expect(loesungHtmlZuLatexSegmente('a<br>b')).toBe('a\\par\\medskip\nb');
+  });
+
+  it('buildBruchArbeitsblattTex: Nummer in eigener Zeile, Diagramm max. ein Drittel der Seitenbreite', () => {
+    const tex = buildBruchArbeitsblattTex({
+      aufgaben: [{ frage: 'Frage', loesung: '$1$' }],
+      meta: {
+        thema: 'Bruchrechnung',
+        unterthemaZeile: 'Test',
+        stichworteZeile: 'x',
+      },
+      mitLoesungen: false,
+      diagramPngPaths: [{ taskIndex: 0, suffix: 'a', path: 'd0a.png' }],
+    });
+    expect(tex).toContain('style=nextline');
+    expect(tex).toContain(`width=${BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH},keepaspectratio=true`);
   });
 
   it('buildBruchArbeitsblattTex enthält Kopfzeile und Aufzählung', () => {
