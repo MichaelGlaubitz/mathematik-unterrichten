@@ -1299,8 +1299,121 @@ function wbLabelFromHref(href: string): string {
     class="rounded-xl border border-ink-200 bg-surface p-6 md:p-8 mu-dark-glass-panel"
     hidden
   >
-    <ol id="ug-liste" class="list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400">
+    {
+      variant === 'bruchrechnung' && (
+        <div
+          id="ug-ab-bruch-meta"
+          class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
+          hidden
+        >
+          <div class="text-center">
+            <p class="text-[0.65rem] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400 sm:text-xs">
+              Aufgaben
+            </p>
+            <p
+              id="ug-ab-bruch-stat-n"
+              class="mt-0.5 font-serif text-lg font-semibold tabular-nums text-accent-700 dark:text-accent-200 sm:text-xl"
+            >
+              0
+            </p>
+          </div>
+          <div class="text-center border-x border-violet-200/70 px-1 dark:border-violet-600/35">
+            <p class="text-[0.65rem] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400 sm:text-xs">
+              Lösungen sichtbar
+            </p>
+            <p
+              id="ug-ab-bruch-stat-loes"
+              class="mt-0.5 font-serif text-lg font-semibold tabular-nums text-violet-700 dark:text-violet-200 sm:text-xl"
+            >
+              0 / 0
+            </p>
+          </div>
+          <div class="text-center">
+            <p class="text-[0.65rem] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400 sm:text-xs">Zeit</p>
+            <p
+              id="ug-ab-bruch-stat-zeit"
+              class="mt-0.5 font-mono text-lg font-semibold tabular-nums text-teal-700 dark:text-teal-200 sm:text-xl"
+            >
+              0:00
+            </p>
+          </div>
+        </div>
+      )
+    }
+    <ol
+      id="ug-liste"
+      class:list={[
+        variant === 'bruchrechnung'
+          ? 'ug-ab-bruch-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
+          : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
+      ]}
+    >
     </ol>
+    {
+      variant === 'bruchrechnung' && (
+        <div
+          id="ug-ab-bruch-actions"
+          class="mt-6 space-y-3 print:hidden"
+          hidden
+        >
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+            <button
+              type="button"
+              id="ug-ab-bruch-alle-zu"
+              class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-teal-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-900/20 transition hover:bg-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 dark:bg-teal-500 dark:hover:bg-teal-400 dark:shadow-teal-900/30"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
+              </svg>
+              Alle Lösungen zuklappen
+            </button>
+            <button
+              type="button"
+              id="ug-ab-bruch-alle-auf"
+              class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-accent-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-accent-900/25 transition hover:bg-accent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 dark:bg-accent-500 dark:hover:bg-accent-400 dark:shadow-accent-900/35"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              Alle Lösungen zeigen
+            </button>
+            <button
+              type="button"
+              id="ug-ab-bruch-neu"
+              class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-900/25 transition hover:bg-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:bg-violet-500 dark:hover:bg-violet-400 dark:shadow-violet-900/35"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Neuer Aufgabensatz
+            </button>
+          </div>
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+            <button
+              type="button"
+              id="ug-ab-bruch-druck"
+              class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl border-2 border-amber-500/90 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-950 transition hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-amber-400/80 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-900/55"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8a2 2 0 01-2 2H8a2 2 0 01-2-2v-8z" />
+              </svg>
+              Arbeitsblatt drucken
+            </button>
+            <button
+              type="button"
+              id="ug-ab-bruch-druck-loes"
+              class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-900/25 transition hover:bg-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:bg-sky-500 dark:hover:bg-sky-400 dark:shadow-sky-900/35"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Druck mit Lösungen
+            </button>
+          </div>
+        </div>
+      )
+    }
   </section>
 
   <div
@@ -1855,6 +1968,8 @@ function wbLabelFromHref(href: string): string {
     let wbZeigeLoesung = false;
     let wbSekunden = 0;
     let wbTimerId = null;
+    let bruchAbSheetTimerId = null;
+    let bruchAbSheetT0 = 0;
     let wbOverlayScaleRaf = 0;
     const DIAGRAM_SCALE_STEP = 0.1;
     const DIAGRAM_SCALE_MIN = 0.5;
@@ -1971,10 +2086,26 @@ function wbLabelFromHref(href: string): string {
         }
         syncPracticeDiagramUi(li);
         syncDiagramZoomUi(li);
+        if (isBruchMassen) {
+          refreshBruchAbSheetStats();
+          syncBruchLoesungEyeButtons(liste);
+        }
       },
       true
     );
 
+    liste?.addEventListener('click', (e) => {
+      const btn = (e.target as Element | null)?.closest?.('.ug-ab-bruch-loesung-toggle');
+      if (!btn || !liste || !liste.contains(btn as Node)) return;
+      e.preventDefault();
+      const id = (btn as HTMLButtonElement).getAttribute('aria-controls');
+      const det = id ? document.getElementById(id) : null;
+      if (!(det instanceof HTMLDetailsElement)) return;
+      det.open = !det.open;
+      (btn as HTMLButtonElement).innerHTML = practiceDiagramToggleIconMarkup(det.open);
+      (btn as HTMLButtonElement).setAttribute('aria-expanded', det.open ? 'true' : 'false');
+      refreshBruchAbSheetStats();
+    });
     if (wbOverlay && wbOverlay.parentElement !== document.body) {
       document.body.appendChild(wbOverlay);
     }
@@ -2015,6 +2146,56 @@ function wbLabelFromHref(href: string): string {
         window.clearInterval(wbTimerId);
         wbTimerId = null;
       }
+    }
+
+    function updateBruchAbSheetTimeDisplay() {
+      const el = document.getElementById('ug-ab-bruch-stat-zeit');
+      if (!el) return;
+      if (!bruchAbSheetTimerId) {
+        el.textContent = '0:00';
+        return;
+      }
+      const sec = Math.max(0, Math.floor((Date.now() - bruchAbSheetT0) / 1000));
+      el.textContent = formatZeit(sec);
+    }
+
+    function stopBruchAbSheetTimer() {
+      if (bruchAbSheetTimerId) {
+        window.clearInterval(bruchAbSheetTimerId);
+        bruchAbSheetTimerId = null;
+      }
+      updateBruchAbSheetTimeDisplay();
+    }
+
+    function resetAndStartBruchAbSheetTimer() {
+      if (!isBruchMassen) return;
+      stopBruchAbSheetTimer();
+      bruchAbSheetT0 = Date.now();
+      updateBruchAbSheetTimeDisplay();
+      bruchAbSheetTimerId = window.setInterval(updateBruchAbSheetTimeDisplay, 1000);
+    }
+
+    function refreshBruchAbSheetStats() {
+      if (!isBruchMassen || !liste) return;
+      const nEl = document.getElementById('ug-ab-bruch-stat-n');
+      const lEl = document.getElementById('ug-ab-bruch-stat-loes');
+      if (!nEl || !lEl) return;
+      const total = aufgaben.length;
+      const open = liste.querySelectorAll('.ug-task-details[open]').length;
+      nEl.textContent = String(total);
+      lEl.textContent = total ? `${open} / ${total}` : '—';
+    }
+
+    function syncBruchLoesungEyeButtons(scope) {
+      if (!isBruchMassen || !scope) return;
+      scope.querySelectorAll('.ug-ab-bruch-loesung-toggle').forEach((btn) => {
+        if (!(btn instanceof HTMLElement)) return;
+        const id = btn.getAttribute('aria-controls');
+        const det = id ? document.getElementById(id) : null;
+        const open = det instanceof HTMLDetailsElement && det.open;
+        btn.innerHTML = practiceDiagramToggleIconMarkup(open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
     }
 
     function wbOverlayInnerAvail(overlay) {
@@ -2313,6 +2494,7 @@ function wbLabelFromHref(href: string): string {
       }
       wbIndex = 0;
       wbZeigeLoesung = false;
+      if (isBruchMassen && layout === 'arbeitsblatt') stopBruchAbSheetTimer();
       if (layout === 'whiteboard') startWbTimer();
       else stopWbTimer();
       render();
@@ -2322,9 +2504,14 @@ function wbLabelFromHref(href: string): string {
       const hat = aufgaben.length > 0;
       ensureDiagramScalesForAufgaben();
       const wbOverlayAktiv = layout === 'whiteboard' && hat;
-      if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt');
-      if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt');
-      if (btnDruck) btnDruck.hidden = !(hat && layout === 'arbeitsblatt');
+      const meta = document.getElementById('ug-ab-bruch-meta');
+      const foot = document.getElementById('ug-ab-bruch-actions');
+      const bruchSheet = isBruchMassen && hat && layout === 'arbeitsblatt';
+      if (meta) meta.hidden = !bruchSheet;
+      if (foot) foot.hidden = !bruchSheet;
+      if (alleAufBtn) alleAufBtn.hidden = !(hat && layout === 'arbeitsblatt') || isBruchMassen;
+      if (alleZuBtn) alleZuBtn.hidden = !(hat && layout === 'arbeitsblatt') || isBruchMassen;
+      if (btnDruck) btnDruck.hidden = !(hat && layout === 'arbeitsblatt') || isBruchMassen;
       if (routeSpeichernBtn) routeSpeichernBtn.hidden = !hat;
       if (wbRouteSpeichernBtn) wbRouteSpeichernBtn.hidden = !hat;
       if (arbeitsblatt) arbeitsblatt.hidden = layout !== 'arbeitsblatt';
@@ -2359,20 +2546,28 @@ function wbLabelFromHref(href: string): string {
       if (layout === 'whiteboard' && hat) {
         scheduleWbOverlayScaleFit();
       }
+      if (isBruchMassen && hat && layout === 'arbeitsblatt') {
+        if (!bruchAbSheetTimerId) resetAndStartBruchAbSheetTimer();
+        refreshBruchAbSheetStats();
+        if (liste) syncBruchLoesungEyeButtons(liste);
+      } else {
+        stopBruchAbSheetTimer();
+      }
     }
     function renderArbeitsblatt() {
       if (!liste) return;
       liste.innerHTML = '';
       if (aufgaben.length === 0) {
         const li = document.createElement('li');
-        li.className = 'text-ink-500 dark:text-ink-400 list-none';
+        li.className = isBruchMassen
+          ? 'col-span-full list-none rounded-lg border border-dashed border-violet-300/80 bg-violet-50/40 p-6 text-center text-sm text-ink-600 dark:border-violet-600/40 dark:bg-violet-950/20 dark:text-ink-300'
+          : 'text-ink-500 dark:text-ink-400 list-none';
         li.textContent = 'Noch keine Aufgaben erzeugt.';
         liste.appendChild(li);
         return;
       }
       aufgaben.forEach((a, idx) => {
         const li = document.createElement('li');
-        li.className = 'pl-1';
         const prefKey = diagramTaskPreferenceKey(a.frage, idx);
         const diaDefHidden = a.diagramDefaultHidden === true ? 'true' : 'false';
         const hasOnlyLoesungDiagram = !a.diagram && !!a.diagramLoesung;
@@ -2421,15 +2616,42 @@ function wbLabelFromHref(href: string): string {
           a.frageMitLoesungHighlight
             ? ` data-mu-frage-neutral="${encodeURIComponent(a.frage)}" data-mu-frage-highlight="${encodeURIComponent(a.frageMitLoesungHighlight)}"`
             : '';
-        li.innerHTML = `
+        const detailsId = `ug-ab-bruch-d-${idx}`;
+        const summaryHtml = isBruchMassen
+          ? `<summary class="sr-only">Lösung zu Aufgabe ${idx + 1}</summary>`
+          : `<summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>`;
+        const frageRowHtml = isBruchMassen
+          ? `<div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="ug-task-frage min-w-0 flex-1 text-base font-medium leading-snug text-ink-900 dark:text-ink-50 sm:text-lg"${frageHighlightAttrs}>${a.frage}</div>
+              <button type="button" class="ug-ab-bruch-loesung-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-300/90 bg-surface text-violet-800 shadow-sm hover:bg-violet-50 dark:border-violet-500/50 dark:bg-slate-900/80 dark:text-violet-100 dark:hover:bg-violet-950/50" aria-controls="${detailsId}" aria-expanded="false" aria-label="Lösung zu Aufgabe ${idx + 1} ein- oder ausblenden" title="Lösung ein-/ausblenden">${practiceDiagramToggleIconMarkup(false)}</button>
+            </div>`
+          : `<div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${a.frage}</div>`;
+        const detailsAttrs = isBruchMassen ? ` id="${detailsId}"` : '';
+        const detailsClass = isBruchMassen
+          ? 'group ug-task-details mt-3 border-t border-violet-200/70 pt-3 dark:border-violet-600/30'
+          : 'group ug-task-details';
+        const core = `
           ${diagramChromeTop}
-          <div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${a.frage}</div>
-          <details class="group ug-task-details">
-            <summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>
+          ${frageRowHtml}
+          <details class="${detailsClass}"${detailsAttrs}>
+            ${summaryHtml}
             ${loesungImDetails}
             ${loesungTextBlock}
           </details>
         `;
+        if (isBruchMassen) {
+          li.className =
+            'ug-ab-bruch-card list-none rounded-xl border border-violet-200/85 bg-gradient-to-b from-violet-50/70 via-surface to-teal-50/25 p-4 shadow-sm dark:border-violet-600/35 dark:from-violet-950/40 dark:via-slate-950/55 dark:to-teal-950/20';
+          li.innerHTML = `
+            <div class="flex items-start gap-3">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-600 font-serif text-sm font-bold text-white shadow-md shadow-accent-900/20 dark:bg-accent-500 dark:shadow-accent-900/35">${idx + 1}</span>
+              <div class="min-w-0 flex-1">${core}</div>
+            </div>
+          `;
+        } else {
+          li.className = 'pl-1';
+          li.innerHTML = core;
+        }
         liste.appendChild(li);
       });
     }
@@ -2526,6 +2748,52 @@ function wbLabelFromHref(href: string): string {
     });
 
     btnDruck?.addEventListener('click', () => { window.print(); });
+    document.getElementById('ug-ab-bruch-alle-zu')?.addEventListener('click', () => {
+      liste?.querySelectorAll('.ug-task-details').forEach((d) => {
+        if (d instanceof HTMLDetailsElement) d.open = false;
+      });
+      if (liste) syncBruchLoesungEyeButtons(liste);
+      refreshBruchAbSheetStats();
+    });
+    document.getElementById('ug-ab-bruch-alle-auf')?.addEventListener('click', () => {
+      liste?.querySelectorAll('.ug-task-details').forEach((d) => {
+        if (d instanceof HTMLDetailsElement) d.open = true;
+      });
+      if (liste) syncBruchLoesungEyeButtons(liste);
+      refreshBruchAbSheetStats();
+      if (arbeitsblatt && typeof window.renderMathInElement === 'function') {
+        try {
+          window.renderMathInElement(arbeitsblatt, muPracticeKatexOpts());
+        } catch {
+          /* */
+        }
+      }
+    });
+    document.getElementById('ug-ab-bruch-neu')?.addEventListener('click', () => {
+      erzeugenBtn?.click();
+    });
+    document.getElementById('ug-ab-bruch-druck')?.addEventListener('click', () => {
+      btnDruck?.click();
+    });
+    document.getElementById('ug-ab-bruch-druck-loes')?.addEventListener('click', () => {
+      liste?.querySelectorAll('.ug-task-details').forEach((d) => {
+        if (d instanceof HTMLDetailsElement) d.open = true;
+      });
+      if (liste) syncBruchLoesungEyeButtons(liste);
+      refreshBruchAbSheetStats();
+      if (arbeitsblatt && typeof window.renderMathInElement === 'function') {
+        try {
+          window.renderMathInElement(arbeitsblatt, muPracticeKatexOpts());
+        } catch {
+          /* */
+        }
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.print();
+        });
+      });
+    });
     routeSpeichernBtn?.addEventListener('click', saveWhiteboardRoute);
     wbRouteSpeichernBtn?.addEventListener('click', saveWhiteboardRoute);
     routeLadenBtn?.addEventListener('click', () => {
