@@ -98,6 +98,16 @@ const themen = defineCollection({
       .default([]),
     // Tags, über die verwandte Blog-Beiträge gefunden werden.
     blogTags: z.array(z.string()).default([]),
+    /** Optional: didaktische Cluster von Unterthemen (z. B. Bruchrechnung). */
+    unterthemenBloecke: z
+      .array(
+        z.object({
+          titel: z.string(),
+          beschreibung: z.string().optional(),
+          punkte: z.array(z.string()),
+        })
+      )
+      .optional(),
     entwurf: z.boolean().default(false),
   }),
 });
