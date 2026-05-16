@@ -30,6 +30,14 @@ export const BRUCH_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
   ],
 ];
 
+/** Parallele Cluster-Titel wie in `src/content/themen/bruchrechnung.json` (`unterthemenBloecke[].titel`). */
+export const BRUCH_WB_CLUSTER_TITEL: readonly string[] = [
+  'Brüche und ganze Zahlen',
+  'Umgang mit Brüchen',
+  'Bruchteile von Größen',
+  'Grundrechenarten mit Brüchen',
+];
+
 export function bruchStichwortClusterIndex(stichwort: string): number {
   for (let i = 0; i < BRUCH_WB_UNTERTHEMA_STICHWORTE.length; i++) {
     if (BRUCH_WB_UNTERTHEMA_STICHWORTE[i].includes(stichwort)) return i;
@@ -89,4 +97,34 @@ export function stichworteFuerBruchIds(ids: readonly string[]): string[] {
     }
   }
   return [...out];
+}
+
+/** Cluster-Titel zu den gewählten Generator-IDs (für PDF-Kopfzeile „Unterthema“). */
+export function clusterTitelZeileFuerBruchGeneratorIds(ids: readonly string[]): string {
+  const idx = new Set<number>();
+  for (const id of ids) {
+    for (const kw of stichworteFuerBruchIds([id])) {
+      const c = bruchStichwortClusterIndex(kw);
+      if (c >= 0 && c < BRUCH_WB_CLUSTER_TITEL.length) idx.add(c);
+    }
+  }
+  return [...idx]
+    .sort((a, b) => a - b)
+    .map((i) => BRUCH_WB_CLUSTER_TITEL[i])
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/**
+ * Stichwort-Labels wie in der Arbeitsblatt-Kompaktansicht (`readBruchAbStichwortLabels` in MassenuebungGeo).
+ * `raw` ist das geparste `sessionStorage`-JSON (`BRUCH_WB_STOR_KEY`).
+ */
+export function stichwortLabelsFromBruchSessionRaw(raw: unknown): string[] {
+  if (!Array.isArray(raw) || raw.length === 0) return [];
+  if (typeof raw[0] === 'string' && raw[0].startsWith('br_')) {
+    const ids = raw.filter((x): x is string => typeof x === 'string');
+    return sortBruchAbStichworte([...new Set(stichworteFuerBruchIds(ids))]);
+  }
+  const kw = raw.filter((x): x is string => typeof x === 'string');
+  return sortBruchAbStichworte([...new Set(kw)]);
 }
