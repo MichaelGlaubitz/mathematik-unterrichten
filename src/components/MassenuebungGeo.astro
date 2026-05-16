@@ -46,11 +46,9 @@ export interface Props {
     | 'kreisgeometrie';
   backHref: string;
   h1: string;
-  /** Nur Bruchrechnung: Titel der Unterthemen-Cluster für die AB-Ansicht (Themenseite-Inhalt). */
-  bruchAbUnterthemen?: string[];
 }
 
-const { variant, backHref, h1, bruchAbUnterthemen = [] } = Astro.props;
+const { variant, backHref, h1 } = Astro.props;
 const allowedIds =
   variant === 'pythagoras'
     ? PYTHAGORAS_GENERATOR_IDS
@@ -1310,16 +1308,15 @@ function wbLabelFromHref(href: string): string {
           ← Zurück zur Themenübersicht
         </a>
         <h1 class="font-serif text-3xl font-semibold text-ink-900 dark:text-ink-50 md:text-4xl mt-3">AB Bruchrechnung</h1>
-        {bruchAbUnterthemen.length > 0 && (
-          <>
-            <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Unterthemen</p>
-            <ul class="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-base text-ink-700 dark:text-ink-200">
-              {bruchAbUnterthemen.map((titel) => (
-                <li>{titel}</li>
-              ))}
-            </ul>
-          </>
-        )}
+        <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Gewählte Stichworte</p>
+        <ul
+          id="ug-bruch-ab-stichworte"
+          class="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-base text-ink-700 dark:text-ink-200"
+        >
+        </ul>
+        <p id="ug-bruch-ab-stichworte-leer" class="mt-2 max-w-3xl text-sm leading-relaxed text-ink-600 dark:text-ink-300" hidden>
+          Alle Aufgabentypen gemischt (keine Stichwort-Auswahl auf der Themenseite bzw. leerer Eintrag).
+        </p>
       </div>
     )
   }
@@ -1909,7 +1906,11 @@ function wbLabelFromHref(href: string): string {
     createPracticeGenerators,
     practiceAufgabeHatLoesungInlineNachFrage,
   } from '../lib/uebungPracticeGenerators';
-  import { BRUCH_WB_STOR_KEY, expandBruchWbStichworte } from '../lib/bruchrechnungWbKeywordMap';
+  import {
+    BRUCH_WB_STOR_KEY,
+    expandBruchWbStichworte,
+    stichworteFuerBruchIds,
+  } from '../lib/bruchrechnungWbKeywordMap';
   import {
     readBruchMassenAnzahl,
     readBruchMassenLayout,
@@ -2229,6 +2230,42 @@ function wbLabelFromHref(href: string): string {
       });
     }
 
+    /** Lesbare Stichwort-Labels aus sessionStorage (Themenseite oder Route), leer = alle Typen gemischt. */
+    function readBruchAbStichwortLabels() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(BRUCH_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return [];
+        if (typeof raw[0] === 'string' && raw[0].startsWith('br_')) {
+          const ids = raw.filter((x) => typeof x === 'string');
+          return [...new Set(stichworteFuerBruchIds(ids))].sort((a, b) => a.localeCompare(b, 'de'));
+        }
+        const kw = raw.filter((x) => typeof x === 'string');
+        return [...new Set(kw)].sort((a, b) => a.localeCompare(b, 'de'));
+      } catch {
+        return [];
+      }
+    }
+
+    function refreshBruchAbStichworteUi() {
+      const ul = document.getElementById('ug-bruch-ab-stichworte');
+      const leer = document.getElementById('ug-bruch-ab-stichworte-leer');
+      if (!ul || !leer) return;
+      const labels = readBruchAbStichwortLabels();
+      ul.innerHTML = '';
+      if (labels.length === 0) {
+        leer.hidden = false;
+        ul.hidden = true;
+        return;
+      }
+      leer.hidden = true;
+      ul.hidden = false;
+      for (const t of labels) {
+        const li = document.createElement('li');
+        li.textContent = t;
+        ul.appendChild(li);
+      }
+    }
+
     function wbOverlayInnerAvail(overlay) {
       const cs = getComputedStyle(overlay);
       const pl = parseFloat(cs.paddingLeft) || 0;
@@ -2546,6 +2583,7 @@ function wbLabelFromHref(href: string): string {
         if (bruchSheet) {
           fullChrome.hidden = true;
           abChrome.hidden = false;
+          refreshBruchAbStichworteUi();
         } else {
           fullChrome.hidden = false;
           abChrome.hidden = true;
