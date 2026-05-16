@@ -65,7 +65,11 @@ const headingId = `diagnostische-fragen-${id}`;
         <p class="mb-3 text-sm text-ink-600 italic dark:text-ink-300">{f.kontext}</p>
       )}
 
-      <h3 class="font-serif text-xl font-semibold text-ink-900 mb-5 leading-snug dark:text-ink-50">
+      <h3
+        class="quiz-frage-titel font-serif text-xl font-semibold text-ink-900 mb-5 leading-snug scroll-mt-28 dark:text-ink-50"
+        tabindex="-1"
+        data-quiz-frage-scroll-target
+      >
         {f.frage}
       </h3>
 
@@ -100,10 +104,16 @@ const headingId = `diagnostische-fragen-${id}`;
         ))}
       </ul>
 
-      <footer class="mt-5 flex justify-end">
+      <footer class="mt-5 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
-          class="quiz-next inline-flex items-center gap-1 rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-accent-500 dark:hover:bg-accent-600"
+          class="quiz-show-all text-sm text-ink-600 hover:text-accent-700 underline-offset-2 hover:underline hidden dark:text-ink-300 dark:hover:text-accent-100"
+        >
+          Alle Antworten erklären
+        </button>
+        <button
+          type="button"
+          class="quiz-next ml-auto inline-flex items-center gap-1 rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-accent-500 dark:hover:bg-accent-600"
           disabled
         >
           Weiter
@@ -118,7 +128,11 @@ const headingId = `diagnostische-fragen-${id}`;
     style="display:none;"
     aria-live="polite"
   >
-    <h3 class="font-serif text-2xl font-semibold text-ink-900 mb-3 dark:text-ink-50">
+    <h3
+      class="font-serif text-2xl font-semibold text-ink-900 mb-3 scroll-mt-28 dark:text-ink-50"
+      tabindex="-1"
+      data-quiz-zusammenfassung-scroll
+    >
       Diagnose abgeschlossen
     </h3>
     <p class="text-ink-700 mb-4 dark:text-ink-200">
@@ -188,6 +202,37 @@ const headingId = `diagnostische-fragen-${id}`;
       });
     };
 
+    const scrollZuFrage = (index: number) => {
+      const ziel = fragen[index]?.querySelector<HTMLElement>('[data-quiz-frage-scroll-target]');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!ziel) return;
+          ziel.focus({ preventScroll: true });
+          ziel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    };
+
+    const scrollZuZusammenfassung = () => {
+      const ziel = zusammenfassung?.querySelector<HTMLElement>('[data-quiz-zusammenfassung-scroll]');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!ziel) return;
+          ziel.focus({ preventScroll: true });
+          ziel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    };
+
+    const leereOptionFeedback = (frageEl: HTMLElement) => {
+      frageEl.querySelectorAll<HTMLElement>('[data-option-feedback]').forEach((fb) => {
+        fb.innerHTML = '';
+        fb.className =
+          'quiz-option-feedback hidden mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed';
+        fb.setAttribute('aria-hidden', 'true');
+      });
+    };
+
     const zeigeFrage = (index: number) => {
       fragen.forEach((f, i) => {
         f.style.display = i === index ? '' : 'none';
@@ -195,9 +240,73 @@ const headingId = `diagnostische-fragen-${id}`;
       aktualisiereFortschritt(index);
     };
 
+    const fuelleFeedbackHtml = (
+      opt: HTMLButtonElement,
+      feedback: HTMLElement,
+      kastenModus: 'emerald' | 'rose' | 'neutral'
+    ) => {
+      const ok = opt.dataset.korrekt === 'true';
+      const erkl = opt.dataset.erklaerung || '';
+      const label = ok ? 'Richtig' : 'Typischer Fehler';
+      const labelClass =
+        kastenModus === 'emerald'
+          ? 'text-emerald-700 dark:text-emerald-200'
+          : kastenModus === 'rose'
+            ? 'text-rose-700 dark:text-rose-200'
+            : 'text-ink-700 dark:text-ink-200';
+      let boxClass =
+        'border-ink-200 bg-ink-50/50 text-ink-800 dark:border-slate-600/60 dark:bg-slate-900/40 dark:text-ink-100';
+      if (kastenModus === 'emerald') {
+        boxClass =
+          'border-emerald-500 bg-emerald-50/50 text-ink-800 dark:border-emerald-400 dark:bg-emerald-900/25 dark:text-ink-100';
+      } else if (kastenModus === 'rose') {
+        boxClass =
+          'border-rose-400 bg-rose-50/50 text-ink-800 dark:border-rose-400 dark:bg-rose-900/25 dark:text-ink-100';
+      }
+      feedback.className =
+        `quiz-option-feedback mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed ${boxClass}`;
+      feedback.innerHTML = `
+        <p class="text-xs font-semibold uppercase tracking-wide ${labelClass} mb-1">${label}</p>
+        <p class="whitespace-pre-line text-ink-800 dark:text-ink-100">${erkl}</p>
+      `;
+      feedback.classList.remove('hidden');
+      feedback.setAttribute('aria-hidden', 'false');
+    };
+
+    const zeigeTeilFeedbacks = (frageEl: HTMLElement, klickedButton: HTMLButtonElement) => {
+      leereOptionFeedback(frageEl);
+      const optionen = frageEl.querySelectorAll<HTMLButtonElement>('.quiz-option');
+      const richtigBtn = Array.from(optionen).find((o) => o.dataset.korrekt === 'true');
+
+      optionen.forEach((opt) => {
+        const feedback = opt.closest('.quiz-option-block')?.querySelector<HTMLElement>('[data-option-feedback]');
+        if (!feedback) return;
+        const ok = opt.dataset.korrekt === 'true';
+        const gewaehlt = opt === klickedButton;
+        if (gewaehlt) {
+          fuelleFeedbackHtml(opt, feedback, ok ? 'emerald' : 'rose');
+        } else if (ok && !gewaehlt && klickedButton !== richtigBtn) {
+          fuelleFeedbackHtml(opt, feedback, 'emerald');
+        }
+      });
+    };
+
+    const zeigeAlleFeedbacks = (frageEl: HTMLElement) => {
+      const optionen = frageEl.querySelectorAll<HTMLButtonElement>('.quiz-option');
+      optionen.forEach((opt) => {
+        const feedback = opt.closest('.quiz-option-block')?.querySelector<HTMLElement>('[data-option-feedback]');
+        if (!feedback) return;
+        const ok = opt.dataset.korrekt === 'true';
+        const gewaehlt = opt.getAttribute('aria-checked') === 'true';
+        const modus: 'emerald' | 'rose' | 'neutral' = ok ? 'emerald' : gewaehlt ? 'rose' : 'neutral';
+        fuelleFeedbackHtml(opt, feedback, modus);
+      });
+    };
+
     const beantworteFrage = (frageEl: HTMLElement, klickedButton: HTMLButtonElement) => {
       const optionen = frageEl.querySelectorAll<HTMLButtonElement>('.quiz-option');
       const weiterBtn = frageEl.querySelector<HTMLButtonElement>('.quiz-next');
+      const alleAntwortenBtn = frageEl.querySelector<HTMLButtonElement>('.quiz-show-all');
       const istKorrekt = klickedButton.dataset.korrekt === 'true';
 
       // Markiere alle Optionen visuell
@@ -221,38 +330,17 @@ const headingId = `diagnostische-fragen-${id}`;
         }
       });
 
-      // Kommentar je Antwortoption direkt unter dem Button
-      optionen.forEach((opt) => {
-        const block = opt.closest('.quiz-option-block');
-        const feedback = block?.querySelector<HTMLElement>('[data-option-feedback]');
-        if (!feedback) return;
-        const ok = opt.dataset.korrekt === 'true';
-        const gewaehlt = opt === klickedButton;
-        const erkl = opt.dataset.erklaerung || '';
-        const label = ok ? 'Richtig' : 'Typischer Fehler';
-        const labelClass = ok
-          ? 'text-emerald-700 dark:text-emerald-200'
-          : 'text-rose-700 dark:text-rose-200';
-        let boxClass =
-          'border-ink-200 bg-ink-50/50 text-ink-800 dark:border-slate-600/60 dark:bg-slate-900/40 dark:text-ink-100';
-        if (ok) {
-          boxClass =
-            'border-emerald-500 bg-emerald-50/50 text-ink-800 dark:border-emerald-400 dark:bg-emerald-900/25 dark:text-ink-100';
-        } else if (gewaehlt) {
-          boxClass =
-            'border-rose-400 bg-rose-50/50 text-ink-800 dark:border-rose-400 dark:bg-rose-900/25 dark:text-ink-100';
-        }
-        feedback.className =
-          `quiz-option-feedback mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed ${boxClass}`;
-        feedback.innerHTML = `
-          <p class="text-xs font-semibold uppercase tracking-wide ${labelClass} mb-1">${label}</p>
-          <p class="whitespace-pre-line text-ink-800 dark:text-ink-100">${erkl}</p>
-        `;
-        feedback.classList.remove('hidden');
-        feedback.setAttribute('aria-hidden', 'false');
-      });
-
+      zeigeTeilFeedbacks(frageEl, klickedButton);
       renderKatex(frageEl);
+
+      if (alleAntwortenBtn) {
+        alleAntwortenBtn.classList.remove('hidden');
+        alleAntwortenBtn.onclick = () => {
+          zeigeAlleFeedbacks(frageEl);
+          alleAntwortenBtn.classList.add('hidden');
+          renderKatex(frageEl);
+        };
+      }
 
       if (weiterBtn) {
         weiterBtn.disabled = false;
@@ -272,6 +360,7 @@ const headingId = `diagnostische-fragen-${id}`;
       if (zusammenfassung) zusammenfassung.style.display = '';
       if (richtigAnzeige) richtigAnzeige.textContent = String(state.richtig);
       aktualisiereFortschritt(gesamt);
+      scrollZuZusammenfassung();
     };
 
     const restart = () => {
@@ -282,7 +371,7 @@ const headingId = `diagnostische-fragen-${id}`;
       fragen.forEach((f) => {
         const optionen = f.querySelectorAll<HTMLButtonElement>('.quiz-option');
         const weiterBtn = f.querySelector<HTMLButtonElement>('.quiz-next');
-        const feedbacks = f.querySelectorAll<HTMLElement>('[data-option-feedback]');
+        const alleAntwortenBtn = f.querySelector<HTMLButtonElement>('.quiz-show-all');
         optionen.forEach((opt) => {
           opt.disabled = false;
           opt.setAttribute('aria-checked', 'false');
@@ -290,19 +379,19 @@ const headingId = `diagnostische-fragen-${id}`;
           const letter = opt.querySelector('.quiz-letter');
           if (letter) letter.className = LETTER_BASE_CLASS;
         });
-        feedbacks.forEach((fb) => {
-          fb.innerHTML = '';
-          fb.className =
-            'quiz-option-feedback hidden mt-2 ml-9 rounded-md border px-3 py-2.5 text-sm leading-relaxed';
-          fb.setAttribute('aria-hidden', 'true');
-        });
+        leereOptionFeedback(f);
         if (weiterBtn) {
           weiterBtn.disabled = true;
           weiterBtn.innerHTML = 'Weiter <span aria-hidden="true">→</span>';
         }
+        if (alleAntwortenBtn) {
+          alleAntwortenBtn.classList.add('hidden');
+          alleAntwortenBtn.onclick = null;
+        }
       });
       if (zusammenfassung) zusammenfassung.style.display = 'none';
       zeigeFrage(0);
+      scrollZuFrage(0);
     };
 
     // Event-Bindings
@@ -314,6 +403,7 @@ const headingId = `diagnostische-fragen-${id}`;
         if (state.aktuell < gesamt - 1) {
           state.aktuell += 1;
           zeigeFrage(state.aktuell);
+          scrollZuFrage(state.aktuell);
         } else {
           zeigeZusammenfassung();
         }

@@ -126,5 +126,5 @@ Anwendungsmodellierung. Aus dem Sachkontext (Schatten, Spiegel, Sichtlinie) muss
 **Möglicher Anschluss**
 
 - Aufgabenfolge zur Ähnlichkeit von Dreiecken (Erweiterung des Verhältnisgedankens).
-- Diagnose-Quiz zu typischen Strahlensatz-Fehlern (Figur-Erkennung, Voraussetzungsverletzung).
+- Diagnostische Fragen zu typischen Strahlensatz-Fehlern (Figur-Erkennung, Voraussetzungsverletzung).
 - Erweiterung in Klasse 10: Das Strahlensatz-Theorem in der analytischen Geometrie (Streckenverhältnisse mit Vektoren).

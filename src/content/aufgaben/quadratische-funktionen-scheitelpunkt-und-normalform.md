@@ -112,6 +112,6 @@ Hier werden mehrere Fragen *gleichzeitig* an dieselbe Funktion gestellt – Sche
 **Möglicher Anschluss**
 
 - Anwendungsaufgaben: Wurfparabeln, Brücken, Kostenfunktionen.
-- Diagnose-Quiz zu typischen Fehlern bei der quadratischen Ergänzung.
+- Diagnostische Fragen zu typischen Fehlern bei der quadratischen Ergänzung.
 - Aufgabenfolge zur Lösung quadratischer Gleichungen über die Scheitelpunktform.
 - Erweiterung in Klasse 10: Diskriminante und Nullstellenformeln.

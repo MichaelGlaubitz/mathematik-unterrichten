@@ -102,5 +102,5 @@ Hier wird das *Umformen vor dem Faktorisieren* geübt. Aufgabe 25 ist die Falle:
 **Möglicher Anschluss**
 
 - Aufgabenfolge zur p-q-Formel (mit Verbindung: Welche dieser Aufgaben hätten wir auch ohne p-q-Formel lösen können?).
-- Diagnose-Quiz zu typischen Fehlern beim Faktorisieren.
+- Diagnostische Fragen zu typischen Fehlern beim Faktorisieren.
 - Anwendungsaufgaben aus der Geometrie (Flächengleichungen) und Physik (freier Fall).

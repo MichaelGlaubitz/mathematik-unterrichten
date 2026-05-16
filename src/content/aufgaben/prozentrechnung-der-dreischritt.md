@@ -88,5 +88,5 @@ Hier wird das Ergebnis als Anteil ausgedrückt. Aufgabe 22 ist diagnostisch zent
 **Möglicher Anschluss**
 
 - Aufgabenfolge zu prozentualen Veränderungen (Erhöhung/Minderung mit Vermehrungsfaktor 1,07 / 0,93).
-- Diagnose-Quiz zu typischen Prozent-Fehlern (kommt als Nächstes).
+- Diagnostische Fragen zu typischen Prozent-Fehlern (kommt als Nächstes).
 - Anwendungsaufgaben: Mehrwertsteuer, Zinsrechnung, Rabatte.

@@ -128,6 +128,6 @@ Sachkontext-Übersetzung. Aufgabe 32 ist der diagnostische Höhepunkt: Lineares 
 **Möglicher Anschluss**
 
 - Aufgabenfolge zum Logarithmus (für die Lösung von q^t = const-Gleichungen).
-- Diagnose-Quiz zu typischen Fehlern bei Exponentialmodellen.
+- Diagnostische Fragen zu typischen Fehlern bei Exponentialmodellen.
 - Anwendungsaufgaben: Zinsrechnung, radioaktiver Zerfall, Bakterienwachstum, Inflation, Wertverlust.
 - Erweiterung: Kontinuierliches Wachstum (e^(rt)) als Grenzfall.
