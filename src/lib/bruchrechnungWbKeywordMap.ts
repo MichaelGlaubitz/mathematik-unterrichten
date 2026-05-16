@@ -4,6 +4,51 @@
  */
 export const BRUCH_WB_STOR_KEY = 'mu_bruch_wb_keywords';
 
+/**
+ * Stichwörter pro Unterthemen-Block, Reihenfolge wie `unterthemenBloecke`
+ * in `src/content/themen/bruchrechnung.json`.
+ */
+export const BRUCH_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
+  ['Ganze Zahl mal Bruch', 'Bruch durch ganze Zahl', 'Ganze Zahl durch Bruch'],
+  [
+    'Kürzen / vollständig kürzen',
+    'Erweitern auf vorgegebenen Nenner',
+    'Gleichwertige (äquivalente) Brüche',
+    'Ergänzen auf 1 (Komplemente)',
+    'Unechter Bruch → gemischte Zahl',
+    'Gemischte Zahl → uneigentlicher Bruch',
+    'Größenvergleich zweier Brüche',
+  ],
+  ['Stammbruchteil einer Größe', 'Anteil mit beliebigem Bruch', 'Umkehraufgabe (Größe aus dem Anteil)'],
+  [
+    'Addition gleichnamiger Brüche',
+    'Subtraktion gleichnamiger Brüche',
+    'Addition ungleichnamiger Brüche',
+    'Subtraktion ungleichnamiger Brüche',
+    'Brüche multiplizieren',
+    'Brüche dividieren (Kehrwert)',
+  ],
+];
+
+export function bruchStichwortClusterIndex(stichwort: string): number {
+  for (let i = 0; i < BRUCH_WB_UNTERTHEMA_STICHWORTE.length; i++) {
+    if (BRUCH_WB_UNTERTHEMA_STICHWORTE[i].includes(stichwort)) return i;
+  }
+  return -1;
+}
+
+/** Sortiert nach Unterthemen-Reihenfolge, innerhalb eines Blocks alphabetisch (de). */
+export function sortBruchAbStichworte(labels: readonly string[]): string[] {
+  return [...labels].sort((a, b) => {
+    const ia = bruchStichwortClusterIndex(a);
+    const ib = bruchStichwortClusterIndex(b);
+    const na = ia < 0 ? Number.POSITIVE_INFINITY : ia;
+    const nb = ib < 0 ? Number.POSITIVE_INFINITY : ib;
+    if (na !== nb) return na - nb;
+    return a.localeCompare(b, 'de');
+  });
+}
+
 export const BRUCH_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>> = {
   'Addition gleichnamiger Brüche': ['br_add_like'],
   'Subtraktion gleichnamiger Brüche': ['br_sub_like'],
