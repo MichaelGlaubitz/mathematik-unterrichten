@@ -5,8 +5,8 @@
 import type { PracticeAbAntwortSlot, PracticeAufgabe } from './uebungPracticeGenerators';
 import { practiceAufgabeHatLoesungInlineNachFrage } from './uebungPracticeGenerators';
 
-/** Maximale Breite eingebetteter Diagramme relativ zur Seitenbreite (Aufgaben + Lösung). */
-export const BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH = '0.33\\textwidth';
+/** Maximale Breite eingebetteter Diagramme (im zweispaltigen Block: Spaltenbreite). */
+export const BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH = '0.92\\linewidth';
 
 export const BRUCH_AB_LATEX_HTTP_ENDPOINT = 'https://latex.ytotech.com/builds/sync';
 
@@ -74,7 +74,7 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
   if (mode === 'blank') {
     if (spec.kind === 'int') return '\\,\\rule{2.4cm}{0.4pt}\\,';
     if (spec.kind === 'frac')
-      return '\\,\\rule{1.35cm}{0.4pt}\\,/\\,\\rule{1.35cm}{0.4pt}\\,';
+      return '$\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}$';
     return '\\,\\rule{3.2cm}{0.4pt}\\,';
   }
   if (spec.kind === 'int') return `$\\boxed{${spec.expect}}$`;
@@ -237,22 +237,25 @@ export function buildBruchArbeitsblattTex(opts: {
 \\usepackage{xcolor}
 \\usepackage{fancyhdr}
 \\usepackage{enumitem}
+\\usepackage{multicol}
 \\pagestyle{fancy}
 \\fancyhf{}
 \\fancyhead[L]{\\footnotesize\\sffamily ${headLeft}}
 \\fancyhead[R]{\\footnotesize\\sffamily Seite~\\thepage}
 \\renewcommand{\\headrulewidth}{0.35pt}
 \\setlength{\\headheight}{22pt}
-\\setlist[enumerate,1]{style=nextline, label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=1.05em, parsep=0.2em, topsep=0.6em, labelsep=0.45em}
-\\title{\\sffamily\\large ${loeTitle}}
+\\setlist[enumerate,1]{style=nextline, label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=0.65em, parsep=0.15em, topsep=0.45em, labelsep=0.4em}
+\\title{\\sffamily\\LARGE\\bfseries ${loeTitle}}
 \\author{}
 \\date{}
 \\begin{document}
 \\maketitle
 \\thispagestyle{fancy}
+\\begin{multicols}{2}
 \\begin{enumerate}
 ${blocks.join('\n')}
 \\end{enumerate}
+\\end{multicols}
 \\end{document}
 `;
 }
