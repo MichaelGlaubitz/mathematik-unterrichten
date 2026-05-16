@@ -124,7 +124,7 @@ export function bruchDiagramSvgFuerAufgabe(a: PracticeAufgabe): string {
   return '';
 }
 
-export type BruchAbDiagramPng = { path: string; base64Png: string };
+export type BruchAbDiagramRaster = { path: string; fileBase64: string };
 
 function parseSvgDimensions(svgXml: string): { w: number; h: number } {
   const doc = new DOMParser().parseFromString(svgXml, 'image/svg+xml');
@@ -143,13 +143,61 @@ function parseSvgDimensions(svgXml: string): { w: number; h: number } {
 }
 
 /**
- * Rasterisiert SVG zu PNG (Base64, ohne data-URL-Präfix) für pdfLaTeX via `graphicx`.
+ * Rasterisiert SVG zu JPEG (Base64, ohne data-URL-Präfix) für pdfLaTeX.
+ * JPEG ist auf LaTeX-Hosting oft robuster als PNG (weniger libpng-Kantenfälle).
+ */
+export async function rasterizeSvgZuJpegBase64(svgXml: string, uiScale: number): Promise<string> {
+  const { w, h } = parseSvgDimensions(svgXml);
+  const s = Math.min(2.5, Math.max(0.5, uiScale || 1));
+  let pixelW = Math.min(1600, Math.max(160, Math.round(w * 2 * s)));
+  let pixelH = Math.max(80, Math.round((pixelW * h) / w));
+  const minPx = 64;
+  if (pixelW < minPx || pixelH < minPx) {
+    const f = minPx / Math.min(pixelW, pixelH);
+    pixelW = Math.min(1600, Math.max(minPx, Math.round(pixelW * f)));
+    pixelH = Math.max(minPx, Math.round((pixelW * h) / w));
+  }
+  const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    const loaded = new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error('SVG konnte nicht geladen werden.'));
+    });
+    img.src = url;
+    await loaded;
+    const canvas = document.createElement('canvas');
+    canvas.width = pixelW;
+    canvas.height = pixelH;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas nicht verfügbar.');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, pixelW, pixelH);
+    ctx.drawImage(img, 0, 0, pixelW, pixelH);
+    const data = canvas.toDataURL('image/jpeg', 0.9);
+    const i = data.indexOf(',');
+    if (i < 0) throw new Error('JPEG-Kodierung fehlgeschlagen.');
+    return data.slice(i + 1);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * Rasterisiert SVG zu PNG (Base64, ohne data-URL-Präfix).
  */
 export async function rasterizeSvgZuPngBase64(svgXml: string, uiScale: number): Promise<string> {
   const { w, h } = parseSvgDimensions(svgXml);
   const s = Math.min(2.5, Math.max(0.5, uiScale || 1));
-  const pixelW = Math.min(2000, Math.max(160, Math.round(w * 2 * s)));
-  const pixelH = Math.max(80, Math.round((pixelW * h) / w));
+  let pixelW = Math.min(1600, Math.max(160, Math.round(w * 2 * s)));
+  let pixelH = Math.max(80, Math.round((pixelW * h) / w));
+  const minPx = 64;
+  if (pixelW < minPx || pixelH < minPx) {
+    const f = minPx / Math.min(pixelW, pixelH);
+    pixelW = Math.min(1600, Math.max(minPx, Math.round(pixelW * f)));
+    pixelH = Math.max(minPx, Math.round((pixelW * h) / w));
+  }
   const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   try {
@@ -262,11 +310,11 @@ ${blocks.join('\n')}
 
 export async function compileLatexOnHttpPdf(opts: {
   texMain: string;
-  binFiles: ReadonlyArray<{ path: string; base64Png: string }>;
+  binFiles: ReadonlyArray<{ path: string; fileBase64: string }>;
 }): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
   const resources: Record<string, unknown>[] = [{ main: true, content: opts.texMain }];
   for (const f of opts.binFiles) {
-    resources.push({ path: f.path, file: f.base64Png });
+    resources.push({ path: f.path, file: f.fileBase64 });
   }
   let res: Response;
   try {
@@ -281,17 +329,30 @@ export async function compileLatexOnHttpPdf(opts: {
   }
   const buf = new Uint8Array(await res.arrayBuffer());
   const ct = (res.headers.get('content-type') || '').toLowerCase();
-  if (res.ok && ct.includes('pdf')) {
+  const istPdfMagic = buf.length >= 4 && buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46; /* %PDF */
+  if (res.ok && (ct.includes('pdf') || istPdfMagic)) {
     return { ok: true, pdf: buf };
   }
   let log = '';
   let message = `PDF-Dienst antwortete mit HTTP ${res.status}.`;
   try {
     const txt = new TextDecoder().decode(buf);
-    const j = JSON.parse(txt) as { error?: string; message?: string; log?: string };
+    const j = JSON.parse(txt) as {
+      error?: string;
+      message?: string;
+      log?: string;
+      log_files?: Record<string, string>;
+    };
     if (j.error) message = String(j.error);
     if (j.message) message = `${message} ${j.message}`;
-    if (j.log) log = String(j.log);
+    const logTeile: string[] = [];
+    if (j.log) logTeile.push(String(j.log));
+    if (j.log_files && typeof j.log_files === 'object') {
+      for (const [name, inhalt] of Object.entries(j.log_files)) {
+        if (typeof inhalt === 'string' && inhalt.length > 0) logTeile.push(`--- ${name} ---\n${inhalt}`);
+      }
+    }
+    if (logTeile.length) log = logTeile.join('\n\n');
   } catch {
     const head = new TextDecoder().decode(buf.slice(0, 400));
     log = head;
@@ -306,21 +367,21 @@ export async function erzeugeBruchArbeitsblattPdf(opts: {
   diagramUiScale: (taskIndex: number) => number;
 }): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
   const diagramPngPaths: { taskIndex: number; suffix: 'a' | 'l'; path: string }[] = [];
-  const binFiles: { path: string; base64Png: string }[] = [];
+  const binFiles: { path: string; fileBase64: string }[] = [];
 
   for (let i = 0; i < opts.aufgaben.length; i++) {
     const a = opts.aufgaben[i];
     const sc = opts.diagramUiScale(i);
     const svgA = bruchDiagramSvgFuerAufgabe(a);
     if (svgA) {
-      const path = `d${i}a.png`;
+      const path = `d${i}a.jpg`;
       diagramPngPaths.push({ taskIndex: i, suffix: 'a', path });
-      binFiles.push({ path, base64Png: await rasterizeSvgZuPngBase64(svgA, sc) });
+      binFiles.push({ path, fileBase64: await rasterizeSvgZuJpegBase64(svgA, sc) });
     }
     if (opts.mitLoesungen && a.diagramLoesung && a.diagram && a.diagramLoesung !== a.diagram) {
-      const path = `d${i}l.png`;
+      const path = `d${i}l.jpg`;
       diagramPngPaths.push({ taskIndex: i, suffix: 'l', path });
-      binFiles.push({ path, base64Png: await rasterizeSvgZuPngBase64(a.diagramLoesung, sc) });
+      binFiles.push({ path, fileBase64: await rasterizeSvgZuJpegBase64(a.diagramLoesung, sc) });
     }
   }
 
