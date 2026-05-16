@@ -171,14 +171,27 @@ export const QUADRATIC_EQUATIONS_GENERATOR_IDS = [
   'qg_anzahl_loesungen',
 ] as const;
 
-/** Bruchrechnung: Reihenfolge der IDs = UI & Generator (einfach → komplex). */
+/** Bruchrechnung: Reihenfolge der IDs = UI & Generator (Cluster: Grundrechenarten → … → Sachanteile). */
 export const BRUCHRECHNUNG_GENERATOR_IDS = [
   'br_add_like',
   'br_sub_like',
+  'br_add_unlike',
+  'br_sub_unlike',
+  'br_mul_frac',
+  'br_div_frac',
+  'br_int_mul_frac',
+  'br_frac_div_int',
+  'br_int_div_frac',
   'br_erweitern',
   'br_kuerzen',
-  'br_mul_frac',
+  'br_gleichwert_zaehler',
+  'br_ergaenze_auf_1',
+  'br_improper_gemischt',
+  'br_gemischt_improper',
   'br_vergleich',
+  'br_ant_stammbruch',
+  'br_ant_bruchteil',
+  'br_ant_umkehr',
 ] as const;
 
 /** Ganze Zahlen & Vorzeichen (Klasse 7). */
@@ -413,6 +426,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       x = t;
     }
     return x || 1;
+  }
+
+  function lcm(a: number, b: number): number {
+    return Math.abs(a * b) / gcd(a, b);
   }
 
   function texSubtrahend(b: number): string {
@@ -1096,6 +1113,283 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
         diagramDefaultHidden: true,
+      };
+    },
+    br_add_unlike() {
+      let d1 = 4;
+      let d2 = 3;
+      let n1 = 1;
+      let n2 = 1;
+      let L = 12;
+      let N = 0;
+      for (let t = 0; t < 90; t++) {
+        d1 = randInt(3, 9);
+        d2 = randInt(3, 9);
+        if (d1 === d2) continue;
+        L = lcm(d1, d2);
+        if (L > 24) continue;
+        n1 = randInt(1, d1 - 1);
+        n2 = randInt(1, d2 - 1);
+        N = n1 * (L / d1) + n2 * (L / d2);
+        if (N >= L) continue;
+        break;
+      }
+      if (N >= L) {
+        d1 = 3;
+        d2 = 4;
+        n1 = 1;
+        n2 = 2;
+        L = 12;
+        N = 10;
+      }
+      const g = gcd(N, L);
+      const tail = g > 1 ? `=\\frac{${N / g}}{${L / g}}` : '';
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$.`,
+        loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}=\\frac{${n1 * (L / d1)}}{${L}}+\\frac{${n2 * (L / d2)}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
+      };
+    },
+    br_sub_unlike() {
+      let d1 = 5;
+      let d2 = 3;
+      let n1 = 2;
+      let n2 = 1;
+      let L = 15;
+      let N1 = 0;
+      let N2 = 0;
+      let N = 0;
+      for (let t = 0; t < 90; t++) {
+        d1 = randInt(3, 9);
+        d2 = randInt(3, 9);
+        if (d1 === d2) continue;
+        L = lcm(d1, d2);
+        if (L > 24) continue;
+        n1 = randInt(1, d1 - 1);
+        n2 = randInt(1, d2 - 1);
+        N1 = n1 * (L / d1);
+        N2 = n2 * (L / d2);
+        if (N1 <= N2) continue;
+        N = N1 - N2;
+        break;
+      }
+      if (N1 <= N2) {
+        d1 = 5;
+        d2 = 3;
+        n1 = 4;
+        n2 = 1;
+        L = 15;
+        N1 = 12;
+        N2 = 5;
+        N = 7;
+      }
+      const g = gcd(N, L);
+      const tail = g > 1 ? `=\\frac{${N / g}}{${L / g}}` : '';
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$.`,
+        loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}=\\frac{${N1}}{${L}}-\\frac{${N2}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
+      };
+    },
+    br_div_frac() {
+      let n1 = 2;
+      let d1 = 3;
+      let n2 = 1;
+      let d2 = 2;
+      for (let t = 0; t < 60; t++) {
+        n1 = randInt(1, 5);
+        d1 = randInt(2, 7);
+        n2 = randInt(1, 5);
+        d2 = randInt(2, 7);
+        if (n1 >= d1 || n2 >= d2) continue;
+        break;
+      }
+      const num = n1 * d2;
+      const den = d1 * n2;
+      const g = gcd(num, den);
+      const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$.`,
+        loesung: `Mit dem Kehrwert: $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}=\\frac{${n1}}{${d1}}\\cdot\\frac{${d2}}{${n2}}=\\frac{${num}}{${den}}${tail}$.`,
+      };
+    },
+    br_int_mul_frac() {
+      const k = randInt(2, 9);
+      let n = 2;
+      let d = 5;
+      for (let t = 0; t < 40; t++) {
+        n = randInt(1, 6);
+        d = randInt(2, 9);
+        if (n >= d) continue;
+        break;
+      }
+      const num = k * n;
+      const den = d;
+      const g = gcd(num, den);
+      const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
+      return {
+        frage: `Berechne $\\displaystyle ${k}\\cdot\\frac{${n}}{${d}}$.`,
+        loesung: `$\\displaystyle ${k}\\cdot\\frac{${n}}{${d}}=\\frac{${num}}{${den}}${tail}$.`,
+      };
+    },
+    br_frac_div_int() {
+      const k = pick([2, 3, 4, 5, 6] as const);
+      let n = 2;
+      let d = 5;
+      for (let t = 0; t < 50; t++) {
+        n = randInt(1, 8);
+        d = randInt(2, 10);
+        if (n >= d) continue;
+        break;
+      }
+      const num = n;
+      const den = d * k;
+      const g = gcd(num, den);
+      const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
+      return {
+        frage: `Berechne $\\displaystyle\\frac{${n}}{${d}}:${k}$.`,
+        loesung: `$\\displaystyle\\frac{${n}}{${d}}:${k}=\\frac{${n}}{${d}\\cdot ${k}}=\\frac{${num}}{${den}}${tail}$.`,
+      };
+    },
+    br_int_div_frac() {
+      let k = 6;
+      let n = 2;
+      let d = 3;
+      for (let t = 0; t < 80; t++) {
+        k = randInt(2, 12);
+        n = randInt(1, 5);
+        d = randInt(2, 8);
+        if (n >= d) continue;
+        const prod = k * d;
+        if (prod % n !== 0) continue;
+        break;
+      }
+      if ((k * d) % n !== 0) {
+        k = 6;
+        n = 2;
+        d = 3;
+      }
+      const res = (k * d) / n;
+      return {
+        frage: `Berechne $\\displaystyle ${k}:\\frac{${n}}{${d}}$.`,
+        loesung: `$\\displaystyle ${k}:\\frac{${n}}{${d}}=${k}\\cdot\\frac{${d}}{${n}}=\\frac{${k * d}}{${n}}=${res}$.`,
+      };
+    },
+    br_gleichwert_zaehler() {
+      let n = 2;
+      let d = 5;
+      let f = 2;
+      for (let t = 0; t < 50; t++) {
+        n = randInt(1, 7);
+        d = randInt(3, 10);
+        if (n >= d || gcd(n, d) !== 1) continue;
+        f = pick([2, 3, 4] as const);
+        if (d * f > 24) continue;
+        break;
+      }
+      if (n >= d || gcd(n, d) !== 1) {
+        n = 2;
+        d = 5;
+        f = 3;
+      }
+      const L = d * f;
+      const x = n * f;
+      return {
+        frage: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=\\frac{?}{${L}}$.`,
+        loesung: `Erweitern mit $${f}$: $\\displaystyle\\frac{${n}}{${d}}=\\frac{${x}}{${L}}$ — der fehlende Zähler ist $${x}$.`,
+      };
+    },
+    br_ergaenze_auf_1() {
+      const d = pick([5, 6, 7, 8, 9, 10, 12] as const);
+      const a = randInt(1, d - 2);
+      const b = d - a;
+      return {
+        frage: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+\\frac{?}{${d}}=1$.`,
+        loesung: `Wegen $\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${d}}{${d}}=1$ ist der gesuchte Zähler $${b}$.`,
+      };
+    },
+    br_improper_gemischt() {
+      let d = 5;
+      let n = 7;
+      for (let t = 0; t < 40; t++) {
+        d = randInt(3, 9);
+        n = randInt(d + 1, 3 * d - 1);
+        if (gcd(n, d) !== 1 && random() < 0.35) continue;
+        break;
+      }
+      const g = gcd(n, d);
+      const n0 = n / g;
+      const d0 = d / g;
+      const ganz = Math.floor(n0 / d0);
+      const rest = n0 - ganz * d0;
+      const lo =
+        rest === 0
+          ? `$\\displaystyle\\frac{${n}}{${d}}=${ganz}$`
+          : `$\\displaystyle\\frac{${n}}{${d}}=${ganz}\\tfrac{${rest}}{${d0}}$`;
+      return {
+        frage: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl.`,
+        loesung: lo,
+      };
+    },
+    br_gemischt_improper() {
+      const d = pick([3, 4, 5, 6, 7, 8] as const);
+      const ganz = randInt(1, 5);
+      const rest = randInt(1, d - 1);
+      const n = ganz * d + rest;
+      return {
+        frage: `Schreibe $\\displaystyle${ganz}\\tfrac{${rest}}{${d}}$ als unechten Bruch.`,
+        loesung: `$\\displaystyle${ganz}\\tfrac{${rest}}{${d}}=\\frac{${ganz}\\cdot ${d}+${rest}}{${d}}=\\frac{${n}}{${d}}$`,
+      };
+    },
+    br_ant_stammbruch() {
+      const d = pick([2, 3, 4, 5, 6, 8] as const);
+      const m = randInt(2, 5);
+      const g = d * m;
+      const loes = m;
+      return {
+        frage: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens?`,
+        loesung: `Stammbruch $\\frac{1}{${d}}$ von ${g} Stücken: ${g}:${d}=${loes}$ Stück.`,
+      };
+    },
+    br_ant_bruchteil() {
+      let g = 24;
+      let n = 2;
+      let d = 3;
+      for (let t = 0; t < 50; t++) {
+        d = pick([3, 4, 5, 6, 8] as const);
+        n = randInt(2, d - 1);
+        if (gcd(n, d) !== 1) continue;
+        const k = randInt(2, 5);
+        g = d * k;
+        if ((g * n) % d !== 0) continue;
+        break;
+      }
+      const ant = (g * n) / d;
+      return {
+        frage: `In einer Klasse sind ${g} Kinder. $\\displaystyle\\frac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das?`,
+        loesung: `Rechnung: ${g} $\\cdot\\,\\frac{${n}}{${d}}=${ant}$. Es sind ${ant} Kinder.`,
+      };
+    },
+    br_ant_umkehr() {
+      let n = 2;
+      let d = 5;
+      let A = 8;
+      for (let t = 0; t < 60; t++) {
+        n = randInt(1, 4);
+        d = randInt(3, 8);
+        if (n >= d || gcd(n, d) !== 1) continue;
+        const f = randInt(2, 6);
+        A = f * n;
+        if ((A * d) % n !== 0) continue;
+        break;
+      }
+      if ((A * d) % n !== 0) {
+        n = 2;
+        d = 5;
+        A = 8;
+      }
+      const G = (A * d) / n;
+      return {
+        frage: `Von einem Geldbetrag sind $\\displaystyle\\frac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag?`,
+        loesung: `Umkehraufgabe: ${A} Euro $\\cdot\\,\\frac{${d}}{${n}}=${G}$ Euro.`,
       };
     },
     nz_add() {
