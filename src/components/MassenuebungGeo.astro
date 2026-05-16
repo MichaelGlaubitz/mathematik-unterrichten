@@ -1309,11 +1309,13 @@ function wbLabelFromHref(href: string): string {
         </a>
         <h1 class="font-serif text-3xl font-semibold text-ink-900 dark:text-ink-50 md:text-4xl mt-3">AB Bruchrechnung</h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Gewählte Stichworte</p>
-        <ul
+        <div
           id="ug-bruch-ab-stichworte"
-          class="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-base text-ink-700 dark:text-ink-200"
+          class="mt-2 flex max-w-4xl flex-wrap gap-2"
+          role="list"
+          aria-label="Gewählte Stichworte"
         >
-        </ul>
+        </div>
         <p id="ug-bruch-ab-stichworte-leer" class="mt-2 max-w-3xl text-sm leading-relaxed text-ink-600 dark:text-ink-300" hidden>
           Alle Aufgabentypen gemischt (keine Stichwort-Auswahl auf der Themenseite bzw. leerer Eintrag).
         </p>
@@ -2247,22 +2249,26 @@ function wbLabelFromHref(href: string): string {
     }
 
     function refreshBruchAbStichworteUi() {
-      const ul = document.getElementById('ug-bruch-ab-stichworte');
+      const wrap = document.getElementById('ug-bruch-ab-stichworte');
       const leer = document.getElementById('ug-bruch-ab-stichworte-leer');
-      if (!ul || !leer) return;
+      if (!wrap || !leer) return;
       const labels = readBruchAbStichwortLabels();
-      ul.innerHTML = '';
+      wrap.innerHTML = '';
       if (labels.length === 0) {
         leer.hidden = false;
-        ul.hidden = true;
+        wrap.hidden = true;
         return;
       }
       leer.hidden = true;
-      ul.hidden = false;
+      wrap.hidden = false;
+      const pillClass =
+        'inline-flex max-w-full cursor-default select-none items-center rounded-full border border-violet-300/90 bg-violet-50/90 px-3 py-1.5 text-left text-sm font-medium leading-snug text-ink-800 shadow-sm dark:border-violet-500/45 dark:bg-violet-950/40 dark:text-ink-100';
       for (const t of labels) {
-        const li = document.createElement('li');
-        li.textContent = t;
-        ul.appendChild(li);
+        const pill = document.createElement('span');
+        pill.className = pillClass;
+        pill.setAttribute('role', 'listitem');
+        pill.textContent = t;
+        wrap.appendChild(pill);
       }
     }
 
