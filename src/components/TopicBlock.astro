@@ -107,90 +107,19 @@ const {
   )}
 
   {slug === 'bruchrechnung' && generatorUebungHref && unterthemenBloecke && unterthemenBloecke.length > 0 && (
-    <>
-      <style is:global>
-        /* Tailwind-Utilities auf den Buttons überschreiben — Auswahl muss sichtbar bleiben */
-        #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
-          background-color: rgb(91 33 182) !important;
-          border-color: rgb(91 33 182) !important;
-          color: #fff !important;
-        }
-        html.dark #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
-          background-color: rgb(167 139 250) !important;
-          border-color: rgb(167 139 250) !important;
-          color: rgb(15 23 42) !important;
-        }
-      </style>
-      <script>
-        import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../lib/bruchrechnungWbKeywordMap';
-
-        let bruchKwAbort: AbortController | null = null;
-
-        function applyBruchKwVisual(root: HTMLElement) {
-          const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'));
-          let sel = new Set<string>();
-          try {
-            const raw = JSON.parse(sessionStorage.getItem(BRUCH_WB_STOR_KEY) || 'null');
-            if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === 'string' && raw[0].startsWith('br_')) {
-              sel = new Set(stichworteFuerBruchIds(raw));
-            } else if (Array.isArray(raw)) {
-              sel = new Set(raw.filter((x: unknown) => typeof x === 'string') as string[]);
-            }
-          } catch {
-            sel = new Set();
-          }
-          const all = new Set(buttons.map((b) => b.dataset.stichwort ?? '').filter(Boolean));
-          sel = new Set([...sel].filter((k) => all.has(k)));
-          buttons.forEach((b) => {
-            const k = b.dataset.stichwort ?? '';
-            const on = sel.has(k);
-            b.classList.toggle('mu-bruch-wb-kw--an', on);
-            b.setAttribute('aria-pressed', on ? 'true' : 'false');
-          });
-        }
-
-        function persistBruchKw(root: HTMLElement) {
-          const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw.mu-bruch-wb-kw--an'))
-            .map((b) => b.dataset.stichwort ?? '')
-            .filter(Boolean);
-          try {
-            sessionStorage.setItem(BRUCH_WB_STOR_KEY, JSON.stringify(sel));
-          } catch {
-            /* sessionStorage blockiert */
-          }
-        }
-
-        function bootBruchWbKeywords() {
-          const root = document.getElementById('thema-bruchrechnung');
-          if (!root) return;
-          applyBruchKwVisual(root);
-          bruchKwAbort?.abort();
-          bruchKwAbort = new AbortController();
-          const { signal } = bruchKwAbort;
-          root.addEventListener(
-            'click',
-            (ev: MouseEvent) => {
-              const t = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-wb-kw');
-              if (!t || !root.contains(t)) return;
-              ev.preventDefault();
-              t.classList.toggle('mu-bruch-wb-kw--an');
-              t.setAttribute('aria-pressed', t.classList.contains('mu-bruch-wb-kw--an') ? 'true' : 'false');
-              persistBruchKw(root);
-            },
-            { signal }
-          );
-        }
-
-        function scheduleBruchKwBoot() {
-          requestAnimationFrame(() => {
-            bootBruchWbKeywords();
-          });
-        }
-
-        scheduleBruchKwBoot();
-        document.addEventListener('astro:page-load', scheduleBruchKwBoot);
-      </script>
-    </>
+    <style is:global>
+      /* Tailwind-Utilities auf den Buttons überschreiben — Auswahl muss sichtbar bleiben */
+      #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+        background-color: rgb(91 33 182) !important;
+        border-color: rgb(91 33 182) !important;
+        color: #fff !important;
+      }
+      html.dark #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+        background-color: rgb(167 139 250) !important;
+        border-color: rgb(167 139 250) !important;
+        color: rgb(15 23 42) !important;
+      }
+    </style>
   )}
 
   {fehlvorstellungen.length > 0 && (
