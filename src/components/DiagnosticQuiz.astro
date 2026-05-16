@@ -196,6 +196,32 @@ const headingId = `diagnostische-fragen-${id}`;
     const state: QuizState = { aktuell: 0, richtig: 0, beantwortet: new Set() };
     const gesamt = fragen.length;
 
+    /** Mischt die Antwortoptionen (Fisher–Yates), damit die richtige Antwort nicht immer an erster Stelle steht. */
+    const mischeOptionenInFrage = (frageEl: HTMLElement) => {
+      const ul = frageEl.querySelector<HTMLUListElement>('ul[role="radiogroup"]');
+      if (!ul) return;
+      const items = Array.from(ul.querySelectorAll<HTMLLIElement>(':scope > li.quiz-option-block'));
+      if (items.length < 2) return;
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+      items.forEach((li) => {
+        ul.appendChild(li);
+      });
+      items.forEach((li, oi) => {
+        const letter = li.querySelector('.quiz-letter');
+        if (letter) {
+          letter.textContent = String.fromCharCode(65 + oi);
+          letter.className = LETTER_BASE_CLASS;
+        }
+        const btn = li.querySelector<HTMLButtonElement>('.quiz-option');
+        if (btn) btn.dataset.optionIndex = String(oi);
+      });
+    };
+
+    fragen.forEach(mischeOptionenInFrage);
+
     const aktualisiereFortschritt = (index: number) => {
       fortschrittsbalken.forEach((bar) => {
         bar.style.width = `${(index / gesamt) * 100}%`;
@@ -388,6 +414,7 @@ const headingId = `diagnostische-fragen-${id}`;
           alleAntwortenBtn.classList.add('hidden');
           alleAntwortenBtn.onclick = null;
         }
+        mischeOptionenInFrage(f);
       });
       if (zusammenfassung) zusammenfassung.style.display = 'none';
       zeigeFrage(0);
