@@ -1457,22 +1457,24 @@ function wbLabelFromHref(href: string): string {
             <button
               type="button"
               id="ug-ab-bruch-druck"
+              title="Erzeugt ein druckfertiges PDF (LaTeX über einen öffentlichen Onlinedienst) und lädt es herunter."
               class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl border-2 border-amber-500/90 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-950 transition hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-amber-400/80 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-900/55"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8a2 2 0 01-2 2H8a2 2 0 01-2-2v-8z" />
               </svg>
-              Arbeitsblatt drucken
+              Arbeitsblatt als PDF
             </button>
             <button
               type="button"
               id="ug-ab-bruch-druck-loes"
+              title="Wie oben, mit Lösungstext und Lösungsdiagrammen direkt unter jeder Aufgabe."
               class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-900/25 transition hover:bg-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:bg-sky-500 dark:hover:bg-sky-400 dark:shadow-sky-900/35"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Druck mit Lösungen
+              PDF mit Lösungen
             </button>
           </div>
         </div>
@@ -1950,10 +1952,13 @@ function wbLabelFromHref(href: string): string {
   import {
     BRUCH_WB_STOR_KEY,
     bruchStichwortClusterIndex,
+    clusterTitelZeileFuerBruchGeneratorIds,
     expandBruchWbStichworte,
     sortBruchAbStichworte,
+    stichwortLabelsFromBruchSessionRaw,
     stichworteFuerBruchIds,
   } from '../lib/bruchrechnungWbKeywordMap';
+  import { erzeugeBruchArbeitsblattPdf } from '../lib/bruchArbeitsblattLatex';
   import {
     readBruchMassenAnzahl,
     readBruchMassenLayout,
@@ -2936,27 +2941,82 @@ function wbLabelFromHref(href: string): string {
     document.getElementById('ug-ab-bruch-neu')?.addEventListener('click', () => {
       erzeugenBtn?.click();
     });
+    function downloadePdfDatei(pdf, filename) {
+      const blob = new Blob([pdf], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function bruchAbStichworteZeileFuerPdf() {
+      let raw = null;
+      try {
+        raw = JSON.parse(sessionStorage.getItem(BRUCH_WB_STOR_KEY) || 'null');
+      } catch {
+        raw = null;
+      }
+      const labels = stichwortLabelsFromBruchSessionRaw(raw);
+      if (labels.length === 0) return 'alle Typen gemischt';
+      const joined = labels.join(', ');
+      return joined.length > 110 ? `${joined.slice(0, 108)}…` : joined;
+    }
+
+    async function bruchArbeitsblattAlsPdf(mitLoesungen) {
+      const btnA = document.getElementById('ug-ab-bruch-druck');
+      const btnL = document.getElementById('ug-ab-bruch-druck-loes');
+      const busy = [btnA, btnL].filter(Boolean);
+      if (!isBruchMassen || aufgaben.length === 0) return;
+      busy.forEach((b) => {
+        if (b instanceof HTMLButtonElement) {
+          b.disabled = true;
+          b.setAttribute('aria-busy', 'true');
+        }
+      });
+      try {
+        const typen = aktiveTypen();
+        const meta = {
+          thema: 'Bruchrechnung',
+          unterthemaZeile: clusterTitelZeileFuerBruchGeneratorIds(typen) || 'WB Bruchrechnung',
+          stichworteZeile: bruchAbStichworteZeileFuerPdf(),
+        };
+        const r = await erzeugeBruchArbeitsblattPdf({
+          aufgaben,
+          meta,
+          mitLoesungen,
+          diagramUiScale: (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i)),
+        });
+        if (!r.ok) {
+          const tail = r.log ? `\n\n${r.log.slice(0, 1200)}` : '';
+          window.alert(`PDF konnte nicht erzeugt werden: ${r.message}${tail}`);
+          return;
+        }
+        const tag = new Date().toISOString().slice(0, 10);
+        const name = mitLoesungen ? `bruchrechnung-ab-mit-loesungen-${tag}.pdf` : `bruchrechnung-ab-${tag}.pdf`;
+        downloadePdfDatei(r.pdf, name);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        window.alert(`PDF-Erstellung abgebrochen: ${msg}`);
+      } finally {
+        busy.forEach((b) => {
+          if (b instanceof HTMLButtonElement) {
+            b.disabled = false;
+            b.removeAttribute('aria-busy');
+          }
+        });
+      }
+    }
+
     document.getElementById('ug-ab-bruch-druck')?.addEventListener('click', () => {
-      btnDruck?.click();
+      void bruchArbeitsblattAlsPdf(false);
     });
     document.getElementById('ug-ab-bruch-druck-loes')?.addEventListener('click', () => {
-      liste?.querySelectorAll('.ug-task-details').forEach((d) => {
-        if (d instanceof HTMLDetailsElement) d.open = true;
-      });
-      if (liste) syncBruchLoesungEyeButtons(liste);
-      refreshBruchAbSheetStats();
-      if (arbeitsblatt && typeof window.renderMathInElement === 'function') {
-        try {
-          window.renderMathInElement(arbeitsblatt, muPracticeKatexOpts());
-        } catch {
-          /* */
-        }
-      }
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.print();
-        });
-      });
+      void bruchArbeitsblattAlsPdf(true);
     });
 
     const bruchCheckOverlay = document.getElementById('ug-ab-bruch-check-overlay');

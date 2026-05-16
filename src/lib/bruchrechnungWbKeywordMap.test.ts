@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest';
 import {
   BRUCH_WB_STICHWORT_TO_IDS,
   bruchStichwortClusterIndex,
+  clusterTitelZeileFuerBruchGeneratorIds,
   expandBruchWbStichworte,
   sortBruchAbStichworte,
+  stichwortLabelsFromBruchSessionRaw,
   stichworteFuerBruchIds,
 } from './bruchrechnungWbKeywordMap';
 
@@ -36,6 +38,17 @@ describe('bruchrechnungWbKeywordMap', () => {
       'Ganze Zahl mal Bruch',
       'Kürzen / vollständig kürzen',
       'Brüche multiplizieren',
+    ]);
+  });
+
+  it('clusterTitelZeileFuerBruchGeneratorIds sammelt Cluster-Titel', () => {
+    expect(clusterTitelZeileFuerBruchGeneratorIds(['br_add_like', 'br_mul_frac'])).toContain('Grundrechenarten');
+  });
+
+  it('stichwortLabelsFromBruchSessionRaw liest Stichwort- oder ID-Listen', () => {
+    expect(stichwortLabelsFromBruchSessionRaw(['br_add_like'])).toContain('Addition gleichnamiger Brüche');
+    expect(stichwortLabelsFromBruchSessionRaw(['Addition gleichnamiger Brüche'])).toEqual([
+      'Addition gleichnamiger Brüche',
     ]);
   });
 });
