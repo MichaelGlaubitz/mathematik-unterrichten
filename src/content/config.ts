@@ -72,7 +72,7 @@ const quizzes = defineCollection({
 });
 
 // Themen-Übersicht: Eine Themenseite (Klassenstufen-Cluster) bündelt Aufgaben,
-// Diagnose-Quizzes, Blog-Beiträge und Mini-Whiteboard-Aufgaben pro Thema.
+// Diagnostische Fragen (Quizzes), Blog-Beiträge und Mini-Whiteboard-Aufgaben pro Thema.
 const themen = defineCollection({
   type: 'data',
   schema: z.object({

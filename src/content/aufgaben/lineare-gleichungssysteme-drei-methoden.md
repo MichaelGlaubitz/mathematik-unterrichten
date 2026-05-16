@@ -121,5 +121,5 @@ Hier wird die Methodenwahl selbst zur Aufgabe. Schüler müssen *vor* dem Lösen
 
 - Anwendungsaufgaben (Mischung, Bewegung, Geld) als Modellierung mit Gleichungssystemen.
 - Geometrische Deutung: Lineares Gleichungssystem = Schnittpunkt zweier Geraden.
-- Diagnose-Quiz zu typischen Fehlern beim Lösen von LGS.
+- Diagnostische Fragen zu typischen Fehlern beim Lösen von LGS.
 - Erweiterung: Dreigleichiges System mit drei Unbekannten (Vorbereitung Gauß).

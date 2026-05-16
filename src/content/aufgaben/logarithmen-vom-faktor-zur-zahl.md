@@ -136,6 +136,6 @@ Tiefere Reflexion: Basiswechsel und Grenzen des Logarithmus. Schüler erleben, d
 **Möglicher Anschluss**
 
 - Anwendungsaufgaben: pH-Wert, Schalldruckpegel (Dezibel), Erdbeben (Richterskala) – alles logarithmische Skalen.
-- Diagnose-Quiz zu typischen Fehlern bei Logarithmen.
+- Diagnostische Fragen zu typischen Fehlern bei Logarithmen.
 - Aufgabenfolge zu Logarithmusgleichungen (`log(x) = 2`, `log(x+1) = log(2x−5)`).
 - Erweiterung in der Oberstufe: Ableitung und Integral des Logarithmus.
