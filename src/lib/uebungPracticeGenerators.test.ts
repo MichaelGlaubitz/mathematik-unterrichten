@@ -149,6 +149,17 @@ describe('Bruchrechnung-Generatoren', () => {
     }
   });
 
+  it('Bruch-Lösungen: gerade Anzahl $ (KaTeX → PDF-LaTeX, keine Einzel-$)', () => {
+    for (const id of BRUCHRECHNUNG_GENERATOR_IDS) {
+      for (let seed = 0; seed < 80; seed++) {
+        const g = createPracticeGenerators(makeLcg(seed * 9973 + id.length * 31 + id.charCodeAt(0)));
+        const a = g[id]();
+        const n = (a.loesung.match(/\$/g) ?? []).length;
+        expect(n % 2, `${id} @seed ${seed}`).toBe(0);
+      }
+    }
+  });
+
   it('br_add_unlike / br_sub_unlike: Lösung in Box (nicht inline)', () => {
     const GEN = createPracticeGenerators(() => 0.31);
     const u = GEN.br_add_unlike();
