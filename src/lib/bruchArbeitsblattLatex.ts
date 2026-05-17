@@ -141,14 +141,21 @@ function escapeFuerTextInMath(s: string): string {
 const BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE =
   '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{1.08cm}}}';
 
+/** Schreibfläche für ganzzahlige / Textantworten im PDF (kein \\rule-Strich). */
+const BRUCH_AB_PDF_INT_SCHREIBFLAECHE =
+  '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{2.35cm}}}';
+/** Etwas breiter für Multiple-Choice-Eintrag im PDF. */
+const BRUCH_AB_PDF_CHOICE_SCHREIBFLAECHE =
+  '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{3.15cm}}}';
+
 export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled'): string {
   if (mode === 'blank') {
-    if (spec.kind === 'int') return '\\ensuremath{\\,\\rule{2.4cm}{0.4pt}\\,}';
+    if (spec.kind === 'int') return `\\ensuremath{${BRUCH_AB_PDF_INT_SCHREIBFLAECHE}}`;
     if (spec.kind === 'frac')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}}`;
     if (spec.kind === 'frac_num')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${spec.fixedDen}}}`;
-    return '\\ensuremath{\\,\\rule{3.2cm}{0.4pt}\\,}';
+    return `\\ensuremath{${BRUCH_AB_PDF_CHOICE_SCHREIBFLAECHE}}`;
   }
   if (spec.kind === 'int') return `\\ensuremath{\\boxed{${spec.expect}}}`;
   if (spec.kind === 'frac') {
