@@ -75,7 +75,7 @@ const {
         >
           <button
             type="button"
-            class="rounded-md border border-ink-300 bg-surface px-2.5 py-1 text-xs font-semibold text-ink-800 shadow-sm transition hover:border-accent-500 hover:bg-accent-50 dark:border-slate-600 dark:bg-slate-900/50 dark:text-ink-100 dark:hover:border-accent-400 dark:hover:bg-slate-800/80"
+            class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
             data-mu-bruch-kw-bulk="all-select"
             aria-label="Alle Stichwörter auswählen"
           >
@@ -83,7 +83,7 @@ const {
           </button>
           <button
             type="button"
-            class="rounded-md border border-ink-300 bg-surface px-2.5 py-1 text-xs font-semibold text-ink-800 shadow-sm transition hover:border-accent-500 hover:bg-accent-50 dark:border-slate-600 dark:bg-slate-900/50 dark:text-ink-100 dark:hover:border-accent-400 dark:hover:bg-slate-800/80"
+            class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
             data-mu-bruch-kw-bulk="all-clear"
             aria-label="Alle Stichwörter abwählen"
           >
@@ -115,7 +115,7 @@ const {
               >
                 <button
                   type="button"
-                  class="rounded-md border border-ink-300 bg-surface px-2 py-0.5 text-[11px] font-semibold text-ink-800 shadow-sm transition hover:border-accent-500 hover:bg-accent-50 dark:border-slate-600 dark:bg-slate-900/50 dark:text-ink-100 dark:hover:border-accent-400 dark:hover:bg-slate-800/80 sm:px-2.5 sm:text-xs"
+                  class="mu-bruch-kw-bulk rounded-md px-2 py-0.5 text-[11px] font-semibold shadow-sm transition-colors sm:px-2.5 sm:text-xs"
                   data-mu-bruch-kw-bulk="cluster-select"
                   aria-label={`Alle Stichwörter in „${b.titel}“ auswählen`}
                 >
@@ -123,7 +123,7 @@ const {
                 </button>
                 <button
                   type="button"
-                  class="rounded-md border border-ink-300 bg-surface px-2 py-0.5 text-[11px] font-semibold text-ink-800 shadow-sm transition hover:border-accent-500 hover:bg-accent-50 dark:border-slate-600 dark:bg-slate-900/50 dark:text-ink-100 dark:hover:border-accent-400 dark:hover:bg-slate-800/80 sm:px-2.5 sm:text-xs"
+                  class="mu-bruch-kw-bulk rounded-md px-2 py-0.5 text-[11px] font-semibold shadow-sm transition-colors sm:px-2.5 sm:text-xs"
                   data-mu-bruch-kw-bulk="cluster-clear"
                   aria-label={`Alle Stichwörter in „${b.titel}“ abwählen`}
                 >
@@ -234,53 +234,74 @@ const {
         border-color: rgb(167 139 250) !important;
         color: rgb(15 23 42) !important;
       }
-      /* Kompaktzeile: gleiche Farblogik wie #ug-steuerung in MassenuebungGeo */
+      /* Sammelaktionen: klar von Stichwort-Pills (Akzent-Rand) abgrenzen — gestrichelter Rand, erdige Fläche */
+      #thema-bruchrechnung button.mu-bruch-kw-bulk {
+        border-width: 1px;
+        border-style: dashed;
+        border-color: #a08f72;
+        background-color: #e9e3d5;
+        color: #3f352a;
+      }
+      #thema-bruchrechnung button.mu-bruch-kw-bulk:hover {
+        background-color: #dcd5c5;
+        border-color: #6c5c43;
+      }
+      html.dark #thema-bruchrechnung button.mu-bruch-kw-bulk {
+        border-color: #94a3b8;
+        background-color: rgb(30 41 59 / 0.72);
+        color: #e2e8f0;
+      }
+      html.dark #thema-bruchrechnung button.mu-bruch-kw-bulk:hover {
+        background-color: rgb(51 65 85 / 0.85);
+        border-color: #cbd5e1;
+      }
+      /* Kompaktzeile (Farben als RGB/HEX: theme() in Astro-<style> wird nicht aufgelöst) */
       #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv) {
-        border-color: theme('colors.teal.200');
-        background-color: theme('colors.teal.50');
-        color: theme('colors.ink.900');
+        border-color: #99f6e4;
+        background-color: #f0fdfa;
+        color: #2a241d;
       }
       #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv):hover {
-        background-color: theme('colors.teal.100');
-        border-color: theme('colors.teal.400');
+        background-color: #ccfbf1;
+        border-color: #2dd4bf;
       }
       #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv) {
-        border-color: theme('colors.violet.200');
-        background-color: theme('colors.violet.50');
-        color: theme('colors.ink.900');
+        border-color: #ddd6fe;
+        background-color: #f5f3ff;
+        color: #2a241d;
       }
       #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv):hover {
-        background-color: theme('colors.violet.100');
-        border-color: theme('colors.violet.400');
+        background-color: #ede9fe;
+        border-color: #a78bfa;
       }
       html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv) {
-        border-color: theme('colors.teal.700');
+        border-color: #0f766e;
         background-color: rgb(19 78 74 / 0.3);
-        color: theme('colors.ink.50');
+        color: #f3efe6;
       }
       html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv):hover {
         background-color: rgb(19 78 74 / 0.45);
-        border-color: theme('colors.teal.500');
+        border-color: #14b8a6;
       }
       html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv) {
-        border-color: theme('colors.violet.600');
+        border-color: #7c3aed;
         background-color: rgb(76 29 149 / 0.25);
-        color: theme('colors.ink.50');
+        color: #f3efe6;
       }
       html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv):hover {
         background-color: rgb(76 29 149 / 0.38);
-        border-color: theme('colors.violet.400');
+        border-color: #a78bfa;
       }
       #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl.mu-bruch-stripe--aktiv,
       #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout.mu-bruch-stripe--aktiv {
-        background-color: theme('colors.accent.600');
-        border-color: theme('colors.accent.600');
+        background-color: #2563eb;
+        border-color: #2563eb;
         color: #fff;
       }
       html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl.mu-bruch-stripe--aktiv,
       html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout.mu-bruch-stripe--aktiv {
-        background-color: theme('colors.accent.500');
-        border-color: theme('colors.accent.600');
+        background-color: #3b82f6;
+        border-color: #2563eb;
         color: #fff;
       }
       .mu-fehlvorstellungen-acc .mu-fehlv-chevron {
