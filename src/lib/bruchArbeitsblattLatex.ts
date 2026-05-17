@@ -203,6 +203,7 @@ export function loesungHtmlZuLatexSegmente(loesung: string): string {
 
 /** SVG der Aufgabenstellung (wie im UI: `diagram` oder nur `diagramLoesung`). */
 export function bruchDiagramSvgFuerAufgabe(a: PracticeAufgabe): string {
+  if (a.diagramPdfAufgabeUnterdruecken) return '';
   if (a.diagram) return a.diagram;
   if (a.diagramLoesung && !a.diagram) return a.diagramLoesung;
   return '';

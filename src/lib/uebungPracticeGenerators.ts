@@ -96,6 +96,11 @@ export type PracticeAufgabe = {
    */
   diagramDefaultHidden?: boolean;
   /**
+   * Wenn wahr: Bruch-PDF zeigt keine Aufgaben-Grafik (`diagram`); `diagramLoesung` bleibt bei
+   * „mit Lösungen“ nutzbar (z. B. Größenvergleich — online ebenfalls ohne Streifen in der Fragestellung).
+   */
+  diagramPdfAufgabeUnterdruecken?: boolean;
+  /**
    * Optional: Start-Skalierung der Aufgaben-Skizze (0,5–2,0), z. B. 2 für 200 % bei allen
    * Zahlenstrahl-Skizzen im Thema „Negative Zahlen“.
    */
@@ -1170,6 +1175,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         diagram: svgBruchVergleichAusgangsstreifen(a, d1, b, d2, 'aufgabe'),
         diagramLoesung: svgBruchVergleichZweiRiegel(nA, nB, L, 'loesung'),
         diagramDefaultHidden: true,
+        diagramPdfAufgabeUnterdruecken: true,
       };
     },
     br_add_unlike() {

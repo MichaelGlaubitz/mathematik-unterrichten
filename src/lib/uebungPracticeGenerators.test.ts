@@ -257,6 +257,7 @@ describe('Bruchrechnung-Generatoren', () => {
     const GEN = createPracticeGenerators(() => 0.55);
     const v = GEN.br_vergleich();
     expect(v.diagramDefaultHidden).toBe(true);
+    expect(v.diagramPdfAufgabeUnterdruecken).toBe(true);
     expect(v.frage).not.toContain('bg-green-50');
     expect(v.frageMitLoesungHighlight).toBeDefined();
     expect(v.frageMitLoesungHighlight).toContain('bg-green-50');
