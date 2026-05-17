@@ -73,6 +73,8 @@ export type PracticeAbAntwortSlot =
       /** Wenn wahr: nur vollständig gekürzte Darstellung (ggT(Zähler, Nenner) = 1), z. B. bei „Kürze vollständig“. */
       requireFullyReduced?: boolean;
     }
+  /** Nur Zähler eingeben; Nenner fest (z. B. „Ergänze den Zähler … / L“). */
+  | { kind: 'frac_num'; expectNum: number; fixedDen: number }
   | { kind: 'choice'; expect: 0 | 1; labels: [string, string] };
 
 export type PracticeAufgabe = {
@@ -1357,7 +1359,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=\\frac{?}{${L}}$.`,
         frageArbeitsblatt: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
-        abSlots: [{ kind: 'frac', expectNum: x, expectDen: L }],
+        abSlots: [{ kind: 'frac_num', expectNum: x, fixedDen: L }],
         loesung: `Erweitern mit $${f}$: $\\displaystyle\\frac{${n}}{${d}}=\\frac{${x}}{${L}}$ — der fehlende Zähler ist $${x}$.`,
       };
     },
@@ -1368,7 +1370,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+\\frac{?}{${d}}=1$.`,
         frageArbeitsblatt: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span> $\\displaystyle= 1$`,
-        abSlots: [{ kind: 'frac', expectNum: b, expectDen: d }],
+        abSlots: [{ kind: 'frac_num', expectNum: b, fixedDen: d }],
         loesung: `Wegen $\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${d}}{${d}}=1$ ist der gesuchte Zähler $${b}$.`,
       };
     },

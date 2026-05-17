@@ -43,6 +43,14 @@ describe('practiceArbeitsblattAntwort', () => {
     expect(html).toContain('data-mu-ab-kind="frac"');
   });
 
+  it('replaceBruchAbFragePlaceholders: frac_num mit festem Nenner', () => {
+    const slots: PracticeAbAntwortSlot[] = [{ kind: 'frac_num', expectNum: 5, fixedDen: 12 }];
+    const html = replaceBruchAbFragePlaceholders('[[MU_AB:0]]', 0, slots);
+    expect(html).toContain('data-mu-ab-kind="frac_num"');
+    expect(html).toContain('mu-ab-n-fixed');
+    expect(html).toContain('>12<');
+  });
+
   it('zaehleAbPlatzhalter liefert maxIndex+1', () => {
     expect(zaehleAbPlatzhalter('[[MU_AB:0]] und [[MU_AB:1]]')).toBe(2);
     expect(zaehleAbPlatzhalter('ohne')).toBe(0);

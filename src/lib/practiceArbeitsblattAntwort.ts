@@ -59,6 +59,7 @@ export function bruchIstVollstaendigGekuerzt(zaehler: number, nenner: number): b
 export function slotIstRichtig(shell: HTMLElement, spec: PracticeAbAntwortSlot): boolean {
   const kind = shell.getAttribute('data-mu-ab-kind');
   if (kind === 'int') {
+    if (spec.kind !== 'int') return false;
     const inp = shell.querySelector<HTMLInputElement>('input.mu-ab-int');
     const v = inp ? parseIntFlexible(inp.value) : null;
     if (v === null) return false;
@@ -75,7 +76,15 @@ export function slotIstRichtig(shell: HTMLElement, spec: PracticeAbAntwortSlot):
     if (spec.requireFullyReduced && !bruchIstVollstaendigGekuerzt(z, n)) return false;
     return true;
   }
+  if (kind === 'frac_num') {
+    if (spec.kind !== 'frac_num') return false;
+    const zn = shell.querySelector<HTMLInputElement>('input.mu-ab-z');
+    const z = zn ? parseIntFlexible(zn.value) : null;
+    if (z === null) return false;
+    return z === spec.expectNum;
+  }
   if (kind === 'choice') {
+    if (spec.kind !== 'choice') return false;
     const sel = shell.querySelector<HTMLInputElement>('input.mu-ab-ch:checked');
     if (!sel) return false;
     return Number(sel.value) === spec.expect;
@@ -98,6 +107,12 @@ function buildSlotMarkup(taskIdx: number, slotIdx: number, spec: PracticeAbAntwo
     const ariaZ = escapeAttr(`Aufgabe ${taskIdx + 1}, Zähler ${slotIdx + 1}`);
     const ariaN = escapeAttr(`Aufgabe ${taskIdx + 1}, Nenner ${slotIdx + 1}`);
     return `<span class="mu-ab-slot-shell ${baseShell}" data-mu-ab-kind="frac" data-mu-ab-task="${taskIdx}" data-mu-ab-slot="${slotIdx}" role="group"><span class="mu-katex-skip inline-flex min-w-[3.25rem] flex-col items-stretch gap-0.5 align-middle"><input type="text" inputmode="numeric" autocomplete="off" aria-label="${ariaZ}" class="mu-ab-z w-full min-w-[3rem] rounded-md border border-ink-300 bg-surface px-1 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-400 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-50 dark:focus:border-accent-300" /><span class="h-px w-full shrink-0 bg-ink-400 dark:bg-slate-500" aria-hidden="true"></span><input type="text" inputmode="numeric" autocomplete="off" aria-label="${ariaN}" class="mu-ab-n w-full min-w-[3rem] rounded-md border border-ink-300 bg-surface px-1 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-400 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-50 dark:focus:border-accent-300" /></span></span>`;
+  }
+  if (spec.kind === 'frac_num') {
+    const den = spec.fixedDen;
+    const ariaZ = escapeAttr(`Aufgabe ${taskIdx + 1}, Zähler ${slotIdx + 1} (Nenner ${den})`);
+    const denText = escapeHtml(String(den));
+    return `<span class="mu-ab-slot-shell ${baseShell}" data-mu-ab-kind="frac_num" data-mu-ab-task="${taskIdx}" data-mu-ab-slot="${slotIdx}" role="group"><span class="mu-katex-skip inline-flex min-w-[3.25rem] flex-col items-stretch gap-0.5 align-middle"><input type="text" inputmode="numeric" autocomplete="off" aria-label="${ariaZ}" class="mu-ab-z w-full min-w-[3rem] rounded-md border border-ink-300 bg-surface px-1 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-400 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-50 dark:focus:border-accent-300" /><span class="h-px w-full shrink-0 bg-ink-400 dark:bg-slate-500" aria-hidden="true"></span><span class="mu-ab-n-fixed select-none px-1 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-800 dark:text-ink-100" aria-hidden="true">${denText}</span></span></span>`;
   }
   const name = `mu-ab-t${taskIdx}-s${slotIdx}`;
   const t0 = escapeHtml(spec.labels[0]);
