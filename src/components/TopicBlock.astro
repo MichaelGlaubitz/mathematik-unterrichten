@@ -37,16 +37,20 @@ const {
   unterthemenBloecke,
 } = Astro.props;
 
-const isBruchWbUnterthemenAkku =
-  slug === 'bruchrechnung' &&
+const wbThemaMitAkku =
+  (slug === 'bruchrechnung' || slug === 'negative-zahlen') &&
   Boolean(generatorUebungHref) &&
   Boolean(unterthemenBloecke && unterthemenBloecke.length > 0);
+const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` : '';
 
 ---
 
 <article
   id={`thema-${slug}`}
-  class="scroll-mt-32 rounded-xl border border-ink-200 bg-surface p-6 md:p-8 mu-dark-glass-panel"
+  class:list={[
+    'scroll-mt-32 rounded-xl border border-ink-200 bg-surface p-6 md:p-8 mu-dark-glass-panel',
+    wbThemaMitAkku && 'mu-wb-unterthemen-root',
+  ]}
 >
   <header class="mb-4 flex flex-wrap items-baseline gap-3">
     <h3 class="font-serif text-2xl md:text-3xl font-semibold text-ink-900 dark:text-ink-50">
@@ -60,8 +64,8 @@ const isBruchWbUnterthemenAkku =
   </p>
 
   {unterthemenBloecke && unterthemenBloecke.length > 0 && (
-    isBruchWbUnterthemenAkku ? (
-      <details class="mu-bruch-unterthemen-acc mb-8 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50">
+    wbThemaMitAkku ? (
+      <details class="mu-wb-unterthemen-acc mb-8 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50">
         <summary class="cursor-pointer list-none px-4 py-3 text-sm [&::-webkit-details-marker]:hidden">
           <span class="inline-flex items-center gap-1.5">
             <span
@@ -71,7 +75,7 @@ const isBruchWbUnterthemenAkku =
               Unterthemen
             </span>
             <span
-              class="mu-bruch-unterthemen-chevron text-ink-500 text-xs font-normal dark:text-ink-400"
+              class="mu-wb-unterthemen-chevron text-ink-500 text-xs font-normal dark:text-ink-400"
               aria-hidden="true"
             >
               ▶
@@ -85,16 +89,16 @@ const isBruchWbUnterthemenAkku =
           <div class="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="Stichwort-Auswahl für alle Unterthemen">
             <button
               type="button"
-              class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
-              data-mu-bruch-kw-bulk="all-select"
+              class="mu-wb-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
+              data-mu-wb-kw-bulk="all-select"
               aria-label="Alle Stichwörter auswählen"
             >
               Alle auswählen
             </button>
             <button
               type="button"
-              class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
-              data-mu-bruch-kw-bulk="all-clear"
+              class="mu-wb-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
+              data-mu-wb-kw-bulk="all-clear"
               aria-label="Alle Stichwörter abwählen"
             >
               Alle abwählen
@@ -106,10 +110,11 @@ const isBruchWbUnterthemenAkku =
             unterthemenBloecke={unterthemenBloecke}
           />
           <div
-            id="mu-bruch-thema-stripe"
-            class="mu-bruch-thema-stripe mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-ink-200/90 bg-ink-50/90 px-3 py-2.5 text-sm shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
+            class="mu-wb-thema-stripe mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-ink-200/90 bg-ink-50/90 px-3 py-2.5 text-sm shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
+            data-mu-wb-auto-href={wbThemaAutoHref}
+            data-mu-wb-thema-slug={slug}
             role="region"
-            aria-label="Einstellungen für WB Bruchrechnung"
+            aria-label={`Einstellungen für ${generatorUebungLabel}`}
           >
       <div
         class="inline-flex flex-wrap items-center gap-1.5"
@@ -121,7 +126,7 @@ const isBruchWbUnterthemenAkku =
           [5, 10, 15, 20, 30, 40, 50].map((n) => (
             <button
               type="button"
-              class="mu-bruch-stripe-anzahl rounded-md border px-2.5 py-1 text-xs font-semibold tabular-nums transition-colors sm:px-3 sm:text-sm"
+              class="mu-wb-stripe-anzahl rounded-md border px-2.5 py-1 text-xs font-semibold tabular-nums transition-colors sm:px-3 sm:text-sm"
               data-anzahl={n}
             >
               {n}
@@ -133,17 +138,17 @@ const isBruchWbUnterthemenAkku =
       <div class="inline-flex flex-wrap items-center gap-1.5" role="group" aria-label="Darstellung">
         <button
           type="button"
-          class="mu-bruch-stripe-layout rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm"
+          class="mu-wb-stripe-layout rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm"
           data-layout="arbeitsblatt"
-          title="Speichert Arbeitsblatt, öffnet WB Bruchrechnung und erzeugt einen neuen Aufgabensatz"
+          title={`Speichert Arbeitsblatt, öffnet ${generatorUebungLabel} und erzeugt einen neuen Aufgabensatz`}
         >
           Arbeitsblatt
         </button>
         <button
           type="button"
-          class="mu-bruch-stripe-layout rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm"
+          class="mu-wb-stripe-layout rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm"
           data-layout="whiteboard"
-          title="Speichert Whiteboard, öffnet WB Bruchrechnung und erzeugt einen neuen Aufgabensatz"
+          title={`Speichert Whiteboard, öffnet ${generatorUebungLabel} und erzeugt einen neuen Aufgabensatz`}
         >
           Whiteboard
         </button>
@@ -152,7 +157,7 @@ const isBruchWbUnterthemenAkku =
       <label class="flex min-w-0 cursor-pointer items-center gap-2 text-xs text-ink-800 dark:text-ink-200 sm:text-sm">
         <input
           type="checkbox"
-          id="mu-bruch-thema-diagrams-cb"
+          id={`mu-wb-thema-diagrams-${slug}`}
           class="shrink-0 accent-accent-600"
         />
         <span class="min-w-0 leading-snug">
@@ -164,91 +169,91 @@ const isBruchWbUnterthemenAkku =
 
       <style is:global>
       /* Tailwind-Utilities auf den Buttons überschreiben — Auswahl muss sichtbar bleiben */
-      #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+      .mu-wb-unterthemen-root button.mu-wb-thema-kw.mu-wb-thema-kw--an {
         background-color: rgb(91 33 182) !important;
         border-color: rgb(91 33 182) !important;
         color: #fff !important;
       }
-      html.dark #thema-bruchrechnung button.mu-bruch-wb-kw.mu-bruch-wb-kw--an {
+      html.dark .mu-wb-unterthemen-root button.mu-wb-thema-kw.mu-wb-thema-kw--an {
         background-color: rgb(167 139 250) !important;
         border-color: rgb(167 139 250) !important;
         color: rgb(15 23 42) !important;
       }
       /* Sammelaktionen: klar von Stichwort-Pills (Akzent-Rand) abgrenzen — gestrichelter Rand, erdige Fläche */
-      #thema-bruchrechnung button.mu-bruch-kw-bulk {
+      .mu-wb-unterthemen-root button.mu-wb-kw-bulk {
         border-width: 1px;
         border-style: dashed;
         border-color: #a08f72;
         background-color: #e9e3d5;
         color: #3f352a;
       }
-      #thema-bruchrechnung button.mu-bruch-kw-bulk:hover {
+      .mu-wb-unterthemen-root button.mu-wb-kw-bulk:hover {
         background-color: #dcd5c5;
         border-color: #6c5c43;
       }
-      html.dark #thema-bruchrechnung button.mu-bruch-kw-bulk {
+      html.dark .mu-wb-unterthemen-root button.mu-wb-kw-bulk {
         border-color: #94a3b8;
         background-color: rgb(30 41 59 / 0.72);
         color: #e2e8f0;
       }
-      html.dark #thema-bruchrechnung button.mu-bruch-kw-bulk:hover {
+      html.dark .mu-wb-unterthemen-root button.mu-wb-kw-bulk:hover {
         background-color: rgb(51 65 85 / 0.85);
         border-color: #cbd5e1;
       }
       /* Kompaktzeile (Farben als RGB/HEX: theme() in Astro-<style> wird nicht aufgelöst) */
-      #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv) {
+      .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-anzahl:not(.mu-wb-stripe--aktiv) {
         border-color: #99f6e4;
         background-color: #f0fdfa;
         color: #2a241d;
       }
-      #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv):hover {
+      .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-anzahl:not(.mu-wb-stripe--aktiv):hover {
         background-color: #ccfbf1;
         border-color: #2dd4bf;
       }
-      #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv) {
+      .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-layout:not(.mu-wb-stripe--aktiv) {
         border-color: #ddd6fe;
         background-color: #f5f3ff;
         color: #2a241d;
       }
-      #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv):hover {
+      .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-layout:not(.mu-wb-stripe--aktiv):hover {
         background-color: #ede9fe;
         border-color: #a78bfa;
       }
-      html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv) {
+      html.dark .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-anzahl:not(.mu-wb-stripe--aktiv) {
         border-color: #0f766e;
         background-color: rgb(19 78 74 / 0.3);
         color: #f3efe6;
       }
-      html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl:not(.mu-bruch-stripe--aktiv):hover {
+      html.dark .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-anzahl:not(.mu-wb-stripe--aktiv):hover {
         background-color: rgb(19 78 74 / 0.45);
         border-color: #14b8a6;
       }
-      html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv) {
+      html.dark .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-layout:not(.mu-wb-stripe--aktiv) {
         border-color: #7c3aed;
         background-color: rgb(76 29 149 / 0.25);
         color: #f3efe6;
       }
-      html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout:not(.mu-bruch-stripe--aktiv):hover {
+      html.dark .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-layout:not(.mu-wb-stripe--aktiv):hover {
         background-color: rgb(76 29 149 / 0.38);
         border-color: #a78bfa;
       }
-      #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl.mu-bruch-stripe--aktiv,
-      #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout.mu-bruch-stripe--aktiv {
+      .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-anzahl.mu-wb-stripe--aktiv,
+      .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-layout.mu-wb-stripe--aktiv {
         background-color: #2563eb;
         border-color: #2563eb;
         color: #fff;
       }
-      html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-anzahl.mu-bruch-stripe--aktiv,
-      html.dark #thema-bruchrechnung .mu-bruch-thema-stripe .mu-bruch-stripe-layout.mu-bruch-stripe--aktiv {
+      html.dark .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-anzahl.mu-wb-stripe--aktiv,
+      html.dark .mu-wb-unterthemen-root .mu-wb-thema-stripe .mu-wb-stripe-layout.mu-wb-stripe--aktiv {
         background-color: #3b82f6;
         border-color: #2563eb;
         color: #fff;
       }
-      #thema-bruchrechnung .mu-bruch-unterthemen-acc .mu-bruch-unterthemen-chevron {
+      .mu-wb-unterthemen-root .mu-wb-unterthemen-acc .mu-wb-unterthemen-chevron {
         display: inline-block;
         transition: transform 0.15s ease;
       }
-      #thema-bruchrechnung .mu-bruch-unterthemen-acc[open] .mu-bruch-unterthemen-chevron {
+      .mu-wb-unterthemen-root .mu-wb-unterthemen-acc[open] .mu-wb-unterthemen-chevron {
         transform: rotate(90deg);
       }
       </style>
@@ -392,8 +397,8 @@ const isBruchWbUnterthemenAkku =
       </div>
     </details>
 
-    {slug !== 'bruchrechnung' && (
-    <!-- Mini-Whiteboard (Bruchrechnung: Steuerung über die Kompaktzeile „WB Bruchrechnung“ oben) -->
+    {slug !== 'bruchrechnung' && slug !== 'negative-zahlen' && (
+    <!-- Mini-Whiteboard (Bruchrechnung & Negative Zahlen: Steuerung in der Unterthemen-Kompaktzeile) -->
     <div class="md:col-span-2 rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
       <div class="flex items-start justify-between gap-3 mb-2">
         <h4 class="font-semibold text-ink-900 dark:text-ink-50 flex items-center gap-2">
