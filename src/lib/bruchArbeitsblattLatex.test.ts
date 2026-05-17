@@ -6,6 +6,9 @@ import {
   compileLatexOnHttpPdf,
   escapeLatexText,
   htmlFrageZuLatexInhalt,
+  latexCompileFailureIsDocumentOrClientError,
+  latexCompileFailureMayBenefitFromSmallerPayload,
+  latexHttpEndpointList,
   loesungHtmlZuLatexSegmente,
   replaceAbPlaceholdersLatex,
   stripHtmlTags,
@@ -126,6 +129,43 @@ describe('bruchArbeitsblattLatex', () => {
     }
   });
 
+  it('latexHttpEndpointList dedupliziert und respektiert explizite URLs', () => {
+    expect(latexHttpEndpointList(['https://a.example/sync', 'https://a.example/sync'])).toEqual([
+      'https://a.example/sync',
+    ]);
+    expect(latexHttpEndpointList(['https://b.example/sync'])).toEqual(['https://b.example/sync']);
+  });
+
+  it('latexCompileFailure: SERVER_ERROR erlaubt kleinere-Payload-Strategie', () => {
+    const r = { ok: false as const, message: 'SERVER_ERROR', log: 'HTTP 500\nContent-Type: application/json\n' };
+    expect(latexCompileFailureMayBenefitFromSmallerPayload(r)).toBe(true);
+    expect(latexCompileFailureIsDocumentOrClientError(r)).toBe(false);
+  });
+
+  it('latexCompileFailure: HTTP 400 stoppt alternative Strategien', () => {
+    const r = { ok: false as const, message: 'x', log: 'HTTP 400\n' };
+    expect(latexCompileFailureIsDocumentOrClientError(r)).toBe(true);
+    expect(latexCompileFailureMayBenefitFromSmallerPayload(r)).toBe(false);
+  });
+
+  it('compileLatexOnHttpPdf: wechselt zum zweiten Endpunkt nach 5xx am ersten', async () => {
+    const pdfBody = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]);
+    const ok = new Response(pdfBody, { status: 201, headers: { 'Content-Type': 'application/pdf' } });
+    const stub = vi.fn().mockImplementation((url: string) => {
+      if (String(url).includes('a.test')) return Promise.resolve(new Response('err', { status: 500 }));
+      return Promise.resolve(ok);
+    });
+    vi.stubGlobal('fetch', stub);
+    const r = await compileLatexOnHttpPdf({
+      texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
+      binFiles: [],
+      endpoints: ['https://a.test/builds/sync', 'https://b.test/builds/sync'],
+    });
+    vi.unstubAllGlobals();
+    expect(r.ok).toBe(true);
+    expect(stub.mock.calls.some((c) => String(c[0]).includes('b.test'))).toBe(true);
+  }, 12_000);
+
   it('compileLatexOnHttpPdf: wiederholt bei temporärem HTTP 500', async () => {
     const pdfBody = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]);
     const fail = new Response('err', { status: 500 });
@@ -135,6 +175,7 @@ describe('bruchArbeitsblattLatex', () => {
     const r = await compileLatexOnHttpPdf({
       texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
       binFiles: [],
+      endpoints: ['https://stub.test/builds/sync'],
     });
     vi.unstubAllGlobals();
     expect(stub).toHaveBeenCalledTimes(2);
@@ -148,6 +189,7 @@ describe('bruchArbeitsblattLatex', () => {
     const r = await compileLatexOnHttpPdf({
       texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
       binFiles: [],
+      endpoints: ['https://stub.test/builds/sync'],
     });
     vi.unstubAllGlobals();
     expect(r.ok).toBe(false);
@@ -168,6 +210,7 @@ describe('bruchArbeitsblattLatex', () => {
     const r = await compileLatexOnHttpPdf({
       texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
       binFiles: [],
+      endpoints: ['https://stub.test/builds/sync'],
     });
     vi.unstubAllGlobals();
     expect(r.ok).toBe(false);

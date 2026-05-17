@@ -18,6 +18,59 @@ function latexHttpBackoffMs(attemptIndex: number): number {
   return 550 * 2 ** attemptIndex;
 }
 
+/** Kompaktere Rastergrafik senkt die JSON-Payload; große POSTs lösen beim öffentlichen Dienst oft SERVER_ERROR aus. */
+export type SvgRasterCaps = { maxPixelWidth: number; jpegQuality: number };
+
+export const BRUCH_AB_RASTER_CAPS_PDF: SvgRasterCaps = {
+  maxPixelWidth: 1280,
+  jpegQuality: 0.83,
+};
+
+export const BRUCH_AB_RASTER_CAPS_PDF_LIGHT: SvgRasterCaps = {
+  maxPixelWidth: 840,
+  jpegQuality: 0.7,
+};
+
+/**
+ * Reihenfolge: zuerst URLs aus `PUBLIC_MU_LATEX_HTTP_URL` (Leerzeichen/Komma-getrennt), dann YtoTech-Standard.
+ * Eigener Proxy kann dieselbe JSON-API sprechen.
+ */
+export function latexHttpEndpointList(explicit?: readonly string[]): string[] {
+  if (explicit?.length) return [...new Set(explicit.filter(Boolean))];
+  const raw =
+    typeof import.meta.env.PUBLIC_MU_LATEX_HTTP_URL === 'string'
+      ? import.meta.env.PUBLIC_MU_LATEX_HTTP_URL.trim()
+      : '';
+  const fromEnv = raw ? raw.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean) : [];
+  return [...new Set([...fromEnv, BRUCH_AB_LATEX_HTTP_ENDPOINT])];
+}
+
+/** Echte LaTeX-/Clientfehler: weiterer Endpunkt oder kleinere Bilder nützen nicht. */
+export function latexCompileFailureIsDocumentOrClientError(r: {
+  ok: false;
+  message: string;
+  log?: string;
+}): boolean {
+  const log = r.log || '';
+  if (/^HTTP 400\b/m.test(log) || /^HTTP 401\b/m.test(log) || /^HTTP 403\b/m.test(log)) return true;
+  if (/pdfTeX error/i.test(log) || /! LaTeX Error/i.test(log)) return true;
+  if (/COMPILATION/i.test(r.message)) return true;
+  return false;
+}
+
+/** Server-/Lastfehler: zweiter Endpunkt oder kleinere eingebettete Grafiken können helfen. */
+export function latexCompileFailureMayBenefitFromSmallerPayload(r: {
+  ok: false;
+  message: string;
+  log?: string;
+}): boolean {
+  if (latexCompileFailureIsDocumentOrClientError(r)) return false;
+  const blob = `${r.message}\n${r.log || ''}`;
+  if (/SERVER_ERROR/i.test(blob)) return true;
+  if (/HTTP 5\d\d/.test(blob)) return true;
+  return false;
+}
+
 export type BruchAbPdfMeta = {
   /** z. B. „Bruchrechnung“ */
   thema: string;
@@ -154,15 +207,20 @@ function parseSvgDimensions(svgXml: string): { w: number; h: number } {
  * Rasterisiert SVG zu JPEG (Base64, ohne data-URL-Präfix) für pdfLaTeX.
  * JPEG ist auf LaTeX-Hosting oft robuster als PNG (weniger libpng-Kantenfälle).
  */
-export async function rasterizeSvgZuJpegBase64(svgXml: string, uiScale: number): Promise<string> {
+export async function rasterizeSvgZuJpegBase64(
+  svgXml: string,
+  uiScale: number,
+  caps: SvgRasterCaps = BRUCH_AB_RASTER_CAPS_PDF
+): Promise<string> {
+  const maxPx = Math.max(160, caps.maxPixelWidth);
   const { w, h } = parseSvgDimensions(svgXml);
   const s = Math.min(2.5, Math.max(0.5, uiScale || 1));
-  let pixelW = Math.min(1600, Math.max(160, Math.round(w * 2 * s)));
+  let pixelW = Math.min(maxPx, Math.max(160, Math.round(w * 2 * s)));
   let pixelH = Math.max(80, Math.round((pixelW * h) / w));
   const minPx = 64;
   if (pixelW < minPx || pixelH < minPx) {
     const f = minPx / Math.min(pixelW, pixelH);
-    pixelW = Math.min(1600, Math.max(minPx, Math.round(pixelW * f)));
+    pixelW = Math.min(maxPx, Math.max(minPx, Math.round(pixelW * f)));
     pixelH = Math.max(minPx, Math.round((pixelW * h) / w));
   }
   const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
@@ -183,7 +241,7 @@ export async function rasterizeSvgZuJpegBase64(svgXml: string, uiScale: number):
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, pixelW, pixelH);
     ctx.drawImage(img, 0, 0, pixelW, pixelH);
-    const data = canvas.toDataURL('image/jpeg', 0.9);
+    const data = canvas.toDataURL('image/jpeg', caps.jpegQuality);
     const i = data.indexOf(',');
     if (i < 0 || data.slice(0, i).indexOf('image/jpeg') < 0) throw new Error('JPEG-Kodierung fehlgeschlagen.');
     return data.slice(i + 1);
@@ -195,15 +253,20 @@ export async function rasterizeSvgZuJpegBase64(svgXml: string, uiScale: number):
 /**
  * Rasterisiert SVG zu PNG (Base64, ohne data-URL-Präfix).
  */
-export async function rasterizeSvgZuPngBase64(svgXml: string, uiScale: number): Promise<string> {
+export async function rasterizeSvgZuPngBase64(
+  svgXml: string,
+  uiScale: number,
+  caps: Pick<SvgRasterCaps, 'maxPixelWidth'> = BRUCH_AB_RASTER_CAPS_PDF
+): Promise<string> {
+  const maxPx = Math.max(160, caps.maxPixelWidth);
   const { w, h } = parseSvgDimensions(svgXml);
   const s = Math.min(2.5, Math.max(0.5, uiScale || 1));
-  let pixelW = Math.min(1600, Math.max(160, Math.round(w * 2 * s)));
+  let pixelW = Math.min(maxPx, Math.max(160, Math.round(w * 2 * s)));
   let pixelH = Math.max(80, Math.round((pixelW * h) / w));
   const minPx = 64;
   if (pixelW < minPx || pixelH < minPx) {
     const f = minPx / Math.min(pixelW, pixelH);
-    pixelW = Math.min(1600, Math.max(minPx, Math.round(pixelW * f)));
+    pixelW = Math.min(maxPx, Math.max(minPx, Math.round(pixelW * f)));
     pixelH = Math.max(minPx, Math.round((pixelW * h) / w));
   }
   const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
@@ -234,14 +297,18 @@ export async function rasterizeSvgZuPngBase64(svgXml: string, uiScale: number): 
 }
 
 /** SVG → Raster für pdfLaTeX; zuerst JPEG, bei Fehler oder leerem Ergebnis PNG. */
-export async function rasterizeSvgFuerLatexPdf(svgXml: string, uiScale: number): Promise<{ ext: 'jpg' | 'png'; base64: string }> {
+export async function rasterizeSvgFuerLatexPdf(
+  svgXml: string,
+  uiScale: number,
+  caps: SvgRasterCaps = BRUCH_AB_RASTER_CAPS_PDF
+): Promise<{ ext: 'jpg' | 'png'; base64: string }> {
   try {
-    const base64 = await rasterizeSvgZuJpegBase64(svgXml, uiScale);
+    const base64 = await rasterizeSvgZuJpegBase64(svgXml, uiScale, caps);
     if (base64.length > 80) return { ext: 'jpg', base64 };
   } catch {
     /* JPEG nicht möglich → PNG */
   }
-  return { ext: 'png', base64: await rasterizeSvgZuPngBase64(svgXml, uiScale) };
+  return { ext: 'png', base64: await rasterizeSvgZuPngBase64(svgXml, uiScale, caps) };
 }
 
 export function buildBruchArbeitsblattTex(opts: {
@@ -327,21 +394,48 @@ ${blocks.join('\n')}
 `;
 }
 
-export async function compileLatexOnHttpPdf(opts: {
-  texMain: string;
-  binFiles: ReadonlyArray<{ path: string; fileBase64: string }>;
-}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  const resources: Record<string, unknown>[] = [{ main: true, content: opts.texMain }];
-  for (const f of opts.binFiles) {
-    resources.push({ path: f.path, file: f.fileBase64 });
+function buildLatexHttpFailure(
+  res: Response,
+  buf: Uint8Array
+): { ok: false; message: string; log: string } {
+  const txt = new TextDecoder().decode(buf);
+  const httpKopf = `HTTP ${res.status}\nContent-Type: ${res.headers.get('content-type') || '(nicht gesetzt)'}\n`;
+  let message = `PDF-Dienst antwortete mit HTTP ${res.status}.`;
+  const logTeile: string[] = [];
+  try {
+    const j = JSON.parse(txt) as {
+      error?: string;
+      message?: string;
+      log?: string;
+      log_files?: Record<string, string>;
+    };
+    if (j.error) message = String(j.error);
+    if (j.message) message = `${message} ${j.message}`;
+    if (j.log) logTeile.push(String(j.log));
+    if (j.log_files && typeof j.log_files === 'object') {
+      for (const [name, inhalt] of Object.entries(j.log_files)) {
+        if (typeof inhalt === 'string' && inhalt.length > 0) logTeile.push(`--- ${name} ---\n${inhalt}`);
+      }
+    }
+  } catch {
+    logTeile.push(`--- Antwort (kein JSON) ---\n${txt.slice(0, 20000)}`);
   }
-  const body = JSON.stringify({ compiler: 'pdflatex', resources });
+  if (logTeile.length === 0 || logTeile.join('').length < 80) {
+    logTeile.push(`--- Antwort-Text (Anfang) ---\n${txt.slice(0, 20000)}`);
+  }
+  const log = `${httpKopf}\n${logTeile.join('\n\n')}`;
+  return { ok: false, message, log };
+}
 
+async function compileLatexOnHttpPdfAtEndpoint(
+  endpoint: string,
+  body: string
+): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
   let lastNetworkMsg: string | undefined;
   for (let attempt = 0; attempt < LATEX_HTTP_MAX_ATTEMPTS; attempt++) {
     let res: Response;
     try {
-      res = await fetch(BRUCH_AB_LATEX_HTTP_ENDPOINT, {
+      res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body,
@@ -369,33 +463,7 @@ export async function compileLatexOnHttpPdf(opts: {
       continue;
     }
 
-    const txt = new TextDecoder().decode(buf);
-    const httpKopf = `HTTP ${res.status}\nContent-Type: ${res.headers.get('content-type') || '(nicht gesetzt)'}\n`;
-    let message = `PDF-Dienst antwortete mit HTTP ${res.status}.`;
-    let logTeile: string[] = [];
-    try {
-      const j = JSON.parse(txt) as {
-        error?: string;
-        message?: string;
-        log?: string;
-        log_files?: Record<string, string>;
-      };
-      if (j.error) message = String(j.error);
-      if (j.message) message = `${message} ${j.message}`;
-      if (j.log) logTeile.push(String(j.log));
-      if (j.log_files && typeof j.log_files === 'object') {
-        for (const [name, inhalt] of Object.entries(j.log_files)) {
-          if (typeof inhalt === 'string' && inhalt.length > 0) logTeile.push(`--- ${name} ---\n${inhalt}`);
-        }
-      }
-    } catch {
-      logTeile.push(`--- Antwort (kein JSON) ---\n${txt.slice(0, 20000)}`);
-    }
-    if (logTeile.length === 0 || logTeile.join('').length < 80) {
-      logTeile.push(`--- Antwort-Text (Anfang) ---\n${txt.slice(0, 20000)}`);
-    }
-    const log = `${httpKopf}\n${logTeile.join('\n\n')}`;
-    return { ok: false, message, log };
+    return buildLatexHttpFailure(res, buf);
   }
 
   return {
@@ -405,38 +473,83 @@ export async function compileLatexOnHttpPdf(opts: {
   };
 }
 
+export async function compileLatexOnHttpPdf(opts: {
+  texMain: string;
+  binFiles: ReadonlyArray<{ path: string; fileBase64: string }>;
+  endpoints?: readonly string[];
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  const resources: Record<string, unknown>[] = [{ main: true, content: opts.texMain }];
+  for (const f of opts.binFiles) {
+    resources.push({ path: f.path, file: f.fileBase64 });
+  }
+  const body = JSON.stringify({ compiler: 'pdflatex', resources });
+  const urls = latexHttpEndpointList(opts.endpoints);
+
+  let lastFail: { ok: false; message: string; log?: string } | undefined;
+  for (const endpoint of urls) {
+    const r = await compileLatexOnHttpPdfAtEndpoint(endpoint, body);
+    if (r.ok) return r;
+    lastFail = r;
+    if (latexCompileFailureIsDocumentOrClientError(r)) return r;
+  }
+  return lastFail ?? { ok: false, message: 'PDF-Dienst: keine Endpunkt-URL konfiguriert.', log: '' };
+}
+
 export async function erzeugeBruchArbeitsblattPdf(opts: {
   aufgaben: readonly PracticeAufgabe[];
   meta: BruchAbPdfMeta;
   mitLoesungen: boolean;
   diagramUiScale: (taskIndex: number) => number;
 }): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  const diagramPngPaths: { taskIndex: number; suffix: 'a' | 'l'; path: string }[] = [];
-  const binFiles: { path: string; fileBase64: string }[] = [];
+  async function assemble(caps: SvgRasterCaps): Promise<{
+    texMain: string;
+    binFiles: { path: string; fileBase64: string }[];
+  }> {
+    const diagramPngPaths: { taskIndex: number; suffix: 'a' | 'l'; path: string }[] = [];
+    const binFiles: { path: string; fileBase64: string }[] = [];
 
-  for (let i = 0; i < opts.aufgaben.length; i++) {
-    const a = opts.aufgaben[i];
-    const sc = opts.diagramUiScale(i);
-    const svgA = bruchDiagramSvgFuerAufgabe(a);
-    if (svgA) {
-      const { ext, base64 } = await rasterizeSvgFuerLatexPdf(svgA, sc);
-      const path = `d${i}a.${ext}`;
-      diagramPngPaths.push({ taskIndex: i, suffix: 'a', path });
-      binFiles.push({ path, fileBase64: base64 });
+    for (let i = 0; i < opts.aufgaben.length; i++) {
+      const a = opts.aufgaben[i];
+      const sc = opts.diagramUiScale(i);
+      const svgA = bruchDiagramSvgFuerAufgabe(a);
+      if (svgA) {
+        const { ext, base64 } = await rasterizeSvgFuerLatexPdf(svgA, sc, caps);
+        const path = `d${i}a.${ext}`;
+        diagramPngPaths.push({ taskIndex: i, suffix: 'a', path });
+        binFiles.push({ path, fileBase64: base64 });
+      }
+      if (opts.mitLoesungen && a.diagramLoesung && a.diagram && a.diagramLoesung !== a.diagram) {
+        const { ext, base64 } = await rasterizeSvgFuerLatexPdf(a.diagramLoesung, sc, caps);
+        const path = `d${i}l.${ext}`;
+        diagramPngPaths.push({ taskIndex: i, suffix: 'l', path });
+        binFiles.push({ path, fileBase64: base64 });
+      }
     }
-    if (opts.mitLoesungen && a.diagramLoesung && a.diagram && a.diagramLoesung !== a.diagram) {
-      const { ext, base64 } = await rasterizeSvgFuerLatexPdf(a.diagramLoesung, sc);
-      const path = `d${i}l.${ext}`;
-      diagramPngPaths.push({ taskIndex: i, suffix: 'l', path });
-      binFiles.push({ path, fileBase64: base64 });
-    }
+
+    const texMain = buildBruchArbeitsblattTex({
+      aufgaben: opts.aufgaben,
+      meta: opts.meta,
+      mitLoesungen: opts.mitLoesungen,
+      diagramPngPaths,
+    });
+    return { texMain, binFiles };
   }
 
-  const texMain = buildBruchArbeitsblattTex({
-    aufgaben: opts.aufgaben,
-    meta: opts.meta,
-    mitLoesungen: opts.mitLoesungen,
-    diagramPngPaths,
-  });
-  return compileLatexOnHttpPdf({ texMain, binFiles });
+  const first = await assemble(BRUCH_AB_RASTER_CAPS_PDF);
+  let r = await compileLatexOnHttpPdf(first);
+  if (r.ok) return r;
+
+  const hadBinaries = first.binFiles.length > 0;
+  if (
+    hadBinaries &&
+    latexCompileFailureMayBenefitFromSmallerPayload(r) &&
+    (BRUCH_AB_RASTER_CAPS_PDF_LIGHT.maxPixelWidth < BRUCH_AB_RASTER_CAPS_PDF.maxPixelWidth ||
+      BRUCH_AB_RASTER_CAPS_PDF_LIGHT.jpegQuality < BRUCH_AB_RASTER_CAPS_PDF.jpegQuality)
+  ) {
+    const second = await assemble(BRUCH_AB_RASTER_CAPS_PDF_LIGHT);
+    const r2 = await compileLatexOnHttpPdf(second);
+    if (r2.ok) return r2;
+  }
+
+  return r;
 }
