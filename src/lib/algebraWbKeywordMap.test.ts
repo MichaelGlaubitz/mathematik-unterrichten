@@ -2,35 +2,44 @@ import { describe, it, expect } from 'vitest';
 import {
   ALG_WB_STICHWORT_TO_IDS,
   ALG_WB_UNTERTHEMA_STICHWORTE,
-  expandAlgWbStichworte,
   algStichwortClusterIndex,
+  algWbAlleStichworteFlach,
   clusterTitelZeileFuerAlgGeneratorIds,
+  expandAlgWbStichworte,
   sortAlgAbStichworte,
   stichwortLabelsFromAlgSessionRaw,
   stichworteFuerAlgIds,
 } from './algebraWbKeywordMap';
 
 describe('algebraWbKeywordMap', () => {
-  it('deckt alle Stichwörter aus algebra.json (unterthemenBloecke) ab', () => {
-    const flat = ALG_WB_UNTERTHEMA_STICHWORTE.flat();
-    const keys = Object.keys(ALG_WB_STICHWORT_TO_IDS);
-    expect(keys.length).toBe(flat.length);
+  it('jedes Stichwort aus algebra.json liegt in genau einem Cluster', () => {
+    const flat = algWbAlleStichworteFlach();
+    expect(flat.length).toBe(ALG_WB_UNTERTHEMA_STICHWORTE.flat().length);
     for (const p of flat) {
-      expect(keys).toContain(p);
-      expect(ALG_WB_STICHWORT_TO_IDS[p]?.length).toBeGreaterThan(0);
+      expect(algStichwortClusterIndex(p)).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('jeder Map-Key ist ein gültiges Stichwort aus den Blöcken', () => {
+    const flat = new Set(algWbAlleStichworteFlach());
+    for (const k of Object.keys(ALG_WB_STICHWORT_TO_IDS)) {
+      expect(flat.has(k)).toBe(true);
     }
   });
 
   it('expandAlgWbStichworte und stichworteFuerAlgIds sind kompatibel', () => {
-    const kw = ['Distributivgesetz mit ganzen Zahlen', 'Zahl vor Klammer ausmultiplizieren'];
+    const kw = [
+      'Gleichartige Terme zusammenfassen (gleiche Variable)',
+      'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)',
+    ];
     const ids = expandAlgWbStichworte(kw);
-    expect(ids).toContain('alg_distributiv_zahl');
+    expect(ids).toContain('alg_terme_zusammen');
     expect(ids).toContain('alg_klammer_mal');
     const zurück = stichworteFuerAlgIds(ids);
     expect(zurück).toEqual(expect.arrayContaining(kw));
   });
 
-  it('jedes Stichwort ist genau einem Unterthemen-Cluster zugeordnet', () => {
+  it('jedes gemappte Stichwort hat einen Cluster', () => {
     for (const k of Object.keys(ALG_WB_STICHWORT_TO_IDS)) {
       expect(algStichwortClusterIndex(k)).toBeGreaterThanOrEqual(0);
     }
@@ -38,31 +47,33 @@ describe('algebraWbKeywordMap', () => {
 
   it('sortAlgAbStichworte gruppiert nach Cluster, dann Alphabet', () => {
     const unsorted = [
-      'Gemeinsamen Faktor ausklammern',
-      'Distributivgesetz mit ganzen Zahlen',
-      'Minus vor der Klammer mit Summanden',
+      'Faktorisieren mit gemeinsamem Zahlfaktor',
+      'Gleichartige Terme zusammenfassen (gleiche Variable)',
+      'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)',
     ];
     expect(sortAlgAbStichworte(unsorted)).toEqual([
-      'Distributivgesetz mit ganzen Zahlen',
-      'Minus vor der Klammer mit Summanden',
-      'Gemeinsamen Faktor ausklammern',
+      'Gleichartige Terme zusammenfassen (gleiche Variable)',
+      'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)',
+      'Faktorisieren mit gemeinsamem Zahlfaktor',
     ]);
   });
 
   it('clusterTitelZeileFuerAlgGeneratorIds sammelt Cluster-Titel', () => {
-    const line = clusterTitelZeileFuerAlgGeneratorIds(['alg_distributiv_zahl', 'alg_klammer_mal']);
-    expect(line).toContain('Distributivgesetz');
-    expect(line).toContain('Ausmultiplizieren');
+    const line = clusterTitelZeileFuerAlgGeneratorIds(['alg_terme_zusammen', 'alg_klammer_mal']);
+    expect(line).toContain('Gleichartige');
+    expect(line).toContain('Klammern');
   });
 
   it('stichwortLabelsFromAlgSessionRaw liest Stichwort- oder ID-Listen', () => {
-    expect(stichwortLabelsFromAlgSessionRaw(['alg_terme_zusammen'])).toContain('Gleichartige Terme zusammenfassen');
-    expect(stichwortLabelsFromAlgSessionRaw(['Gleichartige Terme zusammenfassen'])).toEqual([
-      'Gleichartige Terme zusammenfassen',
+    expect(stichwortLabelsFromAlgSessionRaw(['alg_terme_zusammen'])).toContain(
+      'Gleichartige Terme zusammenfassen (gleiche Variable)'
+    );
+    expect(stichwortLabelsFromAlgSessionRaw(['Gleichartige Terme zusammenfassen (gleiche Variable)'])).toEqual([
+      'Gleichartige Terme zusammenfassen (gleiche Variable)',
     ]);
   });
 
-  it('mappt nur auf die sechs Algebra-Generator-IDs aus Phase 1', () => {
+  it('mappt nur auf die sechs Algebra-Generator-IDs', () => {
     const allowed = new Set([
       'alg_klammer_mal',
       'alg_minus_klammer_plus',
@@ -76,5 +87,11 @@ describe('algebraWbKeywordMap', () => {
         expect(allowed.has(id)).toBe(true);
       }
     }
+  });
+
+  it('nicht jedes UI-Stichwort hat einen Generator (bewusste Lücke)', () => {
+    const flat = algWbAlleStichworteFlach();
+    const mapped = new Set(Object.keys(ALG_WB_STICHWORT_TO_IDS));
+    expect(mapped.size).toBeLessThan(flat.length);
   });
 });

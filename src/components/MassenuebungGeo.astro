@@ -2094,7 +2094,12 @@ function wbLabelFromHref(href: string): string {
           const ids = raw.filter((id) => allowedSet.has(id));
           return ids.length ? ids : allAlgIdsFiltered();
         }
-        const fromKw = expandAlgWbStichworte(raw).filter((id) => allowedSet.has(id));
+        const stichworte = raw.filter((x) => typeof x === 'string');
+        const fromKw = expandAlgWbStichworte(stichworte).filter((id) => allowedSet.has(id));
+        /** Nur Stichworte mit Map → keine stillen Fallbacks bei reiner Begriffsauswahl. */
+        if (fromKw.length === 0 && stichworte.some((s) => !String(s).startsWith('alg_'))) {
+          return [];
+        }
         return fromKw.length ? fromKw : allAlgIdsFiltered();
       } catch {
         return allAlgIdsFiltered();
