@@ -120,6 +120,17 @@ export type PracticeAufgabe = {
 };
 
 /**
+ * Bruch-PDF: keine eingebettete Aufgaben-Grafik (siehe `bruchDiagramSvgFuerAufgabe`).
+ * Zusätzlich zum Flag `diagramPdfAufgabeUnterdruecken` wird der Größenvergleich am Fragetext
+ * erkannt — gespeicherte Whiteboard-Routen enthielten ältere Zusatzfelder beim Parsen nicht.
+ */
+export function practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm(a: PracticeAufgabe): boolean {
+  if (a.diagramPdfAufgabeUnterdruecken === true) return true;
+  if (typeof a.frage === 'string' && a.frage.startsWith('Welcher Bruch ist größer:')) return true;
+  return false;
+}
+
+/**
  * Lösung ohne farbigen Lösungskasten: direkt an die Frage (Whiteboard) bzw. ohne Kasten im Detail (Arbeitsblatt).
  * U.a. ganze Zahlen (nz_add/nz_sub) und gleichnamige Brüche (br_add_like/br_sub_like).
  */

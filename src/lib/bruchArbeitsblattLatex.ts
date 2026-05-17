@@ -3,7 +3,10 @@
  * (Kompilierung über öffentliche LaTeX-on-HTTP-Instanz, CORS-freundlich).
  */
 import type { PracticeAbAntwortSlot, PracticeAufgabe } from './uebungPracticeGenerators';
-import { practiceAufgabeHatLoesungInlineNachFrage } from './uebungPracticeGenerators';
+import {
+  practiceAufgabeHatLoesungInlineNachFrage,
+  practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm,
+} from './uebungPracticeGenerators';
 
 /** Maximale Breite eingebetteter Diagramme (im zweispaltigen Block: Spaltenbreite). */
 export const BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH = '0.92\\linewidth';
@@ -203,7 +206,7 @@ export function loesungHtmlZuLatexSegmente(loesung: string): string {
 
 /** SVG der Aufgabenstellung (wie im UI: `diagram` oder nur `diagramLoesung`). */
 export function bruchDiagramSvgFuerAufgabe(a: PracticeAufgabe): string {
-  if (a.diagramPdfAufgabeUnterdruecken) return '';
+  if (practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm(a)) return '';
   if (a.diagram) return a.diagram;
   if (a.diagramLoesung && !a.diagram) return a.diagramLoesung;
   return '';
