@@ -45,6 +45,19 @@ PUBLIC_MU_LATEX_HTTP_URL=https://latex.deinedomain.de/builds/sync
 
 Dann Site neu bauen/deployen. Die Seite versucht **zuerst** diese URL, danach weiterhin ytotech als Fallback.
 
+## Hauptdomain noch bei anderem Anbieter (z. B. webgo), Hostinger nur VPS + zweite Domain
+
+Das ist **unkritisch** für den LaTeX-Proxy:
+
+1. **DNS für den LaTeX-Host nur dort pflegen, wo du die Domain schon hast** — z. B. bei Hostinger für `mathechismus.de`: Subdomain **`latex.mathechismus.de`** anlegen, **A-Record** auf die **VPS-IP** (nicht auf Shared Hosting).
+2. In `.env` auf dem VPS: `SITE_ADDRESS=latex.mathechismus.de` (Beispiel).
+3. Beim **Build** der Seite unter **https://mathematik-unterrichten.de** (egal ob die Dateien bei webgo liegen):  
+   `PUBLIC_MU_LATEX_HTTP_URL=https://latex.mathechismus.de/builds/sync`  
+   Der Browser ruft damit deinen VPS auf; **CORS** im mitgelieferten `Caddyfile` ist bereits auf **`https://mathematik-unterrichten.de`** eingestellt — das passt, solange Nutzer die Seite unter genau dieser Origin aufrufen.
+4. **Ab Oktober**, wenn `mathematik-unterrichten.de` zu Hostinger (oder woanders) umzieht: solange die Seite weiter unter `https://mathematik-unterrichten.de` läuft, **ändert sich am LaTeX-Setup nichts**. Wenn du später eine **zweite** Origin brauchst (z. B. Preview unter `https://mathechismus.de`), im `Caddyfile` die `Access-Control-Allow-Origin`-Zeilen erweitern (Caddy: z. B. per `map` auf erlaubte Origins) — siehe Caddy-Doku.
+
+**Wichtig:** Die LaTeX-Subdomain muss **nicht** `mathematik-unterrichten.de` heißen; sie kann ruhig unter `mathechismus.de` laufen.
+
 ## CORS / andere Domains
 
 Erlaubte Origin ist in `Caddyfile` fest `https://mathematik-unterrichten.de`. Für eine **Staging-Domain** oder **localhost** musst du die drei `Access-Control-Allow-Origin`-Zeilen dort anpassen (oder eine zweite Zeile mit Matcher — siehe Caddy-Doku).
