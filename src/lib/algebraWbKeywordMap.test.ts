@@ -73,7 +73,7 @@ describe('algebraWbKeywordMap', () => {
     ]);
   });
 
-  it('mappt nur auf die sechs Algebra-Generator-IDs', () => {
+  it('mappt nur auf die WB-Algebra-Generator-IDs', () => {
     const allowed = new Set([
       'alg_klammer_mal',
       'alg_minus_klammer_plus',
@@ -81,6 +81,11 @@ describe('algebraWbKeywordMap', () => {
       'alg_klammer_weg',
       'alg_terme_zusammen',
       'alg_distributiv_zahl',
+      'alg_gb_term',
+      'alg_gb_koeff',
+      'alg_gb_variable',
+      'alg_gb_konstante',
+      'alg_gb_konvention',
     ]);
     for (const ids of Object.values(ALG_WB_STICHWORT_TO_IDS)) {
       for (const id of ids) {
