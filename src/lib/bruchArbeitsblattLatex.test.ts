@@ -126,6 +126,34 @@ describe('bruchArbeitsblattLatex', () => {
     }
   });
 
+  it('compileLatexOnHttpPdf: wiederholt bei temporärem HTTP 500', async () => {
+    const pdfBody = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]);
+    const fail = new Response('err', { status: 500 });
+    const ok = new Response(pdfBody, { status: 201, headers: { 'Content-Type': 'application/pdf' } });
+    const stub = vi.fn().mockResolvedValueOnce(fail).mockResolvedValueOnce(ok);
+    vi.stubGlobal('fetch', stub);
+    const r = await compileLatexOnHttpPdf({
+      texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
+      binFiles: [],
+    });
+    vi.unstubAllGlobals();
+    expect(stub).toHaveBeenCalledTimes(2);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.pdf[0]).toBe(0x25);
+  }, 10_000);
+
+  it('compileLatexOnHttpPdf: bricht nach mehreren HTTP 500 ab', async () => {
+    const stub = vi.fn().mockImplementation(() => Promise.resolve(new Response('err', { status: 500 })));
+    vi.stubGlobal('fetch', stub);
+    const r = await compileLatexOnHttpPdf({
+      texMain: '\\documentclass{article}\\begin{document}x\\end{document}',
+      binFiles: [],
+    });
+    vi.unstubAllGlobals();
+    expect(r.ok).toBe(false);
+    expect(stub).toHaveBeenCalledTimes(3);
+  }, 10_000);
+
   it('compileLatexOnHttpPdf: log_files aus API-Fehlerantwort wird in log übernommen', async () => {
     const stub = vi.fn().mockResolvedValue(
       new Response(
