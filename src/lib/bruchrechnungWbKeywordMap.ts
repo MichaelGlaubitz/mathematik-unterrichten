@@ -9,7 +9,7 @@ export const BRUCH_WB_STOR_KEY = 'mu_bruch_wb_keywords';
  * in `src/content/themen/bruchrechnung.json`.
  */
 export const BRUCH_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
-  ['Ganze Zahl mal Bruch', 'Bruch durch ganze Zahl', 'Ganze Zahl durch Bruch'],
+  ['Stammbruchteil einer Größe', 'Anteil mit beliebigem Bruch', 'Umkehraufgabe (Größe aus dem Anteil)'],
   [
     'Kürzen / vollständig kürzen',
     'Erweitern auf vorgegebenen Nenner',
@@ -19,7 +19,6 @@ export const BRUCH_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
     'Gemischte Zahl → uneigentlicher Bruch',
     'Größenvergleich zweier Brüche',
   ],
-  ['Stammbruchteil einer Größe', 'Anteil mit beliebigem Bruch', 'Umkehraufgabe (Größe aus dem Anteil)'],
   [
     'Addition gleichnamiger Brüche',
     'Subtraktion gleichnamiger Brüche',
@@ -28,14 +27,15 @@ export const BRUCH_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
     'Brüche multiplizieren',
     'Brüche dividieren (Kehrwert)',
   ],
+  ['Ganze Zahl mal Bruch', 'Bruch durch ganze Zahl', 'Ganze Zahl durch Bruch'],
 ];
 
 /** Parallele Cluster-Titel wie in `src/content/themen/bruchrechnung.json` (`unterthemenBloecke[].titel`). */
 export const BRUCH_WB_CLUSTER_TITEL: readonly string[] = [
-  'Brüche und ganze Zahlen',
-  'Umgang mit Brüchen',
   'Bruchteile von Größen',
+  'Umgang mit Brüchen',
   'Grundrechenarten mit Brüchen',
+  'Brüche und ganze Zahlen',
 ];
 
 export function bruchStichwortClusterIndex(stichwort: string): number {
