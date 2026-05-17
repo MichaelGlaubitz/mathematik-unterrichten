@@ -251,13 +251,6 @@ const isBruchWbUnterthemenAkku =
       #thema-bruchrechnung .mu-bruch-unterthemen-acc[open] .mu-bruch-unterthemen-chevron {
         transform: rotate(90deg);
       }
-      .mu-fehlvorstellungen-acc .mu-fehlv-chevron {
-        display: inline-block;
-        transition: transform 0.15s ease;
-      }
-      .mu-fehlvorstellungen-acc[open] .mu-fehlv-chevron {
-        transform: rotate(90deg);
-      }
       </style>
     </details>
     ) : (
@@ -298,65 +291,110 @@ const isBruchWbUnterthemenAkku =
 
 
   <div class="grid gap-5 md:grid-cols-2">
-    <!-- Aufgaben -->
-    <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
-      <h4 class="font-semibold text-ink-900 mb-2 dark:text-ink-50 flex items-center gap-2">
-        <span aria-hidden="true">📚</span> Aufgabenfolgen
-      </h4>
-      {aufgaben.length > 0 ? (
-        <ul class="space-y-2 text-sm">
-          {aufgaben.map((a) => (
-            <li>
-              <a
-                href={`/aufgaben/${a.slug}`}
-                class="text-accent-700 hover:underline dark:text-accent-100"
-              >
-                {a.data.titel}
-              </a>
-              <span class="text-ink-500 dark:text-ink-400">
-                {' '}· Kl. {a.data.klassenstufe.join('/')} · {a.data.schwierigkeit}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="text-sm text-ink-500 dark:text-ink-400 italic">
-          Noch keine Aufgabenfolge – kommt.
-        </p>
-      )}
-    </div>
+    <details
+      class="mu-thema-ressourcen-acc md:col-span-2 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
+      aria-label="Aufgabenfolgen, diagnostische Fragen und Didaktik-Beiträge"
+    >
+      <summary class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-accent-700 dark:text-accent-100 [&::-webkit-details-marker]:hidden">
+        <span class="inline-flex items-center gap-1.5">
+          <span>ASeq, DiQ, Blogposts</span>
+          <span class="mu-thema-ressourcen-chevron text-ink-500 text-xs font-normal dark:text-ink-400" aria-hidden="true">
+            ▶
+          </span>
+        </span>
+      </summary>
+      <div class="border-t border-ink-200/90 px-4 pb-4 pt-2 dark:border-slate-600/45">
+        <div class="grid gap-5 md:grid-cols-2">
+          <!-- Aufgaben -->
+          <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
+            <h4 class="font-semibold text-ink-900 mb-2 dark:text-ink-50 flex items-center gap-2">
+              <span aria-hidden="true">📚</span> Aufgabenfolgen
+            </h4>
+            {aufgaben.length > 0 ? (
+              <ul class="space-y-2 text-sm">
+                {aufgaben.map((a) => (
+                  <li>
+                    <a
+                      href={`/aufgaben/${a.slug}`}
+                      class="text-accent-700 hover:underline dark:text-accent-100"
+                    >
+                      {a.data.titel}
+                    </a>
+                    <span class="text-ink-500 dark:text-ink-400">
+                      {' '}· Kl. {a.data.klassenstufe.join('/')} · {a.data.schwierigkeit}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="text-sm text-ink-500 dark:text-ink-400 italic">
+                Noch keine Aufgabenfolge – kommt.
+              </p>
+            )}
+          </div>
 
-    <!-- Quizzes -->
-    <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
-      <h4 class="font-semibold text-ink-900 mb-2 dark:text-ink-50 flex items-center gap-2">
-        <span aria-hidden="true">🎯</span> Diagnostische Fragen
-      </h4>
-      {quizzes.length > 0 ? (
-        <ul class="space-y-2 text-sm">
-          {quizzes.map((q) => (
-            <li>
-              <a
-                href={`/quizzes/${q.id}`}
-                class="text-accent-700 hover:underline dark:text-accent-100"
-              >
-                {q.data.titel}
-              </a>
-              <span class="text-ink-500 dark:text-ink-400">
-                {' '}· Kl. {q.data.klassenstufe.join('/')}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="text-sm text-ink-500 dark:text-ink-400 italic">
-          Noch keine diagnostischen Fragen – kommen.
-        </p>
-      )}
-    </div>
+          <!-- Quizzes -->
+          <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
+            <h4 class="font-semibold text-ink-900 mb-2 dark:text-ink-50 flex items-center gap-2">
+              <span aria-hidden="true">🎯</span> Diagnostische Fragen
+            </h4>
+            {quizzes.length > 0 ? (
+              <ul class="space-y-2 text-sm">
+                {quizzes.map((q) => (
+                  <li>
+                    <a
+                      href={`/quizzes/${q.id}`}
+                      class="text-accent-700 hover:underline dark:text-accent-100"
+                    >
+                      {q.data.titel}
+                    </a>
+                    <span class="text-ink-500 dark:text-ink-400">
+                      {' '}· Kl. {q.data.klassenstufe.join('/')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="text-sm text-ink-500 dark:text-ink-400 italic">
+                Noch keine diagnostischen Fragen – kommen.
+              </p>
+            )}
+          </div>
+
+          <!-- Blog -->
+          <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
+            <h4 class="font-semibold text-ink-900 mb-2 dark:text-ink-50 flex items-center gap-2">
+              <span aria-hidden="true">✍️</span> Verwandte Didaktik-Beiträge
+            </h4>
+            {blog.length > 0 ? (
+              <ul class="space-y-2 text-sm">
+                {blog.map((b) => (
+                  <li>
+                    <a
+                      href={`/blog/${b.slug}`}
+                      class="text-accent-700 hover:underline dark:text-accent-100"
+                    >
+                      {b.data.title}
+                    </a>
+                    <span class="text-ink-500 dark:text-ink-400">
+                      {' '}· {b.data.kategorie}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="text-sm text-ink-500 dark:text-ink-400 italic">
+                Noch keine passenden Beiträge verknüpft.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </details>
 
     {slug !== 'bruchrechnung' && (
     <!-- Mini-Whiteboard (Bruchrechnung: Steuerung über die Kompaktzeile „WB Bruchrechnung“ oben) -->
-    <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
+    <div class="md:col-span-2 rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
       <div class="flex items-start justify-between gap-3 mb-2">
         <h4 class="font-semibold text-ink-900 dark:text-ink-50 flex items-center gap-2">
           <span aria-hidden="true">✏️</span> Mini-Whiteboard
@@ -424,32 +462,17 @@ const isBruchWbUnterthemenAkku =
     </div>
     )}
 
-    <!-- Blog -->
-    <div class="rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
-      <h4 class="font-semibold text-ink-900 mb-2 dark:text-ink-50 flex items-center gap-2">
-        <span aria-hidden="true">✍️</span> Verwandte Didaktik-Beiträge
-      </h4>
-      {blog.length > 0 ? (
-        <ul class="space-y-2 text-sm">
-          {blog.map((b) => (
-            <li>
-              <a
-                href={`/blog/${b.slug}`}
-                class="text-accent-700 hover:underline dark:text-accent-100"
-              >
-                {b.data.title}
-              </a>
-              <span class="text-ink-500 dark:text-ink-400">
-                {' '}· {b.data.kategorie}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="text-sm text-ink-500 dark:text-ink-400 italic">
-          Noch keine passenden Beiträge verknüpft.
-        </p>
-      )}
-    </div>
   </div>
+
+  <style is:global>
+    .mu-fehlvorstellungen-acc .mu-fehlv-chevron,
+    .mu-thema-ressourcen-acc .mu-thema-ressourcen-chevron {
+      display: inline-block;
+      transition: transform 0.15s ease;
+    }
+    .mu-fehlvorstellungen-acc[open] .mu-fehlv-chevron,
+    .mu-thema-ressourcen-acc[open] .mu-thema-ressourcen-chevron {
+      transform: rotate(90deg);
+    }
+  </style>
 </article>
