@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { BRUCHRECHNUNG_GENERATOR_IDS, createPracticeGenerators } from './uebungPracticeGenerators';
 import {
   BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH,
+  bruchDiagramSvgFuerAufgabe,
   buildBruchArbeitsblattTex,
   compileLatexOnHttpPdf,
   escapeLatexText,
@@ -35,6 +36,17 @@ describe('bruchArbeitsblattLatex', () => {
 
   it('stripHtmlTags entfernt Tags', () => {
     expect(stripHtmlTags('<span class="x">a</span>b')).toBe(' a b');
+  });
+
+  it('bruchDiagramSvgFuerAufgabe: unterdrückt Aufgaben-SVG im PDF bei Flag', () => {
+    expect(
+      bruchDiagramSvgFuerAufgabe({
+        frage: 'x',
+        loesung: 'y',
+        diagram: '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>',
+        diagramPdfAufgabeUnterdruecken: true,
+      })
+    ).toBe('');
   });
 
   it('replaceAbPlaceholdersLatex (blank / filled)', () => {
