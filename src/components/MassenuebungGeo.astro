@@ -1457,7 +1457,7 @@ function wbLabelFromHref(href: string): string {
             <button
               type="button"
               id="ug-ab-bruch-druck"
-              title="Erzeugt ein druckfertiges PDF (LaTeX über einen öffentlichen Onlinedienst) und lädt es herunter."
+              title="Erzeugt ein druckfertiges PDF (LaTeX über einen öffentlichen Onlinedienst). Wenn der Dienst ausfällt, können Sie im Dialog den Browser-Druck wählen („Als PDF speichern“)."
               class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl border-2 border-amber-500/90 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-950 transition hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-amber-400/80 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-900/55"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -1468,7 +1468,7 @@ function wbLabelFromHref(href: string): string {
             <button
               type="button"
               id="ug-ab-bruch-druck-loes"
-              title="Wie oben, mit Lösungstext und Lösungsdiagrammen direkt unter jeder Aufgabe."
+              title="Wie oben, mit Lösungstext und Lösungsdiagrammen. Bei Ausfall des PDF-Dienstes: im Dialog „OK“ für Browser-Druck mit sichtbaren Lösungen."
               class="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-900/25 transition hover:bg-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:bg-sky-500 dark:hover:bg-sky-400 dark:shadow-sky-900/35"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -2953,6 +2953,59 @@ function wbLabelFromHref(href: string): string {
       URL.revokeObjectURL(url);
     }
 
+    function bruchAbDruckdialogAlsFallback(mitLoesungen) {
+      if (!isBruchMassen || !liste) return;
+      const sheet = document.getElementById('ug-arbeitsblatt');
+      if (!(sheet instanceof HTMLElement)) return;
+      if (sheet.hidden) {
+        window.alert('Bitte wechseln Sie zuerst zur Arbeitsblatt-Ansicht, dann erneut „Drucken“ wählen.');
+        return;
+      }
+      const detailsList = [...liste.querySelectorAll('.ug-task-details')];
+      const savedOpen = detailsList.map((d) => (d instanceof HTMLDetailsElement ? d.open : false));
+      detailsList.forEach((d) => {
+        if (d instanceof HTMLDetailsElement) d.open = mitLoesungen;
+      });
+      syncBruchLoesungEyeButtons(liste);
+      refreshBruchAbSheetStats();
+      if (typeof window.renderMathInElement === 'function') {
+        try {
+          window.renderMathInElement(sheet, muPracticeKatexOpts());
+        } catch {
+          /* */
+        }
+      }
+      const root = document.documentElement;
+      root.classList.add('mu-print-bruch-ab-only');
+      let cleaned = false;
+      const mq = window.matchMedia('print');
+      const onAfterPrint = () => {
+        restore();
+      };
+      const onMq = () => {
+        if (!mq.matches) restore();
+      };
+      const restore = () => {
+        if (cleaned) return;
+        cleaned = true;
+        root.classList.remove('mu-print-bruch-ab-only');
+        window.removeEventListener('afterprint', onAfterPrint);
+        mq.removeEventListener('change', onMq);
+        detailsList.forEach((d, i) => {
+          if (d instanceof HTMLDetailsElement) d.open = savedOpen[i] ?? false;
+        });
+        syncBruchLoesungEyeButtons(liste);
+        refreshBruchAbSheetStats();
+      };
+      window.addEventListener('afterprint', onAfterPrint);
+      mq.addEventListener('change', onMq);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.print();
+        });
+      });
+    }
+
     function bruchAbStichworteZeileFuerPdf() {
       let raw = null;
       try {
@@ -2991,12 +3044,14 @@ function wbLabelFromHref(href: string): string {
         if (!r.ok) {
           console.error('[Bruch-Arbeitsblatt PDF]', { message: r.message, log: r.log });
           const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);
-          window.alert(
+          const druck = window.confirm(
             'Das PDF konnte nicht erzeugt werden.\n\n' +
               `Kurzinfo: ${kurz}\n\n` +
-              'Hinweis: Die Erstellung läuft über einen öffentlichen LaTeX-Dienst; bei kurzzeitigen Serverproblemen hilft oft ein erneuter Versuch.\n\n' +
-              'Ausführliche technische Details (HTTP-Status, LaTeX-Log) stehen in der Browser-Konsole: F12 → Tab „Konsole“.'
+              'Ursache ist meist ein kurzzeitiger Ausfall oder eine Überlastung des öffentlichen LaTeX-Dienstes.\n\n' +
+              'Alternativ können Sie den Druckdialog Ihres Browsers öffnen und dort „Als PDF speichern“ wählen.\n\n' +
+              'OK = Druckdialog öffnen\nAbbrechen = schließen'
           );
+          if (druck) bruchAbDruckdialogAlsFallback(mitLoesungen);
           return;
         }
         const tag = new Date().toISOString().slice(0, 10);
@@ -3467,6 +3522,24 @@ function wbLabelFromHref(href: string): string {
     #ug-arbeitsblatt:not([hidden]) {
       border: none !important;
       box-shadow: none !important;
+    }
+
+    /* Fallback, wenn der LaTeX-PDF-Dienst ausfällt: nur Arbeitsblatt drucken (PDF „Speichern unter“ im Druckdialog). */
+    html.mu-print-bruch-ab-only body > a[href='#hauptinhalt'],
+    html.mu-print-bruch-ab-only body > header,
+    html.mu-print-bruch-ab-only body > footer {
+      display: none !important;
+    }
+    html.mu-print-bruch-ab-only main#hauptinhalt > *:not(#ug-arbeitsblatt) {
+      display: none !important;
+    }
+    html.mu-print-bruch-ab-only #ug-arbeitsblatt {
+      display: block !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background: #fff !important;
+      color: #0f172a !important;
     }
   }
 </style>
