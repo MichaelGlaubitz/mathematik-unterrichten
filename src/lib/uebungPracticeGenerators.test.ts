@@ -173,13 +173,13 @@ describe('Bruchrechnung-Generatoren', () => {
   it('practiceAufgabeHatLoesungInlineNachFrage: gleichnamige „Berechne …“-Brüche inline, ungleichnamig nicht', () => {
     expect(
       practiceAufgabeHatLoesungInlineNachFrage({
-        frage: 'Berechne $\\displaystyle\\frac{1}{4}+\\frac{3}{4}$.',
+        frage: 'Berechne $\\tfrac{1}{4}+\\frac{3}{4}$.',
         loesung: 'x',
       })
     ).toBe(true);
     expect(
       practiceAufgabeHatLoesungInlineNachFrage({
-        frage: 'Berechne $\\displaystyle\\frac{1}{3}+\\frac{2}{5}$.',
+        frage: 'Berechne $\\tfrac{1}{3}+\\frac{2}{5}$.',
         loesung: 'x',
       })
     ).toBe(false);
@@ -214,26 +214,26 @@ describe('Bruchrechnung-Generatoren', () => {
     expect(sub.frage).not.toContain('Berechne');
     expect(add.frageMitLoesungHighlight).toBe(add.loesung);
     expect(sub.frageMitLoesungHighlight).toBe(sub.loesung);
-    expect(add.frageMitLoesungHighlight).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}\+\\frac\{[0-9]+\}\{[0-9]+\}=/);
-    expect(sub.frageMitLoesungHighlight).toMatch(/\\frac\{[0-9]+\}\{[0-9]+\}-\\frac\{[0-9]+\}\{[0-9]+\}=/);
+    expect(add.frageMitLoesungHighlight).toMatch(/\\t?frac\{[0-9]+\}\{[0-9]+\}\+\\frac\{[0-9]+\}\{[0-9]+\}=/);
+    expect(sub.frageMitLoesungHighlight).toMatch(/\\t?frac\{[0-9]+\}\{[0-9]+\}-\\frac\{[0-9]+\}\{[0-9]+\}=/);
   });
 
   it('practiceAufgabeHatLoesungInlineNachFrage: erkennt gleichnamige Brüche auch ohne Flag (alte Routen)', () => {
     expect(
       practiceAufgabeHatLoesungInlineNachFrage({
-        frage: 'Berechne $\\displaystyle\\frac{1}{6}+\\frac{3}{6}$.',
+        frage: 'Berechne $\\tfrac{1}{6}+\\frac{3}{6}$.',
         loesung: 'x',
       })
     ).toBe(true);
     expect(
       practiceAufgabeHatLoesungInlineNachFrage({
-        frage: 'Berechne $\\displaystyle\\frac{5}{6}-\\frac{1}{6}$.',
+        frage: 'Berechne $\\tfrac{5}{6}-\\frac{1}{6}$.',
         loesung: 'x',
       })
     ).toBe(true);
     expect(
       practiceAufgabeHatLoesungInlineNachFrage({
-        frage: 'Berechne $\\displaystyle\\frac{1}{2}\\cdot\\frac{1}{3}$.',
+        frage: 'Berechne $\\tfrac{1}{2}\\cdot\\frac{1}{3}$.',
         loesung: 'x',
       })
     ).toBe(false);

@@ -122,12 +122,18 @@ export function practiceAufgabeHatLoesungInlineNachFrage(a: PracticeAufgabe): bo
   if (a.loesungInlineNachFrage === true) return true;
   const f = a.frage;
   if (f.startsWith('Berechne die Summe ') || f.startsWith('Berechne die Differenz ')) return true;
-  /* Gleichnamige Brüche: „Berechne $\displaystyle\frac…+\frac…$“ mit gleichem Nenner (eine \frac-Kette) */
-  if (f.startsWith('Berechne $') && (f.includes('}+\\frac{') || f.includes('}-\\frac{'))) {
-    const m = f.match(/\\frac\{[^}]+\}\{([^}]+)\}/g);
+  /* Gleichnamige Brüche: „Berechne $\tfrac…+\frac…$“ mit gleichem Nenner (eine \frac-/ \tfrac-Kette) */
+  if (
+    f.startsWith('Berechne $') &&
+    (f.includes('}+\\frac{') ||
+      f.includes('}+\\tfrac{') ||
+      f.includes('}-\\frac{') ||
+      f.includes('}-\\tfrac{'))
+  ) {
+    const m = f.match(/\\t?frac\{[^}]+\}\{[^}]+\}/g);
     if (m && m.length >= 2) {
       const denoms = m.map((t) => {
-        const mm = t.match(/\\frac\{[^}]+\}\{([^}]+)\}$/);
+        const mm = t.match(/\\t?frac\{[^}]+\}\{([^}]+)\}$/);
         return mm ? mm[1] : '';
       });
       if (denoms[0] && denoms.every((d) => d === denoms[0])) return true;
@@ -700,7 +706,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const apBp = ab * k;
       return {
         frage: `Zwei Strahlen gehen von einem Punkt $Z$ aus. Auf dem ersten Strahl liegen $A$ und $A'$ mit $|ZA|=${za}$ und $|ZA'|=${zap}$ (in derselben Reihenfolge von $Z$ aus). Die Strecke $\\overline{AB}$ verbindet die beiden Strahlen und ist parallel zu $\\overline{A'B'}$. Es gilt $|AB|=${ab}$. Wie lang ist $|A'B'|$?`,
-        loesung: `$\\displaystyle\\frac{|ZA|}{|ZA'|}=\\frac{|AB|}{|A'B'|}\\Rightarrow |A'B'|=|AB|\\cdot\\frac{|ZA'|}{|ZA|}=${ab}\\cdot\\frac{${zap}}{${za}}=${apBp}$ (zweiter Strahlensatz / Strecken an den Parallelen).`,
+        loesung: `$\\tfrac{|ZA|}{|ZA'|}=\\frac{|AB|}{|A'B'|}\\Rightarrow |A'B'|=|AB|\\cdot\\frac{|ZA'|}{|ZA|}=${ab}\\cdot\\frac{${zap}}{${za}}=${apBp}$ (zweiter Strahlensatz / Strecken an den Parallelen).`,
         diagram: svgStrahlensatzV({
           zA: za,
           zAp: zap,
@@ -717,7 +723,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const zbp = zb * k;
       return {
         frage: `Zwei Strahlen von $Z$ aus: auf dem ersten Strahl $|ZA|=${za}$, $|ZA'|=${zap}$; auf dem zweiten Strahl $|ZB|=${zb}$. Die Verbindungsstrecken $AB$ und $A'B'$ sind parallel. Wie lang ist $|ZB'|$?`,
-        loesung: `$\\displaystyle\\frac{|ZA|}{|ZA'|}=\\frac{|ZB|}{|ZB'|}\\Rightarrow |ZB'|=|ZB|\\cdot\\frac{|ZA'|}{|ZA|}=${zb}\\cdot\\frac{${zap}}{${za}}=${zbp}$ (erster Strahlensatz / Strecken auf den Strahlen).`,
+        loesung: `$\\tfrac{|ZA|}{|ZA'|}=\\frac{|ZB|}{|ZB'|}\\Rightarrow |ZB'|=|ZB|\\cdot\\frac{|ZA'|}{|ZA|}=${zb}\\cdot\\frac{${zap}}{${za}}=${zbp}$ (erster Strahlensatz / Strecken auf den Strahlen).`,
         diagram: svgStrahlensatzV({
           zA: za,
           zAp: zap,
@@ -732,7 +738,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const p2 = p1 * k;
       return {
         frage: `Zwei Geraden schneiden sich in $Z$. Eine Parallele schneidet die Geraden in $S_1$ und $T_1$ mit $|ZS_1|=${zs1}$. Eine zweite, dazu parallele Gerade schneidet die Geraden – auf der anderen Seite von $Z$ – in $S_2$ und $T_2$ mit $|ZS_2|=${zs2}$. Die obere Strecke $|S_1T_1|=${p1}\\,\\text{LE}$. Wie lang ist $|S_2T_2|$?`,
-        loesung: `In der X-Konfiguration gilt $\\displaystyle\\frac{|ZS_1|}{|ZS_2|}=\\frac{|S_1T_1|}{|S_2T_2|}$, hier $\\frac{${zs1}}{${zs2}}=\\frac{${p1}}{|S_2T_2|}\\Rightarrow |S_2T_2|=${p1}\\cdot ${k}=${p2}\\,\\text{LE}$.`,
+        loesung: `In der X-Konfiguration gilt $\\tfrac{|ZS_1|}{|ZS_2|}=\\frac{|S_1T_1|}{|S_2T_2|}$, hier $\\frac{${zs1}}{${zs2}}=\\frac{${p1}}{|S_2T_2|}\\Rightarrow |S_2T_2|=${p1}\\cdot ${k}=${p2}\\,\\text{LE}$.`,
         diagram: svgStrahlensatzX({
           zS1: zs1,
           zS2: zs2,
@@ -749,7 +755,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const hTurm = hStab * g;
       return {
         frage: `Ein vertikaler Stab der Höhe $${hStab}\\,\\text{m}$ wirft einen waagrechten Schatten der Länge $${sStab}\\,\\text{m}$. Ein Turm wirft zur gleichen Zeit einen Schatten von $${sTurm}\\,\\text{m}$ (gleiche Sonnenrichtung). Wie hoch ist der Turm?`,
-        loesung: `$\\displaystyle\\frac{h_{\\text{Turm}}}{${sTurm}}=\\frac{${hStab}}{${sStab}}\\Rightarrow h_{\\text{Turm}}=${hStab}\\cdot\\frac{${sTurm}}{${sStab}}=${hTurm}\\,\\text{m}$ (ähnliche Dreiecke / Strahlensatz).`,
+        loesung: `$\\tfrac{h_{\\text{Turm}}}{${sTurm}}=\\frac{${hStab}}{${sStab}}\\Rightarrow h_{\\text{Turm}}=${hStab}\\cdot\\frac{${sTurm}}{${sStab}}=${hTurm}\\,\\text{m}$ (ähnliche Dreiecke / Strahlensatz).`,
         diagram: svgStrahlensatzSchatten({ hStab, sStab, hTurm, sTurm }),
       };
     },
@@ -766,7 +772,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const hMast = (hAuge * (a + b)) / a;
       return {
         frage: `Du siehst die Spitze eines Mastes im Spiegel, der $${a}\\,\\text{m}$ vor deinen Füßen liegt. Du stehst $${b}\\,\\text{m}$ hinter dem Spiegel (in einer Linie mit Mast und Spiegel). Deine Augenhöhe beträgt etwa $${hAuge}\\,\\text{dm}$. Wie hoch ist der Mast (in dm), wenn Spiegel und Boden waagrecht sind?`,
-        loesung: `Einfallswinkel = Ausfallswinkel; es entstehen ähnliche Dreiecke: $\\displaystyle\\frac{h_{\\text{Mast}}}{${a}+${b}}=\\frac{${hAuge}}{${a}}\\Rightarrow h_{\\text{Mast}}=${hMast}\\,\\text{dm}$.`,
+        loesung: `Einfallswinkel = Ausfallswinkel; es entstehen ähnliche Dreiecke: $\\tfrac{h_{\\text{Mast}}}{${a}+${b}}=\\frac{${hAuge}}{${a}}\\Rightarrow h_{\\text{Mast}}=${hMast}\\,\\text{dm}$.`,
         diagram: svgStrahlensatzSpiegel({ a, b, hAuge, hMast }),
       };
     },
@@ -948,7 +954,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6] as const);
       const b = randInt(-5, 8);
       return {
-        frage: `Bestimme die Definitionsmenge der Bruchgleichung $\\displaystyle\\frac{x${formatSignedInt(b)}}{x${formatSignedInt(-a)}}=2$.`,
+        frage: `Bestimme die Definitionsmenge der Bruchgleichung $\\tfrac{x${formatSignedInt(b)}}{x${formatSignedInt(-a)}}=2$.`,
         loesung: `Nenner darf nicht $0$ sein: $x${formatSignedInt(-a)}\\neq 0 \\Rightarrow x\\neq ${a}$. Also $D=\\mathbb{R}\\setminus\\{${a}\\}$.`,
       };
     },
@@ -957,7 +963,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const d = pick([2, 3, 4, 5, 6] as const);
       const x = a + d;
       return {
-        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}=\\frac{1}{${d}}$.`,
+        frage: `Löse die Bruchgleichung $\\tfrac{1}{x${formatSignedInt(-a)}}=\\frac{1}{${d}}$.`,
         loesung: `Mit $x\\neq ${a}$ gilt nach Multiplikation mit $${d}(x${formatSignedInt(-a)})$: $x${formatSignedInt(-a)}=${d}$, also $x=${x}$.`,
       };
     },
@@ -966,7 +972,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const d = pick([2, 3, 4, 5] as const);
       const x = a + d;
       return {
-        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}+\\frac{1}{x${formatSignedInt(-a)}}=\\frac{2}{${d}}$.`,
+        frage: `Löse die Bruchgleichung $\\tfrac{1}{x${formatSignedInt(-a)}}+\\frac{1}{x${formatSignedInt(-a)}}=\\frac{2}{${d}}$.`,
         loesung: `Hauptnenner $x${formatSignedInt(-a)}$ (mit $x\\neq ${a}$): $\\frac{2}{x${formatSignedInt(-a)}}=\\frac{2}{${d}}\\Rightarrow x${formatSignedInt(-a)}=${d}\\Rightarrow x=${x}$.`,
       };
     },
@@ -991,21 +997,21 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       return {
-        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{${m}}{x${formatSignedInt(-a)}}=\\frac{${n}}{x${formatSignedInt(-b)}}$.`,
+        frage: `Löse die Bruchgleichung $\\tfrac{${m}}{x${formatSignedInt(-a)}}=\\frac{${n}}{x${formatSignedInt(-b)}}$.`,
         loesung: `Einschränkung: $x\\neq ${a},\\,x\\neq ${b}$. Kreuzprodukt: $${m}(x${formatSignedInt(-b)})=${n}(x${formatSignedInt(-a)})$. Daraus folgt $x=${x}$.`,
       };
     },
     bg_ausgeschlossene_loesung() {
       const a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
       return {
-        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{x${formatSignedInt(-a)}}{x${formatSignedInt(-a)}}=2$.`,
+        frage: `Löse die Bruchgleichung $\\tfrac{x${formatSignedInt(-a)}}{x${formatSignedInt(-a)}}=2$.`,
         loesung: `Definitionsmenge: $x\\neq ${a}$. Der Term links ist für alle erlaubten $x$ gleich $1$ und kann nie $2$ sein. Also keine Lösung ($\\mathbb{L}=\\varnothing$).`,
       };
     },
     bg_keine_loesung() {
       const a = pick([-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6] as const);
       return {
-        frage: `Löse die Bruchgleichung $\\displaystyle\\frac{1}{x${formatSignedInt(-a)}}=0$.`,
+        frage: `Löse die Bruchgleichung $\\tfrac{1}{x${formatSignedInt(-a)}}=0$.`,
         loesung: `Ein Bruch mit Zähler $1$ kann nie $0$ sein. Mit $x\\neq ${a}$ gibt es daher keine Lösung ($\\mathbb{L}=\\varnothing$).`,
       };
     },
@@ -1017,11 +1023,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(s, d);
       const voll =
         g === 1
-          ? `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
-          : `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
+          ? `$\\tfrac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
+          : `$\\tfrac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
-        frage: `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$`,
-        frageArbeitsblatt: `$\\displaystyle\\frac{${a}}{${d}}+\\frac{${b}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `$\\tfrac{${a}}{${d}}+\\frac{${b}}{${d}}$`,
+        frageArbeitsblatt: `$\\tfrac{${a}}{${d}}+\\frac{${b}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: s / g, expectDen: d / g }],
         frageMitLoesungHighlight: voll,
         loesung: voll,
@@ -1038,11 +1044,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(s, d);
       const voll =
         g === 1
-          ? `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
-          : `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
+          ? `$\\tfrac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}$`
+          : `$\\tfrac{${a}}{${d}}-\\frac{${b}}{${d}}=\\frac{${s}}{${d}}=\\frac{${s / g}}{${d / g}}$`;
       return {
-        frage: `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$`,
-        frageArbeitsblatt: `$\\displaystyle\\frac{${a}}{${d}}-\\frac{${b}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `$\\tfrac{${a}}{${d}}-\\frac{${b}}{${d}}$`,
+        frageArbeitsblatt: `$\\tfrac{${a}}{${d}}-\\frac{${b}}{${d}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: s / g, expectDen: d / g }],
         frageMitLoesungHighlight: voll,
         loesung: voll,
@@ -1066,10 +1072,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const N = n * k;
       const D = d * k;
       return {
-        frage: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$.`,
-        frageArbeitsblatt: `Erweitere den Bruch $\\displaystyle\\frac{${n}}{${d}}$ auf den Nenner $${D}$. Neuer Zähler: [[MU_AB:0]]`,
+        frage: `Erweitere den Bruch $\\tfrac{${n}}{${d}}$ auf den Nenner $${D}$.`,
+        frageArbeitsblatt: `Erweitere den Bruch $\\tfrac{${n}}{${d}}$ auf den Nenner $${D}$. Neuer Zähler: [[MU_AB:0]]`,
         abSlots: [{ kind: 'int', expect: N }],
-        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${N}}{${D}}$ (erweitert mit ${k}).`,
+        loesung: `$\\tfrac{${n}}{${d}}=\\frac{${N}}{${D}}$ (erweitert mit ${k}).`,
         diagram: svgBruchErweiternKacheln(n, d, k, '', 'aufgabe'),
         diagramLoesung: svgBruchErweiternKacheln(n, d, k, '', 'loesung'),
       };
@@ -1085,10 +1091,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         if (g >= 2 && n < d) break;
       }
       return {
-        frage: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig.`,
-        frageArbeitsblatt: `Kürze den Bruch $\\displaystyle\\frac{${n}}{${d}}$ vollständig: [[MU_AB:0]]`,
+        frage: `Kürze den Bruch $\\tfrac{${n}}{${d}}$ vollständig.`,
+        frageArbeitsblatt: `Kürze den Bruch $\\tfrac{${n}}{${d}}$ vollständig: [[MU_AB:0]]`,
         abSlots: [{ kind: 'frac', expectNum: n / g, expectDen: d / g, requireFullyReduced: true }],
-        loesung: `$\\displaystyle\\frac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gekürzt mit $${g}$).`,
+        loesung: `$\\tfrac{${n}}{${d}}=\\frac{${n / g}}{${d / g}}$ (gekürzt mit $${g}$).`,
         diagram: svgBruchStreifen(n, d, '', 'aufgabe', g),
         diagramLoesung: svgBruchStreifen(n, d, '', 'loesung', g),
       };
@@ -1111,10 +1117,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(pn, pd);
       const tail = g > 1 ? `=\\frac{${pn / g}}{${pd / g}}` : '';
       return {
-        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$.`,
-        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `Berechne $\\tfrac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\tfrac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: pn / g, expectDen: pd / g }],
-        loesung: `$\\displaystyle\\frac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}=\\frac{${pn}}{${pd}}${tail}$.`,
+        loesung: `$\\tfrac{${n1}}{${d1}}\\cdot\\frac{${n2}}{${d2}}=\\frac{${pn}}{${pd}}${tail}$.`,
         diagram: svgBruchMalRaster(n1, d1, n2, d2, 'aufgabe'),
         diagramLoesung: svgBruchMalRaster(n1, d1, n2, d2, 'loesung'),
         diagramDefaultHidden: true,
@@ -1141,8 +1147,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const L = (d1 * d2) / gcd(d1, d2);
       const nA = (a * L) / d1;
       const nB = (b * L) / d2;
-      const fracA = `$\\displaystyle\\frac{${a}}{${d1}}$`;
-      const fracB = `$\\displaystyle\\frac{${b}}{${d2}}$`;
+      const fracA = `$\\tfrac{${a}}{${d1}}$`;
+      const fracB = `$\\tfrac{${b}}{${d2}}$`;
       const gr = a * d2 > b * d1 ? fracA : fracB;
       const zfVgl = nA > nB ? `${nA} > ${nB}` : `${nA} < ${nB}`;
       const grMitBox = (tex: string) =>
@@ -1195,10 +1201,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(N, L);
       const tail = g > 1 ? `=\\frac{${N / g}}{${L / g}}` : '';
       return {
-        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$.`,
-        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `Berechne $\\tfrac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\tfrac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: N / g, expectDen: L / g }],
-        loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}=\\frac{${n1 * (L / d1)}}{${L}}+\\frac{${n2 * (L / d2)}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
+        loesung: `Hauptnenner $${L}$: $\\tfrac{${n1}}{${d1}}+\\frac{${n2}}{${d2}}=\\frac{${n1 * (L / d1)}}{${L}}+\\frac{${n2 * (L / d2)}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
         loesungInlineNachFrage: false,
       };
     },
@@ -1238,10 +1244,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(N, L);
       const tail = g > 1 ? `=\\frac{${N / g}}{${L / g}}` : '';
       return {
-        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$.`,
-        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `Berechne $\\tfrac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\tfrac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: N / g, expectDen: L / g }],
-        loesung: `Hauptnenner $${L}$: $\\displaystyle\\frac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}=\\frac{${N1}}{${L}}-\\frac{${N2}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
+        loesung: `Hauptnenner $${L}$: $\\tfrac{${n1}}{${d1}}-\\frac{${n2}}{${d2}}=\\frac{${N1}}{${L}}-\\frac{${N2}}{${L}}=\\frac{${N}}{${L}}${tail}$.`,
         loesungInlineNachFrage: false,
       };
     },
@@ -1263,10 +1269,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(num, den);
       const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
       return {
-        frage: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$.`,
-        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `Berechne $\\tfrac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$.`,
+        frageArbeitsblatt: `Berechne $\\tfrac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: num / g, expectDen: den / g }],
-        loesung: `Mit dem Kehrwert: $\\displaystyle\\frac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}=\\frac{${n1}}{${d1}}\\cdot\\frac{${d2}}{${n2}}=\\frac{${num}}{${den}}${tail}$.`,
+        loesung: `Mit dem Kehrwert: $\\tfrac{${n1}}{${d1}}:\\frac{${n2}}{${d2}}=\\frac{${n1}}{${d1}}\\cdot\\frac{${d2}}{${n2}}=\\frac{${num}}{${den}}${tail}$.`,
       };
     },
     br_int_mul_frac() {
@@ -1305,10 +1311,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = gcd(num, den);
       const tail = g > 1 ? `=\\frac{${num / g}}{${den / g}}` : '';
       return {
-        frage: `Berechne $\\displaystyle\\frac{${n}}{${d}}:${k}$.`,
-        frageArbeitsblatt: `Berechne $\\displaystyle\\frac{${n}}{${d}}:${k}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        frage: `Berechne $\\tfrac{${n}}{${d}}:${k}$.`,
+        frageArbeitsblatt: `Berechne $\\tfrac{${n}}{${d}}:${k}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac', expectNum: num / g, expectDen: den / g }],
-        loesung: `$\\displaystyle\\frac{${n}}{${d}}:${k}=\\frac{${n}}{${d}\\cdot ${k}}=\\frac{${num}}{${den}}${tail}$.`,
+        loesung: `$\\tfrac{${n}}{${d}}:${k}=\\frac{${n}}{${d}\\cdot ${k}}=\\frac{${num}}{${den}}${tail}$.`,
       };
     },
     br_int_div_frac() {
@@ -1357,10 +1363,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const L = d * f;
       const x = n * f;
       return {
-        frage: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=\\frac{?}{${L}}$.`,
-        frageArbeitsblatt: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        frage: `Ergänze den Zähler: $\\tfrac{${n}}{${d}}=\\frac{?}{${L}}$.`,
+        frageArbeitsblatt: `Ergänze den Zähler: $\\tfrac{${n}}{${d}}=$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
         abSlots: [{ kind: 'frac_num', expectNum: x, fixedDen: L }],
-        loesung: `Erweitern mit $${f}$: $\\displaystyle\\frac{${n}}{${d}}=\\frac{${x}}{${L}}$ — der fehlende Zähler ist $${x}$.`,
+        loesung: `Erweitern mit $${f}$: $\\tfrac{${n}}{${d}}=\\frac{${x}}{${L}}$ — der fehlende Zähler ist $${x}$.`,
       };
     },
     br_ergaenze_auf_1() {
@@ -1368,8 +1374,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const a = randInt(1, d - 2);
       const b = d - a;
       return {
-        frage: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+\\frac{?}{${d}}=1$.`,
-        frageArbeitsblatt: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span> $\\displaystyle= 1$`,
+        frage: `Ergänze den fehlenden Zähler: $\\tfrac{${a}}{${d}}+\\frac{?}{${d}}=1$.`,
+        frageArbeitsblatt: `Ergänze den fehlenden Zähler: $\\tfrac{${a}}{${d}}+$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span> $\\displaystyle= 1$`,
         abSlots: [{ kind: 'frac_num', expectNum: b, fixedDen: d }],
         loesung: `Wegen $\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${d}}{${d}}=1$ ist der gesuchte Zähler $${b}$.`,
       };
@@ -1390,19 +1396,19 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const rest = n0 - ganz * d0;
       const lo =
         rest === 0
-          ? `$\\displaystyle\\frac{${n}}{${d}}=${ganz}$`
-          : `$\\displaystyle\\frac{${n}}{${d}}=${ganz}\\tfrac{${rest}}{${d0}}$`;
+          ? `$\\tfrac{${n}}{${d}}=${ganz}$`
+          : `$\\tfrac{${n}}{${d}}=${ganz}\\tfrac{${rest}}{${d0}}$`;
       if (rest === 0) {
         return {
-          frage: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl.`,
-          frageArbeitsblatt: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl: [[MU_AB:0]]`,
+          frage: `Schreibe $\\tfrac{${n}}{${d}}$ als gemischte Zahl.`,
+          frageArbeitsblatt: `Schreibe $\\tfrac{${n}}{${d}}$ als gemischte Zahl: [[MU_AB:0]]`,
           abSlots: [{ kind: 'int', expect: ganz }],
           loesung: lo,
         };
       }
       return {
-        frage: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl.`,
-        frageArbeitsblatt: `Schreibe $\\displaystyle\\frac{${n}}{${d}}$ als gemischte Zahl: <span class="mu-katex-skip inline-flex flex-wrap items-center gap-2 align-middle text-base">[[MU_AB:0]]<span class="text-ink-500 dark:text-slate-400">und</span>[[MU_AB:1]]</span>`,
+        frage: `Schreibe $\\tfrac{${n}}{${d}}$ als gemischte Zahl.`,
+        frageArbeitsblatt: `Schreibe $\\tfrac{${n}}{${d}}$ als gemischte Zahl: <span class="mu-katex-skip inline-flex flex-wrap items-center gap-2 align-middle text-base">[[MU_AB:0]]<span class="text-ink-500 dark:text-slate-400">und</span>[[MU_AB:1]]</span>`,
         abSlots: [
           { kind: 'int', expect: ganz },
           { kind: 'frac', expectNum: rest, expectDen: d0 },
@@ -1428,8 +1434,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const g = d * m;
       const loes = m;
       return {
-        frage: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens?`,
-        frageArbeitsblatt: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\displaystyle\\frac{1}{${d}}$ des Kuchens? [[MU_AB:0]]`,
+        frage: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\tfrac{1}{${d}}$ des Kuchens?`,
+        frageArbeitsblatt: `Ein Kuchen wird in ${g} gleiche Stücke geteilt. Wie viele Stücke sind $\\tfrac{1}{${d}}$ des Kuchens? [[MU_AB:0]]`,
         abSlots: [{ kind: 'int', expect: loes }],
         loesung: `Stammbruch $\\frac{1}{${d}}$ von ${g} Stücken — Rechnung: ${g}:${d}=${loes} Stück.`,
       };
@@ -1449,8 +1455,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const ant = (g * n) / d;
       return {
-        frage: `In einer Klasse sind ${g} Kinder. $\\displaystyle\\frac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das?`,
-        frageArbeitsblatt: `In einer Klasse sind ${g} Kinder. $\\displaystyle\\frac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das? [[MU_AB:0]]`,
+        frage: `In einer Klasse sind ${g} Kinder. $\\tfrac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das?`,
+        frageArbeitsblatt: `In einer Klasse sind ${g} Kinder. $\\tfrac{${n}}{${d}}$ der Kinder fahren mit dem Bus. Wie viele Kinder sind das? [[MU_AB:0]]`,
         abSlots: [{ kind: 'int', expect: ant }],
         loesung: `Rechnung: ${g} $\\cdot\\,\\frac{${n}}{${d}}=${ant}$. Es sind ${ant} Kinder.`,
       };
@@ -1475,8 +1481,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const G = (A * d) / n;
       return {
-        frage: `Von einem Geldbetrag sind $\\displaystyle\\frac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag?`,
-        frageArbeitsblatt: `Von einem Geldbetrag sind $\\displaystyle\\frac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag? [[MU_AB:0]] <span class="text-sm text-ink-600 dark:text-ink-300">(Euro)</span>`,
+        frage: `Von einem Geldbetrag sind $\\tfrac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag?`,
+        frageArbeitsblatt: `Von einem Geldbetrag sind $\\tfrac{${n}}{${d}}$ gleich ${A} Euro. Wie groß ist der ganze Betrag? [[MU_AB:0]] <span class="text-sm text-ink-600 dark:text-ink-300">(Euro)</span>`,
         abSlots: [{ kind: 'int', expect: G }],
         loesung: `Umkehraufgabe: ${A} Euro $\\cdot\\,\\frac{${d}}{${n}}=${G}$ Euro.`,
       };
@@ -1549,10 +1555,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const num = q * den;
       const rule = divisionVorzeichenRegel(num, den);
       return {
-        frage: `Berechne $\\displaystyle\\frac{${num}}{${den}}$.`,
+        frage: `Berechne $\\tfrac{${num}}{${den}}$.`,
         loesung: rule
-          ? `$\\displaystyle\\frac{${num}}{${den}}=${q}$ (${rule})`
-          : `$\\displaystyle\\frac{${num}}{${den}}=${q}$.`,
+          ? `$\\tfrac{${num}}{${den}}=${q}$ (${rule})`
+          : `$\\tfrac{${num}}{${den}}=${q}$.`,
       };
     },
     nz_vergleich() {

@@ -43,7 +43,7 @@ describe('bruchArbeitsblattLatex', () => {
       { kind: 'frac' as const, expectNum: 3, expectDen: 4 },
     ];
     const t = 'A [[MU_AB:0]] und [[MU_AB:1]]';
-    expect(replaceAbPlaceholdersLatex(t, slots, 'blank')).toMatch(/rule/);
+    expect(replaceAbPlaceholdersLatex(t, slots, 'blank')).toMatch(/colorbox/);
     expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toContain('\\ensuremath{\\boxed{7}}');
     expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toMatch(/tfrac\{3\}\{4\}/);
   });
@@ -56,12 +56,12 @@ describe('bruchArbeitsblattLatex', () => {
 
   it('htmlFrageZuLatexInhalt verarbeitet AB-Platzhalter', () => {
     const html =
-      'Berechne $\\displaystyle\\frac{1}{2}$<span class="mu-katex-skip"><span>=</span>[[MU_AB:0]]</span>';
+      'Berechne $\\tfrac{1}{2}$<span class="mu-katex-skip"><span>=</span>[[MU_AB:0]]</span>';
     const s = htmlFrageZuLatexInhalt(html, {
       abSlots: [{ kind: 'frac', expectNum: 1, expectDen: 2 }],
       mitLoesungen: false,
     });
-    expect(s).toContain('$\\displaystyle\\frac{1}{2}$');
+    expect(s).toContain('$\\tfrac{1}{2}$');
     expect(s).toContain('\\colorbox{black!10}');
     expect(s).toContain('\\displaystyle\\frac');
   });
