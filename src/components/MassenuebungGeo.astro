@@ -1954,6 +1954,7 @@ function wbLabelFromHref(href: string): string {
   import {
     ALG_WB_STOR_KEY,
     algStichwortClusterIndex,
+    canonicalAlgStichworteFuerGeneratorIds,
     expandAlgWbStichworte,
     stichwortLabelsFromAlgSessionRaw,
   } from '../lib/algebraWbKeywordMap';
@@ -2238,7 +2239,12 @@ function wbLabelFromHref(href: string): string {
       ).map((c) => (c as HTMLInputElement).value);
       const key = isNzMassen ? NZ_WB_STOR_KEY : ALG_WB_STOR_KEY;
       try {
-        sessionStorage.setItem(key, JSON.stringify(ids));
+        if (isAlgMassen) {
+          const kws = canonicalAlgStichworteFuerGeneratorIds(ids);
+          sessionStorage.setItem(key, JSON.stringify(kws));
+        } else {
+          sessionStorage.setItem(key, JSON.stringify(ids));
+        }
       } catch {
         /* */
       }

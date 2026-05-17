@@ -4,6 +4,8 @@ import {
   ALG_WB_UNTERTHEMA_STICHWORTE,
   algStichwortClusterIndex,
   algWbAlleStichworteFlach,
+  canonicalAlgStichwortFuerGeneratorId,
+  canonicalAlgStichworteFuerGeneratorIds,
   clusterTitelZeileFuerAlgGeneratorIds,
   expandAlgWbStichworte,
   sortAlgAbStichworte,
@@ -68,8 +70,19 @@ describe('algebraWbKeywordMap', () => {
     expect(stichwortLabelsFromAlgSessionRaw(['alg_terme_zusammen'])).toContain(
       'Gleichartige Terme zusammenfassen (gleiche Variable)'
     );
+    expect(stichwortLabelsFromAlgSessionRaw(['alg_terme_zusammen'])).toHaveLength(1);
     expect(stichwortLabelsFromAlgSessionRaw(['Gleichartige Terme zusammenfassen (gleiche Variable)'])).toEqual([
       'Gleichartige Terme zusammenfassen (gleiche Variable)',
+    ]);
+  });
+
+  it('canonicalAlgStichwortFuerGeneratorId wählt genau ein UI-Stichwort pro alg_*', () => {
+    expect(canonicalAlgStichwortFuerGeneratorId('alg_ausklammern')).toBe(
+      'Faktorisieren mit gemeinsamem algebraischen Faktor'
+    );
+    expect(canonicalAlgStichworteFuerGeneratorIds(['alg_ausklammern', 'alg_terme_zusammen'])).toEqual([
+      'Gleichartige Terme zusammenfassen (gleiche Variable)',
+      'Faktorisieren mit gemeinsamem algebraischen Faktor',
     ]);
   });
 
