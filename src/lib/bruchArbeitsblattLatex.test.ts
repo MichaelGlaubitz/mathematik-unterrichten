@@ -193,7 +193,7 @@ describe('bruchArbeitsblattLatex', () => {
     });
     vi.unstubAllGlobals();
     expect(r.ok).toBe(false);
-    expect(stub).toHaveBeenCalledTimes(3);
+    expect(stub).toHaveBeenCalledTimes(4);
   }, 10_000);
 
   it('compileLatexOnHttpPdf: log_files aus API-Fehlerantwort wird in log übernommen', async () => {

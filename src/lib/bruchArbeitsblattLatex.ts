@@ -11,7 +11,7 @@ export const BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH = '0.92\\linewidth';
 export const BRUCH_AB_LATEX_HTTP_ENDPOINT = 'https://latex.ytotech.com/builds/sync';
 
 /** Öffentlicher LaTeX-on-HTTP-Dienst (YtoTech); gelegentlich 5xx bei Last — kurze Wiederholungen helfen. */
-const LATEX_HTTP_MAX_ATTEMPTS = 3;
+const LATEX_HTTP_MAX_ATTEMPTS = 4;
 const LATEX_HTTP_RETRY_STATUS = new Set([500, 502, 503, 504]);
 
 function latexHttpBackoffMs(attemptIndex: number): number {
@@ -29,6 +29,12 @@ export const BRUCH_AB_RASTER_CAPS_PDF: SvgRasterCaps = {
 export const BRUCH_AB_RASTER_CAPS_PDF_LIGHT: SvgRasterCaps = {
   maxPixelWidth: 840,
   jpegQuality: 0.7,
+};
+
+/** Sehr kleine eingebettete Grafiken — letzte Stufe vor Nutzer-Fallback (Browserdruck). */
+export const BRUCH_AB_RASTER_CAPS_PDF_MINIMAL: SvgRasterCaps = {
+  maxPixelWidth: 560,
+  jpegQuality: 0.62,
 };
 
 /**
@@ -549,6 +555,17 @@ export async function erzeugeBruchArbeitsblattPdf(opts: {
     const second = await assemble(BRUCH_AB_RASTER_CAPS_PDF_LIGHT);
     const r2 = await compileLatexOnHttpPdf(second);
     if (r2.ok) return r2;
+    if (
+      latexCompileFailureMayBenefitFromSmallerPayload(r2) &&
+      (BRUCH_AB_RASTER_CAPS_PDF_MINIMAL.maxPixelWidth < BRUCH_AB_RASTER_CAPS_PDF_LIGHT.maxPixelWidth ||
+        BRUCH_AB_RASTER_CAPS_PDF_MINIMAL.jpegQuality < BRUCH_AB_RASTER_CAPS_PDF_LIGHT.jpegQuality)
+    ) {
+      const third = await assemble(BRUCH_AB_RASTER_CAPS_PDF_MINIMAL);
+      const r3 = await compileLatexOnHttpPdf(third);
+      if (r3.ok) return r3;
+      return r3;
+    }
+    return r2;
   }
 
   return r;
