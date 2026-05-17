@@ -12,6 +12,7 @@
  * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
  * - `alg_klammer_mal`: einfache Klammer / mehrere einfache Klammern (positiver oder algebraischer Vorfaktor)
  * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
+ * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable, Konstante, Schreibkonvention)
  *
  * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
  * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (nicht in den JSON-Punkten; optional über Session-IDs)
@@ -189,6 +190,11 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Faktorisieren mit gemeinsamem algebraischen Faktor': ['alg_ausklammern'],
   'Faktorisieren mit vorgehendem Ausklammern': ['alg_ausklammern'],
   'Faktorisieren mit gemeinsamem Klammerfaktor': ['alg_ausklammern'],
+  'Was ist ein Term?': ['alg_gb_term'],
+  'Was ist ein Koeffizient?': ['alg_gb_koeff'],
+  'Was ist eine Variable?': ['alg_gb_variable'],
+  'Was ist eine Konstante?': ['alg_gb_konstante'],
+  'Konventionen der algebraischen Schreibweise': ['alg_gb_konvention'],
 };
 
 export function expandAlgWbStichworte(keywords: readonly string[]): string[] {
