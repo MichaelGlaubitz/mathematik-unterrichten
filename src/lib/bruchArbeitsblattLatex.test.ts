@@ -55,9 +55,8 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: false,
     });
     expect(s).toContain('$\\displaystyle\\frac{1}{2}$');
-    expect(s).toContain(
-      '\\ensuremath{\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}}'
-    );
+    expect(s).toContain('\\colorbox{black!10}');
+    expect(s).toContain('\\displaystyle\\frac');
   });
 
   it('loesungHtmlZuLatexSegmente ersetzt br-Tags', () => {

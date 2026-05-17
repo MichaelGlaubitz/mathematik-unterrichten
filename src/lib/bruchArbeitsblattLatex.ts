@@ -137,11 +137,15 @@ function escapeFuerTextInMath(s: string): string {
   return s.replace(/\\/g, '\\textbackslash{}').replace(/[{}#%&]/g, '\\$&');
 }
 
+/** Schreibfläche für Bruch-Zähler/Nenner im PDF: hellgrau, ohne zweite „Strich“-Optik wie bei \\underline. */
+const BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE =
+  '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{1.08cm}}}';
+
 export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled'): string {
   if (mode === 'blank') {
     if (spec.kind === 'int') return '\\ensuremath{\\,\\rule{2.4cm}{0.4pt}\\,}';
     if (spec.kind === 'frac')
-      return '\\ensuremath{\\displaystyle\\frac{\\underline{\\hspace{1.05cm}}}{\\underline{\\hspace{1.05cm}}}}';
+      return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}}`;
     return '\\ensuremath{\\,\\rule{3.2cm}{0.4pt}\\,}';
   }
   if (spec.kind === 'int') return `\\ensuremath{\\boxed{${spec.expect}}}`;
