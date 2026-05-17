@@ -25,7 +25,7 @@ docker compose pull
 docker compose up -d
 ```
 
-Der erste `pull` kann **lange** dauern und **mehrere Gigabyte** laden (TeX Live im Image).
+Der erste `pull` kann **lange** dauern und **mehrere Gigabyte** laden (TeX Live im Image). Image-Tag auf Docker Hub: **`yoant/latexonhttp-python:debian`** (es gibt kein `latest`).
 
 Prüfen:
 
