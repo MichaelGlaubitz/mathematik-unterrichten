@@ -6,6 +6,7 @@ import {
   funGraphLinearAxisInterceptsInRange,
   FUN_GRAPH_AXIS_INTERCEPT_MAX,
   practiceAufgabeHatLoesungInlineNachFrage,
+  practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm,
   PRACTICE_GENERATOR_IDS,
   parseErkennenSeiten,
   validateErkennenAufgabe,
@@ -242,6 +243,28 @@ describe('Bruchrechnung-Generatoren', () => {
         loesung: 'x',
       })
     ).toBe(false);
+  });
+
+  it('practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm: Flag oder Größenvergleich-Fragetext', () => {
+    expect(
+      practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm({
+        frage: 'Sonstige Frage',
+        loesung: 'x',
+      })
+    ).toBe(false);
+    expect(
+      practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm({
+        frage: 'Welcher Bruch ist größer: $\\tfrac{2}{3}$ oder $\\tfrac{3}{4}$?',
+        loesung: 'x',
+      })
+    ).toBe(true);
+    expect(
+      practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm({
+        frage: 'x',
+        loesung: 'y',
+        diagramPdfAufgabeUnterdruecken: true,
+      })
+    ).toBe(true);
   });
 
   it('br_kuerzen: Diagramme ohne Bruch-Beschriftung in der Grafik', () => {

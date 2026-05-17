@@ -10,6 +10,12 @@ export type WhiteboardRouteTask = {
   loesungInlineNachFrage?: boolean;
   diagram?: string;
   diagramLoesung?: string;
+  /** Wie `PracticeAufgabe.diagramPdfAufgabeUnterdruecken` — PDF ohne Aufgaben-Grafik (Größenvergleich). */
+  diagramPdfAufgabeUnterdruecken?: boolean;
+  /** Wie `PracticeAufgabe.diagramDefaultHidden`. */
+  diagramDefaultHidden?: boolean;
+  /** Wie `PracticeAufgabe.frageArbeitsblatt` — Arbeitsblatt mit [[MU_AB:n]]-Platzhaltern. */
+  frageArbeitsblatt?: string;
   /** Wie `PracticeAufgabe.frageMitLoesungHighlight` — nur sichtbar, wenn die Lösung eingeblendet wird. */
   frageMitLoesungHighlight?: string;
 };
@@ -64,11 +70,22 @@ function normalizedTask(value: unknown): WhiteboardRouteTask | null {
     typeof value.loesungInlineNachFrage !== 'boolean'
   )
     return null;
+  if (
+    typeof value.diagramPdfAufgabeUnterdruecken !== 'undefined' &&
+    typeof value.diagramPdfAufgabeUnterdruecken !== 'boolean'
+  )
+    return null;
+  if (typeof value.diagramDefaultHidden !== 'undefined' && typeof value.diagramDefaultHidden !== 'boolean')
+    return null;
+  if (typeof value.frageArbeitsblatt !== 'undefined' && typeof value.frageArbeitsblatt !== 'string') return null;
   const base: WhiteboardRouteTask = { frage: value.frage, loesung: value.loesung };
   if (typeof value.diagram === 'string') base.diagram = value.diagram;
   if (typeof value.diagramLoesung === 'string') base.diagramLoesung = value.diagramLoesung;
   if (typeof value.frageMitLoesungHighlight === 'string') base.frageMitLoesungHighlight = value.frageMitLoesungHighlight;
   if (value.loesungInlineNachFrage === true) base.loesungInlineNachFrage = true;
+  if (value.diagramPdfAufgabeUnterdruecken === true) base.diagramPdfAufgabeUnterdruecken = true;
+  if (value.diagramDefaultHidden === true) base.diagramDefaultHidden = true;
+  if (typeof value.frageArbeitsblatt === 'string') base.frageArbeitsblatt = value.frageArbeitsblatt;
   return base;
 }
 

@@ -49,6 +49,16 @@ describe('bruchArbeitsblattLatex', () => {
     ).toBe('');
   });
 
+  it('bruchDiagramSvgFuerAufgabe: unterdrückt bei Größenvergleich auch ohne Flag (alte Routen)', () => {
+    expect(
+      bruchDiagramSvgFuerAufgabe({
+        frage: 'Welcher Bruch ist größer: $\\tfrac{2}{3}$ oder $\\tfrac{3}{4}$?',
+        loesung: 'x',
+        diagram: '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>',
+      })
+    ).toBe('');
+  });
+
   it('replaceAbPlaceholdersLatex (blank / filled)', () => {
     const slots = [
       { kind: 'int' as const, expect: 7 },

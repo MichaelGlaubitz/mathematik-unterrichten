@@ -61,6 +61,24 @@ describe('whiteboardRouteFile', () => {
     expect(parsed?.tasks[0].loesungInlineNachFrage).toBe(true);
   });
 
+  it('normalisiert Bruch-Arbeitsblatt-Felder pro Aufgabe (PDF / AB)', () => {
+    const parsed = parseWhiteboardRoutePayload({
+      ...route,
+      tasks: [
+        {
+          frage: 'f',
+          loesung: 'l',
+          diagramPdfAufgabeUnterdruecken: true,
+          diagramDefaultHidden: true,
+          frageArbeitsblatt: 'f [[MU_AB:0]]',
+        },
+      ],
+    });
+    expect(parsed?.tasks[0].diagramPdfAufgabeUnterdruecken).toBe(true);
+    expect(parsed?.tasks[0].diagramDefaultHidden).toBe(true);
+    expect(parsed?.tasks[0].frageArbeitsblatt).toBe('f [[MU_AB:0]]');
+  });
+
   it('lehnt fremde oder unvollstaendige Payloads ab', () => {
     expect(parseWhiteboardRoutePayload({ ...route, kind: 'other' })).toBeNull();
     expect(parseWhiteboardRoutePayload({ ...route, pagePath: 'https://example.test/uebung/pythagoras' })).toBeNull();
