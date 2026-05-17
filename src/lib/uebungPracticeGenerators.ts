@@ -1518,8 +1518,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const s = a + b;
       const exprSumme = `${a}${formatSignedInt(b)}`;
       const voll = `$${exprSumme}=${s}$`;
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
       return {
         frage: `Berechne die Summe $${exprSumme}$.`,
+        frageArbeitsblatt: `Berechne die Summe $${exprSumme}$${abSpan}.`,
+        abSlots: [{ kind: 'int', expect: s }],
         frageMitLoesungHighlight: voll,
         loesung: voll,
         loesungInlineNachFrage: true,
@@ -1540,8 +1544,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const s = a - b;
       const exprDiff = `${a}-${texSubtrahend(b)}`;
       const voll = `$${exprDiff}=${s}$`;
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
       return {
         frage: `Berechne die Differenz $${exprDiff}$.`,
+        frageArbeitsblatt: `Berechne die Differenz $${exprDiff}$${abSpan}.`,
+        abSlots: [{ kind: 'int', expect: s }],
         frageMitLoesungHighlight: voll,
         loesung: voll,
         loesungInlineNachFrage: true,
@@ -1562,8 +1570,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           : negA === negB
             ? 'Gleiche Vorzeichen ergeben plus.'
             : 'Unterschiedliche Vorzeichen ergeben minus.';
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
       return {
         frage: `Berechne $${texMulFactor(a)}\\cdot${texMulFactor(b)}$.`,
+        frageArbeitsblatt: `Berechne $${texMulFactor(a)}\\cdot${texMulFactor(b)}$${abSpan}.`,
+        abSlots: [{ kind: 'int', expect: p }],
         loesung: `$${texMulFactor(a)}\\cdot${texMulFactor(b)}=${p}$ (${rule})`,
       };
     },
@@ -1572,8 +1584,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const q = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
       const num = q * den;
       const rule = divisionVorzeichenRegel(num, den);
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
       return {
         frage: `Berechne $\\tfrac{${num}}{${den}}$.`,
+        frageArbeitsblatt: `Berechne $\\tfrac{${num}}{${den}}$${abSpan}.`,
+        abSlots: [{ kind: 'int', expect: q }],
         loesung: rule
           ? `$\\tfrac{${num}}{${den}}=${q}$ (${rule})`
           : `$\\tfrac{${num}}{${den}}=${q}$.`,
@@ -1591,20 +1607,37 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const gr = Math.max(a, b);
       const kl = Math.min(a, b);
       const grIstA = gr === a;
+      const zA = `$${a}$`;
+      const zB = `$${b}$`;
+      const grMitBox = (tex: string) =>
+        `<span class="inline-block rounded-md border border-green-600 bg-green-50 px-2 py-0.5 align-middle dark:border-green-400 dark:bg-green-950/55">${tex}</span>`;
       return {
         frage: `Welche Zahl ist größer: $${a}$ oder $${b}$?`,
-        loesung: `${grIstA ? 'A' : 'B'} ist größer: $${gr} > ${kl}$. Auf dem Zahlenstrahl liegt die größere Zahl weiter rechts.`,
+        frageArbeitsblatt: `Welche Zahl ist größer: $${a}$ oder $${b}$? [[MU_AB:0]]`,
+        abSlots: [
+          {
+            kind: 'choice',
+            expect: grIstA ? (0 as const) : (1 as const),
+            labels: ['Erste genannte Zahl', 'Zweite genannte Zahl'],
+          },
+        ],
+        frageMitLoesungHighlight: `Welche Zahl ist größer: ${grIstA ? grMitBox(zA) : zA} oder ${grIstA ? zB : grMitBox(zB)}?`,
+        loesung: `${grIstA ? 'Die erste' : 'Die zweite'} Zahl ist größer: $${gr} > ${kl}$. Auf dem Zahlenstrahl liegt die größere Zahl weiter rechts.`,
         diagram: svgZahlenstrahlZweiWerte(a, b, 'aufgabe'),
         diagramLoesung: svgZahlenstrahlZweiWerte(a, b, 'loesung'),
         diagramDefaultScale: 2,
       };
     },
     nz_klammer_punkt_vor_strich() {
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
       const r = random();
       if (r < 0.34) {
         const n = randInt(2, 9);
         return {
           frage: `Berechne $-(-${n})$.`,
+          frageArbeitsblatt: `Berechne $-(-${n})$${abSpan}.`,
+          abSlots: [{ kind: 'int', expect: n }],
           loesung: `$-(-${n})=${n}$.`,
         };
       }
@@ -1621,6 +1654,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         const res = -inner;
         return {
           frage: `Berechne $-(${innerA}-${innerB})$.`,
+          frageArbeitsblatt: `Berechne $-(${innerA}-${innerB})$${abSpan}.`,
+          abSlots: [{ kind: 'int', expect: res }],
           loesung: `$-(${innerA}-${innerB})=-(${inner})=${res}$.`,
         };
       }
@@ -1632,6 +1667,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         const res = a - prod;
         return {
           frage: `Berechne $${a}-${b}\\cdot${texMulFactor(c)}$.`,
+          frageArbeitsblatt: `Berechne $${a}-${b}\\cdot${texMulFactor(c)}$${abSpan}.`,
+          abSlots: [{ kind: 'int', expect: res }],
           loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}-${prod}=${res}$.`,
           diagram: svgZahlenstrahlSprung(a, -prod, 'aufgabe'),
           diagramLoesung: svgZahlenstrahlSprung(a, -prod, 'loesung'),
@@ -1641,6 +1678,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const res = a + prod;
       return {
         frage: `Berechne $${a}+${b}\\cdot${texMulFactor(c)}$.`,
+        frageArbeitsblatt: `Berechne $${a}+${b}\\cdot${texMulFactor(c)}$${abSpan}.`,
+        abSlots: [{ kind: 'int', expect: res }],
         loesung: `Punkt vor Strich: $${b}\\cdot${texMulFactor(c)}=${prod}$. Also $${a}+${prod}=${res}$.`,
         diagram: svgZahlenstrahlSprung(a, prod, 'aufgabe'),
         diagramLoesung: svgZahlenstrahlSprung(a, prod, 'loesung'),

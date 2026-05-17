@@ -212,6 +212,13 @@ export function bruchDiagramSvgFuerAufgabe(a: PracticeAufgabe): string {
   return '';
 }
 
+/** Standard: Aufgaben-SVG wie online (ohne Bruch-spezifische PDF-Unterdrückung). */
+export function standardPracticeDiagramSvgFuerPdf(a: PracticeAufgabe): string {
+  if (a.diagram) return a.diagram;
+  if (a.diagramLoesung && !a.diagram) return a.diagramLoesung;
+  return '';
+}
+
 export type BruchAbDiagramRaster = { path: string; fileBase64: string };
 
 function parseSvgDimensions(svgXml: string): { w: number; h: number } {
@@ -533,11 +540,12 @@ export async function compileLatexOnHttpPdf(opts: {
   return lastFail ?? { ok: false, message: 'PDF-Dienst: keine Endpunkt-URL konfiguriert.', log: '' };
 }
 
-export async function erzeugeBruchArbeitsblattPdf(opts: {
+export async function erzeugeWbSlotArbeitsblattPdf(opts: {
   aufgaben: readonly PracticeAufgabe[];
   meta: BruchAbPdfMeta;
   mitLoesungen: boolean;
   diagramUiScale: (taskIndex: number) => number;
+  diagramSvgFuerAufgabe: (a: PracticeAufgabe) => string;
 }): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
   async function assemble(caps: SvgRasterCaps): Promise<{
     texMain: string;
@@ -549,7 +557,7 @@ export async function erzeugeBruchArbeitsblattPdf(opts: {
     for (let i = 0; i < opts.aufgaben.length; i++) {
       const a = opts.aufgaben[i];
       const sc = opts.diagramUiScale(i);
-      const svgA = bruchDiagramSvgFuerAufgabe(a);
+      const svgA = opts.diagramSvgFuerAufgabe(a);
       if (svgA) {
         const { ext, base64 } = await rasterizeSvgFuerLatexPdf(svgA, sc, caps);
         const path = `d${i}a.${ext}`;
@@ -601,4 +609,28 @@ export async function erzeugeBruchArbeitsblattPdf(opts: {
   }
 
   return r;
+}
+
+export async function erzeugeBruchArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: bruchDiagramSvgFuerAufgabe,
+  });
+}
+
+export async function erzeugeNegativeZahlenArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
+  });
 }

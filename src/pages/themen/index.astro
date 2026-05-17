@@ -263,18 +263,25 @@ const themenProBand = clusterReihenfolge
     )}
   </div>
 
-  <!-- Bruch-WB-Stichworte: Skript hier, damit Astro es bündelt (nicht in prop-bedingtem TopicBlock-Fragment). -->
+  <!-- WB-Stichworte (Bruchrechnung, Negative Zahlen): Skript hier, damit Astro es bündelt. -->
   <script>
     import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../../lib/bruchrechnungWbKeywordMap';
+    import { NZ_WB_STOR_KEY, stichworteFuerNzIds } from '../../lib/negativeZahlenWbKeywordMap';
     import {
       readBruchMassenAnzahl,
       readBruchMassenLayout,
       writeBruchMassenAnzahl,
       writeBruchMassenLayout,
     } from '../../lib/massenBruchrechnungPrefs';
+    import {
+      readNzMassenAnzahl,
+      readNzMassenLayout,
+      writeNzMassenAnzahl,
+      writeNzMassenLayout,
+    } from '../../lib/massenNegativeZahlenPrefs';
     import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
-    let bruchKwAbort: AbortController | null = null;
+    let wbThemaKwAbort: AbortController | null = null;
 
     const FEEHLV_STOR_PREFIX = 'mu-thema-fehlvorstellungen:';
 
@@ -299,59 +306,65 @@ const themenProBand = clusterReihenfolge
       });
     }
 
-    function stripeApplyBruchThema(root: HTMLElement) {
-      const anzahl = readBruchMassenAnzahl();
-      const layout = readBruchMassenLayout();
-      root.querySelectorAll<HTMLButtonElement>('.mu-bruch-stripe-anzahl').forEach((b) => {
+    function stripeApplyWbThema(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen') {
+      const anzahl = slug === 'bruchrechnung' ? readBruchMassenAnzahl() : readNzMassenAnzahl();
+      const layout = slug === 'bruchrechnung' ? readBruchMassenLayout() : readNzMassenLayout();
+      root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-anzahl').forEach((b) => {
         const n = Number(b.dataset.anzahl);
-        b.classList.toggle('mu-bruch-stripe--aktiv', Number.isFinite(n) && n === anzahl);
+        b.classList.toggle('mu-wb-stripe--aktiv', Number.isFinite(n) && n === anzahl);
       });
-      root.querySelectorAll<HTMLButtonElement>('.mu-bruch-stripe-layout').forEach((b) => {
+      root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-layout').forEach((b) => {
         const l = b.dataset.layout;
-        b.classList.toggle('mu-bruch-stripe--aktiv', l === layout);
+        b.classList.toggle('mu-wb-stripe--aktiv', l === layout);
       });
-      const cb = root.querySelector<HTMLInputElement>('#mu-bruch-thema-diagrams-cb');
+      const cb = root.querySelector<HTMLInputElement>(`#mu-wb-thema-diagrams-${slug}`);
       if (cb) cb.checked = readShowPracticeDiagrams();
     }
 
-    function bootBruchThemaStripe() {
-      const root = document.getElementById('thema-bruchrechnung');
+    function bootWbThemaStripe(slug: 'bruchrechnung' | 'negative-zahlen') {
+      const root = document.getElementById(`thema-${slug}`);
       if (!root) return;
-      const stripe = root.querySelector<HTMLElement>('#mu-bruch-thema-stripe');
+      const stripe = root.querySelector<HTMLElement>('.mu-wb-thema-stripe');
       if (!stripe || stripe.dataset.muStripeBound === '1') return;
       stripe.dataset.muStripeBound = '1';
-      stripeApplyBruchThema(root);
+      stripeApplyWbThema(root, slug);
+      const autoHref = stripe.dataset.muWbAutoHref?.trim() || '';
       stripe.addEventListener('click', (ev: MouseEvent) => {
-        const az = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-stripe-anzahl');
+        const az = (ev.target as HTMLElement | null)?.closest?.('button.mu-wb-stripe-anzahl');
         if (az && stripe.contains(az)) {
           const n = Number((az as HTMLButtonElement).dataset.anzahl);
           if (!Number.isFinite(n)) return;
-          writeBruchMassenAnzahl(n);
-          stripeApplyBruchThema(root);
+          if (slug === 'bruchrechnung') writeBruchMassenAnzahl(n);
+          else writeNzMassenAnzahl(n);
+          stripeApplyWbThema(root, slug);
           return;
         }
-        const ly = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-stripe-layout');
+        const ly = (ev.target as HTMLElement | null)?.closest?.('button.mu-wb-stripe-layout');
         if (ly && stripe.contains(ly)) {
           const l = (ly as HTMLButtonElement).dataset.layout;
           if (l !== 'arbeitsblatt' && l !== 'whiteboard') return;
-          writeBruchMassenLayout(l);
-          stripeApplyBruchThema(root);
-          window.location.assign('/uebung/bruchrechnung?muAuto=1');
+          if (slug === 'bruchrechnung') writeBruchMassenLayout(l);
+          else writeNzMassenLayout(l);
+          stripeApplyWbThema(root, slug);
+          if (autoHref) window.location.assign(autoHref);
         }
       });
-      const cb = root.querySelector<HTMLInputElement>('#mu-bruch-thema-diagrams-cb');
+      const cb = root.querySelector<HTMLInputElement>(`#mu-wb-thema-diagrams-${slug}`);
       cb?.addEventListener('change', () => {
         writeShowPracticeDiagrams(!!cb.checked);
       });
     }
 
-    function applyBruchKwVisual(root: HTMLElement) {
-      const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'));
+    function applyWbThemaKwVisual(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen') {
+      const storKey = slug === 'bruchrechnung' ? BRUCH_WB_STOR_KEY : NZ_WB_STOR_KEY;
+      const idPrefix = slug === 'bruchrechnung' ? 'br_' : 'nz_';
+      const stichworteFuerIds = slug === 'bruchrechnung' ? stichworteFuerBruchIds : stichworteFuerNzIds;
+      const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'));
       let sel = new Set<string>();
       try {
-        const raw = JSON.parse(sessionStorage.getItem(BRUCH_WB_STOR_KEY) || 'null');
-        if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === 'string' && raw[0].startsWith('br_')) {
-          sel = new Set(stichworteFuerBruchIds(raw));
+        const raw = JSON.parse(sessionStorage.getItem(storKey) || 'null');
+        if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === 'string' && raw[0].startsWith(idPrefix)) {
+          sel = new Set(stichworteFuerIds(raw));
         } else if (Array.isArray(raw)) {
           sel = new Set(raw.filter((x: unknown) => typeof x === 'string') as string[]);
         }
@@ -363,76 +376,82 @@ const themenProBand = clusterReihenfolge
       buttons.forEach((b) => {
         const k = b.dataset.stichwort ?? '';
         const on = sel.has(k);
-        b.classList.toggle('mu-bruch-wb-kw--an', on);
+        b.classList.toggle('mu-wb-thema-kw--an', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
     }
 
-    function persistBruchKw(root: HTMLElement) {
-      const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw.mu-bruch-wb-kw--an'))
+    function persistWbThemaKw(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen') {
+      const storKey = slug === 'bruchrechnung' ? BRUCH_WB_STOR_KEY : NZ_WB_STOR_KEY;
+      const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
         .map((b) => b.dataset.stichwort ?? '')
         .filter(Boolean);
       try {
-        sessionStorage.setItem(BRUCH_WB_STOR_KEY, JSON.stringify(sel));
+        sessionStorage.setItem(storKey, JSON.stringify(sel));
       } catch {
         /* sessionStorage blockiert */
       }
     }
 
-    function bootBruchWbKeywords() {
-      const root = document.getElementById('thema-bruchrechnung');
-      if (!root) return;
-      applyBruchKwVisual(root);
-      bruchKwAbort?.abort();
-      bruchKwAbort = new AbortController();
-      const { signal } = bruchKwAbort;
-      root.addEventListener(
+    function bootWbThemaKeywords() {
+      wbThemaKwAbort?.abort();
+      wbThemaKwAbort = new AbortController();
+      const { signal } = wbThemaKwAbort;
+      const bruchRoot = document.getElementById('thema-bruchrechnung');
+      if (bruchRoot) applyWbThemaKwVisual(bruchRoot, 'bruchrechnung');
+      const nzRoot = document.getElementById('thema-negative-zahlen');
+      if (nzRoot) applyWbThemaKwVisual(nzRoot, 'negative-zahlen');
+      document.addEventListener(
         'click',
         (ev: MouseEvent) => {
-          const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-bruch-kw-bulk]') as
-            | HTMLButtonElement
-            | null;
-          if (bulk && root.contains(bulk)) {
+          const rootEl = (ev.target as HTMLElement | null)?.closest?.('.mu-wb-unterthemen-root');
+          if (!rootEl || !rootEl.id.startsWith('thema-')) return;
+          const s = rootEl.id.replace(/^thema-/, '');
+          if (s !== 'bruchrechnung' && s !== 'negative-zahlen') return;
+          const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-wb-kw-bulk]') as HTMLButtonElement | null;
+          if (bulk && rootEl.contains(bulk)) {
             ev.preventDefault();
-            const action = bulk.getAttribute('data-mu-bruch-kw-bulk');
+            const action = bulk.getAttribute('data-mu-wb-kw-bulk');
             const setKw = (buttons: Iterable<HTMLButtonElement>, on: boolean) => {
               for (const btn of buttons) {
-                btn.classList.toggle('mu-bruch-wb-kw--an', on);
+                btn.classList.toggle('mu-wb-thema-kw--an', on);
                 btn.setAttribute('aria-pressed', on ? 'true' : 'false');
               }
             };
             if (action === 'all-select') {
-              setKw(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'), true);
+              setKw(rootEl.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'), true);
             } else if (action === 'all-clear') {
-              setKw(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'), false);
+              setKw(rootEl.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'), false);
             } else if (action === 'cluster-select' || action === 'cluster-clear') {
-              const cluster = bulk.closest('.mu-bruch-kw-cluster');
-              if (!cluster || !root.contains(cluster)) return;
-              setKw(cluster.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'), action === 'cluster-select');
+              const cluster = bulk.closest('.mu-wb-kw-cluster');
+              if (!cluster || !rootEl.contains(cluster)) return;
+              setKw(cluster.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'), action === 'cluster-select');
             }
-            persistBruchKw(root);
+            persistWbThemaKw(rootEl, s as 'bruchrechnung' | 'negative-zahlen');
             return;
           }
-          const t = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-wb-kw');
-          if (!t || !root.contains(t)) return;
+          const t = (ev.target as HTMLElement | null)?.closest?.('button.mu-wb-thema-kw');
+          if (!t || !rootEl.contains(t)) return;
           ev.preventDefault();
-          t.classList.toggle('mu-bruch-wb-kw--an');
-          t.setAttribute('aria-pressed', t.classList.contains('mu-bruch-wb-kw--an') ? 'true' : 'false');
-          persistBruchKw(root);
+          t.classList.toggle('mu-wb-thema-kw--an');
+          t.setAttribute('aria-pressed', t.classList.contains('mu-wb-thema-kw--an') ? 'true' : 'false');
+          persistWbThemaKw(rootEl, s as 'bruchrechnung' | 'negative-zahlen');
         },
         { signal }
       );
     }
 
-    function scheduleBruchKwBoot() {
+    function scheduleWbThemaBoot() {
       requestAnimationFrame(() => {
         bootFehlvorstellungenAccordion();
-        bootBruchThemaStripe();
-        bootBruchWbKeywords();
+        wbThemaKwAbort?.abort();
+        bootWbThemaStripe('bruchrechnung');
+        bootWbThemaStripe('negative-zahlen');
+        bootWbThemaKeywords();
       });
     }
 
-    scheduleBruchKwBoot();
-    document.addEventListener('astro:page-load', scheduleBruchKwBoot);
+    scheduleWbThemaBoot();
+    document.addEventListener('astro:page-load', scheduleWbThemaBoot);
   </script>
 </BaseLayout>
