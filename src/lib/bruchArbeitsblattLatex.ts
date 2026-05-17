@@ -365,13 +365,17 @@ export function buildBruchArbeitsblattTex(opts: {
       ? `\\Needspace{5\\baselineskip}\n\\noindent\\includegraphics[width=${diaW},keepaspectratio=true]{${pa}}\n\\par\\smallskip\n`
       : '';
     const inlineL = practiceAufgabeHatLoesungInlineNachFrage(a);
-    let loeBlock = '';
+    let loeTex = '';
+    let diaL = '';
     if (mitLoesungen) {
-      const loeTex = loesungHtmlZuLatexSegmente(a.loesung);
-      const diaL =
+      loeTex = loesungHtmlZuLatexSegmente(a.loesung);
+      diaL =
         pl && a.diagramLoesung && a.diagramLoesung !== a.diagram
           ? `\\Needspace{4.5\\baselineskip}\n\\noindent\\includegraphics[width=${diaW},keepaspectratio=true]{${pl}}\n\\par\\smallskip\n`
           : '';
+    }
+    let loeBlock = '';
+    if (mitLoesungen) {
       if (inlineL && loeTex) {
         loeBlock = `\\par\\smallskip\n{\\color{teal}\\textbf{${escapeLatexText('Lösung')}.}\\quad ${loeTex}}\n`;
       } else if (loeTex || diaL) {
@@ -379,7 +383,11 @@ export function buildBruchArbeitsblattTex(opts: {
       }
     }
     const itemCore = `${frageBody}${diaAuf}${loeBlock}`;
-    blocks.push(`\\Needspace{5\\baselineskip}\n\\item\\nopagebreak[3]\n${itemCore}`);
+    /** Mehr freier Platz vor „schweren“ Aufgaben: sonst erzwingt \\Needspace oft einen frühen Spalten-/Seitenumbruch. */
+    const blockIstSchwergewicht =
+      !!pa || (mitLoesungen && (!!diaL || (!inlineL && loeTex.length > 0)));
+    const needVorItem = blockIstSchwergewicht ? '12' : '6';
+    blocks.push(`\\Needspace{${needVorItem}\\baselineskip}\n\\item\\nopagebreak[3]\n${itemCore}`);
   });
 
   return `\\documentclass[11pt,a4paper]{article}
@@ -411,6 +419,7 @@ export function buildBruchArbeitsblattTex(opts: {
 \\vspace{0.4em}
 \\thispagestyle{fancy}
 \\begin{multicols}{2}
+\\raggedcolumns
 \\begin{enumerate}
 ${blocks.join('\n')}
 \\end{enumerate}

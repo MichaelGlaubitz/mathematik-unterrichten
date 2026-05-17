@@ -87,6 +87,8 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex.indexOf('Frage')).toBeGreaterThan(0);
     expect(tex.indexOf('Frage')).toBeLessThan(tex.indexOf('includegraphics'));
     expect(tex).toContain('\\begin{multicols}{2}');
+    expect(tex).toContain('\\raggedcolumns');
+    expect(tex).toContain('\\Needspace{12\\baselineskip}');
     expect(tex).toContain('\\end{multicols}');
   });
 
@@ -112,7 +114,9 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('\\begin{enumerate}');
     expect(tex).toContain('\\end{enumerate}');
     expect(tex).toContain('\\begin{multicols}{2}');
-    expect(tex).toContain('\\LARGE');
+    expect(tex).toContain('\\raggedcolumns');
+    expect(tex).toContain('\\Needspace{6\\baselineskip}');
+    expect(tex).toContain('\\end{multicols}');
     expect(tex).not.toContain('\\maketitle');
   });
 
