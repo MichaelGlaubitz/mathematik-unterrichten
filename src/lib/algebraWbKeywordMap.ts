@@ -2,26 +2,156 @@
  * Stichwörter aus `src/content/themen/algebra.json` (`unterthemenBloecke[].punkte`)
  * → Generator-IDs für die Massenübung WB Algebra.
  *
- * Hinweis Arbeitsblatt „Überprüfen“: Bei `alg_ausklammern` wird nur der gemeinsame Faktor $g$
- * per Eingabefeld geprüft — der vollständige Produktterm $g(ax+b)$ bleibt der manuellen Kontrolle
- * in der Musterlösung vorbehalten (kein freies Textfeld für ganze Klammerausdrücke).
+ * **Abdeckung:** Viele Stichworte sind didaktische Wegmarken ohne passenden `alg_*`-Generator
+ * (z. B. Begriffe, Substitution, algebraische Brüche, quadratische Ergänzung). Diese erscheinen
+ * in der Oberfläche, haben aber **keinen** Eintrag in `ALG_WB_STICHWORT_TO_IDS` — sie erzeugen
+ * beim Üben **keine** stillen Fallback-Aufgaben (siehe `readAlgebraTypenFromStorage` in
+ * `MassenuebungGeo.astro`).
+ *
+ * Aktuell gemappt (bestehende Generatoren `alg_*`):
+ * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
+ * - `alg_klammer_mal`: einfache Klammer / mehrere einfache Klammern (positiver oder algebraischer Vorfaktor)
+ * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
+ *
+ * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
+ * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (nicht in den JSON-Punkten; optional über Session-IDs)
+ *
+ * Arbeitsblatt „Überprüfen“: bei `alg_ausklammern` wird nur der gemeinsame Faktor geprüft.
  */
 export const ALG_WB_STOR_KEY = 'mu_algebra_wb_keywords';
 
+/** Alias gemäß Projektbenennung „Algebra …“. */
+export const ALGEBRA_WB_STOR_KEY = ALG_WB_STOR_KEY;
+
 /** Stichwörter pro Unterthemen-Block, Reihenfolge wie in `algebra.json`. */
 export const ALG_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
-  ['Distributivgesetz mit ganzen Zahlen'],
-  ['Zahl vor Klammer ausmultiplizieren'],
-  ['Minus vor der Klammer mit Summanden', 'Klammer nach Subtraktionszeichen'],
-  ['Gleichartige Terme zusammenfassen', 'Gemeinsamen Faktor ausklammern'],
+  [
+    'Was ist ein Ausdruck?',
+    'Was ist eine Gleichung?',
+    'Was ist eine Formel?',
+    'Was ist eine Identität?',
+    'Ausdruck, Gleichung, Formel oder Identität? — kombinierte Zuordnung',
+  ],
+  [
+    'Was ist ein Term?',
+    'Was ist ein Koeffizient?',
+    'Was ist eine Variable?',
+    'Was ist eine Konstante?',
+    'Konventionen der algebraischen Schreibweise',
+  ],
+  [
+    'Ausdrücke aus dem Sachwort schreiben (eine Operation)',
+    'Ausdrücke aus dem Sachwort schreiben (mehrere Operationen)',
+    'Ausdrücke mit Indizes schreiben',
+    'Positive ganze Zahlen in Ausdrücke einsetzen (eine Variable, ohne Potenzen)',
+    'Positive ganze Zahlen in Ausdrücke einsetzen (eine Variable, mit Potenzen)',
+    'Positive ganze Zahlen in Ausdrücke einsetzen (mehrere Variablen)',
+    'Negative Zahlen in Ausdrücke einsetzen (ohne Potenzen)',
+    'Negative Zahlen in Ausdrücke einsetzen (mit Potenzen)',
+    'Dezimalzahlen in Ausdrücke einsetzen (ohne Potenzen)',
+    'Dezimalzahlen in Ausdrücke einsetzen (mit Potenzen)',
+    'Brüche in Ausdrücke einsetzen (ohne Potenzen)',
+    'Brüche in Ausdrücke einsetzen (mit Potenzen)',
+  ],
+  [
+    'Gleichartige Terme erkennen',
+    'Gleichartige Terme zusammenfassen (gleiche Variable)',
+    'Gleichartige Terme zusammenfassen (mehrere Variablen)',
+    'Gleichartige Terme zusammenfassen (mit Indizes)',
+    'Algebraische Terme multiplizieren (ohne Potenzgesetze)',
+    'Algebraische Terme multiplizieren (mit Potenzgesetzen)',
+    'Algebraische Terme dividieren (ohne Potenzgesetze)',
+    'Algebraische Terme dividieren (mit Potenzgesetzen)',
+    'Einen algebraischen Term potenzieren',
+    'Algebraische Ausdrücke mit mehreren Potenzgesetzen vereinfachen',
+    'Äquivalente Ausdrücke erkennen',
+  ],
+  [
+    'Algebraische Brüche',
+    'Algebraische Brüche vereinfachen (ohne Faktorisieren)',
+    'Algebraische Brüche vereinfachen (lineare Faktorisierung)',
+    'Algebraische Brüche vereinfachen (monische quadratische Faktorisierung)',
+    'Algebraische Brüche vereinfachen (nicht-monische quadratische Faktorisierung)',
+    'Algebraische Brüche multiplizieren (ohne vorgehendes Faktorisieren)',
+    'Algebraische Brüche multiplizieren (mit linearer Faktorisierung)',
+    'Algebraische Brüche multiplizieren (mit monischer quadratischer Faktorisierung)',
+    'Algebraische Brüche multiplizieren (mit nicht-monischer quadratischer Faktorisierung)',
+    'Algebraische Brüche dividieren (ohne vorgehendes Faktorisieren)',
+    'Algebraische Brüche dividieren (mit linearer Faktorisierung)',
+    'Algebraische Brüche dividieren (mit monischer quadratischer Faktorisierung)',
+    'Algebraische Brüche dividieren (mit nicht-monischer quadratischer Faktorisierung)',
+    'Algebraische Brüche addieren (ganzzahlige Nenner)',
+    'Algebraische Brüche addieren (algebraische einfache Nenner)',
+    'Algebraische Brüche addieren (lineare algebraische Nenner)',
+    'Algebraische Brüche addieren (mit vorgehendem Faktorisieren)',
+    'Algebraische Brüche subtrahieren (ganzzahlige Nenner)',
+    'Algebraische Brüche subtrahieren (algebraische einfache Nenner)',
+    'Algebraische Brüche subtrahieren (lineare algebraische Nenner)',
+    'Algebraische Brüche subtrahieren (mit vorgehendem Faktorisieren)',
+    'Die vier Grundrechenarten mit algebraischen Brüchen',
+  ],
+  [
+    'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)',
+    'Einfache Klammer ausmultiplizieren (negativer ganzzahliger Vorfaktor)',
+    'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)',
+    'Mehrere einfache Klammern ausmultiplizieren und vereinfachen',
+    'Einfache Klammern — Diagnose-Capstone',
+    'Doppelklammer ausmultiplizieren (überall positiv)',
+    'Doppelklammer ausmultiplizieren (mit negativen Summanden)',
+    'Doppelklammer ausmultiplizieren (Quadrieren einer Klammer)',
+    'Doppelklammer ausmultiplizieren (nicht-monisch)',
+    'Doppelklammer ausmultiplizieren (nicht-monisch mit negativen Summanden)',
+    'Mehrere Doppelklammer-Ausdrücke ausmultiplizieren und vereinfachen',
+    'Dreifache Klammer ausmultiplizieren (monisch)',
+    'Dreifache Klammer ausmultiplizieren (nicht-monisch)',
+    'Dreifache Klammer ausmultiplizieren (Quadrat × linear)',
+    'Eine Klammer dritt potenzieren',
+    'Klammern ausmultiplizieren — Progressions-Capstone',
+  ],
+  [
+    'Faktorisieren mit gemeinsamem Zahlfaktor',
+    'Faktorisieren mit gemeinsamem algebraischen Faktor',
+    'Faktorpaare finden, die zu c multiplizieren und zu b addieren',
+    'Monische quadratische Ausdrücke faktorisieren (alle Koeffizienten positiv)',
+    'Monische quadratische Ausdrücke faktorisieren (mit negativen Summanden)',
+    'Monische perfekte quadratische Trinome faktorisieren',
+    'Nicht-monische quadratische Ausdrücke faktorisieren (alle Koeffizienten positiv)',
+    'Nicht-monische quadratische Ausdrücke faktorisieren (mit negativen Summanden)',
+    'Nicht-monische perfekte quadratische Trinome faktorisieren',
+    'Differenz von Quadraten (einfach)',
+    'Differenz von Quadraten (nicht-monisch / mehrere Variablen)',
+    'Faktorisieren mit vorgehendem Ausklammern',
+    'Faktorisieren mit negativem Leitkoeffizienten',
+    'Faktorisieren mit gemeinsamem Klammerfaktor',
+    'Faktorisieren durch Gruppieren (vier Summanden)',
+    'Quadratische Ausdrücke in zwei Variablen faktorisieren',
+    'Faktorisieren mit wiederholter Differenz von Quadraten (bis Quartik)',
+    'Differenz quadrierter Binome faktorisieren',
+    'Faktorisieren — Diagnose-Capstone',
+  ],
+  [
+    'Quadratische Ergänzung (monisch, b gerade)',
+    'Quadratische Ergänzung (monisch, b ungerade)',
+    'Quadratische Ergänzung (nicht-monisch, a positiv)',
+    'Quadratische Ergänzung (nicht-monisch, a negativ)',
+    'Quadratische Ergänzung — Diagnose-Capstone',
+  ],
 ];
 
 export const ALG_WB_CLUSTER_TITEL: readonly string[] = [
-  'Distributivgesetz und Zahlenstruktur',
-  'Ausmultiplizieren vor der Klammer',
-  'Vorzeichen und Klammern',
-  'Terme ordnen und faktorisieren',
+  'Ausdruck, Gleichung, Formel, Identität',
+  'Grundbegriffe am Term',
+  'Terme aus Sprache; Substitution',
+  'Gleichartige Terme; Potenzen & Äquivalenz',
+  'Algebraische Brüche',
+  'Klammern ausmultiplizieren',
+  'Faktorisieren',
+  'Quadratische Ergänzung',
 ];
+
+export function algWbAlleStichworteFlach(): string[] {
+  return ALG_WB_UNTERTHEMA_STICHWORTE.flat();
+}
 
 export function algStichwortClusterIndex(stichwort: string): number {
   for (let i = 0; i < ALG_WB_UNTERTHEMA_STICHWORTE.length; i++) {
@@ -42,13 +172,23 @@ export function sortAlgAbStichworte(labels: readonly string[]): string[] {
   });
 }
 
+/**
+ * Nur Stichworte mit echten `alg_*`-Aufgaben. Mehrere Stichworte dürfen dieselbe ID teilen
+ * (gleicher Übungstyp, andere didaktische Einordnung).
+ */
 export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>> = {
-  'Distributivgesetz mit ganzen Zahlen': ['alg_distributiv_zahl'],
-  'Zahl vor Klammer ausmultiplizieren': ['alg_klammer_mal'],
-  'Minus vor der Klammer mit Summanden': ['alg_minus_klammer_plus'],
-  'Klammer nach Subtraktionszeichen': ['alg_klammer_weg'],
-  'Gleichartige Terme zusammenfassen': ['alg_terme_zusammen'],
-  'Gemeinsamen Faktor ausklammern': ['alg_ausklammern'],
+  'Gleichartige Terme zusammenfassen (gleiche Variable)': ['alg_terme_zusammen'],
+  'Gleichartige Terme zusammenfassen (mehrere Variablen)': ['alg_terme_zusammen'],
+  'Gleichartige Terme zusammenfassen (mit Indizes)': ['alg_terme_zusammen'],
+  'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_klammer_mal'],
+  'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)': ['alg_klammer_mal'],
+  'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_klammer_mal'],
+  'Einfache Klammer ausmultiplizieren (negativer ganzzahliger Vorfaktor)': ['alg_minus_klammer_plus'],
+  'Mehrere einfache Klammern ausmultiplizieren und vereinfachen': ['alg_klammer_mal'],
+  'Faktorisieren mit gemeinsamem Zahlfaktor': ['alg_ausklammern'],
+  'Faktorisieren mit gemeinsamem algebraischen Faktor': ['alg_ausklammern'],
+  'Faktorisieren mit vorgehendem Ausklammern': ['alg_ausklammern'],
+  'Faktorisieren mit gemeinsamem Klammerfaktor': ['alg_ausklammern'],
 };
 
 export function expandAlgWbStichworte(keywords: readonly string[]): string[] {
