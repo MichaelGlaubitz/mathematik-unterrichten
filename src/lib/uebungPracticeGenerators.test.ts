@@ -200,6 +200,11 @@ describe('Bruchrechnung-Generatoren', () => {
     const add = GEN.br_add_like();
     expect(add.diagram).toBeDefined();
     expect(add.diagram).toContain("fill-opacity='0.32'");
+    expect(add.diagramLoesung).toBeDefined();
+    expect(add.diagramLoesung).not.toBe(add.diagram);
+    expect(add.diagramLoesung).toContain('=');
+    expect(add.diagram).toContain('①');
+    expect(add.diagramLoesung).not.toContain('①');
   });
 
   it('br_add_like / br_sub_like: schlichte Aufgabenzeile, bei Lösung eine durchgängige Gleichungszeile', () => {
