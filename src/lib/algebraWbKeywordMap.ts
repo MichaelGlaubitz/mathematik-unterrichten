@@ -1,6 +1,10 @@
 /**
  * Stichwörter aus `src/content/themen/algebra.json` (`unterthemenBloecke[].punkte`)
  * → Generator-IDs für die Massenübung WB Algebra.
+ *
+ * Hinweis Arbeitsblatt „Überprüfen“: Bei `alg_ausklammern` wird nur der gemeinsame Faktor $g$
+ * per Eingabefeld geprüft — der vollständige Produktterm $g(ax+b)$ bleibt der manuellen Kontrolle
+ * in der Musterlösung vorbehalten (kein freies Textfeld für ganze Klammerausdrücke).
  */
 export const ALG_WB_STOR_KEY = 'mu_algebra_wb_keywords';
 

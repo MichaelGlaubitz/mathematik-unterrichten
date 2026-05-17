@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 import {
+  ALGEBRA_GENERATOR_IDS,
   BRUCHRECHNUNG_GENERATOR_IDS,
   createPracticeGenerators,
   funGraphLinearAxisInterceptsInRange,
@@ -349,6 +350,18 @@ describe('alg_distributiv_zahl (Algebra)', () => {
       expect(t.diagramLoesung).toBeDefined();
       expect(t.diagramLoesung).toContain('<svg');
       expect(t.diagramDefaultHidden).toBe(true);
+    }
+  });
+});
+
+describe('Algebra-Generatoren (WB-Slot-Arbeitsblatt)', () => {
+  it('Algebra-AB: frageArbeitsblatt-Platzhalter passen zu abSlots', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of ALGEBRA_GENERATOR_IDS) {
+      const a = GEN[id]();
+      expect(a.frageArbeitsblatt, id).toBeDefined();
+      expect(a.abSlots?.length, id).toBeGreaterThan(0);
+      expect(zaehleAbPlatzhalter(a.frageArbeitsblatt!), id).toBe(a.abSlots!.length);
     }
   });
 });

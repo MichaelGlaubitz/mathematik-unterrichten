@@ -634,3 +634,16 @@ export async function erzeugeNegativeZahlenArbeitsblattPdf(opts: {
     diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
   });
 }
+
+/** WB Algebra: gleiche Slot-PDF-Pipeline wie Negative Zahlen (Standard-Diagramm → PDF). */
+export async function erzeugeAlgebraArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
+  });
+}
