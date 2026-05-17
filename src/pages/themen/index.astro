@@ -265,7 +265,11 @@ const themenProBand = clusterReihenfolge
 
   <!-- WB-Stichworte (Bruchrechnung, Negative Zahlen, Algebra): Skript hier, damit Astro es bündelt. -->
   <script>
-    import { ALG_WB_STOR_KEY, stichworteFuerAlgIds } from '../../lib/algebraWbKeywordMap';
+    import { ALG_WB_STOR_KEY, canonicalAlgStichworteFuerGeneratorIds } from '../../lib/algebraWbKeywordMap';
+    import {
+      algebraThemaStichworteToBruchSessionKeywords,
+      selectedAlgebraStichworteRoutenZuBruchrechnung,
+    } from '../../lib/algebraBruchThemaRouting';
     import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../../lib/bruchrechnungWbKeywordMap';
     import { NZ_WB_STOR_KEY, stichworteFuerNzIds } from '../../lib/negativeZahlenWbKeywordMap';
     import {
@@ -365,6 +369,21 @@ const themenProBand = clusterReihenfolge
           else if (slug === 'negative-zahlen') writeNzMassenLayout(l);
           else writeAlgebraMassenLayout(l);
           stripeApplyWbThema(root, slug);
+          if (l === 'arbeitsblatt' && slug === 'algebra') {
+            const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
+              .map((b) => b.dataset.stichwort ?? '')
+              .filter(Boolean);
+            if (selectedAlgebraStichworteRoutenZuBruchrechnung(sel)) {
+              const bruchKw = algebraThemaStichworteToBruchSessionKeywords(sel);
+              try {
+                sessionStorage.setItem(BRUCH_WB_STOR_KEY, JSON.stringify(bruchKw));
+              } catch {
+                /* sessionStorage blockiert */
+              }
+              window.location.assign('/uebung/bruchrechnung?muAuto=1');
+              return;
+            }
+          }
           if (autoHref) window.location.assign(autoHref);
         }
       });
@@ -389,7 +408,10 @@ const themenProBand = clusterReihenfolge
       try {
         const raw = JSON.parse(sessionStorage.getItem(storKey) || 'null');
         if (Array.isArray(raw) && raw.length > 0 && typeof raw[0] === 'string' && raw[0].startsWith(idPrefix)) {
-          sel = new Set(stichworteFuerIds(raw));
+          sel =
+            slug === 'algebra'
+              ? new Set(canonicalAlgStichworteFuerGeneratorIds(raw as string[]))
+              : new Set(stichworteFuerIds(raw as string[]));
         } else if (Array.isArray(raw)) {
           sel = new Set(raw.filter((x: unknown) => typeof x === 'string') as string[]);
         }

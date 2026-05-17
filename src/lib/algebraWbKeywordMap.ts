@@ -210,6 +210,26 @@ export function stichworteFuerAlgIds(ids: readonly string[]): string[] {
   return [...out];
 }
 
+/**
+ * Deterministische Repräsentation pro `alg_*`-ID (erstes Stichwort nach Cluster-/Sortierordnung).
+ * Verhindert, dass eine ID alle zugehörigen UI-Stichworte gleichzeitig „aktiv“ macht.
+ */
+export function canonicalAlgStichwortFuerGeneratorId(id: string): string | null {
+  const kws = stichworteFuerAlgIds([id]);
+  if (kws.length === 0) return null;
+  const sorted = sortAlgAbStichworte(kws);
+  return sorted[0] ?? null;
+}
+
+export function canonicalAlgStichworteFuerGeneratorIds(ids: readonly string[]): string[] {
+  const out = new Set<string>();
+  for (const id of ids) {
+    const c = canonicalAlgStichwortFuerGeneratorId(id);
+    if (c) out.add(c);
+  }
+  return sortAlgAbStichworte([...out]);
+}
+
 export function clusterTitelZeileFuerAlgGeneratorIds(ids: readonly string[]): string {
   const idx = new Set<number>();
   for (const id of ids) {
@@ -229,7 +249,7 @@ export function stichwortLabelsFromAlgSessionRaw(raw: unknown): string[] {
   if (!Array.isArray(raw) || raw.length === 0) return [];
   if (typeof raw[0] === 'string' && raw[0].startsWith('alg_')) {
     const ids = raw.filter((x): x is string => typeof x === 'string');
-    return sortAlgAbStichworte([...new Set(stichworteFuerAlgIds(ids))]);
+    return canonicalAlgStichworteFuerGeneratorIds(ids);
   }
   const kw = raw.filter((x): x is string => typeof x === 'string');
   return sortAlgAbStichworte([...new Set(kw)]);
