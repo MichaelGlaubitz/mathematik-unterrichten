@@ -267,6 +267,11 @@ export const ALGEBRA_GENERATOR_IDS = [
   'alg_klammer_weg',
   'alg_terme_zusammen',
   'alg_distributiv_zahl',
+  'alg_gb_term',
+  'alg_gb_koeff',
+  'alg_gb_variable',
+  'alg_gb_konstante',
+  'alg_gb_konvention',
 ] as const;
 
 /** Lineare Gleichungen in einer Variablen (Klasse 7–8). */
@@ -1817,6 +1822,137 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
               diagramDefaultHidden: true,
             }
           : {}),
+      };
+    },
+    /** Grundbegriffe: Summanden zählen, Term vs. Gleichung, reiner Zahlterm. */
+    alg_gb_term() {
+      const abZahl =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>?</span>[[MU_AB:0]]</span>';
+      const r = random();
+      if (r < 0.38) {
+        const A = randInt(2, 6);
+        const B = randInt(2, 6);
+        let C = 0;
+        for (let t = 0; t < 35; t++) {
+          C = randInt(-9, 9);
+          if (C !== 0) break;
+        }
+        if (C === 0) C = -4;
+        const expr = `${linTerm(A, 'x')}+${linTerm(B, 'y')}${formatSignedInt(C)}`;
+        return {
+          frage: `Wie viele Summanden hat der Ausdruck $${expr}$? (Zähle die Teile, die durch $+$ oder $-$ verbunden sind.)`,
+          frageArbeitsblatt: `Wie viele Summanden hat $${expr}$?${abZahl}`,
+          abSlots: [{ kind: 'int', expect: 3 }],
+          loesung: `Es sind drei Summanden: $${linTerm(A, 'x')}$, $+${linTerm(B, 'y')}$ und $${C < 0 ? '(' + C + ')' : C}$.`,
+        };
+      }
+      if (r < 0.62) {
+        const a = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        let b = 0;
+        for (let t = 0; t < 30; t++) {
+          b = randInt(-12, 12);
+          if (b !== 0) break;
+        }
+        if (b === 0) b = 3;
+        const expr = `${linTerm(a, 'x')}${formatSignedInt(b)}`;
+        return {
+          frage: `Wie viele Summanden hat $${expr}$?`,
+          frageArbeitsblatt: `Wie viele Summanden hat $${expr}$?${abZahl}`,
+          abSlots: [{ kind: 'int', expect: 2 }],
+          loesung: `Zwei Summanden: der variable Term $${linTerm(a, 'x')}$ und der konstante Summand $${b}$.`,
+        };
+      }
+      if (r < 0.82) {
+        return {
+          frage: `Welche Zeile zeigt eine Gleichung (nicht nur einen Term)?`,
+          frageArbeitsblatt: `Welche Zeile ist eine Gleichung? [[MU_AB:0]]`,
+          abSlots: [
+            {
+              kind: 'choice',
+              expect: 1 as const,
+              labels: ['$3x+5$', '$2x=8$'],
+            },
+          ],
+          loesung: `Nur $2x=8$ enthält ein $=$ und ist eine Gleichung; $3x+5$ ist ein Term (Summe aus $3x$ und $5$) ohne Gleichheitszeichen.`,
+        };
+      }
+      const c = pick([-9, -8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8, 9] as const);
+      return {
+        frage: `Der Ausdruck besteht nur aus der Zahl $${c}$. Wie viele Summanden hat dieser Ausdruck? (Eine einzelne Zahl gilt als konstanter Term.)`,
+        frageArbeitsblatt: `Ausdruck $${c}$ — wie viele Summanden?${abZahl}`,
+        abSlots: [{ kind: 'int', expect: 1 }],
+        loesung: `Der Ausdruck $${c}$ hat einen Summanden — eine einzelne Zahl ist ein konstanter Term.`,
+      };
+    },
+    alg_gb_koeff() {
+      const a = pick([-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const);
+      let b = 0;
+      for (let t = 0; t < 28; t++) {
+        b = randInt(-14, 14);
+        if (b !== 0) break;
+      }
+      if (b === 0) b = 4;
+      const expr = `${linTerm(a, 'x')}${formatSignedInt(b)}`;
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
+      return {
+        frage: `Wie groß ist der Koeffizient von $x$ im Term $${expr}$?`,
+        frageArbeitsblatt: `Koeffizient von $x$ in $${expr}$:${abSpan}`,
+        abSlots: [{ kind: 'int', expect: a }],
+        loesung:
+          a === 1 || a === -1
+            ? `Der Koeffizient von $x$ ist $${a}$ (Schreibweise $${linTerm(a, 'x')}$).`
+            : `Der Koeffizient von $x$ ist die Zahl vor $x$, also $${a}$.`,
+      };
+    },
+    alg_gb_variable() {
+      const v = pick(['n', 'a', 't', 'k'] as const);
+      const other = pick(['z', 'q', 'r', 's'] as const);
+      const k = randInt(2, 9);
+      const expr = `${linTerm(k, v)}${formatSignedInt(randInt(2, 12))}`;
+      return {
+        frage: `Welcher Buchstabe ist die Variable in $${expr}$?`,
+        frageArbeitsblatt: `Welcher Buchstabe ist die Variable in $${expr}$? [[MU_AB:0]]`,
+        abSlots: [
+          {
+            kind: 'choice',
+            expect: 0 as const,
+            labels: [`$${v}$`, `$${other}$`],
+          },
+        ],
+        loesung: `Die Variable ist $${v}$ — sie steht für eine noch unbekannte Zahl. Der Buchstabe $${other}$ kommt in $${expr}$ gar nicht vor.`,
+      };
+    },
+    alg_gb_konstante() {
+      const a = randInt(2, 9);
+      let k = 0;
+      for (let t = 0; t < 30; t++) {
+        k = randInt(-18, 18);
+        if (k !== 0) break;
+      }
+      if (k === 0) k = -7;
+      const expr = `${linTerm(a, 'x')}${formatSignedInt(k)}`;
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
+      return {
+        frage: `Wie groß ist der konstante Summand (reine Zahl ohne $x$) in $${expr}$?`,
+        frageArbeitsblatt: `Konstanter Summand in $${expr}$:${abSpan}`,
+        abSlots: [{ kind: 'int', expect: k }],
+        loesung: `Der konstante Summand ist $${k}$ (der Teil ohne $x$).`,
+      };
+    },
+    alg_gb_konvention() {
+      return {
+        frage: `Welche Schreibweise entspricht der üblichen Konvention „Zahl vor Variable“?`,
+        frageArbeitsblatt: `Konvention „Zahl vor Variable“: [[MU_AB:0]]`,
+        abSlots: [
+          {
+            kind: 'choice',
+            expect: 1 as const,
+            labels: ['Schreibweise $x5$', 'Schreibweise $5x$'],
+          },
+        ],
+        loesung: `Richtig ist $5x$: Der Koeffizient steht vor der Variablen. $x5$ ist unüblich und leicht missverständlich.`,
       };
     },
     lg_x_plus_a_eq_b() {

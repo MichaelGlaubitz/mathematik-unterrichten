@@ -341,6 +341,35 @@ describe('nz_add / nz_sub (Negative Zahlen): Lösung ersetzt Aufgabenkern', () =
   });
 });
 
+describe('Algebra Grundbegriffe (alg_gb_*)', () => {
+  it('liefert gültige Arbeitsblatt-Slots und passende Längen', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of ['alg_gb_term', 'alg_gb_koeff', 'alg_gb_variable', 'alg_gb_konstante', 'alg_gb_konvention'] as const) {
+      for (let k = 0; k < 40; k++) {
+        const a = GEN[id]();
+        expect(a.frage.length).toBeGreaterThan(15);
+        expect(a.loesung.length).toBeGreaterThan(8);
+        expect(a.frageArbeitsblatt).toBeDefined();
+        expect(a.abSlots?.length).toBeGreaterThan(0);
+        expect(zaehleAbPlatzhalter(a.frageArbeitsblatt!), id).toBe(a.abSlots!.length);
+      }
+    }
+  });
+
+  it('alg_gb_term: Drei-Summanden-Aufgabe hat Lösung mit „drei“', () => {
+    let found = false;
+    for (let seed = 0; seed < 800 && !found; seed++) {
+      const GEN = createPracticeGenerators(makeLcg(seed));
+      const t = GEN.alg_gb_term();
+      if (t.abSlots?.[0]?.kind === 'int' && t.abSlots[0].expect === 3) {
+        expect(t.loesung.toLowerCase()).toContain('drei');
+        found = true;
+      }
+    }
+    expect(found).toBe(true);
+  });
+});
+
 describe('alg_distributiv_zahl (Algebra)', () => {
   it('liefert nur diagramLoesung, kein Aufgaben-Diagramm', () => {
     const GEN = createPracticeGenerators(Math.random);
