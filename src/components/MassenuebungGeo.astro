@@ -3246,8 +3246,22 @@ function wbLabelFromHref(href: string): string {
 
     refreshAktiv();
     if (!consumeWindowNameRoute()) {
-      render();
+      /** Themenseite „Arbeitsblatt“ → /uebung/bruchrechnung?muAuto=1: kein Zwischen-Render mit leerem Satz (sonst kurz alter Voll-Chrome). */
+      let skipInitialRender = false;
+      if (isBruchMassen) {
+        try {
+          skipInitialRender = new URL(window.location.href).searchParams.get('muAuto') === '1';
+        } catch {
+          skipInitialRender = false;
+        }
+      }
+      if (!skipInitialRender) {
+        render();
+      }
       runBruchAutoStartFromUrl();
+      if (skipInitialRender && aufgaben.length === 0) {
+        render();
+      }
     }
   }
 
