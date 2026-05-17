@@ -37,6 +37,7 @@ import {
   svgZahlenstrahlZweiWerte,
 } from './negativeZahlenDiagrams';
 import {
+  svgBruchErgebnisStreifenGleichNenner,
   svgBruchErweiternKacheln,
   svgBruchMalRaster,
   svgBruchStreifen,
@@ -1033,7 +1034,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: voll,
         loesungInlineNachFrage: true,
         diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
-        diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
+        diagramLoesung: svgBruchErgebnisStreifenGleichNenner(s, d, 'loesung'),
       };
     },
     br_sub_like() {
@@ -1054,7 +1055,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: voll,
         loesungInlineNachFrage: true,
         diagram: svgBruchZweiStreifen(a, d, b, 'aufgabe'),
-        diagramLoesung: svgBruchZweiStreifen(a, d, b, 'loesung'),
+        diagramLoesung: svgBruchErgebnisStreifenGleichNenner(s, d, 'loesung'),
       };
     },
     br_erweitern() {

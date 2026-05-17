@@ -2,8 +2,9 @@
  * SVG-Veranschaulichungen für Bruchrechnung (Streifen-, Kreis-, Flächen-, Erweitern-Kachelraster).
  *
  * `modus === 'aufgabe'`: beim **Flächenmodell** (`svgBruchMalRaster`) keine markante Schattierung
- * des Produkts (kein Auslesen des Ergebnisses). Streifen für Addition/Subtraktion/Vergleich
- * sind in beiden Modi schattiert. `svgBruchStreifen` ohne Kürzungsfaktor: Aufgabe ohne Zähler-Füllung;
+ * des Produkts (kein Auslesen des Ergebnisses). Zwei-Streifen-Skizze (`svgBruchZweiStreifen`):
+ * Summanden in beiden Modi schattiert; das Ergebnis liefert {@link svgBruchErgebnisStreifenGleichNenner}.
+ * `svgBruchStreifen` ohne Kürzungsfaktor: Aufgabe ohne Zähler-Füllung;
  * mit Kürzungsfaktor: Zähler sichtbar, ohne Lösungsblockrahmen.
  * `modus === 'loesung'`: vollständige Markierung inkl. ggf. Lösungshilfen (z. B. Kürzungsrahmen).
  */
@@ -37,6 +38,32 @@ export function svgBruchZweiStreifen(
     a,
     6
   )}<text x='2' y='58' font-size='13' fill='currentColor' font-family='system-ui,sans-serif'>②</text>${mkrow(b, 42)}</svg>`;
+}
+
+/**
+ * Ein Streifen n/d mit **derselben** Balkenaufteilung wie {@link svgBruchZweiStreifen}
+ * (für die Lösungsgrafik: Summe bzw. Differenz gleichnamiger Brüche, ohne erneute Summanden-Zeilen).
+ */
+export function svgBruchErgebnisStreifenGleichNenner(
+  n: number,
+  d: number,
+  _modus: BruchdiagrammModus = 'loesung'
+): string {
+  if (d < 2 || d > 16 || n < 0 || n > d) return '';
+  const pad = 20;
+  const bw = 232;
+  const seg = bw / d;
+  const hr = 26;
+  const y = 10;
+  let rects = '';
+  for (let i = 0; i < d; i++) {
+    const x = pad + i * seg;
+    const filled = i < n;
+    const fill = filled ? 'currentColor' : 'none';
+    const fillOp = filled ? 0.32 : 0;
+    rects += `<rect x='${x + 0.4}' y='${y}' width='${seg - 0.8}' height='${hr - 2}' rx='0.8' fill='${fill}' fill-opacity='${fillOp}' stroke='currentColor' stroke-width='1.1'/>`;
+  }
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${pad + bw + 6} 46' class='mx-auto max-w-full text-ink-800 dark:text-ink-200' aria-hidden='true'><text x='2' y='26' font-size='13' fill='currentColor' font-family='system-ui,sans-serif'>=</text>${rects}</svg>`;
 }
 
 /**

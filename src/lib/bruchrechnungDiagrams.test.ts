@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  svgBruchErgebnisStreifenGleichNenner,
   svgBruchErweiternKacheln,
   svgBruchMalRaster,
   svgBruchStreifen,
@@ -81,6 +82,13 @@ describe('bruchrechnungDiagrams', () => {
     const loe = svgBruchZweiStreifen(2, 6, 3, 'loesung');
     expect((auf.match(/fill-opacity='0.32'/g) || []).length).toBe(5);
     expect((loe.match(/fill-opacity='0.32'/g) || []).length).toBe(5);
+  });
+
+  it('Ergebnis-Streifen gleich Nenner: eine Zeile, Summe schattiert (z. B. 6/8+2/8 → 8/8)', () => {
+    const erg = svgBruchErgebnisStreifenGleichNenner(8, 8, 'loesung');
+    expect(erg).toContain('=');
+    expect((erg.match(/fill-opacity='0.32'/g) || []).length).toBe(8);
+    expect((erg.match(/<rect/g) || []).length).toBe(8);
   });
 
   it('Vergleich Ausgangsstreifen: Aufgabe mit Schattierung der Anteile', () => {
