@@ -146,11 +146,17 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
     if (spec.kind === 'int') return '\\ensuremath{\\,\\rule{2.4cm}{0.4pt}\\,}';
     if (spec.kind === 'frac')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}}`;
+    if (spec.kind === 'frac_num')
+      return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${spec.fixedDen}}}`;
     return '\\ensuremath{\\,\\rule{3.2cm}{0.4pt}\\,}';
   }
   if (spec.kind === 'int') return `\\ensuremath{\\boxed{${spec.expect}}}`;
   if (spec.kind === 'frac') {
     const inner = fracTex(spec.expectNum, spec.expectDen);
+    return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;
+  }
+  if (spec.kind === 'frac_num') {
+    const inner = fracTex(spec.expectNum, spec.fixedDen);
     return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;
   }
   const lab = spec.labels[spec.expect] ?? '';
@@ -365,7 +371,7 @@ export function buildBruchArbeitsblattTex(opts: {
         loeBlock = `\\par\\medskip\n\\fcolorbox{black!18}{black!4}{\\begin{minipage}{0.96\\linewidth}\n\\textbf{${escapeLatexText('Lösung')}.}\\par\\smallskip\n${loeTex}${loeTex && diaL ? '\\par\\smallskip\n' : ''}${diaL}\\end{minipage}}\n`;
       }
     }
-    const itemCore = `${diaAuf}${frageBody}${loeBlock}`;
+    const itemCore = `${frageBody}${diaAuf}${loeBlock}`;
     blocks.push(`\\Needspace{5\\baselineskip}\n\\item\\nopagebreak[3]\n${itemCore}`);
   });
 
@@ -390,11 +396,12 @@ export function buildBruchArbeitsblattTex(opts: {
 \\renewcommand{\\headrulewidth}{0.35pt}
 \\setlength{\\headheight}{22pt}
 \\setlist[enumerate,1]{label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=0.65em, parsep=0.15em, topsep=0.45em, labelsep=0.4em, align=left}
-\\title{\\sffamily\\LARGE\\bfseries ${loeTitle}}
-\\author{}
-\\date{}
 \\begin{document}
-\\maketitle
+\\vspace*{-0.85em}
+\\begin{center}
+{\\sffamily\\LARGE\\bfseries ${loeTitle}\\par}
+\\end{center}
+\\vspace{0.4em}
 \\thispagestyle{fancy}
 \\begin{multicols}{2}
 \\begin{enumerate}

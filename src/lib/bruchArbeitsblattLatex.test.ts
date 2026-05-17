@@ -11,6 +11,7 @@ import {
   latexHttpEndpointList,
   loesungHtmlZuLatexSegmente,
   replaceAbPlaceholdersLatex,
+  slotLatex,
   stripHtmlTags,
 } from './bruchArbeitsblattLatex';
 
@@ -47,6 +48,12 @@ describe('bruchArbeitsblattLatex', () => {
     expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toMatch(/tfrac\{3\}\{4\}/);
   });
 
+  it('slotLatex: frac_num nur Zähler-Lücke, Nenner fest', () => {
+    const s = { kind: 'frac_num' as const, expectNum: 3, fixedDen: 8 };
+    expect(slotLatex(s, 'blank')).toMatch(/\\frac\{.*\}\{8\}/);
+    expect(slotLatex(s, 'filled')).toMatch(/tfrac\{3\}\{8\}/);
+  });
+
   it('htmlFrageZuLatexInhalt verarbeitet AB-Platzhalter', () => {
     const html =
       'Berechne $\\displaystyle\\frac{1}{2}$<span class="mu-katex-skip"><span>=</span>[[MU_AB:0]]</span>';
@@ -76,6 +83,9 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('\\setlength{\\columnseprule}');
     expect(tex).toContain(`width=${BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH},keepaspectratio=true`);
     expect(tex).not.toContain('style=nextline');
+    expect(tex).not.toContain('\\maketitle');
+    expect(tex.indexOf('Frage')).toBeGreaterThan(0);
+    expect(tex.indexOf('Frage')).toBeLessThan(tex.indexOf('includegraphics'));
     expect(tex).toContain('\\begin{multicols}{2}');
     expect(tex).toContain('\\end{multicols}');
   });
@@ -103,6 +113,7 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('\\end{enumerate}');
     expect(tex).toContain('\\begin{multicols}{2}');
     expect(tex).toContain('\\LARGE');
+    expect(tex).not.toContain('\\maketitle');
   });
 
   it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {
