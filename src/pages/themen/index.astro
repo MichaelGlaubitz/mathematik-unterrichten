@@ -263,8 +263,9 @@ const themenProBand = clusterReihenfolge
     )}
   </div>
 
-  <!-- WB-Stichworte (Bruchrechnung, Negative Zahlen): Skript hier, damit Astro es bündelt. -->
+  <!-- WB-Stichworte (Bruchrechnung, Negative Zahlen, Algebra): Skript hier, damit Astro es bündelt. -->
   <script>
+    import { ALG_WB_STOR_KEY, stichworteFuerAlgIds } from '../../lib/algebraWbKeywordMap';
     import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../../lib/bruchrechnungWbKeywordMap';
     import { NZ_WB_STOR_KEY, stichworteFuerNzIds } from '../../lib/negativeZahlenWbKeywordMap';
     import {
@@ -273,6 +274,12 @@ const themenProBand = clusterReihenfolge
       writeBruchMassenAnzahl,
       writeBruchMassenLayout,
     } from '../../lib/massenBruchrechnungPrefs';
+    import {
+      readAlgebraMassenAnzahl,
+      readAlgebraMassenLayout,
+      writeAlgebraMassenAnzahl,
+      writeAlgebraMassenLayout,
+    } from '../../lib/massenAlgebraPrefs';
     import {
       readNzMassenAnzahl,
       readNzMassenLayout,
@@ -306,9 +313,19 @@ const themenProBand = clusterReihenfolge
       });
     }
 
-    function stripeApplyWbThema(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen') {
-      const anzahl = slug === 'bruchrechnung' ? readBruchMassenAnzahl() : readNzMassenAnzahl();
-      const layout = slug === 'bruchrechnung' ? readBruchMassenLayout() : readNzMassenLayout();
+    function stripeApplyWbThema(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen' | 'algebra') {
+      const anzahl =
+        slug === 'bruchrechnung'
+          ? readBruchMassenAnzahl()
+          : slug === 'negative-zahlen'
+            ? readNzMassenAnzahl()
+            : readAlgebraMassenAnzahl();
+      const layout =
+        slug === 'bruchrechnung'
+          ? readBruchMassenLayout()
+          : slug === 'negative-zahlen'
+            ? readNzMassenLayout()
+            : readAlgebraMassenLayout();
       root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-anzahl').forEach((b) => {
         const n = Number(b.dataset.anzahl);
         b.classList.toggle('mu-wb-stripe--aktiv', Number.isFinite(n) && n === anzahl);
@@ -321,7 +338,7 @@ const themenProBand = clusterReihenfolge
       if (cb) cb.checked = readShowPracticeDiagrams();
     }
 
-    function bootWbThemaStripe(slug: 'bruchrechnung' | 'negative-zahlen') {
+    function bootWbThemaStripe(slug: 'bruchrechnung' | 'negative-zahlen' | 'algebra') {
       const root = document.getElementById(`thema-${slug}`);
       if (!root) return;
       const stripe = root.querySelector<HTMLElement>('.mu-wb-thema-stripe');
@@ -335,7 +352,8 @@ const themenProBand = clusterReihenfolge
           const n = Number((az as HTMLButtonElement).dataset.anzahl);
           if (!Number.isFinite(n)) return;
           if (slug === 'bruchrechnung') writeBruchMassenAnzahl(n);
-          else writeNzMassenAnzahl(n);
+          else if (slug === 'negative-zahlen') writeNzMassenAnzahl(n);
+          else writeAlgebraMassenAnzahl(n);
           stripeApplyWbThema(root, slug);
           return;
         }
@@ -344,7 +362,8 @@ const themenProBand = clusterReihenfolge
           const l = (ly as HTMLButtonElement).dataset.layout;
           if (l !== 'arbeitsblatt' && l !== 'whiteboard') return;
           if (slug === 'bruchrechnung') writeBruchMassenLayout(l);
-          else writeNzMassenLayout(l);
+          else if (slug === 'negative-zahlen') writeNzMassenLayout(l);
+          else writeAlgebraMassenLayout(l);
           stripeApplyWbThema(root, slug);
           if (autoHref) window.location.assign(autoHref);
         }
@@ -355,10 +374,16 @@ const themenProBand = clusterReihenfolge
       });
     }
 
-    function applyWbThemaKwVisual(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen') {
-      const storKey = slug === 'bruchrechnung' ? BRUCH_WB_STOR_KEY : NZ_WB_STOR_KEY;
-      const idPrefix = slug === 'bruchrechnung' ? 'br_' : 'nz_';
-      const stichworteFuerIds = slug === 'bruchrechnung' ? stichworteFuerBruchIds : stichworteFuerNzIds;
+    function applyWbThemaKwVisual(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen' | 'algebra') {
+      const storKey =
+        slug === 'bruchrechnung' ? BRUCH_WB_STOR_KEY : slug === 'negative-zahlen' ? NZ_WB_STOR_KEY : ALG_WB_STOR_KEY;
+      const idPrefix = slug === 'bruchrechnung' ? 'br_' : slug === 'negative-zahlen' ? 'nz_' : 'alg_';
+      const stichworteFuerIds =
+        slug === 'bruchrechnung'
+          ? stichworteFuerBruchIds
+          : slug === 'negative-zahlen'
+            ? stichworteFuerNzIds
+            : stichworteFuerAlgIds;
       const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'));
       let sel = new Set<string>();
       try {
@@ -381,8 +406,9 @@ const themenProBand = clusterReihenfolge
       });
     }
 
-    function persistWbThemaKw(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen') {
-      const storKey = slug === 'bruchrechnung' ? BRUCH_WB_STOR_KEY : NZ_WB_STOR_KEY;
+    function persistWbThemaKw(root: HTMLElement, slug: 'bruchrechnung' | 'negative-zahlen' | 'algebra') {
+      const storKey =
+        slug === 'bruchrechnung' ? BRUCH_WB_STOR_KEY : slug === 'negative-zahlen' ? NZ_WB_STOR_KEY : ALG_WB_STOR_KEY;
       const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
         .map((b) => b.dataset.stichwort ?? '')
         .filter(Boolean);
@@ -401,13 +427,15 @@ const themenProBand = clusterReihenfolge
       if (bruchRoot) applyWbThemaKwVisual(bruchRoot, 'bruchrechnung');
       const nzRoot = document.getElementById('thema-negative-zahlen');
       if (nzRoot) applyWbThemaKwVisual(nzRoot, 'negative-zahlen');
+      const algRoot = document.getElementById('thema-algebra');
+      if (algRoot) applyWbThemaKwVisual(algRoot, 'algebra');
       document.addEventListener(
         'click',
         (ev: MouseEvent) => {
           const rootEl = (ev.target as HTMLElement | null)?.closest?.('.mu-wb-unterthemen-root');
           if (!rootEl || !rootEl.id.startsWith('thema-')) return;
           const s = rootEl.id.replace(/^thema-/, '');
-          if (s !== 'bruchrechnung' && s !== 'negative-zahlen') return;
+          if (s !== 'bruchrechnung' && s !== 'negative-zahlen' && s !== 'algebra') return;
           const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-wb-kw-bulk]') as HTMLButtonElement | null;
           if (bulk && rootEl.contains(bulk)) {
             ev.preventDefault();
@@ -427,7 +455,7 @@ const themenProBand = clusterReihenfolge
               if (!cluster || !rootEl.contains(cluster)) return;
               setKw(cluster.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'), action === 'cluster-select');
             }
-            persistWbThemaKw(rootEl, s as 'bruchrechnung' | 'negative-zahlen');
+            persistWbThemaKw(rootEl, s as 'bruchrechnung' | 'negative-zahlen' | 'algebra');
             return;
           }
           const t = (ev.target as HTMLElement | null)?.closest?.('button.mu-wb-thema-kw');
@@ -435,7 +463,7 @@ const themenProBand = clusterReihenfolge
           ev.preventDefault();
           t.classList.toggle('mu-wb-thema-kw--an');
           t.setAttribute('aria-pressed', t.classList.contains('mu-wb-thema-kw--an') ? 'true' : 'false');
-          persistWbThemaKw(rootEl, s as 'bruchrechnung' | 'negative-zahlen');
+          persistWbThemaKw(rootEl, s as 'bruchrechnung' | 'negative-zahlen' | 'algebra');
         },
         { signal }
       );
@@ -447,6 +475,7 @@ const themenProBand = clusterReihenfolge
         wbThemaKwAbort?.abort();
         bootWbThemaStripe('bruchrechnung');
         bootWbThemaStripe('negative-zahlen');
+        bootWbThemaStripe('algebra');
         bootWbThemaKeywords();
       });
     }
