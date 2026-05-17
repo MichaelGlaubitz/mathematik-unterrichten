@@ -365,8 +365,7 @@ export function buildBruchArbeitsblattTex(opts: {
         loeBlock = `\\par\\medskip\n\\fcolorbox{black!18}{black!4}{\\begin{minipage}{0.96\\linewidth}\n\\textbf{${escapeLatexText('Lösung')}.}\\par\\smallskip\n${loeTex}${loeTex && diaL ? '\\par\\smallskip\n' : ''}${diaL}\\end{minipage}}\n`;
       }
     }
-    const zeilenumbruchNachNummerWennDiagramm = pa ? '\\leavevmode\\par\n' : '';
-    const itemCore = `${zeilenumbruchNachNummerWennDiagramm}${diaAuf}${frageBody}${loeBlock}`;
+    const itemCore = `${diaAuf}${frageBody}${loeBlock}`;
     blocks.push(`\\Needspace{5\\baselineskip}\n\\item\\nopagebreak[3]\n${itemCore}`);
   });
 
@@ -382,13 +381,15 @@ export function buildBruchArbeitsblattTex(opts: {
 \\usepackage{fancyhdr}
 \\usepackage{enumitem}
 \\usepackage{multicol}
+\\setlength{\\columnseprule}{0.4pt}
+\\setlength{\\columnsep}{1.05em}
 \\pagestyle{fancy}
 \\fancyhf{}
 \\fancyhead[L]{\\footnotesize\\sffamily ${headLeft}}
 \\fancyhead[R]{\\footnotesize\\sffamily Seite~\\thepage}
 \\renewcommand{\\headrulewidth}{0.35pt}
 \\setlength{\\headheight}{22pt}
-\\setlist[enumerate,1]{style=nextline, label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=0.65em, parsep=0.15em, topsep=0.45em, labelsep=0.4em}
+\\setlist[enumerate,1]{label=\\textbf{\\arabic*.}, leftmargin=*, itemsep=0.65em, parsep=0.15em, topsep=0.45em, labelsep=0.4em, align=left}
 \\title{\\sffamily\\LARGE\\bfseries ${loeTitle}}
 \\author{}
 \\date{}

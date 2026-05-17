@@ -1356,8 +1356,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const x = n * f;
       return {
         frage: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=\\frac{?}{${L}}$.`,
-        frageArbeitsblatt: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=$ [[MU_AB:0]] <span class="text-base text-ink-800 dark:text-ink-100">/ $${L}$</span>`,
-        abSlots: [{ kind: 'int', expect: x }],
+        frageArbeitsblatt: `Ergänze den Zähler: $\\displaystyle\\frac{${n}}{${d}}=$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'frac', expectNum: x, expectDen: L }],
         loesung: `Erweitern mit $${f}$: $\\displaystyle\\frac{${n}}{${d}}=\\frac{${x}}{${L}}$ — der fehlende Zähler ist $${x}$.`,
       };
     },
@@ -1367,8 +1367,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const b = d - a;
       return {
         frage: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+\\frac{?}{${d}}=1$.`,
-        frageArbeitsblatt: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+$ [[MU_AB:0]] <span class="text-base text-ink-800 dark:text-ink-100">/ $${d}$ $= 1$</span>`,
-        abSlots: [{ kind: 'int', expect: b }],
+        frageArbeitsblatt: `Ergänze den fehlenden Zähler: $\\displaystyle\\frac{${a}}{${d}}+$ <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span> $\\displaystyle= 1$`,
+        abSlots: [{ kind: 'frac', expectNum: b, expectDen: d }],
         loesung: `Wegen $\\frac{${a}}{${d}}+\\frac{${b}}{${d}}=\\frac{${d}}{${d}}=1$ ist der gesuchte Zähler $${b}$.`,
       };
     },
