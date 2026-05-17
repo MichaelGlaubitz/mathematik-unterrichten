@@ -35,9 +35,9 @@ describe('bruchrechnungWbKeywordMap', () => {
   it('sortBruchAbStichworte gruppiert nach Cluster, dann Alphabet', () => {
     const unsorted = ['Brüche multiplizieren', 'Ganze Zahl mal Bruch', 'Kürzen / vollständig kürzen'];
     expect(sortBruchAbStichworte(unsorted)).toEqual([
-      'Ganze Zahl mal Bruch',
       'Kürzen / vollständig kürzen',
       'Brüche multiplizieren',
+      'Ganze Zahl mal Bruch',
     ]);
   });
 

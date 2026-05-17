@@ -1,4 +1,5 @@
 ---
+import UnterthemenClusterGrid from './UnterthemenClusterGrid.astro';
 // Themenblock fuer die /themen-Uebersicht.
 // View-Modell wird in der Seite vorberechnet (siehe themen/index.astro).
 export interface TopicBlockProps {
@@ -36,6 +37,11 @@ const {
   unterthemenBloecke,
 } = Astro.props;
 
+const isBruchWbUnterthemenAkku =
+  slug === 'bruchrechnung' &&
+  Boolean(generatorUebungHref) &&
+  Boolean(unterthemenBloecke && unterthemenBloecke.length > 0);
+
 ---
 
 <article
@@ -54,119 +60,57 @@ const {
   </p>
 
   {unterthemenBloecke && unterthemenBloecke.length > 0 && (
-    <section class="mb-8" aria-labelledby={`unterthemen-heading-${slug}`}>
-      <h4
-        id={`unterthemen-heading-${slug}`}
-        class="font-semibold text-ink-900 dark:text-ink-50 mb-3 text-sm uppercase tracking-wide text-accent-700 dark:text-accent-100"
-      >
-        Unterthemen
-      </h4>
-      {slug === 'bruchrechnung' && generatorUebungHref && (
-        <p class="text-xs text-ink-600 dark:text-ink-300 mb-3 max-w-3xl">
-          Gewünschte Unterthemen oder Stichworte anklicken. Ohne Auswahl werden alle Aufgabentypen gemischt.
-        </p>
-      )}
-      {slug === 'bruchrechnung' && generatorUebungHref && (
-        <div
-          class="mb-3 flex flex-wrap gap-1.5"
-          role="group"
-          aria-label="Stichwort-Auswahl für alle Unterthemen"
-        >
-          <button
-            type="button"
-            class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
-            data-mu-bruch-kw-bulk="all-select"
-            aria-label="Alle Stichwörter auswählen"
-          >
-            Alle auswählen
-          </button>
-          <button
-            type="button"
-            class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
-            data-mu-bruch-kw-bulk="all-clear"
-            aria-label="Alle Stichwörter abwählen"
-          >
-            Alle abwählen
-          </button>
-        </div>
-      )}
-      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {unterthemenBloecke.map((b) => {
-          const isBruchKw = slug === 'bruchrechnung' && generatorUebungHref;
-          return (
-          <div
-            class:list={[
-              'rounded-xl border border-ink-200 bg-ink-50/80 p-4 dark:border-slate-600/45 dark:bg-slate-950/40',
-              isBruchKw && 'mu-bruch-kw-cluster',
-            ]}
-          >
-            <h5 class="font-serif text-lg font-semibold text-accent-700 dark:text-accent-100 mb-1">
-              {b.titel}
-            </h5>
-            {b.beschreibung && (
-              <p class="text-xs text-ink-500 dark:text-ink-400 mb-3 leading-snug">{b.beschreibung}</p>
-            )}
-            {isBruchKw && (
-              <div
-                class="mb-2 flex flex-wrap gap-1.5"
-                role="group"
-                aria-label={`Stichwort-Auswahl: ${b.titel}`}
-              >
-                <button
-                  type="button"
-                  class="mu-bruch-kw-bulk rounded-md px-2 py-0.5 text-[11px] font-semibold shadow-sm transition-colors sm:px-2.5 sm:text-xs"
-                  data-mu-bruch-kw-bulk="cluster-select"
-                  aria-label={`Alle Stichwörter in „${b.titel}“ auswählen`}
-                >
-                  Alle auswählen
-                </button>
-                <button
-                  type="button"
-                  class="mu-bruch-kw-bulk rounded-md px-2 py-0.5 text-[11px] font-semibold shadow-sm transition-colors sm:px-2.5 sm:text-xs"
-                  data-mu-bruch-kw-bulk="cluster-clear"
-                  aria-label={`Alle Stichwörter in „${b.titel}“ abwählen`}
-                >
-                  Alle abwählen
-                </button>
-              </div>
-            )}
-            <ul class="flex flex-wrap gap-2 list-none p-0 m-0">
-              {b.punkte.map((p) => (
-                <li>
-                  {slug === 'bruchrechnung' && generatorUebungHref ? (
-                    <button
-                      type="button"
-                      class="mu-bruch-wb-kw inline-block max-w-full rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-left text-xs font-medium text-accent-800 shadow-sm transition hover:border-accent-600 hover:bg-accent-50 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50 dark:hover:border-accent-300 dark:hover:bg-slate-800/80"
-                      data-stichwort={p}
-                      aria-pressed="false"
-                    >
-                      {p}
-                    </button>
-                  ) : (
-                    <span
-                      class="inline-block rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-xs font-medium text-accent-800 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50"
-                    >
-                      {p}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+    isBruchWbUnterthemenAkku ? (
+      <details class="mu-bruch-unterthemen-acc mb-8 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50">
+        <summary class="cursor-pointer list-none px-4 py-3 text-sm [&::-webkit-details-marker]:hidden">
+          <span class="inline-flex w-full items-center justify-between gap-2">
+            <span
+              id={`unterthemen-heading-${slug}`}
+              class="font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100"
+            >
+              Unterthemen
+            </span>
+            <span
+              class="mu-bruch-unterthemen-chevron text-ink-500 text-xs font-normal dark:text-ink-400"
+              aria-hidden="true"
+            >
+              ▶
+            </span>
+          </span>
+        </summary>
+        <div class="border-t border-ink-200/90 px-4 pb-4 pt-2 dark:border-slate-600/45">
+          <p class="text-xs text-ink-600 dark:text-ink-300 mb-3 max-w-3xl">
+            Gewünschte Unterthemen oder Stichworte anklicken. Ohne Auswahl werden alle Aufgabentypen gemischt.
+          </p>
+          <div class="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="Stichwort-Auswahl für alle Unterthemen">
+            <button
+              type="button"
+              class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
+              data-mu-bruch-kw-bulk="all-select"
+              aria-label="Alle Stichwörter auswählen"
+            >
+              Alle auswählen
+            </button>
+            <button
+              type="button"
+              class="mu-bruch-kw-bulk rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm transition-colors"
+              data-mu-bruch-kw-bulk="all-clear"
+              aria-label="Alle Stichwörter abwählen"
+            >
+              Alle abwählen
+            </button>
           </div>
-          );
-        })}
-      </div>
-    </section>
-  )}
-
-  {slug === 'bruchrechnung' && generatorUebungHref && unterthemenBloecke && unterthemenBloecke.length > 0 && (
-    <>
-      <div
-        id="mu-bruch-thema-stripe"
-        class="mu-bruch-thema-stripe mb-8 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-ink-200/90 bg-ink-50/90 px-3 py-2.5 text-sm shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
-        role="region"
-        aria-label="Einstellungen für WB Bruchrechnung"
-      >
+          <UnterthemenClusterGrid
+            slug={slug}
+            generatorUebungHref={generatorUebungHref}
+            unterthemenBloecke={unterthemenBloecke}
+          />
+          <div
+            id="mu-bruch-thema-stripe"
+            class="mu-bruch-thema-stripe mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-ink-200/90 bg-ink-50/90 px-3 py-2.5 text-sm shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
+            role="region"
+            aria-label="Einstellungen für WB Bruchrechnung"
+          >
       <div
         class="inline-flex flex-wrap items-center gap-1.5"
         role="group"
@@ -216,6 +160,7 @@ const {
         </span>
       </label>
       </div>
+        </div>
 
       <style is:global>
       /* Tailwind-Utilities auf den Buttons überschreiben — Auswahl muss sichtbar bleiben */
@@ -299,6 +244,13 @@ const {
         border-color: #2563eb;
         color: #fff;
       }
+      #thema-bruchrechnung .mu-bruch-unterthemen-acc .mu-bruch-unterthemen-chevron {
+        display: inline-block;
+        transition: transform 0.15s ease;
+      }
+      #thema-bruchrechnung .mu-bruch-unterthemen-acc[open] .mu-bruch-unterthemen-chevron {
+        transform: rotate(90deg);
+      }
       .mu-fehlvorstellungen-acc .mu-fehlv-chevron {
         display: inline-block;
         transition: transform 0.15s ease;
@@ -307,7 +259,22 @@ const {
         transform: rotate(90deg);
       }
       </style>
-    </>
+    </details>
+    ) : (
+      <section class="mb-8" aria-labelledby={`unterthemen-heading-${slug}`}>
+        <h4
+          id={`unterthemen-heading-${slug}`}
+          class="font-semibold text-ink-900 dark:text-ink-50 mb-3 text-sm uppercase tracking-wide text-accent-700 dark:text-accent-100"
+        >
+          Unterthemen
+        </h4>
+        <UnterthemenClusterGrid
+          slug={slug}
+          generatorUebungHref={generatorUebungHref}
+          unterthemenBloecke={unterthemenBloecke}
+        />
+      </section>
+    )
   )}
 
   {fehlvorstellungen.length > 0 && (
