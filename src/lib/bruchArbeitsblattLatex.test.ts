@@ -63,7 +63,7 @@ describe('bruchArbeitsblattLatex', () => {
     expect(loesungHtmlZuLatexSegmente('a<br>b')).toBe('a\\par\\medskip\nb');
   });
 
-  it('buildBruchArbeitsblattTex: zweispaltig, Diagramm an Spaltenbreite, Umbruch vor Grafik', () => {
+  it('buildBruchArbeitsblattTex: zweispaltig, Spaltentrennlinie, Diagramm an Spaltenbreite', () => {
     const tex = buildBruchArbeitsblattTex({
       aufgaben: [{ frage: 'Frage', loesung: '$1$' }],
       meta: {
@@ -73,9 +73,9 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: false,
       diagramPngPaths: [{ taskIndex: 0, suffix: 'a', path: 'd0a.jpg' }],
     });
-    expect(tex).toContain('style=nextline');
+    expect(tex).toContain('\\setlength{\\columnseprule}');
     expect(tex).toContain(`width=${BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH},keepaspectratio=true`);
-    expect(tex).toContain('\\leavevmode\\par');
+    expect(tex).not.toContain('style=nextline');
     expect(tex).toContain('\\begin{multicols}{2}');
     expect(tex).toContain('\\end{multicols}');
   });
