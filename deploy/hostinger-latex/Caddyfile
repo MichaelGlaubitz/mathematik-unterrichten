@@ -1,0 +1,25 @@
+# Ersetzt {$SITE_ADDRESS} per Umgebungsvariable, z. B. latex.beispiel.de
+# TLS wird von Caddy automatisch beantragt (Let's Encrypt), sobald die Domain per A-Record auf den VPS zeigt.
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# CORS-Preflight (Browser vor POST)
+	@preflight {
+		method OPTIONS
+	}
+	handle @preflight {
+		header Access-Control-Allow-Origin "https://mathematik-unterrichten.de"
+		header Access-Control-Allow-Methods "POST, OPTIONS"
+		header Access-Control-Allow-Headers "Content-Type"
+		header Access-Control-Max-Age "86400"
+		respond 204
+	}
+
+	handle {
+		header Access-Control-Allow-Origin "https://mathematik-unterrichten.de"
+		header Access-Control-Allow-Methods "POST, OPTIONS"
+		header Access-Control-Allow-Headers "Content-Type"
+		reverse_proxy latex:8080
+	}
+}
