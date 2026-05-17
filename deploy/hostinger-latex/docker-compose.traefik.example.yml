@@ -1,0 +1,27 @@
+# Beispiel: nur LaTeX-Service für bestehendes n8n/Traefik (Ports 80/443 bei Traefik).
+# Image einmal bauen (siehe README), dann image: latex-onhttp:local verwenden.
+# NETZWERK_HIER + Labels an eure Traefik-Installation anpassen.
+
+services:
+  latex:
+    image: latex-onhttp:local
+    restart: unless-stopped
+    networks:
+      - traefik_net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.latex.rule=Host(`latex.mathechismus.de`)
+      - traefik.http.routers.latex.entrypoints=websecure
+      - traefik.http.routers.latex.tls=true
+      - traefik.http.routers.latex.tls.certresolver=mytlschallenge
+      - traefik.http.services.latex.loadbalancer.server.port=8080
+      - traefik.http.middlewares.latex-cors.headers.accesscontrolallowmethods=POST,OPTIONS,GET
+      - traefik.http.middlewares.latex-cors.headers.accesscontrolalloworiginlist=https://mathematik-unterrichten.de
+      - traefik.http.middlewares.latex-cors.headers.accesscontrolmaxage=86400
+      - traefik.http.middlewares.latex-cors.headers.addvaryheader=true
+      - traefik.http.routers.latex.middlewares=latex-cors
+
+networks:
+  traefik_net:
+    external: true
+    name: NETZWERK_HIER

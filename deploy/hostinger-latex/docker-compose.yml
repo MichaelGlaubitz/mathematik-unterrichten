@@ -1,11 +1,13 @@
-# LaTeX-on-HTTP (eigener Build-Server) + Caddy (HTTPS + CORS für mathematik-unterrichten.de)
-# Voraussetzung: Domain per A-Record auf die VPS-IP, Ports 80/443 offen.
+# LaTeX-on-HTTP (lokal gebautes App-Image) + Caddy (HTTPS + CORS)
+# Das Docker-Hub-Image yoant/latexonhttp-python:debian ist nur die Basis (ohne Gunicorn-App).
 
 services:
   latex:
-    image: yoant/latexonhttp-python:debian
+    build:
+      context: https://github.com/YtoTech/latex-on-http.git
+      dockerfile: Dockerfile
+    image: latex-onhttp:local
     restart: unless-stopped
-    # Nur intern; von außen nur über Caddy erreichbar
     expose:
       - "8080"
 
@@ -22,7 +24,8 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - latex
+      latex:
+        condition: service_started
 
 volumes:
   caddy_data:

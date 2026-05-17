@@ -2,42 +2,69 @@
 
 Damit entfällt die Abhängigkeit vom öffentlichen `latex.ytotech.com`. Die Mathe-Seite nutzt dann `PUBLIC_MU_LATEX_HTTP_URL` (siehe Projekt-`.env.example`).
 
+**Wichtig:** Das Docker-Hub-Image **`yoant/latexonhttp-python:debian`** enthält nur TeXLive + Python, **nicht** die HTTP-App (kein Gunicorn). Laufbar ist nur ein **selbst gebautes** Image aus dem offiziellen Repo — siehe unten.
+
 ## Was du brauchst
 
 1. **Eine (Sub-)Domain**, die per **A-Record** auf die **VPS-IP** zeigt (im Hostinger-DNS oder wo die Domain liegt).
 2. Auf dem VPS: **Docker** + **Docker Compose Plugin** (Hostinger-Docs: „Docker“ / SSH-Root oder sudo).
-3. Firewall: **80** und **443** eingehend offen.
+3. Firewall: **80** und **443** eingehend offen (oder nur intern, wenn Traefik die Ports schon belegt — siehe Abschnitt n8n/Traefik).
 
-## Schritte (nur einmal)
+## Variante A: Caddy direkt auf 80/443 (ohne n8n/Traefik auf denselben Ports)
 
-Per SSH auf dem VPS einloggen, dann:
+Per SSH:
 
 ```bash
 mkdir -p ~/latex-proxy && cd ~/latex-proxy
 ```
 
-Diesen Ordner `deploy/hostinger-latex/` aus dem Repo hierher kopieren (oder Dateien per Editor anlegen): `docker-compose.yml`, `Caddyfile`, `env.example`.
+Dateien aus dem Repo: `docker-compose.yml`, `Caddyfile`, `env.example`.
 
 ```bash
 cp env.example .env
 nano .env   # SITE_ADDRESS=latex.deinedomain.de eintragen
-docker compose pull
-docker compose up -d
+docker compose up -d --build
 ```
 
-Der erste `pull` kann **lange** dauern und **mehrere Gigabyte** laden (TeX Live im Image). Image-Tag auf Docker Hub: **`yoant/latexonhttp-python:debian`** (es gibt kein `latest`).
+Der **erste Build** lädt das GitHub-Repo und baut das Image `latex-onhttp:local` (kann **15–45 Minuten** dauern, viel CPU/RAM). Spätere Starts sind schnell.
 
 Prüfen:
 
 ```bash
-curl -sI "https://$(grep SITE_ADDRESS .env | cut -d= -f2)/packages" | head -3
+docker compose ps
+curl -sI "https://$(grep SITE_ADDRESS .env | cut -d= -f2)/packages" | head -5
 ```
 
-HTTP **200** von deinem Host ist gut.
+Bei `docker compose ps` soll der LaTeX-Container **kein** reines `bash` als Endlos-Prozess ohne Gunicorn sein — sinnvoll ist u. a.:
+
+```bash
+docker compose logs --tail=20 latex
+```
+
+(dort sollte u. a. **gunicorn** vorkommen)
+
+## Variante B: Hostinger-VPS mit **n8n + Traefik** (80/443 schon von Traefik belegt)
+
+1. **Netzwerk** von Traefik ermitteln:
+
+```bash
+docker inspect n8n-traefik-1 --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}'
+```
+
+2. **Image einmal bauen** (nur Beispielpfad):
+
+```bash
+mkdir -p /opt/src && cd /opt/src
+git clone --depth 1 https://github.com/YtoTech/latex-on-http.git
+cd latex-on-http
+docker build -t latex-onhttp:local .
+```
+
+3. Eigene `docker-compose.yml` in `~/latex-proxy` mit **Traefik-Labels** (Vorlage: `docker-compose.traefik.example.yml` im Repo): `image: latex-onhttp:local`, `name: …` = Netzwerk aus Schritt 1, `certresolver` / `entrypoints` wie bei deinem n8n-Container (`mytlschallenge`, `websecure`).
+
+4. `docker compose up -d` im Ordner `~/latex-proxy`.
 
 ## Mathe-Seite (Build / Hosting)
-
-Umgebungsvariable setzen (Komma/Leerzeichen für mehrere URLs möglich — siehe Haupt-`.env.example`):
 
 ```bash
 PUBLIC_MU_LATEX_HTTP_URL=https://latex.deinedomain.de/builds/sync
@@ -47,20 +74,13 @@ Dann Site neu bauen/deployen. Die Seite versucht **zuerst** diese URL, danach we
 
 ## Hauptdomain noch bei anderem Anbieter (z. B. webgo), Hostinger nur VPS + zweite Domain
 
-Das ist **unkritisch** für den LaTeX-Proxy:
-
-1. **DNS für den LaTeX-Host nur dort pflegen, wo du die Domain schon hast** — z. B. bei Hostinger für `mathechismus.de`: Subdomain **`latex.mathechismus.de`** anlegen, **A-Record** auf die **VPS-IP** (nicht auf Shared Hosting).
-2. In `.env` auf dem VPS: `SITE_ADDRESS=latex.mathechismus.de` (Beispiel).
-3. Beim **Build** der Seite unter **https://mathematik-unterrichten.de** (egal ob die Dateien bei webgo liegen):  
-   `PUBLIC_MU_LATEX_HTTP_URL=https://latex.mathechismus.de/builds/sync`  
-   Der Browser ruft damit deinen VPS auf; **CORS** im mitgelieferten `Caddyfile` ist bereits auf **`https://mathematik-unterrichten.de`** eingestellt — das passt, solange Nutzer die Seite unter genau dieser Origin aufrufen.
-4. **Ab Oktober**, wenn `mathematik-unterrichten.de` zu Hostinger (oder woanders) umzieht: solange die Seite weiter unter `https://mathematik-unterrichten.de` läuft, **ändert sich am LaTeX-Setup nichts**. Wenn du später eine **zweite** Origin brauchst (z. B. Preview unter `https://mathechismus.de`), im `Caddyfile` die `Access-Control-Allow-Origin`-Zeilen erweitern (Caddy: z. B. per `map` auf erlaubte Origins) — siehe Caddy-Doku.
-
-**Wichtig:** Die LaTeX-Subdomain muss **nicht** `mathematik-unterrichten.de` heißen; sie kann ruhig unter `mathechismus.de` laufen.
+1. **DNS** z. B. `latex.mathechismus.de` → **A** → **VPS-IPv4**.
+2. `PUBLIC_MU_LATEX_HTTP_URL=https://latex.mathechismus.de/builds/sync` beim Build der Seite unter **https://mathematik-unterrichten.de**.
+3. **CORS:** Im Caddy-`Caddyfile` bzw. in den Traefik-Labels ist `https://mathematik-unterrichten.de` vorgesehen.
 
 ## CORS / andere Domains
 
-Erlaubte Origin ist in `Caddyfile` fest `https://mathematik-unterrichten.de`. Für eine **Staging-Domain** oder **localhost** musst du die drei `Access-Control-Allow-Origin`-Zeilen dort anpassen (oder eine zweite Zeile mit Matcher — siehe Caddy-Doku).
+Anpassen, wenn du von weiteren Origins aus zugreifen willst (Caddy-Doku bzw. Traefik-Header-Middleware).
 
 ## Hinweis
 
