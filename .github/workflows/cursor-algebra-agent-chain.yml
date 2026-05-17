@@ -1,0 +1,137 @@
+# Chain: Algebra-Thema WB-Pipeline wie Negative Zahlen / Bruchrechnung.
+#
+# Ablauf (ohne Chat-Eingriffe):
+# 1) Du legst in Cursor drei Automations an, jeweils Trigger „Webhook“, Repo dieses GitHub-Projekts.
+# 2) In GitHub → Settings → Secrets and variables → Actions legst du die Webhook-URLs und Keys ab
+#    (Namen siehe unten). Exaktes Auth-Format steht in der Cursor-UI unter der gespeicherten Automation.
+# 3) Start Phase 1: „Run workflow“ (workflow_dispatch) in der Actions-Tab, oder per Push auf
+#    Branch cursor/algebra-agent-kickoff-bd15 (leerer Commit reicht).
+# 4) Cloud Agent Phase 1 öffnet PR → du mergest (oder Auto-Merge-Regel) → diese Action feuert Webhook Phase 2 usw.
+#
+# Branch-/PR-Konvention (vom Agent einzuhalten):
+#   Phase 1 PR: head = cursor/algebra-agent-p1-bd15  → Titel beginnt mit [agent-algebra-p1]
+#   Phase 2 PR: head = cursor/algebra-agent-p2-bd15  → Titel beginnt mit [agent-algebra-p2]
+#   Phase 3 PR: head = cursor/algebra-agent-p3-bd15  → Titel beginnt mit [agent-algebra-p3]
+#
+# Hinweis: Wenn POST 401 liefert, in Cursor die Webhook-Doku zur Automation öffnen und Header/Body
+# an die dort gezeigte Variante anpassen (Community: Authorization vs. Basic vs. Token in URL).
+
+name: Cursor Algebra agent chain (webhooks)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  push:
+    branches:
+      - cursor/algebra-agent-kickoff-bd15
+
+concurrency:
+  group: cursor-algebra-chain-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-phase1:
+    name: Webhook → Algebra Phase 1
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/cursor/algebra-agent-kickoff-bd15')
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST Cursor (Phase 1)
+        env:
+          URL: ${{ secrets.CURSOR_WEBHOOK_ALGEBRA_P1_URL }}
+          API_KEY: ${{ secrets.CURSOR_WEBHOOK_ALGEBRA_P1_API_KEY }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ -z "${URL:-}" ]; then
+            echo "::warning::CURSOR_WEBHOOK_ALGEBRA_P1_URL fehlt — Secret in GitHub hinterlegen."
+            exit 0
+          fi
+          BODY=$(jq -n --arg repo "$REPO" '{source:"github-actions",chain:"algebra",phase:1,repo:$repo}')
+          if [ -n "${API_KEY:-}" ]; then
+            curl -sS -f -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${API_KEY}" \
+              -d "$BODY" \
+              -w "\nHTTP %{http_code}\n"
+          else
+            curl -sS -f -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -d "$BODY" \
+              -w "\nHTTP %{http_code}\n"
+          fi
+
+  trigger-phase2-after-p1-merge:
+    name: Webhook → Algebra Phase 2 (nach Merge P1)
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'cursor/algebra-agent-p1-bd15'
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST Cursor (Phase 2)
+        env:
+          URL: ${{ secrets.CURSOR_WEBHOOK_ALGEBRA_P2_URL }}
+          API_KEY: ${{ secrets.CURSOR_WEBHOOK_ALGEBRA_P2_API_KEY }}
+          REPO: ${{ github.repository }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          set -euo pipefail
+          if [ -z "${URL:-}" ]; then
+            echo "::warning::CURSOR_WEBHOOK_ALGEBRA_P2_URL fehlt."
+            exit 0
+          fi
+          BODY=$(jq -n --arg repo "$REPO" --arg pr "$PR_URL" \
+            '{source:"github-actions",chain:"algebra",phase:2,repo:$repo,merged_pr:$pr}')
+          if [ -n "${API_KEY:-}" ]; then
+            curl -sS -f -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${API_KEY}" \
+              -d "$BODY" \
+              -w "\nHTTP %{http_code}\n"
+          else
+            curl -sS -f -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -d "$BODY" \
+              -w "\nHTTP %{http_code}\n"
+          fi
+
+  trigger-phase3-after-p2-merge:
+    name: Webhook → Algebra Phase 3 (nach Merge P2)
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'cursor/algebra-agent-p2-bd15'
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST Cursor (Phase 3)
+        env:
+          URL: ${{ secrets.CURSOR_WEBHOOK_ALGEBRA_P3_URL }}
+          API_KEY: ${{ secrets.CURSOR_WEBHOOK_ALGEBRA_P3_API_KEY }}
+          REPO: ${{ github.repository }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          set -euo pipefail
+          if [ -z "${URL:-}" ]; then
+            echo "::warning::CURSOR_WEBHOOK_ALGEBRA_P3_URL fehlt."
+            exit 0
+          fi
+          BODY=$(jq -n --arg repo "$REPO" --arg pr "$PR_URL" \
+            '{source:"github-actions",chain:"algebra",phase:3,repo:$repo,merged_pr:$pr}')
+          if [ -n "${API_KEY:-}" ]; then
+            curl -sS -f -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${API_KEY}" \
+              -d "$BODY" \
+              -w "\nHTTP %{http_code}\n"
+          else
+            curl -sS -f -X POST "$URL" \
+              -H "Content-Type: application/json" \
+              -d "$BODY" \
+              -w "\nHTTP %{http_code}\n"
+          fi
