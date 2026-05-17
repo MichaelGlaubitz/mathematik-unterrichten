@@ -521,6 +521,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `${t}${formatSignedInt(b)}`;
   }
 
+  /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken (Koeffizient von $x$, Konstante). */
+  const abLinBinomZweiInts =
+    '<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span>$x$</span><span>[[MU_AB:1]]</span></span>';
+
   const GEN: PracticeGeneratorMap = {
     seiten_hyp() {
       const [a, b, c] = pick(PYTHAGOREAN_TRIPLES);
@@ -1696,9 +1700,16 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       const inner = linBinom(ca, cb);
+      const ac = k * ca;
+      const bc = k * cb;
       return {
         frage: `Multipliziere aus: $${k}(${inner})$.`,
-        loesung: `$${k}(${inner})=${linBinom(k * ca, k * cb)}$.`,
+        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiInts}`,
+        abSlots: [
+          { kind: 'int', expect: ac },
+          { kind: 'int', expect: bc },
+        ],
+        loesung: `$${k}(${inner})=${linBinom(ac, bc)}$.`,
       };
     },
     alg_minus_klammer_plus() {
@@ -1706,10 +1717,16 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const innerB = randInt(1, 9);
       let ta = randInt(1, 7);
       for (let t = 0; t < 12 && ta === ia; t++) ta = randInt(1, 7);
+      const coeff = ta - ia;
       return {
         frage: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.`,
+        frageArbeitsblatt: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.${abLinBinomZweiInts}`,
+        abSlots: [
+          { kind: 'int', expect: coeff },
+          { kind: 'int', expect: innerB },
+        ],
         loesung: `$-(${ia}x-${innerB})+${linTerm(ta)}=-${ia}x+${innerB}+${linTerm(ta)}=${linBinom(
-          ta - ia,
+          coeff,
           innerB
         )}$.`,
       };
@@ -1726,6 +1743,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const expanded = linBinom(g * ca, g * cb);
       return {
         frage: `Klammere so weit wie möglich aus: $${expanded}$.`,
+        frageArbeitsblatt: `Klammere so weit wie möglich aus: $${expanded}$.<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">Gemeinsamer Faktor:</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: g }],
         loesung: `$${expanded}=${g}(${linBinom(ca, cb)})$.`,
       };
     },
@@ -1734,11 +1753,18 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const gx = randInt(2, fx - 1);
       const h = randInt(-7, 7);
       const inner = linBinom(gx, h);
+      const coeff = fx - gx;
+      const konst = -h;
       return {
         frage: `Vereinfache $${linTerm(fx)}-(${inner})$.`,
+        frageArbeitsblatt: `Vereinfache $${linTerm(fx)}-(${inner})$.${abLinBinomZweiInts}`,
+        abSlots: [
+          { kind: 'int', expect: coeff },
+          { kind: 'int', expect: konst },
+        ],
         loesung: `$${linTerm(fx)}-(${inner})=${linTerm(fx)}-${linTerm(gx)}${formatSignedInt(-h)}=${linBinom(
-          fx - gx,
-          -h
+          coeff,
+          konst
         )}$.`,
       };
     },
@@ -1754,11 +1780,18 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const b = randInt(-8, 8);
       const d = randInt(-8, 8);
+      const coeff = a + c;
+      const konst = b + d;
       return {
         frage: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.`,
+        frageArbeitsblatt: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.${abLinBinomZweiInts}`,
+        abSlots: [
+          { kind: 'int', expect: coeff },
+          { kind: 'int', expect: konst },
+        ],
         loesung: `$${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}=${linBinom(
-          a + c,
-          b + d
+          coeff,
+          konst
         )}$.`,
       };
     },
@@ -1768,8 +1801,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const n = randInt(2, 6);
       const s = k * (m + n);
       const dia = svgDistributivFlaeche(k, m, n);
+      const abSpan =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>';
       return {
         frage: `Berechne mit dem Distributivgesetz: $${k}(${m}+${n})$.`,
+        frageArbeitsblatt: `Berechne mit dem Distributivgesetz: $${k}(${m}+${n})$${abSpan}.`,
+        abSlots: [{ kind: 'int', expect: s }],
         loesung: `$${k}(${m}+${n})=${k}\\cdot ${m}+${k}\\cdot ${n}=${k * m}+${k * n}=${s}$.`,
         ...(dia
           ? {

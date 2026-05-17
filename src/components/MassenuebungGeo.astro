@@ -145,8 +145,14 @@ function wbLabelFromHref(href: string): string {
   <script is:inline set:html={`globalThis.__UG_MASSEN_ALLOWED_IDS__=${ugMassenAllowedJson};`} />
 
   <div
-    class:list={[variant !== 'bruchrechnung' && variant !== 'negative-zahlen' && 'contents']}
-    id={variant === 'bruchrechnung' || variant === 'negative-zahlen' ? 'ug-wb-slot-ab-full-chrome' : undefined}
+    class:list={[
+      variant !== 'bruchrechnung' && variant !== 'negative-zahlen' && variant !== 'algebra' && 'contents',
+    ]}
+    id={
+      variant === 'bruchrechnung' || variant === 'negative-zahlen' || variant === 'algebra'
+        ? 'ug-wb-slot-ab-full-chrome'
+        : undefined
+    }
   >
   <header class="mb-8 print:hidden">
     <a
@@ -1299,7 +1305,7 @@ function wbLabelFromHref(href: string): string {
   </div>
 
   {
-    (variant === 'bruchrechnung' || variant === 'negative-zahlen') && (
+    (variant === 'bruchrechnung' || variant === 'negative-zahlen' || variant === 'algebra') && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1308,7 +1314,11 @@ function wbLabelFromHref(href: string): string {
           ← Zurück zur Themenübersicht
         </a>
         <h1 class="font-serif text-3xl font-semibold text-ink-900 dark:text-ink-50 md:text-4xl mt-3">
-          {variant === 'bruchrechnung' ? 'AB Bruchrechnung' : 'AB Negative Zahlen'}
+          {variant === 'bruchrechnung'
+            ? 'AB Bruchrechnung'
+            : variant === 'negative-zahlen'
+              ? 'AB Negative Zahlen'
+              : 'AB Algebra'}
         </h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Gewählte Stichworte</p>
         <div
@@ -1332,7 +1342,7 @@ function wbLabelFromHref(href: string): string {
     hidden
   >
     {
-      (variant === 'bruchrechnung' || variant === 'negative-zahlen') && (
+      (variant === 'bruchrechnung' || variant === 'negative-zahlen' || variant === 'algebra') && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1375,14 +1385,14 @@ function wbLabelFromHref(href: string): string {
     <ol
       id="ug-liste"
       class:list={[
-        variant === 'bruchrechnung' || variant === 'negative-zahlen'
+        variant === 'bruchrechnung' || variant === 'negative-zahlen' || variant === 'algebra'
           ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
           : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
       ]}
     >
     </ol>
     {
-      (variant === 'bruchrechnung' || variant === 'negative-zahlen') && (
+      (variant === 'bruchrechnung' || variant === 'negative-zahlen' || variant === 'algebra') && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1406,7 +1416,7 @@ function wbLabelFromHref(href: string): string {
       )
     }
     {
-      (variant === 'bruchrechnung' || variant === 'negative-zahlen') && (
+      (variant === 'bruchrechnung' || variant === 'negative-zahlen' || variant === 'algebra') && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -1942,11 +1952,18 @@ function wbLabelFromHref(href: string): string {
 
 <script>
   import {
+    ALG_WB_STOR_KEY,
+    algStichwortClusterIndex,
+    expandAlgWbStichworte,
+    stichwortLabelsFromAlgSessionRaw,
+  } from '../lib/algebraWbKeywordMap';
+  import {
     bruchAbMotivation,
     replaceBruchAbFragePlaceholders,
     wendeBruchAbCheckAufListeAn,
   } from '../lib/practiceArbeitsblattAntwort';
   import {
+    ALGEBRA_GENERATOR_IDS,
     BRUCHRECHNUNG_GENERATOR_IDS,
     NEGATIVE_ZAHLEN_GENERATOR_IDS,
     createPracticeGenerators,
@@ -1966,7 +1983,17 @@ function wbLabelFromHref(href: string): string {
     stichwortLabelsFromNzSessionRaw,
     stichworteFuerNzIds,
   } from '../lib/negativeZahlenWbKeywordMap';
-  import { erzeugeBruchArbeitsblattPdf, erzeugeNegativeZahlenArbeitsblattPdf } from '../lib/bruchArbeitsblattLatex';
+  import {
+    erzeugeAlgebraArbeitsblattPdf,
+    erzeugeBruchArbeitsblattPdf,
+    erzeugeNegativeZahlenArbeitsblattPdf,
+  } from '../lib/bruchArbeitsblattLatex';
+  import {
+    readAlgebraMassenAnzahl,
+    readAlgebraMassenLayout,
+    writeAlgebraMassenAnzahl,
+    writeAlgebraMassenLayout,
+  } from '../lib/massenAlgebraPrefs';
   import {
     readBruchMassenAnzahl,
     readBruchMassenLayout,
@@ -2029,7 +2056,12 @@ function wbLabelFromHref(href: string): string {
     const massenHost = document.querySelector('[data-mu-massen-ui="wb-v2"]');
     const isBruchMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruchrechnung';
     const isNzMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'negative-zahlen';
-    const isWbSlotAbMassen = isBruchMassen || isNzMassen;
+    const isAlgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'algebra';
+    const isWbSlotAbMassen = isBruchMassen || isNzMassen || isAlgMassen;
+
+    function allAlgIdsFiltered() {
+      return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
 
     function allBruchIdsFiltered() {
       return BRUCHRECHNUNG_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -2051,6 +2083,21 @@ function wbLabelFromHref(href: string): string {
         return fromKw.length ? fromKw : allNzIdsFiltered();
       } catch {
         return allNzIdsFiltered();
+      }
+    }
+
+    function readAlgebraTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(ALG_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allAlgIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('alg_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allAlgIdsFiltered();
+        }
+        const fromKw = expandAlgWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allAlgIdsFiltered();
+      } catch {
+        return allAlgIdsFiltered();
       }
     }
 
@@ -2080,6 +2127,9 @@ function wbLabelFromHref(href: string): string {
     } else if (isNzMassen) {
       anzahl = readNzMassenAnzahl();
       layout = readNzMassenLayout();
+    } else if (isAlgMassen) {
+      anzahl = readAlgebraMassenAnzahl();
+      layout = readAlgebraMassenLayout();
     }
     let aufgaben = [];
     let wbIndex = 0;
@@ -2175,6 +2225,24 @@ function wbLabelFromHref(href: string): string {
     const routeStatus = document.getElementById('ug-route-status');
     const wbVorbereitung = document.getElementById('ug-wb-vorbereitung');
     const wbVorbZuAb = document.getElementById('ug-wb-vorbereitung-zu-ab');
+
+    function persistWbSlotKeywordsFromTypCheckboxes() {
+      if (!isNzMassen && !isAlgMassen) return;
+      const ids = typBoxen().filter(
+        (c) => c instanceof HTMLInputElement && c.checked && allowedSet.has(c.value)
+      ).map((c) => (c as HTMLInputElement).value);
+      const key = isNzMassen ? NZ_WB_STOR_KEY : ALG_WB_STOR_KEY;
+      try {
+        sessionStorage.setItem(key, JSON.stringify(ids));
+      } catch {
+        /* */
+      }
+    }
+    steuerung?.addEventListener('change', (e) => {
+      const t = e.target;
+      if (!(t instanceof HTMLInputElement) || !t.classList.contains('ug-typ')) return;
+      persistWbSlotKeywordsFromTypCheckboxes();
+    });
 
     liste?.addEventListener(
       'toggle',
@@ -2352,6 +2420,14 @@ function wbLabelFromHref(href: string): string {
 
     function readSlotAbStichwortLabels() {
       if (isNzMassen) return readNzAbStichwortLabels();
+      if (isAlgMassen) {
+        try {
+          const raw = JSON.parse(sessionStorage.getItem(ALG_WB_STOR_KEY) || 'null');
+          return stichwortLabelsFromAlgSessionRaw(raw);
+        } catch {
+          return [];
+        }
+      }
       return readBruchAbStichwortLabels();
     }
 
@@ -2373,7 +2449,11 @@ function wbLabelFromHref(href: string): string {
         'relative inline-flex max-w-[min(20rem,calc(100vw-3rem))] shrink-0 cursor-default select-none items-center border px-3 py-1.5 text-left text-sm font-medium leading-snug shadow-sm';
       for (let i = 0; i < n; i++) {
         const t = labels[i];
-        const ci = isNzMassen ? nzStichwortClusterIndex(t) : bruchStichwortClusterIndex(t);
+        const ci = isNzMassen
+          ? nzStichwortClusterIndex(t)
+          : isAlgMassen
+            ? algStichwortClusterIndex(t)
+            : bruchStichwortClusterIndex(t);
         const color =
           ci >= 0 && ci < BRUCH_AB_CLUSTER_PILL_CLASS.length
             ? BRUCH_AB_CLUSTER_PILL_CLASS[ci]
@@ -2550,6 +2630,14 @@ function wbLabelFromHref(href: string): string {
         }
         return;
       }
+      if (isAlgMassen) {
+        try {
+          sessionStorage.setItem(ALG_WB_STOR_KEY, JSON.stringify(selectedTaskTypes));
+        } catch {
+          /* sessionStorage blockiert */
+        }
+        return;
+      }
       const selected = new Set(selectedTaskTypes);
       typBoxen().forEach((c) => {
         c.checked = selected.has(c.value);
@@ -2660,6 +2748,7 @@ function wbLabelFromHref(href: string): string {
     function aktiveTypen() {
       if (isBruchMassen) return readBruchTypenFromStorage();
       if (isNzMassen) return readNzTypenFromStorage();
+      if (isAlgMassen) return readAlgebraTypenFromStorage();
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
         .map((c) => c.value);
@@ -2964,6 +3053,7 @@ function wbLabelFromHref(href: string): string {
         anzahl = Number(b.dataset.anzahl);
         if (isBruchMassen) writeBruchMassenAnzahl(anzahl);
         else if (isNzMassen) writeNzMassenAnzahl(anzahl);
+        else if (isAlgMassen) writeAlgebraMassenAnzahl(anzahl);
         refreshAktiv();
       })
     );
@@ -2974,6 +3064,7 @@ function wbLabelFromHref(href: string): string {
         layout = next;
         if (isBruchMassen) writeBruchMassenLayout(layout);
         else if (isNzMassen) writeNzMassenLayout(layout);
+        else if (isAlgMassen) writeAlgebraMassenLayout(layout);
         refreshAktiv();
         if (layout === 'arbeitsblatt') stopWbTimer();
         else if (aufgaben.length > 0) startWbTimer();
@@ -2983,10 +3074,16 @@ function wbLabelFromHref(href: string): string {
     erzeugenBtn?.addEventListener('click', erzeuge);
 
     btnAlle?.addEventListener('click', () => {
-      typBoxen().forEach((c) => { c.checked = true; });
+      typBoxen().forEach((c) => {
+        c.checked = true;
+      });
+      if (isNzMassen || isAlgMassen) persistWbSlotKeywordsFromTypCheckboxes();
     });
     btnKeine?.addEventListener('click', () => {
-      typBoxen().forEach((c) => { c.checked = false; });
+      typBoxen().forEach((c) => {
+        c.checked = false;
+      });
+      if (isNzMassen || isAlgMassen) persistWbSlotKeywordsFromTypCheckboxes();
     });
 
     btnDruck?.addEventListener('click', () => { window.print(); });
@@ -3100,23 +3197,30 @@ function wbLabelFromHref(href: string): string {
       });
       try {
         const meta = {
-          thema: isNzMassen ? 'Negative Zahlen' : 'Bruchrechnung',
+          thema: isAlgMassen ? 'Algebra' : isNzMassen ? 'Negative Zahlen' : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
-        const r = isNzMassen
-          ? await erzeugeNegativeZahlenArbeitsblattPdf({
+        const r = isAlgMassen
+          ? await erzeugeAlgebraArbeitsblattPdf({
               aufgaben,
               meta,
               mitLoesungen,
               diagramUiScale,
             })
-          : await erzeugeBruchArbeitsblattPdf({
-              aufgaben,
-              meta,
-              mitLoesungen,
-              diagramUiScale,
-            });
+          : isNzMassen
+            ? await erzeugeNegativeZahlenArbeitsblattPdf({
+                aufgaben,
+                meta,
+                mitLoesungen,
+                diagramUiScale,
+              })
+            : await erzeugeBruchArbeitsblattPdf({
+                aufgaben,
+                meta,
+                mitLoesungen,
+                diagramUiScale,
+              });
         if (!r.ok) {
           console.error('[WB-Arbeitsblatt PDF]', { message: r.message, log: r.log });
           const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);
@@ -3131,7 +3235,7 @@ function wbLabelFromHref(href: string): string {
           return;
         }
         const tag = new Date().toISOString().slice(0, 10);
-        const base = isNzMassen ? 'negative-zahlen' : 'bruchrechnung';
+        const base = isAlgMassen ? 'algebra' : isNzMassen ? 'negative-zahlen' : 'bruchrechnung';
         const name = mitLoesungen ? `${base}-ab-mit-loesungen-${tag}.pdf` : `${base}-ab-${tag}.pdf`;
         downloadePdfDatei(r.pdf, name);
       } catch (e) {
@@ -3312,6 +3416,18 @@ function wbLabelFromHref(href: string): string {
     }
 
     refreshAktiv();
+    if (isNzMassen) {
+      const nzIds = readNzTypenFromStorage();
+      typBoxen().forEach((c) => {
+        if (c instanceof HTMLInputElement) c.checked = nzIds.includes(c.value);
+      });
+    }
+    if (isAlgMassen) {
+      const algIds = readAlgebraTypenFromStorage();
+      typBoxen().forEach((c) => {
+        if (c instanceof HTMLInputElement) c.checked = algIds.includes(c.value);
+      });
+    }
     if (!consumeWindowNameRoute()) {
       /** Themenseite „Arbeitsblatt“ → /uebung/bruchrechnung?muAuto=1: kein Zwischen-Render mit leerem Satz (sonst kurz alter Voll-Chrome). */
       let skipInitialRender = false;
