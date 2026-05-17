@@ -389,6 +389,30 @@ const themenProBand = clusterReihenfolge
       root.addEventListener(
         'click',
         (ev: MouseEvent) => {
+          const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-bruch-kw-bulk]') as
+            | HTMLButtonElement
+            | null;
+          if (bulk && root.contains(bulk)) {
+            ev.preventDefault();
+            const action = bulk.getAttribute('data-mu-bruch-kw-bulk');
+            const setKw = (buttons: Iterable<HTMLButtonElement>, on: boolean) => {
+              for (const btn of buttons) {
+                btn.classList.toggle('mu-bruch-wb-kw--an', on);
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+              }
+            };
+            if (action === 'all-select') {
+              setKw(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'), true);
+            } else if (action === 'all-clear') {
+              setKw(root.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'), false);
+            } else if (action === 'cluster-select' || action === 'cluster-clear') {
+              const cluster = bulk.closest('.mu-bruch-kw-cluster');
+              if (!cluster || !root.contains(cluster)) return;
+              setKw(cluster.querySelectorAll<HTMLButtonElement>('.mu-bruch-wb-kw'), action === 'cluster-select');
+            }
+            persistBruchKw(root);
+            return;
+          }
           const t = (ev.target as HTMLElement | null)?.closest?.('button.mu-bruch-wb-kw');
           if (!t || !root.contains(t)) return;
           ev.preventDefault();
