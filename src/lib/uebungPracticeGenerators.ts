@@ -291,6 +291,14 @@ export const ALGEBRA_GENERATOR_IDS = [
   'alg_gb_variable',
   'alg_gb_konstante',
   'alg_gb_konvention',
+  'alg_terme_mult',
+  'alg_terme_zusammen_mv',
+  'alg_terme_zusammen_idx',
+  'alg_klammer_neg_int',
+  'alg_klammer_summe',
+  'alg_ausklammern_alg',
+  'alg_ausklammern_klammer',
+  'alg_ausklammern_gruppe',
 ] as const;
 
 /** Lineare Gleichungen in einer Variablen (Klasse 7–8). */
@@ -659,6 +667,46 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
   /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken — **ohne** `+`/`-` vor der Konstanten-Lücke (kein Muster positiv/negativ). Online und PDF. */
   function abLinBinomZweiIntsHtml(): string {
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span><span>[[MU_AB:1]]</span></span>`;
+  }
+
+  /** Summanden (TeX ohne äußere `$…$`) in zufälliger Reihenfolge zu einem Ausdruck verbinden. */
+  function joinShuffledSummanden(texSummanden: string[]): string {
+    const parts = shuffle([...texSummanden]);
+    let s = parts[0]!;
+    for (let i = 1; i < parts.length; i++) {
+      const t = parts[i]!;
+      s += (t.startsWith('-') ? '' : '+') + t;
+    }
+    return s;
+  }
+
+  /** Linearterm mit $x_1$ bzw. $x_2$ (nur für Summanden-TeX in Frage/Lösung). */
+  function linTexIdx(coeff: number, idx: 1 | 2): string {
+    const xt = idx === 1 ? 'x_{1}' : 'x_{2}';
+    if (coeff === 0) return '0';
+    if (coeff === 1) return xt;
+    if (coeff === -1) return `-${xt}`;
+    return `${coeff}${xt}`;
+  }
+
+  /** Arbeitsblatt: Koeffizienten von $Ax+By$ als zwei int-Lücken. */
+  function abBivariateXyKoeffHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('x')}-Koeffizient:</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('y')}-Koeffizient:</span>[[MU_AB:1]]</span>`;
+  }
+
+  /** Arbeitsblatt: Koeffizienten von $Ax_1+Bx_2$. */
+  function abIdx12KoeffHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('x')}<sub class="text-xs align-baseline">1</sub>:</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('x')}<sub class="text-xs align-baseline">2</sub>:</span>[[MU_AB:1]]</span>`;
+  }
+
+  /** Arbeitsblatt: $g$, $m$, $n$ in $g\\,x(my+n)$. */
+  function abAusklammernGmnHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$g$ =</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $m$ =</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, $n$ =</span>[[MU_AB:2]]</span>`;
+  }
+
+  /** Arbeitsblatt: ein int (z. B. Gesamtfaktor vor gemeinsamer Klammer). */
+  function abEinfachIntSlotHtml(label: string): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${label}</span>[[MU_AB:0]]</span>`;
   }
 
   /** Variable im Arbeitsblatt-Slot-Bereich (ohne `$…$`: alles in `mu-katex-skip` wird von KaTeX nicht gerendert). */
@@ -2477,6 +2525,288 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frageArbeitsblatt: `Konvention „Zahl vor Variable“ für $${v}$ — welche Zeile ist üblich? [[MU_AB:0]]`,
         abSlots: [{ kind: 'choice', expect, labels }],
         loesung,
+      };
+    },
+    alg_terme_mult() {
+      const abSpanEinfach =
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>Zahlfaktor $k$:</span>[[MU_AB:0]]</span>';
+      const r = random();
+      if (r < 0.42) {
+        const pairs = [
+          ['x', 'y'],
+          ['a', 'b'],
+          ['m', 'n'],
+        ] as const;
+        const [v1, v2] = pick(pairs);
+        let a = 0;
+        let b = 0;
+        let p = 0;
+        for (let t = 0; t < 50; t++) {
+          a = randInt(-6, 6);
+          b = randInt(-6, 6);
+          if (a === 0 || b === 0) continue;
+          p = a * b;
+          if (p === 0 || Math.abs(p) > 42) continue;
+          break;
+        }
+        if (a === 0 || b === 0) {
+          a = 2;
+          b = -3;
+          p = -6;
+        }
+        const t1 = linTerm(a, v1);
+        const t2 = linTerm(b, v2);
+        const prod =
+          p === 1 ? `${v1}${v2}` : p === -1 ? `-${v1}${v2}` : p === 0 ? '0' : `${p}${v1}${v2}`;
+        return {
+          frage: `Multipliziere die Monome (ohne Potenzgesetze — verschiedene Variablen): $\\left(${t1}\\right)\\cdot\\left(${t2}\\right)$.`,
+          frageArbeitsblatt: `Schreibe $\\left(${t1}\\right)\\cdot\\left(${t2}\\right)$ in der Form $k\\,${v1}${v2}$ mit ganzzahligem $k$. ${abSpanEinfach}`,
+          abSlots: [{ kind: 'int', expect: p }],
+          loesung: `$\\left(${t1}\\right)\\cdot\\left(${t2}\\right)=${prod}$.`,
+          pdfArbeitsblattEinzelspalte: true,
+        };
+      }
+      if (r < 0.75) {
+        const k = randInt(2, 7);
+        let b = 0;
+        for (let t = 0; t < 25; t++) {
+          b = randInt(-8, 8);
+          if (b === 0) continue;
+          break;
+        }
+        const a = randInt(2, 6);
+        const p = k * b;
+        const t1 = linTerm(a, 'x');
+        return {
+          frage: `Vereinfache den Term $\\left(${t1}\\right)\\cdot\\left(${texMulFactor(b)}\\right)$.`,
+          frageArbeitsblatt: `Schreibe $\\left(${t1}\\right)\\cdot\\left(${texMulFactor(b)}\\right)$ als $k\\,x$ mit ganzzahligem $k$. ${abSpanEinfach}`,
+          abSlots: [{ kind: 'int', expect: p }],
+          loesung: `$\\left(${t1}\\right)\\cdot\\left(${texMulFactor(b)}\\right)=${linTerm(p, 'x')}$.`,
+          pdfArbeitsblattEinzelspalte: true,
+        };
+      }
+      const a = randInt(2, 7);
+      let x0 = 0;
+      for (let t = 0; t < 20; t++) {
+        x0 = randInt(-8, 8);
+        if (x0 !== 0) break;
+      }
+      const p = a * x0;
+      return {
+        frage: `Vereinfache $\\left(${texMulFactor(x0)}\\right)\\cdot\\left(${linTerm(a, 'x')}\\right)$.`,
+        frageArbeitsblatt: `Schreibe $\\left(${texMulFactor(x0)}\\right)\\cdot\\left(${linTerm(a, 'x')}\\right)$ als $k\\,x$ mit ganzzahligem $k$. ${abSpanEinfach}`,
+        abSlots: [{ kind: 'int', expect: p }],
+        loesung: `$\\left(${texMulFactor(x0)}\\right)\\cdot\\left(${linTerm(a, 'x')}\\right)=${linTerm(p, 'x')}$.`,
+        pdfArbeitsblattEinzelspalte: true,
+      };
+    },
+    alg_terme_zusammen_mv() {
+      const vx = 'x';
+      const vy = 'y';
+      let a1 = 0;
+      let c1 = 0;
+      for (let t = 0; t < 40; t++) {
+        a1 = randInt(1, 5);
+        c1 = randInt(-5, 5);
+        if (c1 === 0 || a1 + c1 === 0) continue;
+        break;
+      }
+      let b1 = 0;
+      let d1 = 0;
+      for (let t = 0; t < 40; t++) {
+        b1 = randInt(-7, 7);
+        d1 = randInt(-7, 7);
+        if (b1 + d1 === 0) continue;
+        break;
+      }
+      const coeffX = a1 + c1;
+      const coeffY = b1 + d1;
+      const expr = joinShuffledSummanden([
+        linTerm(a1, vx),
+        linTerm(b1, vy),
+        linTerm(c1, vx),
+        linTerm(d1, vy),
+      ]);
+      const loe = `${linTerm(coeffX, vx)}${formatSignedInt(coeffY)}${vy}`;
+      return {
+        frage: `Vereinfache $${expr}$ (gleichartige Terme mit $${vx}$ bzw. $${vy}$ zusammenfassen).`,
+        frageArbeitsblatt: `Vereinfache $${expr}$.${abBivariateXyKoeffHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: coeffX },
+          { kind: 'int', expect: coeffY },
+        ],
+        loesung: `$\\displaystyle ${expr}=${loe}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+        pdfArbeitsblattEinzelspalte: true,
+      };
+    },
+    alg_terme_zusammen_idx() {
+      let a1 = 0;
+      let c1 = 0;
+      for (let t = 0; t < 40; t++) {
+        a1 = randInt(1, 4);
+        c1 = randInt(-4, 4);
+        if (c1 === 0 || a1 + c1 === 0) continue;
+        break;
+      }
+      let b1 = 0;
+      let d1 = 0;
+      for (let t = 0; t < 40; t++) {
+        b1 = randInt(-5, 5);
+        d1 = randInt(-5, 5);
+        if (b1 + d1 === 0) continue;
+        break;
+      }
+      const coeff1 = a1 + c1;
+      const coeff2 = b1 + d1;
+      const expr = joinShuffledSummanden([
+        linTexIdx(a1, 1),
+        linTexIdx(b1, 2),
+        linTexIdx(c1, 1),
+        linTexIdx(d1, 2),
+      ]);
+      const tA = linTexIdx(coeff1, 1);
+      const tB = linTexIdx(coeff2, 2);
+      const loe = `${tA}${tB.startsWith('-') ? '' : '+'}${tB}`;
+      return {
+        frage: `Vereinfache $${expr}$ (Indizes beachten — nur gleiche Indizes sind gleichartig).`,
+        frageArbeitsblatt: `Vereinfache $${expr}$.${abIdx12KoeffHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: coeff1 },
+          { kind: 'int', expect: coeff2 },
+        ],
+        loesung: `$\\displaystyle ${expr}=${loe}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+        pdfArbeitsblattEinzelspalte: true,
+      };
+    },
+    alg_klammer_neg_int() {
+      const k = randInt(2, 7);
+      const ca = randInt(2, 5);
+      let cb = 0;
+      for (let t = 0; t < 25; t++) {
+        cb = randInt(-7, 7);
+        if (cb === 0) continue;
+        break;
+      }
+      const inner = linBinom(ca, cb);
+      const ac = -k * ca;
+      const bc = -k * cb;
+      return {
+        frage: `Multipliziere aus: $-${k}(${inner})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $-${k}(${inner})$.${abLinBinomZweiIntsHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: ac },
+          { kind: 'int', expect: bc },
+        ],
+        loesung: `$-${k}(${inner})=${linBinom(ac, bc)}$.`,
+      };
+    },
+    alg_klammer_summe() {
+      const k1 = randInt(2, 6);
+      const k2 = randInt(2, 6);
+      const a1 = randInt(2, 5);
+      const a2 = randInt(2, 5);
+      let b1 = 2;
+      let b2 = 3;
+      for (let t = 0; t < 45; t++) {
+        const bb1 = randInt(-6, 6);
+        const bb2 = randInt(-6, 6);
+        if (bb1 === 0 || bb2 === 0) continue;
+        const cx = k1 * a1 + k2 * a2;
+        const ks = k1 * bb1 + k2 * bb2;
+        if (cx === 0 || Math.abs(cx) > 24 || Math.abs(ks) > 40) continue;
+        b1 = bb1;
+        b2 = bb2;
+        break;
+      }
+      const inner1 = linBinom(a1, b1);
+      const inner2 = linBinom(a2, b2);
+      const coeffX = k1 * a1 + k2 * a2;
+      const konst = k1 * b1 + k2 * b2;
+      const expr = `${k1}(${inner1})+${k2}(${inner2})`;
+      return {
+        frage: `Multipliziere aus und fasse zusammen: $${expr}$.`,
+        frageArbeitsblatt: `Vereinfache $${expr}$.${abLinBinomZweiIntsHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: coeffX },
+          { kind: 'int', expect: konst },
+        ],
+        loesung: `$${expr}=${linBinom(coeffX, konst)}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_ausklammern_alg() {
+      const g = pick([2, 3, 4] as const);
+      const m = randInt(2, 5);
+      let n = 0;
+      for (let t = 0; t < 25; t++) {
+        n = randInt(-6, 6);
+        if (n === 0) continue;
+        break;
+      }
+      const xy = g * m;
+      const xn = g * n;
+      const expanded = `${xy}xy+${xn}x`;
+      return {
+        frage: `Klammere den gemeinsamen algebraischen Faktor $x$ und die größte gemeinsame Zahl aus: $${expanded}$.`,
+        frageArbeitsblatt: `Klammere vollständig: $${expanded}$.${abAusklammernGmnHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: g },
+          { kind: 'int', expect: m },
+          { kind: 'int', expect: n },
+        ],
+        loesung: `$${expanded}=${g}x(${m}y${formatSignedInt(n)})$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_ausklammern_klammer() {
+      const k1 = randInt(2, 6);
+      const k2 = randInt(2, 6);
+      let a = 0;
+      for (let t = 0; t < 25; t++) {
+        a = randInt(-5, 5);
+        if (a === 0) continue;
+        break;
+      }
+      const inner = linBinom(1, a);
+      const K = k1 + k2;
+      return {
+        frage: `Fasse zusammen, indem du den gemeinsamen Klammerausdruck ausklammerst: $${k1}(${inner})+${k2}(${inner})$.`,
+        frageArbeitsblatt: `Schreibe $${k1}(${inner})+${k2}(${inner})$ als ein Produkt $K\\,(${inner})$ (nur $K$ ist gesucht).${abEinfachIntSlotHtml('$K$ =')}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [{ kind: 'int', expect: K }],
+        loesung: `$${k1}(${inner})+${k2}(${inner})=${K}(${inner})$.`,
+      };
+    },
+    alg_ausklammern_gruppe() {
+      const k1 = randInt(2, 5);
+      const k2 = randInt(2, 5);
+      const m = randInt(2, 4);
+      let n = 0;
+      for (let t = 0; t < 25; t++) {
+        n = randInt(-5, 5);
+        if (n === 0) continue;
+        break;
+      }
+      const K = k1 + k2;
+      const t1 = `${k1 * m}xy+${k1 * n}x`;
+      const t2 = `${k2 * m}xy+${k2 * n}x`;
+      const expr = joinShuffledSummanden([t1, t2]);
+      return {
+        frage: `Vereinfache durch Zusammenfassen und vollständiges Ausklammern: $${expr}$.`,
+        frageArbeitsblatt: `Vereinfache vollständig: $${expr}$.${abAusklammernGmnHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: K },
+          { kind: 'int', expect: m },
+          { kind: 'int', expect: n },
+        ],
+        loesung: `$${expr}=${K}x(${m}y${formatSignedInt(n)})$.`,
+        loesungArbeitsblattEigeneZeile: true,
       };
     },
     lg_x_plus_a_eq_b() {
