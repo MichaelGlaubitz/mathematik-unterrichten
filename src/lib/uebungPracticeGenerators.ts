@@ -2400,7 +2400,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         const expect = (swap ? 0 : 1) as 0 | 1;
         return {
           frage: `Welche Zeile zeigt eine Gleichung (nicht nur einen Term)? Vergleiche $${termTex}$ und $${eqTex}$.`,
-          frageArbeitsblatt: `Welche Zeile ist eine Gleichung? [[MU_AB:0]]`,
+          frageArbeitsblatt: `Welche Zeile ist eine Gleichung?<br />[[MU_AB:0]]`,
           abSlots: [{ kind: 'choice', expect, labels }],
           loesung: `Nur $${eqTex}$ enthält ein $=$ und ist eine Gleichung; $${termTex}$ ist ein Term (Summe aus $${linTerm(a1, 'x')}$ und $${b1}$) ohne Gleichheitszeichen.`,
         };
@@ -2463,7 +2463,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const satzImFragezeichen = `„${satz}“`;
       return {
         frage: `Wofür steht der Buchstabe $${L}$ im Satz: ${satzImFragezeichen}?`,
-        frageArbeitsblatt: `Wofür steht $${L}$ hier: ${satzImFragezeichen}? [[MU_AB:0]]`,
+        frageArbeitsblatt: `Wofür steht $${L}$ hier: ${satzImFragezeichen}?<br />[[MU_AB:0]]`,
         abSlots: [{ kind: 'choice', expect, labels }],
         loesung,
       };
@@ -2532,7 +2532,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const expect = (swap ? 0 : 1) as 0 | 1;
       return {
         frage: `Welche Schreibweise entspricht der üblichen Konvention „Zahl vor Variable“? Vergleiche $${wrongTex}$ und $${correctTex}$.`,
-        frageArbeitsblatt: `Konvention „Zahl vor Variable“ für $${v}$ — welche Zeile ist üblich? [[MU_AB:0]]`,
+        frageArbeitsblatt: `Konvention „Zahl vor Variable“ für $${v}$ — welche Zeile ist üblich?<br />[[MU_AB:0]]`,
         abSlots: [{ kind: 'choice', expect, labels }],
         loesung,
       };

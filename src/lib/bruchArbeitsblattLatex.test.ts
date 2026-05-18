@@ -87,6 +87,8 @@ describe('bruchArbeitsblattLatex', () => {
     };
     expect(slotLatex(nurMath, 'filled')).toMatch(/\\tfrac\{2\}\{7\}/);
     expect(slotLatex(nurMath, 'filled')).not.toMatch(/\\text\{.*tfrac/);
+    expect(slotLatex(nurMath, 'filled')).toMatch(/\\blacksquare/);
+    expect(slotLatex(nurMath, 'filled')).toContain('\\par\\smallskip');
 
     const mathUndRest: PracticeAbAntwortSlot = {
       kind: 'choice',
@@ -100,6 +102,18 @@ describe('bruchArbeitsblattLatex', () => {
 
     const nurText: PracticeAbAntwortSlot = { kind: 'choice', expect: 0, labels: ['nur Text', 'b'] };
     expect(slotLatex(nurText, 'filled')).toMatch(/\\text\{nur Text\}/);
+  });
+
+  it('slotLatex: choice blank — zwei Ankreuz-Kästchen (kein graues Einzelfeld)', () => {
+    const ch: PracticeAbAntwortSlot = {
+      kind: 'choice',
+      expect: 1,
+      labels: ['$2\\cdot x$ (Zahl zuerst)', '$\\mathrm{x}2$ (Variable zuerst)'],
+    };
+    const b = slotLatex(ch, 'blank');
+    expect(b).not.toMatch(/colorbox/);
+    expect((b.match(/\\square/g) || []).length).toBe(2);
+    expect(b).toContain('\\par\\smallskip');
   });
 
   it('htmlFrageZuLatexInhalt verarbeitet AB-Platzhalter', () => {
