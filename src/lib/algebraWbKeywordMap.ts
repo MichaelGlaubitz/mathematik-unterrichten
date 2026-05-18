@@ -8,18 +8,19 @@
  * beim Üben **keine** stillen Fallback-Aufgaben (siehe `readAlgebraTypenFromStorage` in
  * `MassenuebungGeo.astro`).
  *
- * Aktuell gemappt (bestehende Generatoren `alg_*`):
- * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
- * - `alg_klammer_mal`: einfache Klammer mit positivem ganzzahligen Vorfaktor / mehrere solcher Schritte (vereinfacht)
- * - `alg_expand_einfach_var`: einfache Klammer mit algebraischem Vorfaktor $kx$ vor der Klammer
- * - `alg_expand_*`: gestuftes Ausmultiplizieren (einfach, Binome, Faktor davor, drei Klammern)
- * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
- * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
+ * Aktuell gemappt (Auswahl `alg_*`):
+ * - `alg_terme_zusammen` / `alg_terme_zusammen_mv` / `alg_terme_zusammen_idx`: gleichartige Terme (eine / zwei Variablen / Indizes)
+ * - `alg_terme_mult`: Monome multiplizieren (ohne Potenzgesetze)
+ * - `alg_klammer_mal`, `alg_klammer_neg_int`, `alg_klammer_summe`: Klammern ausmultiplizieren (positiver / negativer Vorfaktor / Summe einfacher Klammern)
+ * - `alg_minus_klammer_plus`: Minus vor Klammer in längerem Term
+ * - `alg_expand_einfach_*`, `alg_expand_binom_*`, `alg_expand_triple_*`: gestuftes Ausmultiplizieren
+ * - `alg_ausklammern`, `alg_ausklammern_alg`, `alg_ausklammern_klammer`, `alg_ausklammern_gruppe`: Faktorisieren (Zahl / algebraisch / Klammer / Zusammenfassen + Ausklammern)
+ * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term
  *
  * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
  * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (nicht in den JSON-Punkten; optional über Session-IDs)
  *
- * Arbeitsblatt „Überprüfen“: bei `alg_ausklammern` wird nur der gemeinsame Faktor geprüft.
+ * Arbeitsblatt „Überprüfen“: bei `alg_ausklammern` und den verwandten Faktorisierungs-Generatoren werden die Zahl-Lücken geprüft.
  */
 export const ALG_WB_STOR_KEY = 'mu_algebra_wb_keywords';
 
@@ -189,9 +190,9 @@ export function sortAlgAbStichworte(labels: readonly string[]): string[] {
  */
 export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>> = {
   'Gleichartige Terme zusammenfassen (gleiche Variable)': ['alg_terme_zusammen'],
-  'Gleichartige Terme zusammenfassen (mehrere Variablen)': ['alg_terme_zusammen'],
-  'Gleichartige Terme zusammenfassen (mit Indizes)': ['alg_terme_zusammen'],
-  'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_klammer_mal'],
+  'Gleichartige Terme zusammenfassen (mehrere Variablen)': ['alg_terme_zusammen_mv'],
+  'Gleichartige Terme zusammenfassen (mit Indizes)': ['alg_terme_zusammen_idx'],
+  'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_terme_mult'],
   'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)': ['alg_klammer_mal'],
   'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_expand_einfach_var'],
   'Einfache Klammer: Zahl davor': ['alg_expand_einfach_zahl'],
@@ -202,12 +203,12 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Faktor vor Doppelklammer: Konstante davor': ['alg_expand_triple_konstant'],
   'Faktor vor Doppelklammer: Variable davor': ['alg_expand_triple_var'],
   'Dreifache Klammern': ['alg_expand_triple_klammern'],
-  'Einfache Klammer ausmultiplizieren (negativer ganzzahliger Vorfaktor)': ['alg_minus_klammer_plus'],
-  'Mehrere einfache Klammern ausmultiplizieren und vereinfachen': ['alg_klammer_mal'],
+  'Einfache Klammer ausmultiplizieren (negativer ganzzahliger Vorfaktor)': ['alg_klammer_neg_int'],
+  'Mehrere einfache Klammern ausmultiplizieren und vereinfachen': ['alg_klammer_summe'],
   'Faktorisieren mit gemeinsamem Zahlfaktor': ['alg_ausklammern'],
-  'Faktorisieren mit gemeinsamem algebraischen Faktor': ['alg_ausklammern'],
-  'Faktorisieren mit vorgehendem Ausklammern': ['alg_ausklammern'],
-  'Faktorisieren mit gemeinsamem Klammerfaktor': ['alg_ausklammern'],
+  'Faktorisieren mit gemeinsamem algebraischen Faktor': ['alg_ausklammern_alg'],
+  'Faktorisieren mit vorgehendem Ausklammern': ['alg_ausklammern_gruppe'],
+  'Faktorisieren mit gemeinsamem Klammerfaktor': ['alg_ausklammern_klammer'],
   'Was ist ein Term?': ['alg_gb_term'],
   'Was ist ein Koeffizient?': ['alg_gb_koeff'],
   'Was ist eine Variable?': ['alg_gb_variable'],
@@ -265,8 +266,13 @@ export function stichwortLabelsFromAlgSessionRaw(raw: unknown): string[] {
  */
 export const ALG_GENERATOR_IDS_PDF_EINSPALTIG: ReadonlySet<string> = new Set([
   'alg_terme_zusammen',
+  'alg_terme_zusammen_mv',
+  'alg_terme_zusammen_idx',
+  'alg_terme_mult',
   'alg_klammer_mal',
   'alg_minus_klammer_plus',
+  'alg_klammer_neg_int',
+  'alg_klammer_summe',
   'alg_klammer_weg',
   'alg_expand_einfach_zahl',
   'alg_expand_einfach_var',
@@ -276,6 +282,9 @@ export const ALG_GENERATOR_IDS_PDF_EINSPALTIG: ReadonlySet<string> = new Set([
   'alg_expand_triple_konstant',
   'alg_expand_triple_var',
   'alg_expand_triple_klammern',
+  'alg_ausklammern_alg',
+  'alg_ausklammern_klammer',
+  'alg_ausklammern_gruppe',
 ]);
 
 /**
