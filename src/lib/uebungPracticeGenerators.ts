@@ -2069,17 +2069,54 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     alg_gb_konvention() {
+      const v = pick(['a', 'k', 'n', 's', 't', 'x', 'y', 'z'] as const);
+      const r = random();
+      let correctTex: string;
+      let wrongTex: string;
+      let labelRichtig: string;
+      let labelFalsch: string;
+      let loesung: string;
+      if (r < 0.4) {
+        const n = randInt(2, 12);
+        correctTex = `${n}${v}`;
+        wrongTex = `\\mathrm{${v}${n}}`;
+        labelRichtig = `${n}·${v} (Zahl zuerst)`;
+        labelFalsch = `${v}·${n} (Variable zuerst)`;
+        loesung = `Richtig ist $${correctTex}$: Der Koeffizient $${n}$ steht vor der Variablen $${v}$. Die Schreibweise $\\mathrm{${v}${n}}$ (Variable vor der Zahl) ist unüblich und leicht missverständlich.`;
+      } else if (r < 0.72) {
+        const n = pick([-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2] as const);
+        correctTex = `${n}${v}`;
+        wrongTex = `\\mathrm{${v}}\\cdot(${n})`;
+        labelRichtig = `${n}·${v} (Zahl mit Vorzeichen zuerst)`;
+        labelFalsch = `${v}·(${n}) (Variable zuerst)`;
+        loesung = `Richtig ist $${correctTex}$: Minus und Betrag gehören zum Koeffizienten vor $${v}$. $\\mathrm{${v}}\\cdot(${n})$ wirkt wie „$${v}$ mal Klammer“ und entspricht nicht der üblichen Linearschreibweise.`;
+      } else {
+        const bruchPaare = [
+          [1, 2],
+          [1, 3],
+          [2, 3],
+          [3, 4],
+          [2, 5],
+          [3, 5],
+          [5, 2],
+          [3, 2],
+          [5, 3],
+        ] as const;
+        const [num, den] = pick(bruchPaare);
+        correctTex = `\\tfrac{${num}}{${den}}${v}`;
+        wrongTex = `\\mathrm{${v}}\\,\\tfrac{${num}}{${den}}`;
+        labelRichtig = `(${num}/${den})·${v} (Zahl zuerst)`;
+        labelFalsch = `${v}·(${num}/${den}) (Variable zuerst)`;
+        loesung = `Richtig ist $\\tfrac{${num}}{${den}}${v}$: der rationale Faktor steht vor der Variablen. $\\mathrm{${v}}\\,\\tfrac{${num}}{${den}}$ liest man wie „$${v}$ plus Bruch“ und ist unüblich.`;
+      }
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelRichtig, labelFalsch] : [labelFalsch, labelRichtig];
+      const expect = (swap ? 0 : 1) as 0 | 1;
       return {
-        frage: `Welche Schreibweise entspricht der üblichen Konvention „Zahl vor Variable“?`,
-        frageArbeitsblatt: `Konvention „Zahl vor Variable“: [[MU_AB:0]]`,
-        abSlots: [
-          {
-            kind: 'choice',
-            expect: 1 as const,
-            labels: ['Schreibweise $x5$', 'Schreibweise $5x$'],
-          },
-        ],
-        loesung: `Richtig ist $5x$: Der Koeffizient steht vor der Variablen. $x5$ ist unüblich und leicht missverständlich.`,
+        frage: `Welche Schreibweise entspricht der üblichen Konvention „Zahl vor Variable“? Vergleiche $${wrongTex}$ und $${correctTex}$.`,
+        frageArbeitsblatt: `Konvention „Zahl vor Variable“ für $${v}$ — welche Zeile ist üblich? [[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung,
       };
     },
     lg_x_plus_a_eq_b() {
