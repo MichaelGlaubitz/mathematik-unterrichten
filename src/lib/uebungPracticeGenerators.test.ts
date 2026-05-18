@@ -388,6 +388,22 @@ describe('Algebra Grundbegriffe (alg_gb_*)', () => {
     expect(found!.loesung.toLowerCase()).toMatch(/anzahl|äpfel|korb/);
   });
 
+  it('alg_gb_term: Term-vs.-Gleichung-Choice ohne Dollar in Labels', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    let choiceSeen = false;
+    for (let k = 0; k < 500; k++) {
+      const t = GEN.alg_gb_term();
+      const s = t.abSlots?.[0];
+      if (s?.kind === 'choice') {
+        choiceSeen = true;
+        expect(s.labels[0]).not.toContain('$');
+        expect(s.labels[1]).not.toContain('$');
+        expect(s.expect === 0 || s.expect === 1).toBe(true);
+      }
+    }
+    expect(choiceSeen).toBe(true);
+  });
+
   it('alg_gb_konvention: Arbeitsblatt ohne Dollar-TeX, ganzzahlig / negativ / Bruch', () => {
     const GEN = createPracticeGenerators(Math.random);
     let ganz = false;

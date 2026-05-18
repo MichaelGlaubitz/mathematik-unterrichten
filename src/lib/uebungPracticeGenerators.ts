@@ -1974,17 +1974,28 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         };
       }
       if (r < 0.82) {
+        const a1 = randInt(2, 8);
+        let b1 = 0;
+        for (let t = 0; t < 25; t++) {
+          b1 = randInt(-8, 8);
+          if (b1 !== 0) break;
+        }
+        if (b1 === 0) b1 = 4;
+        const termTex = `${linTerm(a1, 'x')}${formatSignedInt(b1)}`;
+        const termLabel = `${linTerm(a1, 'x')}${formatSignedInt(b1)} (ohne =)`;
+        const a2 = randInt(2, 8);
+        const x0 = randInt(2, 9);
+        const rhs = a2 * x0;
+        const eqTex = `${a2}x=${rhs}`;
+        const eqLabel = `${a2}·x = ${rhs} (mit =)`;
+        const swap = random() < 0.5;
+        const labels: [string, string] = swap ? [eqLabel, termLabel] : [termLabel, eqLabel];
+        const expect = (swap ? 0 : 1) as 0 | 1;
         return {
-          frage: `Welche Zeile zeigt eine Gleichung (nicht nur einen Term)?`,
+          frage: `Welche Zeile zeigt eine Gleichung (nicht nur einen Term)? Vergleiche $${termTex}$ und $${eqTex}$.`,
           frageArbeitsblatt: `Welche Zeile ist eine Gleichung? [[MU_AB:0]]`,
-          abSlots: [
-            {
-              kind: 'choice',
-              expect: 1 as const,
-              labels: ['$3x+5$', '$2x=8$'],
-            },
-          ],
-          loesung: `Nur $2x=8$ enthält ein $=$ und ist eine Gleichung; $3x+5$ ist ein Term (Summe aus $3x$ und $5$) ohne Gleichheitszeichen.`,
+          abSlots: [{ kind: 'choice', expect, labels }],
+          loesung: `Nur $${eqTex}$ enthält ein $=$ und ist eine Gleichung; $${termTex}$ ist ein Term (Summe aus $${linTerm(a1, 'x')}$ und $${b1}$) ohne Gleichheitszeichen.`,
         };
       }
       const c = pick([-9, -8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8, 9] as const);
