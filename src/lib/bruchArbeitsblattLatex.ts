@@ -86,8 +86,8 @@ export type BruchAbPdfMeta = {
   /** Gewählte Stichworte oder Kurzform „alle Typen gemischt“ */
   stichworteZeile: string;
   /**
-   * Optional: einspaltiges PDF erzwingen (z. B. für Tests). **WB Algebra:** sobald `thema === 'Algebra'`,
-   * ist das Arbeitsblatt-PDF und Lösungs-PDF immer einspaltig — unabhängig von diesem Flag.
+   * Optional: einspaltiges PDF erzwingen (z. B. für Tests). **WB Algebra:** bei `thema` „Algebra“
+   * (nach Trim) wird ohne `multicol`-Umgebung gearbeitet — volle Textbreite für Schreibzeilen.
    */
   pdfImmerEinspaltig?: boolean;
 };
@@ -401,11 +401,13 @@ export function buildBruchArbeitsblattTex(opts: {
   diagramPngPaths: ReadonlyArray<{ taskIndex: number; suffix: 'a' | 'l'; path: string }>;
 }): string {
   const { aufgaben, meta, mitLoesungen, diagramPngPaths } = opts;
-  /** Algebra: immer `multicols{1}` (breite Schreibzeilen); andere Themen: Flag oder Aufgaben-Heuristik. */
+  const themaNorm = String(meta.thema ?? '').trim();
+  /** Algebra: volle Zeilenbreite ohne `multicol` (einige Renderer zeigen bei `{1}` dennoch zweispaltig). */
   const nPdfSpalten =
-    meta.thema === 'Algebra' || meta.pdfImmerEinspaltig === true
+    themaNorm === 'Algebra' || meta.pdfImmerEinspaltig === true
       ? 1
       : practicePdfSpaltenAnzahl(aufgaben);
+  const pdfZweispaltig = nPdfSpalten === 2;
   const headLeftRaw = `${meta.thema} · ${meta.stichworteZeile}`;
   const headLeft = escapeLatexText(headLeftRaw);
   const loeTitle = escapeLatexText(mitLoesungen ? 'Arbeitsblatt (mit Lösungen)' : 'Arbeitsblatt');
@@ -470,10 +472,10 @@ export function buildBruchArbeitsblattTex(opts: {
 \\usepackage{xcolor}
 \\usepackage{fancyhdr}
 \\usepackage{enumitem}
-\\usepackage{multicol}
+${pdfZweispaltig ? `\\usepackage{multicol}
 \\setlength{\\columnseprule}{0.4pt}
 \\setlength{\\columnsep}{1.05em}
-\\pagestyle{fancy}
+` : ''}\\pagestyle{fancy}
 \\fancyhf{}
 \\fancyhead[L]{\\footnotesize\\sffamily ${headLeft}}
 \\fancyhead[R]{\\footnotesize\\sffamily Seite~\\thepage}
@@ -487,13 +489,13 @@ export function buildBruchArbeitsblattTex(opts: {
 \\end{center}
 \\vspace{0.4em}
 \\thispagestyle{fancy}
-\\begin{multicols}{${nPdfSpalten}}
+${pdfZweispaltig ? `\\begin{multicols}{2}
 \\raggedcolumns
-\\begin{enumerate}
+` : ''}\\begin{enumerate}
 ${blocks.join('\n')}
 \\end{enumerate}
-\\end{multicols}
-\\end{document}
+${pdfZweispaltig ? `\\end{multicols}
+` : ''}\\end{document}
 `;
 }
 
