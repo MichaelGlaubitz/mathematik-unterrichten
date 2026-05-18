@@ -86,6 +86,11 @@ export type PracticeAufgabe = {
    * „Lösung zeigen“-Bereich (Arbeitsblatt), z. B. Rechenweg `\\frac{a}{d}+\\frac{b}{d}=…`.
    */
   loesungInlineNachFrage?: boolean;
+  /**
+   * Nur Arbeitsblatt (Slot-AB): Lösung als eigene volle Zeile unter der Aufgabe; die Formel soll nicht
+   * mitten im `=` umbrechen (`whitespace-nowrap`, bei Bedarf horizontal scrollen).
+   */
+  loesungArbeitsblattEigeneZeile?: boolean;
   /** Skizze zur Aufgabenstellung (bei Malaufgaben ohne markante Produktfläche im Raster). */
   diagram?: string;
   /** Optional: Skizze mit vollständiger Markierung — z. B. in „Lösung zeigen“. */
@@ -1908,10 +1913,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           { kind: 'int', expect: coeff },
           { kind: 'int', expect: konst },
         ],
-        loesung: `$${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}=${linBinom(
+        loesung: `$\\displaystyle ${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}=${linBinom(
           coeff,
           konst
         )}$.`,
+        loesungArbeitsblattEigeneZeile: true,
       };
     },
     alg_distributiv_zahl() {
