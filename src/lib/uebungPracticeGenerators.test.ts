@@ -10,6 +10,7 @@ import {
   practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm,
   PRACTICE_GENERATOR_IDS,
   parseErkennenSeiten,
+  type PracticeAufgabe,
   validateErkennenAufgabe,
 } from './uebungPracticeGenerators';
 import { zaehleAbPlatzhalter } from './practiceArbeitsblattAntwort';
@@ -354,6 +355,37 @@ describe('Algebra Grundbegriffe (alg_gb_*)', () => {
         expect(zaehleAbPlatzhalter(a.frageArbeitsblatt!), id).toBe(a.abSlots!.length);
       }
     }
+  });
+
+  it('alg_gb_variable: Sachsatz mit choice und konsistenter Lösung', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (let k = 0; k < 60; k++) {
+      const t = GEN.alg_gb_variable();
+      expect(t.frage).toMatch(/Wofür steht der Buchstabe \$[a-z]\$ im Satz/);
+      expect(t.abSlots?.[0]?.kind).toBe('choice');
+      expect(t.loesung).toMatch(/^\$/);
+      const slot = t.abSlots![0];
+      if (slot.kind === 'choice') {
+        expect(slot.labels[0].length).toBeGreaterThan(6);
+        expect(slot.labels[1].length).toBeGreaterThan(6);
+      }
+    }
+  });
+
+  it('alg_gb_variable: fester Seed liefert Korb-Äpfel-Kontext', () => {
+    let found: PracticeAufgabe | null = null;
+    for (let seed = 0; seed < 120000 && !found; seed++) {
+      const t = createPracticeGenerators(makeLcg(seed)).alg_gb_variable();
+      if (t.frage.includes('Im Korb liegen')) found = t;
+    }
+    expect(found).not.toBeNull();
+    const slot = found!.abSlots![0];
+    expect(slot.kind).toBe('choice');
+    if (slot.kind === 'choice') {
+      const joined = `${slot.labels[0]} ${slot.labels[1]}`;
+      expect(joined).toMatch(/Anzahl|Äpfel/);
+    }
+    expect(found!.loesung.toLowerCase()).toMatch(/anzahl|äpfel|korb/);
   });
 
   it('alg_gb_term: Drei-Summanden-Aufgabe hat Lösung mit „drei“', () => {
