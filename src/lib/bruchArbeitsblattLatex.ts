@@ -146,11 +146,10 @@ function escapeFuerTextInMath(s: string): string {
 }
 
 /**
- * Choice-Label in der **gefüllten** PDF-Zelle: In den HTML-Pills dürfen Labels mit führendem `$…$`-TeX
- * beginnen, optional mit anschließendem Klartext (z. B. `$\\tfrac{2}{5}\\cdot n$ (Zahl zuerst)`).
- * Sonst bleibt das bisherige Verhalten (gesamter Text in `\\text{…}`).
+ * Eine Choice-Zeile im PDF: Kästchen (`\\square` / `\\blacksquare`) wie Ankreuzen online, dann Inhalt.
+ * Labels mit führendem `$…$` und optionalem Klartext (z. B. Konventionen-Algebra) wie bei den HTML-Pills.
  */
-function choiceFilledSlotLatexFromLabel(lab: string): string {
+function choiceRowLatexFromLabel(lab: string, mark: '\\square' | '\\blacksquare'): string {
   const s = lab.trim();
   if (s.startsWith('$')) {
     const end = s.indexOf('$', 1);
@@ -158,14 +157,27 @@ function choiceFilledSlotLatexFromLabel(lab: string): string {
       const math = s.slice(1, end);
       const tail = s.slice(end + 1).trim();
       if (tail === '') {
-        return `\\ensuremath{\\boxed{\\displaystyle ${math}}}`;
+        return `\\ensuremath{${mark}\\,\\displaystyle ${math}}`;
       }
       if (!s.includes('$', end + 1)) {
-        return `\\ensuremath{\\boxed{\\displaystyle ${math}\\;\\text{${escapeFuerTextInMath(tail)}}}}`;
+        return `\\ensuremath{${mark}\\,\\displaystyle ${math}\\;\\text{${escapeFuerTextInMath(tail)}}}`;
       }
     }
   }
-  return `\\ensuremath{\\boxed{\\displaystyle\\text{${escapeFuerTextInMath(s)}}}}`;
+  return `\\ensuremath{${mark}\\,\\displaystyle\\text{${escapeFuerTextInMath(s)}}}`;
+}
+
+function slotChoiceLatexTwoRows(spec: PracticeAbAntwortSlot & { kind: 'choice' }, mode: 'blank' | 'filled'): string {
+  const sq: '\\square' = '\\square';
+  const bs: '\\blacksquare' = '\\blacksquare';
+  if (mode === 'blank') {
+    const a = choiceRowLatexFromLabel(spec.labels[0], sq);
+    const b = choiceRowLatexFromLabel(spec.labels[1], sq);
+    return `${a}\\par\\smallskip\n${b}`;
+  }
+  const a = choiceRowLatexFromLabel(spec.labels[0], spec.expect === 0 ? bs : sq);
+  const b = choiceRowLatexFromLabel(spec.labels[1], spec.expect === 1 ? bs : sq);
+  return `${a}\\par\\smallskip\n${b}`;
 }
 
 /** Schreibfläche für Bruch-Zähler/Nenner im PDF: hellgrau, ohne zweite „Strich“-Optik wie bei \\underline. */
@@ -175,9 +187,6 @@ const BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE =
 /** Schreibfläche für ganzzahlige / Textantworten im PDF (kein \\rule-Strich). */
 const BRUCH_AB_PDF_INT_SCHREIBFLAECHE =
   '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{2.35cm}}}';
-/** Etwas breiter für Multiple-Choice-Eintrag im PDF. */
-const BRUCH_AB_PDF_CHOICE_SCHREIBFLAECHE =
-  '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{3.15cm}}}';
 
 export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled'): string {
   if (mode === 'blank') {
@@ -186,7 +195,7 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}}`;
     if (spec.kind === 'frac_num')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${spec.fixedDen}}}`;
-    return `\\ensuremath{${BRUCH_AB_PDF_CHOICE_SCHREIBFLAECHE}}`;
+    return slotChoiceLatexTwoRows(spec, 'blank');
   }
   if (spec.kind === 'int') return `\\ensuremath{\\boxed{${spec.expect}}}`;
   if (spec.kind === 'frac') {
@@ -197,8 +206,7 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
     const inner = fracTex(spec.expectNum, spec.fixedDen);
     return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;
   }
-  const lab = spec.labels[spec.expect] ?? '';
-  return choiceFilledSlotLatexFromLabel(lab);
+  return slotChoiceLatexTwoRows(spec, 'filled');
 }
 
 export function replaceAbPlaceholdersLatex(
