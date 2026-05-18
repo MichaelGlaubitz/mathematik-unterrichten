@@ -40,9 +40,6 @@ const clusterSlug = {
   Oberstufe: 'oberstufe',
 };
 
-/** Vorübergehend: Algebra-Block auf /themen nicht anzeigen (WB-Stichworte / Verknüpfungen noch fehleranfällig). */
-const THEMA_ALGEBRA_AUF_THEMEN_AUSGEBLENDET = true;
-
 // --- Verknüpfungen pro Thema ----------------------------------------------
 function aufgabenZu(thema) {
   return aufgaben
@@ -75,10 +72,6 @@ const themenProBand = clusterReihenfolge
     slug: clusterSlug[band],
     themen: themen
       .filter((t) => t.data.klassenstufeBand === band)
-      .filter(
-        (t) =>
-          !THEMA_ALGEBRA_AUF_THEMEN_AUSGEBLENDET || slugify(t.data.thema) !== 'algebra'
-      )
       .map((t) => ({
         slug: slugify(t.data.thema),
         titel: t.data.titel,

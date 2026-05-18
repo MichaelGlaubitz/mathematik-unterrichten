@@ -1,4 +1,5 @@
 ---
+import AlgebraWbThemenKurz from './AlgebraWbThemenKurz.astro';
 import UnterthemenClusterGrid from './UnterthemenClusterGrid.astro';
 // Themenblock fuer die /themen-Uebersicht.
 // View-Modell wird in der Seite vorberechnet (siehe themen/index.astro).
@@ -65,7 +66,10 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
 
   {unterthemenBloecke && unterthemenBloecke.length > 0 && (
     wbThemaMitAkku ? (
-      <details class="mu-wb-unterthemen-acc mb-8 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50">
+      <details
+        class="mu-wb-unterthemen-acc mb-8 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
+        open={slug === 'algebra'}
+      >
         <summary class="cursor-pointer list-none px-4 py-3 text-sm [&::-webkit-details-marker]:hidden">
           <span class="inline-flex items-center gap-1.5">
             <span
@@ -104,11 +108,15 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
               Alle abwählen
             </button>
           </div>
-          <UnterthemenClusterGrid
-            slug={slug}
-            generatorUebungHref={generatorUebungHref}
-            unterthemenBloecke={unterthemenBloecke}
-          />
+          {slug === 'algebra' && generatorUebungHref ? (
+            <AlgebraWbThemenKurz generatorUebungHref={generatorUebungHref} />
+          ) : (
+            <UnterthemenClusterGrid
+              slug={slug}
+              generatorUebungHref={generatorUebungHref}
+              unterthemenBloecke={unterthemenBloecke}
+            />
+          )}
           <div
             class="mu-wb-thema-stripe mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-ink-200/90 bg-ink-50/90 px-3 py-2.5 text-sm shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
             data-mu-wb-auto-href={wbThemaAutoHref}
