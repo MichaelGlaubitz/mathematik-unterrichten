@@ -238,8 +238,8 @@ export function practicePdfSpaltenAnzahl(aufgaben: readonly PracticeAufgabe[]): 
 }
 
 /**
- * Reduziert störende Umbrüche bei Algebra-Slotzeilen (PDF): typisch `…$. = \\ensuremath{…} x + \\ensuremath{…}`
- * nach `stripHtmlTags`. `~` = geschütztes Leerzeichen in LaTeX (verhindert Umbruch an dieser Stelle).
+ * Reduziert störende Umbrüche bei Algebra-Slotzeilen (PDF): typisch `…$. = \\ensuremath{…} x \\ensuremath{…}`
+ * (optional mit `+` dazwischen bei älteren Aufgaben) nach `stripHtmlTags`. `~` = geschütztes Leerzeichen in LaTeX.
  *
  * Wichtig: Das Gleichheitszeichen muss erhalten bleiben (nur Abstände verdichten), sonst fehlt `=` im PDF.
  */
