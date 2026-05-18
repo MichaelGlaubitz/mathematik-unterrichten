@@ -1974,17 +1974,28 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         };
       }
       if (r < 0.82) {
+        const a1 = randInt(2, 8);
+        let b1 = 0;
+        for (let t = 0; t < 25; t++) {
+          b1 = randInt(-8, 8);
+          if (b1 !== 0) break;
+        }
+        if (b1 === 0) b1 = 4;
+        const termTex = `${linTerm(a1, 'x')}${formatSignedInt(b1)}`;
+        const termLabel = `${linTerm(a1, 'x')}${formatSignedInt(b1)} (ohne =)`;
+        const a2 = randInt(2, 8);
+        const x0 = randInt(2, 9);
+        const rhs = a2 * x0;
+        const eqTex = `${a2}x=${rhs}`;
+        const eqLabel = `${a2}·x = ${rhs} (mit =)`;
+        const swap = random() < 0.5;
+        const labels: [string, string] = swap ? [eqLabel, termLabel] : [termLabel, eqLabel];
+        const expect = (swap ? 0 : 1) as 0 | 1;
         return {
-          frage: `Welche Zeile zeigt eine Gleichung (nicht nur einen Term)?`,
+          frage: `Welche Zeile zeigt eine Gleichung (nicht nur einen Term)? Vergleiche $${termTex}$ und $${eqTex}$.`,
           frageArbeitsblatt: `Welche Zeile ist eine Gleichung? [[MU_AB:0]]`,
-          abSlots: [
-            {
-              kind: 'choice',
-              expect: 1 as const,
-              labels: ['$3x+5$', '$2x=8$'],
-            },
-          ],
-          loesung: `Nur $2x=8$ enthält ein $=$ und ist eine Gleichung; $3x+5$ ist ein Term (Summe aus $3x$ und $5$) ohne Gleichheitszeichen.`,
+          abSlots: [{ kind: 'choice', expect, labels }],
+          loesung: `Nur $${eqTex}$ enthält ein $=$ und ist eine Gleichung; $${termTex}$ ist ein Term (Summe aus $${linTerm(a1, 'x')}$ und $${b1}$) ohne Gleichheitszeichen.`,
         };
       }
       const c = pick([-9, -8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8, 9] as const);
@@ -2069,17 +2080,54 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     alg_gb_konvention() {
+      const v = pick(['a', 'k', 'n', 's', 't', 'x', 'y', 'z'] as const);
+      const r = random();
+      let correctTex: string;
+      let wrongTex: string;
+      let labelRichtig: string;
+      let labelFalsch: string;
+      let loesung: string;
+      if (r < 0.4) {
+        const n = randInt(2, 12);
+        correctTex = `${n}${v}`;
+        wrongTex = `\\mathrm{${v}${n}}`;
+        labelRichtig = `${n}·${v} (Zahl zuerst)`;
+        labelFalsch = `${v}·${n} (Variable zuerst)`;
+        loesung = `Richtig ist $${correctTex}$: Der Koeffizient $${n}$ steht vor der Variablen $${v}$. Die Schreibweise $\\mathrm{${v}${n}}$ (Variable vor der Zahl) ist unüblich und leicht missverständlich.`;
+      } else if (r < 0.72) {
+        const n = pick([-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2] as const);
+        correctTex = `${n}${v}`;
+        wrongTex = `\\mathrm{${v}}\\cdot(${n})`;
+        labelRichtig = `${n}·${v} (Zahl mit Vorzeichen zuerst)`;
+        labelFalsch = `${v}·(${n}) (Variable zuerst)`;
+        loesung = `Richtig ist $${correctTex}$: Minus und Betrag gehören zum Koeffizienten vor $${v}$. $\\mathrm{${v}}\\cdot(${n})$ wirkt wie „$${v}$ mal Klammer“ und entspricht nicht der üblichen Linearschreibweise.`;
+      } else {
+        const bruchPaare = [
+          [1, 2],
+          [1, 3],
+          [2, 3],
+          [3, 4],
+          [2, 5],
+          [3, 5],
+          [5, 2],
+          [3, 2],
+          [5, 3],
+        ] as const;
+        const [num, den] = pick(bruchPaare);
+        correctTex = `\\tfrac{${num}}{${den}}${v}`;
+        wrongTex = `\\mathrm{${v}}\\,\\tfrac{${num}}{${den}}`;
+        labelRichtig = `(${num}/${den})·${v} (Zahl zuerst)`;
+        labelFalsch = `${v}·(${num}/${den}) (Variable zuerst)`;
+        loesung = `Richtig ist $\\tfrac{${num}}{${den}}${v}$: der rationale Faktor steht vor der Variablen. $\\mathrm{${v}}\\,\\tfrac{${num}}{${den}}$ liest man wie „$${v}$ plus Bruch“ und ist unüblich.`;
+      }
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelRichtig, labelFalsch] : [labelFalsch, labelRichtig];
+      const expect = (swap ? 0 : 1) as 0 | 1;
       return {
-        frage: `Welche Schreibweise entspricht der üblichen Konvention „Zahl vor Variable“?`,
-        frageArbeitsblatt: `Konvention „Zahl vor Variable“: [[MU_AB:0]]`,
-        abSlots: [
-          {
-            kind: 'choice',
-            expect: 1 as const,
-            labels: ['Schreibweise $x5$', 'Schreibweise $5x$'],
-          },
-        ],
-        loesung: `Richtig ist $5x$: Der Koeffizient steht vor der Variablen. $x5$ ist unüblich und leicht missverständlich.`,
+        frage: `Welche Schreibweise entspricht der üblichen Konvention „Zahl vor Variable“? Vergleiche $${wrongTex}$ und $${correctTex}$.`,
+        frageArbeitsblatt: `Konvention „Zahl vor Variable“ für $${v}$ — welche Zeile ist üblich? [[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung,
       };
     },
     lg_x_plus_a_eq_b() {

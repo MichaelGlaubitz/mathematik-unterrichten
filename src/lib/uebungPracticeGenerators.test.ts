@@ -388,6 +388,45 @@ describe('Algebra Grundbegriffe (alg_gb_*)', () => {
     expect(found!.loesung.toLowerCase()).toMatch(/anzahl|äpfel|korb/);
   });
 
+  it('alg_gb_term: Term-vs.-Gleichung-Choice ohne Dollar in Labels', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    let choiceSeen = false;
+    for (let k = 0; k < 500; k++) {
+      const t = GEN.alg_gb_term();
+      const s = t.abSlots?.[0];
+      if (s?.kind === 'choice') {
+        choiceSeen = true;
+        expect(s.labels[0]).not.toContain('$');
+        expect(s.labels[1]).not.toContain('$');
+        expect(s.expect === 0 || s.expect === 1).toBe(true);
+      }
+    }
+    expect(choiceSeen).toBe(true);
+  });
+
+  it('alg_gb_konvention: Arbeitsblatt ohne Dollar-TeX, ganzzahlig / negativ / Bruch', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    let ganz = false;
+    let neg = false;
+    let bruch = false;
+    for (let k = 0; k < 500; k++) {
+      const t = GEN.alg_gb_konvention();
+      const slot = t.abSlots![0];
+      expect(slot.kind).toBe('choice');
+      if (slot.kind === 'choice') {
+        expect(slot.labels[0]).not.toContain('$');
+        expect(slot.labels[1]).not.toContain('$');
+        expect(slot.expect === 0 || slot.expect === 1).toBe(true);
+      }
+      if (t.frage.includes('\\tfrac{')) bruch = true;
+      else if (t.frage.includes('\\cdot(')) neg = true;
+      else if (/\\mathrm\{[a-z]\d+\}/.test(t.frage)) ganz = true;
+    }
+    expect(ganz).toBe(true);
+    expect(neg).toBe(true);
+    expect(bruch).toBe(true);
+  });
+
   it('alg_gb_term: Drei-Summanden-Aufgabe hat Lösung mit „drei“', () => {
     let found = false;
     for (let seed = 0; seed < 800 && !found; seed++) {
