@@ -738,7 +738,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
 
   /** Koeffizienten $a$, $b$, $c$ in $ax^2+bx+c$ (niedrigster Index = $x^2$). */
   function abQuadABCoeffHtml(): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('a')}=</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('b')}=</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('c')}=</span>[[MU_AB:2]]</span>`;
+    /** `<br>`: eigene Zeile unter der Aufgabenstellung (HTML + PDF via `htmlFrageZuLatexInhalt`). */
+    return `<br /><span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('a')}=</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('b')}=</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('c')}=</span>[[MU_AB:2]]</span>`;
   }
 
   /** Monisches Quadrat $x^2+px+q$: Koeffizienten $p$ und $q$. */
