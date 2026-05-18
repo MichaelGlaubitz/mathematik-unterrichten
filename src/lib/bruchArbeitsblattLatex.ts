@@ -188,6 +188,15 @@ const BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE =
 const BRUCH_AB_PDF_INT_SCHREIBFLAECHE =
   '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{2.35cm}}}';
 
+/** Inhalt von `\\boxed{…}` für ausgefüllte int-Slots (Lösungs-PDF). */
+function intSlotFilledBoxInhalt(spec: PracticeAbAntwortSlot & { kind: 'int' }): string {
+  const n = spec.expect;
+  if (!spec.konstanteMitVorzeichenInAntwortBox) return String(n);
+  if (n === 0) return '0';
+  if (n > 0) return `+${n}`;
+  return String(n);
+}
+
 export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled'): string {
   if (mode === 'blank') {
     if (spec.kind === 'int') return `\\ensuremath{${BRUCH_AB_PDF_INT_SCHREIBFLAECHE}}`;
@@ -197,7 +206,7 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${spec.fixedDen}}}`;
     return slotChoiceLatexTwoRows(spec, 'blank');
   }
-  if (spec.kind === 'int') return `\\ensuremath{\\boxed{${spec.expect}}}`;
+  if (spec.kind === 'int') return `\\ensuremath{\\boxed{${intSlotFilledBoxInhalt(spec)}}}`;
   if (spec.kind === 'frac') {
     const inner = fracTex(spec.expectNum, spec.expectDen);
     return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;

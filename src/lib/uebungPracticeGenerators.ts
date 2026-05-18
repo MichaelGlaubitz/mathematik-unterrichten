@@ -66,7 +66,15 @@ function funGraphScheitelYInterceptInRange(a: number, p: number, q: number): boo
 
 /** Antwortlücken für das Arbeitsblatt „WB Bruchrechnung“ (`[[MU_AB:n]]` in `frageArbeitsblatt`). */
 export type PracticeAbAntwortSlot =
-  | { kind: 'int'; expect: number }
+  | {
+      kind: 'int';
+      expect: number;
+      /**
+       * Wenn wahr: Lösungs-PDF zeigt die Zahl mit algebraischem Vorzeichen in der Box (`+11`, `-7`, `0`),
+       * damit neben $x$ klar $3x+11$ statt $3x\,11$ lesbar ist (nur Konstante bei $ax+b$-Schreibzeilen).
+       */
+      konstanteMitVorzeichenInAntwortBox?: boolean;
+    }
   | {
       kind: 'frac';
       expectNum: number;
@@ -664,9 +672,13 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `${t}${formatSignedInt(b)}`;
   }
 
-  /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken — **ohne** `+`/`-` vor der Konstanten-Lücke (kein Muster positiv/negativ). Online und PDF. */
-  function abLinBinomZweiIntsHtml(): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span><span>[[MU_AB:1]]</span></span>`;
+  /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken. Optional sichtbares `+` vor der Konstanten-Lücke, wenn der Summand positiv ist (Minus steckt in der Eingabe bei negativen Konstanten). */
+  function abLinBinomZweiIntsHtml(constanterSummand: number): string {
+    const plusVorKonstante =
+      constanterSummand > 0
+        ? '<span class="shrink-0 font-semibold text-ink-800 dark:text-ink-200">+</span>'
+        : '';
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span>${plusVorKonstante}<span>[[MU_AB:1]]</span></span>`;
   }
 
   /** Summanden (TeX ohne äußere `$…$`) in zufälliger Reihenfolge zu einem Ausdruck verbinden. */
@@ -1977,11 +1989,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bc = k * cb;
       return {
         frage: `Multipliziere aus: $${k}(${inner})$.`,
-        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml(bc)}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: ac },
-          { kind: 'int', expect: bc },
+          { kind: 'int', expect: bc, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$${k}(${inner})=${linBinom(ac, bc)}$.`,
       };
@@ -1994,11 +2006,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const coeff = ta - ia;
       return {
         frage: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.`,
-        frageArbeitsblatt: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.${abLinBinomZweiIntsHtml(innerB)}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeff },
-          { kind: 'int', expect: innerB },
+          { kind: 'int', expect: innerB, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$-(${ia}x-${innerB})+${linTerm(ta)}=-${ia}x+${innerB}+${linTerm(ta)}=${linBinom(
           coeff,
@@ -2032,11 +2044,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const konst = -h;
       return {
         frage: `Vereinfache $${linTerm(fx)}-(${inner})$.`,
-        frageArbeitsblatt: `Vereinfache $${linTerm(fx)}-(${inner})$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Vereinfache $${linTerm(fx)}-(${inner})$.${abLinBinomZweiIntsHtml(konst)}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeff },
-          { kind: 'int', expect: konst },
+          { kind: 'int', expect: konst, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$${linTerm(fx)}-(${inner})=${linTerm(fx)}-${linTerm(gx)}${formatSignedInt(-h)}=${linBinom(
           coeff,
@@ -2060,10 +2072,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const konst = b + d;
       return {
         frage: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.`,
-        frageArbeitsblatt: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.${abLinBinomZweiIntsHtml(konst)}`,
         abSlots: [
           { kind: 'int', expect: coeff },
-          { kind: 'int', expect: konst },
+          { kind: 'int', expect: konst, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$\\displaystyle ${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}=${linBinom(
           coeff,
@@ -2109,11 +2121,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bc = k * cb;
       return {
         frage: `Multipliziere aus: $${k}(${inner})$.`,
-        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml(bc)}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: ac },
-          { kind: 'int', expect: bc },
+          { kind: 'int', expect: bc, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$${k}(${inner})=${linBinom(ac, bc)}$.`,
       };
@@ -2705,11 +2717,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bc = -k * cb;
       return {
         frage: `Multipliziere aus: $-${k}(${inner})$.`,
-        frageArbeitsblatt: `Multipliziere aus: $-${k}(${inner})$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Multipliziere aus: $-${k}(${inner})$.${abLinBinomZweiIntsHtml(bc)}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: ac },
-          { kind: 'int', expect: bc },
+          { kind: 'int', expect: bc, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$-${k}(${inner})=${linBinom(ac, bc)}$.`,
       };
@@ -2739,11 +2751,11 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const expr = `${k1}(${inner1})+${k2}(${inner2})`;
       return {
         frage: `Multipliziere aus und fasse zusammen: $${expr}$.`,
-        frageArbeitsblatt: `Vereinfache $${expr}$.${abLinBinomZweiIntsHtml()}`,
+        frageArbeitsblatt: `Vereinfache $${expr}$.${abLinBinomZweiIntsHtml(konst)}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeffX },
-          { kind: 'int', expect: konst },
+          { kind: 'int', expect: konst, konstanteMitVorzeichenInAntwortBox: true },
         ],
         loesung: `$${expr}=${linBinom(coeffX, konst)}$.`,
         loesungArbeitsblattEigeneZeile: true,
