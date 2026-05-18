@@ -2299,7 +2299,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const a0 = low[0] ?? 0;
       return {
         frage: `Multipliziere aus: $x(${inner1})(${inner2})$.`,
-        frageArbeitsblatt: `Multipliziere aus: $x(${inner1})(${inner2})$. Schreibe $x^3+px^2+qx+r$.${abMonischKubischPQRHtml()}`,
+        frageArbeitsblatt: `Multipliziere aus: $x(${inner1})(${inner2})$. Schreibe $x^3+px^2+qx+r$.<br />${abMonischKubischPQRHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: a2 },
@@ -2332,7 +2332,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const a0 = low[0] ?? 0;
       return {
         frage: `Multipliziere aus: $(${f1})(${f2})(${f3})$.`,
-        frageArbeitsblatt: `Multipliziere aus: $(${f1})(${f2})(${f3})$. Schreibe $x^3+px^2+qx+r$.${abMonischKubischPQRHtml()}`,
+        frageArbeitsblatt: `Multipliziere aus: $(${f1})(${f2})(${f3})$. Schreibe $x^3+px^2+qx+r$.<br />${abMonischKubischPQRHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: a2 },

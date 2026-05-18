@@ -114,6 +114,18 @@ describe('bruchArbeitsblattLatex', () => {
     expect(s).toContain('\\displaystyle\\frac');
   });
 
+  it('htmlFrageZuLatexInhalt: <br /> erzeugt PDF-Zeilenumbruch (\\par)', () => {
+    const html = 'Aufgabe oben.<br /><span>x</span> unten [[MU_AB:0]]';
+    const s = htmlFrageZuLatexInhalt(html, {
+      abSlots: [{ kind: 'int', expect: 3 }],
+      mitLoesungen: false,
+    });
+    expect(s).toContain('Aufgabe oben.');
+    expect(s).toContain('\\par\\smallskip');
+    expect(s).toContain('x unten');
+    expect(s).toContain('\\colorbox{black!10}');
+  });
+
   it('loesungHtmlZuLatexSegmente ersetzt br-Tags', () => {
     expect(loesungHtmlZuLatexSegmente('a<br>b')).toBe('a\\par\\medskip\nb');
   });
