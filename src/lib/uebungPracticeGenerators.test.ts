@@ -13,7 +13,11 @@ import {
   type PracticeAufgabe,
   validateErkennenAufgabe,
 } from './uebungPracticeGenerators';
-import { zaehleAbPlatzhalter } from './practiceArbeitsblattAntwort';
+import {
+  muKatexSkipInhaltFragmente,
+  replaceBruchAbFragePlaceholders,
+  zaehleAbPlatzhalter,
+} from './practiceArbeitsblattAntwort';
 
 /** Deterministischer PRNG für reproduzierbare Tests (32-Bit LCG). */
 function makeLcg(seed: number): () => number {
@@ -463,6 +467,22 @@ describe('Algebra-Generatoren (WB-Slot-Arbeitsblatt)', () => {
       expect(a.frageArbeitsblatt, id).toBeDefined();
       expect(a.abSlots?.length, id).toBeGreaterThan(0);
       expect(zaehleAbPlatzhalter(a.frageArbeitsblatt!), id).toBe(a.abSlots!.length);
+    }
+  });
+});
+
+describe('WB-Slot-Arbeitsblatt: mu-katex-skip ohne Roh-$ (KaTeX)', () => {
+  it('nach Platzhalter-Ersetzung enthält kein mu-katex-skip-Innenbereich einzelnes $', () => {
+    for (const id of PRACTICE_GENERATOR_IDS) {
+      for (let seed = 0; seed < 40; seed++) {
+        const GEN = createPracticeGenerators(makeLcg(seed + id.length * 9973));
+        const a = GEN[id]();
+        if (!a.frageArbeitsblatt || !a.abSlots?.length) continue;
+        const html = replaceBruchAbFragePlaceholders(a.frageArbeitsblatt, 0, a.abSlots);
+        for (const inner of muKatexSkipInhaltFragmente(html)) {
+          expect(inner, `${id} seed=${seed}`).not.toContain('$');
+        }
+      }
     }
   });
 });

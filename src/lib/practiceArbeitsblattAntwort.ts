@@ -126,6 +126,54 @@ function buildSlotMarkup(taskIdx: number, slotIdx: number, spec: PracticeAbAntwo
 
 const AB_PH = /\[\[MU_AB:(\d+)\]\]/g;
 
+/**
+ * Liefert die inneren HTML-Fragmente aller Elemente mit `class` … `mu-katex-skip` …
+ * (nur gleichnamige Verschachtelung von `span` bzw. `div` wird gezählt).
+ * Für Audits: In diesen Bereichen rendert KaTeX kein `$…$` — dort darf kein `$` vorkommen.
+ */
+export function muKatexSkipInhaltFragmente(html: string): string[] {
+  const fragments: string[] = [];
+  const re = /<(\w+)\s+[^>]*\bclass="[^"]*\bmu-katex-skip\b[^"]*"[^>]*>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const tag = m[1].toLowerCase();
+    const openEnd = m.index + m[0].length;
+    const contentStart = openEnd;
+    let depth = 1;
+    let i = openEnd;
+    const closeSeq = `</${tag}>`;
+    while (i < html.length && depth > 0) {
+      if (html[i] !== '<') {
+        i++;
+        continue;
+      }
+      if (html.slice(i, i + closeSeq.length).toLowerCase() === closeSeq) {
+        depth--;
+        if (depth === 0) {
+          fragments.push(html.slice(contentStart, i));
+          re.lastIndex = i + closeSeq.length;
+          break;
+        }
+        i += closeSeq.length;
+        continue;
+      }
+      const openPrefix = `<${tag}`;
+      if (
+        html.slice(i, i + openPrefix.length).toLowerCase() === openPrefix &&
+        html[i + openPrefix.length] !== '/'
+      ) {
+        const after = i + openPrefix.length;
+        const c = html[after];
+        if (c === ' ' || c === '\t' || c === '\n' || c === '\r' || c === '>') {
+          depth++;
+        }
+      }
+      i++;
+    }
+  }
+  return fragments;
+}
+
 export function replaceBruchAbFragePlaceholders(
   template: string,
   taskIdx: number,
