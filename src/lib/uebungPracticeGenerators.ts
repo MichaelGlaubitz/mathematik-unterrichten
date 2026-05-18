@@ -648,11 +648,9 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `${t}${formatSignedInt(b)}`;
   }
 
-  /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken (Koeffizient von $x$, Konstante). */
-  function abLinBinomZweiIntsHtml(constTerm: number): string {
-    const plusZwischenXUndKonst =
-      constTerm >= 0 ? '<span class="shrink-0 px-0.5">+</span>' : '';
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span>${plusZwischenXUndKonst}<span>[[MU_AB:1]]</span></span>`;
+  /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken — **ohne** `+`/`-` vor der Konstanten-Lücke (kein Muster positiv/negativ). Online und PDF. */
+  function abLinBinomZweiIntsHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span><span>[[MU_AB:1]]</span></span>`;
   }
 
   const GEN: PracticeGeneratorMap = {
@@ -1834,7 +1832,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bc = k * cb;
       return {
         frage: `Multipliziere aus: $${k}(${inner})$.`,
-        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml(bc)}`,
+        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: ac },
@@ -1851,7 +1849,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const coeff = ta - ia;
       return {
         frage: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.`,
-        frageArbeitsblatt: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.${abLinBinomZweiIntsHtml(innerB)}`,
+        frageArbeitsblatt: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.${abLinBinomZweiIntsHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeff },
@@ -1889,7 +1887,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const konst = -h;
       return {
         frage: `Vereinfache $${linTerm(fx)}-(${inner})$.`,
-        frageArbeitsblatt: `Vereinfache $${linTerm(fx)}-(${inner})$.${abLinBinomZweiIntsHtml(konst)}`,
+        frageArbeitsblatt: `Vereinfache $${linTerm(fx)}-(${inner})$.${abLinBinomZweiIntsHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeff },
@@ -1917,7 +1915,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const konst = b + d;
       return {
         frage: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.`,
-        frageArbeitsblatt: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.${abLinBinomZweiIntsHtml(konst)}`,
+        frageArbeitsblatt: `Vereinfache $${linTerm(a)}${formatSignedInt(b)}${formatSignedInt(c)}x${formatSignedInt(d)}$.${abLinBinomZweiIntsHtml()}`,
         abSlots: [
           { kind: 'int', expect: coeff },
           { kind: 'int', expect: konst },

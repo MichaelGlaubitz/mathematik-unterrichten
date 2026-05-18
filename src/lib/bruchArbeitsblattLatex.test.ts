@@ -125,10 +125,11 @@ describe('bruchArbeitsblattLatex', () => {
     ).toBe(1);
     expect(pdfFrageTexVerdichtenSchreibzeile('Vereinfache $1$. = \\ensuremath{X}')).toMatch(/\.~~=~\\ensuremath/);
     const intBlank = slotLatex({ kind: 'int', expect: 0 }, 'blank');
-    const binomBlank = `Vereinfache $2(3x+4)$. = ${intBlank} x + ${intBlank}`;
+    const binomBlank = `Vereinfache $2(3x+4)$. = ${intBlank} x ${intBlank}`;
     const d = pdfFrageTexVerdichtenSchreibzeile(binomBlank);
     expect(d).toContain('=');
-    expect(d).toContain('~x~+~');
+    expect(d).toContain('~x~\\ensuremath');
+    expect(d).not.toContain('~x~+~');
     expect(d).toMatch(/\.~~=~\\ensuremath/);
   });
 
