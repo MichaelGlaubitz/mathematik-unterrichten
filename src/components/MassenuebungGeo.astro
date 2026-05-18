@@ -1982,6 +1982,7 @@ function wbLabelFromHref(href: string): string {
 <script>
   import {
     ALG_WB_STOR_KEY,
+    algebraPdfEinspaltigAusSession,
     algStichwortClusterIndex,
     expandAlgWbStichworte,
     stichwortLabelsFromAlgSessionRaw,
@@ -3235,6 +3236,13 @@ function wbLabelFromHref(href: string): string {
         const meta = {
           thema: isAlgMassen ? 'Algebra' : isNzMassen ? 'Negative Zahlen' : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
+          ...(isAlgMassen &&
+          algebraPdfEinspaltigAusSession({
+            stichwortLabels: readSlotAbStichwortLabels(),
+            aktiveGeneratorIds: aktiveTypen(),
+          })
+            ? { pdfImmerEinspaltig: true as const }
+            : {}),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
         const r = isAlgMassen

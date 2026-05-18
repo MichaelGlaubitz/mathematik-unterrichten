@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ALG_WB_STICHWORT_TO_IDS,
   ALG_WB_UNTERTHEMA_STICHWORTE,
+  algebraPdfEinspaltigAusSession,
   algStichwortClusterIndex,
   algWbAlleStichworteFlach,
   clusterTitelZeileFuerAlgGeneratorIds,
@@ -12,6 +13,33 @@ import {
 } from './algebraWbKeywordMap';
 
 describe('algebraWbKeywordMap', () => {
+  it('algebraPdfEinspaltigAusSession: Stichwort oder Generator-ID', () => {
+    expect(
+      algebraPdfEinspaltigAusSession({
+        stichwortLabels: ['Gleichartige Terme zusammenfassen (gleiche Variable)'],
+        aktiveGeneratorIds: [],
+      })
+    ).toBe(true);
+    expect(
+      algebraPdfEinspaltigAusSession({
+        stichwortLabels: [],
+        aktiveGeneratorIds: ['alg_klammer_weg'],
+      })
+    ).toBe(true);
+    expect(
+      algebraPdfEinspaltigAusSession({
+        stichwortLabels: ['Faktorisieren mit gemeinsamem Zahlfaktor'],
+        aktiveGeneratorIds: [],
+      })
+    ).toBe(false);
+    expect(
+      algebraPdfEinspaltigAusSession({
+        stichwortLabels: [],
+        aktiveGeneratorIds: ['alg_gb_term'],
+      })
+    ).toBe(false);
+  });
+
   it('jedes Stichwort aus algebra.json liegt in genau einem Cluster', () => {
     const flat = algWbAlleStichworteFlach();
     expect(flat.length).toBe(ALG_WB_UNTERTHEMA_STICHWORTE.flat().length);
