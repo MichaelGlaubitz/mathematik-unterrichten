@@ -56,6 +56,19 @@ describe('practiceArbeitsblattAntwort', () => {
     expect(zaehleAbPlatzhalter('ohne')).toBe(0);
   });
 
+  it('replaceBruchAbFragePlaceholders: choice ohne äußeres mu-katex-skip, int-Slot mit Skip', () => {
+    const choiceSlots: PracticeAbAntwortSlot[] = [{ kind: 'choice', expect: 0, labels: ['$a$', '$b$'] }];
+    const choiceHtml = replaceBruchAbFragePlaceholders('[[MU_AB:0]]', 0, choiceSlots);
+    expect(choiceHtml).toContain('data-mu-ab-kind="choice"');
+    expect(choiceHtml).toMatch(/class="mu-ab-slot-shell inline-flex/);
+    expect(choiceHtml).not.toMatch(/mu-ab-slot-shell mu-katex-skip[^"]*"[^>]*data-mu-ab-kind="choice"/);
+
+    const intSlots: PracticeAbAntwortSlot[] = [{ kind: 'int', expect: 1 }];
+    const intHtml = replaceBruchAbFragePlaceholders('[[MU_AB:0]]', 0, intSlots);
+    expect(intHtml).toContain('data-mu-ab-kind="int"');
+    expect(intHtml).toMatch(/mu-ab-slot-shell[^\n]*mu-katex-skip/);
+  });
+
   it('bruchAbMotivation liefert nicht-leeren Text', () => {
     expect(bruchAbMotivation(0, 4).length).toBeGreaterThan(3);
     expect(bruchAbMotivation(4, 4).length).toBeGreaterThan(3);

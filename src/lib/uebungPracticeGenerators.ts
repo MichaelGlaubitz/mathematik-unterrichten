@@ -76,6 +76,7 @@ export type PracticeAbAntwortSlot =
     }
   /** Nur Zähler eingeben; Nenner fest (z. B. „Ergänze den Zähler … / L“). */
   | { kind: 'frac_num'; expectNum: number; fixedDen: number }
+  /** Labels dürfen `$…$` für KaTeX enthalten (HTML wird beim Einsetzen escaped). */
   | { kind: 'choice'; expect: 0 | 1; labels: [string, string] };
 
 export type PracticeAufgabe = {
@@ -1306,7 +1307,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           {
             kind: 'choice',
             expect: winnerIsA ? (0 as const) : (1 as const),
-            labels: ['Erster Bruch', 'Zweiter Bruch'],
+            labels: [fracA, fracB],
           },
         ],
         frageMitLoesungHighlight: `Welcher Bruch ist größer: ${winnerIsA ? grMitBox(fracA) : fracA} oder ${winnerIsA ? fracB : grMitBox(fracB)}?`,
@@ -1746,7 +1747,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           {
             kind: 'choice',
             expect: grIstA ? (0 as const) : (1 as const),
-            labels: ['Erste genannte Zahl', 'Zweite genannte Zahl'],
+            labels: [zA, zB],
           },
         ],
         frageMitLoesungHighlight: `Welche Zahl ist größer: ${grIstA ? grMitBox(zA) : zA} oder ${grIstA ? zB : grMitBox(zB)}?`,
@@ -1988,12 +1989,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         }
         if (b1 === 0) b1 = 4;
         const termTex = `${linTerm(a1, 'x')}${formatSignedInt(b1)}`;
-        const termLabel = `${linTerm(a1, 'x')}${formatSignedInt(b1)} (ohne =)`;
+        const termLabel = `$${termTex}$ (ohne =)`;
         const a2 = randInt(2, 8);
         const x0 = randInt(2, 9);
         const rhs = a2 * x0;
         const eqTex = `${a2}x=${rhs}`;
-        const eqLabel = `${a2}·x = ${rhs} (mit =)`;
+        const eqLabel = `$${eqTex}$ (mit =)`;
         const swap = random() < 0.5;
         const labels: [string, string] = swap ? [eqLabel, termLabel] : [termLabel, eqLabel];
         const expect = (swap ? 0 : 1) as 0 | 1;
@@ -2097,15 +2098,15 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         const n = randInt(2, 12);
         correctTex = `${n}${v}`;
         wrongTex = `\\mathrm{${v}${n}}`;
-        labelRichtig = `${n}·${v} (Zahl zuerst)`;
-        labelFalsch = `${v}·${n} (Variable zuerst)`;
+        labelRichtig = `$${n}\\cdot ${v}$ (Zahl zuerst)`;
+        labelFalsch = `$\\mathrm{${v}${n}}$ (Variable zuerst)`;
         loesung = `Richtig ist $${correctTex}$: Der Koeffizient $${n}$ steht vor der Variablen $${v}$. Die Schreibweise $\\mathrm{${v}${n}}$ (Variable vor der Zahl) ist unüblich und leicht missverständlich.`;
       } else if (r < 0.72) {
         const n = pick([-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2] as const);
         correctTex = `${n}${v}`;
         wrongTex = `\\mathrm{${v}}\\cdot(${n})`;
-        labelRichtig = `${n}·${v} (Zahl mit Vorzeichen zuerst)`;
-        labelFalsch = `${v}·(${n}) (Variable zuerst)`;
+        labelRichtig = `$${correctTex}$ (Zahl mit Vorzeichen zuerst)`;
+        labelFalsch = `$${wrongTex}$ (Variable zuerst)`;
         loesung = `Richtig ist $${correctTex}$: Minus und Betrag gehören zum Koeffizienten vor $${v}$. $\\mathrm{${v}}\\cdot(${n})$ wirkt wie „$${v}$ mal Klammer“ und entspricht nicht der üblichen Linearschreibweise.`;
       } else {
         const bruchPaare = [
@@ -2122,8 +2123,8 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         const [num, den] = pick(bruchPaare);
         correctTex = `\\tfrac{${num}}{${den}}${v}`;
         wrongTex = `\\mathrm{${v}}\\,\\tfrac{${num}}{${den}}`;
-        labelRichtig = `(${num}/${den})·${v} (Zahl zuerst)`;
-        labelFalsch = `${v}·(${num}/${den}) (Variable zuerst)`;
+        labelRichtig = `$\\tfrac{${num}}{${den}}\\cdot ${v}$ (Zahl zuerst)`;
+        labelFalsch = `$${v}\\cdot\\tfrac{${num}}{${den}}$ (Variable zuerst)`;
         loesung = `Richtig ist $\\tfrac{${num}}{${den}}${v}$: der rationale Faktor steht vor der Variablen. $\\mathrm{${v}}\\,\\tfrac{${num}}{${den}}$ liest man wie „$${v}$ plus Bruch“ und ist unüblich.`;
       }
       const swap = random() < 0.5;
