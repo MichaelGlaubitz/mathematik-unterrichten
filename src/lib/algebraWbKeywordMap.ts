@@ -10,7 +10,8 @@
  *
  * Aktuell gemappt (bestehende Generatoren `alg_*`):
  * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
- * - `alg_klammer_mal`: einfache Klammer / mehrere einfache Klammern (positiver oder algebraischer Vorfaktor)
+ * - `alg_klammer_mal`: einfache Klammer mit positivem ganzzahligen Vorfaktor / mehrere solcher Schritte (vereinfacht)
+ * - `alg_expand_einfach_var`: einfache Klammer mit algebraischem Vorfaktor $kx$ vor der Klammer
  * - `alg_expand_*`: gestuftes Ausmultiplizieren (einfach, Binome, Faktor davor, drei Klammern)
  * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
  * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
@@ -192,7 +193,7 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Gleichartige Terme zusammenfassen (mit Indizes)': ['alg_terme_zusammen'],
   'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_klammer_mal'],
   'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)': ['alg_klammer_mal'],
-  'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_klammer_mal'],
+  'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_expand_einfach_var'],
   'Einfache Klammer: Zahl davor': ['alg_expand_einfach_zahl'],
   'Einfache Klammer: Variable davor': ['alg_expand_einfach_var'],
   'Doppelklammer: beide Leitkoeffizienten 1': ['alg_expand_binom_both1'],
