@@ -689,6 +689,14 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `${coeff}${xt}`;
   }
 
+  /** Monom $c\\,xy$ als TeX-Schnipsel (ohne äußere `$…$`). */
+  function texXyTerm(coeff: number): string {
+    if (coeff === 0) return '0';
+    if (coeff === 1) return 'xy';
+    if (coeff === -1) return '-xy';
+    return `${coeff}xy`;
+  }
+
   /** Arbeitsblatt: Koeffizienten von $Ax+By$ als zwei int-Lücken. */
   function abBivariateXyKoeffHtml(): string {
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('x')}-Koeffizient:</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('y')}-Koeffizient:</span>[[MU_AB:1]]</span>`;
@@ -699,14 +707,16 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('x')}<sub class="text-xs align-baseline">1</sub>:</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('x')}<sub class="text-xs align-baseline">2</sub>:</span>[[MU_AB:1]]</span>`;
   }
 
-  /** Arbeitsblatt: $g$, $m$, $n$ in $g\\,x(my+n)$. */
-  function abAusklammernGmnHtml(): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$g$ =</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $m$ =</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, $n$ =</span>[[MU_AB:2]]</span>`;
+  /** Arbeitsblatt: Hilfe zur Zielform „Zahl·x·(my+n)“ — nur HTML (kein `$…$` in mu-katex-skip). */
+  function abAusklammernGmnHilfeHtml(): string {
+    const x = abItalicVarHtml('x');
+    const y = abItalicVarHtml('y');
+    return `<div class="mu-katex-skip mt-1.5 block max-w-xl space-y-2 text-sm leading-snug text-ink-700 dark:text-ink-300"><p><span class="font-medium text-ink-900 dark:text-ink-50">Ziel:</span> ${x} und eine ganze Zahl so ausklammern, dass in der Klammer nur noch ein linearer Term in ${y} steht — symbolisch <span class="font-serif italic font-semibold">g</span>·${x}·(<span class="font-serif italic font-semibold">m</span>·${y}+<span class="font-serif italic font-semibold">n</span>).</p><p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-base text-ink-800 dark:text-ink-200"><span><span class="font-serif italic font-semibold">g</span> (ganze Zahl vor ${x})</span>[[MU_AB:0]]<span>,</span><span><span class="font-serif italic font-semibold">m</span> (Zahl vor ${y} in der Klammer)</span>[[MU_AB:1]]<span>,</span><span><span class="font-serif italic font-semibold">n</span> (Konstante in der Klammer)</span>[[MU_AB:2]]</p></div>`;
   }
 
-  /** Arbeitsblatt: ein int (z. B. Gesamtfaktor vor gemeinsamer Klammer). */
-  function abEinfachIntSlotHtml(label: string): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${label}</span>[[MU_AB:0]]</span>`;
+  /** Arbeitsblatt: nur der Gesamtzahlfaktor vor der gemeinsamen Klammer. */
+  function abGesamtfaktorVorKlammerHtml(): string {
+    return `<span class="mu-katex-skip mt-1.5 inline-flex flex-wrap items-baseline gap-1.5 text-sm leading-snug text-ink-700 dark:text-ink-300"><span>Gesamtzahl vor der gemeinsamen Klammer:</span>[[MU_AB:0]]</span>`;
   }
 
   /** Variable im Arbeitsblatt-Slot-Bereich (ohne `$…$`: alles in `mu-katex-skip` wird von KaTeX nicht gerendert). */
@@ -2528,8 +2538,9 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     alg_terme_mult() {
-      const abSpanEinfach =
-        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>Zahlfaktor $k$:</span>[[MU_AB:0]]</span>';
+      const abSpanEinfach = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml(
+        'k'
+      )} (nur der Zahlfaktor)</span>[[MU_AB:0]]</span>`;
       const r = random();
       if (r < 0.42) {
         const pairs = [
@@ -2749,10 +2760,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       const xy = g * m;
       const xn = g * n;
-      const expanded = `${xy}xy+${xn}x`;
+      const expanded = `${texXyTerm(xy)}${formatSignedInt(xn)}x`;
       return {
-        frage: `Klammere den gemeinsamen algebraischen Faktor $x$ und die größte gemeinsame Zahl aus: $${expanded}$.`,
-        frageArbeitsblatt: `Klammere vollständig: $${expanded}$.${abAusklammernGmnHtml()}`,
+        frage: `Faktorisiere $${expanded}$: Zieh $x$ und eine passende ganze Zahl nach außen, sodass in der Klammer nur noch ein linearer Term in $y$ steht.`,
+        frageArbeitsblatt: `Faktorisiere: $${expanded}$.${abAusklammernGmnHilfeHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: g },
@@ -2776,7 +2787,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const K = k1 + k2;
       return {
         frage: `Fasse zusammen, indem du den gemeinsamen Klammerausdruck ausklammerst: $${k1}(${inner})+${k2}(${inner})$.`,
-        frageArbeitsblatt: `Schreibe $${k1}(${inner})+${k2}(${inner})$ als ein Produkt $K\\,(${inner})$ (nur $K$ ist gesucht).${abEinfachIntSlotHtml('$K$ =')}`,
+        frageArbeitsblatt: `Schreibe $${k1}(${inner})+${k2}(${inner})$ so um, dass der gemeinsame Klammerausdruck nur einmal vorkommt.${abGesamtfaktorVorKlammerHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [{ kind: 'int', expect: K }],
         loesung: `$${k1}(${inner})+${k2}(${inner})=${K}(${inner})$.`,
@@ -2793,12 +2804,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         break;
       }
       const K = k1 + k2;
-      const t1 = `${k1 * m}xy+${k1 * n}x`;
-      const t2 = `${k2 * m}xy+${k2 * n}x`;
+      const t1 = `${texXyTerm(k1 * m)}${formatSignedInt(k1 * n)}x`;
+      const t2 = `${texXyTerm(k2 * m)}${formatSignedInt(k2 * n)}x`;
       const expr = joinShuffledSummanden([t1, t2]);
       return {
-        frage: `Vereinfache durch Zusammenfassen und vollständiges Ausklammern: $${expr}$.`,
-        frageArbeitsblatt: `Vereinfache vollständig: $${expr}$.${abAusklammernGmnHtml()}`,
+        frage: `Vereinfache $${expr}$: Fasse zuerst gleichartige Terme zusammen, dann klammere $x$ und eine ganze Zahl so aus, dass in der Klammer nur noch ein linearer Term in $y$ steht.`,
+        frageArbeitsblatt: `Vereinfache schrittweise: $${expr}$.${abAusklammernGmnHilfeHtml()}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: K },
