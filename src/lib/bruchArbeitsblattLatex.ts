@@ -233,11 +233,19 @@ export function practicePdfSpaltenAnzahl(aufgaben: readonly PracticeAufgabe[]): 
 }
 
 /**
- * Reduziert störende Umbrüche vor dem ersten Schreibfeld: typisch `…$. = \\ensuremath{…}` nach
- * `stripHtmlTags` — Punkt, Gleichheitszeichen und erste Graubox bleiben zusammen (`~` = nobreak space in LaTeX).
+ * Reduziert störende Umbrüche bei Algebra-Slotzeilen (PDF): typisch `…$. = \\ensuremath{…} x + \\ensuremath{…}`
+ * nach `stripHtmlTags`. `~` = geschütztes Leerzeichen in LaTeX (verhindert Umbruch an dieser Stelle).
+ *
+ * Wichtig: Das Gleichheitszeichen muss erhalten bleiben (nur Abstände verdichten), sonst fehlt `=` im PDF.
  */
 export function pdfFrageTexVerdichtenSchreibzeile(tex: string): string {
-  return tex.replace(/\.\s*=\s*(?=\\ensuremath)/g, '.~~');
+  let s = tex;
+  s = s.replace(/\.\s*=\s*(?=\\ensuremath)/g, '.~~=~');
+  s = s.replace(/(\\hspace\{2\.35cm\}\}\}\})\s+x/g, '$1~x');
+  s = s.replace(/(\\ensuremath\{\\boxed\{[^}]+\}\})\s+x/g, '$1~x');
+  s = s.replace(/~x\s+\+\s+\\ensuremath/g, '~x~+~\\ensuremath');
+  s = s.replace(/~x\s+\\ensuremath/g, '~x~\\ensuremath');
+  return s;
 }
 
 /** SVG der Aufgabenstellung (wie im UI: `diagram` oder nur `diagramLoesung`). */

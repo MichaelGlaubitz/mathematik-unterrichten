@@ -123,7 +123,13 @@ describe('bruchArbeitsblattLatex', () => {
     expect(
       practicePdfSpaltenAnzahl([{ frage: 'a', loesung: 'b', pdfArbeitsblattEinzelspalte: true }])
     ).toBe(1);
-    expect(pdfFrageTexVerdichtenSchreibzeile('Vereinfache $1$. = \\ensuremath{X}')).toContain('.~~');
+    expect(pdfFrageTexVerdichtenSchreibzeile('Vereinfache $1$. = \\ensuremath{X}')).toMatch(/\.~~=~\\ensuremath/);
+    const intBlank = slotLatex({ kind: 'int', expect: 0 }, 'blank');
+    const binomBlank = `Vereinfache $2(3x+4)$. = ${intBlank} x + ${intBlank}`;
+    const d = pdfFrageTexVerdichtenSchreibzeile(binomBlank);
+    expect(d).toContain('=');
+    expect(d).toContain('~x~+~');
+    expect(d).toMatch(/\.~~=~\\ensuremath/);
   });
 
   it('buildBruchArbeitsblattTex: zweispaltig, Spaltentrennlinie, Diagramm an Spaltenbreite', () => {
@@ -192,7 +198,7 @@ describe('bruchArbeitsblattLatex', () => {
       diagramPngPaths: [],
     });
     expect(tex).toContain('\\begin{multicols}{1}');
-    expect(tex).toMatch(/\.~~\\ensuremath/);
+    expect(tex).toMatch(/\.~~=~\\ensuremath/);
   });
 
   it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {
