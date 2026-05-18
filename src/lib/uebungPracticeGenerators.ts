@@ -719,11 +719,19 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('x')}<sub class="text-xs align-baseline">1</sub>:</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('x')}<sub class="text-xs align-baseline">2</sub>:</span>[[MU_AB:1]]</span>`;
   }
 
-  /** Arbeitsblatt: Hilfe zur Zielform „Zahl·x·(my+n)“ — nur HTML (kein `$…$` in mu-katex-skip). */
+  /**
+   * Arbeitsblatt: Hilfe zur Zielform $g\cdot x\cdot(m\cdot y+n)$.
+   * Kein `mu-katex-skip` um den gesamten Block — damit `$…$` von KaTeX gesetzt werden darf
+   * (Slots bleiben in `mu-ab-slot-shell` mit eigenem Skip).
+   */
   function abAusklammernGmnHilfeHtml(): string {
-    const x = abItalicVarHtml('x');
-    const y = abItalicVarHtml('y');
-    return `<div class="mu-katex-skip mt-1.5 block max-w-xl space-y-2 text-sm leading-snug text-ink-700 dark:text-ink-300"><p><span class="font-medium text-ink-900 dark:text-ink-50">Ziel:</span> ${x} und eine ganze Zahl so ausklammern, dass in der Klammer nur noch ein linearer Term in ${y} steht — symbolisch <span class="font-serif italic font-semibold">g</span>·${x}·(<span class="font-serif italic font-semibold">m</span>·${y}+<span class="font-serif italic font-semibold">n</span>).</p><p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-base text-ink-800 dark:text-ink-200"><span><span class="font-serif italic font-semibold">g</span> (ganze Zahl vor ${x})</span>[[MU_AB:0]]<span>,</span><span><span class="font-serif italic font-semibold">m</span> (Zahl vor ${y} in der Klammer)</span>[[MU_AB:1]]<span>,</span><span><span class="font-serif italic font-semibold">n</span> (Konstante in der Klammer)</span>[[MU_AB:2]]</p></div>`;
+    return `<br /><div class="mt-1.5 block max-w-xl space-y-2.5 text-sm leading-snug text-ink-700 dark:text-ink-300">
+<p class="text-ink-900 dark:text-ink-50"><span class="font-medium">Ziel:</span> $x$ und eine ganze Zahl so ausklammern, dass in der Klammer nur noch ein linearer Term in $y$ steht.</p>
+<p><span class="font-medium text-ink-900 dark:text-ink-50">Zielform:</span> $g\\cdot x\\cdot(m\\cdot y+n)$.</p>
+<p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-base text-ink-800 dark:text-ink-200"><span class="shrink-0">$g$</span><span>(ganze Zahl vor dem ersten $x$):</span>[[MU_AB:0]]</p>
+<p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-base text-ink-800 dark:text-ink-200"><span class="shrink-0">$m$</span><span>(Zahl vor $y$ in der Klammer):</span>[[MU_AB:1]]</p>
+<p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-base text-ink-800 dark:text-ink-200"><span class="shrink-0">$n$</span><span>(Konstante in der Klammer):</span>[[MU_AB:2]]</p>
+</div>`;
   }
 
   /** Arbeitsblatt: nur der Gesamtzahlfaktor vor der gemeinsamen Klammer. */
