@@ -31,10 +31,12 @@ describe('algebraWbKeywordMap', () => {
     const kw = [
       'Gleichartige Terme zusammenfassen (gleiche Variable)',
       'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)',
+      'Algebraische Terme multiplizieren (ohne Potenzgesetze)',
     ];
     const ids = expandAlgWbStichworte(kw);
     expect(ids).toContain('alg_terme_zusammen');
     expect(ids).toContain('alg_klammer_mal');
+    expect(ids).toContain('alg_terme_mal_ohne_potenz');
     const zurück = stichworteFuerAlgIds(ids);
     expect(zurück).toEqual(expect.arrayContaining(kw));
   });
@@ -76,6 +78,9 @@ describe('algebraWbKeywordMap', () => {
   it('mappt nur auf die WB-Algebra-Generator-IDs', () => {
     const allowed = new Set([
       'alg_klammer_mal',
+      'alg_klammer_mal_mon_pref',
+      'alg_mehrere_klammern',
+      'alg_terme_mal_ohne_potenz',
       'alg_minus_klammer_plus',
       'alg_ausklammern',
       'alg_klammer_weg',

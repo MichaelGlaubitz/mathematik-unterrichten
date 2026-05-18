@@ -10,7 +10,10 @@
  *
  * Aktuell gemappt (bestehende Generatoren `alg_*`):
  * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
- * - `alg_klammer_mal`: einfache Klammer / mehrere einfache Klammern (positiver oder algebraischer Vorfaktor)
+ * - `alg_terme_mal_ohne_potenz`: Monom · Monom (verschiedene Variablen oder Zahl · Monom), ohne Potenzgesetze
+ * - `alg_klammer_mal`: einfache Klammer mit positivem ganzzahligem Vorfaktor $k(ax+b)$
+ * - `alg_klammer_mal_mon_pref`: algebraischer Vorfaktor $mx(a+by)$
+ * - `alg_mehrere_klammern`: Summe zweier einfacher Klammern in $x$, ausmultiplizieren und zusammenfassen
  * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
  * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
  *
@@ -181,11 +184,11 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Gleichartige Terme zusammenfassen (gleiche Variable)': ['alg_terme_zusammen'],
   'Gleichartige Terme zusammenfassen (mehrere Variablen)': ['alg_terme_zusammen'],
   'Gleichartige Terme zusammenfassen (mit Indizes)': ['alg_terme_zusammen'],
-  'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_klammer_mal'],
+  'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_terme_mal_ohne_potenz'],
   'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)': ['alg_klammer_mal'],
-  'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_klammer_mal'],
+  'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_klammer_mal_mon_pref'],
   'Einfache Klammer ausmultiplizieren (negativer ganzzahliger Vorfaktor)': ['alg_minus_klammer_plus'],
-  'Mehrere einfache Klammern ausmultiplizieren und vereinfachen': ['alg_klammer_mal'],
+  'Mehrere einfache Klammern ausmultiplizieren und vereinfachen': ['alg_mehrere_klammern'],
   'Faktorisieren mit gemeinsamem Zahlfaktor': ['alg_ausklammern'],
   'Faktorisieren mit gemeinsamem algebraischen Faktor': ['alg_ausklammern'],
   'Faktorisieren mit vorgehendem Ausklammern': ['alg_ausklammern'],
