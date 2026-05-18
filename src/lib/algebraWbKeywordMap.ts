@@ -240,3 +240,33 @@ export function stichwortLabelsFromAlgSessionRaw(raw: unknown): string[] {
   const kw = raw.filter((x): x is string => typeof x === 'string');
   return sortAlgAbStichworte([...new Set(kw)]);
 }
+
+/**
+ * Generator-IDs mit horizontaler Slot-/Schreibzeile im PDF, die einspaltig `multicols` brauchen
+ * (siehe `PracticeAufgabe.pdfArbeitsblattEinzelspalte` in `uebungPracticeGenerators.ts`).
+ */
+export const ALG_GENERATOR_IDS_PDF_EINSPALTIG: ReadonlySet<string> = new Set([
+  'alg_terme_zusammen',
+  'alg_klammer_mal',
+  'alg_minus_klammer_plus',
+  'alg_klammer_weg',
+]);
+
+/**
+ * True, wenn die aktuelle Algebra-Session (Stichworte von der Themenseite und/oder gewählte
+ * `alg_*`-Typen auf der Übungsseite) mindestens einen Typ aus {@link ALG_GENERATOR_IDS_PDF_EINSPALTIG}
+ * enthält — dann soll das PDF (Arbeitsblatt und Lösungs-PDF) einspaltig sein.
+ */
+export function algebraPdfEinspaltigAusSession(opts: {
+  stichwortLabels: readonly string[];
+  aktiveGeneratorIds: readonly string[];
+}): boolean {
+  for (const id of opts.aktiveGeneratorIds) {
+    if (ALG_GENERATOR_IDS_PDF_EINSPALTIG.has(id)) return true;
+  }
+  for (const label of opts.stichwortLabels) {
+    const ids = ALG_WB_STICHWORT_TO_IDS[label];
+    if (ids?.some((id) => ALG_GENERATOR_IDS_PDF_EINSPALTIG.has(id))) return true;
+  }
+  return false;
+}

@@ -201,6 +201,24 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toMatch(/\.~~=~\\ensuremath/);
   });
 
+  it('buildBruchArbeitsblattTex: meta.pdfImmerEinspaltig erzwingt einspaltig (auch Lösungs-PDF)', () => {
+    const tex = buildBruchArbeitsblattTex({
+      aufgaben: [
+        {
+          frage: 'Kurz',
+          loesung: '$1$',
+          frageArbeitsblatt: 'Kurz = [[MU_AB:0]]',
+          abSlots: [{ kind: 'int', expect: 1 }],
+        },
+      ],
+      meta: { thema: 'Algebra', stichworteZeile: 'Slot-Stichworte', pdfImmerEinspaltig: true },
+      mitLoesungen: true,
+      diagramPngPaths: [],
+    });
+    expect(tex).toContain('\\begin{multicols}{1}');
+    expect(tex).toContain('Lösung');
+  });
+
   it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {
     for (const id of BRUCHRECHNUNG_GENERATOR_IDS) {
       for (let seed = 0; seed < 120; seed++) {
