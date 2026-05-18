@@ -11,11 +11,11 @@
  * Aktuell gemappt (Auswahl `alg_*`):
  * - `alg_terme_zusammen` / `alg_terme_zusammen_mv` / `alg_terme_zusammen_idx`: gleichartige Terme (eine / zwei Variablen / Indizes)
  * - `alg_terme_mult`: Monome multiplizieren (ohne Potenzgesetze)
- * - `alg_klammer_mal`, `alg_klammer_neg_int`, `alg_klammer_summe`: Klammern ausmultiplizieren (positiver / negativer Vorfaktor / Summe einfacher Klammern)
+ * - `alg_klammer_mal`, `alg_klammer_neg_int`, `alg_klammer_summe`: Klammern ausmultiplizieren (positiver / negativer ganzzahliger Vorfaktor / Summe einfacher Klammern)
  * - `alg_minus_klammer_plus`: Minus vor Klammer in längerem Term
- * - `alg_expand_einfach_*`, `alg_expand_binom_*`, `alg_expand_triple_*`: gestuftes Ausmultiplizieren
- * - `alg_ausklammern`, `alg_ausklammern_alg`, `alg_ausklammern_klammer`, `alg_ausklammern_gruppe`: Faktorisieren (Zahl / algebraisch / Klammer / Zusammenfassen + Ausklammern)
- * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term
+ * - `alg_expand_einfach_zahl` / `alg_expand_einfach_var`, `alg_expand_binom_*`, `alg_expand_triple_*`: gestuftes Ausmultiplizieren (einfache Klammer mit Zahl bzw. algebraischem Vorfaktor $kx$, Binome, Faktor davor, drei Klammern)
+ * - `alg_ausklammern`, `alg_ausklammern_alg`, `alg_ausklammern_klammer`, `alg_ausklammern_gruppe`: Faktorisieren (gemeinsamer Zahlfaktor; algebraischer Faktor; gemeinsamer Klammerausdruck; Zusammenfassen und vollständig ausklammern)
+ * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
  *
  * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
  * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (nicht in den JSON-Punkten; optional über Session-IDs)
