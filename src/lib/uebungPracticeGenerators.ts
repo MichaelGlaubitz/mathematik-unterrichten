@@ -268,6 +268,9 @@ export const NEGATIVE_ZAHLEN_GENERATOR_IDS = [
 /** Algebra: Klammern, Distributivgesetz, Terme (Klasse 7–8). */
 export const ALGEBRA_GENERATOR_IDS = [
   'alg_klammer_mal',
+  'alg_klammer_mal_mon_pref',
+  'alg_mehrere_klammern',
+  'alg_terme_mal_ohne_potenz',
   'alg_minus_klammer_plus',
   'alg_ausklammern',
   'alg_klammer_weg',
@@ -648,6 +651,21 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     const plusZwischenXUndKonst =
       constTerm >= 0 ? '<span class="shrink-0 px-0.5">+</span>' : '';
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span>${plusZwischenXUndKonst}<span>[[MU_AB:1]]</span></span>`;
+  }
+
+  /** AB: ein Koeffizient, dahinter Variablenbuchstaben kursiv (z. B. $6xy$). */
+  function abMonomErwartungsSuffixHtml(letters: string): string {
+    const spans = [...letters].map(
+      (ch) =>
+        `<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">${ch}</span>`
+    ).join('');
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]${spans}</span>`;
+  }
+
+  /** AB: Normalform $cx+c_{xy}xy$ nach $mx(a+by)$ (zweite Variable $y/z/t$ in den Slots als $xy$ usw.). */
+  function abLinXPlusCoeffXYHtml(vy: string, coeffXY: number): string {
+    const plusVorXy = coeffXY >= 0 ? '<span class="shrink-0 px-0.5">+</span>' : '';
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span>${plusVorXy}<span>[[MU_AB:1]]</span><span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span><span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">${vy}</span></span>`;
   }
 
   const GEN: PracticeGeneratorMap = {
@@ -1835,6 +1853,141 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           { kind: 'int', expect: bc },
         ],
         loesung: `$${k}(${inner})=${linBinom(ac, bc)}$.`,
+      };
+    },
+    alg_klammer_mal_mon_pref() {
+      const m = randInt(2, 5);
+      const a = randInt(2, 7);
+      let b = 0;
+      for (let t = 0; t < 25; t++) {
+        b = randInt(-6, 6);
+        if (b === 0) continue;
+        break;
+      }
+      const vy = pick(['y', 'z', 't'] as const);
+      const inner = `${a}${formatSignedInt(b)}${vy}`;
+      const pref = linTerm(m, 'x');
+      const coeffX = m * a;
+      const coeffXY = m * b;
+      const expr = `${pref}(${inner})`;
+      const termXy =
+        coeffXY === 0
+          ? ''
+          : coeffXY === 1
+            ? `x${vy}`
+            : coeffXY === -1
+              ? `-x${vy}`
+              : `${coeffXY}x${vy}`;
+      const loesMitte =
+        coeffX === 0
+          ? termXy
+          : termXy === ''
+            ? linTerm(coeffX, 'x')
+            : `${linTerm(coeffX, 'x')}${coeffXY > 0 ? '+' : ''}${termXy}`;
+      return {
+        frage: `Multipliziere aus: $${expr}$.`,
+        frageArbeitsblatt: `Multipliziere aus: $${expr}$.${abLinXPlusCoeffXYHtml(vy, coeffXY)}`,
+        abSlots: [
+          { kind: 'int', expect: coeffX },
+          { kind: 'int', expect: coeffXY },
+        ],
+        loesung: `$${expr}=${loesMitte}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_mehrere_klammern() {
+      const k1 = randInt(2, 6);
+      let k2 = 0;
+      for (let t = 0; t < 30; t++) {
+        k2 = randInt(-6, 6);
+        if (k2 === 0) continue;
+        break;
+      }
+      if (k2 === 0) k2 = -2;
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 40; t++) {
+        a = randInt(-5, 5);
+        b = randInt(-5, 5);
+        if (a === b) continue;
+        break;
+      }
+      const expr = `${k1}(${linBinom(1, a)})${formatSignedInt(k2)}(${linBinom(1, b)})`;
+      const coeffX = k1 + k2;
+      const konst = k1 * a + k2 * b;
+      return {
+        frage: `Vereinfache (Klammern auflösen und zusammenfassen): $${expr}$.`,
+        frageArbeitsblatt: `Vereinfache (Klammern auflösen und zusammenfassen): $${expr}$.${abLinBinomZweiIntsHtml(konst)}`,
+        abSlots: [
+          { kind: 'int', expect: coeffX },
+          { kind: 'int', expect: konst },
+        ],
+        loesung: `$${expr}=${linBinom(coeffX, konst)}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_terme_mal_ohne_potenz() {
+      const v2 = pick(['y', 'z', 't'] as const);
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 40; t++) {
+        a = randInt(-6, 6);
+        b = randInt(-6, 6);
+        if (a === 0 || b === 0) continue;
+        break;
+      }
+      if (a === 0) a = 2;
+      if (b === 0) b = 3;
+
+      function texFactorMonom(coeff: number, v: string): string {
+        const s = linTerm(coeff, v);
+        return s.startsWith('-') ? `(${s})` : s;
+      }
+      function texFactorInt(n: number): string {
+        return n < 0 ? `(${n})` : String(n);
+      }
+      function mergedMonomTex(coeff: number, letters: string): string {
+        if (coeff === 0) return '0';
+        if (coeff === 1) return letters;
+        if (coeff === -1) return `-${letters}`;
+        return `${coeff}${letters}`;
+      }
+
+      const r = random();
+      if (r < 0.42) {
+        const left = texFactorMonom(a, 'x');
+        const right = texFactorMonom(b, v2);
+        const coeff = a * b;
+        const letters = `x${v2}`;
+        return {
+          frage: `Vereinfache $${left}\\cdot ${right}$ (ohne Potenzgesetze).`,
+          frageArbeitsblatt: `Vereinfache $${left}\\cdot ${right}$ (ohne Potenzgesetze).${abMonomErwartungsSuffixHtml(letters)}`,
+          abSlots: [{ kind: 'int', expect: coeff }],
+          loesung: `$${left}\\cdot ${right}=${mergedMonomTex(coeff, letters)}$.`,
+          loesungArbeitsblattEigeneZeile: true,
+        };
+      }
+      if (r < 0.71) {
+        const left = texFactorMonom(a, 'x');
+        const right = texFactorInt(b);
+        const coeff = a * b;
+        return {
+          frage: `Vereinfache $${left}\\cdot ${right}$ (ohne Potenzgesetze).`,
+          frageArbeitsblatt: `Vereinfache $${left}\\cdot ${right}$ (ohne Potenzgesetze).${abMonomErwartungsSuffixHtml('x')}`,
+          abSlots: [{ kind: 'int', expect: coeff }],
+          loesung: `$${left}\\cdot ${right}=${mergedMonomTex(coeff, 'x')}$.`,
+          loesungArbeitsblattEigeneZeile: true,
+        };
+      }
+      const left = texFactorInt(a);
+      const right = texFactorMonom(b, v2);
+      const coeff = a * b;
+      return {
+        frage: `Vereinfache $${left}\\cdot ${right}$ (ohne Potenzgesetze).`,
+        frageArbeitsblatt: `Vereinfache $${left}\\cdot ${right}$ (ohne Potenzgesetze).${abMonomErwartungsSuffixHtml(v2)}`,
+        abSlots: [{ kind: 'int', expect: coeff }],
+        loesung: `$${left}\\cdot ${right}=${mergedMonomTex(coeff, v2)}$.`,
+        loesungArbeitsblattEigeneZeile: true,
       };
     },
     alg_minus_klammer_plus() {
