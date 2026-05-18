@@ -2345,7 +2345,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     /** Grundbegriffe: Summanden zählen, Term vs. Gleichung, reiner Zahlterm. */
     alg_gb_term() {
       const abZahl =
-        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>?</span>[[MU_AB:0]]</span>';
+        '<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>';
       const r = random();
       if (r < 0.38) {
         const A = randInt(2, 6);
