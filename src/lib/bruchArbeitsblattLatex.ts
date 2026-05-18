@@ -213,6 +213,9 @@ export function replaceAbPlaceholdersLatex(
   });
 }
 
+/** Trennt Absätze in `frageArbeitsblatt`-HTML (`<br>`) für die PDF-Zeile — kein echtes Unicode im Aufgabentext. */
+const HTML_FRAGE_BR_PAR_SENTINEL = '\uE000MU_HTML_BR_PAR\uE000';
+
 export function htmlFrageZuLatexInhalt(
   html: string,
   opts: { abSlots?: readonly PracticeAbAntwortSlot[]; mitLoesungen: boolean }
@@ -221,9 +224,14 @@ export function htmlFrageZuLatexInhalt(
   if (opts.abSlots?.length) {
     s = replaceAbPlaceholdersLatex(s, opts.abSlots, opts.mitLoesungen ? 'filled' : 'blank');
   }
+  s = s.replace(/<br\s*\/?>/gi, HTML_FRAGE_BR_PAR_SENTINEL);
   s = stripHtmlTags(s);
   s = decodeHtmlEntities(s);
-  s = s.replace(/\s+/g, ' ').trim();
+  s = s
+    .split(HTML_FRAGE_BR_PAR_SENTINEL)
+    .map((p) => p.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .join('\\par\\smallskip\n');
   return s;
 }
 
