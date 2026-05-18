@@ -197,7 +197,7 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: false,
       diagramPngPaths: [],
     });
-    expect(tex).toContain('\\begin{multicols}{1}');
+    expect(tex).not.toContain('\\begin{multicols}');
     expect(tex).toMatch(/\.~~=~\\ensuremath/);
   });
 
@@ -215,7 +215,7 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: true,
       diagramPngPaths: [],
     });
-    expect(tex).toContain('\\begin{multicols}{1}');
+    expect(tex).not.toContain('\\begin{multicols}');
     expect(tex).toContain('Lösung');
   });
 
@@ -226,7 +226,7 @@ describe('bruchArbeitsblattLatex', () => {
       mitLoesungen: false,
       diagramPngPaths: [],
     });
-    expect(tex).toContain('\\begin{multicols}{1}');
+    expect(tex).not.toContain('\\begin{multicols}');
   });
 
   it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {
