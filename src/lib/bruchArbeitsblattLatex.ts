@@ -227,6 +227,19 @@ export function loesungHtmlZuLatexSegmente(loesung: string): string {
   return parts.filter(Boolean).join('\\par\\medskip\n');
 }
 
+/** PDF: eine Spalte, sobald mindestens eine Aufgabe horizontale Schreibzeilen braucht. */
+export function practicePdfSpaltenAnzahl(aufgaben: readonly PracticeAufgabe[]): 1 | 2 {
+  return aufgaben.some((a) => a.pdfArbeitsblattEinzelspalte === true) ? 1 : 2;
+}
+
+/**
+ * Reduziert störende Umbrüche vor dem ersten Schreibfeld: typisch `…$. = \\ensuremath{…}` nach
+ * `stripHtmlTags` — Punkt, Gleichheitszeichen und erste Graubox bleiben zusammen (`~` = nobreak space in LaTeX).
+ */
+export function pdfFrageTexVerdichtenSchreibzeile(tex: string): string {
+  return tex.replace(/\.\s*=\s*(?=\\ensuremath)/g, '.~~');
+}
+
 /** SVG der Aufgabenstellung (wie im UI: `diagram` oder nur `diagramLoesung`). */
 export function bruchDiagramSvgFuerAufgabe(a: PracticeAufgabe): string {
   if (practiceAufgabeUnterdruecktBruchPdfAufgabenDiagramm(a)) return '';
@@ -375,6 +388,7 @@ export function buildBruchArbeitsblattTex(opts: {
   diagramPngPaths: ReadonlyArray<{ taskIndex: number; suffix: 'a' | 'l'; path: string }>;
 }): string {
   const { aufgaben, meta, mitLoesungen, diagramPngPaths } = opts;
+  const nPdfSpalten = practicePdfSpaltenAnzahl(aufgaben);
   const headLeftRaw = `${meta.thema} · ${meta.stichworteZeile}`;
   const headLeft = escapeLatexText(headLeftRaw);
   const loeTitle = escapeLatexText(mitLoesungen ? 'Arbeitsblatt (mit Lösungen)' : 'Arbeitsblatt');
@@ -391,7 +405,11 @@ export function buildBruchArbeitsblattTex(opts: {
         : abSlots?.length && a.frageArbeitsblatt
           ? a.frageArbeitsblatt
           : a.frage;
-    const frageBody = htmlFrageZuLatexInhalt(frageSrc, { abSlots, mitLoesungen });
+    const frageBodyRaw = htmlFrageZuLatexInhalt(frageSrc, { abSlots, mitLoesungen });
+    const frageBody =
+      a.pdfArbeitsblattEinzelspalte === true
+        ? pdfFrageTexVerdichtenSchreibzeile(frageBodyRaw)
+        : frageBodyRaw;
     const pa = diagramPath(idx, 'a');
     const pl = diagramPath(idx, 'l');
     const diaW = BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH;
@@ -452,7 +470,7 @@ export function buildBruchArbeitsblattTex(opts: {
 \\end{center}
 \\vspace{0.4em}
 \\thispagestyle{fancy}
-\\begin{multicols}{2}
+\\begin{multicols}{${nPdfSpalten}}
 \\raggedcolumns
 \\begin{enumerate}
 ${blocks.join('\n')}
