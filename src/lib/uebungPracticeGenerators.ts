@@ -278,6 +278,14 @@ export const ALGEBRA_GENERATOR_IDS = [
   'alg_klammer_weg',
   'alg_terme_zusammen',
   'alg_distributiv_zahl',
+  'alg_expand_einfach_zahl',
+  'alg_expand_einfach_var',
+  'alg_expand_binom_both1',
+  'alg_expand_binom_one_non1',
+  'alg_expand_binom_both_non1',
+  'alg_expand_triple_konstant',
+  'alg_expand_triple_var',
+  'alg_expand_triple_klammern',
   'alg_gb_term',
   'alg_gb_koeff',
   'alg_gb_variable',
@@ -651,6 +659,80 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
   /** Arbeitsblatt: lineare Normalform $ax+b$ als zwei int-Lücken — **ohne** `+`/`-` vor der Konstanten-Lücke (kein Muster positiv/negativ). Online und PDF. */
   function abLinBinomZweiIntsHtml(): string {
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span><span>[[MU_AB:1]]</span></span>`;
+  }
+
+  /** Koeffizienten $a$, $b$, $c$ in $ax^2+bx+c$ (niedrigster Index = $x^2$). */
+  function abQuadABCoeffHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$a=$</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $b=$</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, $c=$</span>[[MU_AB:2]]</span>`;
+  }
+
+  /** Monisches Quadrat $x^2+px+q$: Koeffizienten $p$ und $q$. */
+  function abMonischQuadPQHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$p=$</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $q=$</span>[[MU_AB:1]]</span>`;
+  }
+
+  /** Monischer Kubikterm $x^3+px^2+qx+r$. */
+  function abMonischKubischPQRHtml(): string {
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$p=$</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $q=$</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, $r=$</span>[[MU_AB:2]]</span>`;
+  }
+
+  /** Polynom als Koeffizientenliste von $1,x,x^2,…$ (aufsteigend). */
+  function polyMulLow(p: readonly number[], q: readonly number[]): number[] {
+    const out = new Array(p.length + q.length - 1).fill(0) as number[];
+    for (let i = 0; i < p.length; i++) {
+      for (let j = 0; j < q.length; j++) out[i + j] += p[i] * q[j];
+    }
+    return out;
+  }
+
+  /** $ax^2+bx+c$ als TeX (absteigend, $x$). */
+  function texQuadDescending(a2: number, a1: number, a0: number): string {
+    const parts: string[] = [];
+    if (a2 !== 0) {
+      if (a2 === 1) parts.push('x^2');
+      else if (a2 === -1) parts.push('-x^2');
+      else parts.push(`${a2}x^2`);
+    }
+    if (a1 !== 0) {
+      const t = a1 === 1 ? 'x' : a1 === -1 ? '-x' : `${a1}x`;
+      if (parts.length === 0) parts.push(t);
+      else parts.push(a1 > 0 ? `+${t}` : `${t}`);
+    }
+    if (a0 !== 0 || parts.length === 0) {
+      if (parts.length === 0) parts.push(String(a0));
+      else parts.push(a0 > 0 ? `+${a0}` : `${a0}`);
+    }
+    return parts.join('');
+  }
+
+  /** $ax^3+bx^2+cx+d$ als TeX (absteigend). */
+  function texCubicDescending(a3: number, a2: number, a1: number, a0: number): string {
+    const parts: string[] = [];
+    if (a3 !== 0) {
+      if (a3 === 1) parts.push('x^3');
+      else if (a3 === -1) parts.push('-x^3');
+      else parts.push(`${a3}x^3`);
+    }
+    if (a2 !== 0) {
+      const t = a2 === 1 ? 'x^2' : a2 === -1 ? '-x^2' : `${a2}x^2`;
+      if (parts.length === 0) parts.push(t);
+      else parts.push(a2 > 0 ? `+${t}` : `${t}`);
+    }
+    if (a1 !== 0) {
+      const t = a1 === 1 ? 'x' : a1 === -1 ? '-x' : `${a1}x`;
+      if (parts.length === 0) parts.push(t);
+      else parts.push(a1 > 0 ? `+${t}` : `${t}`);
+    }
+    if (a0 !== 0 || parts.length === 0) {
+      if (parts.length === 0) parts.push(String(a0));
+      else parts.push(a0 > 0 ? `+${a0}` : `${a0}`);
+    }
+    return parts.join('');
+  }
+
+  /** Linearpolynom $ax+b$ als $[b,a]$. */
+  function polyLinear(a: number, b: number): number[] {
+    return [b, a];
   }
 
   const GEN: PracticeGeneratorMap = {
@@ -1947,6 +2029,254 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
               diagramDefaultHidden: true,
             }
           : {}),
+      };
+    },
+    /** Einfache Klammer: positiver ganzzahliger Vorfaktor (Stufe „Zahl davor“). */
+    alg_expand_einfach_zahl() {
+      const k = randInt(2, 8);
+      const ca = randInt(2, 5);
+      let cb = 0;
+      for (let t = 0; t < 25; t++) {
+        cb = randInt(-7, 7);
+        if (cb === 0) continue;
+        break;
+      }
+      const inner = linBinom(ca, cb);
+      const ac = k * ca;
+      const bc = k * cb;
+      return {
+        frage: `Multipliziere aus: $${k}(${inner})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: ac },
+          { kind: 'int', expect: bc },
+        ],
+        loesung: `$${k}(${inner})=${linBinom(ac, bc)}$.`,
+      };
+    },
+    /** Einfache Klammer: algebraischer Vorfaktor $kx$ vor der Klammer. */
+    alg_expand_einfach_var() {
+      const k = randInt(2, 5);
+      const ca = randInt(2, 4);
+      let cb = 0;
+      for (let t = 0; t < 25; t++) {
+        cb = randInt(-6, 6);
+        if (cb === 0) continue;
+        break;
+      }
+      const inner = linBinom(ca, cb);
+      const vorf = linTerm(k);
+      const a2 = k * ca;
+      const a1 = k * cb;
+      return {
+        frage: `Multipliziere aus: $${vorf}(${inner})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $${vorf}(${inner})$.${abQuadABCoeffHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a2 },
+          { kind: 'int', expect: a1 },
+          { kind: 'int', expect: 0 },
+        ],
+        loesung: `$${vorf}(${inner})=${texQuadDescending(a2, a1, 0)}$.`,
+      };
+    },
+    /** Doppelklammer: beide Leitkoeffizienten $1$. */
+    alg_expand_binom_both1() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 40; t++) {
+        a = randInt(-7, 7);
+        b = randInt(-7, 7);
+        if (a === b) continue;
+        if (a === 0 && b === 0) continue;
+        break;
+      }
+      const p = a + b;
+      const q = a * b;
+      const left = linBinom(1, a);
+      const right = linBinom(1, b);
+      return {
+        frage: `Multipliziere aus: $(${left})(${right})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $(${left})(${right})$. Schreibe $x^2+px+q$ mit ganzen $p$, $q$.${abMonischQuadPQHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q },
+        ],
+        loesung: `$(${left})(${right})=x^2${formatSignedInt(p)}x${formatSignedInt(q)}$.`,
+      };
+    },
+    /** Doppelklammer: genau ein Leitkoeffizient ungleich $1$. */
+    alg_expand_binom_one_non1() {
+      const nonMonicFirst = random() < 0.5;
+      const a = randInt(2, 5);
+      let b = 0;
+      for (let t = 0; t < 30; t++) {
+        b = randInt(-6, 6);
+        if (b === 0) continue;
+        break;
+      }
+      let c = 1;
+      let d = 0;
+      if (nonMonicFirst) {
+        for (let t = 0; t < 30; t++) {
+          d = randInt(-7, 7);
+          if (d === 0) continue;
+          break;
+        }
+      } else {
+        c = randInt(2, 5);
+        for (let t = 0; t < 30; t++) {
+          d = randInt(-7, 7);
+          if (d === 0) continue;
+          break;
+        }
+      }
+      const p1 = nonMonicFirst ? polyLinear(a, b) : polyLinear(c, d);
+      const p2 = nonMonicFirst ? polyLinear(1, d) : polyLinear(1, b);
+      const low = polyMulLow(p1, p2);
+      const a2 = low[2] ?? 0;
+      const a1 = low[1] ?? 0;
+      const a0 = low[0] ?? 0;
+      const f1 = nonMonicFirst ? linBinom(a, b) : linBinom(1, b);
+      const f2 = nonMonicFirst ? linBinom(1, d) : linBinom(c, d);
+      return {
+        frage: `Multipliziere aus: $(${f1})(${f2})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $(${f1})(${f2})$. Schreibe $ax^2+bx+c$.${abQuadABCoeffHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a2 },
+          { kind: 'int', expect: a1 },
+          { kind: 'int', expect: a0 },
+        ],
+        loesung: `$(${f1})(${f2})=${texQuadDescending(a2, a1, a0)}$.`,
+      };
+    },
+    /** Doppelklammer: beide Leitkoeffizienten ungleich $1$. */
+    alg_expand_binom_both_non1() {
+      const a = randInt(2, 4);
+      let b = 0;
+      for (let t = 0; t < 28; t++) {
+        b = randInt(-5, 5);
+        if (b === 0) continue;
+        break;
+      }
+      const c = pick([2, 3, 4] as const);
+      let d = 0;
+      for (let t = 0; t < 28; t++) {
+        d = randInt(-6, 6);
+        if (d === 0) continue;
+        break;
+      }
+      const low = polyMulLow(polyLinear(a, b), polyLinear(c, d));
+      const a2 = low[2] ?? 0;
+      const a1 = low[1] ?? 0;
+      const a0 = low[0] ?? 0;
+      const f1 = linBinom(a, b);
+      const f2 = linBinom(c, d);
+      return {
+        frage: `Multipliziere aus: $(${f1})(${f2})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $(${f1})(${f2})$. Schreibe $ax^2+bx+c$.${abQuadABCoeffHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a2 },
+          { kind: 'int', expect: a1 },
+          { kind: 'int', expect: a0 },
+        ],
+        loesung: `$(${f1})(${f2})=${texQuadDescending(a2, a1, a0)}$.`,
+      };
+    },
+    /** Konstante vor zwei Klammern: $k(x+a)(x+b)$. */
+    alg_expand_triple_konstant() {
+      const k = randInt(2, 6);
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 40; t++) {
+        a = randInt(-6, 6);
+        b = randInt(-6, 6);
+        if (a === b) continue;
+        break;
+      }
+      const inner1 = linBinom(1, a);
+      const inner2 = linBinom(1, b);
+      const low = polyMulLow(polyLinear(1, a), polyLinear(1, b));
+      const a2 = k * (low[2] ?? 0);
+      const a1 = k * (low[1] ?? 0);
+      const a0 = k * (low[0] ?? 0);
+      return {
+        frage: `Multipliziere aus: $${k}(${inner1})(${inner2})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $${k}(${inner1})(${inner2})$. Schreibe $ax^2+bx+c$.${abQuadABCoeffHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a2 },
+          { kind: 'int', expect: a1 },
+          { kind: 'int', expect: a0 },
+        ],
+        loesung: `$${k}(${inner1})(${inner2})=${texQuadDescending(a2, a1, a0)}$.`,
+      };
+    },
+    /** Variable vor zwei Klammern: $x(x+a)(x+b)$. */
+    alg_expand_triple_var() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 40; t++) {
+        a = randInt(-5, 5);
+        b = randInt(-5, 5);
+        if (a === b) continue;
+        break;
+      }
+      const inner1 = linBinom(1, a);
+      const inner2 = linBinom(1, b);
+      const quad = polyMulLow(polyLinear(1, a), polyLinear(1, b));
+      const low = polyMulLow([0, 1], quad);
+      const a3 = low[3] ?? 0;
+      const a2 = low[2] ?? 0;
+      const a1 = low[1] ?? 0;
+      const a0 = low[0] ?? 0;
+      return {
+        frage: `Multipliziere aus: $x(${inner1})(${inner2})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $x(${inner1})(${inner2})$. Schreibe $x^3+px^2+qx+r$.${abMonischKubischPQRHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a2 },
+          { kind: 'int', expect: a1 },
+          { kind: 'int', expect: a0 },
+        ],
+        loesung: `$x(${inner1})(${inner2})=${texCubicDescending(a3, a2, a1, a0)}$.`,
+      };
+    },
+    /** Drei lineare Faktoren: $(x+a)(x+b)(x+c)$. */
+    alg_expand_triple_klammern() {
+      let a = 0;
+      let b = 0;
+      let c = 0;
+      for (let t = 0; t < 50; t++) {
+        a = randInt(-4, 4);
+        b = randInt(-4, 4);
+        c = randInt(-4, 4);
+        if (new Set([a, b, c]).size < 3) continue;
+        break;
+      }
+      const f1 = linBinom(1, a);
+      const f2 = linBinom(1, b);
+      const f3 = linBinom(1, c);
+      const p12 = polyMulLow(polyLinear(1, a), polyLinear(1, b));
+      const low = polyMulLow(p12, polyLinear(1, c));
+      const a3 = low[3] ?? 0;
+      const a2 = low[2] ?? 0;
+      const a1 = low[1] ?? 0;
+      const a0 = low[0] ?? 0;
+      return {
+        frage: `Multipliziere aus: $(${f1})(${f2})(${f3})$.`,
+        frageArbeitsblatt: `Multipliziere aus: $(${f1})(${f2})(${f3})$. Schreibe $x^3+px^2+qx+r$.${abMonischKubischPQRHtml()}`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a2 },
+          { kind: 'int', expect: a1 },
+          { kind: 'int', expect: a0 },
+        ],
+        loesung: `$(${f1})(${f2})(${f3})=${texCubicDescending(a3, a2, a1, a0)}$.`,
       };
     },
     /** Grundbegriffe: Summanden zählen, Term vs. Gleichung, reiner Zahlterm. */

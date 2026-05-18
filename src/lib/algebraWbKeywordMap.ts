@@ -11,6 +11,7 @@
  * Aktuell gemappt (bestehende Generatoren `alg_*`):
  * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
  * - `alg_klammer_mal`: einfache Klammer / mehrere einfache Klammern (positiver oder algebraischer Vorfaktor)
+ * - `alg_expand_*`: gestuftes Ausmultiplizieren (einfach, Binome, Faktor davor, drei Klammern)
  * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
  * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
  *
@@ -108,6 +109,14 @@ export const ALG_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
     'Dreifache Klammer ausmultiplizieren (Quadrat × linear)',
     'Eine Klammer dritt potenzieren',
     'Klammern ausmultiplizieren — Progressions-Capstone',
+    'Einfache Klammer: Zahl davor',
+    'Einfache Klammer: Variable davor',
+    'Doppelklammer: beide Leitkoeffizienten 1',
+    'Doppelklammer: genau ein Leitkoeffizient ungleich 1',
+    'Doppelklammer: beide Leitkoeffizienten ungleich 1',
+    'Faktor vor Doppelklammer: Konstante davor',
+    'Faktor vor Doppelklammer: Variable davor',
+    'Dreifache Klammern',
   ],
   [
     'Faktorisieren mit gemeinsamem Zahlfaktor',
@@ -184,6 +193,14 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Algebraische Terme multiplizieren (ohne Potenzgesetze)': ['alg_klammer_mal'],
   'Einfache Klammer ausmultiplizieren (positiver ganzzahliger Vorfaktor)': ['alg_klammer_mal'],
   'Einfache Klammer ausmultiplizieren (algebraischer Vorfaktor)': ['alg_klammer_mal'],
+  'Einfache Klammer: Zahl davor': ['alg_expand_einfach_zahl'],
+  'Einfache Klammer: Variable davor': ['alg_expand_einfach_var'],
+  'Doppelklammer: beide Leitkoeffizienten 1': ['alg_expand_binom_both1'],
+  'Doppelklammer: genau ein Leitkoeffizient ungleich 1': ['alg_expand_binom_one_non1'],
+  'Doppelklammer: beide Leitkoeffizienten ungleich 1': ['alg_expand_binom_both_non1'],
+  'Faktor vor Doppelklammer: Konstante davor': ['alg_expand_triple_konstant'],
+  'Faktor vor Doppelklammer: Variable davor': ['alg_expand_triple_var'],
+  'Dreifache Klammern': ['alg_expand_triple_klammern'],
   'Einfache Klammer ausmultiplizieren (negativer ganzzahliger Vorfaktor)': ['alg_minus_klammer_plus'],
   'Mehrere einfache Klammern ausmultiplizieren und vereinfachen': ['alg_klammer_mal'],
   'Faktorisieren mit gemeinsamem Zahlfaktor': ['alg_ausklammern'],
@@ -250,6 +267,14 @@ export const ALG_GENERATOR_IDS_PDF_EINSPALTIG: ReadonlySet<string> = new Set([
   'alg_klammer_mal',
   'alg_minus_klammer_plus',
   'alg_klammer_weg',
+  'alg_expand_einfach_zahl',
+  'alg_expand_einfach_var',
+  'alg_expand_binom_both1',
+  'alg_expand_binom_one_non1',
+  'alg_expand_binom_both_non1',
+  'alg_expand_triple_konstant',
+  'alg_expand_triple_var',
+  'alg_expand_triple_klammern',
 ]);
 
 /**
