@@ -73,6 +73,22 @@ describe('bruchArbeitsblattLatex', () => {
     expect(replaceAbPlaceholdersLatex(t, slots, 'filled')).toMatch(/tfrac\{3\}\{4\}/);
   });
 
+  it('slotLatex: int filled mit konstanteMitVorzeichenInAntwortBox (Algebra $ax+b$)', () => {
+    expect(slotLatex({ kind: 'int', expect: 11, konstanteMitVorzeichenInAntwortBox: true }, 'filled')).toContain(
+      '\\boxed{+11}'
+    );
+    expect(slotLatex({ kind: 'int', expect: -7, konstanteMitVorzeichenInAntwortBox: true }, 'filled')).toContain(
+      '\\boxed{-7}'
+    );
+    expect(slotLatex({ kind: 'int', expect: 0, konstanteMitVorzeichenInAntwortBox: true }, 'filled')).toContain(
+      '\\boxed{0}'
+    );
+    expect(slotLatex({ kind: 'int', expect: 11 }, 'filled')).toContain('\\boxed{11}');
+    expect(slotLatex({ kind: 'int', expect: 11, konstanteMitVorzeichenInAntwortBox: true }, 'blank')).toMatch(
+      /colorbox/
+    );
+  });
+
   it('slotLatex: frac_num nur Zähler-Lücke, Nenner fest', () => {
     const s = { kind: 'frac_num' as const, expectNum: 3, fixedDen: 8 };
     expect(slotLatex(s, 'blank')).toMatch(/\\frac\{.*\}\{8\}/);
