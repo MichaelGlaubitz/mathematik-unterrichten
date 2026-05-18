@@ -86,8 +86,8 @@ export type BruchAbPdfMeta = {
   /** Gewählte Stichworte oder Kurzform „alle Typen gemischt“ */
   stichworteZeile: string;
   /**
-   * WB Algebra: Session (Stichworte / aktive `alg_*`-Typen) erzwingt einspaltiges PDF — gilt für
-   * Arbeitsblatt-PDF und Lösungs-PDF (dieselbe TeX-Datei mit `mitLoesungen`).
+   * Optional: einspaltiges PDF erzwingen (z. B. für Tests). **WB Algebra:** sobald `thema === 'Algebra'`,
+   * ist das Arbeitsblatt-PDF und Lösungs-PDF immer einspaltig — unabhängig von diesem Flag.
    */
   pdfImmerEinspaltig?: boolean;
 };
@@ -401,8 +401,11 @@ export function buildBruchArbeitsblattTex(opts: {
   diagramPngPaths: ReadonlyArray<{ taskIndex: number; suffix: 'a' | 'l'; path: string }>;
 }): string {
   const { aufgaben, meta, mitLoesungen, diagramPngPaths } = opts;
+  /** Algebra: immer `multicols{1}` (breite Schreibzeilen); andere Themen: Flag oder Aufgaben-Heuristik. */
   const nPdfSpalten =
-    meta.pdfImmerEinspaltig === true ? 1 : practicePdfSpaltenAnzahl(aufgaben);
+    meta.thema === 'Algebra' || meta.pdfImmerEinspaltig === true
+      ? 1
+      : practicePdfSpaltenAnzahl(aufgaben);
   const headLeftRaw = `${meta.thema} · ${meta.stichworteZeile}`;
   const headLeft = escapeLatexText(headLeftRaw);
   const loeTitle = escapeLatexText(mitLoesungen ? 'Arbeitsblatt (mit Lösungen)' : 'Arbeitsblatt');

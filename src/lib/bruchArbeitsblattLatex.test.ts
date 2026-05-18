@@ -211,12 +211,22 @@ describe('bruchArbeitsblattLatex', () => {
           abSlots: [{ kind: 'int', expect: 1 }],
         },
       ],
-      meta: { thema: 'Algebra', stichworteZeile: 'Slot-Stichworte', pdfImmerEinspaltig: true },
+      meta: { thema: 'Bruchrechnung', stichworteZeile: 'Test', pdfImmerEinspaltig: true },
       mitLoesungen: true,
       diagramPngPaths: [],
     });
     expect(tex).toContain('\\begin{multicols}{1}');
     expect(tex).toContain('Lösung');
+  });
+
+  it('buildBruchArbeitsblattTex: Thema Algebra ist immer einspaltig (ohne Aufgaben-Flags)', () => {
+    const tex = buildBruchArbeitsblattTex({
+      aufgaben: [{ frage: 'Nur Text', loesung: '$1$' }],
+      meta: { thema: 'Algebra', stichworteZeile: 'Grundbegriffe' },
+      mitLoesungen: false,
+      diagramPngPaths: [],
+    });
+    expect(tex).toContain('\\begin{multicols}{1}');
   });
 
   it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {

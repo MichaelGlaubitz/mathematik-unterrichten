@@ -256,6 +256,9 @@ export const ALG_GENERATOR_IDS_PDF_EINSPALTIG: ReadonlySet<string> = new Set([
  * True, wenn die aktuelle Algebra-Session (Stichworte von der Themenseite und/oder gewählte
  * `alg_*`-Typen auf der Übungsseite) mindestens einen Typ aus {@link ALG_GENERATOR_IDS_PDF_EINSPALTIG}
  * enthält — dann soll das PDF (Arbeitsblatt und Lösungs-PDF) einspaltig sein.
+ *
+ * Hinweis: Die PDF-Pipeline setzt für `meta.thema === 'Algebra'` ohnehin immer `multicols{1}`.
+ * Diese Funktion bleibt für UI-Logik, Tests und künftige Erweiterungen nützlich.
  */
 export function algebraPdfEinspaltigAusSession(opts: {
   stichwortLabels: readonly string[];
