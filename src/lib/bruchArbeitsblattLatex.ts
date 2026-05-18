@@ -140,6 +140,29 @@ function escapeFuerTextInMath(s: string): string {
   return s.replace(/\\/g, '\\textbackslash{}').replace(/[{}#%&]/g, '\\$&');
 }
 
+/**
+ * Choice-Label in der **gefüllten** PDF-Zelle: In den HTML-Pills dürfen Labels mit führendem `$…$`-TeX
+ * beginnen, optional mit anschließendem Klartext (z. B. `$\\tfrac{2}{5}\\cdot n$ (Zahl zuerst)`).
+ * Sonst bleibt das bisherige Verhalten (gesamter Text in `\\text{…}`).
+ */
+function choiceFilledSlotLatexFromLabel(lab: string): string {
+  const s = lab.trim();
+  if (s.startsWith('$')) {
+    const end = s.indexOf('$', 1);
+    if (end > 1) {
+      const math = s.slice(1, end);
+      const tail = s.slice(end + 1).trim();
+      if (tail === '') {
+        return `\\ensuremath{\\boxed{\\displaystyle ${math}}}`;
+      }
+      if (!s.includes('$', end + 1)) {
+        return `\\ensuremath{\\boxed{\\displaystyle ${math}\\;\\text{${escapeFuerTextInMath(tail)}}}}`;
+      }
+    }
+  }
+  return `\\ensuremath{\\boxed{\\displaystyle\\text{${escapeFuerTextInMath(s)}}}}`;
+}
+
 /** Schreibfläche für Bruch-Zähler/Nenner im PDF: hellgrau, ohne zweite „Strich“-Optik wie bei \\underline. */
 const BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE =
   '\\mbox{\\colorbox{black!10}{\\rule{0pt}{2.65ex}\\hspace{1.08cm}}}';
@@ -170,7 +193,7 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
     return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;
   }
   const lab = spec.labels[spec.expect] ?? '';
-  return `\\ensuremath{\\boxed{\\displaystyle\\text{${escapeFuerTextInMath(lab)}}}}`;
+  return choiceFilledSlotLatexFromLabel(lab);
 }
 
 export function replaceAbPlaceholdersLatex(

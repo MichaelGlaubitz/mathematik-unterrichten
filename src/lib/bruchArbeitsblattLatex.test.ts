@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { PracticeAbAntwortSlot } from './uebungPracticeGenerators';
 import { BRUCHRECHNUNG_GENERATOR_IDS, createPracticeGenerators } from './uebungPracticeGenerators';
 import {
   BRUCH_AB_PDF_DIAGRAM_MAX_WIDTH,
@@ -74,6 +75,29 @@ describe('bruchArbeitsblattLatex', () => {
     const s = { kind: 'frac_num' as const, expectNum: 3, fixedDen: 8 };
     expect(slotLatex(s, 'blank')).toMatch(/\\frac\{.*\}\{8\}/);
     expect(slotLatex(s, 'filled')).toMatch(/tfrac\{3\}\{8\}/);
+  });
+
+  it('slotLatex: choice filled mit führendem $…$ (optional mit Textrest)', () => {
+    const nurMath: PracticeAbAntwortSlot = {
+      kind: 'choice',
+      expect: 0,
+      labels: ['$\\tfrac{2}{7}$', 'x'],
+    };
+    expect(slotLatex(nurMath, 'filled')).toMatch(/\\tfrac\{2\}\{7\}/);
+    expect(slotLatex(nurMath, 'filled')).not.toMatch(/\\text\{.*tfrac/);
+
+    const mathUndRest: PracticeAbAntwortSlot = {
+      kind: 'choice',
+      expect: 0,
+      labels: ['$3x+1$ (ohne =)', 'y'],
+    };
+    const mix = slotLatex(mathUndRest, 'filled');
+    expect(mix).toContain('3x+1');
+    expect(mix).toMatch(/\\text\{/);
+    expect(mix).toContain('ohne');
+
+    const nurText: PracticeAbAntwortSlot = { kind: 'choice', expect: 0, labels: ['nur Text', 'b'] };
+    expect(slotLatex(nurText, 'filled')).toMatch(/\\text\{nur Text\}/);
   });
 
   it('htmlFrageZuLatexInhalt verarbeitet AB-Platzhalter', () => {
