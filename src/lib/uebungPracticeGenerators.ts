@@ -661,19 +661,24 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">x</span><span>[[MU_AB:1]]</span></span>`;
   }
 
+  /** Variable im Arbeitsblatt-Slot-Bereich (ohne `$…$`: alles in `mu-katex-skip` wird von KaTeX nicht gerendert). */
+  function abItalicVarHtml(v: string): string {
+    return `<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">${v}</span>`;
+  }
+
   /** Koeffizienten $a$, $b$, $c$ in $ax^2+bx+c$ (niedrigster Index = $x^2$). */
   function abQuadABCoeffHtml(): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$a=$</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $b=$</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, $c=$</span>[[MU_AB:2]]</span>`;
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('a')}=</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('b')}=</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('c')}=</span>[[MU_AB:2]]</span>`;
   }
 
   /** Monisches Quadrat $x^2+px+q$: Koeffizienten $p$ und $q$. */
   function abMonischQuadPQHtml(): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$p=$</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $q=$</span>[[MU_AB:1]]</span>`;
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('p')}=</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('q')}=</span>[[MU_AB:1]]</span>`;
   }
 
   /** Monischer Kubikterm $x^3+px^2+qx+r$. */
   function abMonischKubischPQRHtml(): string {
-    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">$p=$</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, $q=$</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, $r=$</span>[[MU_AB:2]]</span>`;
+    return `<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span class="text-ink-700 dark:text-ink-300">${abItalicVarHtml('p')}=</span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('q')}=</span>[[MU_AB:1]]<span class="text-ink-700 dark:text-ink-300">, ${abItalicVarHtml('r')}=</span>[[MU_AB:2]]</span>`;
   }
 
   /** Polynom als Koeffizientenliste von $1,x,x^2,…$ (aufsteigend). */
