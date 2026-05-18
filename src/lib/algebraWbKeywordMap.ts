@@ -12,7 +12,7 @@
  * - `alg_terme_zusammen`: gleichartige Terme zusammenfassen (Varianten)
  * - `alg_klammer_mal`: einfache Klammer / mehrere einfache Klammern (positiver oder algebraischer Vorfaktor)
  * - `alg_ausklammern`: Faktorisieren mit gemeinsamem Zahl-, algebraischen oder Klammerfaktor / vorgehendes Ausklammern
- * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable, Konstante, Schreibkonvention)
+ * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
  *
  * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
  * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (nicht in den JSON-Punkten; optional über Session-IDs)

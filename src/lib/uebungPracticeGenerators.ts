@@ -453,6 +453,117 @@ export function validateErkennenAufgabe(auf: PracticeAufgabe): void {
   }
 }
 
+/** Zeilen für „Was ist eine Variable?“ (`alg_gb_variable`): kurzer Sachsatz → Bedeutung des Buchstabens. */
+type AlgGbVariableSachZeile = {
+  satz: (L: string) => string;
+  richtig: string;
+  falsch: string;
+  loesung: (L: string) => string;
+};
+
+const ALG_GB_VARIABLE_SACH_STATISCH: readonly AlgGbVariableSachZeile[] = [
+  {
+    satz: (L) => `Im Korb liegen $${L}$ Äpfel.`,
+    richtig: 'die Anzahl der Äpfel',
+    falsch: 'die Masse des Korbes in Kilogramm',
+    loesung: (L) =>
+      `$${L}$ steht für die Anzahl der Äpfel im Korb — nicht für eine Masse.`,
+  },
+  {
+    satz: (L) => `Der Garten ist $${L}$ Meter lang.`,
+    richtig: 'die Länge des Gartens in Metern',
+    falsch: 'die Fläche des Gartens in Quadratmetern',
+    loesung: (L) => `$${L}$ beschreibt die Länge in Metern, nicht die Fläche.`,
+  },
+  {
+    satz: (L) => `Der Sack wiegt $${L}$ Kilogramm.`,
+    richtig: 'die Masse des Sacks in Kilogramm',
+    falsch: 'die Anzahl der Äpfel im Sack',
+    loesung: (L) => `$${L}$ steht für die Masse in Kilogramm, nicht für eine Stückzahl.`,
+  },
+  {
+    satz: (L) => `Die Temperatur beträgt $${L}$ Grad Celsius.`,
+    richtig: 'die Temperatur in Grad Celsius',
+    falsch: 'der Luftdruck in Hektopascal',
+    loesung: (L) => `$${L}$ meint die Temperatur in °C, nicht den Luftdruck.`,
+  },
+  {
+    satz: (L) => `Das Heft kostet $${L}$ Euro.`,
+    richtig: 'den Preis des Hefts in Euro',
+    falsch: 'die Seitenzahl des Hefts',
+    loesung: (L) => `$${L}$ steht für den Preis in Euro, nicht für die Seitenzahl.`,
+  },
+  {
+    satz: (L) => `In der Klasse sind $${L}$ Kinder.`,
+    richtig: 'die Anzahl der Kinder',
+    falsch: 'die Raumhöhe in Metern',
+    loesung: (L) => `$${L}$ beschreibt, wie viele Kinder gemeint sind — nicht eine Höhe.`,
+  },
+  {
+    satz: (L) => `Der Schulweg ist $${L}$ Kilometer lang.`,
+    richtig: 'die Länge des Wegs in Kilometern',
+    falsch: 'die Gehzeit in Minuten',
+    loesung: (L) => `$${L}$ steht für die Entfernung in Kilometern, nicht für die Zeit.`,
+  },
+  {
+    satz: (L) => `Das Sportfeld ist $${L}$ Meter breit.`,
+    richtig: 'die Breite des Feldes in Metern',
+    falsch: 'die Zuschauerzahl',
+    loesung: (L) => `$${L}$ meint die Breite in Metern, nicht eine Personenzahl.`,
+  },
+  {
+    satz: (L) => `Es fallen $${L}$ Millimeter Regen.`,
+    richtig: 'die Regenmenge in Millimetern',
+    falsch: 'die Windgeschwindigkeit in Metern pro Sekunde',
+    loesung: (L) => `$${L}$ beschreibt die Niederschlagsmenge, nicht die Windstärke.`,
+  },
+  {
+    satz: (L) => `Du hast $${L}$ Punkte erreicht.`,
+    richtig: 'die erreichte Punktzahl',
+    falsch: 'die Spieldauer in Minuten',
+    loesung: (L) => `$${L}$ steht für die Punkte, nicht für die Zeitdauer.`,
+  },
+  {
+    satz: (L) => `Die Flasche fasst $${L}$ Liter.`,
+    richtig: 'das Fassungsvermögen in Litern',
+    falsch: 'die Masse der Flasche in Kilogramm',
+    loesung: (L) => `$${L}$ meint das Volumen in Litern, nicht die Masse der Flasche.`,
+  },
+  {
+    satz: (L) => `Du sparst $${L}$ Euro.`,
+    richtig: 'die gesparte Summe in Euro',
+    falsch: 'die Anzahl der Einkäufe',
+    loesung: (L) => `$${L}$ steht für einen Geldbetrag in Euro, nicht für eine Anzahl.`,
+  },
+  {
+    satz: (L) => `Der Film dauert $${L}$ Stunden.`,
+    richtig: 'die Dauer in Stunden',
+    falsch: 'die Anzahl der Szenen',
+    loesung: (L) => `$${L}$ beschreibt die Zeitdauer, nicht die Szenenzahl.`,
+  },
+  {
+    satz: (L) => `Auf dem Kuchen stehen $${L}$ Kerzen.`,
+    richtig: 'die Anzahl der Kerzen',
+    falsch: 'die Masse des Kuchens in Kilogramm',
+    loesung: (L) => `$${L}$ steht für die Stückzahl der Kerzen, nicht für die Masse.`,
+  },
+  {
+    satz: (L) => `Der Stift ist $${L}$ Zentimeter lang.`,
+    richtig: 'die Länge des Stifts in Zentimetern',
+    falsch: 'die Masse des Stifts in Gramm',
+    loesung: (L) => `$${L}$ meint die Länge in Zentimetern, nicht die Masse.`,
+  },
+];
+
+const ALG_GB_VARIABLE_SACH_ALTER = { typ: 'alter' } as const;
+
+type AlgGbVariableSachPoolEintrag = AlgGbVariableSachZeile | typeof ALG_GB_VARIABLE_SACH_ALTER;
+
+const ALG_GB_VARIABLE_SACH_POOL: readonly AlgGbVariableSachPoolEintrag[] = [
+  ...ALG_GB_VARIABLE_SACH_STATISCH,
+  ALG_GB_VARIABLE_SACH_ALTER,
+];
+
 function makeHelpers(random: RandomFn) {
   function pick<T>(arr: readonly T[]): T {
     return arr[Math.floor(random() * arr.length)]!;
@@ -1906,21 +2017,37 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       };
     },
     alg_gb_variable() {
-      const v = pick(['n', 'a', 't', 'k'] as const);
-      const other = pick(['z', 'q', 'r', 's'] as const);
-      const k = randInt(2, 9);
-      const expr = `${linTerm(k, v)}${formatSignedInt(randInt(2, 12))}`;
+      const letters = [
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+        'x', 'y', 'z',
+      ] as const;
+      const L = pick(letters);
+      const row = pick(ALG_GB_VARIABLE_SACH_POOL);
+      let satz: string;
+      let richtig: string;
+      let falsch: string;
+      let loesung: string;
+      if ('typ' in row && row.typ === 'alter') {
+        const name = pick(['Alex', 'Emma', 'Lina', 'Mia', 'Noah', 'Sam'] as const);
+        satz = `${name} ist $${L}$ Jahre alt.`;
+        richtig = 'das Alter in Jahren';
+        falsch = 'die Körpergröße in Metern';
+        loesung = `$${L}$ steht für das Alter von ${name} in Jahren — nicht für die Körpergröße.`;
+      } else {
+        satz = row.satz(L);
+        richtig = row.richtig;
+        falsch = row.falsch;
+        loesung = row.loesung(L);
+      }
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [falsch, richtig] : [richtig, falsch];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      const satzImFragezeichen = `„${satz}“`;
       return {
-        frage: `Welcher Buchstabe ist die Variable in $${expr}$?`,
-        frageArbeitsblatt: `Welcher Buchstabe ist die Variable in $${expr}$? [[MU_AB:0]]`,
-        abSlots: [
-          {
-            kind: 'choice',
-            expect: 0 as const,
-            labels: [`$${v}$`, `$${other}$`],
-          },
-        ],
-        loesung: `Die Variable ist $${v}$ — sie steht für eine noch unbekannte Zahl. Der Buchstabe $${other}$ kommt in $${expr}$ gar nicht vor.`,
+        frage: `Wofür steht der Buchstabe $${L}$ im Satz: ${satzImFragezeichen}?`,
+        frageArbeitsblatt: `Wofür steht $${L}$ hier: ${satzImFragezeichen}? [[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung,
       };
     },
     alg_gb_konstante() {
