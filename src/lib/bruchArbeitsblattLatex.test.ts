@@ -12,6 +12,8 @@ import {
   latexCompileFailureMayBenefitFromSmallerPayload,
   latexHttpEndpointList,
   loesungHtmlZuLatexSegmente,
+  pdfFrageTexVerdichtenSchreibzeile,
+  practicePdfSpaltenAnzahl,
   replaceAbPlaceholdersLatex,
   slotLatex,
   stripHtmlTags,
@@ -116,6 +118,14 @@ describe('bruchArbeitsblattLatex', () => {
     expect(loesungHtmlZuLatexSegmente('a<br>b')).toBe('a\\par\\medskip\nb');
   });
 
+  it('practicePdfSpaltenAnzahl / pdfFrageTexVerdichtenSchreibzeile', () => {
+    expect(practicePdfSpaltenAnzahl([{ frage: 'a', loesung: 'b' }])).toBe(2);
+    expect(
+      practicePdfSpaltenAnzahl([{ frage: 'a', loesung: 'b', pdfArbeitsblattEinzelspalte: true }])
+    ).toBe(1);
+    expect(pdfFrageTexVerdichtenSchreibzeile('Vereinfache $1$. = \\ensuremath{X}')).toContain('.~~');
+  });
+
   it('buildBruchArbeitsblattTex: zweispaltig, Spaltentrennlinie, Diagramm an Spaltenbreite', () => {
     const tex = buildBruchArbeitsblattTex({
       aufgaben: [{ frage: 'Frage', loesung: '$1$' }],
@@ -164,6 +174,25 @@ describe('bruchArbeitsblattLatex', () => {
     expect(tex).toContain('\\Needspace{6\\baselineskip}');
     expect(tex).toContain('\\end{multicols}');
     expect(tex).not.toContain('\\maketitle');
+  });
+
+  it('buildBruchArbeitsblattTex: einspaltig bei pdfArbeitsblattEinzelspalte + Verdichtung vor Schreibfeld', () => {
+    const tex = buildBruchArbeitsblattTex({
+      aufgaben: [
+        {
+          frage: 'Vereinfache $x$.',
+          loesung: '$x$',
+          frageArbeitsblatt: 'Vereinfache $x$. = [[MU_AB:0]]',
+          abSlots: [{ kind: 'int', expect: 1 }],
+          pdfArbeitsblattEinzelspalte: true,
+        },
+      ],
+      meta: { thema: 'Algebra', stichworteZeile: 'Test' },
+      mitLoesungen: false,
+      diagramPngPaths: [],
+    });
+    expect(tex).toContain('\\begin{multicols}{1}');
+    expect(tex).toMatch(/\.~~\\ensuremath/);
   });
 
   it('Bruch-Generatoren: nach html→LaTeX gerade $-Anzahl (Frage + Lösung, viele Seeds)', () => {

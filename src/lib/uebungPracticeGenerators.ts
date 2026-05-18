@@ -92,6 +92,11 @@ export type PracticeAufgabe = {
    * mitten im `=` umbrechen (`whitespace-nowrap`, bei Bedarf horizontal scrollen).
    */
   loesungArbeitsblattEigeneZeile?: boolean;
+  /**
+   * PDF-Arbeitsblatt (LaTeX): nur eine Spalte statt zwei, damit lange Zeilen mit `= …` und
+   * Schreibfeldern nicht mitten im Gleichheits-/Rechenausdruck umbrechen (u. a. Algebra mit zwei int-Slots).
+   */
+  pdfArbeitsblattEinzelspalte?: boolean;
   /** Skizze zur Aufgabenstellung (bei Malaufgaben ohne markante Produktfläche im Raster). */
   diagram?: string;
   /** Optional: Skizze mit vollständiger Markierung — z. B. in „Lösung zeigen“. */
@@ -1830,6 +1835,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Multipliziere aus: $${k}(${inner})$.`,
         frageArbeitsblatt: `Multipliziere aus: $${k}(${inner})$.${abLinBinomZweiIntsHtml(bc)}`,
+        pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: ac },
           { kind: 'int', expect: bc },
@@ -1846,6 +1852,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.`,
         frageArbeitsblatt: `Vereinfache $-(${ia}x-${innerB})+${linTerm(ta)}$.${abLinBinomZweiIntsHtml(innerB)}`,
+        pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeff },
           { kind: 'int', expect: innerB },
@@ -1883,6 +1890,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       return {
         frage: `Vereinfache $${linTerm(fx)}-(${inner})$.`,
         frageArbeitsblatt: `Vereinfache $${linTerm(fx)}-(${inner})$.${abLinBinomZweiIntsHtml(konst)}`,
+        pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: coeff },
           { kind: 'int', expect: konst },
@@ -1919,6 +1927,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           konst
         )}$.`,
         loesungArbeitsblattEigeneZeile: true,
+        pdfArbeitsblattEinzelspalte: true,
       };
     },
     alg_distributiv_zahl() {
