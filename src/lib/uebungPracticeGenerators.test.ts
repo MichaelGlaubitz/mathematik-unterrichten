@@ -388,7 +388,7 @@ describe('Algebra Grundbegriffe (alg_gb_*)', () => {
     expect(found!.loesung.toLowerCase()).toMatch(/anzahl|äpfel|korb/);
   });
 
-  it('alg_gb_term: Term-vs.-Gleichung-Choice ohne Dollar in Labels', () => {
+  it('alg_gb_term: Term-vs.-Gleichung-Choice mit TeX ($…$) in den Pills', () => {
     const GEN = createPracticeGenerators(Math.random);
     let choiceSeen = false;
     for (let k = 0; k < 500; k++) {
@@ -396,15 +396,16 @@ describe('Algebra Grundbegriffe (alg_gb_*)', () => {
       const s = t.abSlots?.[0];
       if (s?.kind === 'choice') {
         choiceSeen = true;
-        expect(s.labels[0]).not.toContain('$');
-        expect(s.labels[1]).not.toContain('$');
+        expect(s.labels[0]).toMatch(/\$/);
+        expect(s.labels[1]).toMatch(/\$/);
+        expect(`${s.labels[0]} ${s.labels[1]}`).toMatch(/ohne =|mit =/);
         expect(s.expect === 0 || s.expect === 1).toBe(true);
       }
     }
     expect(choiceSeen).toBe(true);
   });
 
-  it('alg_gb_konvention: Arbeitsblatt ohne Dollar-TeX, ganzzahlig / negativ / Bruch', () => {
+  it('alg_gb_konvention: Choice-Labels mit TeX ($…$)', () => {
     const GEN = createPracticeGenerators(Math.random);
     let ganz = false;
     let neg = false;
@@ -414,8 +415,8 @@ describe('Algebra Grundbegriffe (alg_gb_*)', () => {
       const slot = t.abSlots![0];
       expect(slot.kind).toBe('choice');
       if (slot.kind === 'choice') {
-        expect(slot.labels[0]).not.toContain('$');
-        expect(slot.labels[1]).not.toContain('$');
+        expect(slot.labels[0]).toMatch(/\$/);
+        expect(slot.labels[1]).toMatch(/\$/);
         expect(slot.expect === 0 || slot.expect === 1).toBe(true);
       }
       if (t.frage.includes('\\tfrac{')) bruch = true;
