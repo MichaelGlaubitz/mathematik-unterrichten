@@ -39,7 +39,10 @@ const {
 } = Astro.props;
 
 const wbThemaMitAkku =
-  (slug === 'bruchrechnung' || slug === 'negative-zahlen' || slug === 'algebra') &&
+  (slug === 'bruchrechnung' ||
+    slug === 'negative-zahlen' ||
+    slug === 'algebra' ||
+    slug === 'dezimalzahlen') &&
   Boolean(generatorUebungHref) &&
   Boolean(unterthemenBloecke && unterthemenBloecke.length > 0);
 const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` : '';
@@ -404,7 +407,7 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
       </div>
     </details>
 
-    {slug !== 'bruchrechnung' && slug !== 'negative-zahlen' && slug !== 'algebra' && (
+    {slug !== 'bruchrechnung' && slug !== 'negative-zahlen' && slug !== 'algebra' && slug !== 'dezimalzahlen' && (
     <!-- Mini-Whiteboard (Bruchrechnung, Negative Zahlen, Algebra: Steuerung in der Unterthemen-Kompaktzeile) -->
     <div class="md:col-span-2 rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
       <div class="flex items-start justify-between gap-3 mb-2">

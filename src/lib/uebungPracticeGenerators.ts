@@ -278,6 +278,25 @@ export const NEGATIVE_ZAHLEN_GENERATOR_IDS = [
   'nz_klammer_punkt_vor_strich',
 ] as const;
 
+/** Dezimalzahlen: Grundrechenarten (Klasse 5–6). */
+export const DEZIMALZAHLEN_GENERATOR_IDS = [
+  'dz_add_1_1',
+  'dz_add_2_2',
+  'dz_add_mix',
+  'dz_sub_1_1',
+  'dz_sub_2_2',
+  'dz_sub_mix',
+  'dz_mul_d_int',
+  'dz_mul_tt',
+  'dz_mul_dd',
+  'dz_mul_scale',
+  'dz_div_d_int',
+  'dz_div_int_t',
+  'dz_div_d_t',
+  'dz_div_dd',
+  'dz_div_scale',
+] as const;
+
 /** Algebra: Klammern, Distributivgesetz, Terme (Klasse 7–8). */
 export const ALGEBRA_GENERATOR_IDS = [
   'alg_klammer_mal',
@@ -441,6 +460,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...QUADRATIC_EQUATIONS_GENERATOR_IDS,
   ...BRUCHRECHNUNG_GENERATOR_IDS,
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
+  ...DEZIMALZAHLEN_GENERATOR_IDS,
   ...ALGEBRA_GENERATOR_IDS,
   ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   ...PROZENTRECHNUNG_GENERATOR_IDS,
@@ -626,6 +646,17 @@ function makeHelpers(random: RandomFn) {
  */
 export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap {
   const { pick, randInt, shuffle } = makeHelpers(random);
+
+  /** LaTeX mit Dezimalkomma `{,}`; entfernt unnötige Nachnullen nach dem Komma. */
+  function dzTex(n: number, dp: number): string {
+    const neg = n < 0;
+    const v = Math.abs(n);
+    const s0 = v.toFixed(dp);
+    let s = s0.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
+    if (!s.includes('.')) return (neg ? '-' : '') + s;
+    const [ip, fp] = s.split('.');
+    return (neg ? '-' : '') + `${ip}{,}${fp}`;
+  }
 
   function gcd(a: number, b: number): number {
     let x = Math.abs(a);
@@ -3736,6 +3767,221 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `In der Skizze berührt eine Tangente den Kreis. Welchen Winkel bildet der Radius im Berührpunkt mit der Tangente?`,
         loesung: `Immer $90^\\circ$. Radius und Tangente stehen im Berührpunkt senkrecht aufeinander.`,
         diagram: svgKreisTangente({ radiusLabel: `${r}` }),
+      };
+    },
+    dz_add_1_1() {
+      let ta = 5;
+      let tb = 5;
+      for (let t = 0; t < 50; t++) {
+        ta = randInt(1, 120);
+        tb = randInt(1, 120);
+        if (ta + tb > 190) continue;
+        break;
+      }
+      const a = ta / 10;
+      const b = tb / 10;
+      const s = (ta + tb) / 10;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 1)}+${dzTex(b, 1)}$.`,
+        loesung: `Es ist $${dzTex(s, 1)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_add_2_2() {
+      let ta = 100;
+      let tb = 100;
+      for (let t = 0; t < 50; t++) {
+        ta = randInt(100, 9800);
+        tb = randInt(100, 9800);
+        if (ta + tb > 19800) continue;
+        break;
+      }
+      const a = ta / 100;
+      const b = tb / 100;
+      const s = (ta + tb) / 100;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 2)}+${dzTex(b, 2)}$.`,
+        loesung: `Es ist $${dzTex(s, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_add_mix() {
+      let ta = 10;
+      let tb = 100;
+      for (let t = 0; t < 60; t++) {
+        ta = randInt(5, 120);
+        tb = randInt(101, 9899);
+        if (tb % 10 === 0) continue;
+        if (ta / 10 + tb / 100 > 99) continue;
+        break;
+      }
+      const a = ta / 10;
+      const b = tb / 100;
+      const s = a + b;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 1)}+${dzTex(b, 2)}$.`,
+        loesung: `Es ist $${dzTex(Number(s.toFixed(2)), 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_sub_1_1() {
+      let ta = 10;
+      let tb = 3;
+      for (let t = 0; t < 50; t++) {
+        ta = randInt(5, 120);
+        tb = randInt(1, ta - 1);
+        break;
+      }
+      const a = ta / 10;
+      const b = tb / 10;
+      const s = (ta - tb) / 10;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 1)}-${dzTex(b, 1)}$.`,
+        loesung: `Es ist $${dzTex(s, 1)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_sub_2_2() {
+      let ta = 200;
+      let tb = 100;
+      for (let t = 0; t < 50; t++) {
+        ta = randInt(200, 9900);
+        tb = randInt(100, ta - 1);
+        break;
+      }
+      const a = ta / 100;
+      const b = tb / 100;
+      const s = (ta - tb) / 100;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 2)}-${dzTex(b, 2)}$.`,
+        loesung: `Es ist $${dzTex(s, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_sub_mix() {
+      let ta = 500;
+      let tb = 5;
+      for (let t = 0; t < 60; t++) {
+        ta = randInt(250, 9900);
+        tb = randInt(5, Math.min(120, Math.floor(ta / 10) - 1));
+        if (tb % 10 === 0) continue;
+        break;
+      }
+      const a = ta / 100;
+      const b = tb / 10;
+      const s = a - b;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 2)}-${dzTex(b, 1)}$.`,
+        loesung: `Es ist $${dzTex(Number(s.toFixed(2)), 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_mul_d_int() {
+      const d = randInt(2, 9);
+      const body = randInt(15, 480);
+      const n = body / 100;
+      const p = Number((n * d).toFixed(2));
+      return {
+        frage: `Berechne schriftlich: $${dzTex(n, 2)}\\cdot ${d}$.`,
+        loesung: `Es ist $${dzTex(p, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_mul_tt() {
+      const a = randInt(1, 9);
+      const b = randInt(1, 9);
+      const p = (a * b) / 100;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a / 10, 1)}\\cdot ${dzTex(b / 10, 1)}$.`,
+        loesung: `Es ist $${dzTex(p, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_mul_dd() {
+      let a = 1;
+      let b = 1;
+      let p = 0;
+      for (let t = 0; t < 40; t++) {
+        a = randInt(12, 94) / 10;
+        b = randInt(12, 94) / 10;
+        p = Number((a * b).toFixed(2));
+        if (p < 0.5) continue;
+        break;
+      }
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 1)}\\cdot ${dzTex(b, 1)}$.`,
+        loesung: `Es ist $${dzTex(p, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_mul_scale() {
+      const f = pick([0.1, 0.01] as const);
+      const n = randInt(3, 180) / 10;
+      const p = Number((n * f).toFixed(2));
+      return {
+        frage: `Berechne schriftlich: $${dzTex(n, 1)}\\cdot ${dzTex(f, f === 0.1 ? 1 : 2)}$.`,
+        loesung: `Es ist $${dzTex(p, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_div_d_int() {
+      const d = randInt(2, 9);
+      const q = randInt(12, 480) / 100;
+      const n = Number((q * d).toFixed(2));
+      return {
+        frage: `Berechne schriftlich: $${dzTex(n, 2)}:${d}$.`,
+        loesung: `Es ist $${dzTex(q, 2)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_div_int_t() {
+      let W = 6;
+      let k = 2;
+      let q = 15;
+      for (let t = 0; t < 80; t++) {
+        k = randInt(1, 9);
+        q = randInt(2, 48);
+        if ((q * k) % 10 !== 0) continue;
+        W = (q * k) / 10;
+        if (W < 2 || W > 90) continue;
+        break;
+      }
+      const v = k / 10;
+      return {
+        frage: `Berechne schriftlich: $${dzTex(W, 0)}:${dzTex(v, 1)}$.`,
+        loesung: `Es ist $${dzTex(q, 0)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_div_d_t() {
+      const k = pick([2, 4, 5, 8] as const);
+      const v = k / 10;
+      const q = randInt(11, 180) / 10;
+      const n = Number((q * v).toFixed(2));
+      return {
+        frage: `Berechne schriftlich: $${dzTex(n, 2)}:${dzTex(v, 1)}$.`,
+        loesung: `Es ist $${dzTex(q, 1)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_div_dd() {
+      const b = randInt(11, 45) / 100;
+      const q = randInt(2, 12);
+      const a = Number((b * q).toFixed(2));
+      return {
+        frage: `Berechne schriftlich: $${dzTex(a, 2)}:${dzTex(b, 2)}$.`,
+        loesung: `Es ist $${dzTex(q, 0)}$.`,
+        loesungInlineNachFrage: true,
+      };
+    },
+    dz_div_scale() {
+      const f = pick([0.1, 0.01] as const);
+      const q = randInt(4, 120);
+      const n = Number((q * f).toFixed(2));
+      return {
+        frage: `Berechne schriftlich: $${dzTex(n, 2)}:${dzTex(f, f === 0.1 ? 1 : 2)}$.`,
+        loesung: `Es ist $${dzTex(q, 0)}$.`,
+        loesungInlineNachFrage: true,
       };
     },
   };
