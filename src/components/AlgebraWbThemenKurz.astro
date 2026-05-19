@@ -21,14 +21,38 @@ const clusters = algWbStichwortPillsNachCluster();
     clusters.map((cluster, idx) => (
       <section aria-labelledby={`mu-alg-cluster-${idx}`}>
         <div
-          class="rounded-lg border border-ink-200/90 bg-ink-50/90 p-4 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
+          class="mu-wb-kw-cluster rounded-lg border border-ink-200/90 bg-ink-50/90 p-4 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
         >
-          <h5
-            id={`mu-alg-cluster-${idx}`}
-            class="mb-3 text-sm font-semibold text-ink-900 dark:text-ink-50"
-          >
-            {cluster.titel}
-          </h5>
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <h5
+              id={`mu-alg-cluster-${idx}`}
+              class="text-sm font-semibold text-ink-900 dark:text-ink-50 min-w-0"
+            >
+              {cluster.titel}
+            </h5>
+            <div
+              class="flex shrink-0 flex-wrap gap-1.5"
+              role="group"
+              aria-label={`Stichwort-Auswahl: ${cluster.titel}`}
+            >
+              <button
+                type="button"
+                class="mu-wb-kw-bulk rounded-md px-2 py-0.5 text-[11px] font-semibold shadow-sm transition-colors sm:px-2.5 sm:text-xs"
+                data-mu-wb-kw-bulk="cluster-select"
+                aria-label={`Alle Stichwörter in „${cluster.titel}“ auswählen`}
+              >
+                Alle
+              </button>
+              <button
+                type="button"
+                class="mu-wb-kw-bulk rounded-md px-2 py-0.5 text-[11px] font-semibold shadow-sm transition-colors sm:px-2.5 sm:text-xs"
+                data-mu-wb-kw-bulk="cluster-clear"
+                aria-label={`Alle Stichwörter in „${cluster.titel}“ abwählen`}
+              >
+                Keins
+              </button>
+            </div>
+          </div>
           <ul class="m-0 flex list-none flex-wrap gap-2 p-0" role="list">
             {cluster.stichworte.map((p) => (
               <li>
