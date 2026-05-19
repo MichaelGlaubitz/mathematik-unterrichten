@@ -1,0 +1,369 @@
+---
+/**
+ * Kartenwahl + Raster wie in den Referenz-Screenshots (Brüche / Dezimalzahlen / Prozent).
+ * Client-seitige Erzeugung und Prüfung; KaTeX rendert `$…$` im Aufgabenbereich nach dem Einhängen.
+ */
+---
+
+<div
+  class="container-wide pb-14 pt-8 text-ink-800 dark:text-ink-200"
+  id="bdp-host"
+  data-bdp-root
+>
+  <p class="mb-6 max-w-3xl text-sm leading-relaxed text-ink-600 dark:text-ink-300">
+    Wähle zuerst die Umwandlungsrichtungen (mehrfach möglich), stelle die Anzahl ein und erzeuge Aufgaben. Prozent
+    bedeutet hier immer „von 100“; Dezimalzahlen werden mit <strong>Punkt</strong> eingegeben (Komma wird beim Prüfen
+    wie üblich akzeptiert). Brüche zählen als richtig, wenn sie wertgleich sind (nicht zwingend gekürzt).
+  </p>
+
+  <div
+    class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 print:hidden"
+    id="bdp-selector"
+    aria-label="Umwandlungsarten wählen"
+  ></div>
+
+  <div
+    class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-ink-200/80 bg-surface p-4 dark:border-slate-600 dark:bg-slate-900/40 print:hidden"
+  >
+    <label class="flex flex-col gap-1 text-sm font-medium text-ink-700 dark:text-ink-200">
+      Anzahl Aufgaben
+      <input
+        type="number"
+        id="bdp-anzahl"
+        min="1"
+        max="30"
+        value="15"
+        class="w-24 rounded-lg border border-ink-300 bg-white px-2 py-1.5 text-ink-900 tabular-nums shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-50"
+      />
+    </label>
+    <button
+      type="button"
+      id="bdp-generate"
+      class="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+    >
+      Aufgaben erzeugen
+    </button>
+    <button
+      type="button"
+      id="bdp-check-all"
+      class="rounded-xl border border-ink-300 bg-white px-4 py-2 text-sm font-semibold text-ink-800 shadow-sm hover:bg-ink-50 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-100 dark:hover:bg-slate-800"
+    >
+      Alle prüfen
+    </button>
+    <p class="min-w-[12rem] text-sm text-ink-600 dark:text-ink-400" id="bdp-stats" hidden></p>
+  </div>
+
+  <div
+    class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+    id="bdp-grid"
+    aria-live="polite"
+  >
+  </div>
+</div>
+
+<script>
+  import { bdpDezimalAntwortOk, erzeugeBdpAufgabe, BDP_CARD_GROUPS, BDP_DIRECTION_IDS, type BdpDirectionId, type BdpTask } from '../lib/bruchDezimalProzentUmwandlung';
+  import { parseIntFlexible, rationalGleich } from '../lib/practiceArbeitsblattAntwort';
+
+  function muBdpKatexOpts() {
+    return {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+      ],
+      ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option'],
+      ignoredClasses: ['katex', 'mu-geo-diagram', 'mu-katex-skip'],
+      throwOnError: false,
+    };
+  }
+
+  function renderKatex(scope: HTMLElement) {
+    try {
+      const fn = (window as unknown as { renderMathInElement?: (el: HTMLElement, o: object) => void })
+        .renderMathInElement;
+      if (typeof fn === 'function') fn(scope, muBdpKatexOpts());
+    } catch {
+      /* optional */
+    }
+  }
+
+  const EYE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" class="h-5 w-5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6 9.75-6 9.75 6 9.75 6-3.75 6-9.75 6-9.75-6-9.75-6Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>`;
+
+  const host = document.getElementById('bdp-host');
+  const selector = document.getElementById('bdp-selector');
+  const grid = document.getElementById('bdp-grid');
+  const anzahlInput = document.getElementById('bdp-anzahl') as HTMLInputElement | null;
+  const genBtn = document.getElementById('bdp-generate');
+  const checkAllBtn = document.getElementById('bdp-check-all');
+  const statsEl = document.getElementById('bdp-stats');
+
+  if (!host || !selector || !grid || !anzahlInput || !genBtn || !checkAllBtn) {
+    console.warn('[BDP] DOM fehlt');
+  } else {
+    const active = new Set<BdpDirectionId>([...BDP_DIRECTION_IDS]);
+
+    function buildSelectorCards() {
+      selector.innerHTML = '';
+      for (const card of BDP_CARD_GROUPS) {
+        const wrap = document.createElement('article');
+        wrap.className =
+          'flex flex-col rounded-2xl border border-ink-200 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-slate-900/80';
+        const h2 = document.createElement('h2');
+        h2.className =
+          'text-center text-sm font-bold uppercase tracking-wide text-violet-600 dark:text-violet-300';
+        h2.textContent = card.title.replace(' ↔ ', ' ↔ ');
+        wrap.appendChild(h2);
+
+        const btnWrap = document.createElement('div');
+        btnWrap.className = 'mt-4 flex flex-col gap-3';
+        for (const d of card.directions) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.dataset.dir = d.id;
+          b.className =
+            'flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900 bdp-dir-btn';
+          b.textContent = d.label.replace(' → ', ' → ');
+          b.setAttribute('aria-pressed', active.has(d.id) ? 'true' : 'false');
+          b.classList.toggle('ring-2', active.has(d.id));
+          b.classList.toggle('ring-violet-300', active.has(d.id));
+          b.classList.toggle('ring-offset-2', active.has(d.id));
+          b.classList.toggle('opacity-60', !active.has(d.id));
+          b.addEventListener('click', () => {
+            if (active.has(d.id)) active.delete(d.id);
+            else active.add(d.id);
+            syncDirButtons();
+          });
+          btnWrap.appendChild(b);
+        }
+        wrap.appendChild(btnWrap);
+
+        const rule = document.createElement('div');
+        rule.className = 'my-4 border-t border-dashed border-ink-200 dark:border-slate-600';
+        wrap.appendChild(rule);
+
+        const foot = document.createElement('div');
+        foot.className = 'grid grid-cols-2 gap-2';
+        const allB = document.createElement('button');
+        allB.type = 'button';
+        allB.className =
+          'rounded-lg border border-ink-300 bg-white px-2 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-200 dark:hover:bg-slate-800';
+        allB.textContent = 'Alle';
+        allB.addEventListener('click', () => {
+          for (const d of card.directions) active.add(d.id);
+          syncDirButtons();
+        });
+        const clr = document.createElement('button');
+        clr.type = 'button';
+        clr.className =
+          'rounded-lg border border-ink-300 bg-white px-2 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-200 dark:hover:bg-slate-800';
+        clr.textContent = 'Keine';
+        clr.addEventListener('click', () => {
+          for (const d of card.directions) active.delete(d.id);
+          syncDirButtons();
+        });
+        foot.appendChild(allB);
+        foot.appendChild(clr);
+        wrap.appendChild(foot);
+
+        selector.appendChild(wrap);
+      }
+    }
+
+    function syncDirButtons() {
+      selector.querySelectorAll<HTMLButtonElement>('.bdp-dir-btn').forEach((b) => {
+        const id = b.dataset.dir as BdpDirectionId | undefined;
+        if (!id) return;
+        const on = active.has(id);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        b.classList.toggle('ring-2', on);
+        b.classList.toggle('ring-violet-300', on);
+        b.classList.toggle('ring-offset-2', on);
+        b.classList.toggle('opacity-60', !on);
+      });
+    }
+
+    function shuffle<T>(arr: T[]): T[] {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function pickPool(n: number): BdpDirectionId[] {
+      const pool = [...active];
+      if (pool.length === 0) return [];
+      const out: BdpDirectionId[] = [];
+      while (out.length < n) {
+        for (const id of shuffle(pool)) {
+          if (out.length >= n) break;
+          out.push(id);
+        }
+      }
+      return out;
+    }
+
+    function taskRowHtml(idx: number, task: BdpTask): string {
+      const pct = task.showPercentAfter
+        ? `<span class="text-lg font-medium text-ink-800 dark:text-ink-100">%</span>`
+        : '';
+      let slotHtml = '';
+      if (task.slot === 'decimal') {
+        slotHtml = `<input type="text" inputmode="decimal" autocomplete="off" data-kind="dec" class="bdp-in-dec w-[5.5rem] rounded-md border border-ink-200 bg-white px-2 py-1 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-inner focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-950 dark:text-ink-50" aria-label="Aufgabe ${idx + 1}: Dezimalzahl" />`;
+      } else if (task.slot === 'int_percent') {
+        slotHtml = `<input type="text" inputmode="numeric" autocomplete="off" data-kind="intp" class="bdp-in-int w-[4.25rem] rounded-md border border-ink-200 bg-white px-2 py-1 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-inner focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-950 dark:text-ink-50" aria-label="Aufgabe ${idx + 1}: Prozent" />`;
+      } else {
+        slotHtml = `<span class="inline-flex flex-col items-stretch gap-0.5 align-middle" data-kind="frac"><input type="text" inputmode="numeric" data-z class="bdp-in-z w-[3.25rem] rounded-md border border-ink-200 bg-white px-1 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 dark:border-slate-600 dark:bg-slate-950 dark:text-ink-50" aria-label="Aufgabe ${idx + 1}: Zähler" /><span class="h-px w-full bg-ink-400 dark:bg-slate-500" aria-hidden="true"></span><input type="text" inputmode="numeric" data-n class="bdp-in-n w-[3.25rem] rounded-md border border-ink-200 bg-white px-1 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 dark:border-slate-600 dark:bg-slate-950 dark:text-ink-50" aria-label="Aufgabe ${idx + 1}: Nenner" /></span>`;
+      }
+      return `
+<div class="bdp-task flex flex-col gap-1 rounded-xl border border-violet-100 bg-violet-50/90 px-3 py-3 shadow-sm dark:border-violet-900/40 dark:bg-violet-950/25" data-task-i="${idx}">
+  <div class="flex items-center gap-2">
+    <span class="min-w-[2rem] text-lg font-bold text-violet-600 dark:text-violet-300">${idx + 1}.</span>
+    <div class="bdp-math flex min-w-0 flex-1 flex-wrap items-center gap-2 text-lg leading-snug text-ink-900 dark:text-ink-50">
+      <span class="shrink-0">$${task.leftTex}$</span>
+      <span class="shrink-0 text-ink-600 dark:text-ink-300">=</span>
+      <span class="inline-flex flex-wrap items-center gap-2">${slotHtml}</span>
+      ${pct}
+    </div>
+    <button type="button" class="bdp-eye flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-500 hover:bg-ink-50 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-300 dark:hover:bg-slate-800" aria-label="Lösung einblenden" aria-pressed="false">${EYE_SVG}</button>
+  </div>
+  <div class="bdp-solution hidden pl-8 text-sm text-ink-600 dark:text-ink-400" data-sol>Lösung: <span class="bdp-sol-math font-medium text-ink-800 dark:text-ink-100"></span></div>
+</div>`;
+    }
+
+    let lastTasks: BdpTask[] = [];
+
+    function bindRow(root: HTMLElement, task: BdpTask, idx: number) {
+      const eye = root.querySelector('.bdp-eye');
+      const sol = root.querySelector('[data-sol]');
+      const solMath = root.querySelector('.bdp-sol-math');
+      if (solMath instanceof HTMLElement) solMath.innerHTML = task.loesungKurz;
+
+      eye?.addEventListener('click', () => {
+        const hidden = sol?.classList.contains('hidden') ?? true;
+        if (hidden) sol?.classList.remove('hidden');
+        else sol?.classList.add('hidden');
+        const open = !(sol?.classList.contains('hidden') ?? true);
+        eye.setAttribute('aria-pressed', open ? 'true' : 'false');
+        if (open) renderKatex(root);
+      });
+
+      const mark = (el: Element | null, ok: boolean | null) => {
+        if (!(el instanceof HTMLElement)) return;
+        el.classList.remove('border-coral-500', 'border-red-500', 'ring-1', 'ring-coral-400', 'ring-red-400');
+        if (ok === true) {
+          el.classList.add('border-coral-500', 'ring-1', 'ring-coral-400');
+        } else if (ok === false) {
+          el.classList.add('border-red-500', 'ring-1', 'ring-red-400');
+        }
+      };
+
+      const checkOne = () => {
+        if (task.slot === 'decimal') {
+          const inp = root.querySelector<HTMLInputElement>('.bdp-in-dec');
+          if (!inp || inp.value.trim() === '') {
+            mark(inp, null);
+            return null;
+          }
+          const ok =
+            task.expectDec !== undefined && bdpDezimalAntwortOk(inp.value, task.expectDec);
+          mark(inp, ok);
+          return ok;
+        }
+        if (task.slot === 'int_percent') {
+          const inp = root.querySelector<HTMLInputElement>('.bdp-in-int');
+          if (!inp || inp.value.trim() === '') {
+            mark(inp, null);
+            return null;
+          }
+          const v = parseIntFlexible(inp.value);
+          const ok = v !== null && task.expectInt !== undefined && v === task.expectInt;
+          mark(inp, ok);
+          return ok;
+        }
+        const zIn = root.querySelector<HTMLInputElement>('.bdp-in-z');
+        const nIn = root.querySelector<HTMLInputElement>('.bdp-in-n');
+        if (!zIn || !nIn) return null;
+        if (zIn.value.trim() === '' || nIn.value.trim() === '') {
+          mark(zIn, null);
+          mark(nIn, null);
+          return null;
+        }
+        const z = parseIntFlexible(zIn.value);
+        const n = parseIntFlexible(nIn.value);
+        if (
+          z === null ||
+          n === null ||
+          task.expectNum === undefined ||
+          task.expectDen === undefined ||
+          n === 0
+        ) {
+          mark(zIn, false);
+          mark(nIn, false);
+          return false;
+        }
+        const ok = rationalGleich(z, n, task.expectNum, task.expectDen);
+        mark(zIn, ok);
+        mark(nIn, ok);
+        return ok;
+      };
+
+      root.querySelectorAll('input').forEach((inp) => {
+        inp.addEventListener('blur', () => {
+          checkOne();
+        });
+      });
+
+      (root as HTMLElement & { __bdpCheck?: () => boolean | null }).__bdpCheck = checkOne;
+    }
+
+    function renderTasks() {
+      const n = Math.min(30, Math.max(1, Math.round(Number(anzahlInput.value) || 15)));
+      anzahlInput.value = String(n);
+      const pool = pickPool(n);
+      if (pool.length === 0) {
+        grid.innerHTML =
+          '<p class="col-span-full text-sm text-red-600 dark:text-red-400">Bitte mindestens eine Richtung auswählen.</p>';
+        lastTasks = [];
+        if (statsEl) statsEl.hidden = true;
+        return;
+      }
+      lastTasks = pool.map((id) => erzeugeBdpAufgabe(id, () => Math.random()));
+      grid.innerHTML = lastTasks.map((t, i) => taskRowHtml(i, t)).join('');
+      grid.querySelectorAll<HTMLElement>('.bdp-task').forEach((row, i) => {
+        const task = lastTasks[i];
+        if (task) bindRow(row, task, i);
+      });
+      renderKatex(grid);
+      if (statsEl) {
+        statsEl.hidden = false;
+        statsEl.textContent = `${n} Aufgaben · ${[...new Set(pool)].length} Richtung(en) im Pool`;
+      }
+    }
+
+    function checkAll() {
+      let ok = 0;
+      let total = 0;
+      grid.querySelectorAll<HTMLElement>('.bdp-task').forEach((row) => {
+        const fn = (row as HTMLElement & { __bdpCheck?: () => boolean | null }).__bdpCheck;
+        if (!fn) return;
+        const r = fn();
+        if (r === null) return;
+        total++;
+        if (r) ok++;
+      });
+      if (statsEl) {
+        statsEl.hidden = false;
+        statsEl.textContent =
+          total > 0 ? `${ok} von ${total} ausgefüllten Zeilen richtig (leere Felder zählen nicht).` : 'Noch keine Eingaben zum Prüfen.';
+      }
+    }
+
+    buildSelectorCards();
+    syncDirButtons();
+
+    genBtn.addEventListener('click', renderTasks);
+    checkAllBtn.addEventListener('click', checkAll);
+  }
+</script>
