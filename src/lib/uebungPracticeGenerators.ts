@@ -748,6 +748,15 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     return `<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">${v}</span>`;
   }
 
+  /**
+   * Quadratische Ergänzung: Zeilenumbruch, dann $m=$ und $r=$ bzw. $R=$ vor den Schreibfeldern,
+   * Einträge in einer Zeile (Online + PDF über `htmlFrageZuLatexInhalt`).
+   */
+  function abQeMRestSlotsHtml(second: 'r' | 'R'): string {
+    const v2 = second === 'r' ? abItalicVarHtml('r') : abItalicVarHtml('R');
+    return `<br /><span class="mu-katex-skip inline-flex flex-nowrap items-baseline gap-x-3 text-lg leading-none">${abItalicVarHtml('m')}<span class="text-ink-700 dark:text-ink-300"> = </span>[[MU_AB:0]]<span class="text-ink-700 dark:text-ink-300">, </span>${v2}<span class="text-ink-700 dark:text-ink-300"> = </span>[[MU_AB:1]]</span>`;
+  }
+
   /** Koeffizienten $a$, $b$, $c$ in $ax^2+bx+c$ (niedrigster Index = $x^2$). */
   function abQuadABCoeffHtml(): string {
     /** `<br>`: eigene Zeile unter der Aufgabenstellung (HTML + PDF via `htmlFrageZuLatexInhalt`). */
@@ -2859,7 +2868,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bin = `(${linBinom(1, m)})^2${formatSignedInt(r)}`;
       return {
         frage: `Führe die quadratische Ergänzung durch und schreibe $${std}$ in der Form $(x+m)^2+r$ mit ganzen Zahlen $m$ und $r$.`,
-        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ in der Form $(x+m)^2+r$ mit ganzen Zahlen ${abItalicVarHtml('m')} und ${abItalicVarHtml('r')}:<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]<span>,</span>[[MU_AB:1]]</span>`,
+        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ in der Form $(x+m)^2+r$.${abQeMRestSlotsHtml('r')}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: m },
@@ -2923,7 +2932,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bin = `${a}(${linBinom(1, m)})^2${formatSignedInt(R)}`;
       return {
         frage: `Führe die quadratische Ergänzung durch und schreibe $${std}$ in der Form $a(x+m)^2+R$ mit ganzen Zahlen $m$ und $R$.`,
-        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ als $a(x+m)^2+R$ mit ganzen Zahlen ${abItalicVarHtml('m')} und ${abItalicVarHtml('R')}:<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]<span>,</span>[[MU_AB:1]]</span>`,
+        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ als $a(x+m)^2+R$.${abQeMRestSlotsHtml('R')}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: m },
@@ -2948,7 +2957,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const bin = `${a}(${linBinom(1, m)})^2${formatSignedInt(R)}`;
       return {
         frage: `Führe die quadratische Ergänzung durch und schreibe $${std}$ in der Form $a(x+m)^2+R$ mit ganzen Zahlen $m$ und $R$.`,
-        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ als $a(x+m)^2+R$ mit ganzen Zahlen ${abItalicVarHtml('m')} und ${abItalicVarHtml('R')}:<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]<span>,</span>[[MU_AB:1]]</span>`,
+        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ als $a(x+m)^2+R$.${abQeMRestSlotsHtml('R')}`,
         pdfArbeitsblattEinzelspalte: true,
         abSlots: [
           { kind: 'int', expect: m },
