@@ -1,4 +1,5 @@
 import type { PracticeAbAntwortSlot } from './uebungPracticeGenerators';
+import { bdpDezimalAntwortOk } from './bruchDezimalProzentUmwandlung';
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -83,6 +84,12 @@ export function slotIstRichtig(shell: HTMLElement, spec: PracticeAbAntwortSlot):
     if (z === null) return false;
     return z === spec.expectNum;
   }
+  if (kind === 'decimal') {
+    if (spec.kind !== 'decimal') return false;
+    const inp = shell.querySelector<HTMLInputElement>('input.mu-ab-dec');
+    if (!inp) return false;
+    return bdpDezimalAntwortOk(inp.value, spec.expect);
+  }
   if (kind === 'choice') {
     if (spec.kind !== 'choice') return false;
     const sel = shell.querySelector<HTMLInputElement>('input.mu-ab-ch:checked');
@@ -106,6 +113,10 @@ function buildSlotMarkup(taskIdx: number, slotIdx: number, spec: PracticeAbAntwo
   if (spec.kind === 'int') {
     const aria = escapeAttr(`Aufgabe ${taskIdx + 1}, Eingabefeld ${slotIdx + 1}`);
     return `<span class="mu-ab-slot-shell ${baseShellMathSkip}" data-mu-ab-kind="int" data-mu-ab-task="${taskIdx}" data-mu-ab-slot="${slotIdx}" role="group"><span class="mu-katex-skip inline-flex items-center"><input type="text" inputmode="numeric" autocomplete="off" aria-label="${aria}" class="mu-ab-int w-[4.5rem] rounded-md border border-ink-300 bg-surface px-1.5 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-400 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-50 dark:focus:border-accent-300" /></span></span>`;
+  }
+  if (spec.kind === 'decimal') {
+    const aria = escapeAttr(`Aufgabe ${taskIdx + 1}, Dezimalzahl ${slotIdx + 1}`);
+    return `<span class="mu-ab-slot-shell ${baseShellMathSkip}" data-mu-ab-kind="decimal" data-mu-ab-task="${taskIdx}" data-mu-ab-slot="${slotIdx}" role="group"><span class="mu-katex-skip inline-flex items-center"><input type="text" inputmode="decimal" autocomplete="off" aria-label="${aria}" class="mu-ab-dec w-[5.25rem] rounded-md border border-ink-300 bg-surface px-1.5 py-0.5 text-center text-sm font-semibold tabular-nums text-ink-900 shadow-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-400 dark:border-slate-600 dark:bg-slate-900 dark:text-ink-50 dark:focus:border-accent-300" /></span></span>`;
   }
   if (spec.kind === 'frac') {
     const ariaZ = escapeAttr(`Aufgabe ${taskIdx + 1}, Zähler ${slotIdx + 1}`);

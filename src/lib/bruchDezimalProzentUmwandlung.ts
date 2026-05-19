@@ -3,6 +3,9 @@
  * Nur endliche Dezimaldarstellungen (Nenner n = 2^a·5^b), damit keine optisch-numerischen Widersprüche entstehen.
  */
 
+/** sessionStorage: aktive Generator-IDs (`bdp_br_dez`, …) von der Themenseite / Massenübung. */
+export const BDP_WB_STOR_KEY = 'mu-wb-bdp-richtungen';
+
 export type BdpRng = () => number;
 
 export type BdpDirectionId = 'br_dez' | 'dez_br' | 'br_pr' | 'pr_br' | 'dez_pr' | 'pr_dez';
@@ -62,6 +65,11 @@ export const BDP_CARD_GROUPS: readonly {
     ],
   },
 ] as const;
+
+/** `bdp_br_dez` → Button-Beschriftung (PDF-Kopf, UI). */
+export const BDP_GEN_ID_LABEL: Record<string, string> = Object.fromEntries(
+  BDP_CARD_GROUPS.flatMap((c) => c.directions.map((d) => [`bdp_${d.id}`, d.label]))
+);
 
 /** Nenner mit endlicher Dezimalentwicklung (n ≤ 100). */
 const NICE_DENOMINATORS: readonly number[] = [2, 4, 5, 8, 10, 16, 20, 25, 32, 40, 50, 64, 80, 100] as const;
