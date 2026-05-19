@@ -40,6 +40,13 @@ const {
 } = Astro.props;
 
 const wbBdpKarten = slug === 'bruch-dezimal-prozent' && Boolean(generatorUebungHref);
+const showMiniWbBlock =
+  slug !== 'bruchrechnung' &&
+  slug !== 'negative-zahlen' &&
+  slug !== 'algebra' &&
+  slug !== 'dezimalzahlen' &&
+  slug !== 'bruch-dezimal-prozent';
+const showThemaRessourcenAccordion = aufgaben.length > 0 || quizzes.length > 0 || blog.length > 0;
 const wbThemaMitAkku =
   Boolean(generatorUebungHref) &&
   (wbBdpKarten ||
@@ -73,6 +80,7 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
   {(wbBdpKarten || (unterthemenBloecke && unterthemenBloecke.length > 0)) && (
     wbThemaMitAkku ? (
       <details
+        open={wbBdpKarten}
         class="mu-wb-unterthemen-acc mb-8 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
       >
         <summary class="cursor-pointer list-none px-4 py-3 text-sm [&::-webkit-details-marker]:hidden">
@@ -322,7 +330,9 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
   )}
 
 
+  {(showThemaRessourcenAccordion || showMiniWbBlock) && (
   <div class="grid gap-5 md:grid-cols-2">
+    {showThemaRessourcenAccordion && (
     <details
       class="mu-thema-ressourcen-acc md:col-span-2 rounded-lg border border-ink-200/90 bg-ink-50/90 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50"
       aria-label="Aufgabenfolgen, diagnostische Fragen und Didaktik-Beiträge"
@@ -423,12 +433,9 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
         </div>
       </div>
     </details>
+    )}
 
-    {slug !== 'bruchrechnung' &&
-      slug !== 'negative-zahlen' &&
-      slug !== 'algebra' &&
-      slug !== 'dezimalzahlen' &&
-      slug !== 'bruch-dezimal-prozent' && (
+    {showMiniWbBlock && (
     <!-- Mini-Whiteboard (Bruchrechnung, Negative Zahlen, Algebra: Steuerung in der Unterthemen-Kompaktzeile) -->
     <div class="md:col-span-2 rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
       <div class="flex items-start justify-between gap-3 mb-2">
@@ -499,6 +506,7 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
     )}
 
   </div>
+  )}
 
   <style is:global>
     .mu-fehlvorstellungen-acc .mu-fehlv-chevron,
