@@ -261,6 +261,7 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
     'alg_minus_klammer_plus',
     'alg_expand_einfach_zahl',
     'alg_expand_einfach_var',
+    'alg_distributiv_zahl',
   ],
 };
 
