@@ -18,7 +18,11 @@
  * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
  *
  * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
- * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (nicht in den JSON-Punkten; optional über Session-IDs)
+ * - `alg_distributiv_zahl` ← „Distributivgesetz mit ganzen Zahlen“ (optional über Session-IDs; im Block „Shedloads“ auch als Stichwort)
+ *
+ * **Shedloads (Mr Barton-Stil):** Unterthema „Einfache Klammern – Intensivdrill (Shedloads)“ — didaktisch
+ * feinere Stichworte mit denselben Generatoren wie „Klammern ausmultiplizieren“ (positiv/negativ/Summe,
+ * Minus vor Klammer, Zahl/Variable davor, reine Zahlen, Mix-Capstone).
  *
  * Arbeitsblatt „Überprüfen“: bei `alg_ausklammern` und den verwandten Faktorisierungs-Generatoren werden die Zahl-Lücken geprüft.
  */
@@ -121,6 +125,16 @@ export const ALG_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
     'Dreifache Klammern',
   ],
   [
+    'Shedloads: $k(ax+b)$ mit $k>0$ (eine einfache Klammer)',
+    'Shedloads: $-k(ax+b)$ (negativer ganzzahliger Vorfaktor)',
+    'Shedloads: $k_1(\\ldots)+k_2(\\ldots)$ (zwei Klammern addieren/subtrahieren)',
+    'Shedloads: Minus vor Klammer im längeren Term und zusammenfassen',
+    'Shedloads: Zahl davor – $k(ax+b)$ mit inneren Koeffizienten $\\neq 1$',
+    'Shedloads: Variable davor – $kx(ax+b)$',
+    'Shedloads: Distributivgesetz nur mit ganzen Zahlen (Flächenbild)',
+    'Einfache Klammern – Shedloads-Diagnose-Capstone (Mix)',
+  ],
+  [
     'Faktorisieren mit gemeinsamem Zahlfaktor',
     'Faktorisieren mit gemeinsamem algebraischen Faktor',
     'Faktorpaare finden, die zu c multiplizieren und zu b addieren',
@@ -157,6 +171,7 @@ export const ALG_WB_CLUSTER_TITEL: readonly string[] = [
   'Gleichartige Terme',
   'Algebraische Brüche',
   'Klammern ausmultiplizieren',
+  'Einfache Klammern – Intensivdrill (Shedloads)',
   'Faktorisieren',
   'Quadratische Ergänzung',
 ];
@@ -232,6 +247,21 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Was ist eine Variable?': ['alg_gb_variable'],
   'Was ist eine Konstante?': ['alg_gb_konstante'],
   'Konventionen der algebraischen Schreibweise': ['alg_gb_konvention'],
+  'Shedloads: $k(ax+b)$ mit $k>0$ (eine einfache Klammer)': ['alg_klammer_mal'],
+  'Shedloads: $-k(ax+b)$ (negativer ganzzahliger Vorfaktor)': ['alg_klammer_neg_int'],
+  'Shedloads: $k_1(\\ldots)+k_2(\\ldots)$ (zwei Klammern addieren/subtrahieren)': ['alg_klammer_summe'],
+  'Shedloads: Minus vor Klammer im längeren Term und zusammenfassen': ['alg_minus_klammer_plus'],
+  'Shedloads: Zahl davor – $k(ax+b)$ mit inneren Koeffizienten $\\neq 1$': ['alg_expand_einfach_zahl'],
+  'Shedloads: Variable davor – $kx(ax+b)$': ['alg_expand_einfach_var'],
+  'Shedloads: Distributivgesetz nur mit ganzen Zahlen (Flächenbild)': ['alg_distributiv_zahl'],
+  'Einfache Klammern – Shedloads-Diagnose-Capstone (Mix)': [
+    'alg_klammer_mal',
+    'alg_klammer_neg_int',
+    'alg_klammer_summe',
+    'alg_minus_klammer_plus',
+    'alg_expand_einfach_zahl',
+    'alg_expand_einfach_var',
+  ],
 };
 
 export function expandAlgWbStichworte(keywords: readonly string[]): string[] {
