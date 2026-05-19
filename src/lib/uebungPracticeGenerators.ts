@@ -307,6 +307,10 @@ export const ALGEBRA_GENERATOR_IDS = [
   'alg_ausklammern_alg',
   'alg_ausklammern_klammer',
   'alg_ausklammern_gruppe',
+  'alg_qe_monisch_b_gerade',
+  'alg_qe_monisch_b_ungerade',
+  'alg_qe_nicht_monisch_a_pos',
+  'alg_qe_nicht_monisch_a_neg',
 ] as const;
 
 /** Lineare Gleichungen in einer Variablen (Klasse 7–8). */
@@ -2838,6 +2842,119 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
           { kind: 'int', expect: n },
         ],
         loesung: `$${expr}=${K}x(${m}y${formatSignedInt(n)})$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_qe_monisch_b_gerade() {
+      let m = 0;
+      for (let t = 0; t < 30; t++) {
+        m = randInt(-5, 5);
+        if (m !== 0) break;
+      }
+      if (m === 0) m = 2;
+      const b = 2 * m;
+      const c = randInt(-14, 14);
+      const r = c - m * m;
+      const std = `x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      const bin = `(${linBinom(1, m)})^2${formatSignedInt(r)}`;
+      return {
+        frage: `Führe die quadratische Ergänzung durch und schreibe $${std}$ in der Form $(x+m)^2+r$ mit ganzen Zahlen $m$ und $r$.`,
+        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ in der Form $(x+m)^2+r$ mit ganzen Zahlen ${abItalicVarHtml('m')} und ${abItalicVarHtml('r')}:<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]<span>,</span>[[MU_AB:1]]</span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: m },
+          { kind: 'int', expect: r, konstanteMitVorzeichenInAntwortBox: true },
+        ],
+        loesung: `$${std}=${bin}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_qe_monisch_b_ungerade() {
+      const b = pick([-7, -5, -3, -1, 1, 3, 5, 7] as const);
+      const c = randInt(-10, 10);
+      const numR = 4 * c - b * b;
+      const denR = 4;
+      const g = gcd(Math.abs(numR), denR);
+      const rn = numR / g;
+      const rd = denR / g;
+      const inner =
+        b > 0
+          ? `(x+\\tfrac{${b}}{2})^2`
+          : b < 0
+            ? `(x-\\tfrac{${-b}}{2})^2`
+            : 'x^2';
+      const tailSign = rn === 0 ? '' : rn > 0 ? '+' : '-';
+      const tailAbs = rn === 0 ? '' : rd === 1 ? `${Math.abs(rn)}` : `\\tfrac{${Math.abs(rn)}}{${rd}}`;
+      const correctTex = rn === 0 ? `${inner}` : `${inner}${tailSign}${tailAbs}`;
+      const wrongRn = -numR;
+      const wg = gcd(Math.abs(wrongRn), denR);
+      const wrn = wrongRn / wg;
+      const wrd = denR / wg;
+      const wTailSign = wrn === 0 ? '' : wrn > 0 ? '+' : '-';
+      const wTailAbs = wrn === 0 ? '' : wrd === 1 ? `${Math.abs(wrn)}` : `\\tfrac{${Math.abs(wrn)}}{${wrd}}`;
+      const wrongTex = wrn === 0 ? `${inner}` : `${inner}${wTailSign}${wTailAbs}`;
+      const std = `x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      const labelRichtig = `$${correctTex}$`;
+      const labelFalsch = `$${wrongTex}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelFalsch, labelRichtig] : [labelRichtig, labelFalsch];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Führe die quadratische Ergänzung durch: Welche Scheitelpunktform gehört zu $${std}$?`,
+        frageArbeitsblatt: `Quadratische Ergänzung: Welche Darstellung gehört zu $${std}$?<br />[[MU_AB:0]]`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Richtig ist $${correctTex}$: Halbiere den Koeffizienten von $x$, quadriere, Rest $r=c-\\tfrac{b^2}{4}$ (hier $${correctTex}$).`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_qe_nicht_monisch_a_pos() {
+      const a = pick([2, 3] as const);
+      let m = 0;
+      for (let t = 0; t < 25; t++) {
+        m = randInt(-4, 4);
+        if (m !== 0) break;
+      }
+      if (m === 0) m = 2;
+      const b = 2 * a * m;
+      const c = randInt(-16, 16);
+      const R = c - a * m * m;
+      const std = `${a}x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      const bin = `${a}(${linBinom(1, m)})^2${formatSignedInt(R)}`;
+      return {
+        frage: `Führe die quadratische Ergänzung durch und schreibe $${std}$ in der Form $a(x+m)^2+R$ mit ganzen Zahlen $m$ und $R$.`,
+        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ als $a(x+m)^2+R$ mit ganzen Zahlen ${abItalicVarHtml('m')} und ${abItalicVarHtml('R')}:<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]<span>,</span>[[MU_AB:1]]</span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: m },
+          { kind: 'int', expect: R, konstanteMitVorzeichenInAntwortBox: true },
+        ],
+        loesung: `$${std}=${bin}$.`,
+        loesungArbeitsblattEigeneZeile: true,
+      };
+    },
+    alg_qe_nicht_monisch_a_neg() {
+      const a = pick([-3, -2] as const);
+      let m = 0;
+      for (let t = 0; t < 25; t++) {
+        m = randInt(-4, 4);
+        if (m !== 0) break;
+      }
+      if (m === 0) m = 2;
+      const b = 2 * a * m;
+      const c = randInt(-16, 16);
+      const R = c - a * m * m;
+      const std = `${a}x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      const bin = `${a}(${linBinom(1, m)})^2${formatSignedInt(R)}`;
+      return {
+        frage: `Führe die quadratische Ergänzung durch und schreibe $${std}$ in der Form $a(x+m)^2+R$ mit ganzen Zahlen $m$ und $R$.`,
+        frageArbeitsblatt: `Quadratische Ergänzung: $${std}$ als $a(x+m)^2+R$ mit ganzen Zahlen ${abItalicVarHtml('m')} und ${abItalicVarHtml('R')}:<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]<span>,</span>[[MU_AB:1]]</span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: m },
+          { kind: 'int', expect: R, konstanteMitVorzeichenInAntwortBox: true },
+        ],
+        loesung: `$${std}=${bin}$.`,
         loesungArbeitsblattEigeneZeile: true,
       };
     },

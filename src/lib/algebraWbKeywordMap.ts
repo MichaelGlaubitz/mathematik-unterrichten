@@ -3,7 +3,7 @@
  * → Generator-IDs für die Massenübung WB Algebra.
  *
  * **Abdeckung:** Viele Stichworte sind didaktische Wegmarken ohne passenden `alg_*`-Generator
- * (z. B. Begriffe, Substitution, algebraische Brüche, quadratische Ergänzung). Diese erscheinen
+ * (z. B. Begriffe, Substitution, algebraische Brüche). Diese erscheinen
  * in der Oberfläche, haben aber **keinen** Eintrag in `ALG_WB_STICHWORT_TO_IDS` — sie erzeugen
  * beim Üben **keine** stillen Fallback-Aufgaben (siehe `readAlgebraTypenFromStorage` in
  * `MassenuebungGeo.astro`).
@@ -15,6 +15,7 @@
  * - `alg_minus_klammer_plus`: Minus vor Klammer in längerem Term
  * - `alg_expand_einfach_zahl` / `alg_expand_einfach_var`, `alg_expand_binom_*`, `alg_expand_triple_*`: gestuftes Ausmultiplizieren (einfache Klammer mit Zahl bzw. algebraischem Vorfaktor $kx$, Binome, Faktor davor, drei Klammern)
  * - `alg_ausklammern`, `alg_ausklammern_alg`, `alg_ausklammern_klammer`, `alg_ausklammern_gruppe`: Faktorisieren (gemeinsamer Zahlfaktor; algebraischer Faktor; gemeinsamer Klammerausdruck; Zusammenfassen und vollständig ausklammern)
+ * - `alg_qe_monisch_b_gerade` / `alg_qe_monisch_b_ungerade` / `alg_qe_nicht_monisch_a_pos` / `alg_qe_nicht_monisch_a_neg`: quadratische Ergänzung (monisch $b$ gerade/ungerade; nicht-monisch $a>0$ / $a<0$)
  * - `alg_gb_term` … `alg_gb_konvention`: Grundbegriffe am Term (Summanden, Gleichung vs. Term, Koeffizient, Variable im Sachsatz, Konstante, Schreibkonvention)
  *
  * Zusätzlich (Mini-Whiteboard / Distributiv mit Zahlen):
@@ -232,6 +233,16 @@ export const ALG_WB_STICHWORT_TO_IDS: Readonly<Record<string, readonly string[]>
   'Was ist eine Variable?': ['alg_gb_variable'],
   'Was ist eine Konstante?': ['alg_gb_konstante'],
   'Konventionen der algebraischen Schreibweise': ['alg_gb_konvention'],
+  'Quadratische Ergänzung (monisch, b gerade)': ['alg_qe_monisch_b_gerade'],
+  'Quadratische Ergänzung (monisch, b ungerade)': ['alg_qe_monisch_b_ungerade'],
+  'Quadratische Ergänzung (nicht-monisch, a positiv)': ['alg_qe_nicht_monisch_a_pos'],
+  'Quadratische Ergänzung (nicht-monisch, a negativ)': ['alg_qe_nicht_monisch_a_neg'],
+  'Quadratische Ergänzung — Diagnose-Capstone': [
+    'alg_qe_monisch_b_gerade',
+    'alg_qe_monisch_b_ungerade',
+    'alg_qe_nicht_monisch_a_pos',
+    'alg_qe_nicht_monisch_a_neg',
+  ],
 };
 
 export function expandAlgWbStichworte(keywords: readonly string[]): string[] {
@@ -300,6 +311,10 @@ export const ALG_GENERATOR_IDS_PDF_EINSPALTIG: ReadonlySet<string> = new Set([
   'alg_expand_triple_konstant',
   'alg_expand_triple_var',
   'alg_expand_triple_klammern',
+  'alg_qe_monisch_b_gerade',
+  'alg_qe_monisch_b_ungerade',
+  'alg_qe_nicht_monisch_a_pos',
+  'alg_qe_nicht_monisch_a_neg',
   'alg_ausklammern_alg',
   'alg_ausklammern_klammer',
   'alg_ausklammern_gruppe',
