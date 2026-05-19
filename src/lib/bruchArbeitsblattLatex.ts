@@ -732,3 +732,16 @@ export async function erzeugeAlgebraArbeitsblattPdf(opts: {
     diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
   });
 }
+
+/** WB Dezimalzahlen: rein algebraische Aufgaben, gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
+export async function erzeugeDezimalzahlenArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
+  });
+}
