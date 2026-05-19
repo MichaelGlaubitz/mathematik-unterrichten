@@ -184,6 +184,24 @@ export function sortAlgAbStichworte(labels: readonly string[]): string[] {
   });
 }
 
+/** WB-Algebra Themenseite: Stichwort-Pills nach Unterthemen-Cluster (wie `algebra.json`). */
+export type AlgWbStichwortClusterPills = { titel: string; stichworte: readonly string[] };
+
+/**
+ * Liefert nur Cluster, in denen mindestens ein Stichwort einen Eintrag in {@link ALG_WB_STICHWORT_TO_IDS}
+ * hat — für die Pill-Liste auf `/themen#thema-algebra`.
+ */
+export function algWbStichwortPillsNachCluster(): AlgWbStichwortClusterPills[] {
+  const mitUebung = new Set(Object.keys(ALG_WB_STICHWORT_TO_IDS));
+  const out: AlgWbStichwortClusterPills[] = [];
+  for (let i = 0; i < ALG_WB_CLUSTER_TITEL.length; i++) {
+    const kws = ALG_WB_UNTERTHEMA_STICHWORTE[i].filter((k) => mitUebung.has(k));
+    if (kws.length === 0) continue;
+    out.push({ titel: ALG_WB_CLUSTER_TITEL[i], stichworte: sortAlgAbStichworte([...kws]) });
+  }
+  return out;
+}
+
 /**
  * Nur Stichworte mit echten `alg_*`-Aufgaben. Mehrere Stichworte dürfen dieselbe ID teilen
  * (gleicher Übungstyp, andere didaktische Einordnung).

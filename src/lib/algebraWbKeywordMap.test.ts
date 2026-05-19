@@ -5,6 +5,7 @@ import {
   algebraPdfEinspaltigAusSession,
   algStichwortClusterIndex,
   algWbAlleStichworteFlach,
+  algWbStichwortPillsNachCluster,
   clusterTitelZeileFuerAlgGeneratorIds,
   expandAlgWbStichworte,
   sortAlgAbStichworte,
@@ -38,6 +39,20 @@ describe('algebraWbKeywordMap', () => {
         aktiveGeneratorIds: ['alg_gb_term'],
       })
     ).toBe(false);
+  });
+
+  it('algWbStichwortPillsNachCluster: alle Map-Stichworte, nach Cluster gruppiert', () => {
+    const clusters = algWbStichwortPillsNachCluster();
+    expect(clusters.length).toBeGreaterThan(0);
+    const alle = new Set(clusters.flatMap((c) => [...c.stichworte]));
+    expect(alle.size).toBe(Object.keys(ALG_WB_STICHWORT_TO_IDS).length);
+    for (const k of Object.keys(ALG_WB_STICHWORT_TO_IDS)) {
+      expect(alle.has(k)).toBe(true);
+    }
+    for (const c of clusters) {
+      expect(c.titel.length).toBeGreaterThan(2);
+      expect(c.stichworte.length).toBeGreaterThan(0);
+    }
   });
 
   it('jedes Stichwort aus algebra.json liegt in genau einem Cluster', () => {
