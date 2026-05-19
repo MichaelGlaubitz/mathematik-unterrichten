@@ -199,7 +199,7 @@ function intSlotFilledBoxInhalt(spec: PracticeAbAntwortSlot & { kind: 'int' }): 
 
 export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled'): string {
   if (mode === 'blank') {
-    if (spec.kind === 'int') return `\\ensuremath{${BRUCH_AB_PDF_INT_SCHREIBFLAECHE}}`;
+    if (spec.kind === 'int' || spec.kind === 'decimal') return `\\ensuremath{${BRUCH_AB_PDF_INT_SCHREIBFLAECHE}}`;
     if (spec.kind === 'frac')
       return `\\ensuremath{\\displaystyle\\frac{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}{${BRUCH_AB_PDF_FRAC_SCHREIBFLAECHE}}}`;
     if (spec.kind === 'frac_num')
@@ -207,6 +207,10 @@ export function slotLatex(spec: PracticeAbAntwortSlot, mode: 'blank' | 'filled')
     return slotChoiceLatexTwoRows(spec, 'blank');
   }
   if (spec.kind === 'int') return `\\ensuremath{\\boxed{${intSlotFilledBoxInhalt(spec)}}}`;
+  if (spec.kind === 'decimal') {
+    const s = String(spec.expect).replace('.', '{,}');
+    return `\\ensuremath{\\boxed{${s}}}`;
+  }
   if (spec.kind === 'frac') {
     const inner = fracTex(spec.expectNum, spec.expectDen);
     return `\\ensuremath{\\boxed{\\displaystyle ${inner}}}`;

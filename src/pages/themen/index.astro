@@ -180,6 +180,8 @@ const themenProBand = clusterReihenfolge
                               ? '/uebung/bruchgleichungen'
                               : tv.slug === 'bruchrechnung'
                                 ? '/uebung/bruchrechnung'
+                                : tv.slug === 'bruch-dezimal-prozent'
+                                  ? '/uebung/bruch-dezimal-prozent'
                                 : tv.slug === 'dezimalzahlen'
                                   ? '/uebung/dezimalzahlen'
                                   : tv.slug === 'negative-zahlen'
@@ -225,6 +227,8 @@ const themenProBand = clusterReihenfolge
                               ? 'WB Bruchgleichungen'
                               : tv.slug === 'bruchrechnung'
                                 ? 'WB Bruchrechnung'
+                                : tv.slug === 'bruch-dezimal-prozent'
+                                  ? 'WB Bruch · Dezimal · Prozent'
                                 : tv.slug === 'dezimalzahlen'
                                   ? 'WB Dezimalzahlen'
                                   : tv.slug === 'negative-zahlen'
@@ -292,11 +296,11 @@ const themenProBand = clusterReihenfolge
       writeNzMassenLayout,
     } from '../../lib/massenNegativeZahlenPrefs';
     import {
-      readDzMassenAnzahl,
-      readDzMassenLayout,
-      writeDzMassenAnzahl,
-      writeDzMassenLayout,
-    } from '../../lib/massenDezimalzahlenPrefs';
+      readBdpMassenAnzahl,
+      readBdpMassenLayout,
+      writeBdpMassenAnzahl,
+      writeBdpMassenLayout,
+    } from '../../lib/massenBdpPrefs';
     import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
     let wbThemaKwAbort: AbortController | null = null;
@@ -326,7 +330,12 @@ const themenProBand = clusterReihenfolge
 
     function stripeApplyWbThema(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+      slug:
+        | 'bruchrechnung'
+        | 'dezimalzahlen'
+        | 'negative-zahlen'
+        | 'algebra'
+        | 'bruch-dezimal-prozent'
     ) {
       const anzahl =
         slug === 'bruchrechnung'
@@ -335,7 +344,9 @@ const themenProBand = clusterReihenfolge
             ? readDzMassenAnzahl()
             : slug === 'negative-zahlen'
               ? readNzMassenAnzahl()
-              : readAlgebraMassenAnzahl();
+              : slug === 'bruch-dezimal-prozent'
+                ? readBdpMassenAnzahl()
+                : readAlgebraMassenAnzahl();
       const layout =
         slug === 'bruchrechnung'
           ? readBruchMassenLayout()
@@ -343,7 +354,9 @@ const themenProBand = clusterReihenfolge
             ? readDzMassenLayout()
             : slug === 'negative-zahlen'
               ? readNzMassenLayout()
-              : readAlgebraMassenLayout();
+              : slug === 'bruch-dezimal-prozent'
+                ? readBdpMassenLayout()
+                : readAlgebraMassenLayout();
       root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-anzahl').forEach((b) => {
         const n = Number(b.dataset.anzahl);
         b.classList.toggle('mu-wb-stripe--aktiv', Number.isFinite(n) && n === anzahl);
@@ -356,7 +369,14 @@ const themenProBand = clusterReihenfolge
       if (cb) cb.checked = readShowPracticeDiagrams();
     }
 
-    function bootWbThemaStripe(slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra') {
+    function bootWbThemaStripe(
+      slug:
+        | 'bruchrechnung'
+        | 'dezimalzahlen'
+        | 'negative-zahlen'
+        | 'algebra'
+        | 'bruch-dezimal-prozent'
+    ) {
       const root = document.getElementById(`thema-${slug}`);
       if (!root) return;
       const stripe = root.querySelector<HTMLElement>('.mu-wb-thema-stripe');
@@ -372,6 +392,7 @@ const themenProBand = clusterReihenfolge
           if (slug === 'bruchrechnung') writeBruchMassenAnzahl(n);
           else if (slug === 'dezimalzahlen') writeDzMassenAnzahl(n);
           else if (slug === 'negative-zahlen') writeNzMassenAnzahl(n);
+          else if (slug === 'bruch-dezimal-prozent') writeBdpMassenAnzahl(n);
           else writeAlgebraMassenAnzahl(n);
           stripeApplyWbThema(root, slug);
           return;
@@ -383,6 +404,7 @@ const themenProBand = clusterReihenfolge
           if (slug === 'bruchrechnung') writeBruchMassenLayout(l);
           else if (slug === 'dezimalzahlen') writeDzMassenLayout(l);
           else if (slug === 'negative-zahlen') writeNzMassenLayout(l);
+          else if (slug === 'bruch-dezimal-prozent') writeBdpMassenLayout(l);
           else writeAlgebraMassenLayout(l);
           stripeApplyWbThema(root, slug);
           if (autoHref) window.location.assign(autoHref);
@@ -526,6 +548,7 @@ const themenProBand = clusterReihenfolge
         bootWbThemaStripe('dezimalzahlen');
         bootWbThemaStripe('negative-zahlen');
         bootWbThemaStripe('algebra');
+        bootWbThemaStripe('bruch-dezimal-prozent');
         bootWbThemaKeywords();
       });
     }
