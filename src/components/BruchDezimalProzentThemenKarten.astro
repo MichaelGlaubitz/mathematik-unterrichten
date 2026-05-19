@@ -80,15 +80,13 @@ import { BDP_UMWANDLUNG_GENERATOR_IDS } from '../lib/uebungPracticeGenerators';
 
   function syncUi(root) {
     const sel = readSel();
-    root.querySelectorAll<HTMLButtonElement>('.mu-wb-bdp-dir').forEach((b) => {
-      const id = b.dataset.muBdpGen;
+    root.querySelectorAll('.mu-wb-bdp-dir').forEach((node) => {
+      if (!(node instanceof HTMLButtonElement)) return;
+      const id = node.dataset.muBdpGen;
       if (!id) return;
       const on = sel.has(id);
-      b.setAttribute('aria-pressed', on ? 'true' : 'false');
-      b.classList.toggle('ring-2', on);
-      b.classList.toggle('ring-violet-300', on);
-      b.classList.toggle('ring-offset-2', on);
-      b.classList.toggle('opacity-60', !on);
+      node.setAttribute('aria-pressed', on ? 'true' : 'false');
+      node.classList.toggle('mu-wb-bdp-dir--an', on);
     });
   }
 
@@ -98,20 +96,24 @@ import { BDP_UMWANDLUNG_GENERATOR_IDS } from '../lib/uebungPracticeGenerators';
     root.dataset.muBdpBound = '1';
     syncUi(root);
     root.addEventListener('click', (ev) => {
-      const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-bdp-bulk]');
+      const t = ev.target;
+      const fromEl = t instanceof Element ? t : t instanceof Node ? t.parentElement : null;
+      const bulk = fromEl && fromEl.closest ? fromEl.closest('[data-mu-bdp-bulk]') : null;
       if (bulk && root.contains(bulk)) {
         const mode = bulk.getAttribute('data-mu-bdp-bulk');
         const card = bulk.closest('article');
         if (!card) return;
         const sel = readSel();
         if (mode === 'all') {
-          card.querySelectorAll<HTMLButtonElement>('.mu-wb-bdp-dir').forEach((b) => {
-            const id = b.dataset.muBdpGen;
+          card.querySelectorAll('.mu-wb-bdp-dir').forEach((node) => {
+            if (!(node instanceof HTMLButtonElement)) return;
+            const id = node.dataset.muBdpGen;
             if (id) sel.add(id);
           });
         } else {
-          card.querySelectorAll<HTMLButtonElement>('.mu-wb-bdp-dir').forEach((b) => {
-            const id = b.dataset.muBdpGen;
+          card.querySelectorAll('.mu-wb-bdp-dir').forEach((node) => {
+            if (!(node instanceof HTMLButtonElement)) return;
+            const id = node.dataset.muBdpGen;
             if (id) sel.delete(id);
           });
         }
@@ -119,8 +121,8 @@ import { BDP_UMWANDLUNG_GENERATOR_IDS } from '../lib/uebungPracticeGenerators';
         syncUi(root);
         return;
       }
-      const btn = (ev.target as HTMLElement | null)?.closest?.('button.mu-wb-bdp-dir');
-      if (!btn || !root.contains(btn)) return;
+      const btn = fromEl && fromEl.closest ? fromEl.closest('button.mu-wb-bdp-dir') : null;
+      if (!(btn instanceof HTMLButtonElement) || !root.contains(btn)) return;
       const id = btn.dataset.muBdpGen;
       if (!id) return;
       const sel = readSel();
@@ -134,3 +136,21 @@ import { BDP_UMWANDLUNG_GENERATOR_IDS } from '../lib/uebungPracticeGenerators';
   boot();
   document.addEventListener('astro:page-load', boot);
 </script>
+
+<style is:global>
+  /* define:vars-Skripte werden nicht transpiliert — kein TS in diesem Block */
+  button.mu-wb-bdp-dir.mu-wb-bdp-dir--an {
+    border-color: rgb(91 33 182) !important;
+    background-color: rgb(91 33 182) !important;
+    color: #fff !important;
+    opacity: 1 !important;
+  }
+  html.dark button.mu-wb-bdp-dir.mu-wb-bdp-dir--an {
+    border-color: rgb(167 139 250) !important;
+    background-color: rgb(167 139 250) !important;
+    color: rgb(15 23 42) !important;
+  }
+  button.mu-wb-bdp-dir:not(.mu-wb-bdp-dir--an) {
+    opacity: 0.72;
+  }
+</style>
