@@ -152,9 +152,9 @@ export const ALG_WB_UNTERTHEMA_STICHWORTE: readonly (readonly string[])[] = [
 
 export const ALG_WB_CLUSTER_TITEL: readonly string[] = [
   'Ausdruck, Gleichung, Formel, Identität',
-  'Grundbegriffe am Term',
+  'Grundbegriffe',
   'Terme aus Sprache; Substitution',
-  'Gleichartige Terme; Potenzen & Äquivalenz',
+  'Gleichartige Terme',
   'Algebraische Brüche',
   'Klammern ausmultiplizieren',
   'Faktorisieren',
