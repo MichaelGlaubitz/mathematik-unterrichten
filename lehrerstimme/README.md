@@ -9,20 +9,29 @@ lehrerstimme/
 ├── public/
 ├── src/
 │   ├── app/                 # App Router — Routen, Layouts, Server Actions (später)
-│   ├── components/          # UI-Atome & Features (Shadcn/UI — noch einzubinden)
-│   │   ├── charts/          # Diagramm-Komponenten (Balken/Kreis)
-│   │   ├── survey/          # Fragenkarten, Optionen, Fortschritt
-│   │   └── layout/          # Shell, Header, Footer
-│   ├── hooks/               # Client-Hooks (LocalStorage, Streak, Kalendertag)
+│   ├── components/
+│   │   ├── charts/          # Balken-, Donut-Diagramme, SVG-Zoom (+/−)
+│   │   ├── survey/          # Fragenkarten, Tagesfortschritt, Impuls-des-Tages-Karte
+│   │   ├── layout/          # App-Shell, MVP-Demo-Dashboard
+│   │   └── ui/              # Shadcn (Base UI „base-nova“) — Button, Card, RadioGroup, …
+│   ├── hooks/               # Client-Hooks (LocalStorage, Streak, Kalendertag, SVG-Zoom)
 │   ├── lib/
+│   │   ├── charts/          # Prozent-Logik, Donut-Pfade, Farben
+│   │   ├── demo/            # Nur Demo-Daten für die Startseite
 │   │   ├── survey/          # Kalenderlogik, Streak-Reinfunktionen
 │   │   ├── storage/         # LocalStorage-Adapter (strikt getrennt von API-Auth)
 │   │   └── supabase/        # Serverlose API — nur anonyme Inserts (später)
 │   └── types/               # Gemeinsame TS-Typen (Survey + lokales Onboarding)
-├── next.config.ts
+├── components.json          # Shadcn-Konfiguration
+├── next.config.mjs
 ├── package.json
 └── README.md
 ```
+
+## UI (Shadcn)
+
+- Stil-Preset: **base-nova** (Base UI + `class-variance-authority`).
+- Komponenten hinzufügen: `npx shadcn@latest add <name> -y` im Ordner `lehrerstimme/`.
 
 ## Zero-Knowledge / DSGVO-Hinweis
 
