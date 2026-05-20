@@ -182,7 +182,9 @@ const themenProBand = clusterReihenfolge
                                 ? '/uebung/bruchrechnung'
                                 : tv.slug === 'dezimalzahlen'
                                   ? '/uebung/dezimalzahlen'
-                                  : tv.slug === 'negative-zahlen'
+                                  : tv.slug === 'bruch-dezimal-prozent'
+                                    ? '/uebung/bruch-dezimal-prozent'
+                                    : tv.slug === 'negative-zahlen'
                                     ? '/uebung/negative-zahlen'
                                     : tv.slug === 'algebra'
                                       ? '/uebung/algebra'
@@ -227,7 +229,9 @@ const themenProBand = clusterReihenfolge
                                 ? 'WB Bruchrechnung'
                                 : tv.slug === 'dezimalzahlen'
                                   ? 'WB Dezimalzahlen'
-                                  : tv.slug === 'negative-zahlen'
+                                  : tv.slug === 'bruch-dezimal-prozent'
+                                    ? 'WB Bruch · Dezimal · Prozent'
+                                    : tv.slug === 'negative-zahlen'
                                     ? 'WB Negative Zahlen'
                                     : tv.slug === 'algebra'
                                       ? 'WB Algebra'
@@ -271,7 +275,7 @@ const themenProBand = clusterReihenfolge
   <script>
     import { ALG_WB_STOR_KEY, stichworteFuerAlgIds } from '../../lib/algebraWbKeywordMap';
     import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../../lib/bruchrechnungWbKeywordMap';
-    import { DZ_WB_STOR_KEY, stichworteFuerDzIds } from '../../lib/dezimalzahlenWbKeywordMap';
+    import { BDP_WB_STOR_KEY, stichworteFuerBdpIds } from '../../lib/bruchDezimalProzentWbKeywordMap';
     import { NZ_WB_STOR_KEY, stichworteFuerNzIds } from '../../lib/negativeZahlenWbKeywordMap';
     import {
       readBruchMassenAnzahl,
@@ -297,6 +301,12 @@ const themenProBand = clusterReihenfolge
       writeDzMassenAnzahl,
       writeDzMassenLayout,
     } from '../../lib/massenDezimalzahlenPrefs';
+    import {
+      readBdpMassenAnzahl,
+      readBdpMassenLayout,
+      writeBdpMassenAnzahl,
+      writeBdpMassenLayout,
+    } from '../../lib/massenBruchDezimalProzentPrefs';
     import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
     let wbThemaKwAbort: AbortController | null = null;
@@ -326,24 +336,28 @@ const themenProBand = clusterReihenfolge
 
     function stripeApplyWbThema(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'bruch-dezimal-prozent' | 'negative-zahlen' | 'algebra'
     ) {
       const anzahl =
         slug === 'bruchrechnung'
           ? readBruchMassenAnzahl()
           : slug === 'dezimalzahlen'
             ? readDzMassenAnzahl()
-            : slug === 'negative-zahlen'
-              ? readNzMassenAnzahl()
-              : readAlgebraMassenAnzahl();
+            : slug === 'bruch-dezimal-prozent'
+              ? readBdpMassenAnzahl()
+              : slug === 'negative-zahlen'
+                ? readNzMassenAnzahl()
+                : readAlgebraMassenAnzahl();
       const layout =
         slug === 'bruchrechnung'
           ? readBruchMassenLayout()
           : slug === 'dezimalzahlen'
             ? readDzMassenLayout()
-            : slug === 'negative-zahlen'
-              ? readNzMassenLayout()
-              : readAlgebraMassenLayout();
+            : slug === 'bruch-dezimal-prozent'
+              ? readBdpMassenLayout()
+              : slug === 'negative-zahlen'
+                ? readNzMassenLayout()
+                : readAlgebraMassenLayout();
       root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-anzahl').forEach((b) => {
         const n = Number(b.dataset.anzahl);
         b.classList.toggle('mu-wb-stripe--aktiv', Number.isFinite(n) && n === anzahl);
@@ -356,7 +370,7 @@ const themenProBand = clusterReihenfolge
       if (cb) cb.checked = readShowPracticeDiagrams();
     }
 
-    function bootWbThemaStripe(slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra') {
+    function bootWbThemaStripe(slug: 'bruchrechnung' | 'dezimalzahlen' | 'bruch-dezimal-prozent' | 'negative-zahlen' | 'algebra') {
       const root = document.getElementById(`thema-${slug}`);
       if (!root) return;
       const stripe = root.querySelector<HTMLElement>('.mu-wb-thema-stripe');
@@ -371,6 +385,7 @@ const themenProBand = clusterReihenfolge
           if (!Number.isFinite(n)) return;
           if (slug === 'bruchrechnung') writeBruchMassenAnzahl(n);
           else if (slug === 'dezimalzahlen') writeDzMassenAnzahl(n);
+          else if (slug === 'bruch-dezimal-prozent') writeBdpMassenAnzahl(n);
           else if (slug === 'negative-zahlen') writeNzMassenAnzahl(n);
           else writeAlgebraMassenAnzahl(n);
           stripeApplyWbThema(root, slug);
@@ -382,6 +397,7 @@ const themenProBand = clusterReihenfolge
           if (l !== 'arbeitsblatt' && l !== 'whiteboard') return;
           if (slug === 'bruchrechnung') writeBruchMassenLayout(l);
           else if (slug === 'dezimalzahlen') writeDzMassenLayout(l);
+          else if (slug === 'bruch-dezimal-prozent') writeBdpMassenLayout(l);
           else if (slug === 'negative-zahlen') writeNzMassenLayout(l);
           else writeAlgebraMassenLayout(l);
           stripeApplyWbThema(root, slug);
@@ -396,26 +412,38 @@ const themenProBand = clusterReihenfolge
 
     function applyWbThemaKwVisual(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'bruch-dezimal-prozent' | 'negative-zahlen' | 'algebra'
     ) {
       const storKey =
         slug === 'bruchrechnung'
           ? BRUCH_WB_STOR_KEY
           : slug === 'dezimalzahlen'
             ? DZ_WB_STOR_KEY
-            : slug === 'negative-zahlen'
-              ? NZ_WB_STOR_KEY
-              : ALG_WB_STOR_KEY;
+            : slug === 'bruch-dezimal-prozent'
+              ? BDP_WB_STOR_KEY
+              : slug === 'negative-zahlen'
+                ? NZ_WB_STOR_KEY
+                : ALG_WB_STOR_KEY;
       const idPrefix =
-        slug === 'bruchrechnung' ? 'br_' : slug === 'dezimalzahlen' ? 'dz_' : slug === 'negative-zahlen' ? 'nz_' : 'alg_';
+        slug === 'bruchrechnung'
+          ? 'br_'
+          : slug === 'dezimalzahlen'
+            ? 'dz_'
+            : slug === 'bruch-dezimal-prozent'
+              ? 'bdp_'
+              : slug === 'negative-zahlen'
+                ? 'nz_'
+                : 'alg_';
       const stichworteFuerIds =
         slug === 'bruchrechnung'
           ? stichworteFuerBruchIds
           : slug === 'dezimalzahlen'
             ? stichworteFuerDzIds
-            : slug === 'negative-zahlen'
-              ? stichworteFuerNzIds
-              : stichworteFuerAlgIds;
+            : slug === 'bruch-dezimal-prozent'
+              ? stichworteFuerBdpIds
+              : slug === 'negative-zahlen'
+                ? stichworteFuerNzIds
+                : stichworteFuerAlgIds;
       const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'));
       let sel = new Set<string>();
       try {
@@ -440,16 +468,18 @@ const themenProBand = clusterReihenfolge
 
     function persistWbThemaKw(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'bruch-dezimal-prozent' | 'negative-zahlen' | 'algebra'
     ) {
       const storKey =
         slug === 'bruchrechnung'
           ? BRUCH_WB_STOR_KEY
           : slug === 'dezimalzahlen'
             ? DZ_WB_STOR_KEY
-            : slug === 'negative-zahlen'
-              ? NZ_WB_STOR_KEY
-              : ALG_WB_STOR_KEY;
+            : slug === 'bruch-dezimal-prozent'
+              ? BDP_WB_STOR_KEY
+              : slug === 'negative-zahlen'
+                ? NZ_WB_STOR_KEY
+                : ALG_WB_STOR_KEY;
       const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
         .map((b) => b.dataset.stichwort ?? '')
         .filter(Boolean);
@@ -468,6 +498,8 @@ const themenProBand = clusterReihenfolge
       if (bruchRoot) applyWbThemaKwVisual(bruchRoot, 'bruchrechnung');
       const dzRoot = document.getElementById('thema-dezimalzahlen');
       if (dzRoot) applyWbThemaKwVisual(dzRoot, 'dezimalzahlen');
+      const bdpRoot = document.getElementById('thema-bruch-dezimal-prozent');
+      if (bdpRoot) applyWbThemaKwVisual(bdpRoot, 'bruch-dezimal-prozent');
       const nzRoot = document.getElementById('thema-negative-zahlen');
       if (nzRoot) applyWbThemaKwVisual(nzRoot, 'negative-zahlen');
       const algRoot = document.getElementById('thema-algebra');
@@ -478,7 +510,7 @@ const themenProBand = clusterReihenfolge
           const rootEl = (ev.target as HTMLElement | null)?.closest?.('.mu-wb-unterthemen-root');
           if (!rootEl || !rootEl.id.startsWith('thema-')) return;
           const s = rootEl.id.replace(/^thema-/, '');
-          if (s !== 'bruchrechnung' && s !== 'dezimalzahlen' && s !== 'negative-zahlen' && s !== 'algebra') return;
+          if (s !== 'bruchrechnung' && s !== 'dezimalzahlen' && s !== 'bruch-dezimal-prozent' && s !== 'negative-zahlen' && s !== 'algebra') return;
           const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-wb-kw-bulk]') as HTMLButtonElement | null;
           if (bulk && rootEl.contains(bulk)) {
             ev.preventDefault();
@@ -500,7 +532,7 @@ const themenProBand = clusterReihenfolge
             }
             persistWbThemaKw(
               rootEl,
-              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+              s as 'bruchrechnung' | 'dezimalzahlen' | 'bruch-dezimal-prozent' | 'negative-zahlen' | 'algebra'
             );
             return;
           }
@@ -511,7 +543,7 @@ const themenProBand = clusterReihenfolge
           t.setAttribute('aria-pressed', t.classList.contains('mu-wb-thema-kw--an') ? 'true' : 'false');
           persistWbThemaKw(
             rootEl,
-            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+            s as 'bruchrechnung' | 'dezimalzahlen' | 'bruch-dezimal-prozent' | 'negative-zahlen' | 'algebra'
           );
         },
         { signal }
@@ -524,6 +556,7 @@ const themenProBand = clusterReihenfolge
         wbThemaKwAbort?.abort();
         bootWbThemaStripe('bruchrechnung');
         bootWbThemaStripe('dezimalzahlen');
+        bootWbThemaStripe('bruch-dezimal-prozent');
         bootWbThemaStripe('negative-zahlen');
         bootWbThemaStripe('algebra');
         bootWbThemaKeywords();

@@ -48,6 +48,7 @@ import {
 import { svgLineareGleichungSchnittpunkt } from './lineareGleichungDiagrams';
 import { svgDistributivFlaeche } from './algebraDiagrams';
 import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
+import { createBruchDezimalProzentGenerators } from './bruchDezimalProzentUmwandlung';
 
 /** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: gleicher Rahmen wie Achsen-Ticks (`FUN_GRAPH_AXIS_RANGE_MAX`). */
 export const FUN_GRAPH_AXIS_INTERCEPT_MAX = FUN_GRAPH_AXIS_RANGE_MAX;
@@ -297,6 +298,16 @@ export const DEZIMALZAHLEN_GENERATOR_IDS = [
   'dz_div_scale',
 ] as const;
 
+/** Bruch · Dezimal · Prozent: sechs Umwandlungsrichtungen (Klasse 5–6). */
+export const BRUCH_DEZIMAL_PROZENT_GENERATOR_IDS = [
+  'bdp_bruch_dezimal',
+  'bdp_dezimal_bruch',
+  'bdp_bruch_prozent',
+  'bdp_prozent_bruch',
+  'bdp_dezimal_prozent',
+  'bdp_prozent_dezimal',
+] as const;
+
 /** Algebra: Klammern, Distributivgesetz, Terme (Klasse 7–8). */
 export const ALGEBRA_GENERATOR_IDS = [
   'alg_klammer_mal',
@@ -461,6 +472,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...BRUCHRECHNUNG_GENERATOR_IDS,
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
   ...DEZIMALZAHLEN_GENERATOR_IDS,
+  ...BRUCH_DEZIMAL_PROZENT_GENERATOR_IDS,
   ...ALGEBRA_GENERATOR_IDS,
   ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   ...PROZENTRECHNUNG_GENERATOR_IDS,
@@ -3984,6 +3996,7 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesungInlineNachFrage: true,
       };
     },
+    ...createBruchDezimalProzentGenerators(random),
   };
 
   return GEN;

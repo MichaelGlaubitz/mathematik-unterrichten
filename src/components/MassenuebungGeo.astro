@@ -12,6 +12,7 @@ import {
   LOGARITHMEN_GENERATOR_IDS,
   NEGATIVE_ZAHLEN_GENERATOR_IDS,
   DEZIMALZAHLEN_GENERATOR_IDS,
+  BRUCH_DEZIMAL_PROZENT_GENERATOR_IDS,
   PROZENTRECHNUNG_GENERATOR_IDS,
   PYTHAGORAS_GENERATOR_IDS,
   QUADRATIC_EQUATIONS_GENERATOR_IDS,
@@ -34,6 +35,7 @@ export interface Props {
     | 'bruchrechnung'
     | 'negative-zahlen'
     | 'dezimalzahlen'
+    | 'bruch-dezimal-prozent'
     | 'algebra'
     | 'lineare-gleichungen'
     | 'prozentrechnung'
@@ -68,6 +70,8 @@ const allowedIds =
                 ? NEGATIVE_ZAHLEN_GENERATOR_IDS
                 : variant === 'dezimalzahlen'
                   ? DEZIMALZAHLEN_GENERATOR_IDS
+                  : variant === 'bruch-dezimal-prozent'
+                    ? BRUCH_DEZIMAL_PROZENT_GENERATOR_IDS
                 : variant === 'algebra'
                   ? ALGEBRA_GENERATOR_IDS
                 : variant === 'lineare-gleichungen'
@@ -103,6 +107,7 @@ const wbLabelByVariant = {
   bruchgleichungen: 'WB Bruchgleichungen',
   bruchrechnung: 'WB Bruchrechnung',
   dezimalzahlen: 'WB Dezimalzahlen',
+  'bruch-dezimal-prozent': 'WB Bruch · Dezimal · Prozent',
   'negative-zahlen': 'WB Negative Zahlen',
   algebra: 'WB Algebra',
   'lineare-gleichungen': 'WB Lineare Gleichungen',
@@ -127,6 +132,7 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/bruchgleichungen': 'WB Bruchgleichungen',
   '/uebung/bruchrechnung': 'WB Bruchrechnung',
   '/uebung/dezimalzahlen': 'WB Dezimalzahlen',
+  '/uebung/bruch-dezimal-prozent': 'WB Bruch · Dezimal · Prozent',
   '/uebung/negative-zahlen': 'WB Negative Zahlen',
   '/uebung/algebra': 'WB Algebra',
   '/uebung/lineare-gleichungen': 'WB Lineare Gleichungen',
@@ -156,13 +162,15 @@ function wbLabelFromHref(href: string): string {
         variant !== 'negative-zahlen' &&
         variant !== 'algebra' &&
         variant !== 'dezimalzahlen' &&
+        variant !== 'bruch-dezimal-prozent' &&
         'contents',
     ]}
     id={
       variant === 'bruchrechnung' ||
       variant === 'negative-zahlen' ||
       variant === 'algebra' ||
-      variant === 'dezimalzahlen'
+      variant === 'dezimalzahlen' ||
+      variant === 'bruch-dezimal-prozent'
         ? 'ug-wb-slot-ab-full-chrome'
         : undefined
     }
@@ -176,7 +184,7 @@ function wbLabelFromHref(href: string): string {
     </a>
     <p class="mt-2 text-xs uppercase tracking-wide text-accent-700 dark:text-accent-100">
       {
-        variant === 'bruchrechnung' || variant === 'dezimalzahlen'
+        variant === 'bruchrechnung' || variant === 'dezimalzahlen' || variant === 'bruch-dezimal-prozent'
           ? 'Übungsgenerator · Klasse 5–6 · Mini-Whiteboard & Arbeitsblatt'
           : variant === 'negative-zahlen' ||
               variant === 'algebra' ||
@@ -272,6 +280,18 @@ function wbLabelFromHref(href: string): string {
           <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
             Ohne Skizzen: Schwerpunkt auf korrektem Komma und den Zeichen <strong>·</strong> und <strong>:</strong> in der
             Aufgabenstellung.
+          </p>
+        </>
+      ) : variant === 'bruch-dezimal-prozent' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zum <strong>Umwandeln</strong> zwischen Bruchdarstellung, Dezimalzahl und Prozentangabe – die
+            sechs Richtungen wählst du wie bei den anderen Massenübungen auf der <strong>Themenseite</strong> per Karte;
+            Anzahl und Layout stellst du hier ein, dann Arbeitsblatt oder Vollbild-Whiteboard.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ohne Skizzen: Es werden nur <strong>endliche Dezimalzahlen</strong> und <strong>ganzzahlige Prozentwerte</strong> verwendet, damit
+            die Ergebnisse klar lesbar bleiben.
           </p>
         </>
       ) : variant === 'negative-zahlen' ? (
@@ -455,10 +475,10 @@ function wbLabelFromHref(href: string): string {
       <span
         class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
         aria-hidden="true"></span>
-      {variant === 'bruchrechnung' || variant === 'dezimalzahlen' ? 'Massenübung' : 'Aufgabentypen'}
+      {variant === 'bruchrechnung' || variant === 'dezimalzahlen' || variant === 'bruch-dezimal-prozent' ? 'Massenübung' : 'Aufgabentypen'}
     </h2>
     {
-      variant !== 'bruchrechnung' && variant !== 'dezimalzahlen' ? (
+      variant !== 'bruchrechnung' && variant !== 'dezimalzahlen' && variant !== 'bruch-dezimal-prozent' ? (
         <div class="mb-3 flex flex-wrap gap-2">
           <button
             type="button"
@@ -690,6 +710,22 @@ function wbLabelFromHref(href: string): string {
                 class="text-accent-700 font-medium underline underline-offset-2 hover:text-accent-800 dark:text-accent-100 dark:hover:text-accent-50"
               >
                 ← Zurück zur Themenseite Dezimalzahlen
+              </a>
+            </p>
+          </div>
+        ) : variant === 'bruch-dezimal-prozent' ? (
+          <div class="ug-gruppe min-w-0 lg:col-span-2 rounded-lg border border-ink-200/90 bg-ink-50/90 p-4 text-sm text-ink-800 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50 dark:text-ink-100">
+            <p class="font-medium text-ink-900 dark:text-ink-50 mb-2">Aufgabentypen wählst du auf der Themenseite</p>
+            <p class="leading-relaxed text-ink-700 dark:text-ink-200">
+              Unter <strong>Unterthemen</strong> kannst du die sechs Umwandlungsrichtungen anklicken (Auswahl wird invertiert dargestellt).
+              Diese Auswahl gilt hier für <strong>Aufgaben erzeugen</strong>. Ohne Auswahl werden alle Richtungen gemischt.
+            </p>
+            <p class="mt-3">
+              <a
+                href={backHref}
+                class="text-accent-700 font-medium underline underline-offset-2 hover:text-accent-800 dark:text-accent-100 dark:hover:text-accent-50"
+              >
+                ← Zurück zur Themenseite Bruch · Dezimal · Prozent
               </a>
             </p>
           </div>
@@ -1351,6 +1387,7 @@ function wbLabelFromHref(href: string): string {
             variant !== 'wurzelrechnung' &&
             variant !== 'prozentrechnung' &&
             variant !== 'dezimalzahlen' &&
+            variant !== 'bruch-dezimal-prozent' &&
             variant !== 'stochastik' &&
             variant !== 'binomische-formeln' &&
             variant !== 'termumformungen' &&
@@ -1466,7 +1503,8 @@ function wbLabelFromHref(href: string): string {
     (variant === 'bruchrechnung' ||
       variant === 'negative-zahlen' ||
       variant === 'algebra' ||
-      variant === 'dezimalzahlen') && (
+      variant === 'dezimalzahlen' ||
+      variant === 'bruch-dezimal-prozent') && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1481,7 +1519,9 @@ function wbLabelFromHref(href: string): string {
               ? 'AB Negative Zahlen'
               : variant === 'dezimalzahlen'
                 ? 'AB Dezimalzahlen'
-                : 'AB Algebra'}
+                : variant === 'bruch-dezimal-prozent'
+                  ? 'AB Bruch · Dezimal · Prozent'
+                  : 'AB Algebra'}
         </h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Gewählte Stichworte</p>
         <div
@@ -1508,7 +1548,8 @@ function wbLabelFromHref(href: string): string {
       (variant === 'bruchrechnung' ||
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
-        variant === 'dezimalzahlen') && (
+        variant === 'dezimalzahlen' ||
+        variant === 'bruch-dezimal-prozent') && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1554,7 +1595,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'bruchrechnung' ||
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
-        variant === 'dezimalzahlen'
+        variant === 'dezimalzahlen' ||
+        variant === 'bruch-dezimal-prozent'
           ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
           : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
       ]}
@@ -1564,7 +1606,8 @@ function wbLabelFromHref(href: string): string {
       (variant === 'bruchrechnung' ||
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
-        variant === 'dezimalzahlen') && (
+        variant === 'dezimalzahlen' ||
+        variant === 'bruch-dezimal-prozent') && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1591,7 +1634,8 @@ function wbLabelFromHref(href: string): string {
       (variant === 'bruchrechnung' ||
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
-        variant === 'dezimalzahlen') && (
+        variant === 'dezimalzahlen' ||
+        variant === 'bruch-dezimal-prozent') && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -1882,6 +1926,10 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/dezimalzahlen')}
           </a>
           {' · '}
+          <a href="/uebung/bruch-dezimal-prozent" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruch-dezimal-prozent')}
+          </a>
+          {' · '}
           <a href="/uebung/bruchgleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/bruchgleichungen')}
           </a>
@@ -1909,12 +1957,31 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/prozentrechnung')}
           </a>
           {' · '}
+          <a href="/uebung/bruch-dezimal-prozent" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruch-dezimal-prozent')}
+          </a>
+          {' · '}
           <a href="/uebung/lineare-gleichungen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/lineare-gleichungen')}
           </a>
           {' · '}
           <a href="/uebung/negative-zahlen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
             {wbLabelFromHref('/uebung/negative-zahlen')}
+          </a>
+        </>
+      ) : variant === 'bruch-dezimal-prozent' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/bruchrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/bruchrechnung')}
+          </a>
+          {' · '}
+          <a href="/uebung/dezimalzahlen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/dezimalzahlen')}
+          </a>
+          {' · '}
+          <a href="/uebung/prozentrechnung" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/prozentrechnung')}
           </a>
         </>
       ) : variant === 'negative-zahlen' ? (
@@ -2164,6 +2231,7 @@ function wbLabelFromHref(href: string): string {
     ALGEBRA_GENERATOR_IDS,
     BRUCHRECHNUNG_GENERATOR_IDS,
     DEZIMALZAHLEN_GENERATOR_IDS,
+    BRUCH_DEZIMAL_PROZENT_GENERATOR_IDS,
     NEGATIVE_ZAHLEN_GENERATOR_IDS,
     createPracticeGenerators,
     practiceAufgabeHatLoesungInlineNachFrage,
@@ -2176,11 +2244,11 @@ function wbLabelFromHref(href: string): string {
     stichworteFuerBruchIds,
   } from '../lib/bruchrechnungWbKeywordMap';
   import {
-    DZ_WB_STOR_KEY,
-    dzStichwortClusterIndex,
-    expandDzWbStichworte,
-    stichwortLabelsFromDzSessionRaw,
-  } from '../lib/dezimalzahlenWbKeywordMap';
+    BDP_WB_STOR_KEY,
+    bdpStichwortClusterIndex,
+    expandBdpWbStichworte,
+    stichwortLabelsFromBdpSessionRaw,
+  } from '../lib/bruchDezimalProzentWbKeywordMap';
   import {
     NZ_WB_STOR_KEY,
     expandNzWbStichworte,
@@ -2213,11 +2281,23 @@ function wbLabelFromHref(href: string): string {
     writeNzMassenLayout,
   } from '../lib/massenNegativeZahlenPrefs';
   import {
+    readBdpMassenAnzahl,
+    readBdpMassenLayout,
+    writeBdpMassenAnzahl,
+    writeBdpMassenLayout,
+  } from '../lib/massenBruchDezimalProzentPrefs';
+  import {
     readDzMassenAnzahl,
     readDzMassenLayout,
     writeDzMassenAnzahl,
     writeDzMassenLayout,
   } from '../lib/massenDezimalzahlenPrefs';
+  import {
+    DZ_WB_STOR_KEY,
+    dzStichwortClusterIndex,
+    expandDzWbStichworte,
+    stichwortLabelsFromDzSessionRaw,
+  } from '../lib/dezimalzahlenWbKeywordMap';
   import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
@@ -2269,8 +2349,9 @@ function wbLabelFromHref(href: string): string {
     const isBruchMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruchrechnung';
     const isNzMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'negative-zahlen';
     const isDzMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'dezimalzahlen';
+    const isBdpMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruch-dezimal-prozent';
     const isAlgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'algebra';
-    const isWbSlotAbMassen = isBruchMassen || isNzMassen || isAlgMassen || isDzMassen;
+    const isWbSlotAbMassen = isBruchMassen || isNzMassen || isAlgMassen || isDzMassen || isBdpMassen;
 
     function allAlgIdsFiltered() {
       return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -2286,6 +2367,25 @@ function wbLabelFromHref(href: string): string {
 
     function allDzIdsFiltered() {
       return DEZIMALZAHLEN_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+
+    function allBdpIdsFiltered() {
+      return BRUCH_DEZIMAL_PROZENT_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+
+    function readBdpTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(BDP_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allBdpIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('bdp_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allBdpIdsFiltered();
+        }
+        const fromKw = expandBdpWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allBdpIdsFiltered();
+      } catch {
+        return allBdpIdsFiltered();
+      }
     }
 
     function readDzTypenFromStorage() {
@@ -2367,6 +2467,9 @@ function wbLabelFromHref(href: string): string {
     } else if (isDzMassen) {
       anzahl = readDzMassenAnzahl();
       layout = readDzMassenLayout();
+    } else if (isBdpMassen) {
+      anzahl = readBdpMassenAnzahl();
+      layout = readBdpMassenLayout();
     } else if (isAlgMassen) {
       anzahl = readAlgebraMassenAnzahl();
       layout = readAlgebraMassenLayout();
@@ -2676,6 +2779,14 @@ function wbLabelFromHref(href: string): string {
           return [];
         }
       }
+      if (isBdpMassen) {
+        try {
+          const raw = JSON.parse(sessionStorage.getItem(BDP_WB_STOR_KEY) || 'null');
+          return stichwortLabelsFromBdpSessionRaw(raw);
+        } catch {
+          return [];
+        }
+      }
       return readBruchAbStichwortLabels();
     }
 
@@ -2703,7 +2814,9 @@ function wbLabelFromHref(href: string): string {
             ? algStichwortClusterIndex(t)
             : isDzMassen
               ? dzStichwortClusterIndex(t)
-              : bruchStichwortClusterIndex(t);
+              : isBdpMassen
+                ? bdpStichwortClusterIndex(t)
+                : bruchStichwortClusterIndex(t);
         const color =
           ci >= 0 && ci < BRUCH_AB_CLUSTER_PILL_CLASS.length
             ? BRUCH_AB_CLUSTER_PILL_CLASS[ci]
@@ -2888,6 +3001,14 @@ function wbLabelFromHref(href: string): string {
         }
         return;
       }
+      if (isBdpMassen) {
+        try {
+          sessionStorage.setItem(BDP_WB_STOR_KEY, JSON.stringify(selectedTaskTypes));
+        } catch {
+          /* sessionStorage blockiert */
+        }
+        return;
+      }
       if (isAlgMassen) {
         try {
           sessionStorage.setItem(ALG_WB_STOR_KEY, JSON.stringify(selectedTaskTypes));
@@ -3007,6 +3128,7 @@ function wbLabelFromHref(href: string): string {
       if (isBruchMassen) return readBruchTypenFromStorage();
       if (isNzMassen) return readNzTypenFromStorage();
       if (isDzMassen) return readDzTypenFromStorage();
+      if (isBdpMassen) return readBdpTypenFromStorage();
       if (isAlgMassen) return readAlgebraTypenFromStorage();
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
@@ -3315,6 +3437,7 @@ function wbLabelFromHref(href: string): string {
         if (isBruchMassen) writeBruchMassenAnzahl(anzahl);
         else if (isNzMassen) writeNzMassenAnzahl(anzahl);
         else if (isDzMassen) writeDzMassenAnzahl(anzahl);
+        else if (isBdpMassen) writeBdpMassenAnzahl(anzahl);
         else if (isAlgMassen) writeAlgebraMassenAnzahl(anzahl);
         refreshAktiv();
       })
@@ -3327,6 +3450,7 @@ function wbLabelFromHref(href: string): string {
         if (isBruchMassen) writeBruchMassenLayout(layout);
         else if (isNzMassen) writeNzMassenLayout(layout);
         else if (isDzMassen) writeDzMassenLayout(layout);
+        else if (isBdpMassen) writeBdpMassenLayout(layout);
         else if (isAlgMassen) writeAlgebraMassenLayout(layout);
         refreshAktiv();
         if (layout === 'arbeitsblatt') stopWbTimer();
@@ -3466,7 +3590,9 @@ function wbLabelFromHref(href: string): string {
               ? 'Negative Zahlen'
               : isDzMassen
                 ? 'Dezimalzahlen'
-                : 'Bruchrechnung',
+                : isBdpMassen
+                  ? 'Bruch · Dezimal · Prozent'
+                  : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
@@ -3484,7 +3610,7 @@ function wbLabelFromHref(href: string): string {
                 mitLoesungen,
                 diagramUiScale,
               })
-            : isDzMassen
+            : isDzMassen || isBdpMassen
               ? await erzeugeDezimalzahlenArbeitsblattPdf({
                   aufgaben,
                   meta,
@@ -3517,7 +3643,9 @@ function wbLabelFromHref(href: string): string {
             ? 'negative-zahlen'
             : isDzMassen
               ? 'dezimalzahlen'
-              : 'bruchrechnung';
+              : isBdpMassen
+                ? 'bruch-dezimal-prozent'
+                : 'bruchrechnung';
         const name = mitLoesungen ? `${base}-ab-mit-loesungen-${tag}.pdf` : `${base}-ab-${tag}.pdf`;
         downloadePdfDatei(r.pdf, name);
       } catch (e) {
