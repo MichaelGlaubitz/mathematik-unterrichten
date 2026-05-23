@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { devContentToolsPlugin } from './dev-content-tools.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,4 +22,8 @@ export default defineConfig({
       wrap: true,
     },
   },
+  vite: {
+    plugins: [devContentToolsPlugin(process.cwd())],
+  },
 });
+
