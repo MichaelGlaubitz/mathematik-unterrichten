@@ -48,6 +48,8 @@ import {
 import { svgLineareGleichungSchnittpunkt } from './lineareGleichungDiagrams';
 import { svgDistributivFlaeche } from './algebraDiagrams';
 import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
+import { erzeugeBdpAufgabe } from './bruchDezimalProzentUmwandlung';
+import { bdpTaskZuPracticeAufgabe } from './bdpZuPracticeMapper';
 
 /** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: gleicher Rahmen wie Achsen-Ticks (`FUN_GRAPH_AXIS_RANGE_MAX`). */
 export const FUN_GRAPH_AXIS_INTERCEPT_MAX = FUN_GRAPH_AXIS_RANGE_MAX;
@@ -84,6 +86,8 @@ export type PracticeAbAntwortSlot =
     }
   /** Nur Zähler eingeben; Nenner fest (z. B. „Ergänze den Zähler … / L“). */
   | { kind: 'frac_num'; expectNum: number; fixedDen: number }
+  /** Dezimalzahl (Punkt/Komma-Eingabe, Toleranzvergleich). */
+  | { kind: 'decimal'; expect: number }
   /** Labels dürfen `$…$` für KaTeX enthalten (HTML wird beim Einsetzen escaped). */
   | { kind: 'choice'; expect: 0 | 1; labels: [string, string] };
 
@@ -297,6 +301,16 @@ export const DEZIMALZAHLEN_GENERATOR_IDS = [
   'dz_div_scale',
 ] as const;
 
+/** Umwandlung zwischen Brüchen, Dezimalzahlen und Prozentangaben (Klasse 5–7). */
+export const BDP_UMWANDLUNG_GENERATOR_IDS = [
+  'bdp_br_dez',
+  'bdp_dez_br',
+  'bdp_br_pr',
+  'bdp_pr_br',
+  'bdp_dez_pr',
+  'bdp_pr_dez',
+] as const;
+
 /** Algebra: Klammern, Distributivgesetz, Terme (Klasse 7–8). */
 export const ALGEBRA_GENERATOR_IDS = [
   'alg_klammer_mal',
@@ -461,6 +475,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...BRUCHRECHNUNG_GENERATOR_IDS,
   ...NEGATIVE_ZAHLEN_GENERATOR_IDS,
   ...DEZIMALZAHLEN_GENERATOR_IDS,
+  ...BDP_UMWANDLUNG_GENERATOR_IDS,
   ...ALGEBRA_GENERATOR_IDS,
   ...LINEARE_GLEICHUNGEN_GENERATOR_IDS,
   ...PROZENTRECHNUNG_GENERATOR_IDS,
@@ -3983,6 +3998,24 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: `Es ist $${dzTex(q, 0)}$.`,
         loesungInlineNachFrage: true,
       };
+    },
+    bdp_br_dez() {
+      return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('br_dez', random));
+    },
+    bdp_dez_br() {
+      return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('dez_br', random));
+    },
+    bdp_br_pr() {
+      return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('br_pr', random));
+    },
+    bdp_pr_br() {
+      return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('pr_br', random));
+    },
+    bdp_dez_pr() {
+      return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('dez_pr', random));
+    },
+    bdp_pr_dez() {
+      return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('pr_dez', random));
     },
   };
 

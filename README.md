@@ -106,6 +106,40 @@ Lege eine `.json`-Datei unter `src/content/quizzes/` an:
 
 Jede falsche Antwort sollte einen *typischen Denkfehler* repräsentieren – das ist der Kern der diagnostischen Idee.
 
+### Neues Thema mit Übungsgenerator (Themenseite + Massenübung)
+
+Themen mit Whiteboard/Arbeitsblatt folgen einem festen Muster (siehe z. B. `bruch-dezimal-prozent`, `dezimalzahlen`, `bruchrechnung`): JSON unter `src/content/themen/`, Eintrag in `src/pages/themen/index.astro` (Stripe, Links), ggf. `TopicBlock` + eigene Karten-Komponente, Route `src/pages/uebung/<slug>.astro` mit `MassenuebungGeo`, Generator-IDs in `src/lib/uebungPracticeGenerators.ts`.
+
+**Prompt-Vorlage für die nächste Umsetzung (z. B. an Cursor):**
+
+```text
+Neues Thema für die Astro-Site wie die bestehenden Themen auf /themen:
+
+1) Inhalt & Routing
+- Slug (URL-freundlich): …
+- Anzeigetitel, Kurzbeschreibung, Schulband/Stufe: …
+- Eigene Übungsroute? Pfad: /uebung/<slug> (ja/nein)
+
+2) Aufgabenlogik
+- Aufgabentypen (IDs), Namensschema (z. B. prefix_xyz): …
+- Pro Typ: Variation vs. Konstanten, Zahlenbereiche: …
+- Neue Antwort-Slots nötig oder Bestehendes (Bruch/Dezimal/Text)? …
+
+3) Themenseite / TopicBlock
+- Typauswahl: Standard-Stichwort-Grid, Checkboxen+Session wie Bruch/Dezimal, oder eigene Karten-Komponente? …
+- sessionStorage/localStorage-Keys für Auswahl und ggf. Anzahl/Layout: …
+
+4) Massenübung (MassenuebungGeo)
+- Neues variant="…" + Generator-IDs in uebungPracticeGenerators? (ja/nein)
+- PDF: gleiche Pipeline wie Bruch-Arbeitsblatt oder Sonderweg? …
+
+5) Verlinkung
+- „Passend dazu“-Links am Fuß der Übungsseite (2–4 Routen): …
+- Zurück: /themen#thema-<slug>
+
+Bitte umsetzen inkl. Tests wo sinnvoll; npm run test && npm run build grün halten.
+```
+
 ## Mathematische Formeln
 
 KaTeX ist im Layout vorbereitet. Du kannst Formeln in Markdown so schreiben:
@@ -181,6 +215,7 @@ mathematik-unterrichten/
 │   │   ├── config.ts       # Schema der Inhaltsarten
 │   │   ├── blog/           # Markdown
 │   │   ├── aufgaben/       # Markdown
+│   │   ├── themen/         # JSON – Themenübersicht inkl. Generator-Links
 │   │   └── quizzes/        # JSON
 │   ├── layouts/
 │   │   └── BaseLayout.astro
