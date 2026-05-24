@@ -84,9 +84,10 @@ export function svgParabolaScheitelform(opts: {
   )}-axis-arrow`;
   const xAxisEnd = W - padR + 12;
   const yAxisTop = padT - 12;
-  const xAxisLabelY = clamp(xAxisY - 8, padT + 14, H - padB - 8);
-  const yAxisLabelX = clamp(yAxisX + 12, padL + 14, W - padR - 14);
-  const yAxisLabelY = yAxisTop + 16;
+  const xAxisLabelX = xAxisEnd + 10;
+  const xAxisLabelY = clamp(xAxisY + 4, padT + 8, H - padB - 8);
+  const yAxisLabelX = clamp(yAxisX, padL + 8, W - padR - 8);
+  const yAxisLabelY = yAxisTop - 8;
 
   let grid = '';
   const xi0 = Math.ceil(xmin);
@@ -102,7 +103,7 @@ export function svgParabolaScheitelform(opts: {
 
   const axes = `${renderFunctionGraphXAxis(padL, xAxisEnd, xAxisY, markerId)}
     ${renderFunctionGraphYAxis(yAxisX, H - padB, yAxisTop, markerId)}
-    ${renderFunctionGraphAxisLabel('x', xAxisEnd - 13, xAxisLabelY)}
+    ${renderFunctionGraphAxisLabel('x', xAxisLabelX, xAxisLabelY)}
     ${renderFunctionGraphAxisLabel('y', yAxisLabelX, yAxisLabelY)}`;
 
   let ticks = '';

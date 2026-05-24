@@ -63,9 +63,10 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
   const yAxisX = sx(0);
   const xAxisEnd = W - margin + 12;
   const yAxisTop = margin - 12;
-  const xAxisLabelY = clamp(xAxisY - 8, margin + 14, H - margin - 8);
-  const yAxisLabelX = clamp(yAxisX + 12, margin + 14, W - margin - 14);
-  const yAxisLabelY = yAxisTop + 16;
+  const xAxisLabelX = xAxisEnd + 10;
+  const xAxisLabelY = clamp(xAxisY + 4, margin + 8, H - margin - 8);
+  const yAxisLabelX = clamp(yAxisX, margin + 8, W - margin - 8);
+  const yAxisLabelY = yAxisTop - 8;
 
   let grid = '';
   const xi0 = Math.ceil(xmin);
@@ -81,7 +82,7 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
 
   const axes = `${renderFunctionGraphXAxis(margin, xAxisEnd, xAxisY, markerId)}
     ${renderFunctionGraphYAxis(yAxisX, H - margin, yAxisTop, markerId)}
-    ${renderFunctionGraphAxisLabel('x', xAxisEnd - 13, xAxisLabelY)}
+    ${renderFunctionGraphAxisLabel('x', xAxisLabelX, xAxisLabelY)}
     ${renderFunctionGraphAxisLabel('y', yAxisLabelX, yAxisLabelY)}`;
 
   let ticks = '';
