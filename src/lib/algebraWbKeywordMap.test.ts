@@ -44,10 +44,12 @@ describe('algebraWbKeywordMap', () => {
   it('algWbStichwortPillsNachCluster: alle Map-Stichworte, nach Cluster gruppiert', () => {
     const clusters = algWbStichwortPillsNachCluster();
     expect(clusters.length).toBeGreaterThan(0);
-    const alle = new Set(clusters.flatMap((c) => [...c.stichworte]));
-    expect(alle.size).toBe(Object.keys(ALG_WB_STICHWORT_TO_IDS).length);
+    const alleMitUebung = new Set(
+      clusters.flatMap((c) => c.stichworte.filter((s) => s.hatUebung).map((s) => s.name))
+    );
+    expect(alleMitUebung.size).toBe(Object.keys(ALG_WB_STICHWORT_TO_IDS).length);
     for (const k of Object.keys(ALG_WB_STICHWORT_TO_IDS)) {
-      expect(alle.has(k)).toBe(true);
+      expect(alleMitUebung.has(k)).toBe(true);
     }
     for (const c of clusters) {
       expect(c.titel.length).toBeGreaterThan(2);
@@ -149,6 +151,75 @@ describe('algebraWbKeywordMap', () => {
       'alg_gb_variable',
       'alg_gb_konstante',
       'alg_gb_konvention',
+      'alg_factor_pairs',
+      'alg_factor_monic_pos',
+      'alg_factor_monic_neg',
+      'alg_factor_monic_perfect',
+      'alg_factor_non_monic_pos',
+      'alg_factor_non_monic_neg',
+      'alg_factor_non_monic_perfect',
+      'alg_factor_diff_basic',
+      'alg_factor_diff_advanced',
+      'alg_factor_neg_leading',
+      'alg_factor_grouping',
+      'alg_factor_two_variables',
+      'alg_factor_repeated_squares',
+      'alg_factor_diff_binoms',
+      'alg_factor_capstone',
+      'alg_concept_type',
+      'alg_lang_one_op',
+      'alg_lang_multi_op',
+      'alg_lang_indices',
+      'alg_subst_pos_simple',
+      'alg_subst_pos_pow',
+      'alg_subst_pos_mv',
+      'alg_subst_neg_simple',
+      'alg_subst_neg_pow',
+      'alg_subst_decimal_simple',
+      'alg_subst_decimal_pow',
+      'alg_subst_fraction_simple',
+      'alg_subst_fraction_pow',
+      'alg_terms_like_recognize',
+      'alg_terms_mult_pow',
+      'alg_terms_div_simple',
+      'alg_terms_div_pow',
+      'alg_terms_raise_pow',
+      'alg_terms_simplify_multi',
+      'alg_terms_equiv_recognize',
+      'alg_frac_def_domain',
+      'alg_frac_simplify_none',
+      'alg_frac_simplify_linear',
+      'alg_frac_simplify_monic',
+      'alg_frac_simplify_non_monic',
+      'alg_frac_mul_none',
+      'alg_frac_mul_linear',
+      'alg_frac_mul_monic',
+      'alg_frac_mul_non_monic',
+      'alg_frac_div_none',
+      'alg_frac_div_linear',
+      'alg_frac_div_monic',
+      'alg_frac_div_non_monic',
+      'alg_frac_add_int',
+      'alg_frac_add_simple',
+      'alg_frac_add_linear',
+      'alg_frac_add_fact',
+      'alg_frac_sub_int',
+      'alg_frac_sub_simple',
+      'alg_frac_sub_linear',
+      'alg_frac_sub_fact',
+      'alg_frac_four_ops_mix',
+      'alg_expand_einfach_capstone',
+      'alg_expand_binom_double_pos',
+      'alg_expand_binom_double_neg',
+      'alg_expand_binom_perfect',
+      'alg_expand_binom_non_monic',
+      'alg_expand_binom_non_monic_neg',
+      'alg_expand_binom_mix_simplify',
+      'alg_expand_triple_monic',
+      'alg_expand_triple_non_monic',
+      'alg_expand_triple_quad_linear',
+      'alg_expand_cube',
+      'alg_expand_capstone',
     ]);
     for (const ids of Object.values(ALG_WB_STICHWORT_TO_IDS)) {
       for (const id of ids) {
@@ -157,9 +228,9 @@ describe('algebraWbKeywordMap', () => {
     }
   });
 
-  it('nicht jedes UI-Stichwort hat einen Generator (bewusste Lücke)', () => {
+  it('jedes UI-Stichwort hat einen Generator (vollstaendige Abdeckung)', () => {
     const flat = algWbAlleStichworteFlach();
     const mapped = new Set(Object.keys(ALG_WB_STICHWORT_TO_IDS));
-    expect(mapped.size).toBeLessThan(flat.length);
+    expect(mapped.size).toBe(flat.length);
   });
 });

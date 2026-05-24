@@ -344,7 +344,77 @@ export const ALGEBRA_GENERATOR_IDS = [
   'alg_qe_monisch_b_ungerade',
   'alg_qe_nicht_monisch_a_pos',
   'alg_qe_nicht_monisch_a_neg',
+  'alg_factor_pairs',
+  'alg_factor_monic_pos',
+  'alg_factor_monic_neg',
+  'alg_factor_monic_perfect',
+  'alg_factor_non_monic_pos',
+  'alg_factor_non_monic_neg',
+  'alg_factor_non_monic_perfect',
+  'alg_factor_diff_basic',
+  'alg_factor_diff_advanced',
+  'alg_factor_neg_leading',
+  'alg_factor_grouping',
+  'alg_factor_two_variables',
+  'alg_factor_repeated_squares',
+  'alg_factor_diff_binoms',
+  'alg_factor_capstone',
+  'alg_concept_type',
+  'alg_lang_one_op',
+  'alg_lang_multi_op',
+  'alg_lang_indices',
+  'alg_subst_pos_simple',
+  'alg_subst_pos_pow',
+  'alg_subst_pos_mv',
+  'alg_subst_neg_simple',
+  'alg_subst_neg_pow',
+  'alg_subst_decimal_simple',
+  'alg_subst_decimal_pow',
+  'alg_subst_fraction_simple',
+  'alg_subst_fraction_pow',
+  'alg_terms_like_recognize',
+  'alg_terms_mult_pow',
+  'alg_terms_div_simple',
+  'alg_terms_div_pow',
+  'alg_terms_raise_pow',
+  'alg_terms_simplify_multi',
+  'alg_terms_equiv_recognize',
+  'alg_frac_def_domain',
+  'alg_frac_simplify_none',
+  'alg_frac_simplify_linear',
+  'alg_frac_simplify_monic',
+  'alg_frac_simplify_non_monic',
+  'alg_frac_mul_none',
+  'alg_frac_mul_linear',
+  'alg_frac_mul_monic',
+  'alg_frac_mul_non_monic',
+  'alg_frac_div_none',
+  'alg_frac_div_linear',
+  'alg_frac_div_monic',
+  'alg_frac_div_non_monic',
+  'alg_frac_add_int',
+  'alg_frac_add_simple',
+  'alg_frac_add_linear',
+  'alg_frac_add_fact',
+  'alg_frac_sub_int',
+  'alg_frac_sub_simple',
+  'alg_frac_sub_linear',
+  'alg_frac_sub_fact',
+  'alg_frac_four_ops_mix',
+  'alg_expand_einfach_capstone',
+  'alg_expand_binom_double_pos',
+  'alg_expand_binom_double_neg',
+  'alg_expand_binom_perfect',
+  'alg_expand_binom_non_monic',
+  'alg_expand_binom_non_monic_neg',
+  'alg_expand_binom_mix_simplify',
+  'alg_expand_triple_monic',
+  'alg_expand_triple_non_monic',
+  'alg_expand_triple_quad_linear',
+  'alg_expand_cube',
+  'alg_expand_capstone',
 ] as const;
+
 
 /** Lineare Gleichungen in einer Variablen (Klasse 7–8). */
 export const LINEARE_GLEICHUNGEN_GENERATOR_IDS = [
@@ -3012,6 +3082,1497 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: `$${std}=${bin}$.`,
         loesungArbeitsblattEigeneZeile: true,
       };
+    },
+    alg_factor_pairs() {
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 50; t++) {
+        p = randInt(-10, 10);
+        q = randInt(-10, 10);
+        if (p === 0 || q === 0) continue;
+        if (p > q) continue;
+        break;
+      }
+      if (p > q) { p = -3; q = 5; }
+      const b = p + q;
+      const c = p * q;
+      return {
+        frage: `Finde zwei ganze Zahlen $p$ und $q$ mit $p \\le q$, sodass gilt: $p \\cdot q = ${c}$ und $p + q = ${b}$.`,
+        frageArbeitsblatt: `Finde zwei ganze Zahlen $p$ und $q$ mit $p \\le q$ für $p \\cdot q = ${c}$ und $p + q = ${b}$.<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('p')} = </span>[[MU_AB:0]]<span>, ${abItalicVarHtml('q')} = </span>[[MU_AB:1]]</span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q }
+        ],
+        loesung: `Da $p \\le q$ sein muss, sind die Zahlen $p = ${p}$ und $q = ${q}$ (denn $${p} \\cdot ${texMulFactor(q)} = ${c}$ und $${p} + ${texSubtrahend(q)} = ${b}$).`,
+      };
+    },
+    alg_factor_monic_pos() {
+      const p = randInt(1, 9);
+      const q = randInt(p, 9);
+      const b = p + q;
+      const c = p * q;
+      const std = `x^2+${b}x+${c}`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:0]]<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)</span><span class="text-sm text-ink-600 dark:text-ink-300"> mit ${abItalicVarHtml('p')} &le; ${abItalicVarHtml('q')}</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q }
+        ],
+        loesung: `$${std} = (x + ${p})(x + ${q})$ (denn $${p} \\cdot ${q} = ${c}$ und $${p} + ${q} = ${b}$).`,
+      };
+    },
+    alg_factor_monic_neg() {
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 50; t++) {
+        p = randInt(-9, 9);
+        q = randInt(-9, 9);
+        if (p === 0 || q === 0) continue;
+        if (p > q) continue;
+        if (p > 0 && q > 0) continue;
+        break;
+      }
+      if (p > q || (p > 0 && q > 0)) { p = -5; q = 3; }
+      const b = p + q;
+      const c = p * q;
+      const std = `x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      const signP = p > 0 ? '+' : '';
+      const signQ = q > 0 ? '+' : '';
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:0]]<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)</span><span class="text-sm text-ink-600 dark:text-ink-300"> mit ${abItalicVarHtml('p')} &le; ${abItalicVarHtml('q')}</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: p, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: q, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${std} = (x${signP}${p})(x${signQ}${q})$ (denn $${p} \\cdot ${texMulFactor(q)} = ${c}$ und $${p} + ${texSubtrahend(q)} = ${b}$).`,
+      };
+    },
+    alg_factor_monic_perfect() {
+      const p = randInt(2, 10);
+      const sign = pick([1, -1] as const);
+      const b = sign * 2 * p;
+      const c = p * p;
+      const m = sign * p;
+      const std = `x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:0]]<span>)<sup>2</sup></span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: m, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${std} = (x${m > 0 ? '+' : ''}${m})^2$.`,
+      };
+    },
+    alg_factor_non_monic_pos() {
+      let d = 2;
+      let e = 3;
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 50; t++) {
+        d = randInt(2, 3);
+        e = randInt(2, 3);
+        p = randInt(1, 5);
+        q = randInt(1, 5);
+        if (d > e) continue;
+        if (d === e && p > q) continue;
+        break;
+      }
+      const a = d * e;
+      const b = d * q + e * p;
+      const c = p * q;
+      const std = `${a}x^2+${b}x+${c}`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>[[MU_AB:0]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)(</span>[[MU_AB:2]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:3]]<span>)</span><span class="text-sm text-ink-600 dark:text-ink-300"> mit ${abItalicVarHtml('d')} &le; ${abItalicVarHtml('e')}</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: d },
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: e },
+          { kind: 'int', expect: q }
+        ],
+        loesung: `$${std} = (${d}x + ${p})(${e}x + ${q})$.`,
+      };
+    },
+    alg_factor_non_monic_neg() {
+      let d = 2;
+      let e = 3;
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 50; t++) {
+        d = randInt(2, 3);
+        e = randInt(2, 3);
+        p = randInt(-5, 5);
+        q = randInt(-5, 5);
+        if (p === 0 || q === 0) continue;
+        if (p > 0 && q > 0) continue;
+        if (d > e) continue;
+        if (d === e && p > q) continue;
+        break;
+      }
+      if (p === 0 || q === 0 || (p > 0 && q > 0)) { d = 2; e = 3; p = -3; q = 2; }
+      const a = d * e;
+      const b = d * q + e * p;
+      const c = p * q;
+      const std = `${a}x^2${formatSignedInt(b)}x${formatSignedInt(c)}`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>[[MU_AB:0]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)(</span>[[MU_AB:2]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:3]]<span>)</span><span class="text-sm text-ink-600 dark:text-ink-300"> mit ${abItalicVarHtml('d')} &le; ${abItalicVarHtml('e')}</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: d },
+          { kind: 'int', expect: p, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: e },
+          { kind: 'int', expect: q, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${std} = (${linBinom(d, p)})(${linBinom(e, q)})$.`,
+      };
+    },
+    alg_factor_non_monic_perfect() {
+      const a = randInt(2, 4);
+      const b = randInt(1, 5);
+      const sign = pick([1, -1] as const);
+      const quadA = a * a;
+      const linear = sign * 2 * a * b;
+      const quadB = b * b;
+      const m = sign * b;
+      const std = `${quadA}x^2${formatSignedInt(linear)}x+${quadB}`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>[[MU_AB:0]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)<sup>2</sup></span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a },
+          { kind: 'int', expect: m, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${std} = (${a}x${m > 0 ? '+' : ''}${m})^2$.`,
+      };
+    },
+    alg_factor_diff_basic() {
+      const a = randInt(2, 12);
+      const std = `x^2-${a * a}`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${std}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${std}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> - </span>[[MU_AB:0]]<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a },
+          { kind: 'int', expect: a }
+        ],
+        loesung: `$${std} = (x - ${a})(x + ${a})$.`,
+      };
+    },
+    alg_factor_diff_advanced() {
+      let a = 2;
+      let b = 3;
+      for (let t = 0; t < 50; t++) {
+        a = randInt(2, 6);
+        b = randInt(1, 8);
+        if (gcd(a, b) === 1) break;
+      }
+      const quadA = a * a;
+      const quadB = b * b;
+      const mode = pick(['single', 'double'] as const);
+      const termStr = mode === 'single' ? `${quadA}x^2-${quadB}` : `${quadA}x^2-${quadB}y^2`;
+      const solStr = mode === 'single'
+        ? `(${a}x-${b})(${a}x+${b})`
+        : `(${a}x-${b}y)(${a}x+${b}y)`;
+      
+      const fAB = mode === 'single'
+        ? `Faktorisiere so weit wie möglich: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>[[MU_AB:0]]${abItalicVarHtml('x')}<span> - </span>[[MU_AB:1]]<span>)(</span>[[MU_AB:2]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:3]]<span>)</span></span>`
+        : `Faktorisiere so weit wie möglich: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>[[MU_AB:0]]${abItalicVarHtml('x')}<span> - </span>[[MU_AB:1]]${abItalicVarHtml('y')}<span>)(</span>[[MU_AB:2]]${abItalicVarHtml('x')}<span> + </span>[[MU_AB:3]]${abItalicVarHtml('y')}<span>)</span></span>`;
+
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${termStr}$.`,
+        frageArbeitsblatt: fAB,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a },
+          { kind: 'int', expect: b },
+          { kind: 'int', expect: a },
+          { kind: 'int', expect: b }
+        ],
+        loesung: `$${termStr} = ${solStr}$.`,
+      };
+    },
+    alg_factor_neg_leading() {
+      const k = pick([-1, -2, -3] as const);
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 50; t++) {
+        p = randInt(-6, 6);
+        q = randInt(-6, 6);
+        if (p === 0 || q === 0) continue;
+        if (p > q) continue; // sort roots to avoid ambiguity
+        if (-p - q === 0) continue; // avoid simple difference of squares format (no x term)
+        break;
+      }
+      if (p === 0 || q === 0 || p + q === 0) { p = 2; q = 3; }
+      const u1 = -p;
+      const u2 = -q;
+      // We sort the constants in the brackets to ensure deterministic slots: (x + u1)(x + u2) with u1 <= u2
+      const constants = [u1, u2].sort((a, b) => a - b);
+      const c1 = constants[0];
+      const c2 = constants[1];
+
+      // Expanded coefficients: k*(x^2 + (c1+c2)x + c1*c2)
+      const aCoeff = k;
+      const bCoeff = k * (c1 + c2);
+      const cCoeff = k * c1 * c2;
+      const termStr = `${aCoeff === -1 ? '-' : aCoeff}x^2${formatSignedInt(bCoeff)}x${formatSignedInt(cCoeff)}`;
+      
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${termStr}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= </span>[[MU_AB:0]]<span>(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:2]]<span>)</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: k },
+          { kind: 'int', expect: c1, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: c2, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${termStr} = ${k === -1 ? '-' : k}(${linBinom(1, c1)})(${linBinom(1, c2)})$.`,
+      };
+    },
+    alg_factor_grouping() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 50; t++) {
+        a = randInt(-6, 6);
+        b = randInt(-6, 6);
+        if (a === 0 || b === 0 || a === b || a === -b) continue;
+        break;
+      }
+      if (a === 0 || b === 0) { a = 3; b = -2; }
+      // (x + b)(y + a) = xy + ay + bx + ab
+      // Shuffled presentation: xy + ay + bx + ab
+      const coeffX = b;
+      const coeffY = a;
+      const constTerm = a * b;
+      const termStr = `xy${formatSignedInt(coeffY)}y${formatSignedInt(coeffX)}x${formatSignedInt(constTerm)}`;
+      return {
+        frage: `Faktorisiere durch Gruppieren: $${termStr}$.`,
+        frageArbeitsblatt: `Faktorisiere durch Gruppieren: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:0]]<span>)(</span>${abItalicVarHtml('y')}<span> + </span>[[MU_AB:1]]<span>)</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: b, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: a, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${termStr} = (x${formatSignedInt(b)})(y${formatSignedInt(a)})$.`,
+      };
+    },
+    alg_factor_two_variables() {
+      let p = 0;
+      let q = 0;
+      for (let t = 0; t < 50; t++) {
+        p = randInt(-6, 6);
+        q = randInt(-6, 6);
+        if (p === 0 || q === 0 || p === q) continue;
+        if (p > q) continue;
+        break;
+      }
+      if (p === 0 || q === 0) { p = -3; q = 2; }
+      // (x + py)(x + qy) = x^2 + (p+q)xy + pq y^2
+      const bCoeff = p + q;
+      const cCoeff = p * q;
+      const termStr = `x^2${formatSignedInt(bCoeff)}xy${formatSignedInt(cCoeff)}y^2`;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${termStr}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:0]]${abItalicVarHtml('y')}<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]${abItalicVarHtml('y')}<span>)</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: p, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: q, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${termStr} = (x${formatSignedInt(p)}y)(x${formatSignedInt(q)}y)$.`,
+      };
+    },
+    alg_factor_repeated_squares() {
+      const a = pick([2, 3, 4] as const);
+      const a4 = a * a * a * a;
+      const termStr = `x^4-${a4}`;
+      const a2 = a * a;
+      return {
+        frage: `Faktorisiere so weit wie möglich: $${termStr}$.`,
+        frageArbeitsblatt: `Faktorisiere so weit wie möglich: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> - </span>[[MU_AB:0]]<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)(</span>${abItalicVarHtml('x')}<sup>2</sup><span> + </span>[[MU_AB:2]]<span>)</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: a },
+          { kind: 'int', expect: a },
+          { kind: 'int', expect: a2 }
+        ],
+        loesung: `$${termStr} = (x^2 - ${a2})(x^2 + ${a2}) = (x - ${a})(x + ${a})(x^2 + ${a2})$.`,
+      };
+    },
+    alg_factor_diff_binoms() {
+      let a = 0;
+      let b = 0;
+      for (let t = 0; t < 50; t++) {
+        a = randInt(-5, 5);
+        b = randInt(2, 6);
+        if (a === 0) continue;
+        break;
+      }
+      if (a === 0) { a = 3; b = 4; }
+      const b2 = b * b;
+      const termStr = `(x${formatSignedInt(a)})^2-${b2}`;
+      const u = a - b;
+      const v = a + b;
+      // We sort the constants to ensure deterministic slots: (x + u)(x + v) with u < v
+      const c1 = Math.min(u, v);
+      const c2 = Math.max(u, v);
+      return {
+        frage: `Faktorisiere: $${termStr}$.`,
+        frageArbeitsblatt: `Faktorisiere: $${termStr}$<span class="mu-katex-skip inline-flex flex-wrap items-baseline gap-1.5 text-lg leading-none"><span>= (</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:0]]<span>)(</span>${abItalicVarHtml('x')}<span> + </span>[[MU_AB:1]]<span>)</span></span>`,
+        pdfArbeitsblattEinzelspalte: true,
+        abSlots: [
+          { kind: 'int', expect: c1, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: c2, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${termStr} = ((x${formatSignedInt(a)}) - ${b})((x${formatSignedInt(a)}) + ${b}) = (${linBinom(1, c1)})(${linBinom(1, c2)})$.`,
+      };
+    },
+    alg_factor_capstone() {
+      const types = [
+        'alg_factor_pairs',
+        'alg_factor_monic_pos',
+        'alg_factor_monic_neg',
+        'alg_factor_monic_perfect',
+        'alg_factor_non_monic_pos',
+        'alg_factor_non_monic_neg',
+        'alg_factor_non_monic_perfect',
+        'alg_factor_diff_basic',
+        'alg_factor_diff_advanced',
+        'alg_factor_neg_leading',
+        'alg_factor_grouping',
+        'alg_factor_two_variables',
+        'alg_factor_repeated_squares',
+        'alg_factor_diff_binoms'
+      ] as const;
+      const t = pick(types);
+      return this[t]();
+    },
+    alg_concept_type() {
+      const type = pick(['ausdruck', 'gleichung', 'formel', 'identitaet'] as const);
+      const examples = {
+        ausdruck: [
+          ['3x - 5', 'ein Ausdruck (Term) ohne Gleichheitszeichen.'],
+          ['x^2 + 2x', 'ein Ausdruck (Term) ohne Gleichheitszeichen.'],
+          ['\\frac{4}{y}', 'ein Ausdruck (Term) ohne Gleichheitszeichen.'],
+          ['a + b', 'ein Ausdruck (Term) ohne Gleichheitszeichen.'],
+        ],
+        gleichung: [
+          ['2x + 3 = 11', 'eine Gleichung, da sie zwei Terme mit einem Gleichheitszeichen verbindet und nur für bestimmte Werte von $x$ (hier $x=4$) gilt.'],
+          ['x^2 - 4 = 12', 'eine Gleichung, da sie zwei Terme mit einem Gleichheitszeichen verbindet und nur für bestimmte Werte von $x$ (hier $x=\\pm 4$) gilt.'],
+          ['3a = 9', 'eine Gleichung, da sie zwei Terme mit einem Gleichheitszeichen verbindet und nur für bestimmte Werte von $a$ (hier $a=3$) gilt.'],
+        ],
+        formel: [
+          ['A = a \\cdot b', 'eine Formel, da sie eine allgemeine Beziehung zwischen verschiedenen physikalischen oder geometrischen Größen beschreibt (hier den Flächeninhalt eines Rechtecks).'],
+          ['U = 2\\pi r', 'eine Formel, da sie eine allgemeine Beziehung zwischen verschiedenen Größen beschreibt (hier den Kreisumfang).'],
+          ['E = m \\cdot c^2', 'eine Formel, da sie eine physikalische Gesetzmäßigkeit beschreibt.'],
+        ],
+        identitaet: [
+          ['x + x = 2x', 'eine Identität (identische Gleichung), da sie für alle erlaubten Werte der Variablen wahr ist.'],
+          ['(a+b)^2 = a^2 + 2ab + b^2', 'eine Identität (identische Gleichung), da sie für alle erlaubten Werte der Variablen wahr ist (1. Binomische Formel).'],
+          ['y \\cdot 1 = y', 'eine Identität (identische Gleichung), da sie für alle erlaubten Werte der Variablen wahr ist.'],
+        ],
+      };
+      
+      const r = random();
+      if (r < 0.5) {
+        const [term, explanation] = pick(examples[type]);
+        let otherType: 'ausdruck' | 'gleichung' | 'formel' | 'identitaet';
+        do {
+          otherType = pick(['ausdruck', 'gleichung', 'formel', 'identitaet'] as const);
+        } while (otherType === type);
+        
+        const typeLabels: Record<string, string> = {
+          ausdruck: 'Ausdruck (Term)',
+          gleichung: 'Gleichung',
+          formel: 'Formel',
+          identitaet: 'Identität',
+        };
+        const correctLabel = typeLabels[type];
+        const incorrectLabel = typeLabels[otherType];
+        const swap = random() < 0.5;
+        const labels: [string, string] = swap ? [incorrectLabel, correctLabel] : [correctLabel, incorrectLabel];
+        const expect = (swap ? 1 : 0) as 0 | 1;
+        
+        return {
+          frage: `Bestimme den Typ des mathematischen Schriftbilds: $${term}$. Ist es eine ${correctLabel} oder eine ${incorrectLabel}?`,
+          frageArbeitsblatt: `Typ des Schriftbilds $${term}$:<br />[[MU_AB:0]]`,
+          abSlots: [{ kind: 'choice', expect, labels }],
+          loesung: `$${term}$ ist ${explanation}`,
+        };
+      } else {
+        const [term, explanation] = pick(examples[type]);
+        const testType = pick(['ausdruck', 'gleichung', 'formel', 'identitaet'] as const);
+        const correct = testType === type;
+        const typeLabels: Record<string, string> = {
+          ausdruck: 'Ausdruck (Term)',
+          gleichung: 'Gleichung',
+          formel: 'Formel',
+          identitaet: 'Identität',
+        };
+        const correctWord = correct ? 'Ja' : 'Nein';
+        const incorrectWord = correct ? 'Nein' : 'Ja';
+        const swap = random() < 0.5;
+        const labels: [string, string] = swap ? [incorrectWord, correctWord] : [correctWord, incorrectWord];
+        const expect = (swap ? 1 : 0) as 0 | 1;
+        
+        return {
+          frage: `Ist das Schriftbild $${term}$ eine ${typeLabels[testType]}?`,
+          frageArbeitsblatt: `Ist $${term}$ eine ${typeLabels[testType]}?<br />[[MU_AB:0]]`,
+          abSlots: [{ kind: 'choice', expect, labels }],
+          loesung: `${correctWord}. $${term}$ ist ${explanation}`,
+        };
+      }
+    },
+    alg_lang_one_op() {
+      const v = pick(['x', 'y', 'z', 'a', 'b', 'n'] as const);
+      const n = randInt(2, 15);
+      const items = [
+        {
+          satz: `Das Fünffache einer Zahl $${v}$`,
+          correct: `${n}${v}`,
+          wrong: `${v}+${n}`,
+          correctLabel: `Das $${n}$-fache von $${v}$ ($${n}${v}$)`,
+          wrongLabel: `$${v}$ plus $${n}$ ($${v}+${n}$)`
+        },
+        {
+          satz: `Die Summe aus einer Zahl $${v}$ und $${n}$`,
+          correct: `${v}+${n}`,
+          wrong: `${n}${v}`,
+          correctLabel: `$${v}+${n}$`,
+          wrongLabel: `$${n}${v}$`
+        },
+        {
+          satz: `Die Differenz aus einer Zahl $${v}$ und $${n}$`,
+          correct: `${v}-${n}`,
+          wrong: `${n}-${v}`,
+          correctLabel: `$${v}-${n}$`,
+          wrongLabel: `$${n}-${v}$`
+        },
+        {
+          satz: `Die Differenz aus $${n}$ und einer Zahl $${v}$`,
+          correct: `${n}-${v}`,
+          wrong: `${v}-${n}`,
+          correctLabel: `$${n}-${v}$`,
+          wrongLabel: `$${v}-${n}$`
+        },
+        {
+          satz: `Der Quotient aus einer Zahl $${v}$ und $${n}$`,
+          correct: `\\frac{${v}}{${n}}`,
+          wrong: `\\frac{${n}}{${v}}`,
+          correctLabel: `$\\frac{${v}}{${n}}$`,
+          wrongLabel: `$\\frac{${n}}{${v}}$`
+        }
+      ];
+      
+      const item = pick(items);
+      const satzText = item.satz.replace('Das Fünffache', n === 2 ? 'Das Doppelte' : n === 3 ? 'Das Dreifache' : `Das $${n}$-fache`);
+      const correctVal = item.correct;
+      const wrongVal = item.wrong;
+      
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [item.wrongLabel, item.correctLabel] : [item.correctLabel, item.wrongLabel];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      
+      return {
+        frage: `Übersetze den Sachsatz in einen algebraischen Term: „${satzText}“.`,
+        frageArbeitsblatt: `Übersetze in einen Term: „${satzText}“:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Der gesuchte Term lautet $${correctVal}$. Die andere Option $${wrongVal}$ ist nicht korrekt für diesen Sachverhalt.`,
+      };
+    },
+    alg_lang_multi_op() {
+      const v = pick(['x', 'y', 'z', 'a', 'b'] as const);
+      const n = randInt(2, 9);
+      const m = randInt(2, 12);
+      const items = [
+        {
+          satz: `Das $${n}$-fache einer Zahl $${v}$ vermehrt um $${m}$`,
+          correct: `${n}${v}+${m}`,
+          wrong: `${n}(${v}+${m})`,
+          correctLabel: `$${n}${v}+${m}$`,
+          wrongLabel: `$${n}(${v}+${m})$`
+        },
+        {
+          satz: `Das $${n}$-fache der Summe aus einer Zahl $${v}$ und $${m}$`,
+          correct: `${n}(${v}+${m})`,
+          wrong: `${n}${v}+${m}`,
+          correctLabel: `$${n}(${v}+${m})$`,
+          wrongLabel: `$${n}${v}+${m}$`
+        },
+        {
+          satz: `Das $${n}$-fache einer Zahl $${v}$ vermindert um $${m}$`,
+          correct: `${n}${v}-${m}`,
+          wrong: `${n}(${v}-${m})`,
+          correctLabel: `$${n}${v}-${m}$`,
+          wrongLabel: `$${n}(${v}-${m})$`
+        },
+        {
+          satz: `Das $${n}$-fache der Differenz aus einer Zahl $${v}$ und $${m}$`,
+          correct: `${n}(${v}-${m})`,
+          wrong: `${n}${v}-${m}`,
+          correctLabel: `$${n}(${v}-${m})$`,
+          wrongLabel: `$${n}${v}-${m}$`
+        }
+      ];
+      
+      const item = pick(items);
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [item.wrongLabel, item.correctLabel] : [item.correctLabel, item.wrongLabel];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      
+      return {
+        frage: `Übersetze in einen Term: „${item.satz}“.`,
+        frageArbeitsblatt: `Übersetze in einen Term: „${item.satz}“:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Der gesuchte Term lautet $${item.correct}$. Achte auf den Unterschied zwischen Punkt-vor-Strich und Klammerung!`,
+      };
+    },
+    alg_lang_indices() {
+      const n = pick(['n', 'i', 'k'] as const);
+      const items = [
+        {
+          satz: `Der Nachfolger des $${n}$-ten Folgenglieds $a_${n}$`,
+          correct: `a_${n}+1`,
+          wrong: `a_{${n}+1}`,
+          correctLabel: `$a_${n}+1$ (Wert erhöht um 1)`,
+          wrongLabel: `$a_{${n}+1}$ (nächstes Folgenglied)`
+        },
+        {
+          satz: `Das nächste Folgenglied nach $a_${n}$`,
+          correct: `a_{${n}+1}`,
+          wrong: `a_${n}+1`,
+          correctLabel: `$a_{${n}+1}$ (Index $${n}+1$)`,
+          wrongLabel: `$a_${n}+1$ (Wert erhöht um 1)`
+        },
+        {
+          satz: `Das vorherige Folgenglied vor $a_${n}$`,
+          correct: `a_{${n}-1}`,
+          wrong: `a_${n}-1`,
+          correctLabel: `$a_{${n}-1}$ (Index $${n}-1$)`,
+          wrongLabel: `$a_${n}-1$ (Wert vermindert um 1)`
+        },
+        {
+          satz: `Das Doppelte des Folgenglieds $a_${n}$`,
+          correct: `2a_${n}`,
+          wrong: `a_{2${n}}`,
+          correctLabel: `$2a_${n}$`,
+          wrongLabel: `$a_{2${n}}$`
+        }
+      ];
+      
+      const item = pick(items);
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [item.wrongLabel, item.correctLabel] : [item.correctLabel, item.wrongLabel];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      
+      return {
+        frage: `Übersetze in einen algebraischen Ausdruck mit Indizes: „${item.satz}“.`,
+        frageArbeitsblatt: `Übersetze in einen Term: „${item.satz}“:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Richtig ist $${item.correct}$. Achte auf den Unterschied zwischen dem Index der Folgenglieder und dem Wert!`,
+      };
+    },
+    alg_subst_pos_simple() {
+      const v = pick(['x', 'y', 'z', 'a', 'b'] as const);
+      const val = randInt(2, 7);
+      const coeff = randInt(2, 9);
+      const konst = randInt(-12, 12);
+      const term = `${linTerm(coeff, v)}${formatSignedInt(konst)}`;
+      const res = coeff * val + konst;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $${v} = ${val}$.`,
+        frageArbeitsblatt: `Setze $${v} = ${val}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: res }],
+        loesung: `Einsetzen von $${v} = ${val}$ in $${term}$ ergibt: $${coeff}\\cdot${val}${formatSignedInt(konst)} = ${coeff * val}${formatSignedInt(konst)} = ${res}$.`,
+      };
+    },
+    alg_subst_pos_pow() {
+      const v = pick(['x', 'y', 'a'] as const);
+      const val = randInt(2, 4);
+      const coeff = randInt(1, 4);
+      const pow = pick([2, 3] as const);
+      const konst = randInt(-8, 8);
+      const term = `${coeff === 1 ? '' : coeff}${v}^${pow}${formatSignedInt(konst)}`;
+      const valPow = Math.pow(val, pow);
+      const res = coeff * valPow + konst;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $${v} = ${val}$.`,
+        frageArbeitsblatt: `Setze $${v} = ${val}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: res }],
+        loesung: `Einsetzen von $${v} = ${val}$ in $${term}$ ergibt: $${coeff === 1 ? '' : coeff}\\cdot${val}^${pow}${formatSignedInt(konst)} = ${coeff}\\cdot${valPow}${formatSignedInt(konst)} = ${coeff * valPow}${formatSignedInt(konst)} = ${res}$.`,
+      };
+    },
+    alg_subst_pos_mv() {
+      const v1 = 'x';
+      const v2 = 'y';
+      const val1 = randInt(2, 6);
+      const val2 = randInt(2, 6);
+      const coeff1 = randInt(2, 5);
+      const coeff2 = randInt(2, 5);
+      const sign = pick([1, -1] as const);
+      const term = `${linTerm(coeff1, v1)}${sign > 0 ? '+' : '-'}${linTerm(coeff2, v2)}`;
+      const res = coeff1 * val1 + sign * coeff2 * val2;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $${v1} = ${val1}$ und $${v2} = ${val2}$.`,
+        frageArbeitsblatt: `Setze $${v1}=${val1}$, $${v2}=${val2}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: res }],
+        loesung: `Einsetzen ergibt: $${coeff1}\\cdot${val1} ${sign > 0 ? '+' : '-'} ${coeff2}\\cdot${val2} = ${coeff1 * val1} ${sign > 0 ? '+' : '-'} ${coeff2 * val2} = ${res}$.`,
+      };
+    },
+    alg_subst_neg_simple() {
+      const v = pick(['x', 'y', 'a'] as const);
+      const val = randInt(-6, -2);
+      const coeff = randInt(2, 8);
+      const konst = randInt(-15, 15);
+      const term = `${linTerm(coeff, v)}${formatSignedInt(konst)}`;
+      const res = coeff * val + konst;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $${v} = ${val}$.`,
+        frageArbeitsblatt: `Setze $${v} = ${val}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: res }],
+        loesung: `Einsetzen von $${v} = ${val}$ in $${term}$ ergibt: $${coeff}\\cdot(${val})${formatSignedInt(konst)} = ${coeff * val}${formatSignedInt(konst)} = ${res}$.`,
+      };
+    },
+    alg_subst_neg_pow() {
+      const v = 'x';
+      const val = randInt(-4, -2);
+      const coeff = pick([1, 2, -1] as const);
+      const linearCoeff = randInt(-4, 4);
+      const term = `${coeff === 1 ? '' : coeff === -1 ? '-' : coeff}x^2${linearCoeff === 0 ? '' : formatSignedInt(linearCoeff) + 'x'}`;
+      const res = coeff * val * val + linearCoeff * val;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $x = ${val}$.`,
+        frageArbeitsblatt: `Setze $x = ${val}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: res }],
+        loesung: `Einsetzen ergibt: $${coeff === 1 ? '' : coeff === -1 ? '-' : coeff}(${val})^2 ${linearCoeff === 0 ? '' : formatSignedInt(linearCoeff) + '\\cdot(' + val + ')'} = ${coeff}\\cdot${val * val} ${linearCoeff === 0 ? '' : formatSignedInt(linearCoeff * val)} = ${res}$.`,
+      };
+    },
+    alg_subst_decimal_simple() {
+      const v = 'x';
+      const val = pick([0.5, 1.5, 2.5, -0.5, -1.5]) as number;
+      const coeff = pick([2, 4, 6, 8]) as number;
+      const konst = randInt(-5, 5);
+      const term = `${linTerm(coeff, v)}${formatSignedInt(konst)}`;
+      const res = coeff * val + konst;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $x = ${dzTex(val, 1)}$.`,
+        frageArbeitsblatt: `Setze $x = ${dzTex(val, 1)}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'decimal', expect: res }],
+        loesung: `Einsetzen ergibt: $${coeff}\\cdot(${dzTex(val, 1)})${formatSignedInt(konst)} = ${dzTex(coeff * val, 1)}${formatSignedInt(konst)} = ${dzTex(res, 1)}$.`,
+      };
+    },
+    alg_subst_decimal_pow() {
+      const v = 'x';
+      const val = pick([0.5, 0.2, 0.1, -0.5]) as number;
+      const coeff = pick([4, 10, 20, 100]) as number;
+      const term = `${coeff}x^2`;
+      const res = coeff * val * val;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $x = ${dzTex(val, 1)}$.`,
+        frageArbeitsblatt: `Setze $x = ${dzTex(val, 1)}$ in $${term}$ ein:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'decimal', expect: res }],
+        loesung: `Einsetzen ergibt: $${coeff}\\cdot(${dzTex(val, 1)})^2 = ${coeff}\\cdot ${dzTex(val * val, 2)} = ${dzTex(res, 2)}$.`,
+      };
+    },
+    alg_subst_fraction_simple() {
+      const v = 'x';
+      const n = randInt(1, 4);
+      const d = pick([3, 4, 5] as const);
+      const coeff = d * randInt(1, 3);
+      const konst = randInt(-5, 5);
+      const term = `${linTerm(coeff, v)}${formatSignedInt(konst)}`;
+      const res = (coeff * n) / d + konst;
+      const labelCorrect = `$${res}$`;
+      const labelWrong = `$${res + 1}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelWrong, labelCorrect] : [labelCorrect, labelWrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $x = \\frac{${n}}{${d}}$.`,
+        frageArbeitsblatt: `Wert von $${term}$ für $x = \\frac{${n}}{${d}}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Einsetzen von $x = \\frac{${n}}{${d}}$ ergibt: $${coeff}\\cdot\\frac{${n}}{${d}}${formatSignedInt(konst)} = ${coeff * n / d}${formatSignedInt(konst)} = ${res}$.`,
+      };
+    },
+    alg_subst_fraction_pow() {
+      const v = 'x';
+      const n = 1;
+      const d = pick([2, 3, 4] as const);
+      const coeff = d * d * randInt(1, 2);
+      const term = `${coeff}x^2`;
+      const res = (coeff * n * n) / (d * d);
+      const labelCorrect = `$${res}$`;
+      const labelWrong = `$${res + 2}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelWrong, labelCorrect] : [labelCorrect, labelWrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Berechne den Wert des Terms $${term}$ für $x = \\frac{${n}}{${d}}$.`,
+        frageArbeitsblatt: `Wert von $${term}$ für $x = \\frac{${n}}{${d}}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Einsetzen von $x = \\frac{${n}}{${d}}$ ergibt: $${coeff}\\cdot\\left(\\frac{${n}}{${d}}\\right)^2 = ${coeff}\\cdot\\frac{${n * n}}{${d * d}} = ${res}$.`,
+      };
+    },
+    alg_terms_like_recognize() {
+      const vars = pick([
+        ['x^2y', 'x^2y', 'xy^2', '3x^2y', '-5x^2y', 'x^2'],
+        ['a^3b^2', 'a^3b^2', 'a^2b^3', '2a^3b^2', '-a^3b^2', 'ab^2'],
+        ['mn^2', 'mn^2', 'm^2n', '4mn^2', '-2mn^2', 'n^2']
+      ] as const);
+      const [type, correctStr, wrongStr, eq1, eq2] = vars;
+      const showEq = pick([eq1, eq2]);
+      const baseTerm = `${randInt(2, 5)}${type}`;
+      const correctOption = `$${showEq}$`;
+      const wrongOption = `$${randInt(2, 5)}${wrongStr}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [wrongOption, correctOption] : [correctOption, wrongOption];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Welcher Term ist gleichartig zu $${baseTerm}$?`,
+        frageArbeitsblatt: `Term gleichartig zu $${baseTerm}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Gleichartige Terme müssen exakt dieselben Variablen mit denselben Exponenten besitzen. Zu $${baseTerm}$ ist nur $${showEq}$ gleichartig.`,
+      };
+    },
+    alg_terms_mult_pow() {
+      const v = pick(['x', 'y', 'a', 'b'] as const);
+      const a = randInt(2, 6);
+      const b = randInt(2, 6);
+      const c1 = randInt(2, 6);
+      const c2 = randInt(2, 6);
+      const coeff = c1 * c2;
+      const exp = a + b;
+      const termStr = `${c1}${v}^${a} \\cdot ${c2}${v}^${b}`;
+      const resStr = `${coeff}${v}^{${exp}}`;
+      
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>k =</span>[[MU_AB:0]]<span>, Exponent =</span>[[MU_AB:1]]</span>`;
+      return {
+        frage: `Multipliziere und vereinfache: $${termStr}$.`,
+        frageArbeitsblatt: `Schreibe $${termStr}$ als $k\\,${v}^{e}$. ${abSpan}`,
+        abSlots: [
+          { kind: 'int', expect: coeff },
+          { kind: 'int', expect: exp }
+        ],
+        loesung: `$${termStr} = (${c1}\\cdot ${c2})${v}^{${a}+${b}} = ${resStr}$.`,
+      };
+    },
+    alg_terms_div_simple() {
+      const v = pick(['x', 'y', 'a', 'b'] as const);
+      const c1 = randInt(2, 9);
+      const c2 = randInt(2, 4);
+      const c1Full = c1 * c2;
+      const termStr = `${c1Full}${v} : (${c2}${v})`;
+      return {
+        frage: `Dividiere: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        abSlots: [{ kind: 'int', expect: c1 }],
+        loesung: `$${termStr} = \\frac{${c1Full}${v}}{${c2}${v}} = ${c1}$.`,
+      };
+    },
+    alg_terms_div_pow() {
+      const v = pick(['x', 'y', 'a'] as const);
+      const exp1 = randInt(4, 9);
+      const exp2 = randInt(2, exp1 - 2);
+      const c2 = randInt(2, 4);
+      const coeff = randInt(2, 6);
+      const c1 = coeff * c2;
+      const termStr = `${c1}${v}^${exp1} : (${c2}${v}^${exp2})`;
+      const expRes = exp1 - exp2;
+      
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>k =</span>[[MU_AB:0]]<span>, Exponent =</span>[[MU_AB:1]]</span>`;
+      return {
+        frage: `Dividiere mit den Potenzgesetzen: $${termStr}$.`,
+        frageArbeitsblatt: `Schreibe $${termStr}$ als $k\\,${v}^{e}$. ${abSpan}`,
+        abSlots: [
+          { kind: 'int', expect: coeff },
+          { kind: 'int', expect: expRes }
+        ],
+        loesung: `$${termStr} = \\frac{${c1}${v}^${exp1}}{${c2}${v}^${exp2}} = (${c1} : ${c2})${v}^{${exp1}-${exp2}} = ${coeff}${v}^{${expRes}}$.`,
+      };
+    },
+    alg_terms_raise_pow() {
+      const v = pick(['x', 'y', 'a'] as const);
+      const coeff = randInt(2, 5);
+      const exp = randInt(2, 4);
+      const pow = randInt(2, 3);
+      const coeffRes = Math.pow(coeff, pow);
+      const expRes = exp * pow;
+      const termStr = `(${coeff}${v}^${exp})^${pow}`;
+      
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>k =</span>[[MU_AB:0]]<span>, Exponent =</span>[[MU_AB:1]]</span>`;
+      return {
+        frage: `Potenziere den Term: $${termStr}$.`,
+        frageArbeitsblatt: `Schreibe $${termStr}$ als $k\\,${v}^{e}$. ${abSpan}`,
+        abSlots: [
+          { kind: 'int', expect: coeffRes },
+          { kind: 'int', expect: expRes }
+        ],
+        loesung: `$${termStr} = ${coeff}^${pow} \\cdot ${v}^{${exp} \\cdot ${pow}} = ${coeffRes}${v}^{${expRes}}$.`,
+      };
+    },
+    alg_terms_simplify_multi() {
+      const v = 'x';
+      const c1 = pick([2, 3] as const);
+      const a = randInt(2, 3);
+      const b = 2;
+      const c2 = c1 * c1 / pick([1, c1 * c1] as const);
+      const d = randInt(1, a * b - 1);
+      
+      const coeffRes = (c1 * c1) / c2;
+      const expRes = a * b - d;
+      const termStr = `\\frac{(${c1}${v}^${a})^${b}}{${c2}${v}^${d}}`;
+      
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>k =</span>[[MU_AB:0]]<span>, Exponent =</span>[[MU_AB:1]]</span>`;
+      return {
+        frage: `Vereinfache den Ausdruck: $${termStr}$.`,
+        frageArbeitsblatt: `Schreibe $${termStr}$ als $k\\,${v}^{e}$. ${abSpan}`,
+        abSlots: [
+          { kind: 'int', expect: coeffRes },
+          { kind: 'int', expect: expRes }
+        ],
+        loesung: `$${termStr} = \\frac{${c1 * c1}${v}^{${a * b}}}{${c2}${v}^${d}} = \\left(\\frac{${c1 * c1}}{${c2}}\\right)${v}^{${a * b}-${d}} = ${coeffRes}${v}^{${expRes}}$.`,
+      };
+    },
+    alg_terms_equiv_recognize() {
+      const type = pick([1, 2, 3] as const);
+      let frage: string;
+      let loesung: string;
+      let labelCorrect: string;
+      let labelWrong: string;
+      if (type === 1) {
+        frage = `Welcher Ausdruck ist äquivalent zu $3(x + 2) - 2x$?`;
+        labelCorrect = `$x + 6$`;
+        labelWrong = `$x + 2$`;
+        loesung = `$3(x+2)-2x = 3x+6-2x = x+6$.`;
+      } else if (type === 2) {
+        frage = `Welcher Ausdruck ist äquivalent zu $x(x + 4) - 2x$?`;
+        labelCorrect = `$x^2 + 2x$`;
+        labelWrong = `$3x^2$`;
+        loesung = `$x(x+4)-2x = x^2+4x-2x = x^2+2x$.`;
+      } else {
+        frage = `Welcher Ausdruck ist äquivalent zu $2a - (a - 3)$?`;
+        labelCorrect = `$a + 3$`;
+        labelWrong = `$a - 3$`;
+        loesung = `$2a-(a-3) = 2a-a+3 = a+3$.`;
+      }
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelWrong, labelCorrect] : [labelCorrect, labelWrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage,
+        frageArbeitsblatt: `${frage}<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung,
+      };
+    },
+    alg_frac_def_domain() {
+      const a = randInt(2, 9);
+      const b = randInt(2, 9);
+      const r = random();
+      let frage: string;
+      let loesung: string;
+      let labelCorrect: string;
+      let labelWrong: string;
+      if (r < 0.5) {
+        frage = `Bestimme die Definitionsmenge von $\\frac{${a}}{x - ${b}}$.`;
+        labelCorrect = `$D = \\mathbb{R} \\setminus \\{${b}\\}$`;
+        labelWrong = `$D = \\mathbb{R} \\setminus \\{0\\}$`;
+        loesung = `Der Nenner darf nicht null sein: $x - ${b} \\neq 0 \\Rightarrow x \\neq ${b}$. Somit ist $D = \\mathbb{R} \\setminus \\{${b}\\}$.`;
+      } else {
+        const bSq = b * b;
+        frage = `Bestimme die Definitionsmenge von $\\frac{${a}}{x^2 - ${bSq}}$.`;
+        labelCorrect = `$D = \\mathbb{R} \\setminus \\{-${b}; ${b}\\}$`;
+        labelWrong = `$D = \\mathbb{R} \\setminus \\{${b}\\}$`;
+        loesung = `Nenner darf nicht null sein: $x^2 - ${bSq} \\neq 0 \\Rightarrow x^2 \\neq ${bSq} \\Rightarrow x \\neq \\pm ${b}$. Somit ist $D = \\mathbb{R} \\setminus \\{-${b}; ${b}\\}$.`;
+      }
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [labelWrong, labelCorrect] : [labelCorrect, labelWrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage,
+        frageArbeitsblatt: `${frage}<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung,
+      };
+    },
+    alg_frac_simplify_none() {
+      const v1 = 'x';
+      const v2 = 'y';
+      const c1 = randInt(2, 6);
+      const c2 = randInt(2, 4);
+      const coeff = c1 * c2;
+      const termStr = `\\frac{${coeff}${v1}^2${v2}}{${c2}${v1}${v2}}`;
+      const correct = `$${c1}${v1}$`;
+      const wrong = `$${c1}${v1}${v2}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [wrong, correct] : [correct, wrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Vereinfache (kürze vollständig): $${termStr}$.`,
+        frageArbeitsblatt: `Kürze vollständig: $${termStr}$.<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Kürzen von $${v2}$, $${v1}$ und Division der Koeffizienten ergibt: $${termStr} = ${c1}${v1}$.`,
+      };
+    },
+    alg_frac_simplify_linear() {
+      const a = randInt(2, 6);
+      const c = randInt(2, 5);
+      const b = a * c;
+      const termStr = `\\frac{${linBinom(a, b)}}{x + ${c}}`;
+      const correct = `$${a}$`;
+      const wrong = `$${a}x$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [wrong, correct] : [correct, wrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Vereinfache (kürze): $${termStr}$.`,
+        frageArbeitsblatt: `Kürze: $${termStr}$.<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Ausklammern im Zähler ergibt $\\frac{${a}(x + ${c})}{x + ${c}} = ${a}$.`,
+      };
+    },
+    alg_frac_simplify_monic() {
+      const a = randInt(2, 8);
+      const termStr = `\\frac{x^2 - ${a*a}}{x - ${a}}`;
+      const correct = `$x + ${a}$`;
+      const wrong = `$x - ${a}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [wrong, correct] : [correct, wrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Vereinfache: $${termStr}$.`,
+        frageArbeitsblatt: `Kürze: $${termStr}$.<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Mit der 3. Binomischen Formel gilt $x^2 - ${a*a} = (x-${a})(x+${a})$. Durch Kürzen erhalten wir $x+${a}$.`,
+      };
+    },
+    alg_frac_simplify_non_monic() {
+      const a = pick([2, 3] as const);
+      const b = randInt(1, 4);
+      const aBSq = a * b * b;
+      const termStr = `\\frac{${a}x^2 - ${aBSq}}{x - ${b}}`;
+      const correct = `$${a}x + ${a*b}$`;
+      const wrong = `$${a}x - ${a*b}$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [wrong, correct] : [correct, wrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Vereinfache: $${termStr}$.`,
+        frageArbeitsblatt: `Kürze: $${termStr}$.<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Ausklammern im Zähler ergibt $\\frac{${a}(x^2 - ${b*b})}{x - ${b}} = \\frac{${a}(x-${b})(x+${b})}{x - ${b}} = ${a}(x+${b}) = ${a}x + ${a*b}$.`,
+      };
+    },
+    alg_frac_mul_none() {
+      const c1 = randInt(1, 3);
+      const c2 = randInt(2, 4);
+      const termStr = `\\frac{${c1}}{x} \\cdot \\frac{${c2}}{y}`;
+      const resVal = c1 * c2;
+      const correct = `\\frac{${resVal}}{xy}`;
+      const wrong = `\\frac{${resVal}}{x+y}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Berechne das Produkt der Bruchterme: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Multiplikation Zähler mal Zähler und Nenner mal Nenner ergibt: $\\frac{${c1}\\cdot ${c2}}{x\\cdot y} = \\frac{${resVal}}{xy}$.`,
+      };
+    },
+    alg_frac_mul_linear() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 6);
+      const c = randInt(2, 5);
+      const termStr = `\\frac{${a}}{x+${b}} \\cdot \\frac{2x+${2*b}}{${c}}`;
+      const numRes = 2 * a;
+      const g = gcd(numRes, c);
+      const correctNum = numRes / g;
+      const correctDen = c / g;
+      const correct = correctDen === 1 ? `${correctNum}` : `\\frac{${correctNum}}{${correctDen}}`;
+      const wrong = `\\frac{${a}(2x+${2*b})}{${c}(x+${b})}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Multipliziere und kürze: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Ausklammern im zweiten Zähler ergibt $2x+${2*b} = 2(x+${b})$. Nach Kürzen von $(x+${b})$ bleibt: $\\frac{${a}}{1} \\cdot \\frac{2}{${c}} = \\frac{${2*a}}{${c}} = ${correct}$.`,
+      };
+    },
+    alg_frac_mul_monic() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 4);
+      const c = randInt(2, 5);
+      const termStr = `\\frac{x-${a}}{${b}} \\cdot \\frac{${c}}{x^2-${a*a}}`;
+      const correct = `\\frac{${c}}{${b}x+${b*a}}`;
+      const wrong = `\\frac{${c}}{${b}x-${b*a}}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Multipliziere und kürze: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Faktorisieren mit der 3. Binomischen Formel: $x^2-${a*a} = (x-${a})(x+${a})$. Kürzen von $(x-${a})$ ergibt: $\\frac{1}{${b}}\\cdot \\frac{${c}}{x+${a}} = \\frac{${c}}{${b}(x+${a})} = \\frac{${c}}{${b}x+${b*a}}$.`,
+      };
+    },
+    alg_frac_mul_non_monic() {
+      const termStr = `\\frac{2x+2}{x-3} \\cdot \\frac{x^2-9}{4x+4}`;
+      const correct = `\\frac{x+3}{2}`;
+      const wrong = `\\frac{x-3}{2}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Multipliziere und kürze: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Faktorisieren aller Teile: $2x+2 = 2(x+1)$, $4x+4=4(x+1)$, $x^2-9=(x-3)(x+3)$. Damit kürzen sich $(x+1)$ und $(x-3)$ weg, und es bleibt $\\frac{2}{1} \\cdot \\frac{x+3}{4} = \\frac{x+3}{2}$.`,
+      };
+    },
+    alg_frac_div_none() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 5);
+      const termStr = `\\frac{${a}}{x} : \\frac{${b}}{y}`;
+      const correct = `\\frac{${a}y}{${b}x}`;
+      const wrong = `\\frac{${a}x}{${b}y}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Dividiere die Bruchterme: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Multiplikation mit dem Kehrwert ergibt: $\\frac{${a}}{x} \\cdot \\frac{y}{${b}} = \\frac{${a}y}{${b}x}$.`,
+      };
+    },
+    alg_frac_div_linear() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 6);
+      const c = randInt(2, 5);
+      const termStr = `\\frac{${a}}{x+${b}} : \\frac{${c}}{2x+${2*b}}`;
+      const numRes = 2 * a;
+      const g = gcd(numRes, c);
+      const correctNum = numRes / g;
+      const correctDen = c / g;
+      const correct = correctDen === 1 ? `${correctNum}` : `\\frac{${correctNum}}{${correctDen}}`;
+      const wrong = `\\frac{${a*c}}{2(x+${b})^2}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Dividiere und kürze: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Kehrwert bilden: $\\frac{${a}}{x+${b}} \\cdot \\frac{2(x+${b})}{${c}} = \\frac{2\\cdot ${a}}{${c}} = ${correct}$.`,
+      };
+    },
+    alg_frac_div_monic() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 4);
+      const c = randInt(2, 5);
+      const termStr = `\\frac{x-${a}}{${b}} : \\frac{x^2-${a*a}}{${c}}`;
+      const correct = `\\frac{${c}}{${b}x+${b*a}}`;
+      const wrong = `\\frac{${c}}{${b}x-${b*a}}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Dividiere und kürze: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Mit dem Kehrwert multiplizieren: $\\frac{x-${a}}{${b}} \\cdot \\frac{${c}}{(x-${a})(x+${a})} = \\frac{${c}}{${b}(x+${a})} = \\frac{${c}}{${b}x+${b*a}}$.`,
+      };
+    },
+    alg_frac_div_non_monic() {
+      const termStr = `\\frac{2x+2}{x-3} : \\frac{4x+4}{x^2-9}`;
+      const correct = `\\frac{x+3}{2}`;
+      const wrong = `\\frac{x-3}{2}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Dividiere und kürze: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Mit dem Kehrwert multiplizieren: $\\frac{2(x+1)}{x-3} \\cdot \\frac{(x-3)(x+3)}{4(x+1)} = \\frac{2(x+3)}{4} = \\frac{x+3}{2}$.`,
+      };
+    },
+    alg_frac_add_int() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 5);
+      const n = lcm(a, b);
+      const termStr = `\\frac{x}{${a}} + \\frac{x}{${b}}`;
+      const numCoeff = (n / a) + (n / b);
+      const g = gcd(numCoeff, n);
+      const correctNum = numCoeff / g;
+      const correctDen = n / g;
+      const correct = `\\frac{${correctNum === 1 ? '' : correctNum}x}{${correctDen}}`;
+      const wrong = `\\frac{2x}{${a+b}}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Addiere: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Hauptnenner ist $${n}$. Damit: $\\frac{${n/a}x}{${n}} + \\frac{${n/b}x}{${n}} = \\frac{${numCoeff}x}{${n}} = ${correct}$.`,
+      };
+    },
+    alg_frac_add_simple() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 5);
+      const termStr = `\\frac{${a}}{x} + \\frac{${b}}{y}`;
+      const correct = `\\frac{${a}y+${b}x}{xy}`;
+      const wrong = `\\frac{${a+b}}{x+y}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Addiere die Bruchterme: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Brüche erweitern: $\\frac{${a}y}{xy} + \\frac{${b}x}{xy} = \\frac{${a}y+${b}x}{xy}$.`,
+      };
+    },
+    alg_frac_add_linear() {
+      const a = randInt(1, 4);
+      const termStr = `\\frac{1}{x} + \\frac{1}{x+${a}}`;
+      const correct = `\\frac{2x+${a}}{x^2+${a}x}`;
+      const wrong = `\\frac{2}{2x+${a}}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Addiere: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Erweitern: $\\frac{x+${a}}{x(x+${a})} + \\frac{x}{x(x+${a})} = \\frac{2x+${a}}{x(x+${a})} = \\frac{2x+${a}}{x^2+${a}x}$.`,
+      };
+    },
+    alg_frac_add_fact() {
+      const termStr = `\\frac{1}{x^2-x} + \\frac{1}{x}`;
+      const correct = `\\frac{1}{x-1}`;
+      const wrong = `\\frac{1}{x}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Addiere und vereinfache: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Nenner faktorisieren: $x^2-x = x(x-1)$. Hauptnenner ist $x(x-1)$. Damit $\\frac{1}{x(x-1)} + \\frac{x-1}{x(x-1)} = \\frac{x}{x(x-1)} = \\frac{1}{x-1}$.`,
+      };
+    },
+    alg_frac_sub_int() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 5);
+      const n = lcm(a, b);
+      const termStr = `\\frac{x}{${a}} - \\frac{x}{${b}}`;
+      const numCoeff = (n / a) - (n / b);
+      const g = gcd(numCoeff, n);
+      const correctNum = numCoeff / g;
+      const correctDen = n / g;
+      const correct = `\\frac{${correctNum === 1 ? '' : correctNum === -1 ? '-' : correctNum}x}{${correctDen}}`;
+      const wrong = `\\frac{0}{${a-b}}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Subtrahiere: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Hauptnenner ist $${n}$. Damit: $\\frac{${n/a}x}{${n}} - \\frac{${n/b}x}{${n}} = \\frac{${numCoeff}x}{${n}} = ${correct}$.`,
+      };
+    },
+    alg_frac_sub_simple() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 5);
+      const termStr = `\\frac{${a}}{x} - \\frac{${b}}{y}`;
+      const correct = `\\frac{${a}y-${b}x}{xy}`;
+      const wrong = `\\frac{${a-b}}{x-y}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Subtrahiere: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Brüche erweitern: $\\frac{${a}y}{xy} - \\frac{${b}x}{xy} = \\frac{${a}y-${b}x}{xy}$.`,
+      };
+    },
+    alg_frac_sub_linear() {
+      const a = randInt(1, 4);
+      const termStr = `\\frac{1}{x} - \\frac{1}{x+${a}}`;
+      const correct = `\\frac{${a}}{x^2+${a}x}`;
+      const wrong = `\\frac{0}{x^2+${a}x}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Subtrahiere: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Erweitern: $\\frac{x+${a}}{x(x+${a})} - \\frac{x}{x(x+${a})} = \\frac{${a}}{x(x+${a})} = \\frac{${a}}{x^2+${a}x}$.`,
+      };
+    },
+    alg_frac_sub_fact() {
+      const termStr = `\\frac{1}{x} - \\frac{1}{x^2+x}`;
+      const correct = `\\frac{1}{x+1}`;
+      const wrong = `\\frac{1}{x}`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Subtrahiere und vereinfache: $${termStr}$.`,
+        frageArbeitsblatt: `Berechne und kürze $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Nenner faktorisieren: $x^2+x = x(x+1)$. Hauptnenner ist $x(x+1)$. Damit $\\frac{x+1}{x(x+1)} - \\frac{1}{x(x+1)} = \\frac{x}{x(x+1)} = \\frac{1}{x+1}$.`,
+      };
+    },
+    alg_frac_four_ops_mix() {
+      const termStr = `\\left(\\frac{1}{x} + \\frac{1}{y}\\right) \\cdot xy`;
+      const correct = `$x+y$`;
+      const wrong = `$2$`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [wrong, correct] : [correct, wrong];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Vereinfache den gemischten Bruchterm: $${termStr}$.`,
+        frageArbeitsblatt: `Vereinfache $${termStr}$:<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `Ausmultiplizieren ergibt $\\frac{1}{x}\\cdot xy + \\frac{1}{y}\\cdot xy = y + x = x+y$.`,
+      };
+    },
+    alg_expand_einfach_capstone() {
+      const types = ['alg_expand_einfach_zahl', 'alg_expand_einfach_var', 'alg_klammer_summe'] as const;
+      const t = pick(types);
+      return this[t]();
+    },
+    alg_expand_binom_double_pos() {
+      const a = randInt(2, 8);
+      let b = 0;
+      for (let t = 0; t < 20; t++) {
+        b = randInt(2, 8);
+        if (b !== a) break;
+      }
+      if (b === 0) b = a + 1;
+      const p = a + b;
+      const q = a * b;
+      const left = `x+${a}`;
+      const right = `x+${b}`;
+      return {
+        frage: `Multipliziere aus: $(${left})(${right})$.`,
+        frageArbeitsblatt: `Schreibe $(${left})(${right})$ als $x^2+px+q$.<br />${abMonischQuadPQHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q }
+        ],
+        loesung: `$(${left})(${right}) = x^2 + ${a}x + ${b}x + ${a}\\cdot ${b} = x^2 + ${p}x + ${q}$.`,
+      };
+    },
+    alg_expand_binom_double_neg() {
+      const a = pick([-7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7] as const);
+      let b = 0;
+      for (let t = 0; t < 25; t++) {
+        b = pick([-7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7] as const);
+        if (b !== a && (a < 0 || b < 0)) break;
+      }
+      if (b === 0) b = -3;
+      const p = a + b;
+      const q = a * b;
+      const left = `x${formatSignedInt(a)}`;
+      const right = `x${formatSignedInt(b)}`;
+      return {
+        frage: `Multipliziere aus: $(${left})(${right})$.`,
+        frageArbeitsblatt: `Schreibe $(${left})(${right})$ als $x^2+px+q$.<br />${abMonischQuadPQHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: p, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: q, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$(${left})(${right}) = x^2 ${formatSignedInt(a)}x ${formatSignedInt(b)}x ${formatSignedInt(q)} = x^2 ${formatSignedInt(p)}x ${formatSignedInt(q)}$.`,
+      };
+    },
+    alg_expand_binom_perfect() {
+      const a = randInt(2, 9);
+      const sign = random() < 0.5 ? 1 : -1;
+      const p = 2 * a * sign;
+      const q = a * a;
+      const left = `x${sign > 0 ? '+' : '-'}${a}`;
+      return {
+        frage: `Multipliziere aus (1. oder 2. Binomische Formel): $(${left})^2$.`,
+        frageArbeitsblatt: `Schreibe $(${left})^2$ als $x^2+px+q$.<br />${abMonischQuadPQHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: p, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: q }
+        ],
+        loesung: `$(${left})^2 = x^2 ${sign > 0 ? '+' : '-'}${2 * a}x + ${q}$.`,
+      };
+    },
+    alg_expand_binom_non_monic() {
+      const a = randInt(2, 5);
+      const c = randInt(2, 4);
+      const b = randInt(1, 6);
+      const d = randInt(1, 6);
+      const A = a * c;
+      const B = a * d + b * c;
+      const C = b * d;
+      const left = `${a}x+${b}`;
+      const right = `${c}x+${d}`;
+      return {
+        frage: `Multipliziere aus: $(${left})(${right})$.`,
+        frageArbeitsblatt: `Schreibe $(${left})(${right})$ als $ax^2+bx+c$.${abQuadABCoeffHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: A },
+          { kind: 'int', expect: B },
+          { kind: 'int', expect: C }
+        ],
+        loesung: `$(${left})(${right}) = ${A}x^2 + ${a*d}x + ${b*c}x + ${C} = ${A}x^2 + ${B}x + ${C}$.`,
+      };
+    },
+    alg_expand_binom_non_monic_neg() {
+      const a = randInt(2, 5);
+      const c = randInt(2, 4);
+      const b = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+      let d = 0;
+      for (let t = 0; t < 20; t++) {
+        d = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
+        if (b < 0 || d < 0) break;
+      }
+      if (b >= 0 && d >= 0) d = -3;
+      const A = a * c;
+      const B = a * d + b * c;
+      const C = b * d;
+      const left = `${a}x${formatSignedInt(b)}`;
+      const right = `${c}x${formatSignedInt(d)}`;
+      return {
+        frage: `Multipliziere aus: $(${left})(${right})$.`,
+        frageArbeitsblatt: `Schreibe $(${left})(${right})$ als $ax^2+bx+c$.${abQuadABCoeffHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: A },
+          { kind: 'int', expect: B, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: C, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$(${left})(${right}) = ${A}x^2 ${formatSignedInt(a*d)}x ${formatSignedInt(b*c)}x ${formatSignedInt(C)} = ${A}x^2 ${formatSignedInt(B)}x ${formatSignedInt(C)}$.`,
+      };
+    },
+    alg_expand_binom_mix_simplify() {
+      const a = randInt(2, 5);
+      const b = randInt(2, 5);
+      // Form: (x+a)(x-a) - (x+b)^2 = x^2 - a^2 - (x^2 + 2bx + b^2) = -2bx - (a^2 + b^2)
+      const p = -2 * b;
+      const q = -(a * a + b * b);
+      const left = `(x+${a})(x-${a}) - (x+${b})^2`;
+      return {
+        frage: `Multipliziere aus und vereinfache: $${left}$.`,
+        frageArbeitsblatt: `Schreibe $${left}$ in der Form $px+q$.${abLinBinomZweiIntsHtml(q)}`,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${left} = (x^2 - ${a*a}) - (x^2 + ${2*b}x + ${b*b}) = -${2*b}x - ${a*a+b*b}$.`,
+      };
+    },
+    alg_expand_triple_monic() {
+      const a = randInt(1, 3);
+      const b = randInt(1, 3);
+      const c = randInt(1, 3);
+      // Form: (x+a)(x+b)(x+c) = x^3 + (a+b+c)x^2 + (ab+bc+ca)x + abc
+      const p = a + b + c;
+      const q = a * b + b * c + c * a;
+      const r = a * b * c;
+      const left = `(x+${a})(x+${b})(x+${c})`;
+      return {
+        frage: `Multipliziere aus: $${left}$.`,
+        frageArbeitsblatt: `Schreibe $${left}$ als $x^3+px^2+qx+r$.<br />${abMonischKubischPQRHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q },
+          { kind: 'int', expect: r }
+        ],
+        loesung: `$${left} = (x^2 + ${a+b}x + ${a*b})(x+${c}) = x^3 + ${p}x^2 + ${q}x + ${r}$.`,
+      };
+    },
+    alg_expand_triple_non_monic() {
+      // Form: (2x+1)(x+2)(x-1) = (2x^2+5x+2)(x-1) = 2x^3 - 2x^2 + 5x^2 - 5x + 2x - 2 = 2x^3 + 3x^2 - 3x - 2
+      const termStr = `(2x+1)(x+2)(x-1)`;
+      const correct = `2x^3+3x^2-3x-2`;
+      const wrong = `2x^3+3x^2-3x+2`;
+      const swap = random() < 0.5;
+      const labels: [string, string] = swap ? [`$${wrong}$`, `$${correct}$`] : [`$${correct}$`, `$${wrong}$`];
+      const expect = (swap ? 1 : 0) as 0 | 1;
+      return {
+        frage: `Multipliziere aus: $${termStr}$.`,
+        frageArbeitsblatt: `Multipliziere aus: $${termStr}$.<br />[[MU_AB:0]]`,
+        abSlots: [{ kind: 'choice', expect, labels }],
+        loesung: `$${termStr} = (2x^2 + 4x + x + 2)(x-1) = (2x^2 + 5x + 2)(x-1) = 2x^3 + 3x^2 - 3x - 2$.`,
+      };
+    },
+    alg_expand_triple_quad_linear() {
+      const a = randInt(1, 3);
+      const b = randInt(1, 3);
+      // Form: (x+a)^2 (x+b) = (x^2 + 2ax + a^2)(x+b) = x^3 + (2a+b)x^2 + (a^2+2ab)x + a^2b
+      const p = 2 * a + b;
+      const q = a * a + 2 * a * b;
+      const r = a * a * b;
+      const left = `(x+${a})^2(x+${b})`;
+      return {
+        frage: `Multipliziere aus: $${left}$.`,
+        frageArbeitsblatt: `Schreibe $${left}$ als $x^3+px^2+qx+r$.<br />${abMonischKubischPQRHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: p },
+          { kind: 'int', expect: q },
+          { kind: 'int', expect: r }
+        ],
+        loesung: `$${left} = (x^2 + ${2*a}x + ${a*a})(x+${b}) = x^3 + ${p}x^2 + ${q}x + ${r}$.`,
+      };
+    },
+    alg_expand_cube() {
+      const a = randInt(1, 3);
+      const sign = random() < 0.5 ? 1 : -1;
+      // Form: (x \pm a)^3 = x^3 \pm 3ax^2 + 3a^2x \pm a^3
+      const p = 3 * a * sign;
+      const q = 3 * a * a;
+      const r = a * a * a * sign;
+      const left = `(x${sign > 0 ? '+' : '-'}${a})^3`;
+      return {
+        frage: `Multipliziere aus (Klammer kubieren): $${left}$.`,
+        frageArbeitsblatt: `Schreibe $${left}$ als $x^3+px^2+qx+r$.<br />${abMonischKubischPQRHtml()}`,
+        abSlots: [
+          { kind: 'int', expect: p, konstanteMitVorzeichenInAntwortBox: true },
+          { kind: 'int', expect: q },
+          { kind: 'int', expect: r, konstanteMitVorzeichenInAntwortBox: true }
+        ],
+        loesung: `$${left} = x^3 ${formatSignedInt(p)}x^2 + ${q}x ${formatSignedInt(r)}$.`,
+      };
+    },
+    alg_expand_capstone() {
+      const types = [
+        'alg_expand_binom_double_pos',
+        'alg_expand_binom_double_neg',
+        'alg_expand_binom_perfect',
+        'alg_expand_binom_non_monic',
+        'alg_expand_binom_non_monic_neg',
+        'alg_expand_binom_mix_simplify',
+        'alg_expand_triple_monic',
+        'alg_expand_triple_non_monic',
+        'alg_expand_triple_quad_linear',
+        'alg_expand_cube'
+      ] as const;
+      const t = pick(types);
+      return this[t]();
     },
     lg_x_plus_a_eq_b() {
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);

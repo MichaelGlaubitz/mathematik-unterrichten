@@ -463,22 +463,30 @@ function wbLabelFromHref(href: string): string {
     }
   </header>
 
-  <section
+  <details
     id="ug-steuerung"
-    aria-labelledby="ug-steuerung-titel"
-    class="rounded-xl border border-accent-200/70 bg-gradient-to-br from-accent-50/80 via-surface to-teal-50/50 p-4 shadow-md shadow-accent-900/5 ring-1 ring-accent-100/60 md:p-5 mb-6 print:hidden text-ink-800 dark:border-accent-800/40 dark:from-ink-900/80 dark:via-accent-900/30 dark:to-teal-900/25 dark:shadow-black/30 dark:ring-accent-900/40 dark:text-ink-100 mu-katex-skip"
+    class="rounded-xl border border-accent-200/70 bg-gradient-to-br from-accent-50/80 via-surface to-teal-50/50 p-4 shadow-md shadow-accent-900/5 ring-1 ring-accent-100/60 md:p-5 mb-6 print:hidden text-ink-800 dark:border-accent-800/40 dark:from-ink-900/80 dark:via-accent-900/30 dark:to-teal-900/25 dark:shadow-black/30 dark:ring-accent-900/40 dark:text-ink-100 mu-katex-skip group"
+    open
   >
-    <h2
-      id="ug-steuerung-titel"
-      class="mb-2 flex items-center gap-2.5 font-serif text-lg font-semibold text-ink-900 dark:text-ink-50"
-    >
-      <span
-        class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
-        aria-hidden="true"></span>
-      {variant === 'bruchrechnung' || variant === 'dezimalzahlen' || variant === 'bruch-dezimal-prozent'
-        ? 'Massenübung'
-        : 'Aufgabentypen'}
-    </h2>
+    <summary class="cursor-pointer list-none flex items-center justify-between [&::-webkit-details-marker]:hidden" id="ug-steuerung-summary">
+      <h2
+        id="ug-steuerung-titel"
+        class="flex items-center gap-2.5 font-serif text-lg font-semibold text-ink-900 dark:text-ink-50"
+      >
+        <span
+          class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
+          aria-hidden="true"></span>
+        {variant === 'bruchrechnung' || variant === 'dezimalzahlen' || variant === 'bruch-dezimal-prozent'
+          ? 'Massenübung'
+          : 'Aufgabentypen'}
+      </h2>
+      <span class="text-xs uppercase tracking-wider text-accent-700 dark:text-accent-300 font-semibold flex items-center gap-1.5 select-none">
+        <span class="group-open:hidden">Themenauswahl einblenden</span>
+        <span class="hidden group-open:inline">Themenauswahl ausblenden</span>
+        <span class="transition-transform duration-200 group-open:rotate-90">▶</span>
+      </span>
+    </summary>
+    <div class="mt-4">
     {
       variant !== 'bruchrechnung' && variant !== 'dezimalzahlen' && variant !== 'bruch-dezimal-prozent' ? (
         <div class="mb-3 flex flex-wrap gap-2">
@@ -821,6 +829,13 @@ function wbLabelFromHref(href: string): string {
             </legend>
             <div class="ug-typ-grid text-sm">
               <p class="ug-typ-grid-phase pt-0.5 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Begriffe der Algebra
+              </p>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_concept_type" checked />
+                <span>Ausdruck, Gleichung, Formel oder Identität bestimmen</span>
+              </label>
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Grundbegriffe am Term
               </p>
               <label class="flex items-center gap-2 cursor-pointer">
@@ -847,6 +862,88 @@ function wbLabelFromHref(href: string): string {
                 <span>Schreibkonvention (Zahl vor Variable)</span>
               </label>
               <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Terme aus Sprache; Substitution
+              </p>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_lang_one_op" checked />
+                <span>Term aus Sachsatz (eine Operation)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_lang_multi_op" checked />
+                <span>Term aus Sachsatz (mehrere Operationen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_lang_indices" checked />
+                <span>Terme mit Indizes schreiben</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_pos_simple" checked />
+                <span>Substitution (positiv, linear)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_pos_pow" checked />
+                <span>Substitution (positiv, mit Potenzen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_pos_mv" checked />
+                <span>Substitution (positiv, mehrere Variablen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_neg_simple" checked />
+                <span>Substitution (negativ, linear)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_neg_pow" checked />
+                <span>Substitution (negativ, mit Potenzen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_decimal_simple" checked />
+                <span>Substitution (Dezimalzahl, linear)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_decimal_pow" checked />
+                <span>Substitution (Dezimalzahl, mit Potenzen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_fraction_simple" checked />
+                <span>Substitution (Bruch, linear)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_subst_fraction_pow" checked />
+                <span>Substitution (Bruch, mit Potenzen)</span>
+              </label>
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Gleichartige Terme; Potenzgesetze
+              </p>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_like_recognize" checked />
+                <span>Gleichartige Terme erkennen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_mult_pow" checked />
+                <span>Terme multiplizieren (mit Potenzgesetzen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_div_simple" checked />
+                <span>Terme dividieren (ohne Potenzgesetze)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_div_pow" checked />
+                <span>Terme dividieren (mit Potenzgesetzen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_raise_pow" checked />
+                <span>Einen Term potenzieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_simplify_multi" checked />
+                <span>Mit mehreren Potenzgesetzen vereinfachen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terms_equiv_recognize" checked />
+                <span>Äquivalente Ausdrücke erkennen</span>
+              </label>
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Rechnen und Umformen
               </p>
               <label class="flex items-center gap-2 cursor-pointer">
@@ -855,31 +952,94 @@ function wbLabelFromHref(href: string): string {
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_klammer_neg_int" checked />
-                <span>Negativer ganzzahliger Vorfaktor ($-k(ax+b)$)</span>
+                <span>Klammer ausmultiplizieren (negativer Vorfaktor)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_klammer_summe" checked />
-                <span>Summe einfacher Klammern ($k_1(\ldots)+k_2(\ldots)$)</span>
+                <span>Mehrere einfache Klammern vereinfachen</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_minus_klammer_plus" checked />
-                <span>Minus vor der Klammer und zusammenfassen</span>
+                <span>Minus vor Klammer in Term</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_ausklammern" checked />
-                <span>Ausklammern (gemeinsamer Zahlfaktor)</span>
+                <span>Ausklammern (Zahlfaktor)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_ausklammern_alg" checked />
-                <span>Ausklammern ($x$ und Zahl, $gxy+gx$)</span>
+                <span>Ausklammern (algebraischer Faktor)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_ausklammern_klammer" checked />
-                <span>Gemeinsamer Klammerausdruck</span>
+                <span>Ausklammern (Klammerfaktor)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_ausklammern_gruppe" checked />
                 <span>Zusammenfassen und vollständig ausklammern</span>
+              </label>
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Faktorisieren
+              </p>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_pairs" checked />
+                <span>Faktorpaare finden ($p \cdot q = c$ und $p + q = b$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_monic_pos" checked />
+                <span>Monisch: quadratisch (alle Koeffizienten positiv)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_monic_neg" checked />
+                <span>Monisch: quadratisch (mit negativen Summanden)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_monic_perfect" checked />
+                <span>Monisch: perfektes quadratisches Trinom</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_non_monic_pos" checked />
+                <span>Nicht-monisch: quadratisch (alle Koeffizienten positiv)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_non_monic_neg" checked />
+                <span>Nicht-monisch: quadratisch (mit negativen Summanden)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_non_monic_perfect" checked />
+                <span>Nicht-monisch: perfektes quadratisches Trinom</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_diff_basic" checked />
+                <span>Differenz von Quadraten (einfach)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_diff_advanced" checked />
+                <span>Differenz von Quadraten (nicht-monisch / mehrere Variablen)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_neg_leading" checked />
+                <span>Negativer Leitkoeffizient ($-x^2+bx+c$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_grouping" checked />
+                <span>Zweifaches Ausklammern (Gruppieren mit 4 Summanden)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_two_variables" checked />
+                <span>Zwei Variablen ($x^2+bxy+cy^2$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_repeated_squares" checked />
+                <span>Wiederholte Differenz von Quadraten ($x^4-a^4$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_diff_binoms" checked />
+                <span>Differenz quadrierter Binome ($(x+a)^2-b^2$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_factor_capstone" checked />
+                <span>Faktorisieren: Diagnose-Capstone</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_klammer_weg" checked />
@@ -887,23 +1047,114 @@ function wbLabelFromHref(href: string): string {
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terme_zusammen" checked />
-                <span>Lineare Terme zusammenfassen ($x$)</span>
+                <span>Terme zusammenfassen (eine Variable)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terme_zusammen_mv" checked />
-                <span>Gleichartige Terme ($x$ und $y$)</span>
+                <span>Terme zusammenfassen (mehrere Variablen)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terme_zusammen_idx" checked />
-                <span>Gleichartige Terme ($x_1$, $x_2$)</span>
+                <span>Terme zusammenfassen (mit Indizes)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_terme_mult" checked />
-                <span>Monome multiplizieren (ohne Potenzgesetze)</span>
+                <span>Monom-Multiplikation (ohne Potenzgesetze)</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_distributiv_zahl" checked />
-                <span>Distributivgesetz (nur Zahlen, Flächenmodell)</span>
+                <span>Zahl-Multiplikation ($a\cdot (b+c)$)</span>
+              </label>
+              <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                Algebraische Brüche
+              </p>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_def_domain" checked />
+                <span>Definitionsbereich bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_simplify_none" checked />
+                <span>Kürzen (ohne Faktorisieren)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_simplify_linear" checked />
+                <span>Kürzen (lineares Ausklammern)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_simplify_monic" checked />
+                <span>Kürzen (monisch quadratisch)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_simplify_non_monic" checked />
+                <span>Kürzen (nicht-monisch quadratisch)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_mul_none" checked />
+                <span>Multiplizieren (ohne Faktorisieren)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_mul_linear" checked />
+                <span>Multiplizieren (lineares Ausklammern)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_mul_monic" checked />
+                <span>Multiplizieren (monisch quadratisch)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_mul_non_monic" checked />
+                <span>Multiplizieren (nicht-monisch quadratisch)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_div_none" checked />
+                <span>Dividieren (ohne Faktorisieren)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_div_linear" checked />
+                <span>Dividieren (lineares Ausklammern)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_div_monic" checked />
+                <span>Dividieren (monisch quadratisch)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_div_non_monic" checked />
+                <span>Dividieren (nicht-monisch quadratisch)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_add_int" checked />
+                <span>Addieren (ganzzahlige Nenner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_add_simple" checked />
+                <span>Addieren (algebraische einfache Nenner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_add_linear" checked />
+                <span>Addieren (lineare algebraische Nenner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_add_fact" checked />
+                <span>Addieren (mit Faktorisieren)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_sub_int" checked />
+                <span>Subtrahieren (ganzzahlige Nenner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_sub_simple" checked />
+                <span>Subtrahieren (algebraische einfache Nenner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_sub_linear" checked />
+                <span>Subtrahieren (lineare algebraische Nenner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_sub_fact" checked />
+                <span>Subtrahieren (mit Faktorisieren)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_frac_four_ops_mix" checked />
+                <span>Die vier Grundrechenarten Mix</span>
               </label>
               <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Ausmultiplizieren (Stufen)
@@ -915,6 +1166,10 @@ function wbLabelFromHref(href: string): string {
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_einfach_var" checked />
                 <span>Einfache Klammer: Variable davor ($kx(ax+b)$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_einfach_capstone" checked />
+                <span>Einfache Klammern: Diagnose-Capstone</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_both1" checked />
@@ -939,6 +1194,50 @@ function wbLabelFromHref(href: string): string {
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_triple_klammern" checked />
                 <span>Dreifache Klammern ($(x+a)(x+b)(x+c)$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_double_pos" checked />
+                <span>Doppelklammer: überall positiv ($(x+a)(x+b)$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_double_neg" checked />
+                <span>Doppelklammer: mit negativen Summanden</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_perfect" checked />
+                <span>Doppelklammer: Quadrieren ($(x \pm a)^2$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_non_monic" checked />
+                <span>Doppelklammer: nicht-monisch ($(ax+b)(cx+d)$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_non_monic_neg" checked />
+                <span>Doppelklammer: nicht-monisch mit negativen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_binom_mix_simplify" checked />
+                <span>Mehrere Doppelklammern vereinfachen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_triple_monic" checked />
+                <span>Dreifache Klammer: monisch</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_triple_non_monic" checked />
+                <span>Dreifache Klammer: nicht-monisch</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_triple_quad_linear" checked />
+                <span>Dreifache Klammer: Quadrat $\times$ linear</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_cube" checked />
+                <span>Klammer drittpotenzieren ($(x \pm a)^3$)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="alg_expand_capstone" checked />
+                <span>Klammern: Progressions-Capstone</span>
               </label>
               <p class="ug-typ-grid-phase pt-2 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 Quadratische Ergänzung
@@ -1517,7 +1816,7 @@ function wbLabelFromHref(href: string): string {
       <p id="ug-fehler" class="basis-full text-sm text-red-600 dark:text-red-300" hidden>Mindestens einen Aufgabentyp auswählen.</p>
       <p id="ug-route-status" class="basis-full text-sm text-ink-600 dark:text-ink-300" aria-live="polite"></p>
     </div>
-  </section>
+  </details>
 
   <div
     id="ug-wb-vorbereitung"
@@ -1761,7 +2060,8 @@ function wbLabelFromHref(href: string): string {
         </div>
       )
     }
-  </section>
+    </div>
+  </details>
 
   <div
     id="ug-wb-overlay"
@@ -3252,6 +3552,9 @@ function wbLabelFromHref(href: string): string {
 
     function render() {
       const hat = aufgaben.length > 0;
+      if (steuerung instanceof HTMLDetailsElement && hat) {
+        steuerung.open = false;
+      }
       ensureDiagramScalesForAufgaben();
       const wbOverlayAktiv = layout === 'whiteboard' && hat;
       const meta = document.getElementById('ug-wb-slot-ab-meta');

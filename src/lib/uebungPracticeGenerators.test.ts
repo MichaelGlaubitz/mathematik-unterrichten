@@ -509,3 +509,272 @@ describe('alle PRACTICE_GENERATOR_IDS', () => {
     }
   });
 });
+
+describe('Algebra Faktorisieren (10 neue Generatoren)', () => {
+  const GEN = createPracticeGenerators(Math.random);
+
+  it('alg_factor_pairs: erzeugt korrekte Faktorpaare mit p <= q', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_pairs();
+      const p = auf.abSlots![0].expect as number;
+      const q = auf.abSlots![1].expect as number;
+      expect(p).toBeLessThanOrEqual(q);
+      expect(p).not.toBe(0);
+      expect(q).not.toBe(0);
+      expect(auf.frage).toContain(`p \\cdot q = ${p * q}`);
+      expect(auf.frage).toContain(`p + q = ${p + q}`);
+    }
+  });
+
+  it('alg_factor_monic_pos: faktorisiert x^2 + bx + c = (x+p)(x+q) mit p,q > 0 und p <= q', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_monic_pos();
+      const p = auf.abSlots![0].expect as number;
+      const q = auf.abSlots![1].expect as number;
+      expect(p).toBeGreaterThan(0);
+      expect(q).toBeGreaterThanOrEqual(p);
+      expect(auf.frage).toContain(`x^2+${p + q}x+${p * q}`);
+    }
+  });
+
+  it('alg_factor_monic_neg: faktorisiert x^2 + bx + c = (x+p)(x+q) mit p <= q, nicht beide positiv', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_monic_neg();
+      const p = auf.abSlots![0].expect as number;
+      const q = auf.abSlots![1].expect as number;
+      expect(p).toBeLessThanOrEqual(q);
+      expect(p).not.toBe(0);
+      expect(q).not.toBe(0);
+      expect(p > 0 && q > 0).toBe(false);
+    }
+  });
+
+  it('alg_factor_monic_perfect: faktorisiert x^2 +- 2px + p^2 = (x+m)^2', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_monic_perfect();
+      const m = auf.abSlots![0].expect as number;
+      expect(m).not.toBe(0);
+      expect(Math.abs(m)).toBeGreaterThanOrEqual(2);
+      expect(Math.abs(m)).toBeLessThanOrEqual(10);
+    }
+  });
+
+  it('alg_factor_non_monic_pos: faktorisiert ax^2 + bx + c = (dx+p)(ex+q) mit d <= e, alle positiv', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_non_monic_pos();
+      const d = auf.abSlots![0].expect as number;
+      const p = auf.abSlots![1].expect as number;
+      const e = auf.abSlots![2].expect as number;
+      const q = auf.abSlots![3].expect as number;
+      expect(d).toBeGreaterThanOrEqual(2);
+      expect(e).toBeGreaterThanOrEqual(d);
+      expect(p).toBeGreaterThan(0);
+      expect(q).toBeGreaterThan(0);
+      if (d === e) {
+        expect(p).toBeLessThanOrEqual(q);
+      }
+    }
+  });
+
+  it('alg_factor_non_monic_neg: faktorisiert ax^2 + bx + c = (dx+p)(ex+q) mit d <= e, negative Summanden', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_non_monic_neg();
+      const d = auf.abSlots![0].expect as number;
+      const p = auf.abSlots![1].expect as number;
+      const e = auf.abSlots![2].expect as number;
+      const q = auf.abSlots![3].expect as number;
+      expect(d).toBeGreaterThanOrEqual(2);
+      expect(e).toBeGreaterThanOrEqual(d);
+      expect(p).not.toBe(0);
+      expect(q).not.toBe(0);
+      expect(p > 0 && q > 0).toBe(false);
+      if (d === e) {
+        expect(p).toBeLessThanOrEqual(q);
+      }
+    }
+  });
+
+  it('alg_factor_non_monic_perfect: faktorisiert a^2x^2 +- 2abx + b^2 = (ax + m)^2', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_non_monic_perfect();
+      const a = auf.abSlots![0].expect as number;
+      const m = auf.abSlots![1].expect as number;
+      expect(a).toBeGreaterThanOrEqual(2);
+      expect(m).not.toBe(0);
+    }
+  });
+
+  it('alg_factor_diff_basic: faktorisiert x^2 - a^2 = (x - p)(x + q)', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_diff_basic();
+      const p = auf.abSlots![0].expect as number;
+      const q = auf.abSlots![1].expect as number;
+      expect(p).toBeGreaterThanOrEqual(2);
+      expect(q).toBe(p);
+    }
+  });
+
+  it('alg_factor_diff_advanced: faktorisiert a^2x^2 - b^2y^2 = (px - qy)(rx + sy)', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_diff_advanced();
+      const p = auf.abSlots![0].expect as number;
+      const q = auf.abSlots![1].expect as number;
+      const r = auf.abSlots![2].expect as number;
+      const s = auf.abSlots![3].expect as number;
+      expect(p).toBeGreaterThanOrEqual(2);
+      expect(r).toBe(p);
+      expect(q).toBeGreaterThanOrEqual(1);
+      expect(s).toBe(q);
+    }
+  });
+
+  it('alg_factor_neg_leading: faktorisiert kx^2 + bx + c = k(x + c1)(x + c2) mit k < 0 und c1 <= c2', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_neg_leading();
+      const k = auf.abSlots![0].expect as number;
+      const c1 = auf.abSlots![1].expect as number;
+      const c2 = auf.abSlots![2].expect as number;
+      expect(k).toBeLessThan(0);
+      expect(c1).toBeLessThanOrEqual(c2);
+      expect(auf.frage).toContain('x^2');
+    }
+  });
+
+  it('alg_factor_grouping: faktorisiert xy + ay + bx + ab = (x + b)(y + a)', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_grouping();
+      const b = auf.abSlots![0].expect as number;
+      const a = auf.abSlots![1].expect as number;
+      expect(a).not.toBe(0);
+      expect(b).not.toBe(0);
+      expect(auf.frage).toContain('xy');
+    }
+  });
+
+  it('alg_factor_two_variables: faktorisiert x^2 + bxy + cy^2 = (x + py)(x + qy) mit p <= q', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_two_variables();
+      const p = auf.abSlots![0].expect as number;
+      const q = auf.abSlots![1].expect as number;
+      expect(p).toBeLessThanOrEqual(q);
+      expect(auf.frage).toContain('y^2');
+    }
+  });
+
+  it('alg_factor_repeated_squares: faktorisiert x^4 - a^4 = (x - a)(x + a)(x^2 + a^2)', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_repeated_squares();
+      const a1 = auf.abSlots![0].expect as number;
+      const a2 = auf.abSlots![1].expect as number;
+      const aSq = auf.abSlots![2].expect as number;
+      expect(a1).toBeGreaterThanOrEqual(2);
+      expect(a2).toBe(a1);
+      expect(aSq).toBe(a1 * a1);
+      expect(auf.frage).toContain('x^4');
+    }
+  });
+
+  it('alg_factor_diff_binoms: faktorisiert (x + a)^2 - b^2 = (x + c1)(x + c2) mit c1 < c2', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_diff_binoms();
+      const c1 = auf.abSlots![0].expect as number;
+      const c2 = auf.abSlots![1].expect as number;
+      expect(c1).toBeLessThan(c2);
+      expect(auf.frage).toContain(')^2');
+    }
+  });
+
+  it('alg_factor_capstone: liefert gueltige Aufgaben', () => {
+    for (let i = 0; i < 200; i++) {
+      const auf = GEN.alg_factor_capstone();
+      expect(auf.frage.length).toBeGreaterThan(15);
+      expect(auf.loesung.length).toBeGreaterThan(5);
+    }
+  });
+
+  const newAlgGeneratorIds = [
+    'alg_concept_type',
+    'alg_lang_one_op',
+    'alg_lang_multi_op',
+    'alg_lang_indices',
+    'alg_subst_pos_simple',
+    'alg_subst_pos_pow',
+    'alg_subst_pos_mv',
+    'alg_subst_neg_simple',
+    'alg_subst_neg_pow',
+    'alg_subst_decimal_simple',
+    'alg_subst_decimal_pow',
+    'alg_subst_fraction_simple',
+    'alg_subst_fraction_pow',
+    'alg_terms_like_recognize',
+    'alg_terms_mult_pow',
+    'alg_terms_div_simple',
+    'alg_terms_div_pow',
+    'alg_terms_raise_pow',
+    'alg_terms_simplify_multi',
+    'alg_terms_equiv_recognize',
+    'alg_frac_def_domain',
+    'alg_frac_simplify_none',
+    'alg_frac_simplify_linear',
+    'alg_frac_simplify_monic',
+    'alg_frac_simplify_non_monic',
+    'alg_frac_mul_none',
+    'alg_frac_mul_linear',
+    'alg_frac_mul_monic',
+    'alg_frac_mul_non_monic',
+    'alg_frac_div_none',
+    'alg_frac_div_linear',
+    'alg_frac_div_monic',
+    'alg_frac_div_non_monic',
+    'alg_frac_add_int',
+    'alg_frac_add_simple',
+    'alg_frac_add_linear',
+    'alg_frac_add_fact',
+    'alg_frac_sub_int',
+    'alg_frac_sub_simple',
+    'alg_frac_sub_linear',
+    'alg_frac_sub_fact',
+    'alg_frac_four_ops_mix',
+    'alg_expand_einfach_capstone',
+    'alg_expand_binom_double_pos',
+    'alg_expand_binom_double_neg',
+    'alg_expand_binom_perfect',
+    'alg_expand_binom_non_monic',
+    'alg_expand_binom_non_monic_neg',
+    'alg_expand_binom_mix_simplify',
+    'alg_expand_triple_monic',
+    'alg_expand_triple_non_monic',
+    'alg_expand_triple_quad_linear',
+    'alg_expand_cube',
+    'alg_expand_capstone'
+  ] as const;
+
+  newAlgGeneratorIds.forEach((id) => {
+    it(`neuer Generator ${id}: liefert gueltige Aufgaben über 200 Iterationen`, () => {
+      for (let i = 0; i < 200; i++) {
+        const auf = GEN[id]();
+        expect(auf.frage).toBeDefined();
+        expect(typeof auf.frage).toBe('string');
+        expect(auf.loesung).toBeDefined();
+        expect(typeof auf.loesung).toBe('string');
+        expect(auf.abSlots).toBeDefined();
+        expect(Array.isArray(auf.abSlots)).toBe(true);
+        expect(auf.abSlots.length).toBeGreaterThan(0);
+        auf.abSlots.forEach((slot) => {
+          expect(slot.kind).toBeDefined();
+          if (slot.kind === 'int') {
+            expect(typeof slot.expect).toBe('number');
+            expect(Number.isInteger(slot.expect)).toBe(true);
+          } else if (slot.kind === 'decimal') {
+            expect(typeof slot.expect).toBe('number');
+          } else if (slot.kind === 'choice') {
+            expect([0, 1]).toContain(slot.expect);
+            expect(slot.labels).toBeDefined();
+            expect(slot.labels.length).toBe(2);
+          }
+        });
+      }
+    });
+  });
+});
+

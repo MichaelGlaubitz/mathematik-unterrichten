@@ -13,8 +13,7 @@ const clusters = algWbStichwortPillsNachCluster();
       Stichworte mit Aufgaben
     </p>
     <p class="text-xs text-ink-600 dark:text-ink-300 mb-4 max-w-2xl leading-snug">
-      Nach Unterthemen gruppiert (wie im Lehrplanüberblick). Nur Stichworte, für die bereits Generatoren
-      existieren — weitere folgen nach und nach auf der Übungsseite.
+      Nach Unterthemen gruppiert (wie im Lehrplanüberblick). Aktivierbare Stichworte haben bereits zufallsgenerierte Übungen. Inaktive Stichworte zeigen die inhaltliche Vollständigkeit des Lehrplans.
     </p>
   </div>
   {
@@ -56,14 +55,23 @@ const clusters = algWbStichwortPillsNachCluster();
           <ul class="m-0 flex list-none flex-wrap gap-2 p-0" role="list">
             {cluster.stichworte.map((p) => (
               <li>
-                <button
-                  type="button"
-                  class="mu-wb-thema-kw inline-block max-w-full rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-left text-xs font-medium text-accent-800 shadow-sm transition hover:border-accent-600 hover:bg-accent-50 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50 dark:hover:border-accent-300 dark:hover:bg-slate-800/80"
-                  data-stichwort={p}
-                  aria-pressed="false"
-                >
-                  {p}
-                </button>
+                {p.hatUebung ? (
+                  <button
+                    type="button"
+                    class="mu-wb-thema-kw inline-block max-w-full rounded-lg border border-accent-600/35 bg-surface px-2.5 py-1 text-left text-xs font-medium text-accent-800 shadow-sm transition hover:border-accent-600 hover:bg-accent-50 dark:border-accent-400/30 dark:bg-slate-900/60 dark:text-accent-50 dark:hover:border-accent-300 dark:hover:bg-slate-800/80"
+                    data-stichwort={p.name}
+                    aria-pressed="false"
+                  >
+                    {p.name}
+                  </button>
+                ) : (
+                  <span
+                    class="inline-block max-w-full rounded-lg border border-ink-200/60 bg-ink-100/30 px-2.5 py-1 text-left text-xs font-medium text-ink-400/70 dark:border-slate-800/70 dark:bg-slate-900/20 dark:text-slate-500/70 cursor-not-allowed select-none"
+                    title="Noch kein Generator für dieses Unterthema verfügbar"
+                  >
+                    {p.name}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

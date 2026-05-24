@@ -301,6 +301,12 @@ const themenProBand = clusterReihenfolge
       writeBdpMassenAnzahl,
       writeBdpMassenLayout,
     } from '../../lib/massenBdpPrefs';
+    import {
+      readDzMassenAnzahl,
+      readDzMassenLayout,
+      writeDzMassenAnzahl,
+      writeDzMassenLayout,
+    } from '../../lib/massenDezimalzahlenPrefs';
     import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
     let wbThemaKwAbort: AbortController | null = null;
@@ -540,6 +546,25 @@ const themenProBand = clusterReihenfolge
       );
     }
 
+    function openAccordionFromHash() {
+      try {
+        const hash = window.location.hash;
+        if (!hash) return;
+        const targetId = hash.replace(/^#/, '');
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+        const acc = targetEl.querySelector('details.mu-wb-unterthemen-acc');
+        if (acc instanceof HTMLDetailsElement) {
+          acc.open = true;
+          requestAnimationFrame(() => {
+            targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          });
+        }
+      } catch (err) {
+        console.warn('[Themen] Fehler beim Oeffnen des Akkordeons aus Hash:', err);
+      }
+    }
+
     function scheduleWbThemaBoot() {
       requestAnimationFrame(() => {
         bootFehlvorstellungenAccordion();
@@ -550,6 +575,7 @@ const themenProBand = clusterReihenfolge
         bootWbThemaStripe('algebra');
         bootWbThemaStripe('bruch-dezimal-prozent');
         bootWbThemaKeywords();
+        openAccordionFromHash();
       });
     }
 
