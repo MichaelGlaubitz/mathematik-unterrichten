@@ -418,10 +418,11 @@ export const ALGEBRA_GENERATOR_IDS = [
 
 /** Lineare Gleichungen in einer Variablen (Klasse 7–8). */
 export const LINEARE_GLEICHUNGEN_GENERATOR_IDS = [
-  'lg_x_plus_a_eq_b',
-  'lg_ax_eq_b',
-  'lg_ax_plus_b_eq_c',
-  'lg_ax_plus_b_eq_cx_plus_d',
+  'lg_one_step_add_sub',
+  'lg_one_step_mul_div',
+  'lg_one_step_capstone',
+  'lg_two_step',
+  'lg_both_sides',
   'lg_klammer_linear',
   'lg_bruch_linear',
 ] as const;
@@ -4645,11 +4646,203 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: c, n: d }, x0),
       };
     },
+    lg_one_step_add_sub() {
+      const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+      const a = pick([-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8] as const);
+      const b = x0 + a;
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+
+      if (random() < 0.5) {
+        const signStr = formatSignedInt(a);
+        return {
+          frage: `Löse die Gleichung $x${signStr}=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $x${signStr}=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Addition von $${-a}$ (bzw. Subtraktion von $${a}$) auf beiden Seiten: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      } else {
+        return {
+          frage: `Löse die Gleichung $${a}+x=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $${a}+x=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Subtrahiere von $${a}$ auf beiden Seiten: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      }
+    },
+    lg_one_step_mul_div() {
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+      if (random() < 0.5) {
+        let x0 = 1, a = 2, b = 0;
+        for (let t = 0; t < 50; t++) {
+          x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          a = pick([-9, -8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8, 9] as const);
+          b = a * x0;
+          if (Math.abs(b) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+        }
+        return {
+          frage: `Löse die Gleichung $${a}x=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $${a}x=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Division durch $${a}$: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: a, n: 0 }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      } else {
+        let x0 = 1, a = 2, b = 0;
+        for (let t = 0; t < 50; t++) {
+          x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          a = randInt(2, 9);
+          b = Math.round(x0 / a);
+          x0 = a * b;
+          if (Math.abs(x0) <= FUN_GRAPH_AXIS_INTERCEPT_MAX && x0 !== 0 && Math.abs(b) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+        }
+        return {
+          frage: `Löse die Gleichung $\\dfrac{x}{${a}}=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $\\dfrac{x}{${a}}=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Multiplikation mit $${a}$: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: 1 / a, n: 0 }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      }
+    },
+    lg_one_step_capstone() {
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+      const type = pick(['add_neg', 'mul_neg', 'zero_sol', 'sub_from_const'] as const);
+      if (type === 'add_neg') {
+        const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        const a = pick([-8, -7, -6, -5, -4, -3, -2, -1] as const);
+        const b = x0 + a;
+        return {
+          frage: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $x${formatSignedInt(a)}=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Addition von $${-a}$ auf beiden Seiten: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      } else if (type === 'mul_neg') {
+        let x0 = 1, a = -2, b = 0;
+        for (let t = 0; t < 50; t++) {
+          x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          a = pick([-8, -7, -6, -5, -4, -3, -2] as const);
+          b = a * x0;
+          if (Math.abs(b) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+        }
+        return {
+          frage: `Löse die Gleichung $${a}x=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $${a}x=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Division durch $${a}$: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: a, n: 0 }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      } else if (type === 'zero_sol') {
+        if (random() < 0.5) {
+          const a = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          return {
+            frage: `Löse die Gleichung $${a}x=0$.`,
+            frageArbeitsblatt: `Löse die Gleichung $${a}x=0$. Trage ein: ${abSpan}`,
+            loesung: `Division durch $${a}$: $x=0$.`,
+            diagram: svgLineareGleichungSchnittpunkt({ m: a, n: 0 }, { m: 0, n: 0 }, 0),
+            abSlots: [{ kind: 'int', expect: 0 }],
+          };
+        } else {
+          const a = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          return {
+            frage: `Löse die Gleichung $x${formatSignedInt(a)}=${a}$.`,
+            frageArbeitsblatt: `Löse die Gleichung $x${formatSignedInt(a)}=${a}$. Trage ein: ${abSpan}`,
+            loesung: `Subtrahiere $${a}$ auf beiden Seiten: $x=0$.`,
+            diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: a }, 0),
+            abSlots: [{ kind: 'int', expect: 0 }],
+          };
+        }
+      } else {
+        let x0 = 1, a = 2, b = 0;
+        for (let t = 0; t < 50; t++) {
+          x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          a = randInt(-8, 8);
+          if (a === 0) continue;
+          b = a - x0;
+          if (Math.abs(b) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+        }
+        return {
+          frage: `Löse die Gleichung $${a}-x=${b}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $${a}-x=${b}$. Trage ein: ${abSpan}`,
+          loesung: `Subtrahiere $${a}$ auf beiden Seiten ergibt $-x=${b - a}$. Multipliziere mit $-1$: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: -1, n: a }, { m: 0, n: b }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      }
+    },
+    lg_two_step() {
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+      if (random() < 0.5) {
+        let a = 2, x0 = 2, b = 0, c = 0;
+        for (let t = 0; t < 80; t++) {
+          a = randInt(2, 7);
+          if (random() < 0.3) a = -a;
+          x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          b = randInt(-8, 8);
+          c = a * x0 + b;
+          if (Math.abs(c) <= FUN_GRAPH_AXIS_INTERCEPT_MAX && funGraphLinearAxisInterceptsInRange(a, b)) break;
+        }
+        return {
+          frage: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $${a}x${formatSignedInt(b)}=${c}$. Trage ein: ${abSpan}`,
+          loesung: `Zuerst $${formatSignedInt(-b)}$ auf beiden Seiten, dann durch $${a}$: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: 0, n: c }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      } else {
+        let a = 2, x0 = 2, b = 0, c = 0;
+        for (let t = 0; t < 80; t++) {
+          a = randInt(2, 8);
+          x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+          b = randInt(-8, 8);
+          const divisionTermVal = Math.round(x0 / a);
+          x0 = divisionTermVal * a;
+          c = divisionTermVal + b;
+          if (Math.abs(x0) <= FUN_GRAPH_AXIS_INTERCEPT_MAX && Math.abs(c) <= FUN_GRAPH_AXIS_INTERCEPT_MAX) break;
+        }
+        return {
+          frage: `Löse die Gleichung $\\dfrac{x}{${a}}${formatSignedInt(b)}=${c}$.`,
+          frageArbeitsblatt: `Löse die Gleichung $\\dfrac{x}{${a}}${formatSignedInt(b)}=${c}$. Trage ein: ${abSpan}`,
+          loesung: `Zuerst $${formatSignedInt(-b)}$ auf beiden Seiten ergibt $\\dfrac{x}{${a}}=${c - b}$, dann mit $${a}$ multiplizieren: $x=${x0}$.`,
+          diagram: svgLineareGleichungSchnittpunkt({ m: 1 / a, n: b }, { m: 0, n: c }, x0),
+          abSlots: [{ kind: 'int', expect: x0 }],
+        };
+      }
+    },
+    lg_both_sides() {
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+      let a = 2, c = 2, x0 = 2, b = 0, d = 0;
+      for (let t = 0; t < 60; t++) {
+        a = randInt(-6, 6);
+        c = randInt(-6, 6);
+        if (a === c || a === 0 || c === 0) continue;
+        x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);
+        b = randInt(-8, 8);
+        d = a * x0 + b - c * x0;
+        if (
+          Math.abs(d) <= FUN_GRAPH_AXIS_INTERCEPT_MAX &&
+          funGraphLinearAxisInterceptsInRange(a, b) &&
+          funGraphLinearAxisInterceptsInRange(c, d)
+        ) {
+          break;
+        }
+      }
+      const leftExpr = linBinom(a, b);
+      const rightExpr = linBinom(c, d);
+      return {
+        frage: `Löse die Gleichung $${leftExpr}=${rightExpr}$.`,
+        frageArbeitsblatt: `Löse die Gleichung $${leftExpr}=${rightExpr}$. Trage ein: ${abSpan}`,
+        loesung: `$${c > 0 ? '' : '+'}${-c}x$ auf beiden Seiten: $${a - c}x${formatSignedInt(b)}=${d}$. Daraus $x=${x0}$.`,
+        diagram: svgLineareGleichungSchnittpunkt({ m: a, n: b }, { m: c, n: d }, x0),
+        abSlots: [{ kind: 'int', expect: x0 }],
+      };
+    },
     lg_klammer_linear() {
-      let k = 2;
-      let a = 0;
-      let x0 = 2;
-      let rhs = 0;
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+      let k = 2, a = 0, x0 = 2, rhs = 0;
       for (let t = 0; t < 50; t++) {
         k = randInt(2, 6);
         a = pick([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5] as const);
@@ -4659,15 +4852,15 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       return {
         frage: `Löse die Gleichung $${k}(x${formatSignedInt(a)})=${rhs}$.`,
+        frageArbeitsblatt: `Löse die Gleichung $${k}(x${formatSignedInt(a)})=${rhs}$. Trage ein: ${abSpan}`,
         loesung: `Division durch $${k}$: $x${formatSignedInt(a)}=${rhs / k}$. Subtrahiere $${a}$ bzw. addiere $${-a}$: $x=${x0}$.`,
         diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: rhs / k }, x0),
+        abSlots: [{ kind: 'int', expect: x0 }],
       };
     },
     lg_bruch_linear() {
-      let b = 2;
-      let c = 1;
-      let x0 = 2;
-      let a = 0;
+      const abSpan = `<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>${abItalicVarHtml('x')} =</span>[[MU_AB:0]]</span>`;
+      let b = 2, c = 1, x0 = 2, a = 0;
       for (let t = 0; t < 80; t++) {
         b = randInt(2, 8);
         c = pick([-7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7] as const);
@@ -4677,8 +4870,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       }
       return {
         frage: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$.`,
+        frageArbeitsblatt: `Löse die Gleichung $\\dfrac{x${formatSignedInt(a)}}{${b}}=${c}$. Trage ein: ${abSpan}`,
         loesung: `Mit $${b}$ multiplizieren: $x${formatSignedInt(a)}=${c * b}$, also $x=${x0}$.`,
         diagram: svgLineareGleichungSchnittpunkt({ m: 1, n: a }, { m: 0, n: c * b }, x0),
+        abSlots: [{ kind: 'int', expect: x0 }],
       };
     },
     pr_prozentwert() {

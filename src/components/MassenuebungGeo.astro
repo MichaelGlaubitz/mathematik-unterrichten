@@ -163,6 +163,7 @@ function wbLabelFromHref(href: string): string {
         variant !== 'algebra' &&
         variant !== 'dezimalzahlen' &&
         variant !== 'bruch-dezimal-prozent' &&
+        variant !== 'lineare-gleichungen' &&
         'contents',
     ]}
     id={
@@ -170,7 +171,8 @@ function wbLabelFromHref(href: string): string {
       variant === 'negative-zahlen' ||
       variant === 'algebra' ||
       variant === 'dezimalzahlen' ||
-      variant === 'bruch-dezimal-prozent'
+      variant === 'bruch-dezimal-prozent' ||
+      variant === 'lineare-gleichungen'
         ? 'ug-wb-slot-ab-full-chrome'
         : undefined
     }
@@ -1851,7 +1853,8 @@ function wbLabelFromHref(href: string): string {
       variant === 'negative-zahlen' ||
       variant === 'algebra' ||
       variant === 'dezimalzahlen' ||
-      variant === 'bruch-dezimal-prozent') && (
+      variant === 'bruch-dezimal-prozent' ||
+      variant === 'lineare-gleichungen') && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1868,6 +1871,8 @@ function wbLabelFromHref(href: string): string {
               ? 'AB Negative Zahlen'
               : variant === 'dezimalzahlen'
                 ? 'AB Dezimalzahlen'
+              : variant === 'lineare-gleichungen'
+                ? 'AB Lineare Gleichungen'
                 : 'AB Algebra'}
         </h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
@@ -1898,7 +1903,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent') && (
+        variant === 'bruch-dezimal-prozent' ||
+        variant === 'lineare-gleichungen') && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1945,7 +1951,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent'
+        variant === 'bruch-dezimal-prozent' ||
+        variant === 'lineare-gleichungen'
           ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
           : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
       ]}
@@ -1956,7 +1963,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent') && (
+        variant === 'bruch-dezimal-prozent' ||
+        variant === 'lineare-gleichungen') && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1984,7 +1992,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'negative-zahlen' ||
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent') && (
+        variant === 'bruch-dezimal-prozent' ||
+        variant === 'lineare-gleichungen') && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -2605,6 +2614,12 @@ function wbLabelFromHref(href: string): string {
     stichwortLabelsFromDzSessionRaw,
   } from '../lib/dezimalzahlenWbKeywordMap';
   import {
+    LG_WB_STOR_KEY,
+    expandLgWbStichworte,
+    lgStichwortClusterIndex,
+    stichwortLabelsFromLgSessionRaw,
+  } from '../lib/lineareGleichungenWbKeywordMap';
+  import {
     NZ_WB_STOR_KEY,
     expandNzWbStichworte,
     nzStichwortClusterIndex,
@@ -2616,6 +2631,7 @@ function wbLabelFromHref(href: string): string {
     erzeugeBruchArbeitsblattPdf,
     erzeugeDezimalzahlenArbeitsblattPdf,
     erzeugeNegativeZahlenArbeitsblattPdf,
+    erzeugeLineareGleichungenArbeitsblattPdf,
   } from '../lib/bruchArbeitsblattLatex';
   import {
     readAlgebraMassenAnzahl,
@@ -2647,6 +2663,12 @@ function wbLabelFromHref(href: string): string {
     writeBdpMassenAnzahl,
     writeBdpMassenLayout,
   } from '../lib/massenBdpPrefs';
+  import {
+    readLgMassenAnzahl,
+    readLgMassenLayout,
+    writeLgMassenAnzahl,
+    writeLgMassenLayout,
+  } from '../lib/massenLineareGleichungenPrefs';
   import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
@@ -2700,8 +2722,9 @@ function wbLabelFromHref(href: string): string {
     const isDzMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'dezimalzahlen';
     const isBdpMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruch-dezimal-prozent';
     const isAlgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'algebra';
+    const isLgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'lineare-gleichungen';
     const isWbSlotAbMassen =
-      isBruchMassen || isNzMassen || isAlgMassen || isDzMassen || isBdpMassen;
+      isBruchMassen || isNzMassen || isAlgMassen || isDzMassen || isBdpMassen || isLgMassen;
 
     function allAlgIdsFiltered() {
       return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -2717,6 +2740,10 @@ function wbLabelFromHref(href: string): string {
 
     function allDzIdsFiltered() {
       return DEZIMALZAHLEN_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+
+    function allLgIdsFiltered() {
+      return LINEARE_GLEICHUNGEN_GENERATOR_IDS.filter((id) => allowedSet.has(id));
     }
 
     function allBdpIdsFiltered() {
@@ -2794,6 +2821,21 @@ function wbLabelFromHref(href: string): string {
         return allNzIdsFiltered();
       }
     }
+    function readLgTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(LG_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allLgIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('lg_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allLgIdsFiltered();
+        }
+        const stichworte = raw.filter((x) => typeof x === 'string');
+        const fromKw = expandLgWbStichworte(stichworte).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allLgIdsFiltered();
+      } catch {
+        return allLgIdsFiltered();
+      }
+    }
 
     function readAlgebraTypenFromStorage() {
       try {
@@ -2850,6 +2892,9 @@ function wbLabelFromHref(href: string): string {
     } else if (isBdpMassen) {
       anzahl = readBdpMassenAnzahl();
       layout = readBdpMassenLayout();
+    } else if (isLgMassen) {
+      anzahl = readLgMassenAnzahl();
+      layout = readLgMassenLayout();
     }
     let aufgaben = [];
     let wbIndex = 0;
@@ -2951,11 +2996,11 @@ function wbLabelFromHref(href: string): string {
         persistBdpTypenFromDom();
         return;
       }
-      if (!isNzMassen && !isAlgMassen) return;
+      if (!isNzMassen && !isAlgMassen && !isLgMassen) return;
       const ids = typBoxen().filter(
         (c) => c instanceof HTMLInputElement && c.checked && allowedSet.has(c.value)
       ).map((c) => (c as HTMLInputElement).value);
-      const key = isNzMassen ? NZ_WB_STOR_KEY : ALG_WB_STOR_KEY;
+      const key = isNzMassen ? NZ_WB_STOR_KEY : isAlgMassen ? ALG_WB_STOR_KEY : LG_WB_STOR_KEY;
       try {
         sessionStorage.setItem(key, JSON.stringify(ids));
       } catch {
@@ -3161,6 +3206,14 @@ function wbLabelFromHref(href: string): string {
         }
       }
       if (isBdpMassen) return readBdpAbStichwortLabels();
+      if (isLgMassen) {
+        try {
+          const raw = JSON.parse(sessionStorage.getItem(LG_WB_STOR_KEY) || 'null');
+          return stichwortLabelsFromLgSessionRaw(raw);
+        } catch {
+          return [];
+        }
+      }
       return readBruchAbStichwortLabels();
     }
 
@@ -3190,7 +3243,9 @@ function wbLabelFromHref(href: string): string {
               ? dzStichwortClusterIndex(t)
               : isBdpMassen
                 ? bdpLabelClusterIndex(t)
-                : bruchStichwortClusterIndex(t);
+                : isLgMassen
+                  ? lgStichwortClusterIndex(t)
+                  : bruchStichwortClusterIndex(t);
         const color =
           ci >= 0 && ci < BRUCH_AB_CLUSTER_PILL_CLASS.length
             ? BRUCH_AB_CLUSTER_PILL_CLASS[ci]
@@ -3508,6 +3563,7 @@ function wbLabelFromHref(href: string): string {
       if (isDzMassen) return readDzTypenFromStorage();
       if (isAlgMassen) return readAlgebraTypenFromStorage();
       if (isBdpMassen) return readBdpTypenFromStorage();
+      if (isLgMassen) return readLgTypenFromStorage();
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
         .map((c) => c.value);
@@ -3820,6 +3876,7 @@ function wbLabelFromHref(href: string): string {
         else if (isDzMassen) writeDzMassenAnzahl(anzahl);
         else if (isAlgMassen) writeAlgebraMassenAnzahl(anzahl);
         else if (isBdpMassen) writeBdpMassenAnzahl(anzahl);
+        else if (isLgMassen) writeLgMassenAnzahl(anzahl);
         refreshAktiv();
       })
     );
@@ -3833,6 +3890,7 @@ function wbLabelFromHref(href: string): string {
         else if (isDzMassen) writeDzMassenLayout(layout);
         else if (isAlgMassen) writeAlgebraMassenLayout(layout);
         else if (isBdpMassen) writeBdpMassenLayout(layout);
+        else if (isLgMassen) writeLgMassenLayout(layout);
         refreshAktiv();
         if (layout === 'arbeitsblatt') stopWbTimer();
         else if (aufgaben.length > 0) startWbTimer();
@@ -3845,13 +3903,13 @@ function wbLabelFromHref(href: string): string {
       typBoxen().forEach((c) => {
         c.checked = true;
       });
-      if (isNzMassen || isAlgMassen) persistWbSlotKeywordsFromTypCheckboxes();
+      if (isNzMassen || isAlgMassen || isLgMassen) persistWbSlotKeywordsFromTypCheckboxes();
     });
     btnKeine?.addEventListener('click', () => {
       typBoxen().forEach((c) => {
         c.checked = false;
       });
-      if (isNzMassen || isAlgMassen) persistWbSlotKeywordsFromTypCheckboxes();
+      if (isNzMassen || isAlgMassen || isLgMassen) persistWbSlotKeywordsFromTypCheckboxes();
     });
 
     btnDruck?.addEventListener('click', () => { window.print(); });
@@ -3973,7 +4031,9 @@ function wbLabelFromHref(href: string): string {
                 ? 'Dezimalzahlen'
                 : isBdpMassen
                   ? 'Bruch · Dezimal · Prozent'
-                  : 'Bruchrechnung',
+                  : isLgMassen
+                    ? 'Lineare Gleichungen'
+                    : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
@@ -3998,12 +4058,19 @@ function wbLabelFromHref(href: string): string {
                   mitLoesungen,
                   diagramUiScale,
                 })
-              : await erzeugeBruchArbeitsblattPdf({
-                  aufgaben,
-                  meta,
-                  mitLoesungen,
-                  diagramUiScale,
-                });
+              : isLgMassen
+                ? await erzeugeLineareGleichungenArbeitsblattPdf({
+                    aufgaben,
+                    meta,
+                    mitLoesungen,
+                    diagramUiScale,
+                  })
+                : await erzeugeBruchArbeitsblattPdf({
+                    aufgaben,
+                    meta,
+                    mitLoesungen,
+                    diagramUiScale,
+                  });
         if (!r.ok) {
           console.error('[WB-Arbeitsblatt PDF]', { message: r.message, log: r.log });
           const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);

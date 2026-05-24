@@ -324,8 +324,9 @@ export async function rasterizeSvgZuJpegBase64(
   uiScale: number,
   caps: SvgRasterCaps = BRUCH_AB_RASTER_CAPS_PDF
 ): Promise<string> {
+  const cleanSvg = svgXml.trim().replace(/^<figure[^>]*>/, '').replace(/<\/figure>$/, '').trim();
   const maxPx = Math.max(160, caps.maxPixelWidth);
-  const { w, h } = parseSvgDimensions(svgXml);
+  const { w, h } = parseSvgDimensions(cleanSvg);
   const s = Math.min(2.5, Math.max(0.5, uiScale || 1));
   let pixelW = Math.min(maxPx, Math.max(160, Math.round(w * 2 * s)));
   let pixelH = Math.max(80, Math.round((pixelW * h) / w));
@@ -335,7 +336,7 @@ export async function rasterizeSvgZuJpegBase64(
     pixelW = Math.min(maxPx, Math.max(minPx, Math.round(pixelW * f)));
     pixelH = Math.max(minPx, Math.round((pixelW * h) / w));
   }
-  const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
+  const blob = new Blob([cleanSvg], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   try {
     const img = new Image();
@@ -370,8 +371,9 @@ export async function rasterizeSvgZuPngBase64(
   uiScale: number,
   caps: Pick<SvgRasterCaps, 'maxPixelWidth'> = BRUCH_AB_RASTER_CAPS_PDF
 ): Promise<string> {
+  const cleanSvg = svgXml.trim().replace(/^<figure[^>]*>/, '').replace(/<\/figure>$/, '').trim();
   const maxPx = Math.max(160, caps.maxPixelWidth);
-  const { w, h } = parseSvgDimensions(svgXml);
+  const { w, h } = parseSvgDimensions(cleanSvg);
   const s = Math.min(2.5, Math.max(0.5, uiScale || 1));
   let pixelW = Math.min(maxPx, Math.max(160, Math.round(w * 2 * s)));
   let pixelH = Math.max(80, Math.round((pixelW * h) / w));
@@ -381,7 +383,7 @@ export async function rasterizeSvgZuPngBase64(
     pixelW = Math.min(maxPx, Math.max(minPx, Math.round(pixelW * f)));
     pixelH = Math.max(minPx, Math.round((pixelW * h) / w));
   }
-  const blob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
+  const blob = new Blob([cleanSvg], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   try {
     const img = new Image();
@@ -749,3 +751,17 @@ export async function erzeugeDezimalzahlenArbeitsblattPdf(opts: {
     diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
   });
 }
+
+/** WB Lineare Gleichungen: gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
+export async function erzeugeLineareGleichungenArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
+  });
+}
+

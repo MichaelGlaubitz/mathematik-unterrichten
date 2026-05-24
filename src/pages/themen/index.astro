@@ -277,6 +277,7 @@ const themenProBand = clusterReihenfolge
     import { BRUCH_WB_STOR_KEY, stichworteFuerBruchIds } from '../../lib/bruchrechnungWbKeywordMap';
     import { DZ_WB_STOR_KEY, stichworteFuerDzIds } from '../../lib/dezimalzahlenWbKeywordMap';
     import { NZ_WB_STOR_KEY, stichworteFuerNzIds } from '../../lib/negativeZahlenWbKeywordMap';
+    import { LG_WB_STOR_KEY, stichworteFuerLgIds } from '../../lib/lineareGleichungenWbKeywordMap';
     import {
       readBruchMassenAnzahl,
       readBruchMassenLayout,
@@ -307,6 +308,12 @@ const themenProBand = clusterReihenfolge
       writeDzMassenAnzahl,
       writeDzMassenLayout,
     } from '../../lib/massenDezimalzahlenPrefs';
+    import {
+      readLgMassenAnzahl,
+      readLgMassenLayout,
+      writeLgMassenAnzahl,
+      writeLgMassenLayout,
+    } from '../../lib/massenLineareGleichungenPrefs';
     import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
     let wbThemaKwAbort: AbortController | null = null;
@@ -342,6 +349,7 @@ const themenProBand = clusterReihenfolge
         | 'negative-zahlen'
         | 'algebra'
         | 'bruch-dezimal-prozent'
+        | 'lineare-gleichungen'
     ) {
       const anzahl =
         slug === 'bruchrechnung'
@@ -352,7 +360,9 @@ const themenProBand = clusterReihenfolge
               ? readNzMassenAnzahl()
               : slug === 'bruch-dezimal-prozent'
                 ? readBdpMassenAnzahl()
-                : readAlgebraMassenAnzahl();
+                : slug === 'lineare-gleichungen'
+                  ? readLgMassenAnzahl()
+                  : readAlgebraMassenAnzahl();
       const layout =
         slug === 'bruchrechnung'
           ? readBruchMassenLayout()
@@ -362,7 +372,9 @@ const themenProBand = clusterReihenfolge
               ? readNzMassenLayout()
               : slug === 'bruch-dezimal-prozent'
                 ? readBdpMassenLayout()
-                : readAlgebraMassenLayout();
+                : slug === 'lineare-gleichungen'
+                  ? readLgMassenLayout()
+                  : readAlgebraMassenLayout();
       root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-anzahl').forEach((b) => {
         const n = Number(b.dataset.anzahl);
         b.classList.toggle('mu-wb-stripe--aktiv', Number.isFinite(n) && n === anzahl);
@@ -382,6 +394,7 @@ const themenProBand = clusterReihenfolge
         | 'negative-zahlen'
         | 'algebra'
         | 'bruch-dezimal-prozent'
+        | 'lineare-gleichungen'
     ) {
       const root = document.getElementById(`thema-${slug}`);
       if (!root) return;
@@ -399,6 +412,7 @@ const themenProBand = clusterReihenfolge
           else if (slug === 'dezimalzahlen') writeDzMassenAnzahl(n);
           else if (slug === 'negative-zahlen') writeNzMassenAnzahl(n);
           else if (slug === 'bruch-dezimal-prozent') writeBdpMassenAnzahl(n);
+          else if (slug === 'lineare-gleichungen') writeLgMassenAnzahl(n);
           else writeAlgebraMassenAnzahl(n);
           stripeApplyWbThema(root, slug);
           return;
@@ -411,6 +425,7 @@ const themenProBand = clusterReihenfolge
           else if (slug === 'dezimalzahlen') writeDzMassenLayout(l);
           else if (slug === 'negative-zahlen') writeNzMassenLayout(l);
           else if (slug === 'bruch-dezimal-prozent') writeBdpMassenLayout(l);
+          else if (slug === 'lineare-gleichungen') writeLgMassenLayout(l);
           else writeAlgebraMassenLayout(l);
           stripeApplyWbThema(root, slug);
           if (autoHref) window.location.assign(autoHref);
@@ -424,7 +439,7 @@ const themenProBand = clusterReihenfolge
 
     function applyWbThemaKwVisual(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
     ) {
       const storKey =
         slug === 'bruchrechnung'
@@ -433,9 +448,19 @@ const themenProBand = clusterReihenfolge
             ? DZ_WB_STOR_KEY
             : slug === 'negative-zahlen'
               ? NZ_WB_STOR_KEY
-              : ALG_WB_STOR_KEY;
+              : slug === 'lineare-gleichungen'
+                ? LG_WB_STOR_KEY
+                : ALG_WB_STOR_KEY;
       const idPrefix =
-        slug === 'bruchrechnung' ? 'br_' : slug === 'dezimalzahlen' ? 'dz_' : slug === 'negative-zahlen' ? 'nz_' : 'alg_';
+        slug === 'bruchrechnung'
+          ? 'br_'
+          : slug === 'dezimalzahlen'
+            ? 'dz_'
+            : slug === 'negative-zahlen'
+              ? 'nz_'
+              : slug === 'lineare-gleichungen'
+                ? 'lg_'
+                : 'alg_';
       const stichworteFuerIds =
         slug === 'bruchrechnung'
           ? stichworteFuerBruchIds
@@ -443,7 +468,9 @@ const themenProBand = clusterReihenfolge
             ? stichworteFuerDzIds
             : slug === 'negative-zahlen'
               ? stichworteFuerNzIds
-              : stichworteFuerAlgIds;
+              : slug === 'lineare-gleichungen'
+                ? stichworteFuerLgIds
+                : stichworteFuerAlgIds;
       const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'));
       let sel = new Set<string>();
       try {
@@ -468,7 +495,7 @@ const themenProBand = clusterReihenfolge
 
     function persistWbThemaKw(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
     ) {
       const storKey =
         slug === 'bruchrechnung'
@@ -477,7 +504,9 @@ const themenProBand = clusterReihenfolge
             ? DZ_WB_STOR_KEY
             : slug === 'negative-zahlen'
               ? NZ_WB_STOR_KEY
-              : ALG_WB_STOR_KEY;
+              : slug === 'lineare-gleichungen'
+                ? LG_WB_STOR_KEY
+                : ALG_WB_STOR_KEY;
       const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
         .map((b) => b.dataset.stichwort ?? '')
         .filter(Boolean);
@@ -500,13 +529,22 @@ const themenProBand = clusterReihenfolge
       if (nzRoot) applyWbThemaKwVisual(nzRoot, 'negative-zahlen');
       const algRoot = document.getElementById('thema-algebra');
       if (algRoot) applyWbThemaKwVisual(algRoot, 'algebra');
+      const lgRoot = document.getElementById('thema-lineare-gleichungen');
+      if (lgRoot) applyWbThemaKwVisual(lgRoot, 'lineare-gleichungen');
       document.addEventListener(
         'click',
         (ev: MouseEvent) => {
           const rootEl = (ev.target as HTMLElement | null)?.closest?.('.mu-wb-unterthemen-root');
           if (!rootEl || !rootEl.id.startsWith('thema-')) return;
           const s = rootEl.id.replace(/^thema-/, '');
-          if (s !== 'bruchrechnung' && s !== 'dezimalzahlen' && s !== 'negative-zahlen' && s !== 'algebra') return;
+          if (
+            s !== 'bruchrechnung' &&
+            s !== 'dezimalzahlen' &&
+            s !== 'negative-zahlen' &&
+            s !== 'algebra' &&
+            s !== 'lineare-gleichungen'
+          )
+            return;
           const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-wb-kw-bulk]') as HTMLButtonElement | null;
           if (bulk && rootEl.contains(bulk)) {
             ev.preventDefault();
@@ -528,7 +566,7 @@ const themenProBand = clusterReihenfolge
             }
             persistWbThemaKw(
               rootEl,
-              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
             );
             return;
           }
@@ -539,7 +577,7 @@ const themenProBand = clusterReihenfolge
           t.setAttribute('aria-pressed', t.classList.contains('mu-wb-thema-kw--an') ? 'true' : 'false');
           persistWbThemaKw(
             rootEl,
-            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra'
+            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
           );
         },
         { signal }
@@ -574,6 +612,7 @@ const themenProBand = clusterReihenfolge
         bootWbThemaStripe('negative-zahlen');
         bootWbThemaStripe('algebra');
         bootWbThemaStripe('bruch-dezimal-prozent');
+        bootWbThemaStripe('lineare-gleichungen');
         bootWbThemaKeywords();
         openAccordionFromHash();
       });

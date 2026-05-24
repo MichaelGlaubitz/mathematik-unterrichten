@@ -71,3 +71,23 @@ No lint script is configured in this project.
 - The dev server binds to port **4321** by default.
 - Content is in `src/content/` (Markdown/MDX for blog+aufgaben, JSON for quizzes+themen). Content collection schemas live in `src/content/config.ts`.
 - The admin editor at `/__admin-editor` requires an `ADMIN_EDIT_TOKEN` env var (see `.env.example`); it is optional for normal development.
+
+## Best Practices & Lektionen für Arbeitsblätter (Slots & PDF)
+
+### 1) Formatierung von Aufgabenstellungen im Arbeitsblatt-Modus
+- **Trennzeichen & Einleitung**: Zwischen KaTeX-Formeln (z. B. `$x + 5 = -x - 1$`) und dem Antwort-Slot (`[[MU_AB:0]]`) muss immer ein Satzzeichen und eine klare Einleitung stehen, um visuelle Verschmelzungen (wie `-1 x = [ ]`) zu verhindern.  
+  *Standard-Format*: `Löse die Gleichung $...$. Trage ein: ${abSpan}`.
+- **Mathematische Variablen**: Variablen im Antwort-Vorspann (z. B. das $x$ in $x = [ ]$) müssen über `abItalicVarHtml('x')` im Serif-Italic-Stil formatiert werden (identisch zum KaTeX-Schrifttyp). Niemals als reiner Text (`x =`) ausgeben.
+
+### 2) Integration neuer Slot-basierter Arbeitsblätter
+Wird ein neues Thema als slot-basiertes Arbeitsblatt in `MassenuebungGeo.astro` registriert, müssen die folgenden Stellen in der Astro-Komponente angepasst werden:
+- **Full-Chrome-Wrapper**: Die `id="ug-wb-slot-ab-full-chrome"` und Klassen-Bedingungen (am Anfang des HTML-Teils) müssen für die neue Variante aktiv sein.
+- **Header & Titel**: Der H1-Titel des Arbeitsblatts muss unter `ug-wb-slot-ab-chrome` richtig gemappt werden (z. B. `'AB Lineare Gleichungen'`).
+- **Layout-Raster**: Die Aufgaben-Liste (`#ug-liste`) muss für die neue Variante die zweispaltige Klasse `ug-wb-slot-ab-grid ... sm:grid-cols-2` erhalten.
+- **Aktionen & Overlay**: Die Steuerungs-Fußleiste (`#ug-wb-slot-ab-actions`) sowie das Lösungs-Overlay (`#ug-wb-slot-ab-check-overlay`) müssen für die neue Variante freigeschaltet sein.
+
+### 3) SVG-Befreiung von HTML-Tags für die PDF-Erstellung
+- Diagramm-Funktionen kapseln SVGs im Web-UI oft in `<figure>`-Elemente.
+- Der Client-Bild-Rasterisierer (`rasterizeSvgZuJpegBase64` / `rasterizeSvgZuPngBase64`) wirft Fehler (`SVG konnte nicht geladen werden`), wenn ein SVG-Blob HTML-Tags enthält.
+- *Regel*: Vor der Rasterisierung müssen führende `<figure...>`- und schließende `</figure>`-Tags immer über Regex-Ersetzungen aus der SVG-XML-Zeichenkette entfernt werden, um ein valides SVG-Dokument zu erhalten.
+
