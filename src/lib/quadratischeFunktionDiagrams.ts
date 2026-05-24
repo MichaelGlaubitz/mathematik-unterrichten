@@ -82,11 +82,11 @@ export function svgParabolaScheitelform(opts: {
   const markerId = `qf-${Math.abs(
     Math.round(1000 * a + 101 * p + 17 * q + 13 * (roots?.[0] ?? 0) + 19 * (roots?.[1] ?? 0))
   )}-axis-arrow`;
-  const xAxisEnd = W - padR - 8;
-  const yAxisTop = padT + 8;
+  const xAxisEnd = W - padR + 12;
+  const yAxisTop = padT - 12;
   const xAxisLabelY = clamp(xAxisY - 8, padT + 14, H - padB - 8);
   const yAxisLabelX = clamp(yAxisX + 12, padL + 14, W - padR - 14);
-  const yAxisLabelY = padT + 18;
+  const yAxisLabelY = yAxisTop + 16;
 
   let grid = '';
   const xi0 = Math.ceil(xmin);

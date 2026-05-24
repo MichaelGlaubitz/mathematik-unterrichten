@@ -144,9 +144,11 @@ export function svgSegmentAbstand(
   const H = 260;
   const pad = 40;
   const minX = Math.min(x1, x2, 0) - 0.5;
-  const maxX = Math.max(x1, x2, 0) + 0.5;
+  let maxX = Math.max(x1, x2, 0) + 0.5;
   const minY = Math.min(y1, y2, 0) - 0.5;
-  const maxY = Math.max(y1, y2, 0) + 0.5;
+  let maxY = Math.max(y1, y2, 0) + 0.5;
+  if (maxX < 2) maxX = 2.0;
+  if (maxY < 2) maxY = 2.0;
   const spanX = Math.max(maxX - minX, 1);
   const spanY = Math.max(maxY - minY, 1);
   const sx = (W - 2 * pad) / spanX;

@@ -61,11 +61,11 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
 
   const xAxisY = sy(0);
   const yAxisX = sx(0);
-  const xAxisEnd = W - margin - 8;
-  const yAxisTop = margin + 8;
+  const xAxisEnd = W - margin + 12;
+  const yAxisTop = margin - 12;
   const xAxisLabelY = clamp(xAxisY - 8, margin + 14, H - margin - 8);
   const yAxisLabelX = clamp(yAxisX + 12, margin + 14, W - margin - 14);
-  const yAxisLabelY = margin + 18;
+  const yAxisLabelY = yAxisTop + 16;
 
   let grid = '';
   const xi0 = Math.ceil(xmin);
