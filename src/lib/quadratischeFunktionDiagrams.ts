@@ -38,7 +38,7 @@ export function svgParabolaScheitelform(opts: {
   let xmin = p - 3.2;
   let xmax = p + 3.2;
   if (xmin > 0) xmin = -0.45;
-  if (xmax < 0) xmax = 0.45;
+  if (xmax < 2) xmax = 2.0;
 
   const xs: number[] = [];
   for (let i = 0; i <= 64; i++) xs.push(xmin + ((xmax - xmin) * i) / 64);
@@ -63,7 +63,7 @@ export function svgParabolaScheitelform(opts: {
     ymax = mid + 1.25;
   }
   if (ymin > 0) ymin = -0.45;
-  if (ymax < 0) ymax = 0.45;
+  if (ymax < 2) ymax = 2.0;
 
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;

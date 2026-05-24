@@ -22,9 +22,9 @@ export function svgLineareGleichungSchnittpunkt(g1: GeradeMN, g2: GeradeMN, xS: 
   if (Math.abs(yS1 - yS2) > 0.001) return '';
 
   let xmin = Math.min(-1, xS - 2.5, 0);
-  let xmax = Math.max(1, xS + 2.5, 0);
+  let xmax = Math.max(2, xS + 2.5, 0);
   let ymin = Math.min(-1, yS1 - 2.5, 0);
-  let ymax = Math.max(1, yS1 + 2.5, 0);
+  let ymax = Math.max(2, yS1 + 2.5, 0);
 
   const xSamples = [xmin, xmax, xS - 1, xS + 1, 0, (xmin + xmax) / 2];
   for (const x of xSamples) {
