@@ -24,6 +24,13 @@ const blog = defineCollection({
     bild: z.string().optional(),
     bildAlt: z.string().optional(),
     entwurf: z.boolean().default(false),
+    kommentare: z.array(
+      z.object({
+        nutzer: z.string(),
+        zeit: z.string(),
+        text: z.string(),
+      })
+    ).optional(),
   }),
 });
 

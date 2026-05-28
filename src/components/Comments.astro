@@ -1,0 +1,133 @@
+---
+interface Props {
+  pageId: string;
+  pageUrl: string;
+  pageTitle: string;
+  staticComments?: Array<{
+    nutzer: string;
+    zeit: string;
+    text: string;
+  }>;
+}
+
+const { pageId, pageUrl, pageTitle, staticComments = [] } = Astro.props;
+
+const appId = import.meta.env.PUBLIC_CUSDIS_APP_ID;
+const isDev = import.meta.env.DEV;
+---
+
+<div class="mt-16 pt-8 border-t border-ink-200 dark:border-violet-500/20">
+  <h3 class="font-serif text-2xl font-semibold text-ink-900 mb-8 dark:text-ink-50">
+    Diskussion ({staticComments.length + (appId ? 0 : 0)} Kommentare)
+  </h3>
+
+  {staticComments.length > 0 && (
+    <div class="space-y-6 mb-12">
+      {staticComments.map((c) => {
+        // Generiere eine deterministische Farbe basierend auf dem Nutzernamen für den Avatar
+        const colors = [
+          'bg-red-50 text-red-700 border-red-100 dark:bg-red-950/20 dark:text-red-300 dark:border-red-900/30',
+          'bg-green-50 text-green-700 border-green-100 dark:bg-green-950/20 dark:text-green-300 dark:border-green-900/30',
+          'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-900/30',
+          'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/20 dark:text-amber-300 dark:border-amber-900/30',
+          'bg-violet-50 text-violet-700 border-violet-100 dark:bg-violet-950/20 dark:text-violet-300 dark:border-violet-900/30',
+          'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-950/20 dark:text-rose-300 dark:border-rose-900/30',
+          'bg-cyan-50 text-cyan-700 border-cyan-100 dark:bg-cyan-950/20 dark:text-cyan-300 dark:border-cyan-900/30'
+        ];
+        const nameWithoutAt = c.nutzer.replace('@', '');
+        const charCodeSum = nameWithoutAt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const colorClass = colors[charCodeSum % colors.length];
+        
+        // Initialen holen (z. B. "KH" für Kreideheld)
+        const initial = nameWithoutAt.substring(0, 2).toUpperCase();
+
+        // Regex für die Hervorhebung von @Erwähnungen (z.B. @Frau_Quadratwurzel)
+        const textParts = c.text.split(/(@[a-zA-Z0-9_]+)/g);
+
+        return (
+          <div class="flex gap-4 p-5 rounded-2xl bg-surface border border-ink-100 dark:bg-slate-900/20 dark:border-violet-500/10 shadow-sm transition duration-200 hover:shadow-md">
+            {/* Avatar */}
+            <div class={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border ${colorClass}`}>
+              {initial}
+            </div>
+            
+            {/* Inhalt */}
+            <div class="flex-grow min-w-0">
+              <div class="flex flex-wrap items-baseline gap-2 mb-2">
+                <span class="font-semibold text-ink-900 dark:text-ink-50 text-sm">
+                  {c.nutzer}
+                </span>
+                <span class="text-xs text-ink-400 dark:text-ink-500">
+                  · {c.zeit}
+                </span>
+              </div>
+              <p class="text-ink-700 dark:text-ink-200 text-sm leading-relaxed whitespace-pre-line">
+                {textParts.map((part) => {
+                  if (part.startsWith('@')) {
+                    return (
+                      <span class="text-accent-600 dark:text-accent-400 font-semibold hover:underline cursor-pointer">
+                        {part}
+                      </span>
+                    );
+                  }
+                  return part;
+                })}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )}
+
+  <div class="mt-8 pt-8 border-t border-ink-100 dark:border-violet-500/10">
+    <h4 class="font-serif text-xl font-semibold text-ink-900 mb-4 dark:text-ink-50">
+      Einen Kommentar schreiben
+    </h4>
+    
+    {appId ? (
+      <div
+        id="cusdis_thread"
+        data-host="https://cusdis.com"
+        data-app-id={appId}
+        data-page-id={pageId}
+        data-page-url={pageUrl}
+        data-page-title={pageTitle}
+        data-lang="de"
+        class="w-full min-h-[150px] theme-transition"
+      ></div>
+      <script is:inline defer src="https://cusdis.com/js/cusdis.es.js"></script>
+      <script is:inline>
+        function syncCusdisTheme() {
+          if (window.CUSDIS && typeof window.CUSDIS.setTheme === 'function') {
+            const isDark = document.documentElement.classList.contains('dark');
+            window.CUSDIS.setTheme(isDark ? 'dark' : 'light');
+          }
+        }
+        
+        window.addEventListener('load', () => {
+          setTimeout(syncCusdisTheme, 500);
+          
+          const observer = new MutationObserver(() => {
+            syncCusdisTheme();
+          });
+          observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+          });
+        });
+      </script>
+    ) : (
+      isDev && (
+        <div class="border border-dashed border-ink-200 dark:border-violet-500/20 text-center rounded-xl p-6 bg-violet-50/50 dark:bg-violet-950/10">
+          <h5 class="font-semibold text-violet-900 dark:text-violet-200 mb-2">
+            Kommentar-Box (Cusdis-Integration bereit)
+          </h5>
+          <p class="text-xs text-ink-600 dark:text-ink-300 max-w-md mx-auto leading-relaxed">
+            Deine App-ID ist konfiguriert, aber im Live-Betrieb (oder falls gelöscht) wird hier das Formular geladen. Erstelle ggf. ein kostenloses Konto auf <a href="https://cusdis.com" target="_blank" rel="noopener noreferrer" class="text-accent-600 dark:text-accent-400 font-semibold hover:underline">cusdis.com</a> und trage sie in deiner <code>.env</code> ein.
+          </p>
+        </div>
+      )
+    )}
+  </div>
+</div>
