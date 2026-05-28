@@ -3,6 +3,7 @@ import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 import {
   ALGEBRA_GENERATOR_IDS,
   BRUCHRECHNUNG_GENERATOR_IDS,
+  PROZENTRECHNUNG_GENERATOR_IDS,
   createPracticeGenerators,
   funGraphLinearAxisInterceptsInRange,
   FUN_GRAPH_AXIS_INTERCEPT_MAX,
@@ -777,4 +778,37 @@ describe('Algebra Faktorisieren (10 neue Generatoren)', () => {
     });
   });
 });
+
+describe('Prozentrechnung-Generatoren', () => {
+  it('alle PROZENTRECHNUNG_GENERATOR_IDS liefern Frage und Lösung', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of PROZENTRECHNUNG_GENERATOR_IDS) {
+      const a = GEN[id]();
+      expect(a.frage.length, id).toBeGreaterThan(5);
+      expect(a.loesung.length, id).toBeGreaterThan(3);
+    }
+  });
+
+  it('Prozent-AB: frageArbeitsblatt-Platzhalter passen zu abSlots', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of PROZENTRECHNUNG_GENERATOR_IDS) {
+      const a = GEN[id]();
+      expect(a.frageArbeitsblatt, id).toBeDefined();
+      expect(a.abSlots?.length, id).toBeGreaterThan(0);
+      expect(zaehleAbPlatzhalter(a.frageArbeitsblatt!), id).toBe(a.abSlots!.length);
+    }
+  });
+
+  it('Prozent-Lösungen: gerade Anzahl $ (KaTeX -> PDF-LaTeX)', () => {
+    for (const id of PROZENTRECHNUNG_GENERATOR_IDS) {
+      for (let seed = 0; seed < 40; seed++) {
+        const g = createPracticeGenerators(makeLcg(seed * 9973 + id.length * 31 + id.charCodeAt(0)));
+        const a = g[id]();
+        const n = (a.loesung.match(/\$/g) ?? []).length;
+        expect(n % 2, `${id} @seed ${seed}`).toBe(0);
+      }
+    }
+  });
+});
+
 

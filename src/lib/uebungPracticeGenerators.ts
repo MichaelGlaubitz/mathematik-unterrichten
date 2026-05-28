@@ -448,6 +448,8 @@ export const PROZENTRECHNUNG_GENERATOR_IDS = [
   'pr_vermehrungsfaktor',
   'pr_reduzierter_preis',
   'pr_ausgangswert_nach_erhoehung',
+  'pr_erhoehter_wert',
+  'pr_ausgangswert_nach_senkung',
 ] as const;
 
 /** Stochastik (Lageparameter und einfache Wahrscheinlichkeiten). */
@@ -4895,7 +4897,9 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const prozentwert = (grundwert * p) / 100;
       return {
         frage: `Berechne den Prozentwert: $${p}\\,\\%$ von $${grundwert}$.`,
+        frageArbeitsblatt: `Berechne den Prozentwert: $${p}\\,\\%$ von $${grundwert}$. Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
         loesung: `$W=\\frac{${p}}{100}\\cdot ${grundwert}=${prozentwert}$.`,
+        abSlots: [{ kind: 'int', expect: prozentwert }],
       };
     },
     pr_prozentsatz() {
@@ -4904,7 +4908,9 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const prozentwert = (grundwert * p) / 100;
       return {
         frage: `Wie groß ist der Prozentsatz, wenn $W=${prozentwert}$ und $G=${grundwert}$ gilt?`,
+        frageArbeitsblatt: `Wie groß ist der Prozentsatz, wenn $W=${prozentwert}$ und $G=${grundwert}$ gilt? Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]\\%</span>`,
         loesung: `$p=\\frac{W}{G}\\cdot 100\\,\\%=\\frac{${prozentwert}}{${grundwert}}\\cdot 100\\,\\%=${p}\\,\\%$.`,
+        abSlots: [{ kind: 'int', expect: p }],
       };
     },
     pr_grundwert() {
@@ -4913,22 +4919,30 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const prozentwert = (grundwert * p) / 100;
       return {
         frage: `Berechne den Grundwert $G$, wenn $${p}\\,\\%$ genau $${prozentwert}$ sind.`,
+        frageArbeitsblatt: `Berechne den Grundwert ${abItalicVarHtml('G')}, wenn $${p}\\,\\%$ genau $${prozentwert}$ sind. Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
         loesung: `$G=\\frac{W}{p/100}=\\frac{${prozentwert}}{${p / 100}}=${grundwert}$.`,
+        abSlots: [{ kind: 'int', expect: grundwert }],
       };
     },
     pr_vermehrungsfaktor() {
       const p = pick([4, 5, 8, 10, 12, 15, 20] as const);
       if (random() < 0.5) {
+        const q = 1 + p / 100;
         return {
           frage: `Welcher Vermehrungsfaktor gehört zu einer Erhöhung um $${p}\\,\\%$?`,
+          frageArbeitsblatt: `Welcher Vermehrungsfaktor gehört zu einer Erhöhung um $${p}\\,\\%$? Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
           loesung: `Erhöhung um $${p}\\,\\%$: $q=1+\\frac{${p}}{100}=1${formatSignedInt(p / 100)}=1,${String(
             100 + p
           ).slice(1)}$.`,
+          abSlots: [{ kind: 'decimal', expect: q }],
         };
       }
+      const q = 1 - p / 100;
       return {
         frage: `Welcher Faktor gehört zu einer Reduktion um $${p}\\,\\%$?`,
+        frageArbeitsblatt: `Welcher Faktor gehört zu einer Reduktion um $${p}\\,\\%$? Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
         loesung: `Reduktion um $${p}\\,\\%$: $q=1-\\frac{${p}}{100}=0,${String(100 - p).padStart(2, '0')}$.`,
+        abSlots: [{ kind: 'decimal', expect: q }],
       };
     },
     pr_reduzierter_preis() {
@@ -4937,10 +4951,12 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const neu = (preis * (100 - p)) / 100;
       return {
         frage: `Ein Preis von $${preis}\\,€$ wird um $${p}\\,\\%$ reduziert. Wie hoch ist der neue Preis?`,
+        frageArbeitsblatt: `Ein Preis von $${preis}\\,€$ wird um $${p}\\,\\%$ reduziert. Wie hoch ist der neue Preis? Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]\\,€</span>`,
         loesung: `Mit dem Faktor $q=1-\\frac{${p}}{100}=\\frac{${100 - p}}{100}$: $${preis}\\cdot ${(
           (100 - p) /
           100
         ).toFixed(2).replace('.', ',')}=${neu}\\,€$.`,
+        abSlots: [{ kind: 'int', expect: neu }],
       };
     },
     pr_ausgangswert_nach_erhoehung() {
@@ -4949,9 +4965,38 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
       const neu = (alt * (100 + p)) / 100;
       return {
         frage: `Nach einer Erhöhung um $${p}\\,\\%$ beträgt ein Wert $${neu}$. Wie groß war der Ausgangswert?`,
+        frageArbeitsblatt: `Nach einer Erhöhung um $${p}\\,\\%$ beträgt ein Wert $${neu}$. Wie groß war der Ausgangswert? Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
         loesung: `Rückwärts mit $q=1+\\frac{${p}}{100}=\\frac{${100 + p}}{100}$: $${neu}:${
           ((100 + p) / 100).toFixed(2).replace('.', ',')
         }=${alt}$.`,
+        abSlots: [{ kind: 'int', expect: alt }],
+      };
+    },
+    pr_erhoehter_wert() {
+      const wert = pick([40, 60, 80, 100, 120, 160, 200] as const);
+      const p = pick([5, 10, 20, 25, 30, 40, 50] as const);
+      const neu = (wert * (100 + p)) / 100;
+      return {
+        frage: `Erhöhe den Wert $${wert}$ um $${p}\\,\\%$.`,
+        frageArbeitsblatt: `Erhöhe den Wert $${wert}$ um $${p}\\,\\%$. Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Mit dem Faktor $q=1+\\frac{${p}}{100}=\\frac{${100 + p}}{100}$: $${wert}\\cdot ${(
+          (100 + p) /
+          100
+        ).toFixed(2).replace('.', ',')}=${neu}$.`,
+        abSlots: [{ kind: 'int', expect: neu }],
+      };
+    },
+    pr_ausgangswert_nach_senkung() {
+      const alt = pick([40, 50, 80, 100, 120, 150, 200] as const);
+      const p = pick([5, 10, 20, 25, 30, 45, 50] as const);
+      const neu = (alt * (100 - p)) / 100;
+      return {
+        frage: `Nach einer Senkung um $${p}\\,\\%$ beträgt ein Wert $${neu}$. Wie groß war der Ausgangswert?`,
+        frageArbeitsblatt: `Nach einer Senkung um $${p}\\,\\%$ beträgt ein Wert $${neu}$. Wie groß war der Ausgangswert? Trage ein: <span class="mu-katex-skip inline-flex items-baseline gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Rückwärts mit $q=1-\\frac{${p}}{100}=\\frac{${100 - p}}{100}$: $${neu}:${
+          ((100 - p) / 100).toFixed(2).replace('.', ',')
+        }=${alt}$.`,
+        abSlots: [{ kind: 'int', expect: alt }],
       };
     },
     st_mittelwert_median() {

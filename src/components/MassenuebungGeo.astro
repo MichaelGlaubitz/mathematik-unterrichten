@@ -164,6 +164,7 @@ function wbLabelFromHref(href: string): string {
         variant !== 'dezimalzahlen' &&
         variant !== 'bruch-dezimal-prozent' &&
         variant !== 'lineare-gleichungen' &&
+        variant !== 'prozentrechnung' &&
         'contents',
     ]}
     id={
@@ -172,7 +173,8 @@ function wbLabelFromHref(href: string): string {
       variant === 'algebra' ||
       variant === 'dezimalzahlen' ||
       variant === 'bruch-dezimal-prozent' ||
-      variant === 'lineare-gleichungen'
+      variant === 'lineare-gleichungen' ||
+      variant === 'prozentrechnung'
         ? 'ug-wb-slot-ab-full-chrome'
         : undefined
     }
@@ -1807,7 +1809,8 @@ function wbLabelFromHref(href: string): string {
       variant === 'algebra' ||
       variant === 'dezimalzahlen' ||
       variant === 'bruch-dezimal-prozent' ||
-      variant === 'lineare-gleichungen') && (
+      variant === 'lineare-gleichungen' ||
+      variant === 'prozentrechnung') && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1826,6 +1829,8 @@ function wbLabelFromHref(href: string): string {
                 ? 'AB Dezimalzahlen'
               : variant === 'lineare-gleichungen'
                 ? 'AB Lineare Gleichungen'
+              : variant === 'prozentrechnung'
+                ? 'AB Prozentrechnung'
                 : 'AB Algebra'}
         </h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
@@ -1857,7 +1862,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen') && (
+        variant === 'lineare-gleichungen' ||
+        variant === 'prozentrechnung') && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1905,7 +1911,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen'
+        variant === 'lineare-gleichungen' ||
+        variant === 'prozentrechnung'
           ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
           : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
       ]}
@@ -1917,7 +1924,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen') && (
+        variant === 'lineare-gleichungen' ||
+        variant === 'prozentrechnung') && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1946,7 +1954,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'algebra' ||
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen') && (
+        variant === 'lineare-gleichungen' ||
+        variant === 'prozentrechnung') && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -2586,11 +2595,18 @@ function wbLabelFromHref(href: string): string {
     stichworteFuerNzIds,
   } from '../lib/negativeZahlenWbKeywordMap';
   import {
+    PR_WB_STOR_KEY,
+    expandPrWbStichworte,
+    prLabelClusterIndex,
+    stichwortLabelsFromPrSessionRaw,
+  } from '../lib/prozentrechnungWbKeywordMap';
+  import {
     erzeugeAlgebraArbeitsblattPdf,
     erzeugeBruchArbeitsblattPdf,
     erzeugeDezimalzahlenArbeitsblattPdf,
     erzeugeNegativeZahlenArbeitsblattPdf,
     erzeugeLineareGleichungenArbeitsblattPdf,
+    erzeugeProzentrechnungArbeitsblattPdf,
   } from '../lib/bruchArbeitsblattLatex';
   import {
     readAlgebraMassenAnzahl,
@@ -2628,6 +2644,12 @@ function wbLabelFromHref(href: string): string {
     writeLgMassenAnzahl,
     writeLgMassenLayout,
   } from '../lib/massenLineareGleichungenPrefs';
+  import {
+    readPrMassenAnzahl,
+    readPrMassenLayout,
+    writePrMassenAnzahl,
+    writePrMassenLayout,
+  } from '../lib/massenProzentrechnungPrefs';
   import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
@@ -2682,8 +2704,9 @@ function wbLabelFromHref(href: string): string {
     const isBdpMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruch-dezimal-prozent';
     const isAlgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'algebra';
     const isLgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'lineare-gleichungen';
+    const isPrMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'prozentrechnung';
     const isWbSlotAbMassen =
-      isBruchMassen || isNzMassen || isAlgMassen || isDzMassen || isBdpMassen || isLgMassen;
+      isBruchMassen || isNzMassen || isAlgMassen || isDzMassen || isBdpMassen || isLgMassen || isPrMassen;
 
     function allAlgIdsFiltered() {
       return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -2707,6 +2730,9 @@ function wbLabelFromHref(href: string): string {
 
     function allBdpIdsFiltered() {
       return BDP_UMWANDLUNG_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+    function allPrIdsFiltered() {
+      return PROZENTRECHNUNG_GENERATOR_IDS.filter((id) => allowedSet.has(id));
     }
 
     function readBdpTypenFromStorage() {
@@ -2818,6 +2844,21 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
+    function readPrTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(PR_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allPrIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('pr_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allPrIdsFiltered();
+        }
+        const fromKw = expandPrWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allPrIdsFiltered();
+      } catch {
+        return allPrIdsFiltered();
+      }
+    }
+
     bindPracticeDiagramCheckbox(
       document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null
     );
@@ -2841,6 +2882,9 @@ function wbLabelFromHref(href: string): string {
     } else if (isLgMassen) {
       anzahl = readLgMassenAnzahl();
       layout = readLgMassenLayout();
+    } else if (isPrMassen) {
+      anzahl = readPrMassenAnzahl();
+      layout = readPrMassenLayout();
     }
     let aufgaben = [];
     let wbIndex = 0;
@@ -3159,6 +3203,14 @@ function wbLabelFromHref(href: string): string {
           return [];
         }
       }
+      if (isPrMassen) {
+        try {
+          const raw = JSON.parse(sessionStorage.getItem(PR_WB_STOR_KEY) || 'null');
+          return stichwortLabelsFromPrSessionRaw(raw);
+        } catch {
+          return [];
+        }
+      }
       return readBruchAbStichwortLabels();
     }
 
@@ -3190,7 +3242,9 @@ function wbLabelFromHref(href: string): string {
                 ? bdpLabelClusterIndex(t)
                 : isLgMassen
                   ? lgStichwortClusterIndex(t)
-                  : bruchStichwortClusterIndex(t);
+                  : isPrMassen
+                    ? prLabelClusterIndex(t)
+                    : bruchStichwortClusterIndex(t);
         const color =
           ci >= 0 && ci < BRUCH_AB_CLUSTER_PILL_CLASS.length
             ? BRUCH_AB_CLUSTER_PILL_CLASS[ci]
@@ -3505,6 +3559,7 @@ function wbLabelFromHref(href: string): string {
       if (isAlgMassen) return readAlgebraTypenFromStorage();
       if (isBdpMassen) return readBdpTypenFromStorage();
       if (isLgMassen) return readLgTypenFromStorage();
+      if (isPrMassen) return readPrTypenFromStorage();
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
         .map((c) => c.value);
@@ -3818,6 +3873,7 @@ function wbLabelFromHref(href: string): string {
         else if (isAlgMassen) writeAlgebraMassenAnzahl(anzahl);
         else if (isBdpMassen) writeBdpMassenAnzahl(anzahl);
         else if (isLgMassen) writeLgMassenAnzahl(anzahl);
+        else if (isPrMassen) writePrMassenAnzahl(anzahl);
         refreshAktiv();
       })
     );
@@ -3832,6 +3888,7 @@ function wbLabelFromHref(href: string): string {
         else if (isAlgMassen) writeAlgebraMassenLayout(layout);
         else if (isBdpMassen) writeBdpMassenLayout(layout);
         else if (isLgMassen) writeLgMassenLayout(layout);
+        else if (isPrMassen) writePrMassenLayout(layout);
         refreshAktiv();
         if (layout === 'arbeitsblatt') stopWbTimer();
         else if (aufgaben.length > 0) startWbTimer();
@@ -3974,7 +4031,9 @@ function wbLabelFromHref(href: string): string {
                   ? 'Bruch · Dezimal · Prozent'
                   : isLgMassen
                     ? 'Lineare Gleichungen'
-                    : 'Bruchrechnung',
+                    : isPrMassen
+                      ? 'Prozentrechnung'
+                      : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
@@ -4006,12 +4065,19 @@ function wbLabelFromHref(href: string): string {
                     mitLoesungen,
                     diagramUiScale,
                   })
-                : await erzeugeBruchArbeitsblattPdf({
-                    aufgaben,
-                    meta,
-                    mitLoesungen,
-                    diagramUiScale,
-                  });
+                : isPrMassen
+                  ? await erzeugeProzentrechnungArbeitsblattPdf({
+                      aufgaben,
+                      meta,
+                      mitLoesungen,
+                      diagramUiScale,
+                    })
+                  : await erzeugeBruchArbeitsblattPdf({
+                      aufgaben,
+                      meta,
+                      mitLoesungen,
+                      diagramUiScale,
+                    });
         if (!r.ok) {
           console.error('[WB-Arbeitsblatt PDF]', { message: r.message, log: r.log });
           const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);
@@ -4034,7 +4100,11 @@ function wbLabelFromHref(href: string): string {
               ? 'dezimalzahlen'
               : isBdpMassen
                 ? 'bruch-dezimal-prozent'
-                : 'bruchrechnung';
+                : isLgMassen
+                  ? 'lineare-gleichungen'
+                  : isPrMassen
+                    ? 'prozentrechnung'
+                    : 'bruchrechnung';
         const name = mitLoesungen ? `${base}-ab-mit-loesungen-${tag}.pdf` : `${base}-ab-${tag}.pdf`;
         downloadePdfDatei(r.pdf, name);
       } catch (e) {

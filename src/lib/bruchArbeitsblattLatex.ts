@@ -765,3 +765,16 @@ export async function erzeugeLineareGleichungenArbeitsblattPdf(opts: {
   });
 }
 
+/** WB Prozentrechnung: gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
+export async function erzeugeProzentrechnungArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
+  });
+}
+
