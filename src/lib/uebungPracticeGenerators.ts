@@ -309,6 +309,19 @@ export const BDP_UMWANDLUNG_GENERATOR_IDS = [
   'bdp_pr_br',
   'bdp_dez_pr',
   'bdp_pr_dez',
+  'bdp_pw_non_calc',
+  'bdp_pw_calc',
+  'bdp_ps_bestimmen',
+  'bdp_ch_inc_non_calc',
+  'bdp_ch_dec_non_calc',
+  'bdp_ch_inc_dec_non_calc',
+  'bdp_ch_inc_calc',
+  'bdp_ch_dec_calc',
+  'bdp_ch_inc_dec_calc',
+  'bdp_rev_pw',
+  'bdp_rev_inc',
+  'bdp_rev_dec',
+  'bdp_diag_method',
 ] as const;
 
 /** Algebra: Klammern, Distributivgesetz, Terme (Klasse 7–8). */
@@ -5772,6 +5785,184 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     },
     bdp_pr_dez() {
       return bdpTaskZuPracticeAufgabe(erzeugeBdpAufgabe('pr_dez', random));
+    },
+    bdp_pw_non_calc() {
+      const g = pick([80, 120, 150, 200, 250, 300, 400, 500, 600, 1000] as const);
+      const p = pick([1, 5, 10, 15, 20, 25, 30, 50, 75] as const);
+      const w = (g * p) / 100;
+      return {
+        frage: `Berechne: $${p}\\%\\text{ von }${g}$`,
+        frageArbeitsblatt: `$${p}\\%\\text{ von }${g}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        loesung: `$W = \\frac{${p}}{100} \\cdot ${g} = ${w.toString().replace('.', ',')}$.`,
+        abSlots: [{ kind: 'decimal', expect: w }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_pw_calc() {
+      const g = pick([125, 240, 350, 480, 520, 640] as const);
+      const p = pick([3.5, 6.8, 12.5, 17.5, 24, 85] as const);
+      const w = (g * p) / 100;
+      const pStr = p.toString().replace('.', ',');
+      const wStr = Number(w.toFixed(2)).toString().replace('.', ',');
+      return {
+        frage: `Berechne mit Multiplikator: $${pStr}\\%\\text{ von }${g}$`,
+        frageArbeitsblatt: `$${pStr}\\%\\text{ von }${g}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]</span>`,
+        loesung: `$W = 0,${p.toString().replace('.', '')} \\cdot ${g} = ${wStr}$.`,
+        abSlots: [{ kind: 'decimal', expect: Number(w.toFixed(2)) }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ps_bestimmen() {
+      const g = pick([40, 50, 80, 100, 200, 250, 400, 500] as const);
+      const p = pick([2, 5, 6, 8, 12, 15, 20, 25, 30, 40, 50] as const);
+      const w = (g * p) / 100;
+      return {
+        frage: `Wie viel Prozent sind $${w.toString().replace('.', ',')}$ von $${g}$?`,
+        frageArbeitsblatt: `$${w.toString().replace('.', ',')}\\text{ von }${g}$<span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none"><span>=</span>[[MU_AB:0]]\\%</span>`,
+        loesung: `$p = \\frac{${w.toString().replace('.', ',')}}{${g}} = \\frac{${(w * 100) / g}}{100} = ${p}\\%$.`,
+        abSlots: [{ kind: 'int', expect: p }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ch_inc_non_calc() {
+      const g = pick([60, 80, 120, 150, 200, 300, 400, 500] as const);
+      const p = pick([10, 20, 25, 30, 50] as const);
+      const z = (g * p) / 100;
+      const n = g + z;
+      return {
+        frage: `Erhöhe $${g}$ um $${p}\\%$.`,
+        frageArbeitsblatt: `Erhöhe $${g}$ um $${p}\\%$. Trage ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `$${p}\\%\\text{ von }${g} = ${z}$. Neuer Wert: $${g} + ${z} = ${n}$.`,
+        abSlots: [{ kind: 'int', expect: n }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ch_dec_non_calc() {
+      const g = pick([60, 80, 120, 150, 200, 300, 400, 500] as const);
+      const p = pick([10, 15, 20, 25, 30, 50] as const);
+      const a = (g * p) / 100;
+      const n = g - a;
+      return {
+        frage: `Vermindere $${g}$ um $${p}\\%$.`,
+        frageArbeitsblatt: `Vermindere $${g}$ um $${p}\\%$. Trage ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `$${p}\\%\\text{ von }${g} = ${a}$. Neuer Wert: $${g} - ${a} = ${n}$.`,
+        abSlots: [{ kind: 'int', expect: n }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ch_inc_dec_non_calc() {
+      const g = pick([100, 200] as const);
+      const p = pick([10, 20, 25] as const);
+      const n1 = g * (1 + p / 100);
+      const n2 = n1 * (1 - p / 100);
+      const n2Str = Number(n2.toFixed(2)).toString().replace('.', ',');
+      return {
+        frage: `Ein Wert von $${g}$ wird erst um $${p}\\%$ erhöht und dann um $${p}\\%$ gesenkt.`,
+        frageArbeitsblatt: `$${g}$ erst $+${p}\\%$, dann $-${p}\\%$. Trage den Endpreis ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Erst $+${p}\\% \\Rightarrow ${n1}$. Dann $-${p}\\%\\text{ von }${n1} \\Rightarrow ${n2Str}$.`,
+        abSlots: [{ kind: 'decimal', expect: Number(n2.toFixed(2)) }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ch_inc_calc() {
+      const g = pick([150, 250, 420, 680, 850] as const);
+      const p = pick([2.5, 3.8, 5.5, 12] as const);
+      const q = 1 + p / 100;
+      const n = g * q;
+      const pStr = p.toString().replace('.', ',');
+      const nStr = Number(n.toFixed(2)).toString().replace('.', ',');
+      return {
+        frage: `Erhöhe $${g}$ um $${pStr}\\%$ (mit Multiplikator).`,
+        frageArbeitsblatt: `$${g}$ erhöht um $${pStr}\\%$. Trage ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Multiplikator $q = ${q.toString().replace('.', ',')}$. Neuer Wert: $${g} \\cdot q = ${nStr}$.`,
+        abSlots: [{ kind: 'decimal', expect: Number(n.toFixed(2)) }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ch_dec_calc() {
+      const g = pick([150, 250, 350, 680, 850] as const);
+      const p = pick([2.5, 4.5, 6.5, 8.5] as const);
+      const q = 1 - p / 100;
+      const n = g * q;
+      const pStr = p.toString().replace('.', ',');
+      const qStr = q.toFixed(3).replace(/\.?0+$/, '').replace('.', ',');
+      const nStr = Number(n.toFixed(2)).toString().replace('.', ',');
+      return {
+        frage: `Vermindere $${g}$ um $${pStr}\\%$ (mit Multiplikator).`,
+        frageArbeitsblatt: `$${g}$ vermindert um $${pStr}\\%$. Trage ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Multiplikator $q = ${qStr}$. Neuer Wert: $${g} \\cdot q = ${nStr}$.`,
+        abSlots: [{ kind: 'decimal', expect: Number(n.toFixed(2)) }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_ch_inc_dec_calc() {
+      const g = pick([250, 450, 600, 800] as const);
+      const p1 = pick([12, 15, 20] as const);
+      const p2 = pick([8, 10, 15] as const);
+      const q1 = 1 + p1 / 100;
+      const q2 = 1 - p2 / 100;
+      const n = g * q1 * q2;
+      const q1Str = q1.toString().replace('.', ',');
+      const q2Str = q2.toString().replace('.', ',');
+      const nStr = Number(n.toFixed(2)).toString().replace('.', ',');
+      return {
+        frage: `$${g}$ erst $+${p1}\\%$, dann $-${p2}\\%$ (mit Multiplikatoren).`,
+        frageArbeitsblatt: `$${g}$ erst $+${p1}\\%$, dann $-${p2}\\%$. Trage den Endwert ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Multiplikatoren $q_1 = ${q1Str}$ und $q_2 = ${q2Str}$. Endwert: $${g} \\cdot ${q1Str} \\cdot ${q2Str} = ${nStr}$.`,
+        abSlots: [{ kind: 'decimal', expect: Number(n.toFixed(2)) }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_rev_pw() {
+      const p = pick([5, 10, 15, 20, 25, 30, 40, 50] as const);
+      const g = pick([80, 120, 150, 180, 200, 250, 300, 400] as const);
+      const w = (g * p) / 100;
+      return {
+        frage: `Bestimme den Grundwert, wenn $${p}\\%$ genau $${w}$ sind.`,
+        frageArbeitsblatt: `Bestimme den Grundwert, wenn $${p}\\%$ genau $${w}$ sind. Trage ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `$G = \\frac{${w}}{${p / 100}} = ${g}$.`,
+        abSlots: [{ kind: 'int', expect: g }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_rev_inc() {
+      const p = pick([5, 10, 15, 20, 25, 30] as const);
+      const g = pick([80, 120, 150, 180, 200, 250, 300, 400] as const);
+      const n = g * (1 + p / 100);
+      const qStr = (1 + p / 100).toString().replace('.', ',');
+      return {
+        frage: `Ein Wert beträgt nach einer Zunahme um $${p}\\%$ jetzt $${n}$. Wie groß war der Ausgangswert?`,
+        frageArbeitsblatt: `Wert nach $+${p}\\%$: $${n}$. Trage den Ausgangswert ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Multiplikator $q = ${qStr}$. Ausgangswert: $${n} : ${qStr} = ${g}$.`,
+        abSlots: [{ kind: 'int', expect: g }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_rev_dec() {
+      const p = pick([5, 10, 15, 20, 25, 30] as const);
+      const g = pick([80, 100, 120, 150, 180, 200, 250, 300, 400] as const);
+      const n = g * (1 - p / 100);
+      const qStr = (1 - p / 100).toString().replace('.', ',');
+      return {
+        frage: `Ein Wert beträgt nach einer Abnahme um $${p}\\%$ jetzt $${n}$. Wie groß war der Ausgangswert?`,
+        frageArbeitsblatt: `Wert nach $-${p}\\%$: $${n}$. Trage den Ausgangswert ein: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]</span>`,
+        loesung: `Multiplikator $q = ${qStr}$. Ausgangswert: $${n} : ${qStr} = ${g}$.`,
+        abSlots: [{ kind: 'int', expect: g }],
+        loesungInlineNachFrage: true,
+      };
+    },
+    bdp_diag_method() {
+      const p = pick([10, 20, 30, 40, 50] as const);
+      const a = (p * p) / 100;
+      const aStr = a.toString().replace('.', ',');
+      const factor = ((1 + p / 100) * (1 - p / 100)).toFixed(2).replace('.', ',');
+      return {
+        frage: `Ein Wert wird erst um $${p}\\%$ erhöht, dann um $${p}\\%$ verringert. Um wie viel Prozent sinkt er insgesamt?`,
+        frageArbeitsblatt: `Ein Wert erst $+${p}\\%$, dann $-${p}\\%$. Abnahme insgesamt in Prozent: <span class="mu-katex-skip inline-flex items-center gap-1.5 text-lg leading-none">[[MU_AB:0]]\\%</span>`,
+        loesung: `Faktoren: $1,${p / 10} \\cdot 0,${10 - p / 10} = ${factor}$. Der Wert sinkt insgesamt um $${aStr}\\%$.`,
+        abSlots: [{ kind: 'decimal', expect: a }],
+        loesungInlineNachFrage: true,
+      };
     },
   };
 

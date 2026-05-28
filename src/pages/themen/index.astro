@@ -278,6 +278,7 @@ const themenProBand = clusterReihenfolge
     import { DZ_WB_STOR_KEY, stichworteFuerDzIds } from '../../lib/dezimalzahlenWbKeywordMap';
     import { NZ_WB_STOR_KEY, stichworteFuerNzIds } from '../../lib/negativeZahlenWbKeywordMap';
     import { LG_WB_STOR_KEY, stichworteFuerLgIds } from '../../lib/lineareGleichungenWbKeywordMap';
+    import { BDP_KW_WB_STOR_KEY, stichworteFuerBdpIds } from '../../lib/bdpWbKeywordMap';
     import {
       readBruchMassenAnzahl,
       readBruchMassenLayout,
@@ -439,7 +440,7 @@ const themenProBand = clusterReihenfolge
 
     function applyWbThemaKwVisual(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent'
     ) {
       const storKey =
         slug === 'bruchrechnung'
@@ -450,7 +451,9 @@ const themenProBand = clusterReihenfolge
               ? NZ_WB_STOR_KEY
               : slug === 'lineare-gleichungen'
                 ? LG_WB_STOR_KEY
-                : ALG_WB_STOR_KEY;
+                : slug === 'bruch-dezimal-prozent'
+                  ? BDP_KW_WB_STOR_KEY
+                  : ALG_WB_STOR_KEY;
       const idPrefix =
         slug === 'bruchrechnung'
           ? 'br_'
@@ -460,7 +463,9 @@ const themenProBand = clusterReihenfolge
               ? 'nz_'
               : slug === 'lineare-gleichungen'
                 ? 'lg_'
-                : 'alg_';
+                : slug === 'bruch-dezimal-prozent'
+                  ? 'bdp_'
+                  : 'alg_';
       const stichworteFuerIds =
         slug === 'bruchrechnung'
           ? stichworteFuerBruchIds
@@ -470,7 +475,9 @@ const themenProBand = clusterReihenfolge
               ? stichworteFuerNzIds
               : slug === 'lineare-gleichungen'
                 ? stichworteFuerLgIds
-                : stichworteFuerAlgIds;
+                : slug === 'bruch-dezimal-prozent'
+                  ? stichworteFuerBdpIds
+                  : stichworteFuerAlgIds;
       const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'));
       let sel = new Set<string>();
       try {
@@ -495,7 +502,7 @@ const themenProBand = clusterReihenfolge
 
     function persistWbThemaKw(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
+      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent'
     ) {
       const storKey =
         slug === 'bruchrechnung'
@@ -506,7 +513,9 @@ const themenProBand = clusterReihenfolge
               ? NZ_WB_STOR_KEY
               : slug === 'lineare-gleichungen'
                 ? LG_WB_STOR_KEY
-                : ALG_WB_STOR_KEY;
+                : slug === 'bruch-dezimal-prozent'
+                  ? BDP_KW_WB_STOR_KEY
+                  : ALG_WB_STOR_KEY;
       const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
         .map((b) => b.dataset.stichwort ?? '')
         .filter(Boolean);
@@ -531,6 +540,8 @@ const themenProBand = clusterReihenfolge
       if (algRoot) applyWbThemaKwVisual(algRoot, 'algebra');
       const lgRoot = document.getElementById('thema-lineare-gleichungen');
       if (lgRoot) applyWbThemaKwVisual(lgRoot, 'lineare-gleichungen');
+      const bdpRoot = document.getElementById('thema-bruch-dezimal-prozent');
+      if (bdpRoot) applyWbThemaKwVisual(bdpRoot, 'bruch-dezimal-prozent');
       document.addEventListener(
         'click',
         (ev: MouseEvent) => {
@@ -542,7 +553,8 @@ const themenProBand = clusterReihenfolge
             s !== 'dezimalzahlen' &&
             s !== 'negative-zahlen' &&
             s !== 'algebra' &&
-            s !== 'lineare-gleichungen'
+            s !== 'lineare-gleichungen' &&
+            s !== 'bruch-dezimal-prozent'
           )
             return;
           const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-wb-kw-bulk]') as HTMLButtonElement | null;
@@ -566,7 +578,7 @@ const themenProBand = clusterReihenfolge
             }
             persistWbThemaKw(
               rootEl,
-              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
+              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent'
             );
             return;
           }
@@ -577,7 +589,7 @@ const themenProBand = clusterReihenfolge
           t.setAttribute('aria-pressed', t.classList.contains('mu-wb-thema-kw--an') ? 'true' : 'false');
           persistWbThemaKw(
             rootEl,
-            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen'
+            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent'
           );
         },
         { signal }
