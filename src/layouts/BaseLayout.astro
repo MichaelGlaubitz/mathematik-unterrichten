@@ -96,13 +96,37 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
       <>
         <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA_ID}`}></script>
         <script is:inline define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', gaId);
+          try {
+            // Falls ?no-track=1 aufgerufen wird, dauerhaft im Browser deaktivieren
+            if (window.location.search.includes('no-track=1')) {
+              localStorage.setItem('mu-no-track', 'true');
+              alert('Analytics wurde auf diesem Gerät deaktiviert.');
+            }
+            // Falls ?no-track=0 aufgerufen wird, wieder aktivieren
+            if (window.location.search.includes('no-track=0')) {
+              localStorage.removeItem('mu-no-track');
+              alert('Analytics wurde auf diesem Gerät wieder aktiviert.');
+            }
+
+            if (localStorage.getItem('mu-no-track') === 'true') {
+              window['ga-disable-' + gaId] = true;
+            } else {
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', gaId);
+            }
+          } catch (e) {
+            // Fallback für Browser, die den Zugriff auf LocalStorage verbieten
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', gaId);
+          }
         </script>
       </>
     )}
+
   </head>
 
   <body
