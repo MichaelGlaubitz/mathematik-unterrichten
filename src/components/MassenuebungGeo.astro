@@ -22,6 +22,7 @@ import {
   STRAHLENSATZ_GENERATOR_IDS,
   TERMUMFORMUNGEN_GENERATOR_IDS,
   TRIGONOMETRY_GENERATOR_IDS,
+  PLOTTING_GRAPHS_GENERATOR_IDS,
 } from '../lib/uebungPracticeGenerators';
 
 export interface Props {
@@ -47,7 +48,8 @@ export interface Props {
     | 'exponentialfunktionen'
     | 'logarithmen'
     | 'wurzelrechnung'
-    | 'kreisgeometrie';
+    | 'kreisgeometrie'
+    | 'graphen';
   backHref: string;
   h1: string;
 }
@@ -96,7 +98,9 @@ const allowedIds =
                 ? ROOT_GENERATOR_IDS
                 : variant === 'kreisgeometrie'
                   ? CIRCLE_GEOMETRY_GENERATOR_IDS
-                  : STRAHLENSATZ_GENERATOR_IDS;
+                  : variant === 'graphen'
+                    ? PLOTTING_GRAPHS_GENERATOR_IDS
+                    : STRAHLENSATZ_GENERATOR_IDS;
 const ugMassenAllowedJson = JSON.stringify([...allowedIds]);
 const wbLabelByVariant = {
   pythagoras: 'WB Pythagoras',
@@ -121,6 +125,7 @@ const wbLabelByVariant = {
   logarithmen: 'WB Logarithmen',
   wurzelrechnung: 'WB Wurzelrechnung',
   kreisgeometrie: 'WB Kreisgeometrie',
+  graphen: 'WB Graphen',
 } as const;
 const wbLabel = wbLabelByVariant[variant];
 const wbLabelByHref: Record<string, string> = {
@@ -146,6 +151,7 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/logarithmen': 'WB Logarithmen',
   '/uebung/wurzelrechnung': 'WB Wurzelrechnung',
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
+  '/uebung/graphen': 'WB Graphen',
 };
 function wbLabelFromHref(href: string): string {
   return wbLabelByHref[href] ?? 'WB';
@@ -165,6 +171,7 @@ function wbLabelFromHref(href: string): string {
         variant !== 'bruch-dezimal-prozent' &&
         variant !== 'lineare-gleichungen' &&
         variant !== 'prozentrechnung' &&
+        variant !== 'graphen' &&
         'contents',
     ]}
     id={
@@ -174,7 +181,8 @@ function wbLabelFromHref(href: string): string {
       variant === 'dezimalzahlen' ||
       variant === 'bruch-dezimal-prozent' ||
       variant === 'lineare-gleichungen' ||
-      variant === 'prozentrechnung'
+      variant === 'prozentrechnung' ||
+      variant === 'graphen'
         ? 'ug-wb-slot-ab-full-chrome'
         : undefined
     }
@@ -451,6 +459,15 @@ function wbLabelFromHref(href: string): string {
             Mit grafischen Skizzen im bekannten Format zur direkten Veranschaulichung.
           </p>
         </>
+      ) : variant === 'graphen' ? (
+        <>
+          <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
+            Zufällige Aufgaben zu <strong>Wertetabellen und Funktionsgraphen</strong> – lineare, quadratische und kubische Funktionen zeichnen und Wertetabellen berechnen.
+          </p>
+          <p class="mt-2 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+            Ganzzahlige Parameter für einfache Rechnung. Lösungen zeigen den vollständigen Funktionsgraphen im Koordinatensystem (Achsen bis mindestens $\pm 2$).
+          </p>
+        </>
       ) : (
         <>
           <p class="mt-3 max-w-3xl text-ink-700 leading-relaxed dark:text-ink-200">
@@ -695,7 +712,7 @@ function wbLabelFromHref(href: string): string {
               </label>
             </div>
           </fieldset>
-        ) : variant === 'bruchrechnung' ? (
+        ) : variant === 'bruchrechnung' || variant === 'graphen' ? (
           <div class="ug-gruppe min-w-0 lg:col-span-2 rounded-lg border border-ink-200/90 bg-ink-50/90 p-4 text-sm text-ink-800 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50 dark:text-ink-100">
             <p class="font-medium text-ink-900 dark:text-ink-50 mb-2">Aufgabentypen wählst du auf der Themenseite</p>
             <p class="leading-relaxed text-ink-700 dark:text-ink-200">
@@ -707,7 +724,7 @@ function wbLabelFromHref(href: string): string {
                 href={backHref}
                 class="text-accent-700 font-medium underline underline-offset-2 hover:text-accent-800 dark:text-accent-100 dark:hover:text-accent-50"
               >
-                ← Zurück zur Themenseite Bruchrechnung
+                ← Zurück zur Themenseite {variant === 'graphen' ? 'Graphen' : 'Bruchrechnung'}
               </a>
             </p>
           </div>
@@ -1810,7 +1827,8 @@ function wbLabelFromHref(href: string): string {
       variant === 'dezimalzahlen' ||
       variant === 'bruch-dezimal-prozent' ||
       variant === 'lineare-gleichungen' ||
-      variant === 'prozentrechnung') && (
+      variant === 'prozentrechnung' ||
+      variant === 'graphen') && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1831,6 +1849,8 @@ function wbLabelFromHref(href: string): string {
                 ? 'AB Lineare Gleichungen'
               : variant === 'prozentrechnung'
                 ? 'AB Prozentrechnung'
+              : variant === 'graphen'
+                ? 'AB Graphen'
                 : 'AB Algebra'}
         </h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
@@ -1863,7 +1883,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung') && (
+        variant === 'prozentrechnung' ||
+        variant === 'graphen') && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1914,7 +1935,9 @@ function wbLabelFromHref(href: string): string {
         variant === 'lineare-gleichungen' ||
         variant === 'prozentrechnung'
           ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
-          : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
+          : variant === 'graphen'
+            ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 grid-cols-1'
+            : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
       ]}
     >
     </ol>
@@ -1925,7 +1948,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung') && (
+        variant === 'prozentrechnung' ||
+        variant === 'graphen') && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1955,7 +1979,8 @@ function wbLabelFromHref(href: string): string {
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung') && (
+        variant === 'prozentrechnung' ||
+        variant === 'graphen') && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -2520,6 +2545,17 @@ function wbLabelFromHref(href: string): string {
             {wbLabelFromHref('/uebung/trigonometrie')}
           </a>
         </>
+      ) : variant === 'graphen' ? (
+        <>
+          Passend dazu:{' '}
+          <a href="/uebung/lineare-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/lineare-funktionen')}
+          </a>
+          {' · '}
+          <a href="/uebung/quadratische-funktionen" class="text-accent-700 underline underline-offset-2 hover:text-accent-800 dark:text-accent-100">
+            {wbLabelFromHref('/uebung/quadratische-funktionen')}
+          </a>
+        </>
       ) : (
         <>
           Passend dazu:{' '}
@@ -2547,6 +2583,11 @@ function wbLabelFromHref(href: string): string {
     expandAlgWbStichworte,
     stichwortLabelsFromAlgSessionRaw,
   } from '../lib/algebraWbKeywordMap';
+  import {
+    GRAPHEN_WB_STOR_KEY,
+    expandGraphenWbStichworte,
+    stichwortLabelsFromGraphenSessionRaw,
+  } from '../lib/graphenWbKeywordMap';
   import {
     bruchAbMotivation,
     replaceBruchAbFragePlaceholders,
@@ -2607,6 +2648,7 @@ function wbLabelFromHref(href: string): string {
     erzeugeNegativeZahlenArbeitsblattPdf,
     erzeugeLineareGleichungenArbeitsblattPdf,
     erzeugeProzentrechnungArbeitsblattPdf,
+    erzeugeGraphenArbeitsblattPdf,
   } from '../lib/bruchArbeitsblattLatex';
   import {
     readAlgebraMassenAnzahl,
@@ -2650,6 +2692,12 @@ function wbLabelFromHref(href: string): string {
     writePrMassenAnzahl,
     writePrMassenLayout,
   } from '../lib/massenProzentrechnungPrefs';
+  import {
+    readGraphenMassenAnzahl,
+    readGraphenMassenLayout,
+    writeGraphenMassenAnzahl,
+    writeGraphenMassenLayout,
+  } from '../lib/massenGraphenPrefs';
   import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
@@ -2705,8 +2753,16 @@ function wbLabelFromHref(href: string): string {
     const isAlgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'algebra';
     const isLgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'lineare-gleichungen';
     const isPrMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'prozentrechnung';
+    const isGraphenMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'graphen';
     const isWbSlotAbMassen =
-      isBruchMassen || isNzMassen || isAlgMassen || isDzMassen || isBdpMassen || isLgMassen || isPrMassen;
+      isBruchMassen ||
+      isNzMassen ||
+      isAlgMassen ||
+      isDzMassen ||
+      isBdpMassen ||
+      isLgMassen ||
+      isPrMassen ||
+      isGraphenMassen;
 
     function allAlgIdsFiltered() {
       return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -2733,6 +2789,9 @@ function wbLabelFromHref(href: string): string {
     }
     function allPrIdsFiltered() {
       return PROZENTRECHNUNG_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+    function allGraphenIdsFiltered() {
+      return PLOTTING_GRAPHS_GENERATOR_IDS.filter((id) => allowedSet.has(id));
     }
 
     function readBdpTypenFromStorage() {
@@ -2859,6 +2918,21 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
+    function readGraphenTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(GRAPHEN_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allGraphenIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('pg_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allGraphenIdsFiltered();
+        }
+        const fromKw = expandGraphenWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allGraphenIdsFiltered();
+      } catch {
+        return allGraphenIdsFiltered();
+      }
+    }
+
     bindPracticeDiagramCheckbox(
       document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null
     );
@@ -2885,6 +2959,9 @@ function wbLabelFromHref(href: string): string {
     } else if (isPrMassen) {
       anzahl = readPrMassenAnzahl();
       layout = readPrMassenLayout();
+    } else if (isGraphenMassen) {
+      anzahl = readGraphenMassenAnzahl();
+      layout = readGraphenMassenLayout();
     }
     let aufgaben = [];
     let wbIndex = 0;
@@ -3560,6 +3637,7 @@ function wbLabelFromHref(href: string): string {
       if (isBdpMassen) return readBdpTypenFromStorage();
       if (isLgMassen) return readLgTypenFromStorage();
       if (isPrMassen) return readPrTypenFromStorage();
+      if (isGraphenMassen) return readGraphenTypenFromStorage();
       return typBoxen()
         .filter((c) => c.checked && allowedSet.has(c.value))
         .map((c) => c.value);
@@ -3874,6 +3952,7 @@ function wbLabelFromHref(href: string): string {
         else if (isBdpMassen) writeBdpMassenAnzahl(anzahl);
         else if (isLgMassen) writeLgMassenAnzahl(anzahl);
         else if (isPrMassen) writePrMassenAnzahl(anzahl);
+        else if (isGraphenMassen) writeGraphenMassenAnzahl(anzahl);
         refreshAktiv();
       })
     );
@@ -3889,6 +3968,7 @@ function wbLabelFromHref(href: string): string {
         else if (isBdpMassen) writeBdpMassenLayout(layout);
         else if (isLgMassen) writeLgMassenLayout(layout);
         else if (isPrMassen) writePrMassenLayout(layout);
+        else if (isGraphenMassen) writeGraphenMassenLayout(layout);
         refreshAktiv();
         if (layout === 'arbeitsblatt') stopWbTimer();
         else if (aufgaben.length > 0) startWbTimer();
@@ -4033,7 +4113,9 @@ function wbLabelFromHref(href: string): string {
                     ? 'Lineare Gleichungen'
                     : isPrMassen
                       ? 'Prozentrechnung'
-                      : 'Bruchrechnung',
+                      : isGraphenMassen
+                        ? 'Graphen'
+                        : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
@@ -4072,12 +4154,19 @@ function wbLabelFromHref(href: string): string {
                       mitLoesungen,
                       diagramUiScale,
                     })
-                  : await erzeugeBruchArbeitsblattPdf({
-                      aufgaben,
-                      meta,
-                      mitLoesungen,
-                      diagramUiScale,
-                    });
+                  : isGraphenMassen
+                    ? await erzeugeGraphenArbeitsblattPdf({
+                        aufgaben,
+                        meta,
+                        mitLoesungen,
+                        diagramUiScale,
+                      })
+                    : await erzeugeBruchArbeitsblattPdf({
+                        aufgaben,
+                        meta,
+                        mitLoesungen,
+                        diagramUiScale,
+                      });
         if (!r.ok) {
           console.error('[WB-Arbeitsblatt PDF]', { message: r.message, log: r.log });
           const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);

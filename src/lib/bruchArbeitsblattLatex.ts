@@ -237,6 +237,48 @@ export function replaceAbPlaceholdersLatex(
 /** Trennt Absätze in `frageArbeitsblatt`-HTML (`<br>`) für die PDF-Zeile — kein echtes Unicode im Aufgabentext. */
 const HTML_FRAGE_BR_PAR_SENTINEL = '\uE000MU_HTML_BR_PAR\uE000';
 
+export function translateHtmlTableToLatex(html: string): string {
+  return html.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (_, tableContent) => {
+    const rows: string[][] = [];
+    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+    let rowMatch: RegExpExecArray | null;
+    while ((rowMatch = rowRegex.exec(tableContent)) !== null) {
+      const cellContent = rowMatch[1];
+      const cells: string[] = [];
+      const cellRegex = /<(td|th)[^>]*>([\s\S]*?)<\/\1>/gi;
+      let cellMatch: RegExpExecArray | null;
+      while ((cellMatch = cellRegex.exec(cellContent)) !== null) {
+        let content = cellMatch[2].trim();
+        content = stripHtmlTags(content).trim();
+        if (content === 'x') {
+          content = '$x$';
+        } else if (content === 'y') {
+          content = '$y$';
+        }
+        cells.push(content);
+      }
+      if (cells.length > 0) {
+        rows.push(cells);
+      }
+    }
+
+    if (rows.length === 0) return '';
+
+    const numCols = Math.max(...rows.map(r => r.length));
+    const colSpec = '|' + Array(numCols).fill('c').join('|') + '|';
+    
+    let latex = '\\begin{tabular}{' + colSpec + '}\n\\hline\n';
+    for (const row of rows) {
+      while (row.length < numCols) {
+        row.push('');
+      }
+      latex += row.join(' & ') + ' \\\\ \\hline\n';
+    }
+    latex += '\\end{tabular}';
+    return latex;
+  });
+}
+
 export function htmlFrageZuLatexInhalt(
   html: string,
   opts: { abSlots?: readonly PracticeAbAntwortSlot[]; mitLoesungen: boolean }
@@ -245,6 +287,7 @@ export function htmlFrageZuLatexInhalt(
   if (opts.abSlots?.length) {
     s = replaceAbPlaceholdersLatex(s, opts.abSlots, opts.mitLoesungen ? 'filled' : 'blank');
   }
+  s = translateHtmlTableToLatex(s);
   s = s.replace(/<br\s*\/?>/gi, HTML_FRAGE_BR_PAR_SENTINEL);
   s = stripHtmlTags(s);
   s = decodeHtmlEntities(s);
@@ -435,7 +478,9 @@ export function buildBruchArbeitsblattTex(opts: {
   const themaNorm = String(meta.thema ?? '').trim();
   /** Algebra: volle Zeilenbreite ohne `multicol` (einige Renderer zeigen bei `{1}` dennoch zweispaltig). */
   const nPdfSpalten =
-    themaNorm === 'Algebra' || meta.pdfImmerEinspaltig === true
+    themaNorm === 'Algebra' ||
+    themaNorm === 'Graphen' ||
+    meta.pdfImmerEinspaltig === true
       ? 1
       : practicePdfSpaltenAnzahl(aufgaben);
   const pdfZweispaltig = nPdfSpalten === 2;
@@ -777,4 +822,18 @@ export async function erzeugeProzentrechnungArbeitsblattPdf(opts: {
     diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
   });
 }
+
+/** WB Graphen: gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
+export async function erzeugeGraphenArbeitsblattPdf(opts: {
+  aufgaben: readonly PracticeAufgabe[];
+  meta: BruchAbPdfMeta;
+  mitLoesungen: boolean;
+  diagramUiScale: (taskIndex: number) => number;
+}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
+  return erzeugeWbSlotArbeitsblattPdf({
+    ...opts,
+    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
+  });
+}
+
 

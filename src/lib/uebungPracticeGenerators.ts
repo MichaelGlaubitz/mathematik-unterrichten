@@ -50,6 +50,8 @@ import { svgDistributivFlaeche } from './algebraDiagrams';
 import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 import { erzeugeBdpAufgabe } from './bruchDezimalProzentUmwandlung';
 import { bdpTaskZuPracticeAufgabe } from './bdpZuPracticeMapper';
+import { svgPlotFunctionGraph } from './graphenDiagrams';
+
 
 /** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: gleicher Rahmen wie Achsen-Ticks (`FUN_GRAPH_AXIS_RANGE_MAX`). */
 export const FUN_GRAPH_AXIS_INTERCEPT_MAX = FUN_GRAPH_AXIS_RANGE_MAX;
@@ -552,6 +554,28 @@ export const CIRCLE_GEOMETRY_GENERATOR_IDS = [
   'kg_tangente_rechtwinklig',
 ] as const;
 
+/** Plotting Graphs (Wertetabelle und Zeichnen). */
+export const PLOTTING_GRAPHS_GENERATOR_IDS = [
+  'pg_table_lin_x_c',
+  'pg_table_lin_mx_c',
+  'pg_table_lin_c_mx',
+  'pg_table_lin_implicit',
+  'pg_table_quad_x2',
+  'pg_table_quad_ax2',
+  'pg_table_quad_neg_ax2',
+  'pg_table_cubic_x3',
+  'pg_table_cubic_neg_x3',
+  'pg_draw_lin_x_c',
+  'pg_draw_lin_mx_c',
+  'pg_draw_lin_c_mx',
+  'pg_draw_lin_implicit',
+  'pg_draw_quad_x2',
+  'pg_draw_quad_ax2',
+  'pg_draw_quad_neg_ax2',
+  'pg_draw_cubic_x3',
+  'pg_draw_cubic_neg_x3',
+] as const;
+
 export const PRACTICE_GENERATOR_IDS = [
   ...PYTHAGORAS_GENERATOR_IDS,
   ...TRIGONOMETRY_GENERATOR_IDS,
@@ -575,6 +599,7 @@ export const PRACTICE_GENERATOR_IDS = [
   ...FRACTION_EQUATION_GENERATOR_IDS,
   ...ROOT_GENERATOR_IDS,
   ...CIRCLE_GEOMETRY_GENERATOR_IDS,
+  ...PLOTTING_GRAPHS_GENERATOR_IDS,
 ] as const;
 
 export type PracticeGeneratorId = (typeof PRACTICE_GENERATOR_IDS)[number];
@@ -879,6 +904,29 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
   function abItalicVarHtml(v: string): string {
     return `<span class="shrink-0 font-serif italic text-ink-900 dark:text-ink-50">${v}</span>`;
   }
+
+  function wertetabelleHtml(eq: string, xValues: number[], slotOffset = 0): string {
+    const xCols = xValues.map(x => `<td class="border border-ink-200 dark:border-slate-700 px-3 py-2 text-center text-ink-800 dark:text-ink-200 font-semibold">${x}</td>`).join('');
+    const yCols = xValues.map((_, i) => `<td class="border border-ink-200 dark:border-slate-700 px-3 py-2 text-center">[[MU_AB:${slotOffset + i}]]</td>`).join('');
+    return `Erstelle die Wertetabelle für $${eq}$:<br/>` +
+      `<div class="mu-katex-skip my-3 overflow-x-auto">` +
+      `<table class="mu-wertetabelle min-w-[280px] border-collapse border border-ink-300 dark:border-slate-600 bg-surface/50 dark:bg-slate-900/50 rounded-lg overflow-hidden text-sm">` +
+      `<thead>` +
+      `<tr class="bg-ink-100/50 dark:bg-slate-800/50">` +
+      `<th class="border border-ink-300 dark:border-slate-600 px-4 py-2 font-serif italic font-normal text-ink-900 dark:text-ink-50 w-12 text-center">x</th>` +
+      `${xCols}` +
+      `</tr>` +
+      `</thead>` +
+      `<tbody>` +
+      `<tr>` +
+      `<th class="border border-ink-300 dark:border-slate-600 px-4 py-2 bg-ink-100/50 dark:bg-slate-800/50 font-serif italic font-normal text-ink-900 dark:text-ink-50 w-12 text-center">y</th>` +
+      `${yCols}` +
+      `</tr>` +
+      `</tbody>` +
+      `</table>` +
+      `</div>`;
+  }
+
 
   /**
    * Quadratische Ergänzung: Zeilenumbruch, dann $m=$ und $r=$ bzw. $R=$ vor den Schreibfeldern,
@@ -6007,6 +6055,263 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         loesung: `Faktoren: $1,${p / 10} \\cdot 0,${10 - p / 10} = ${factor}$. Der Wert sinkt insgesamt um $${aStr}\\%$.`,
         abSlots: [{ kind: 'decimal', expect: a }],
         loesungInlineNachFrage: true,
+      };
+    },
+
+    // --- Plotting Graphs (Wertetabelle) ---
+    pg_table_lin_x_c() {
+      const c = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const f = (x: number) => x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const eq = `y = x ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die Funktion $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_lin_x_c' }),
+        loesungInlineNachFrage: false,
+      };
+    },
+    pg_table_lin_mx_c() {
+      const m = pick([-3, -2, 2, 3] as const);
+      const c = randInt(-3, 3);
+      const f = (x: number) => m * x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const eq = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die Funktion $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_lin_mx_c' }),
+      };
+    },
+    pg_table_lin_c_mx() {
+      const m = pick([-3, -2, 2, 3] as const);
+      const c = randInt(-3, 3);
+      const f = (x: number) => c - m * x;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const eq = `y = ${c} ${m > 0 ? '-' : '+'} ${Math.abs(m)}x`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die Funktion $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_lin_c_mx' }),
+      };
+    },
+    pg_table_lin_implicit() {
+      const a = pick([-2, -1, 1, 2] as const);
+      const b = pick([-1, 1] as const);
+      const c = randInt(-4, 4);
+      const f = (x: number) => (c - a * x) / b;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const aStr = a === 1 ? 'x' : a === -1 ? '-x' : `${a}x`;
+      const bStr = b === 1 ? '+ y' : '- y';
+      const eq = `${aStr} ${bStr} = ${c}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die implizite Gerade $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `Umgeformt: $y = ${b === 1 ? '' : '-'}(${c} ${a > 0 ? '-' : '+'} ${Math.abs(a)}x)$. y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_lin_imp' }),
+      };
+    },
+    pg_table_quad_x2() {
+      const b = pick([-2, -1, 0, 1, 2] as const);
+      const c = randInt(-3, 3);
+      const f = (x: number) => x * x + b * x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const bStr = b === 0 ? '' : b > 0 ? `+ ${b === 1 ? '' : b}x` : `- ${b === -1 ? '' : Math.abs(b)}x`;
+      const eq = `y = x^2 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die Parabel $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_quad_x2' }),
+      };
+    },
+    pg_table_quad_ax2() {
+      const a = pick([2, 3] as const);
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-2, 2);
+      const f = (x: number) => a * x * x + b * x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = ${a}x^2 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die Parabel $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_quad_ax2' }),
+      };
+    },
+    pg_table_quad_neg_ax2() {
+      const a = pick([2, 3] as const);
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-2, 2);
+      const f = (x: number) => -a * x * x + b * x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = -${a}x^2 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die Parabel $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_quad_neg_ax2' }),
+      };
+    },
+    pg_table_cubic_x3() {
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-1, 1);
+      const f = (x: number) => x * x * x + b * x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = x^3 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die kubische Funktion $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_cub_x3' }),
+      };
+    },
+    pg_table_cubic_neg_x3() {
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-1, 1);
+      const f = (x: number) => -x * x * x + b * x + c;
+      const yValues = [-2, -1, 0, 1, 2].map(f);
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = -x^3 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Erstelle eine Wertetabelle für die kubische Funktion $${eq}$ für $x \\in \\{-2, -1, 0, 1, 2\\}$.`,
+        frageArbeitsblatt: wertetabelleHtml(eq, [-2, -1, 0, 1, 2]),
+        loesung: `y-Werte: $${yValues.join(',\\ ')}$`,
+        abSlots: yValues.map(v => ({ kind: 'int', expect: v })),
+        diagramLoesung: svgPlotFunctionGraph({ f, points: [-2, -1, 0, 1, 2].map(x => ({ x, y: f(x) })), idPrefix: 'pg_tbl_cub_neg_x3' }),
+      };
+    },
+
+    // --- Plotting Graphs (Zeichnen) ---
+    pg_draw_lin_x_c() {
+      const c = pick([-4, -3, -2, -1, 1, 2, 3, 4] as const);
+      const f = (x: number) => x + c;
+      const eq = `y = x ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der linearen Funktion $${eq}$.`,
+        loesung: `Der Graph ist eine Gerade mit Steigung $m=1$ und y-Achsenabschnitt $b=${c}$.`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_lin_x_c_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_lin_x_c_sol' }),
+      };
+    },
+    pg_draw_lin_mx_c() {
+      const m = pick([-3, -2, 2, 3] as const);
+      const c = randInt(-3, 3);
+      const f = (x: number) => m * x + c;
+      const eq = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der linearen Funktion $${eq}$.`,
+        loesung: `Der Graph ist eine Gerade mit Steigung $m=${m}$ und y-Achsenabschnitt $b=${c}$.`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_lin_mx_c_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_lin_mx_c_sol' }),
+      };
+    },
+    pg_draw_lin_c_mx() {
+      const m = pick([-3, -2, 2, 3] as const);
+      const c = randInt(-3, 3);
+      const f = (x: number) => c - m * x;
+      const eq = `y = ${c} ${m > 0 ? '-' : '+'} ${Math.abs(m)}x`;
+      return {
+        frage: `Zeichne den Graphen der linearen Funktion $${eq}$.`,
+        loesung: `Der Graph ist eine Gerade mit Steigung $m=${-m}$ und y-Achsenabschnitt $b=${c}$.`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_lin_c_mx_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_lin_c_mx_sol' }),
+      };
+    },
+    pg_draw_lin_implicit() {
+      const a = pick([-2, -1, 1, 2] as const);
+      const b = pick([-1, 1] as const);
+      const c = randInt(-4, 4);
+      const f = (x: number) => (c - a * x) / b;
+      const aStr = a === 1 ? 'x' : a === -1 ? '-x' : `${a}x`;
+      const bStr = b === 1 ? '+ y' : '- y';
+      const eq = `${aStr} ${bStr} = ${c}`;
+      return {
+        frage: `Zeichne den Graphen der impliziten Geraden $${eq}$.`,
+        loesung: `Umgeformt nach $y$: $y = ${b === 1 ? '' : '-'}(${c} ${a > 0 ? '-' : '+'} ${Math.abs(a)}x)$.`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_lin_imp_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_lin_imp_sol' }),
+      };
+    },
+    pg_draw_quad_x2() {
+      const b = pick([-2, -1, 0, 1, 2] as const);
+      const c = randInt(-3, 3);
+      const f = (x: number) => x * x + b * x + c;
+      const bStr = b === 0 ? '' : b > 0 ? `+ ${b === 1 ? '' : b}x` : `- ${b === -1 ? '' : Math.abs(b)}x`;
+      const eq = `y = x^2 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der Parabel $${eq}$.`,
+        loesung: `Normalparabel mit y-Werten für $x \\in \\{-2,-1,0,1,2\\}$: $${[-2,-1,0,1,2].map(f).join(',\\ ')}$`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_quad_x2_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_quad_x2_sol' }),
+      };
+    },
+    pg_draw_quad_ax2() {
+      const a = pick([2, 3] as const);
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-2, 2);
+      const f = (x: number) => a * x * x + b * x + c;
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = ${a}x^2 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der Parabel $${eq}$.`,
+        loesung: `Gestreckte Parabel mit y-Werten für $x \\in \\{-2,-1,0,1,2\\}$: $${[-2,-1,0,1,2].map(f).join(',\\ ')}$`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_quad_ax2_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_quad_ax2_sol' }),
+      };
+    },
+    pg_draw_quad_neg_ax2() {
+      const a = pick([2, 3] as const);
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-2, 2);
+      const f = (x: number) => -a * x * x + b * x + c;
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = -${a}x^2 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der nach unten geöffneten Parabel $${eq}$.`,
+        loesung: `Nach unten geöffnete gestreckte Parabel mit y-Werten: $${[-2,-1,0,1,2].map(f).join(',\\ ')}$`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_quad_neg_ax2_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_quad_neg_ax2_sol' }),
+      };
+    },
+    pg_draw_cubic_x3() {
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-1, 1);
+      const f = (x: number) => x * x * x + b * x + c;
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = x^3 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der kubischen Funktion $${eq}$.`,
+        loesung: `Kubische Funktion mit y-Werten: $${[-2,-1,0,1,2].map(f).join(',\\ ')}$`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_cub_x3_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_cub_x3_sol' }),
+      };
+    },
+    pg_draw_cubic_neg_x3() {
+      const b = pick([-1, 0, 1] as const);
+      const c = randInt(-1, 1);
+      const f = (x: number) => -x * x * x + b * x + c;
+      const bStr = b === 0 ? '' : b > 0 ? `+ x` : `- x`;
+      const eq = `y = -x^3 ${bStr} ${formatSignedInt(c)}`;
+      return {
+        frage: `Zeichne den Graphen der kubischen Funktion $${eq}$.`,
+        loesung: `Gespiegelte kubische Funktion mit y-Werten: $${[-2,-1,0,1,2].map(f).join(',\\ ')}$`,
+        diagram: svgPlotFunctionGraph({ idPrefix: 'pg_dr_cub_neg_x3_empty' }),
+        diagramLoesung: svgPlotFunctionGraph({ f, idPrefix: 'pg_dr_cub_neg_x3_sol' }),
       };
     },
   };

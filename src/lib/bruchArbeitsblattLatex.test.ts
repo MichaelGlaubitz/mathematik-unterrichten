@@ -17,6 +17,7 @@ import {
   replaceAbPlaceholdersLatex,
   slotLatex,
   stripHtmlTags,
+  translateHtmlTableToLatex,
 } from './bruchArbeitsblattLatex';
 
 function dollarCount(s: string): number {
@@ -386,5 +387,53 @@ describe('bruchArbeitsblattLatex', () => {
       expect(r.log).toContain('__main_document__.log');
       expect(r.log).toContain('pdfTeX error');
     }
+  });
+
+  it('translateHtmlTableToLatex: converts styled HTML table of values to LaTeX tabular', () => {
+    const html = `
+      <div class="mu-katex-skip my-3 overflow-x-auto">
+        <table class="mu-wertetabelle min-w-[280px] border-collapse border border-ink-300 dark:border-slate-600 bg-surface/50 dark:bg-slate-900/50 rounded-lg overflow-hidden text-sm">
+          <thead>
+            <tr class="bg-ink-100/50 dark:bg-slate-800/50">
+              <th class="border border-ink-300 dark:border-slate-600 px-4 py-2 font-serif italic font-normal text-ink-900 dark:text-ink-50 w-12 text-center">x</th>
+              <td class="border border-ink-200 dark:border-slate-700 px-3 py-2 text-center text-ink-800 dark:text-ink-200 font-semibold">-2</td>
+              <td class="border border-ink-200 dark:border-slate-700 px-3 py-2 text-center text-ink-800 dark:text-ink-200 font-semibold">-1</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="border border-ink-300 dark:border-slate-600 px-4 py-2 bg-ink-100/50 dark:bg-slate-800/50 font-serif italic font-normal text-ink-900 dark:text-ink-50 w-12 text-center">y</th>
+              <td class="border border-ink-200 dark:border-slate-700 px-3 py-2 text-center">[[MU_AB:0]]</td>
+              <td class="border border-ink-200 dark:border-slate-700 px-3 py-2 text-center">[[MU_AB:1]]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+    const latex = translateHtmlTableToLatex(html);
+    expect(latex).toContain('\\begin{tabular}{|c|c|c|}');
+    expect(latex).toContain('$x$ & -2 & -1 \\\\ \\hline');
+    expect(latex).toContain('$y$ & [[MU_AB:0]] & [[MU_AB:1]] \\\\ \\hline');
+    expect(latex).toContain('\\end{tabular}');
+  });
+
+  it('htmlFrageZuLatexInhalt: preserves value tables with latex placeholders correctly', () => {
+    const html = `
+      Erstelle die Wertetabelle:<br/>
+      <div class="mu-katex-skip my-3">
+        <table>
+          <tr><th>x</th><td>-2</td></tr>
+          <tr><th>y</th><td>[[MU_AB:0]]</td></tr>
+        </table>
+      </div>
+    `;
+    const slots: PracticeAbAntwortSlot[] = [
+      { kind: 'int', expect: 5 }
+    ];
+    const latex = htmlFrageZuLatexInhalt(html, { abSlots: slots, mitLoesungen: true });
+    expect(latex).toContain('\\begin{tabular}{|c|c|}');
+    expect(latex).toContain('$x$ & -2 \\\\ \\hline');
+    expect(latex).toContain('$y$ & \\ensuremath{\\boxed{5}} \\\\ \\hline');
+    expect(latex).toContain('\\end{tabular}');
   });
 });
