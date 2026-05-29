@@ -90,7 +90,21 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
       integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
       crossorigin="anonymous"
     />
+
+    {/* Google Analytics (nur aktiv, wenn PUBLIC_GA_ID konfiguriert ist) */}
+    {import.meta.env.PUBLIC_GA_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA_ID}`}></script>
+        <script is:inline define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        </script>
+      </>
+    )}
   </head>
+
   <body
     class="min-h-screen mu-page-bg text-ink-800 antialiased font-sans dark:text-ink-200"
     data-gh-repo={githubRepo}
