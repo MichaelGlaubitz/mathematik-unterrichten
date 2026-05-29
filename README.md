@@ -192,7 +192,17 @@ Das Kontaktformular (`src/pages/kontakt.astro`) verwendet [Web3Forms](https://we
 
 **Was Web3Forms tut:** Nimmt das Formular-POST entgegen, leitet die Inhalte als E-Mail an deine angegebene Adresse weiter, speichert nichts dauerhaft. Für die DSGVO-konforme Nutzung ist die Datenschutzerklärung bereits entsprechend angepasst (`src/pages/datenschutz.astro`).
 
+## Google Analytics
+
+Die Website unterstützt Google Analytics 4 (GA4) im Hintergrund.
+
+1. **Statistiken ansehen:** Deine Besucherzahlen und Analysen findest du unter [analytics.google.com](https://analytics.google.com/). **Tipp:** Speichere dir diese Seite am besten als Lesezeichen (Favorit) in deinem Browser ab (mit `Strg+D` bzw. `Cmd+D`).
+2. **Einrichtung:**
+   - **Lokal:** Die Mess-ID wird in der `.env` als `PUBLIC_GA_ID=G-DVL5MDFRBJ` konfiguriert.
+   - **Live (GitHub Pages):** Füge im GitHub-Repository unter *Settings → Secrets and variables → Actions → Variables* eine neue Variable namens `PUBLIC_GA_ID` mit dem Wert deiner Mess-ID hinzu.
+
 ## Vor dem Live-Gang prüfen
+
 
 - [ ] `src/pages/impressum.astro` – Pflichtangaben geprüft
 - [ ] `src/pages/datenschutz.astro` – an tatsächliches Setup angepasst
