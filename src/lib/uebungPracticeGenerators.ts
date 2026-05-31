@@ -51,6 +51,11 @@ import { FUN_GRAPH_AXIS_RANGE_MAX } from './functionGraphStyle';
 import { erzeugeBdpAufgabe } from './bruchDezimalProzentUmwandlung';
 import { bdpTaskZuPracticeAufgabe } from './bdpZuPracticeMapper';
 import { svgPlotFunctionGraph } from './graphenDiagrams';
+import {
+  svgSaeulendiagramm,
+  svgKreisdiagramm,
+  svgBoxplot,
+} from './stochastikDiagrams';
 
 
 /** Schnittpunkte mit x- und y-Achse bei automatisch erzeugten Funktionsgraphen: gleicher Rahmen wie Achsen-Ticks (`FUN_GRAPH_AXIS_RANGE_MAX`). */
@@ -462,6 +467,10 @@ export const STOCHASTIK_GENERATOR_IDS = [
   'st_mindestens_einmal',
   'st_unmoeglich_sicher',
   'st_erwartungswert_muenzwurf',
+  'st_saeulen_kreisdiagramm',
+  'st_quartile_bestimmen',
+  'st_boxplot_zeichnen',
+  'st_manipulierte_darstellung',
 ] as const;
 
 /** Binomische Formeln (ausmultiplizieren und faktorisieren). */
@@ -5116,6 +5125,147 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         frage: `Eine faire Münze wird $${n}$-mal geworfen. Wie viele „Zahl“ erwartest du ungefähr?`,
         loesung: `Erwartungswert: $E=n\\cdot \\frac12=${n}\\cdot \\frac12=${n / 2}$.`,
       };
+    },
+    st_saeulen_kreisdiagramm() {
+      if (random() < 0.5) {
+        // Säulendiagramm
+        const f1 = randInt(3, 9);
+        const f2 = randInt(3, 9);
+        const f3 = randInt(3, 9);
+        const cats = ['Erdbeere', 'Apfel', 'Banane'];
+        const vals = [f1, f2, f3];
+        const targetIdx = pick([0, 1, 2]);
+        const targetCat = cats[targetIdx];
+        const targetVal = vals[targetIdx];
+        const svg = svgSaeulendiagramm(cats, vals);
+        return {
+          frage: `Lies aus dem Säulendiagramm ab: Wie viele Personen haben als Lieblingsfrucht „${targetCat}“ gewählt?`,
+          diagram: svg,
+          loesung: `Die Säule für „${targetCat}“ hat die Höhe ${targetVal}. Also haben ${targetVal} Personen diese Frucht gewählt.`,
+        };
+      } else {
+        // Kreisdiagramm
+        const choice = pick([
+          { cats: ['Rot', 'Blau', 'Grün'], vals: [50, 30, 20] },
+          { cats: ['Hund', 'Katze', 'Vogel'], vals: [40, 40, 20] },
+          { cats: ['Bus', 'Fahrrad', 'Auto'], vals: [60, 30, 10] },
+          { cats: ['Pizza', 'Pasta', 'Salat'], vals: [45, 35, 20] }
+        ]);
+        const targetIdx = pick([0, 1, 2]);
+        const targetCat = choice.cats[targetIdx];
+        const targetVal = choice.vals[targetIdx];
+        const svg = svgKreisdiagramm(choice.cats, choice.vals);
+        return {
+          frage: `Lies aus dem Kreisdiagramm ab: Wie viel Prozent haben für „${targetCat}“ gestimmt?`,
+          diagram: svg,
+          loesung: `Laut dem Kreisdiagramm entfallen auf „${targetCat}“ genau ${targetVal}\\,\\%.`,
+        };
+      }
+    },
+    st_quartile_bestimmen() {
+      const min = randInt(1, 5);
+      const q1 = min + randInt(1, 3);
+      const val3 = q1 + randInt(0, 2);
+      const med = val3 + randInt(1, 3);
+      const val5 = med + randInt(1, 3);
+      const q3 = val5 + randInt(0, 2);
+      const max = q3 + randInt(1, 4);
+
+      const daten = [min, q1, val3, med, val5, q3, max];
+      const ungeordnet = shuffle([...daten]);
+
+      const gesucht = pick(['Q1', 'Q3', 'Median'] as const);
+
+      if (gesucht === 'Median') {
+        return {
+          frage: `Gegeben ist der ungeordnete Datensatz: ${ungeordnet.join(', ')}. Bestimme den Median.`,
+          loesung: `Geordneter Datensatz: ${daten.join(', ')}. Der Median (Zentralwert) in der Mitte ist $${med}$.`,
+        };
+      } else if (gesucht === 'Q1') {
+        return {
+          frage: `Gegeben ist der ungeordnete Datensatz: ${ungeordnet.join(', ')}. Bestimme das untere Quartil ($Q_1$).`,
+          loesung: `Geordneter Datensatz: ${daten.join(', ')}. Das untere Quartil $Q_1$ ist der Median der unteren Hälfte \\{${min}, ${q1}, ${val3}\\}, also $Q_1 = ${q1}$.`,
+        };
+      } else {
+        return {
+          frage: `Gegeben ist der ungeordnete Datensatz: ${ungeordnet.join(', ')}. Bestimme das obere Quartil ($Q_3$).`,
+          loesung: `Geordneter Datensatz: ${daten.join(', ')}. Das obere Quartil $Q_3$ ist der Median der oberen Hälfte \\{${val5}, ${q3}, ${max}\\}, also $Q_3 = ${q3}$.`,
+        };
+      }
+    },
+    st_boxplot_zeichnen() {
+      const sets = [
+        { min: 2, q1: 5, med: 7, q3: 10, max: 14 },
+        { min: 1, q1: 4, med: 8, q3: 11, max: 15 },
+        { min: 3, q1: 6, med: 9, q3: 12, max: 16 },
+        { min: 4, q1: 7, med: 10, q3: 13, max: 17 }
+      ];
+      const s = pick(sets);
+      const target = pick(['min', 'max', 'median', 'q1', 'q3', 'spannweite', 'iqr'] as const);
+      const svg = svgBoxplot(s.min, s.q1, s.med, s.q3, s.max);
+
+      if (target === 'min') {
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist das Minimum?',
+          diagram: svg,
+          loesung: `Das Minimum liegt ganz links am Ende des linken Whiskers bei $${s.min}$.`,
+        };
+      } else if (target === 'max') {
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist das Maximum?',
+          diagram: svg,
+          loesung: `Das Maximum liegt ganz rechts am Ende des rechten Whiskers bei $${s.max}$.`,
+        };
+      } else if (target === 'median') {
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist der Median (Zentralwert)?',
+          diagram: svg,
+          loesung: `Der Median wird durch den dicken senkrechten Strich innerhalb der Box dargestellt und liegt bei $${s.med}$.`,
+        };
+      } else if (target === 'q1') {
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist das untere Quartil ($Q_1$)?',
+          diagram: svg,
+          loesung: `Das untere Quartil $Q_1$ liegt an der linken Kante der Box bei $${s.q1}$.`,
+        };
+      } else if (target === 'q3') {
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist das obere Quartil ($Q_3$)?',
+          diagram: svg,
+          loesung: `Das obere Quartil $Q_3$ liegt an der rechten Kante der Box bei $${s.q3}$.`,
+        };
+      } else if (target === 'spannweite') {
+        const range = s.max - s.min;
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist die Spannweite (Maximum - Minimum)?',
+          diagram: svg,
+          loesung: `Spannweite $=$ Maximum $-$ Minimum $= ${s.max} - ${s.min} = ${range}$.`,
+        };
+      } else {
+        const iqr = s.q3 - s.q1;
+        return {
+          frage: 'Lies aus dem Boxplot ab: Wie groß ist der Quartilsabstand ($Q_3 - Q_1$)?',
+          diagram: svg,
+          loesung: `Quartilsabstand $= Q_3 - Q_1 = ${s.q3} - ${s.q1} = ${iqr}$.`,
+        };
+      }
+    },
+    st_manipulierte_darstellung() {
+      const scenarios = [
+        {
+          frage: 'Ein Säulendiagramm vergleicht zwei Wahlergebnisse: Partei A ($20\\%$) und Partei B ($24\\%$). Die y-Achse beginnt jedoch erst bei $18\\%$. Warum ist diese Darstellung irreführend?',
+          loesung: 'Durch den abgeschnittenen Nullpunkt sieht die Säule der Partei B dreimal so hoch aus wie die von Partei A (Differenz $6\\%$ zu $2\\%$ bezogen auf den Startwert $18\\%$), obwohl der tatsächliche Unterschied nur $4$ Prozentpunkte beträgt.',
+        },
+        {
+          frage: 'In einer Infografik wird das Wachstum einer Firma dargestellt. Die Anzahl der Mitarbeiter hat sich verdoppelt. Im Diagramm wird dafür die Höhe UND die Breite des Symbols verdoppelt. Welches didaktische Problem entsteht hier?',
+          loesung: 'Durch die Verdopplung von Höhe und Breite vervierfacht ($2^2=4$) sich der Flächeninhalt des Bildes. Das suggeriert optisch ein viel größeres Wachstum, als tatsächlich stattgefunden hat.',
+        },
+        {
+          frage: 'Ein Liniendiagramm zeigt den Benzinpreis über ein Jahr hinweg. Die Abstände auf der Zeitachse (x-Achse) sind ungleichmäßig (z.B. Januar, Februar, August, September), sind aber im Diagramm gleich weit voneinander entfernt eingezeichnet. Warum ist das irreführend?',
+          loesung: 'Durch die ungleichen Zeitabschnitte werden Preisanstiege oder Preissenkungen verzerrt dargestellt. Steile Preissprünge können flacher wirken und umgekehrt, weil die zeitliche Komponente verfälscht ist.',
+        }
+      ];
+      return pick(scenarios);
     },
     bf_erste_formel() {
       const a = randInt(2, 9);

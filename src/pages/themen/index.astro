@@ -113,17 +113,33 @@ const themenProBand = clusterReihenfolge
     class="sticky top-[64px] z-30 -mx-4 sm:mx-0 mb-8 border-y border-ink-200 bg-ink-50/85 backdrop-blur-md dark:border-violet-500/20 dark:bg-[rgb(26_22_35)] dark:backdrop-blur-none"
   >
     <div
-      class="container-wide py-3 flex flex-wrap gap-2 text-sm dark:bg-[rgb(26_22_35)]"
+      class="container-wide py-3 flex flex-wrap items-center justify-between gap-2 text-sm dark:bg-[rgb(26_22_35)]"
     >
-      <span class="text-ink-500 dark:text-ink-400 mr-1 hidden sm:inline">Springe zu:</span>
-      {themenProBand.map((g) => (
-        <a
-          href={`#${g.slug}`}
-          class="rounded-full border border-ink-300 bg-surface px-3 py-1 text-ink-700 hover:border-accent-500 hover:text-accent-700 transition-colors dark:border-slate-600/45 dark:bg-slate-950/55 dark:text-ink-200 dark:ring-1 dark:ring-sky-400/12 dark:hover:border-teal-400/40 dark:hover:text-accent-100"
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class="text-ink-500 dark:text-ink-400 mr-1 hidden sm:inline">Springe zu:</span>
+        {themenProBand.map((g) => (
+          <a
+            href={`#${g.slug}`}
+            class="rounded-full border border-ink-300 bg-surface px-3 py-1 text-ink-700 hover:border-accent-500 hover:text-accent-700 transition-colors dark:border-slate-600/45 dark:bg-slate-950/55 dark:text-ink-200 dark:ring-1 dark:ring-sky-400/12 dark:hover:border-teal-400/40 dark:hover:text-accent-100"
+          >
+            {g.label}
+          </a>
+        ))}
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          id="mu-btn-expand-all"
+          class="rounded-md border border-ink-300 bg-surface px-2.5 py-1 text-xs font-semibold text-ink-700 hover:border-accent-500 hover:text-accent-700 transition-colors dark:border-slate-600/45 dark:bg-slate-950/55 dark:text-ink-200 dark:ring-1 dark:ring-sky-400/12 dark:hover:border-teal-400/40 dark:hover:text-accent-100"
         >
-          {g.label}
-        </a>
-      ))}
+          Alle aufklappen
+        </button>
+        <button
+          id="mu-btn-collapse-all"
+          class="rounded-md border border-ink-300 bg-surface px-2.5 py-1 text-xs font-semibold text-ink-700 hover:border-accent-500 hover:text-accent-700 transition-colors dark:border-slate-600/45 dark:bg-slate-950/55 dark:text-ink-200 dark:ring-1 dark:ring-sky-400/12 dark:hover:border-teal-400/40 dark:hover:text-accent-100"
+        >
+          Alle zuklappen
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -285,6 +301,9 @@ const themenProBand = clusterReihenfolge
     import { BDP_KW_WB_STOR_KEY, stichworteFuerBdpIds } from '../../lib/bdpWbKeywordMap';
     import { PR_WB_STOR_KEY, stichworteFuerPrIds } from '../../lib/prozentrechnungWbKeywordMap';
     import { GRAPHEN_WB_STOR_KEY, stichworteFuerGraphenIds } from '../../lib/graphenWbKeywordMap';
+    import { STOCHASTIK_WB_STOR_KEY, stichworteFuerStochastikIds } from '../../lib/stochastikWbKeywordMap';
+    import { BF_WB_STOR_KEY, stichworteFuerBfIds } from '../../lib/binomischeFormelnWbKeywordMap';
+    import { LF_WB_STOR_KEY, stichworteFuerLfIds } from '../../lib/lineareFunktionenWbKeywordMap';
     import {
       readBruchMassenAnzahl,
       readBruchMassenLayout,
@@ -333,6 +352,24 @@ const themenProBand = clusterReihenfolge
       writeGraphenMassenAnzahl,
       writeGraphenMassenLayout,
     } from '../../lib/massenGraphenPrefs';
+    import {
+      readStochastikMassenAnzahl,
+      readStochastikMassenLayout,
+      writeStochastikMassenAnzahl,
+      writeStochastikMassenLayout,
+    } from '../../lib/massenStochastikPrefs';
+    import {
+      readBfMassenAnzahl,
+      readBfMassenLayout,
+      writeBfMassenAnzahl,
+      writeBfMassenLayout,
+    } from '../../lib/massenBinomischeFormelnPrefs';
+    import {
+      readLfMassenAnzahl,
+      readLfMassenLayout,
+      writeLfMassenAnzahl,
+      writeLfMassenLayout,
+    } from '../../lib/massenLineareFunktionenPrefs';
     import { readShowPracticeDiagrams, writeShowPracticeDiagrams } from '../../lib/practiceDiagramPreference';
 
     let wbThemaKwAbort: AbortController | null = null;
@@ -371,6 +408,9 @@ const themenProBand = clusterReihenfolge
         | 'lineare-gleichungen'
         | 'prozentrechnung'
         | 'graphen'
+        | 'stochastik'
+        | 'binomische-formeln'
+        | 'lineare-funktionen'
     ) {
       const anzahl =
         slug === 'bruchrechnung'
@@ -387,7 +427,13 @@ const themenProBand = clusterReihenfolge
                     ? readPrMassenAnzahl()
                     : slug === 'graphen'
                       ? readGraphenMassenAnzahl()
-                      : readAlgebraMassenAnzahl();
+                      : slug === 'stochastik'
+                        ? readStochastikMassenAnzahl()
+                        : slug === 'binomische-formeln'
+                          ? readBfMassenAnzahl()
+                          : slug === 'lineare-funktionen'
+                            ? readLfMassenAnzahl()
+                            : readAlgebraMassenAnzahl();
       const layout =
         slug === 'bruchrechnung'
           ? readBruchMassenLayout()
@@ -403,7 +449,13 @@ const themenProBand = clusterReihenfolge
                     ? readPrMassenLayout()
                     : slug === 'graphen'
                       ? readGraphenMassenLayout()
-                      : readAlgebraMassenLayout();
+                      : slug === 'stochastik'
+                        ? readStochastikMassenLayout()
+                        : slug === 'binomische-formeln'
+                          ? readBfMassenLayout()
+                          : slug === 'lineare-funktionen'
+                            ? readLfMassenLayout()
+                            : readAlgebraMassenLayout();
       root.querySelectorAll<HTMLButtonElement>('.mu-wb-stripe-anzahl').forEach((b) => {
         const n = Number(b.dataset.anzahl);
         b.classList.toggle('mu-wb-stripe--aktiv', Number.isFinite(n) && n === anzahl);
@@ -426,6 +478,9 @@ const themenProBand = clusterReihenfolge
         | 'lineare-gleichungen'
         | 'prozentrechnung'
         | 'graphen'
+        | 'stochastik'
+        | 'binomische-formeln'
+        | 'lineare-funktionen'
     ) {
       const root = document.getElementById(`thema-${slug}`);
       if (!root) return;
@@ -446,6 +501,9 @@ const themenProBand = clusterReihenfolge
           else if (slug === 'lineare-gleichungen') writeLgMassenAnzahl(n);
           else if (slug === 'prozentrechnung') writePrMassenAnzahl(n);
           else if (slug === 'graphen') writeGraphenMassenAnzahl(n);
+          else if (slug === 'stochastik') writeStochastikMassenAnzahl(n);
+          else if (slug === 'binomische-formeln') writeBfMassenAnzahl(n);
+          else if (slug === 'lineare-funktionen') writeLfMassenAnzahl(n);
           else writeAlgebraMassenAnzahl(n);
           stripeApplyWbThema(root, slug);
           return;
@@ -461,6 +519,9 @@ const themenProBand = clusterReihenfolge
           else if (slug === 'lineare-gleichungen') writeLgMassenLayout(l);
           else if (slug === 'prozentrechnung') writePrMassenLayout(l);
           else if (slug === 'graphen') writeGraphenMassenLayout(l);
+          else if (slug === 'stochastik') writeStochastikMassenLayout(l);
+          else if (slug === 'binomische-formeln') writeBfMassenLayout(l);
+          else if (slug === 'lineare-funktionen') writeLfMassenLayout(l);
           else writeAlgebraMassenLayout(l);
           stripeApplyWbThema(root, slug);
           if (autoHref) window.location.assign(autoHref);
@@ -474,7 +535,18 @@ const themenProBand = clusterReihenfolge
 
     function applyWbThemaKwVisual(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent' | 'prozentrechnung' | 'graphen'
+      slug:
+        | 'bruchrechnung'
+        | 'dezimalzahlen'
+        | 'negative-zahlen'
+        | 'algebra'
+        | 'lineare-gleichungen'
+        | 'bruch-dezimal-prozent'
+        | 'prozentrechnung'
+        | 'graphen'
+        | 'stochastik'
+        | 'binomische-formeln'
+        | 'lineare-funktionen'
     ) {
       const storKey =
         slug === 'bruchrechnung'
@@ -491,7 +563,13 @@ const themenProBand = clusterReihenfolge
                     ? PR_WB_STOR_KEY
                     : slug === 'graphen'
                       ? GRAPHEN_WB_STOR_KEY
-                      : ALG_WB_STOR_KEY;
+                      : slug === 'stochastik'
+                        ? STOCHASTIK_WB_STOR_KEY
+                        : slug === 'binomische-formeln'
+                          ? BF_WB_STOR_KEY
+                          : slug === 'lineare-funktionen'
+                            ? LF_WB_STOR_KEY
+                            : ALG_WB_STOR_KEY;
       const idPrefix =
         slug === 'bruchrechnung'
           ? 'br_'
@@ -507,7 +585,13 @@ const themenProBand = clusterReihenfolge
                     ? 'pr_'
                     : slug === 'graphen'
                       ? 'pg_'
-                      : 'alg_';
+                      : slug === 'stochastik'
+                        ? 'st_'
+                        : slug === 'binomische-formeln'
+                          ? 'bf_'
+                          : slug === 'lineare-funktionen'
+                            ? 'lf_'
+                            : 'alg_';
       const stichworteFuerIds =
         slug === 'bruchrechnung'
           ? stichworteFuerBruchIds
@@ -523,7 +607,13 @@ const themenProBand = clusterReihenfolge
                     ? stichworteFuerPrIds
                     : slug === 'graphen'
                       ? stichworteFuerGraphenIds
-                      : stichworteFuerAlgIds;
+                      : slug === 'stochastik'
+                        ? stichworteFuerStochastikIds
+                        : slug === 'binomische-formeln'
+                          ? stichworteFuerBfIds
+                          : slug === 'lineare-funktionen'
+                            ? stichworteFuerLfIds
+                            : stichworteFuerAlgIds;
       const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw'));
       let sel = new Set<string>();
       try {
@@ -548,7 +638,18 @@ const themenProBand = clusterReihenfolge
 
     function persistWbThemaKw(
       root: HTMLElement,
-      slug: 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent' | 'prozentrechnung' | 'graphen'
+      slug:
+        | 'bruchrechnung'
+        | 'dezimalzahlen'
+        | 'negative-zahlen'
+        | 'algebra'
+        | 'lineare-gleichungen'
+        | 'bruch-dezimal-prozent'
+        | 'prozentrechnung'
+        | 'graphen'
+        | 'stochastik'
+        | 'binomische-formeln'
+        | 'lineare-funktionen'
     ) {
       const storKey =
         slug === 'bruchrechnung'
@@ -565,7 +666,13 @@ const themenProBand = clusterReihenfolge
                     ? PR_WB_STOR_KEY
                     : slug === 'graphen'
                       ? GRAPHEN_WB_STOR_KEY
-                      : ALG_WB_STOR_KEY;
+                      : slug === 'stochastik'
+                        ? STOCHASTIK_WB_STOR_KEY
+                        : slug === 'binomische-formeln'
+                          ? BF_WB_STOR_KEY
+                          : slug === 'lineare-funktionen'
+                            ? LF_WB_STOR_KEY
+                            : ALG_WB_STOR_KEY;
       const sel = Array.from(root.querySelectorAll<HTMLButtonElement>('.mu-wb-thema-kw.mu-wb-thema-kw--an'))
         .map((b) => b.dataset.stichwort ?? '')
         .filter(Boolean);
@@ -596,6 +703,12 @@ const themenProBand = clusterReihenfolge
       if (prRoot) applyWbThemaKwVisual(prRoot, 'prozentrechnung');
       const pgRoot = document.getElementById('thema-graphen');
       if (pgRoot) applyWbThemaKwVisual(pgRoot, 'graphen');
+      const stRoot = document.getElementById('thema-stochastik');
+      if (stRoot) applyWbThemaKwVisual(stRoot, 'stochastik');
+      const bfRoot = document.getElementById('thema-binomische-formeln');
+      if (bfRoot) applyWbThemaKwVisual(bfRoot, 'binomische-formeln');
+      const lfRoot = document.getElementById('thema-lineare-funktionen');
+      if (lfRoot) applyWbThemaKwVisual(lfRoot, 'lineare-funktionen');
       document.addEventListener(
         'click',
         (ev: MouseEvent) => {
@@ -610,7 +723,10 @@ const themenProBand = clusterReihenfolge
             s !== 'lineare-gleichungen' &&
             s !== 'bruch-dezimal-prozent' &&
             s !== 'prozentrechnung' &&
-            s !== 'graphen'
+            s !== 'graphen' &&
+            s !== 'stochastik' &&
+            s !== 'binomische-formeln' &&
+            s !== 'lineare-funktionen'
           )
             return;
           const bulk = (ev.target as HTMLElement | null)?.closest?.('[data-mu-wb-kw-bulk]') as HTMLButtonElement | null;
@@ -634,7 +750,7 @@ const themenProBand = clusterReihenfolge
             }
             persistWbThemaKw(
               rootEl,
-              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent' | 'prozentrechnung' | 'graphen'
+              s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent' | 'prozentrechnung' | 'graphen' | 'stochastik' | 'binomische-formeln' | 'lineare-funktionen'
             );
             return;
           }
@@ -645,11 +761,73 @@ const themenProBand = clusterReihenfolge
           t.setAttribute('aria-pressed', t.classList.contains('mu-wb-thema-kw--an') ? 'true' : 'false');
           persistWbThemaKw(
             rootEl,
-            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent' | 'prozentrechnung' | 'graphen'
+            s as 'bruchrechnung' | 'dezimalzahlen' | 'negative-zahlen' | 'algebra' | 'lineare-gleichungen' | 'bruch-dezimal-prozent' | 'prozentrechnung' | 'graphen' | 'stochastik' | 'binomische-formeln' | 'lineare-funktionen'
           );
         },
         { signal }
       );
+    }
+
+    function bootCollapsibleTopics() {
+      document.querySelectorAll('article.mu-dark-glass-panel').forEach((article) => {
+        const header = article.querySelector('.mu-topic-header');
+        if (!header || header.dataset.muCollapseBound === '1') return;
+        header.dataset.muCollapseBound = '1';
+
+        header.addEventListener('click', (ev: Event) => {
+          if ((ev.target as HTMLElement).closest('a') || (ev.target as HTMLElement).closest('button:not(.mu-topic-chevron-btn)')) return;
+          article.classList.toggle('mu-topic-collapsed');
+        });
+      });
+
+      const btnExpandAll = document.getElementById('mu-btn-expand-all');
+      if (btnExpandAll && btnExpandAll.dataset.muBound !== '1') {
+        btnExpandAll.dataset.muBound = '1';
+        btnExpandAll.addEventListener('click', () => {
+          document.querySelectorAll('article.mu-dark-glass-panel').forEach((article) => {
+            article.classList.remove('mu-topic-collapsed');
+          });
+        });
+      }
+
+      const btnCollapseAll = document.getElementById('mu-btn-collapse-all');
+      if (btnCollapseAll && btnCollapseAll.dataset.muBound !== '1') {
+        btnCollapseAll.dataset.muBound = '1';
+        btnCollapseAll.addEventListener('click', () => {
+          document.querySelectorAll('article.mu-dark-glass-panel').forEach((article) => {
+            article.classList.add('mu-topic-collapsed');
+          });
+        });
+      }
+
+      function handleHash() {
+        const hash = window.location.hash;
+        if (!hash) return;
+        const targetId = hash.replace(/^#/, '');
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+        const article = targetEl.closest('article.mu-dark-glass-panel');
+        if (article) {
+          article.classList.remove('mu-topic-collapsed');
+        }
+      }
+
+      document.addEventListener('click', (ev: MouseEvent) => {
+        const link = (ev.target as HTMLElement).closest('a');
+        if (link && link.hash) {
+          const targetId = link.hash.replace(/^#/, '');
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            const article = targetEl.closest('article.mu-dark-glass-panel');
+            if (article) {
+              article.classList.remove('mu-topic-collapsed');
+            }
+          }
+        }
+      });
+
+      handleHash();
+      window.addEventListener('hashchange', handleHash);
     }
 
     function openAccordionFromHash() {
@@ -674,6 +852,7 @@ const themenProBand = clusterReihenfolge
     function scheduleWbThemaBoot() {
       requestAnimationFrame(() => {
         bootFehlvorstellungenAccordion();
+        bootCollapsibleTopics();
         wbThemaKwAbort?.abort();
         bootWbThemaStripe('bruchrechnung');
         bootWbThemaStripe('dezimalzahlen');
@@ -683,6 +862,9 @@ const themenProBand = clusterReihenfolge
         bootWbThemaStripe('lineare-gleichungen');
         bootWbThemaStripe('prozentrechnung');
         bootWbThemaStripe('graphen');
+        bootWbThemaStripe('stochastik');
+        bootWbThemaStripe('binomische-formeln');
+        bootWbThemaStripe('lineare-funktionen');
         bootWbThemaKeywords();
         openAccordionFromHash();
       });

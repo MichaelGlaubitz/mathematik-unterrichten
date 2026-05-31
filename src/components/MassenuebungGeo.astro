@@ -172,6 +172,9 @@ function wbLabelFromHref(href: string): string {
         variant !== 'lineare-gleichungen' &&
         variant !== 'prozentrechnung' &&
         variant !== 'graphen' &&
+        variant !== 'stochastik' &&
+        variant !== 'binomische-formeln' &&
+        variant !== 'lineare-funktionen' &&
         'contents',
     ]}
     id={
@@ -182,7 +185,10 @@ function wbLabelFromHref(href: string): string {
       variant === 'bruch-dezimal-prozent' ||
       variant === 'lineare-gleichungen' ||
       variant === 'prozentrechnung' ||
-      variant === 'graphen'
+      variant === 'graphen' ||
+      variant === 'stochastik' ||
+      variant === 'binomische-formeln' ||
+      variant === 'lineare-funktionen'
         ? 'ug-wb-slot-ab-full-chrome'
         : undefined
     }
@@ -202,7 +208,8 @@ function wbLabelFromHref(href: string): string {
               variant === 'algebra' ||
               variant === 'lineare-gleichungen' ||
               variant === 'prozentrechnung' ||
-              variant === 'stochastik'
+              variant === 'stochastik' ||
+              variant === 'binomische-formeln'
             ? 'Übungsgenerator · Klasse 7–8 · Mini-Whiteboard & Arbeitsblatt'
             : variant === 'exponentialfunktionen' || variant === 'logarithmen'
               ? 'Übungsgenerator · Oberstufe · Mini-Whiteboard & Arbeitsblatt'
@@ -497,7 +504,7 @@ function wbLabelFromHref(href: string): string {
         <span
           class="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-500 via-teal-500 to-violet-500 shadow-sm"
           aria-hidden="true"></span>
-        {variant === 'bruchrechnung' || variant === 'dezimalzahlen' || variant === 'bruch-dezimal-prozent'
+        {variant === 'bruchrechnung' || variant === 'dezimalzahlen' || variant === 'bruch-dezimal-prozent' || variant === 'lineare-funktionen'
           ? 'Massenübung'
           : 'Aufgabentypen'}
       </h2>
@@ -509,7 +516,7 @@ function wbLabelFromHref(href: string): string {
     </summary>
     <div class="mt-4">
     {
-      variant !== 'bruchrechnung' && variant !== 'dezimalzahlen' && variant !== 'bruch-dezimal-prozent' ? (
+      variant !== 'bruchrechnung' && variant !== 'dezimalzahlen' && variant !== 'bruch-dezimal-prozent' && variant !== 'lineare-funktionen' ? (
         <div class="mb-3 flex flex-wrap gap-2">
           <button
             type="button"
@@ -712,7 +719,7 @@ function wbLabelFromHref(href: string): string {
               </label>
             </div>
           </fieldset>
-        ) : variant === 'bruchrechnung' || variant === 'graphen' ? (
+        ) : variant === 'bruchrechnung' || variant === 'graphen' || variant === 'lineare-funktionen' ? (
           <div class="ug-gruppe min-w-0 lg:col-span-2 rounded-lg border border-ink-200/90 bg-ink-50/90 p-4 text-sm text-ink-800 shadow-sm dark:border-slate-600/50 dark:bg-slate-950/50 dark:text-ink-100">
             <p class="font-medium text-ink-900 dark:text-ink-50 mb-2">Aufgabentypen wählst du auf der Themenseite</p>
             <p class="leading-relaxed text-ink-700 dark:text-ink-200">
@@ -724,7 +731,7 @@ function wbLabelFromHref(href: string): string {
                 href={backHref}
                 class="text-accent-700 font-medium underline underline-offset-2 hover:text-accent-800 dark:text-accent-100 dark:hover:text-accent-50"
               >
-                ← Zurück zur Themenseite {variant === 'graphen' ? 'Graphen' : 'Bruchrechnung'}
+                ← Zurück zur Themenseite {variant === 'graphen' ? 'Graphen' : variant === 'lineare-funktionen' ? 'Lineare Funktionen' : 'Bruchrechnung'}
               </a>
             </p>
           </div>
@@ -1343,6 +1350,22 @@ function wbLabelFromHref(href: string): string {
                 <input type="checkbox" class="ug-typ accent-accent-600" value="st_erwartungswert_muenzwurf" checked />
                 <span>Erwartungswert bei Münzwürfen</span>
               </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_saeulen_kreisdiagramm" checked />
+                <span>Säulen- und Kreisdiagramme</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_quartile_bestimmen" checked />
+                <span>Quartile bestimmen</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_boxplot_zeichnen" checked />
+                <span>Boxplots zeichnen und interpretieren</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="ug-typ accent-accent-600" value="st_manipulierte_darstellung" checked />
+                <span>Statistische Darstellungen hinterfragen</span>
+              </label>
             </div>
           </fieldset>
         ) : variant === 'binomische-formeln' ? (
@@ -1379,39 +1402,6 @@ function wbLabelFromHref(href: string): string {
               </label>
             </div>
           </fieldset>
-        ) : variant === 'lineare-funktionen' ? (
-          <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
-            <legend
-              class="ug-steuerung-legend font-semibold text-sm text-ink-900 mb-2 dark:text-ink-50 pb-1 w-full"
-            >
-              Lineare Funktionen
-            </legend>
-            <div class="ug-typ-grid text-sm">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_gerade_m_b" checked />
-                <span>Gleichung aus Steigung und Achsenabschnitt</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_steigung_aus_punkten" checked />
-                <span>Steigung aus zwei Punkten</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_nullstelle" checked />
-                <span>Nullstelle bestimmen</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_parallel" checked />
-                <span>Parallele Geraden und Steigung</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_funktionswert" checked />
-                <span>Funktionswert berechnen</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="ug-typ accent-accent-600" value="lf_achsenabschnitt" checked />
-                <span>y-Achsenabschnitt bestimmen</span>
-              </label>
-            </div>
           </fieldset>
         ) : variant === 'lineare-gleichungssysteme' ? (
           <fieldset class="ug-gruppe min-w-0 lg:col-span-2">
@@ -1828,7 +1818,10 @@ function wbLabelFromHref(href: string): string {
       variant === 'bruch-dezimal-prozent' ||
       variant === 'lineare-gleichungen' ||
       variant === 'prozentrechnung' ||
-      variant === 'graphen') && (
+      variant === 'graphen' ||
+      variant === 'stochastik' ||
+      variant === 'binomische-formeln' ||
+      variant === 'lineare-funktionen') && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1851,6 +1844,10 @@ function wbLabelFromHref(href: string): string {
                 ? 'AB Prozentrechnung'
               : variant === 'graphen'
                 ? 'AB Graphen'
+              : variant === 'stochastik'
+                ? 'AB Stochastik'
+              : variant === 'binomische-formeln'
+                ? 'AB Binomische Formeln'
                 : 'AB Algebra'}
         </h1>
         <p class="mt-3 text-sm font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
@@ -1884,7 +1881,10 @@ function wbLabelFromHref(href: string): string {
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
         variant === 'prozentrechnung' ||
-        variant === 'graphen') && (
+        variant === 'graphen' ||
+        variant === 'stochastik' ||
+        variant === 'binomische-formeln' ||
+        variant === 'lineare-funktionen') && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1933,11 +1933,14 @@ function wbLabelFromHref(href: string): string {
         variant === 'dezimalzahlen' ||
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung'
+        variant === 'prozentrechnung' ||
+        variant === 'stochastik'
           ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 sm:grid-cols-2'
-          : variant === 'graphen'
+          : variant === 'graphen' || variant === 'binomische-formeln'
             ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 grid-cols-1'
-            : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
+            : variant === 'lineare-funktionen'
+              ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 md:grid-cols-2'
+              : 'list-decimal pl-6 space-y-5 marker:font-serif marker:text-ink-500 dark:marker:text-ink-400',
       ]}
     >
     </ol>
@@ -1949,7 +1952,10 @@ function wbLabelFromHref(href: string): string {
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
         variant === 'prozentrechnung' ||
-        variant === 'graphen') && (
+        variant === 'graphen' ||
+        variant === 'stochastik' ||
+        variant === 'binomische-formeln' ||
+        variant === 'lineare-funktionen') && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1980,7 +1986,10 @@ function wbLabelFromHref(href: string): string {
         variant === 'bruch-dezimal-prozent' ||
         variant === 'lineare-gleichungen' ||
         variant === 'prozentrechnung' ||
-        variant === 'graphen') && (
+        variant === 'graphen' ||
+        variant === 'stochastik' ||
+        variant === 'binomische-formeln' ||
+        variant === 'lineare-funktionen') && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -2599,6 +2608,8 @@ function wbLabelFromHref(href: string): string {
     BRUCHRECHNUNG_GENERATOR_IDS,
     DEZIMALZAHLEN_GENERATOR_IDS,
     NEGATIVE_ZAHLEN_GENERATOR_IDS,
+    STOCHASTIK_GENERATOR_IDS,
+    LINEARE_FUNKTIONEN_GENERATOR_IDS,
     createPracticeGenerators,
     practiceAufgabeHatLoesungInlineNachFrage,
   } from '../lib/uebungPracticeGenerators';
@@ -2623,11 +2634,30 @@ function wbLabelFromHref(href: string): string {
     stichwortLabelsFromDzSessionRaw,
   } from '../lib/dezimalzahlenWbKeywordMap';
   import {
+    PR_WB_STOR_KEY,
+    expandPrWbStichworte,
+    prLabelClusterIndex,
+    stichwortLabelsFromPrSessionRaw,
+  } from '../lib/prozentrechnungWbKeywordMap';
+  import {
+    STOCHASTIK_WB_STOR_KEY,
+    expandStochastikWbStichworte,
+    stichwortLabelsFromStochastikSessionRaw,
+    stochastikLabelClusterIndex,
+  } from '../lib/stochastikWbKeywordMap';
+  import {
     LG_WB_STOR_KEY,
     expandLgWbStichworte,
     lgStichwortClusterIndex,
     stichwortLabelsFromLgSessionRaw,
   } from '../lib/lineareGleichungenWbKeywordMap';
+  import {
+    BF_WB_STOR_KEY,
+    bfStichwortClusterIndex,
+    expandBfWbStichworte,
+    stichwortLabelsFromBfSessionRaw,
+    stichworteFuerBfIds,
+  } from '../lib/binomischeFormelnWbKeywordMap';
   import {
     NZ_WB_STOR_KEY,
     expandNzWbStichworte,
@@ -2635,12 +2665,6 @@ function wbLabelFromHref(href: string): string {
     stichwortLabelsFromNzSessionRaw,
     stichworteFuerNzIds,
   } from '../lib/negativeZahlenWbKeywordMap';
-  import {
-    PR_WB_STOR_KEY,
-    expandPrWbStichworte,
-    prLabelClusterIndex,
-    stichwortLabelsFromPrSessionRaw,
-  } from '../lib/prozentrechnungWbKeywordMap';
   import {
     erzeugeAlgebraArbeitsblattPdf,
     erzeugeBruchArbeitsblattPdf,
@@ -2699,6 +2723,31 @@ function wbLabelFromHref(href: string): string {
     writeGraphenMassenLayout,
   } from '../lib/massenGraphenPrefs';
   import {
+    readStochastikMassenAnzahl,
+    readStochastikMassenLayout,
+    writeStochastikMassenAnzahl,
+    writeStochastikMassenLayout,
+  } from '../lib/massenStochastikPrefs';
+  import {
+    readBfMassenAnzahl,
+    readBfMassenLayout,
+    writeBfMassenAnzahl,
+    writeBfMassenLayout,
+  } from '../lib/massenBinomischeFormelnPrefs';
+  import {
+    LF_WB_STOR_KEY,
+    expandLfWbStichworte,
+    lfStichwortClusterIndex,
+    stichwortLabelsFromLfSessionRaw,
+    stichworteFuerLfIds,
+  } from '../lib/lineareFunktionenWbKeywordMap';
+  import {
+    readLfMassenAnzahl,
+    readLfMassenLayout,
+    writeLfMassenAnzahl,
+    writeLfMassenLayout,
+  } from '../lib/massenLineareFunktionenPrefs';
+  import {
     bindPracticeDiagramCheckbox,
     diagramTaskPreferenceKey,
     effectiveDiagramVisibleByHash,
@@ -2754,6 +2803,9 @@ function wbLabelFromHref(href: string): string {
     const isLgMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'lineare-gleichungen';
     const isPrMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'prozentrechnung';
     const isGraphenMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'graphen';
+    const isStochastikMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'stochastik';
+    const isBinomischeFormelnMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'binomische-formeln';
+    const isLineareFunktionenMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'lineare-funktionen';
     const isWbSlotAbMassen =
       isBruchMassen ||
       isNzMassen ||
@@ -2762,7 +2814,10 @@ function wbLabelFromHref(href: string): string {
       isBdpMassen ||
       isLgMassen ||
       isPrMassen ||
-      isGraphenMassen;
+      isGraphenMassen ||
+      isStochastikMassen ||
+      isBinomischeFormelnMassen ||
+      isLineareFunktionenMassen;
 
     function allAlgIdsFiltered() {
       return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -2774,6 +2829,10 @@ function wbLabelFromHref(href: string): string {
 
     function allNzIdsFiltered() {
       return NEGATIVE_ZAHLEN_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+
+    function allLfIdsFiltered() {
+      return LINEARE_FUNKTIONEN_GENERATOR_IDS.filter((id) => allowedSet.has(id));
     }
 
     function allDzIdsFiltered() {
@@ -2792,6 +2851,12 @@ function wbLabelFromHref(href: string): string {
     }
     function allGraphenIdsFiltered() {
       return PLOTTING_GRAPHS_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+    function allStochastikIdsFiltered() {
+      return STOCHASTIK_GENERATOR_IDS.filter((id) => allowedSet.has(id));
+    }
+    function allBfIdsFiltered() {
+      return BINOMISCHE_FORMELN_GENERATOR_IDS.filter((id) => allowedSet.has(id));
     }
 
     function readBdpTypenFromStorage() {
@@ -2933,6 +2998,78 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
+    function readStochastikTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(STOCHASTIK_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allStochastikIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('st_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allStochastikIdsFiltered();
+        }
+        const fromKw = expandStochastikWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allStochastikIdsFiltered();
+      } catch {
+        return allStochastikIdsFiltered();
+      }
+    }
+
+    function readStochastikAbStichwortLabels() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(STOCHASTIK_WB_STOR_KEY) || 'null');
+        return stichwortLabelsFromStochastikSessionRaw(raw);
+      } catch {
+        return [];
+      }
+    }
+
+    function readBfTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(BF_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allBfIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('bf_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allBfIdsFiltered();
+        }
+        const fromKw = expandBfWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allBfIdsFiltered();
+      } catch {
+        return allBfIdsFiltered();
+      }
+    }
+
+    function readBfAbStichwortLabels() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(BF_WB_STOR_KEY) || 'null');
+        return stichwortLabelsFromBfSessionRaw(raw);
+      } catch {
+        return [];
+      }
+    }
+
+    function readLfTypenFromStorage() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(LF_WB_STOR_KEY) || 'null');
+        if (!Array.isArray(raw) || raw.length === 0) return allLfIdsFiltered();
+        if (typeof raw[0] === 'string' && raw[0].startsWith('lf_')) {
+          const ids = raw.filter((id) => allowedSet.has(id));
+          return ids.length ? ids : allLfIdsFiltered();
+        }
+        const fromKw = expandLfWbStichworte(raw).filter((id) => allowedSet.has(id));
+        return fromKw.length ? fromKw : allLfIdsFiltered();
+      } catch {
+        return allLfIdsFiltered();
+      }
+    }
+
+    function readLfAbStichwortLabels() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(LF_WB_STOR_KEY) || 'null');
+        return stichwortLabelsFromLfSessionRaw(raw);
+      } catch {
+        return [];
+      }
+    }
+
     bindPracticeDiagramCheckbox(
       document.getElementById('mu-practice-diagrams-checkbox') as HTMLInputElement | null
     );
@@ -2962,6 +3099,15 @@ function wbLabelFromHref(href: string): string {
     } else if (isGraphenMassen) {
       anzahl = readGraphenMassenAnzahl();
       layout = readGraphenMassenLayout();
+    } else if (isStochastikMassen) {
+      anzahl = readStochastikMassenAnzahl();
+      layout = readStochastikMassenLayout();
+    } else if (isBinomischeFormelnMassen) {
+      anzahl = readBfMassenAnzahl();
+      layout = readBfMassenLayout();
+    } else if (isLineareFunktionenMassen) {
+      anzahl = readLfMassenAnzahl();
+      layout = readLfMassenLayout();
     }
     let aufgaben = [];
     let wbIndex = 0;
@@ -3139,6 +3285,63 @@ function wbLabelFromHref(href: string): string {
     function refreshAktiv() {
       setActive(anzahlBtns(), (b) => Number(b.dataset.anzahl) === anzahl);
       setActive(layoutBtns(), (b) => b.dataset.layout === layout);
+
+      const zoneAb = document.getElementById('ug-wb-slot-ab-chrome');
+      const zoneWb = document.getElementById('ug-wb-whiteboard-chrome');
+      if (zoneAb) zoneAb.hidden = layout !== 'arbeitsblatt';
+      if (zoneWb) zoneWb.hidden = layout !== 'whiteboard';
+      const wrapper = document.getElementById('ug-wb-slot-ab-full-chrome');
+      if (wrapper) {
+        const sollAktiv =
+          isBruchMassen ||
+          isNzMassen ||
+          isAlgMassen ||
+          isDzMassen ||
+          isBdpMassen ||
+          isLgMassen ||
+          isPrMassen ||
+          isGraphenMassen ||
+          isStochastikMassen;
+        const istAktiv = layout === 'arbeitsblatt' && sollAktiv;
+        wrapper.classList.toggle('ug-wb-slot-ab-full-chrome--aktiv', istAktiv);
+        document.body.classList.toggle('mu-wb-slot-ab-active-body', istAktiv);
+      }
+      const grid = document.getElementById('ug-liste');
+      if (grid) {
+        const sollGrid =
+          isBruchMassen ||
+          isNzMassen ||
+          isAlgMassen ||
+          isDzMassen ||
+          isBdpMassen ||
+          isLgMassen ||
+          isPrMassen ||
+          isGraphenMassen ||
+          isStochastikMassen ||
+          isBinomischeFormelnMassen ||
+          isLineareFunktionenMassen;
+        const istGrid = layout === 'arbeitsblatt' && sollGrid;
+        grid.className = istGrid
+          ? (isGraphenMassen || isBinomischeFormelnMassen)
+            ? 'ug-wb-slot-ab-grid list-none m-0 grid gap-4 p-0 grid-cols-1 text-ink-900'
+            : 'ug-wb-slot-ab-grid grid grid-cols-1 gap-x-12 gap-y-7 sm:grid-cols-2 text-ink-900'
+          : (isBinomischeFormelnMassen || isGraphenMassen)
+            ? 'grid grid-cols-1 gap-6 md:grid-cols-2'
+            : isLineareFunktionenMassen
+              ? 'grid grid-cols-1 gap-6 md:grid-cols-2'
+              : 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3';
+      }
+      if (wbPrev) wbPrev.disabled = wbIndex === 0 && !wbZeigeLoesung;
+      const istLetzte = wbIndex === aufgaben.length - 1;
+      if (wbNext) {
+        const neuMischen = wbZeigeLoesung && istLetzte;
+        wbNext.textContent = wbZeigeLoesung
+          ? istLetzte ? 'Neu mischen' : 'Nächste Aufgabe →'
+          : 'Lösung zeigen';
+        wbNext.className = neuMischen
+          ? 'rounded-md bg-red-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-red-900/25 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 dark:shadow-lg dark:shadow-red-600/35 text-lg'
+          : 'rounded-md bg-accent-600 px-6 py-2.5 text-white font-semibold shadow-md shadow-accent-900/25 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400 dark:shadow-lg dark:shadow-accent-600/35 text-lg';
+      }
     }
 
     function closeWhiteboardOverlay() {
@@ -3288,6 +3491,9 @@ function wbLabelFromHref(href: string): string {
           return [];
         }
       }
+      if (isStochastikMassen) return readStochastikAbStichwortLabels();
+      if (isBinomischeFormelnMassen) return readBfAbStichwortLabels();
+      if (isLineareFunktionenMassen) return readLfAbStichwortLabels();
       return readBruchAbStichwortLabels();
     }
 
@@ -3321,7 +3527,13 @@ function wbLabelFromHref(href: string): string {
                   ? lgStichwortClusterIndex(t)
                   : isPrMassen
                     ? prLabelClusterIndex(t)
-                    : bruchStichwortClusterIndex(t);
+                    : isStochastikMassen
+                      ? stochastikLabelClusterIndex(t)
+                      : isBinomischeFormelnMassen
+                        ? bfStichwortClusterIndex(t)
+                        : isLineareFunktionenMassen
+                          ? lfStichwortClusterIndex(t)
+                          : bruchStichwortClusterIndex(t);
         const color =
           ci >= 0 && ci < BRUCH_AB_CLUSTER_PILL_CLASS.length
             ? BRUCH_AB_CLUSTER_PILL_CLASS[ci]
@@ -3631,6 +3843,9 @@ function wbLabelFromHref(href: string): string {
 
     function aktiveTypen() {
       if (isBruchMassen) return readBruchTypenFromStorage();
+      if (isStochastikMassen) return readStochastikTypenFromStorage();
+      if (isBinomischeFormelnMassen) return readBfTypenFromStorage();
+      if (isLineareFunktionenMassen) return readLfTypenFromStorage();
       if (isNzMassen) return readNzTypenFromStorage();
       if (isDzMassen) return readDzTypenFromStorage();
       if (isAlgMassen) return readAlgebraTypenFromStorage();
@@ -3812,10 +4027,10 @@ function wbLabelFromHref(href: string): string {
           inlineL && a.frageMitLoesungHighlight
             ? ''
             : inlineL
-              ? `<div class="mt-1 text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
+              ? `<div class="mt-1 overflow-x-auto text-center text-ink-800 dark:text-ink-50">${a.loesung}</div>`
               : a.loesungArbeitsblattEigeneZeile === true
                 ? `<div class="mt-3 block w-full min-w-0 overflow-x-auto whitespace-nowrap border-t border-violet-200/70 pt-3 text-center text-base font-medium text-ink-900 dark:border-violet-600/35 dark:text-ink-50 sm:text-lg">${a.loesung}</div>`
-                : `<div class="mt-2 rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
+                : `<div class="mt-2 overflow-x-auto rounded-md border-l-4 border-accent-500 bg-accent-50 px-3 py-2 text-center text-ink-800 dark:border-teal-400 dark:bg-gradient-to-br dark:from-accent-900/45 dark:via-slate-950 dark:to-teal-900/35 dark:text-ink-100 dark:ring-1 dark:ring-inset dark:ring-teal-500/20">${a.loesung}</div>`;
         const abInteraktiv =
           isWbSlotAbMassen &&
           !!a.frageArbeitsblatt &&
@@ -3835,10 +4050,10 @@ function wbLabelFromHref(href: string): string {
           : `<summary class="cursor-pointer text-sm text-accent-700 dark:text-accent-100 hover:underline">Lösung zeigen</summary>`;
         const frageRowHtml = isWbSlotAbMassen
           ? `<div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="ug-task-frage min-w-0 flex-1 text-base font-medium leading-snug text-ink-900 dark:text-ink-50 sm:text-lg"${frageHighlightAttrs}>${frageBody}</div>
+              <div class="ug-task-frage min-w-0 flex-1 overflow-x-auto text-base font-medium leading-snug text-ink-900 dark:text-ink-50 sm:text-lg"${frageHighlightAttrs}>${frageBody}</div>
               <button type="button" class="ug-wb-slot-ab-loesung-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-300/90 bg-surface text-violet-800 shadow-sm hover:bg-violet-50 dark:border-violet-500/50 dark:bg-slate-900/80 dark:text-violet-100 dark:hover:bg-violet-950/50" aria-controls="${detailsId}" aria-expanded="false" aria-label="Lösung zu Aufgabe ${idx + 1} ein- oder ausblenden" title="Lösung ein-/ausblenden">${practiceDiagramToggleIconMarkup(false)}</button>
             </div>`
-          : `<div class="ug-task-frage text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${frageBody}</div>`;
+          : `<div class="ug-task-frage overflow-x-auto text-ink-900 dark:text-ink-50 mb-2"${frageHighlightAttrs}>${frageBody}</div>`;
         const detailsAttrs = isWbSlotAbMassen ? ` id="${detailsId}"` : '';
         const detailsClass = isWbSlotAbMassen
           ? 'group ug-task-details mt-3 border-t border-violet-200/70 pt-3 dark:border-violet-600/30'
@@ -3942,6 +4157,7 @@ function wbLabelFromHref(href: string): string {
       }
     }
 
+
     anzahlBtns().forEach((b) =>
       b.addEventListener('click', () => {
         anzahl = Number(b.dataset.anzahl);
@@ -3953,6 +4169,9 @@ function wbLabelFromHref(href: string): string {
         else if (isLgMassen) writeLgMassenAnzahl(anzahl);
         else if (isPrMassen) writePrMassenAnzahl(anzahl);
         else if (isGraphenMassen) writeGraphenMassenAnzahl(anzahl);
+        else if (isStochastikMassen) writeStochastikMassenAnzahl(anzahl);
+        else if (isBinomischeFormelnMassen) writeBfMassenAnzahl(anzahl);
+        else if (isLineareFunktionenMassen) writeLfMassenAnzahl(anzahl);
         refreshAktiv();
       })
     );
@@ -3969,6 +4188,9 @@ function wbLabelFromHref(href: string): string {
         else if (isLgMassen) writeLgMassenLayout(layout);
         else if (isPrMassen) writePrMassenLayout(layout);
         else if (isGraphenMassen) writeGraphenMassenLayout(layout);
+        else if (isStochastikMassen) writeStochastikMassenLayout(layout);
+        else if (isBinomischeFormelnMassen) writeBfMassenLayout(layout);
+        else if (isLineareFunktionenMassen) writeLfMassenLayout(layout);
         refreshAktiv();
         if (layout === 'arbeitsblatt') stopWbTimer();
         else if (aufgaben.length > 0) startWbTimer();
@@ -4115,7 +4337,11 @@ function wbLabelFromHref(href: string): string {
                       ? 'Prozentrechnung'
                       : isGraphenMassen
                         ? 'Graphen'
-                        : 'Bruchrechnung',
+                        : isStochastikMassen
+                          ? 'Stochastik'
+                          : isBinomischeFormelnMassen
+                            ? 'Binomische Formeln'
+                            : 'Bruchrechnung',
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
@@ -4193,7 +4419,11 @@ function wbLabelFromHref(href: string): string {
                   ? 'lineare-gleichungen'
                   : isPrMassen
                     ? 'prozentrechnung'
-                    : 'bruchrechnung';
+                    : isStochastikMassen
+                      ? 'stochastik'
+                      : isBinomischeFormelnMassen
+                        ? 'binomische-formeln'
+                        : 'bruchrechnung';
         const name = mitLoesungen ? `${base}-ab-mit-loesungen-${tag}.pdf` : `${base}-ab-${tag}.pdf`;
         downloadePdfDatei(r.pdf, name);
       } catch (e) {
