@@ -1,0 +1,1 @@
+Für das Studienseminar, Fachseminar
