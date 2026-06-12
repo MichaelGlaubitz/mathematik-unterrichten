@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[SEITENTITEL] – Fachseminar Mathematik, Studienseminar Hameln</title>
+<!-- SELF-CONTAINED: alle Styles inline. Nur das Wappen-Bild bleibt externes Asset. -->
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#ffffff; --ink:#1f2933; --muted:#6b7785;
+    --line:#dce3ea; --accent:#9a1b1b; --accent2:#2c5d8f;
+    --pp:#1a7a3c; --p:#4c9c63; --o:#c08a18; --m:#b4451f;
+    --pp-bg:#e7f4ec; --p-bg:#eef7f1; --o-bg:#fbf3e1; --m-bg:#fbeae3;
+    --blue-bg:#eaf1f8;
+    --shadow:0 1px 3px rgba(0,0,0,.08);
+    --shadow2:0 4px 18px rgba(0,0,0,.10);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);font-size:17px;line-height:1.62}
+  header.gov{background:var(--card);border-bottom:4px solid var(--accent);
+       box-shadow:var(--shadow);padding:14px 24px;display:flex;align-items:center;gap:18px}
+  header.gov .wappen{height:64px;width:auto;flex:none}
+  header.gov .titles{display:flex;flex-direction:column;line-height:1.28}
+  header.gov .titles .l1{font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+  header.gov .titles .l2{font-size:21px;font-weight:800;color:var(--accent);letter-spacing:.2px}
+  header.gov .titles .l3{font-size:13.5px;color:var(--ink)}
+  header.gov .spacer{flex:1}
+  header.gov .tag{font-size:12px;color:#fff;background:var(--accent2);padding:4px 11px;border-radius:20px;font-weight:600;white-space:nowrap}
+  @media (max-width:640px){
+    header.gov{padding:12px 16px;gap:12px}
+    header.gov .wappen{height:50px}
+    header.gov .titles .l2{font-size:17px}
+    header.gov .tag{display:none}
+  }
+  main{max-width:860px;margin:0 auto;padding:8px 20px 64px}
+  .hero{padding:34px 0 8px}
+  .eyebrow{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+       color:var(--accent2);margin-bottom:10px}
+  h1{font-size:34px;line-height:1.18;margin:0 0 14px;color:var(--ink);font-weight:800;letter-spacing:-.2px}
+  h1 .q{color:var(--accent)}
+  .lead{font-size:19px;color:#37434f;margin:0 0 6px}
+  nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;
+       padding:14px 18px;margin:26px 0 8px;box-shadow:var(--shadow)}
+  nav.toc b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+  nav.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}
+  nav.toc li{margin:3px 0;font-size:14.5px}
+  nav.toc a{color:var(--accent2);text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+  .info{margin:30px 0 8px}
+  .info h2.center{text-align:center;border:none;color:var(--ink);padding:0;margin:0 0 4px;font-size:21px}
+  .info .cap{text-align:center;color:var(--muted);font-size:13.5px;margin:0 0 18px}
+  .info .poster{margin:0 0 26px}
+  .info .poster img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow2)}
+  .info .poster figcaption{text-align:center;color:var(--muted);font-size:12.5px;margin-top:8px}
+  .info .journey-label{text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin:0 0 12px}
+  .journey{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;justify-content:center}
+  .step{flex:1 1 150px;min-width:150px;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--c,#888);
+       border-radius:12px;padding:14px 14px 16px;box-shadow:var(--shadow);position:relative}
+  .step .n{font-size:12px;font-weight:800;color:#fff;background:var(--c,#888);width:26px;height:26px;border-radius:50%;
+       display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .step h3{margin:0 0 2px;font-size:16px;color:var(--ink)}
+  .step .en{font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:7px}
+  .step p{margin:0;font-size:13px;color:#42505c;line-height:1.5}
+  .step.s1{--c:var(--pp)} .step.s2{--c:var(--p)} .step.s3{--c:var(--o)}
+  .step.s4{--c:var(--accent2)} .step.s5{--c:var(--m)}
+  .foundation{margin:14px 0 0;background:linear-gradient(180deg,#eef2f6,#e6ecf2);border:1px dashed #b9c6d3;
+       border-radius:12px;padding:12px 16px;font-size:13.5px;color:#3a4753;text-align:center}
+  .foundation b{color:var(--accent2)}
+  .videowrap{margin:26px 0 8px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+       padding:14px;box-shadow:var(--shadow2)}
+  .videowrap video{width:100%;border-radius:9px;display:block;background:#000}
+  .videowrap .vcap{font-size:13px;color:var(--muted);margin:10px 2px 0}
+  .videowrap .vcap b{color:var(--ink)}
+  section.art{margin:34px 0}
+  h2{font-size:23px;margin:0 0 6px;color:var(--ink);font-weight:800;letter-spacing:-.2px;
+     padding-bottom:8px;border-bottom:2px solid var(--line)}
+  h2 .num{color:var(--accent);font-weight:800;margin-right:8px}
+  section.art p{margin:14px 0}
+  section.art p.first{margin-top:12px}
+  blockquote{margin:20px 0;padding:14px 18px;background:var(--blue-bg);border-left:4px solid var(--accent2);
+       border-radius:0 10px 10px 0;color:#33414e;font-size:16px}
+  blockquote .src{display:block;margin-top:8px;font-size:12.5px;color:var(--muted);font-style:normal}
+  .tablewrap{overflow-x:auto;margin:18px 0}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--card);
+       border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  caption{caption-side:top;text-align:left;font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+  thead th{background:var(--accent2);color:#fff;font-weight:700;font-size:13.5px}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:#f8fafc}
+  td .ziel{font-weight:700;color:var(--accent2)}
+  .formula{font-family:"Cambria Math",Georgia,serif;font-style:italic}
+  .toolbox{margin:24px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;
+       box-shadow:var(--shadow2);overflow:hidden}
+  .toolbox .tb-head{background:var(--accent2);color:#fff;padding:12px 18px;font-weight:700;font-size:15.5px}
+  .toolbox .tb-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .toolbox .tb-col{padding:16px 18px}
+  .toolbox .tb-col:first-child{border-right:1px solid var(--line)}
+  .toolbox .tb-col h4{margin:0 0 4px;font-size:15px}
+  .toolbox .tb-col .lbl{font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:10px}
+  .toolbox .tb-col.assess h4{color:var(--accent2)}
+  .toolbox .tb-col.advance h4{color:var(--pp)}
+  .toolbox dl{margin:0;font-size:14px}
+  .toolbox dt{font-weight:700;color:var(--ink);margin-top:8px}
+  .toolbox dd{margin:1px 0 0;color:#42505c}
+  .mini-chart{margin:18px 0}
+  .mini-chart table{font-size:13.5px}
+  .mini-chart thead th{background:#5a728c}
+  .reflect{margin:34px 0 0;background:var(--m-bg);border:1px solid #eccbbd;border-left:5px solid var(--m);
+       border-radius:0 12px 12px 0;padding:18px 20px}
+  .reflect b{color:var(--m)}
+  .reflect h3{margin:0 0 8px;font-size:16px;color:var(--m);text-transform:uppercase;letter-spacing:.5px}
+  footer.src{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+  footer.src b{color:var(--ink)}
+  footer.src ul{margin:8px 0 0;padding-left:20px}
+  footer.src li{margin:4px 0}
+  .printline{margin-top:18px;font-size:12px;color:#9aa6b2}
+  @media (max-width:620px){
+    h1{font-size:27px} nav.toc ol{columns:1}
+    .toolbox .tb-grid{grid-template-columns:1fr}
+    .toolbox .tb-col:first-child{border-right:none;border-bottom:1px solid var(--line)}
+  }
+  @media print{
+    body{background:#fff;font-size:12pt} header.gov{box-shadow:none}
+    .videowrap,nav.toc{display:none} main{max-width:none}
+    .step,.toolbox,table{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- KOPF -->
+<header class="gov">
+  <img class="wappen" src="assets/wappen.jpg" alt="Niedersächsisches Landeswappen (Sachsenross)">
+  <div class="titles">
+    <span class="l1">Niedersachsen · Studienseminar Hameln</span>
+    <span class="l2">Fachseminar Mathematik</span>
+    <span class="l3">Handreichung · [KURZTITEL DER SEITE]</span>
+  </div>
+  <span class="spacer"></span>
+  <span class="tag">[OPTIONALER BADGE]</span>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="eyebrow">[KLEINE ÜBERSCHRIFT / RUBRIK]</span>
+    <h1>[HAUPTTITEL – Schlüsselwort in <span class="q">Akzentfarbe</span> möglich]</h1>
+    <p class="lead">[Ein bis zwei Sätze, die das Thema einordnen.]</p>
+  </div>
+
+  <!-- INHALTSVERZEICHNIS -->
+  <nav class="toc">
+    <b>Auf einen Blick</b>
+    <ol>
+      <li><a href="#abschnitt1">[Abschnittstitel 1]</a></li>
+      <li><a href="#abschnitt2">[Abschnittstitel 2]</a></li>
+      <li><a href="#reflexion">[Reflexionsfrage]</a></li>
+    </ol>
+  </nav>
+
+  <!-- INFOGRAFIK-BLOCK -->
+  <div class="info">
+    <h2 class="center">[Überblick-Überschrift]</h2>
+    <p class="cap">[Bildunterschrift / Einordnung]</p>
+    <figure class="poster">
+      <a href="medien/[BILD].png" target="_blank" rel="noopener" title="In voller Größe öffnen">
+        <img src="medien/[BILD].png" alt="[Aussagekräftiger Alt-Text]">
+      </a>
+      <figcaption>[Bildunterschrift]</figcaption>
+    </figure>
+    <p class="journey-label">[Optionales Label]</p>
+    <div class="journey">
+      <div class="step s1"><div class="n">1</div><h3>[Titel]</h3><div class="en">[Untertitel]</div><p>[Kurztext]</p></div>
+      <div class="step s2"><div class="n">2</div><h3>[Titel]</h3><div class="en">[Untertitel]</div><p>[Kurztext]</p></div>
+      <div class="step s3"><div class="n">3</div><h3>[Titel]</h3><div class="en">[Untertitel]</div><p>[Kurztext]</p></div>
+      <div class="step s4"><div class="n">4</div><h3>[Titel]</h3><div class="en">[Untertitel]</div><p>[Kurztext]</p></div>
+      <div class="step s5"><div class="n">5</div><h3>[Titel]</h3><div class="en">[Untertitel]</div><p>[Kurztext]</p></div>
+    </div>
+    <div class="foundation"><b>[Hervorhebung:]</b> [Fundament-/Hinweissatz.]</div>
+  </div>
+
+  <!-- VIDEO (optional) -->
+  <div class="videowrap">
+    <video controls preload="metadata" poster="medien/[POSTER].png">
+      <source src="medien/[VIDEO].mp4" type="video/mp4">
+      Ihr Browser kann dieses Video nicht abspielen. Die Datei liegt unter <code>medien/[VIDEO].mp4</code>.
+    </video>
+    <p class="vcap"><b>[Label]:</b> [Kurzbeschreibung].</p>
+  </div>
+
+  <!-- ARTIKEL-ABSCHNITT -->
+  <section class="art" id="abschnitt1">
+    <h2><span class="num">[Nr.]</span>[Abschnittstitel]</h2>
+    <p class="first">[Erster Absatz.]</p>
+    <p>[Fließtext mit <strong>fett</strong>, <em>kursiv</em>, Formeln <span class="formula">a² + b² = c²</span>.]</p>
+    <blockquote>
+      [Zitat-Text.]
+      <span class="src">— [Quelle / Autor]</span>
+    </blockquote>
+  </section>
+
+  <section class="art" id="abschnitt2">
+    <h2><span class="num">[Nr.]</span>[Abschnittstitel mit Tabelle &amp; Kasten]</h2>
+    <p class="first">[Einleitender Satz.]</p>
+    <div class="tablewrap">
+    <table>
+      <caption>[Tabellen-Beschriftung]</caption>
+      <thead><tr><th>[Spalte 1]</th><th>[Spalte 2]</th><th>[Spalte 3]</th></tr></thead>
+      <tbody>
+        <tr><td><span class="ziel">[Label]</span></td><td>[Zelle]</td><td>[Zelle]</td></tr>
+        <tr><td><span class="ziel">[Label]</span></td><td>[Zelle]</td><td>[Zelle]</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="toolbox">
+      <div class="tb-head">[Kopfzeile des Kastens]</div>
+      <div class="tb-grid">
+        <div class="tb-col assess">
+          <h4>[Titel links]</h4><div class="lbl">[Untertitel]</div>
+          <dl><dt>[Begriff]</dt><dd>[Erläuterung]</dd><dt>[Begriff]</dt><dd>[Erläuterung]</dd></dl>
+        </div>
+        <div class="tb-col advance">
+          <h4>[Titel rechts]</h4><div class="lbl">[Untertitel]</div>
+          <dl><dt>[Begriff]</dt><dd>[Erläuterung]</dd><dt>[Begriff]</dt><dd>[Erläuterung]</dd></dl>
+        </div>
+      </div>
+    </div>
+    <blockquote style="background:var(--pp-bg);border-left-color:var(--pp)">
+      [Hervorgehobenes Beispiel; mehrere Zeilen mit &lt;br&gt; trennen.]
+    </blockquote>
+  </section>
+
+  <!-- REFLEXIONS-/HINWEIS-BOX -->
+  <div class="reflect" id="reflexion">
+    <h3>[Box-Titel]</h3>
+    <p style="margin:0">[Reflexionsfrage oder Hinweis mit <b>fett</b>.]</p>
+  </div>
+
+  <!-- QUELLEN -->
+  <footer class="src">
+    <b>Quellen</b>
+    <ul>
+      <li>[Quelle 1]</li>
+      <li>[Quelle 2]</li>
+    </ul>
+    <div class="printline">Fachseminar Mathematik · Studienseminar Hameln · Handreichung „[KURZTITEL]"</div>
+  </footer>
+
+</main>
+</body>
+</html>
