@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mathe-Trails mit MathCityMap – Fachseminar Mathematik, Studienseminar Hameln</title>
+<!-- Zentrales Design-System der Handreichungen (siehe Ordner „Vorlage") -->
+<link rel="stylesheet" href="Vorlage/handreichung-style.css">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  /* Ergänzende Bausteine – verwenden ausschließlich die Tokens des Designsystems */
+  .qlead{font-style:italic;color:var(--accent2);font-size:16.5px;margin:12px 0 2px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px}
+  .tags span{font-size:12px;background:#fff;color:var(--muted);border:1px solid var(--line);
+       border-radius:20px;padding:3px 11px;font-weight:600}
+  .tags span.tool{background:var(--pp-bg);color:var(--pp);border-color:#c4e3d0}
+  details.worry{background:var(--card);border:1px solid var(--line);border-radius:10px;
+       margin:10px 0;overflow:hidden;box-shadow:var(--shadow)}
+  details.worry summary{cursor:pointer;list-style:none;padding:13px 16px;font-weight:700;
+       color:var(--ink);font-size:15.5px;display:flex;gap:10px;align-items:flex-start}
+  details.worry summary::-webkit-details-marker{display:none}
+  details.worry summary::before{content:"+";color:var(--accent);font-weight:800;font-size:18px;line-height:1.3;flex:none}
+  details.worry[open] summary::before{content:"–"}
+  details.worry .ans{padding:0 16px 14px 34px;color:#42505c;font-size:15px}
+  details.worry .ans p{margin:6px 0 0}
+  .toolbox .tb-col p{margin:0;font-size:14px;color:#42505c;line-height:1.55}
+  .trailcard{margin:24px 0;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--accent);
+       border-radius:0 12px 12px 0;padding:18px 20px;box-shadow:var(--shadow)}
+  .trailcard h3{margin:0 0 6px;font-size:17px;color:var(--accent)}
+  .facts{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+  .facts .f{flex:1 1 120px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;text-align:center}
+  .facts .f .k{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+  .facts .f .v{display:block;font-size:18px;font-weight:800;color:var(--accent2);margin-top:2px}
+  @media print{details.worry{box-shadow:none} details.worry .ans{display:block}}
+</style>
+</head>
+<body>
+
+<header class="gov">
+  <a class="brand" href="/ausb/" title="Zur Übersicht der Handreichungen" style="display:flex;align-items:center;gap:18px;text-decoration:none;color:inherit">
+  <img class="wappen" src="medien/wappen.jpg" alt="Niedersächsisches Landeswappen (Sachsenross)">
+  <div class="titles">
+    <span class="l1">Niedersachsen · Studienseminar Hameln</span>
+    <span class="l2">Fachseminar Mathematik</span>
+    <span class="l3">Handreichung · Mathe-Trails mit MathCityMap</span>
+  </div>
+  </a>
+  <span class="spacer"></span>
+  <span class="tag">Ludwig u.&#8202;a. · MathCityMap</span>
+</header>
+
+<main>
+
+  <div class="hero">
+    <span class="eyebrow">Mathe draußen · MathCityMap · Klassen 5–13</span>
+    <h1>Mathematik <span class="q">draußen</span> erleben</h1>
+    <p class="lead">Ein Mathe-Trail macht die Stadt zum Aufgabenheft: An Treppen, Brunnen und Fassaden wird
+    gemessen, geschätzt und modelliert – Mathematik, die sich nur vor Ort lösen lässt. Diese Handreichung
+    zeigt, warum das wirkt, wie das MathCityMap-System die Organisation trägt und worauf es bei der
+    Durchführung ankommt.</p>
+  </div>
+
+  <nav class="toc">
+    <b>Auf einen Blick</b>
+    <ol>
+      <li><a href="#warum">Warum Mathe-Trails?</a></li>
+      <li><a href="#was">Was ein Mathe-Trail ausmacht</a></li>
+      <li><a href="#system">Das MathCityMap-System</a></li>
+      <li><a href="#aufgaben">Gute Trail-Aufgaben &amp; der Wizard</a></li>
+      <li><a href="#klassenzimmer">Das Digitale Klassenzimmer</a></li>
+      <li><a href="#ablauf">Die Trail-Stunde, Phase für Phase</a></li>
+      <li><a href="#organisation">Organisation, Sicherheit, Differenzierung</a></li>
+      <li><a href="#unser-trail">Unser Trail heute: Hameln Innenstadt</a></li>
+      <li><a href="#sorgen">Häufige Sorgen</a></li>
+      <li><a href="#faden">Der rote Faden</a></li>
+    </ol>
+  </nav>
+
+  <!-- INFOGRAFIK -->
+  <div class="info">
+    <h2 class="center">Mathematik draußen erleben</h2>
+    <p class="cap">Das MathCityMap-System, der Ablauf in drei Phasen und unser Trail – als Infografik.</p>
+    <figure class="poster">
+      <a href="medien/Mathe_Trails_MathCityMap_Infografik.png" target="_blank" rel="noopener" title="Infografik in voller Größe öffnen">
+        <img src="medien/Mathe_Trails_MathCityMap_Infografik.png" alt="Infografik: Mathe-Trails mit MathCityMap – Definition des mathematischen Wanderpfades, die drei Systemkomponenten Webportal, Smartphone-App und Digitales Klassenzimmer, der Ablauf in drei Phasen (Vorbereiten, Trail ablaufen, Auswerten), die didaktische Wirkung sowie die Eckdaten des Trails Hameln Innenstadt (Code 581071, 18 Aufgaben, rund 1,6 km, ab Klasse 10).">
+      </a>
+      <figcaption>Mathe-Trails mit MathCityMap – System, Ablauf und unser Trail. Zum Vergrößern anklicken.</figcaption>
+    </figure>
+  </div>
+
+  <!-- WARUM -->
+  <section class="art" id="warum">
+    <h2>Warum Mathe-Trails?</h2>
+    <p class="first">„Mathematik in Umwelt und Realität erleben" – das ist das Versprechen sogenannter
+    <strong>MathTrails</strong>, mathematischer Wanderpfade. Entlang einer Route mit festgelegten Orten werden
+    Alltagsobjekte zu Aufgaben, an denen mathematische Problemstellungen entdeckt und gelöst werden. Der Reiz
+    liegt darin, dass diese Aufgaben sich <strong>nur vor Ort und nur durch konkretes Handeln</strong> – Messen,
+    Zählen, Schätzen – lösen lassen. Die Mathematik verlässt das Heft und wird an einem realen Objekt erfahrbar.</p>
+    <p>Die didaktische Begründung ist empirisch gestützt. Das Ablaufen von MathTrails erhöht <strong>nachweislich
+    die Motivation</strong> der Lernenden (Cahyono 2018), und das Gelernte <strong>wird länger behalten</strong>
+    (Zender 2018). Hinzu kommt der modellierungsdidaktische Kern: Statt eingekleideter Textaufgaben steht ein
+    echtes Objekt im Mittelpunkt, das gemessen, idealisiert und mathematisiert werden muss. Lernende durchlaufen
+    so den vollständigen Modellierungskreislauf am realen Gegenstand (Gurjanow u.&#8202;a. 2019).</p>
+    <blockquote>
+      <strong>Die Kernidee:</strong> Nicht die Aufgabe kommt zu den Lernenden, sondern die Lernenden gehen zur
+      Mathematik. Das Objekt liefert keine fertigen Zahlen – die müssen erst durch eine <strong>Aktivität</strong>
+      erhoben werden. Genau das macht den Unterschied zur Schulbuchaufgabe.
+    </blockquote>
+    <p>Der praktische Preis dieses Ansatzes war lange hoch: Einen analogen MathTrail vorzubereiten – Objekte
+    finden, Aufgaben formulieren, Lösungen und Hilfen erstellen, Begleitmaterial drucken – ist aufwendig, weshalb
+    die Methode selten genutzt wurde. Genau hier setzt MathCityMap an: Das System reduziert diesen Aufwand und
+    erhöht zugleich die inhaltliche und didaktische Qualität der Trail-Aufgaben.</p>
+  </section>
+
+  <!-- WAS -->
+  <section class="art" id="was">
+    <h2>Was ein Mathe-Trail ausmacht</h2>
+    <p class="first">Eine MathCityMap-Aufgabe besteht aus einem Aufgabentext zu einem Objekt, einem
+    <strong>Foto</strong> des Objekts, einer <strong>Musterlösung</strong> und gestuften Hinweisen; angegeben
+    werden außerdem Klassenstufe und nötige Hilfsmittel (etwa Zollstock oder Taschenrechner). Damit eine Aufgabe
+    öffentlich geschaltet wird, muss sie zwei Bedingungen erfüllen – und genau diese beiden Bedingungen sind das
+    didaktische Gütesiegel eines Mathe-Trails:</p>
+    <div class="toolbox">
+      <div class="tb-head">Zwei Bedingungen jeder echten Trail-Aufgabe</div>
+      <div class="tb-grid">
+        <div class="tb-col assess">
+          <h4>Nur vor Ort lösbar</h4>
+          <div class="lbl">Ortsgebundenheit</div>
+          <p>Aufgabentext und Foto allein reichen für eine Lösung <em>nicht</em> aus. Die Aufgabe ist an das
+          konkrete Objekt und seinen Standort gebunden – wer nicht da ist, kann sie nicht lösen.</p>
+        </div>
+        <div class="tb-col advance">
+          <h4>Mit einer Aktivität verbunden</h4>
+          <div class="lbl">Handlungsbezug</div>
+          <p>Die Lösung erfordert ein eigenes Tun vor Ort – <strong>Messen, Zählen, Schätzen</strong>. Erst die
+          erhobenen Daten machen die Mathematik möglich; das verbindet Handlung und Begriff.</p>
+        </div>
+      </div>
+    </div>
+    <p>Ein <strong>Trail</strong> entsteht durch Kombination mehrerer solcher Aufgaben, die räumlich sinnvoll –
+    also nicht zu weit voneinander entfernt – angeordnet werden. Eine Route besteht aus mindestens vier Aufgaben.
+    So wird aus einzelnen Objekten ein zusammenhängender Wanderpfad mit eigener Dramaturgie.</p>
+  </section>
+
+  <!-- SYSTEM -->
+  <section class="art" id="system">
+    <h2>Das MathCityMap-System</h2>
+    <p class="first">MathCityMap (MCM) ist ein Projekt der Goethe-Universität Frankfurt (IDMI) mit internationalen
+    Partnern. Es besteht aus drei Komponenten, die zusammenspielen: ein <strong>Webportal</strong> zum Planen, eine
+    <strong>App</strong> zum Ablaufen und das <strong>Digitale Klassenzimmer</strong> zum Begleiten.</p>
+    <div class="journey">
+      <div class="step s4">
+        <div class="n">1</div>
+        <h3>Webportal</h3>
+        <div class="en">mathcitymap.eu · planen</div>
+        <p>Aufgaben und Trails strukturiert anlegen, verwalten und veröffentlichen. Eine Weltkarte zeigt fertige
+        Trails als Inspiration; per PDF-Export entstehen Aufgaben- und Lösungs-Guides.</p>
+      </div>
+      <div class="step s1">
+        <div class="n">2</div>
+        <h3>Smartphone-App</h3>
+        <div class="en">das „Abspielgerät" · laufen</div>
+        <p>Trails werden vorab heruntergeladen und <strong>offline ohne Registrierung</strong> abgelaufen: Karte
+        und eigene Position, automatische Antwortvalidierung, bis zu drei gestufte Hinweise pro Aufgabe.</p>
+      </div>
+      <div class="step s3">
+        <div class="n">3</div>
+        <h3>Digitales Klassenzimmer</h3>
+        <div class="en">begleiten · diagnostizieren</div>
+        <p>Eine temporäre Umgebung, in der die Lehrkraft Fortschritt und Standort verfolgt, per Chat differenziert
+        und über das E-Portfolio Lösungen einsieht.</p>
+      </div>
+    </div>
+    <div class="foundation">Die App ist kostenlos für <b>Android und iOS</b> verfügbar. Für das reine Ablaufen
+    eines Trails brauchen die Lernenden <b>keinen Account und keine Internetverbindung</b> – Karten- und Bilddaten
+    werden vorab geladen.</div>
+  </section>
+
+  <!-- AUFGABEN -->
+  <section class="art" id="aufgaben">
+    <h2>Gute Trail-Aufgaben – und der Aufgaben-Wizard</h2>
+    <p class="qlead">Wie entstehen Aufgaben, die mathematisch tragen und sich vor Ort lösen lassen?</p>
+    <div class="tags"><span class="tool">Aufgaben-Wizard</span><span>Generic Tasks</span><span>20 Vorlagen</span></div>
+    <p>Die Vorbereitung beginnt mit Kreativität bei der Objektsuche: In jeder Stadt gibt es Treppen, Rampen,
+    Gebäude, Brunnen – immer wiederkehrende Objekte, an denen man aktiv Mathematik betreiben kann. Für solche
+    Objekte hält das Portal <strong>„Generic Tasks" (Blaupausenaufgaben)</strong> bereit: didaktisch ausgearbeitete
+    Vorlagen zu Kombinatorik, Algebra/Funktionen und Geometrie. Sie übertragen eine Aufgabenidee auf ein häufiges
+    Setting, sodass nur noch das Objekt (Foto und Ort) ausgetauscht und die Messwerte erhoben werden müssen.</p>
+    <p>Der <strong>Aufgaben-Wizard</strong> macht daraus eine fertige Aufgabe „wie von Zauberhand": Man wählt eine
+    von rund 20 Vorlagen, trägt die erhobenen Messwerte ein – und Musterlösung sowie Hinweise (teils mit Bild)
+    werden automatisch generiert. Das Musterbeispiel ist die <em>Geschwindigkeit einer Rolltreppe</em>: Europäische
+    Rolltreppen haben genormte Geschwindigkeiten (EN 115), Zeit und Länge genügen, um den Geschwindigkeitsbegriff
+    im Wortsinn er-fahrbar zu machen. Alle automatisch erzeugten Inhalte lassen sich an die eigene Lerngruppe
+    anpassen.</p>
+    <p>Für die Antwort stehen vier Formate bereit – ihre Wahl ist selbst eine didaktische Entscheidung:</p>
+    <div class="tablewrap">
+    <table>
+      <caption>Antwortformate in MathCityMap und ihr sinnvoller Einsatz</caption>
+      <thead><tr><th>Format</th><th>Wann sinnvoll</th></tr></thead>
+      <tbody>
+        <tr><td><span class="ziel">Intervall</span></td><td>Mess- und Modellierungsaufgaben: Kleine Ungenauigkeiten beim Messen oder Idealisieren sollen <em>nicht</em> zu „falsch" führen. Das wichtigste Format im Trail.</td></tr>
+        <tr><td><span class="ziel">Exakte Zahl</span></td><td>Wenn ein eindeutiger Zahlwert existiert, z.&#8202;B. bei kombinatorischen Fragestellungen.</td></tr>
+        <tr><td><span class="ziel">Multiple-Choice</span></td><td>Wenn Antwortoptionen das Denken strukturieren oder typische Fehlvorstellungen sichtbar machen sollen.</td></tr>
+        <tr><td><span class="ziel">GPS-Koordinaten</span></td><td>In Anlehnung an Geocaching: etwa „der Punkt mit gleichem Abstand zu zwei Landmarken" oder das Abstecken eines gleichseitigen Dreiecks im Park.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <blockquote style="background:var(--pp-bg);border-left-color:var(--pp)">
+      Merkregel: <strong>Wo gemessen wird, gehört ein Intervall hin.</strong> Verlangen Sie bei Mess- und
+      Modellierungsaufgaben keine exakte Zahl – sonst bestrafen Sie unvermeidbare Messungenauigkeit statt
+      mathematisches Denken.
+    </blockquote>
+  </section>
+
+  <!-- KLASSENZIMMER -->
+  <section class="art" id="klassenzimmer">
+    <h2>Das Digitale Klassenzimmer</h2>
+    <p class="first">Die größte Herausforderung beim Trail mit einer Klasse ist es, <strong>den Überblick zu
+    behalten</strong>: Ähnlich wie beim Stationenlernen verteilen sich die Kleingruppen über das Gebiet und
+    beginnen an verschiedenen Stellen. Die Lehrkraft kann unmöglich überall gleichzeitig sein. Das Digitale
+    Klassenzimmer ist die Antwort – eine <em>temporäre</em> pädagogische Umgebung, die man im Webportal mit
+    Start- und Endzeitpunkt anlegt; das System erzeugt dazu einen Zugangscode, mit dem die Gruppen den Trail laden.</p>
+    <p>Während der Trail läuft, stehen der Lehrkraft drei Funktionen für Klassenmanagement und Diagnose zur Verfügung:</p>
+    <ul>
+      <li><strong>Chat als Instruktionskanal</strong> – Anweisungen oder differenzierte Hilfen in Echtzeit, an alle
+      oder an einzelne Gruppen; Lernende können Hilfe anfordern oder Teil-Lösungen (z.&#8202;B. Messwerte) validieren lassen.</li>
+      <li><strong>Laufwege-Tool</strong> – zeigt, an welcher Aufgabe jede Gruppe gerade arbeitet und welchen Pfad
+      sie genommen hat. Stauen sich Gruppen an einer Station, sieht man das sofort und kann per Rundnachricht
+      reagieren – pädagogische Kontrolle, ohne physisch vor Ort zu sein.</li>
+      <li><strong>E-Portfolio</strong> – sammelt je Gruppe Fortschritt, genutzte Hinweise und gegebene Antworten.
+      Diese Informationen dienen der <strong>Diagnose</strong> und fließen in die weitere Unterrichtsplanung ein.</li>
+    </ul>
+    <blockquote>
+      <strong>Für die Auswertung:</strong> Mit den PDF-Guides und dem E-Portfolio lassen sich in der Folgestunde
+      gezielt verschiedene Lösungswege vergleichen und Fragen klären. Der Trail endet nicht an der letzten Station,
+      sondern in der mathematischen Besprechung im Klassenraum.
+    </blockquote>
+  </section>
+
+  <!-- ABLAUF -->
+  <section class="art" id="ablauf">
+    <h2>Die Trail-Stunde, Phase für Phase</h2>
+    <p class="first">Ein Trail-Ablauf braucht mindestens zwei Unterrichtsstunden. Die folgende Skizze trennt die
+    drei Phasen und macht sichtbar, wo die didaktische Arbeit liegt – nämlich vorn (gute Aufgaben, klare
+    Organisation) und hinten (gemeinsame Auswertung), nicht im Hinterherlaufen während des Trails.</p>
+    <div class="tablewrap">
+    <table>
+      <caption>Ablaufskizze eines Mathe-Trails mit MathCityMap</caption>
+      <thead><tr><th>Phase</th><th>Was Sie tun</th><th>Wozu</th></tr></thead>
+      <tbody>
+        <tr><td><span class="ziel">Vorbereiten</span></td><td>Trail und Karten in der App laden, Kleingruppen (2–4) bilden, Digitales Klassenzimmer mit Code öffnen, Hilfsmittel verteilen</td><td>Reibungslosen Start sichern, Überblick technisch vorbereiten</td></tr>
+        <tr><td><span class="ziel">Einweisen</span></td><td>Regeln, Treffpunkt und Zeitfenster klären; Gruppen an verschiedenen Startstationen beginnen lassen</td><td>Staus vermeiden, Sicherheit und Selbstständigkeit</td></tr>
+        <tr><td><span class="ziel">Trailen</span></td><td>Gruppen messen, rechnen, geben Lösungen ein; Sie verfolgen Laufwege und helfen per Chat gestuft</td><td>Aktives Mathematisieren am Objekt, gezielte Differenzierung</td></tr>
+        <tr><td><span class="ziel">Auswerten</span></td><td>In der Folgestunde Lösungswege aus E-Portfolio/PDF-Guide vergleichen, Fehler und Modellannahmen besprechen</td><td>Vom Erlebnis zur gesicherten Mathematik</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Die App übernimmt unterwegs viel: Sie zeigt Positionen, präsentiert Aufgaben mit Bild, gibt auf Anfrage
+    gestufte Hinweise und färbt die Pins nach Feedback ein. Dadurch werden Sie als Lehrkraft frei für das, was nur
+    Sie leisten können – <strong>beobachten, diagnostizieren und gezielt unterstützen</strong>.</p>
+  </section>
+
+  <!-- ORGANISATION -->
+  <section class="art" id="organisation">
+    <h2>Organisation, Sicherheit und Differenzierung</h2>
+    <p class="first">Ein Mathe-Trail findet im öffentlichen Raum statt – das verlangt organisatorische Sorgfalt.
+    Einige bewährte Hinweise aus der Praxis:</p>
+    <ul>
+      <li><strong>Geschützte Umgebungen wählen.</strong> Trails sollten in Parks, Fußgängerzonen oder an
+      Uferpromenaden liegen – verkehrsarm und überschaubar.</li>
+      <li><strong>Jahrgangsstufe beachten.</strong> Für die Aufsicht sind höhere Jahrgänge <strong>ab Klasse 8</strong>
+      einfacher zu handhaben. Mit jüngeren Klassen (5/6) gelingt es ebenfalls – bewährt hat sich, dass
+      Oberstufenschüler die Aufgaben erstellen und die Lehrkraft bei der Betreuung unterstützen.</li>
+      <li><strong>Hilfsmittel mitführen.</strong> Je nach Aufgaben Zollstock oder Maßband, Geodreieck und
+      Taschenrechner – die Aufgaben nennen ihren Bedarf.</li>
+      <li><strong>Gruppen klein halten.</strong> Kleingruppen zu zwei bis vier sorgen dafür, dass alle messen und
+      mitrechnen, statt zuzusehen.</li>
+    </ul>
+    <p>Dass die Methode trägt, ist breit erprobt: Im System wurden bereits Tausende Aufgaben in über tausend Trails
+    von einer großen Community engagierter Nutzer angelegt – „Sharing is caring": Öffentliche Aufgaben anderer
+    lassen sich mit eigenen zu einem neuen Trail kombinieren.</p>
+  </section>
+
+  <!-- UNSER TRAIL -->
+  <section class="art" id="unser-trail">
+    <h2>Unser Trail heute: Hameln Innenstadt</h2>
+    <p class="first">Für unsere Sitzung laufen wir den Trail durch die Hamelner Innenstadt selbst ab – einmal die
+    Perspektive der Lernenden einnehmen, mit Smartphone, Maßband und der Frage, wie sich ein Objekt mathematisieren
+    lässt. So erleben Sie unmittelbar, was die App leistet und wo die didaktischen Stellschrauben liegen.</p>
+    <div class="trailcard">
+      <h3>So finden Sie den Trail</h3>
+      <p style="margin:0 0 4px">In der MathCityMap-App über die Suche „<strong>Hameln Innenstadt</strong>" oder
+      direkt über den Trail-Code. Treffpunkt und Start ist die <strong>Hochzeitshausterrasse</strong>
+      (Osterstraße 2, zwischen Marktkirche und Hochzeitshaus). Bringen Sie nach Möglichkeit einen
+      <strong>Zollstock oder ein Maßband</strong> mit – im Trail wird gemessen.</p>
+      <div class="facts">
+        <div class="f"><span class="k">Trail-Code</span><span class="v">581071</span></div>
+        <div class="f"><span class="k">Aufgaben</span><span class="v">18</span></div>
+        <div class="f"><span class="k">Länge</span><span class="v">~1,6 km</span></div>
+        <div class="f"><span class="k">Ab Klasse</span><span class="v">10</span></div>
+      </div>
+      <p style="margin:8px 0 0;font-size:14px;color:var(--muted)">Themenfelder u.&#8202;a.: Geometrie und Winkel,
+      Maßstab und Verkleinerung, Kombinatorik, Pythagoras und Diagonalen, Steigung und Prozent, Volumen am Quader,
+      Schätzen und Überschlagen.</p>
+    </div>
+    <p>Der Trail ist ab Klasse 10 ausgewiesen – ein guter Anlass, beim Ablaufen mitzudenken, welche Aufgaben sich
+    mit gestuften Hinweisen oder angepassten Intervallen auch für frühere Jahrgänge öffnen ließen.</p>
+  </section>
+
+  <!-- SORGEN -->
+  <section class="art" id="sorgen">
+    <h2>Häufige Sorgen beim Einstieg</h2>
+    <p class="first">Ein paar ehrliche Antworten auf die Fragen, die vor dem ersten eigenen Trail fast immer
+    auftauchen – zum Aufklappen.</p>
+
+    <details class="worry">
+      <summary>„Muss jede Schülerin und jeder Schüler ein Smartphone haben?"</summary>
+      <div class="ans"><p>Nein. Gearbeitet wird in Kleingruppen zu zwei bis vier – ein Gerät pro Gruppe genügt,
+      und das fördert sogar die Aushandlung. Die App läuft offline ohne Account; nur das Digitale Klassenzimmer
+      (Chat, Live-Laufwege) braucht eine mobile Verbindung.</p></div>
+    </details>
+
+    <details class="worry">
+      <summary>„Einen eigenen Trail zu bauen ist mir zu aufwendig."</summary>
+      <div class="ans"><p>Für den Einstieg müssen Sie gar nichts bauen: Über die Weltkarte und die App-Suche finden
+      Sie fertige, öffentliche Trails – wie unseren in Hameln. Wollen Sie später selbst Aufgaben anlegen, nimmt
+      Ihnen der Aufgaben-Wizard mit seinen Vorlagen den Großteil der Arbeit ab; oft genügt das Eintragen weniger
+      Messwerte.</p></div>
+    </details>
+
+    <details class="worry">
+      <summary>„Verliere ich nicht den Überblick, wenn sich alle verteilen?"</summary>
+      <div class="ans"><p>Genau dafür gibt es das Digitale Klassenzimmer. Das Laufwege-Tool zeigt in Echtzeit, wo
+      jede Gruppe steht und woran sie arbeitet; per Chat steuern Sie nach. Sie behalten die pädagogische Kontrolle,
+      ohne an jeder Station zu sein.</p></div>
+    </details>
+
+    <details class="worry">
+      <summary>„Was, wenn beim Messen ungenau gearbeitet wird?"</summary>
+      <div class="ans"><p>Das ist eingeplant. Mess- und Modellierungsaufgaben nutzen das Antwortformat
+      <strong>Intervall</strong>: Kleine Ungenauigkeiten führen nicht zu „falsch". Im Gegenteil – die Frage, wie
+      genau man überhaupt messen kann und welche Modellannahmen man trifft, ist selbst wertvoller Lernstoff für die
+      Auswertung.</p></div>
+    </details>
+
+    <details class="worry">
+      <summary>„Ist das nicht eher Ausflug als Mathematikunterricht?"</summary>
+      <div class="ans"><p>Der Unterschied entscheidet sich in der Vor- und Nachbereitung. Eine gute Trail-Aufgabe
+      verlangt echtes Mathematisieren am Objekt, und die <em>Auswertung</em> im Klassenraum – Lösungswege
+      vergleichen, Modelle prüfen – hebt das Erlebnis auf die fachliche Ebene. Motivation und Behaltensleistung
+      sprechen empirisch klar für die Methode.</p></div>
+    </details>
+  </section>
+
+  <!-- ROTER FADEN -->
+  <div class="reflect" id="faden">
+    <h3>Der rote Faden in einem Satz</h3>
+    <p style="margin:0">Ein Mathe-Trail bringt die Lernenden zur Mathematik im realen Raum: An echten Objekten wird
+    <b>gemessen, geschätzt und modelliert</b>, und das MathCityMap-System trägt die Organisation – das
+    <b>Webportal</b> zum Planen, die <b>App</b> zum Ablaufen, das <b>Digitale Klassenzimmer</b> zum Begleiten und
+    Diagnostizieren. So wird aus einem aufwendigen Sonderprojekt eine wiederholbare, motivierende und nachhaltige
+    Unterrichtsform.</p>
+  </div>
+
+  <!-- QUELLEN -->
+  <footer class="src">
+    <b>Quellen &amp; Grundlagen</b>
+    <ul>
+      <li>Ludwig, M. / Baumann-Wehner, M. / Gurjanow, I. / Jablonski, S. (2019): <i>Mathe draußen: MathCityMap –
+      Mit Aufgaben-Wizard und Digitalem Klassenzimmer zum mobilen MathTrail.</i> In: mathematik lehren 215, S. 29–32.</li>
+      <li>Gurjanow, I. / Jablonski, S. / Ludwig, M. / Zender, J. (2019): <i>Modellieren mit MathCityMap.</i> In:
+      Neue Materialien für einen realitätsbezogenen Mathematikunterricht 6, Springer Spektrum, S. 111–128.</li>
+      <li>Ludwig, M. / Jesberg, J. / Weiß, D. (2013): <i>MathCityMap – eine faszinierende Belebung der Idee
+      mathematischer Wanderpfade.</i> In: Praxis der Mathematik 53, S. 14–19.</li>
+      <li>Cahyono, A. (2018): <i>Learning Mathematics in a Mobile App-Supported Math Trail Environment.</i>
+      SpringerBriefs in Education, Heidelberg. (Motivation)</li>
+      <li>Zender, J. (2018): <i>MathTrails in der Sekundarstufe I.</i> Dissertation, Frankfurt am Main. (Behaltensleistung)</li>
+      <li>Trail „Hameln Innenstadt" (Code 581071) sowie Aufgabensammlung Hameln, erstellt über
+      <a href="https://mathcitymap.eu" target="_blank" rel="noopener">mathcitymap.eu</a> (Arbeitsgruppe MATIS I,
+      Goethe-Universität Frankfurt). Begleitmaterial: Infografik „Mathematik draußen erleben".</li>
+    </ul>
+    <nav class="legal" aria-label="Rechtliches"><a href="/ausb/">Übersicht</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></nav>
+    <div class="printline">Fachseminar Mathematik · Studienseminar Hameln für das Lehramt an Gymnasien · Dr. Michael Glaubitz · Handreichung „Mathe-Trails mit MathCityMap"</div>
+  </footer>
+
+</main>
+</body>
+</html>
