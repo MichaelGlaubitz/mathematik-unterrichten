@@ -151,6 +151,56 @@ footer.src li{margin:4px 0}
 .legal a:hover{color:var(--ink);border-color:var(--ink)}
 .printline{margin-top:18px;font-size:12px;color:#9aa6b2}
 
+/* =====================================================================
+   Dark-Mode  (umschaltbar über data-theme="dark" auf <html>)
+   Aktivierung/Toggle: Vorlage/handreichung-theme.js
+   Nur am Bildschirm – der Druck bleibt grundsätzlich hell.
+   ===================================================================== */
+.theme-toggle{position:fixed;right:18px;bottom:18px;z-index:60;width:46px;height:46px;border-radius:50%;
+     border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--shadow2);
+     font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center;
+     transition:transform .15s,box-shadow .15s}
+.theme-toggle:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.18)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+
+@media screen{
+  :root[data-theme="dark"]{
+    --bg:#0f151c; --card:#19212b; --ink:#e6ecf2; --muted:#9aa7b4;
+    --line:#2b3742; --accent:#e98b7f; --accent2:#7fb2e6;
+    --pp:#5cc98a; --p:#74b88c; --o:#d8b25a; --m:#e8916a;
+    --pp-bg:#16291f; --p-bg:#15251b; --o-bg:#2a2413; --m-bg:#2c1d15;
+    --blue-bg:#15202c;
+    --shadow:0 1px 3px rgba(0,0,0,.5); --shadow2:0 6px 22px rgba(0,0,0,.55);
+  }
+  /* Sekundärtext (hartkodiertes #42505c / #37434f / #33414e / #3a4753) */
+  :root[data-theme="dark"] .lead{color:#c6cfd8}
+  :root[data-theme="dark"] blockquote{color:#ccd5dd}
+  :root[data-theme="dark"] .step p,
+  :root[data-theme="dark"] .toolbox dd,
+  :root[data-theme="dark"] .toolbox .tb-col p,
+  :root[data-theme="dark"] .card p,
+  :root[data-theme="dark"] .checklist li,
+  :root[data-theme="dark"] details.worry .ans,
+  :root[data-theme="dark"] .bar .lbl{color:#b4bec9}
+  /* Flächen & Linien */
+  :root[data-theme="dark"] tbody tr:nth-child(even){background:#1e2832}
+  :root[data-theme="dark"] .bar .track{background:#2a3540}
+  :root[data-theme="dark"] .foundation{background:linear-gradient(180deg,#1b2530,#161d26);
+       border-color:#33414f;color:#c6cfd8}
+  :root[data-theme="dark"] .reflect{border-color:#5e3d2e}
+  :root[data-theme="dark"] .printline{color:#828d99}
+  :root[data-theme="dark"] .tags span.tool{border-color:#2f5b40}
+  :root[data-theme="dark"] .verbs span{border-color:#2f465c}
+  :root[data-theme="dark"] .verbs.green span{border-color:#2f5b40}
+  /* Gefüllte Kopf-Flächen: tiefes Blau, damit weißer Text trägt */
+  :root[data-theme="dark"] thead th,
+  :root[data-theme="dark"] .toolbox .tb-head,
+  :root[data-theme="dark"] header.gov .tag{background:#21364b}
+  :root[data-theme="dark"] .mini-chart thead th{background:#2c3e52}
+  /* Farbige Zahlen-Badges: dunkle Ziffer auf hellem Akzent */
+  :root[data-theme="dark"] .step .n{color:#10171f}
+}
+
 @media (max-width:620px){
   h1{font-size:27px} nav.toc ol{columns:1}
   .toolbox .tb-grid{grid-template-columns:1fr}
@@ -158,6 +208,6 @@ footer.src li{margin:4px 0}
 }
 @media print{
   body{background:#fff;font-size:12pt} header.gov{box-shadow:none}
-  .videowrap,nav.toc{display:none} main{max-width:none}
+  .videowrap,nav.toc,.theme-toggle{display:none} main{max-width:none}
   .step,.toolbox,table{box-shadow:none}
 }
