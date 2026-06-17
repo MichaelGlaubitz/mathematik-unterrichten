@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Middle Math – Fachseminar Mathematik, Studienseminar Hameln</title>
+<!-- Zentrales Design-System der Handreichungen (siehe Ordner „Vorlage") -->
+<link rel="stylesheet" href="Vorlage/handreichung-style.css">
+<script src="Vorlage/handreichung-theme.js"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  /* Ergänzende Bausteine – verwenden ausschließlich die Tokens des Designsystems */
+  .qlead{font-style:italic;color:var(--accent2);font-size:16.5px;margin:12px 0 2px}
+  .eq{font-family:"Cambria Math",Georgia,serif;font-size:18px;white-space:nowrap}
+  .box{display:inline-block;min-width:1.5em;height:1.5em;line-height:1.42em;border:1.6px solid var(--accent2);
+       border-radius:5px;margin:0 .12em;text-align:center;color:var(--muted);vertical-align:-.3em;background:var(--blue-bg)}
+  td .no{color:var(--m);font-weight:700}
+  td .yes{color:var(--pp);font-weight:700}
+  .digits{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+  .digits span{font-size:14px;background:var(--blue-bg);color:var(--accent2);border:1px solid #cdddee;
+       border-radius:6px;padding:2px 9px;font-weight:700;font-family:"Cambria Math",Georgia,serif}
+</style>
+</head>
+<body>
+
+<header class="gov">
+  <a class="brand" href="/ausb/" title="Zur Übersicht der Handreichungen" style="display:flex;align-items:center;gap:18px;text-decoration:none;color:inherit">
+  <img class="wappen" src="medien/wappen.jpg" alt="Niedersächsisches Landeswappen (Sachsenross)">
+  <div class="titles">
+    <span class="l1">Niedersachsen · Studienseminar Hameln</span>
+    <span class="l2">Fachseminar Mathematik</span>
+    <span class="l3">Handreichung · Open Middle Math</span>
+  </div>
+  </a>
+  <span class="spacer"></span>
+  <span class="tag">Routine &rarr; Verständnis</span>
+</header>
+
+<main>
+
+  <div class="hero">
+    <span class="eyebrow">Aufgabenkultur · Tiefes Verständnis · Mathematik</span>
+    <h1>Open Middle Math: <span class="q">tiefes Verständnis</span> statt bloßer Routine</h1>
+    <p class="lead">Viele Schülerinnen und Schüler lösen Standardaufgaben fehlerfrei und verstehen den Stoff
+    trotzdem nicht – die Fehlvorstellung bleibt verborgen, bis sie in der Klausur auffliegt. „Open Middle"-Aufgaben
+    haben einen klaren Anfang und ein klares Ziel, lassen aber die Mitte offen. Sie machen Denkwege sichtbar,
+    decken Fehlkonzepte auf und erzeugen produktives Ringen – ohne neues Material, allein durch die Konstruktion
+    der Aufgabe.</p>
+  </div>
+
+  <nav class="toc">
+    <b>Auf einen Blick</b>
+    <ol>
+      <li><a href="#problem">Die „Chinese-Room"-Falle</a></li>
+      <li><a href="#konzept">Was eine Open-Middle-Aufgabe ausmacht</a></li>
+      <li><a href="#dok">Tiefe steuern: Depth of Knowledge</a></li>
+      <li><a href="#vergleich">Traditionell vs. Open Middle</a></li>
+      <li><a href="#bauen">Aufgaben selbst bauen</a></li>
+      <li><a href="#unterricht">Im Unterricht: Denken begleiten</a></li>
+      <li><a href="#einstieg">Einstieg im Referendariat</a></li>
+      <li><a href="#faden">Der rote Faden</a></li>
+    </ol>
+  </nav>
+
+  <!-- INFOGRAFIK -->
+  <div class="info">
+    <h2 class="center">Tiefes Verständnis statt bloßer Routine</h2>
+    <p class="cap">Das Problem, das Konzept der offenen Mitte, der Vergleich zu Standardaufgaben und die Tipps
+    für den Einstieg – als Infografik.</p>
+    <figure class="poster">
+      <a href="medien/Open_Middle_Math_Infografik.png" target="_blank" rel="noopener" title="Infografik in voller Größe öffnen">
+        <img src="medien/Open_Middle_Math_Infografik.png" alt="Infografik „Open Middle Math: Tiefes Verständnis statt bloßer Routine". Dargestellt sind das Problem der verborgenen Fehlvorstellungen (Chinese-Room-Falle, Roboter-Syndrom), das Konzept der offenen Mitte mit gleichem Start und gleichem Ziel bei offenem Lösungsweg, ein Vergleich traditioneller und Open-Middle-Aufgaben hinsichtlich Struktur, Rolle der Lehrkraft und Fehlerkultur, das Beispiel zweistufiger Gleichungen mit Ziffernkarten sowie drei Tipps für den Einstieg im Referendariat: klein anfangen, Strategien antizipieren und formatives Assessment nutzen.">
+      </a>
+      <figcaption>Open Middle Math: Problem, Konzept, Vergleich und Einstieg im Überblick. Zum Vergrößern anklicken.</figcaption>
+    </figure>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="videowrap">
+    <video controls preload="metadata" poster="medien/Open_Middle_Math_Infografik.png">
+      <source src="/downloads/Open_Middle_Math.mp4" type="video/mp4">
+      Ihr Browser kann dieses Video nicht abspielen. Die Datei liegt unter
+      <a href="/downloads/Open_Middle_Math.mp4">/downloads/Open_Middle_Math.mp4</a>.
+    </video>
+    <p class="vcap"><b>Video-Überblick:</b> „Open Middle Math" – worum es geht, woran man verborgene
+    Fehlvorstellungen erkennt und wie der Einstieg gelingt.</p>
+  </div>
+
+  <!-- PROBLEM -->
+  <section class="art" id="problem">
+    <h2><span class="num">1</span>Das Problem: die „Chinese-Room"-Falle</h2>
+    <p class="first">Stellen Sie sich einen Menschen vor, der in einem Zimmer sitzt und chinesische Zeichen nach
+    einer Anleitung korrekt zu Antworten verarbeitet – ohne ein Wort Chinesisch zu verstehen. Genau das passiert
+    im Mathematikunterricht häufiger, als uns lieb ist: Lernende führen ein Verfahren formal richtig aus, ohne zu
+    verstehen, <em>warum</em> es funktioniert. Sie agieren wie <strong>Roboter</strong> – und die Lücke fällt oft
+    erst in der Abschlussprüfung auf.</p>
+    <p>Robert Kaplinsky beschreibt diesen Effekt eindrücklich an drei Aufgaben zur selben Kompetenz (einstufige
+    Gleichungen), die er von über 1&nbsp;100&nbsp;Lernenden bearbeiten ließ:</p>
+    <div class="tablewrap">
+    <table>
+      <caption>Dieselbe Kompetenz, drei Aufgaben-Typen – und drei sehr unterschiedliche Trefferquoten (nach Kaplinsky 2019)</caption>
+      <thead><tr><th>Aufgabe</th><th>Anforderung</th><th>Gelöst</th></tr></thead>
+      <tbody>
+        <tr><td><span class="ziel">Standard</span><br><span class="eq">21 + x = 70</span></td>
+            <td>Verfahren abrufen und anwenden.</td><td><span class="yes">≈ 92 %</span></td></tr>
+        <tr><td><span class="ziel">Offene Mitte</span><br>je eine positive <em>und</em> negative Lösung erzeugen</td>
+            <td>Zusammenhänge nutzen, Muster erkennen.</td><td><span class="no">≈ 51 %</span></td></tr>
+        <tr><td><span class="ziel">Offene Mitte</span><br>größtmöglichen Wert für <span class="eq">x</span> erzeugen</td>
+            <td>Strategisch über die Wirkung der Ziffern nachdenken.</td><td><span class="no">≈ 37 %</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Wer nur die Standardaufgabe stellt, hält 92&nbsp;% für kompetent. Tatsächlich hatten rund <strong>55&nbsp;%
+    der Lernenden Fehlvorstellungen</strong>, die erst durch die offeneren Aufgaben sichtbar wurden. Kaplinsky
+    nennt das die <strong>„False-Positive"-Lücke</strong>: scheinbare Sicherheit, die echtes Verständnis vortäuscht.</p>
+    <blockquote style="background:var(--m-bg);border-left-color:var(--m)">
+      <strong>Das Roboter-Syndrom:</strong> Klassische Arbeitsblätter – „dieselbe Aufgabe zwölfmal" – belohnen
+      schnelles, reflexarmes Abarbeiten. Sie laden gerade nicht dazu ein, über Strategien nachzudenken. Korrekte
+      Antworten ohne Verständnis sind dann kein Erfolg, sondern eine verdeckte Baustelle.
+      <span class="src">— nach R. Kaplinsky: „Why We Should Reconsider Using Worksheets"</span>
+    </blockquote>
+  </section>
+
+  <!-- KONZEPT -->
+  <section class="art" id="konzept">
+    <h2><span class="num">2</span>Was eine Open-Middle-Aufgabe ausmacht</h2>
+    <p class="first">Die Idee geht auf Dan Meyer zurück, der Mathematikaufgaben mit Videospielen vergleicht: Ein
+    Spiel hat einen <em>Anfang</em>, eine <em>Mitte</em> und ein <em>Ende</em>, die jeweils offen oder geschlossen
+    sein können. Spannend wird ein Spiel, wenn alle am selben Punkt starten und dasselbe Ziel erreichen wollen –
+    der Weg dorthin aber offen ist. Genau dieses Prinzip übertragen Open-Middle-Aufgaben auf die Mathematik.</p>
+    <div class="toolbox">
+      <div class="tb-head">Gleicher Start, gleiches Ziel – offener Weg</div>
+      <div class="tb-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="tb-col assess">
+          <h4>Geschlossener Anfang</h4>
+          <div class="lbl">gleicher Start</div>
+          <p>Alle bekommen dieselbe Aufgabe und denselben Materialrahmen – ein klarer, niedrigschwelliger Einstieg.</p>
+        </div>
+        <div class="tb-col advance">
+          <h4>Offene Mitte</h4>
+          <div class="lbl">der Lösungsweg</div>
+          <p>Viele Wege führen zum Ziel. Hier entstehen Strategien, Diskussionen und sichtbares Denken.</p>
+        </div>
+        <div class="tb-col">
+          <h4 style="color:var(--accent2)">Geschlossenes Ende</h4>
+          <div class="lbl">gleiches Ziel</div>
+          <p>Gesucht ist ein <em>strategisch gewählter</em> Wert: der kleinste, größte oder einer möglichst nah an
+          einer Zielzahl. Das zwingt zum Begründen der besten Lösung.</p>
+        </div>
+      </div>
+    </div>
+    <p>Das geschlossene Ende ist der entscheidende Hebel: Wer „den größten Wert" oder „möglichst nah an 100"
+    finden soll, legt den Stift nicht nach der ersten Antwort weg, sondern fragt sich, ob es nicht doch noch besser
+    geht. So entsteht <strong>produktives Ringen</strong> – und ganz nebenbei das Äquivalent von zehn bis fünfzehn
+    Übungsaufgaben, jetzt aber mit Erkenntnisgewinn.</p>
+    <blockquote style="background:var(--pp-bg);border-left-color:var(--pp)">
+      <strong>Typische Konstruktion:</strong> „Setze die Ziffern <span class="digits" style="display:inline-flex"><span>1</span><span>…</span><span>9</span></span> – jede höchstens einmal – so in die Kästchen ein, dass …" Die Ziffernkarten
+      machen reines Einsetzen wertlos und belohnen das Verständnis der zugrunde liegenden Operation.
+    </blockquote>
+  </section>
+
+  <!-- DOK -->
+  <section class="art" id="dok">
+    <h2><span class="num">3</span>Tiefe steuern: Depth of Knowledge</h2>
+    <p class="first">Wie tief eine Aufgabe trägt, lässt sich mit Norman Webbs <strong>Depth of Knowledge</strong>
+    (DOK) einordnen. Webb stieß auf eine Lücke zwischen dem Anspruch der Bildungsstandards und dem, was Tests
+    tatsächlich prüfen – dieselbe Lücke, die das verborgene Scheinverständnis erzeugt. Vier Stufen beschreiben,
+    wie tief das Wissen reichen muss:</p>
+    <p class="journey-label">Die vier DOK-Stufen – Open Middle lebt in Stufe 2 und 3</p>
+    <div class="journey">
+      <div class="step s1"><div class="n">1</div><h3>Reproduzieren</h3><div class="en">Recall</div><p>Eine Tatsache
+      oder ein Verfahren abrufen. <span class="eq">21 + x = 70</span> – Verfahren anwenden, fertig.</p></div>
+      <div class="step s2"><div class="n">2</div><h3>Verstehen &amp; Anwenden</h3><div class="en">Skill / Concept</div>
+      <p>Begriffe und Verfahren in mehreren Schritten nutzen; mehr als eine Lösung möglich.</p></div>
+      <div class="step s3"><div class="n">3</div><h3>Strategisch denken</h3><div class="en">Strategic Thinking</div>
+      <p>Begründen, planen, Wirkung der eigenen Wahl durchdenken. „Leicht zu beginnen, schwer zu optimieren."</p></div>
+      <div class="step s4"><div class="n">4</div><h3>Untersuchen</h3><div class="en">Extended Thinking</div>
+      <p>Mathematisches Modellieren, reale Anwendungen über mehrere Bedingungen hinweg.</p></div>
+    </div>
+    <div class="foundation"><b>Merksatz:</b> Nicht die genaue DOK-Stufe entscheidet, sondern dass Sie regelmäßig
+    <b>über DOK&nbsp;1 hinausgehen</b> – also Aufgaben mit offener Mitte stellen.</div>
+  </section>
+
+  <!-- VERGLEICH -->
+  <section class="art" id="vergleich">
+    <h2><span class="num">4</span>Traditionell vs. Open Middle</h2>
+    <p class="first">Derselbe Lerninhalt, zwei Aufgabenkulturen – mit Folgen für die Struktur, die Rolle der
+    Lehrkraft und den Umgang mit Fehlern.</p>
+    <div class="tablewrap">
+    <table>
+      <caption>Zwei Aufgabenkulturen im direkten Vergleich</caption>
+      <thead><tr><th>Dimension</th><th>Traditionelle Aufgabe</th><th>Open-Middle-Aufgabe</th></tr></thead>
+      <tbody>
+        <tr><td><span class="ziel">Struktur</span></td>
+            <td><span class="no">Geschlossen</span> – ein Weg, eine Antwort.</td>
+            <td><span class="yes">Offen in der Mitte</span> – viele Wege zum klar definierten Ziel.</td></tr>
+        <tr><td><span class="ziel">Rolle der Lehrkraft</span></td>
+            <td><span class="no">Prüfer</span> – bewertet nur „richtig / falsch".</td>
+            <td><span class="yes">Lernbegleiter</span> – nutzt Schülerstrategien zur Diagnose.</td></tr>
+        <tr><td><span class="ziel">Fehlerkultur</span></td>
+            <td><span class="no">Vermeidung</span> – Fehler als Makel, Frust bei „falschem" Ergebnis.</td>
+            <td><span class="yes">Wachstum</span> – Fehler als Material, das Denken sichtbar macht.</td></tr>
+        <tr><td><span class="ziel">Diagnostischer Wert</span></td>
+            <td><span class="no">Gering</span> – verdeckt Fehlvorstellungen.</td>
+            <td><span class="yes">Hoch</span> – legt verborgene Fehlkonzepte offen.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Open-Middle-Aufgaben sind dabei <strong>kein Förderformat für eine Teilgruppe</strong>: Der niedrige
+    Einstieg trägt schwächere Lernende, die offene Mitte fordert die stärkeren. Dieselbe Aufgabe differenziert
+    von selbst.</p>
+  </section>
+
+  <!-- BAUEN -->
+  <section class="art" id="bauen">
+    <h2><span class="num">5</span>Aufgaben selbst bauen – vom Standard zur offenen Mitte</h2>
+    <p class="first">Man braucht keine neuen Themen, sondern nur einen anderen Blick auf vorhandene Aufgaben.
+    Kaplinsky beschreibt ein dreistufiges Vorgehen, das eine geschlossene Aufgabe schrittweise öffnet. Am Beispiel
+    der zweistufigen Gleichung:</p>
+    <div class="toolbox">
+      <div class="tb-head">Drei Schritte: eine Standardaufgabe öffnen</div>
+      <div class="tb-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="tb-col assess">
+          <h4>Schritt 1 · Standard (DOK 1)</h4>
+          <div class="lbl">Ausgangspunkt</div>
+          <p>Die geschlossene Aufgabe: <span class="eq">2x + 1 = 5</span>. Ein Weg, eine Lösung.</p>
+        </div>
+        <div class="tb-col advance">
+          <h4>Schritt 2 · Öffnen (DOK 2)</h4>
+          <div class="lbl">Ziffern einsetzen</div>
+          <p>Ersetzen Sie Zahlen durch Kästchen für Ziffernkarten:
+          <span class="eq"><span class="box"></span>x + <span class="box"></span> = <span class="box"></span><span class="box"></span></span>. Schon entstehen mehrere Lösungen.</p>
+        </div>
+        <div class="tb-col">
+          <h4 style="color:var(--accent2)">Schritt 3 · Optimieren (DOK 3)</h4>
+          <div class="lbl">strategisches Ziel</div>
+          <p>Eine Optimierungs-Bedingung ergänzen: „… so, dass <span class="eq">x</span> den größtmöglichen Wert
+          erreicht." Jetzt zählt die beste Lösung.</p>
+        </div>
+      </div>
+    </div>
+    <blockquote style="background:var(--pp-bg);border-left-color:var(--pp)">
+      <strong>Beispiel zum Mitnehmen:</strong> „Setze die Ziffern <span class="eq">1</span> bis <span class="eq">9</span>,
+      jede höchstens einmal, in die Kästchen
+      <span class="eq"><span class="box"></span>x + <span class="box"></span> = <span class="box"></span><span class="box"></span></span>
+      so ein, dass <span class="eq">x</span> möglichst groß wird." Wer nur einsetzt, probiert lange; wer die Struktur
+      versteht, sieht die beste Wahl.
+    </blockquote>
+    <p>Die Faustregel: ein klarer Start, eine offene Mitte, ein Ziel, das ein <em>Optimum</em> verlangt. Wer die
+    Aufgabe vorab selbst löst, erkennt sofort, ob sie trägt – und sammelt die Strategien, die im Unterricht auftauchen
+    werden.</p>
+  </section>
+
+  <!-- UNTERRICHT -->
+  <section class="art" id="unterricht">
+    <h2><span class="num">6</span>Im Unterricht: produktives Ringen begleiten</h2>
+    <p class="first">Die Aufgabe ist nur die halbe Miete – ihr Wert entsteht im Gespräch darüber. Hier greifen die
+    <strong>5 Practices</strong> von Smith &amp; Stein, auf die sich Kaplinsky ausdrücklich stützt: ein bewährtes
+    Gerüst, um aus vielen Lösungswegen eine geführte Erkenntnis zu machen.</p>
+    <div class="checklist">
+      <p style="margin:6px 0 2px;color:var(--accent2);font-weight:700">Von der offenen Mitte zur geführten Erkenntnis</p>
+      <ol style="margin:8px 0 6px;padding-left:22px">
+        <li><strong>Antizipieren</strong> – vorab selbst lösen und mögliche (auch falsche) Wege sammeln.</li>
+        <li><strong>Monitoring</strong> – im Raumgang notieren, wer welche Strategie nutzt (Student Strategy Tracker).</li>
+        <li><strong>Auswählen</strong> – die Arbeiten herausgreifen, die das Lernziel tragen.</li>
+        <li><strong>Sequenzieren</strong> – sie in eine Reihenfolge bringen, die eine Geschichte erzählt.</li>
+        <li><strong>Verknüpfen</strong> – die Wege miteinander und mit dem Fachkonzept verbinden.</li>
+      </ol>
+    </div>
+    <p>Wichtig ist die Unterscheidung von <strong>produktivem</strong> und <strong>unproduktivem</strong> Ringen:
+    Solange Lernende eigene Hypothesen prüfen, ist Anstrengung gewollt. Erst wenn keine Strategie mehr greift, hilft
+    gestuftes <strong>Scaffolding</strong> – die kleinste Hilfe, die das Denken wieder in Gang bringt, nicht die
+    Lösung. Eingesetzt während (nicht erst am Ende) einer Einheit, wird die offene Aufgabe so zum präzisen
+    <strong>formativen Diagnoseinstrument</strong>.</p>
+    <blockquote>
+      <strong>Fast jedes Mal, wenn ich glaube, meine Schüler hätten alles verstanden, stelle ich beim Einsatz einer
+      Open-Middle-Aufgabe fest, dass es Fehlvorstellungen gibt, die mir bis dahin entgangen sind.</strong>
+      <span class="src">— sinngemäß nach R. Kaplinsky, „Open Middle Math" (2019)</span>
+    </blockquote>
+  </section>
+
+  <!-- EINSTIEG -->
+  <section class="art" id="einstieg">
+    <h2><span class="num">7</span>Einstieg im Referendariat</h2>
+    <p class="first">Der Wechsel der Aufgabenkultur gelingt nicht über Nacht – auch die Lernenden müssen sich an
+    das neue Erwartungsbild gewöhnen. Drei Maßnahmen machen den Start tragfähig.</p>
+    <div class="toolbox">
+      <div class="tb-head">Drei Hebel für den gelingenden Start</div>
+      <div class="tb-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="tb-col assess">
+          <h4>Klein anfangen</h4>
+          <div class="lbl">Erfolge zuerst</div>
+          <p>Mit zugänglichen Aufgaben beginnen, bei denen die Klasse Erfolge erlebt, bevor Sie die Tiefe (DOK)
+          steigern.</p>
+        </div>
+        <div class="tb-col advance">
+          <h4>Strategien antizipieren</h4>
+          <div class="lbl">vorab selbst lösen</div>
+          <p>Die Aufgabe vorab auf mehreren Wegen lösen, um erwartbare Fehlvorstellungen souverän moderieren zu
+          können.</p>
+        </div>
+        <div class="tb-col">
+          <h4 style="color:var(--accent2)">Formativ nutzen</h4>
+          <div class="lbl">während der Einheit</div>
+          <p>Open-Middle-Probleme mitten in der Einheit einsetzen, um genau zu sehen, welche Konzepte schon sitzen –
+          und wo nachzusteuern ist.</p>
+        </div>
+      </div>
+    </div>
+    <p>Eine kuratierte, ständig wachsende Sammlung fertiger Aufgaben für alle Klassenstufen finden Sie unter
+    <strong>openmiddle.com</strong> – ein guter Fundus für die ersten eigenen Versuche.</p>
+  </section>
+
+  <!-- ROTER FADEN -->
+  <div class="reflect" id="faden">
+    <h3>Der rote Faden in einem Satz</h3>
+    <p style="margin:0">Open-Middle-Aufgaben halten <b>Anfang und Ziel geschlossen, öffnen aber den Lösungsweg</b>
+    und verlangen ein <b>Optimum</b>; so verwandeln sie reines Abarbeiten in <b>strategisches Denken</b>, decken
+    verborgene Fehlvorstellungen auf und werden – begleitet durch die <b>5 Practices</b> und gestuftes Scaffolding –
+    zum schärfsten formativen Diagnoseinstrument, das ohne neues Material auskommt.</p>
+  </div>
+
+  <!-- QUELLEN -->
+  <footer class="src">
+    <b>Quellen &amp; Grundlagen</b>
+    <ul>
+      <li>Robert Kaplinsky: <i>Open Middle Math. Problems That Unlock Student Thinking, Grades 6–12.</i>
+      Stenhouse Publishers, Portsmouth 2019. (Vorwort von Nanette Johnson; Konzept der offenen Mitte nach Dan Meyer.)</li>
+      <li>Robert Kaplinsky: <i>Why We Should Reconsider Using Worksheets – and What We Should Do Instead.</i>
+      Vortrag/Präsentation.</li>
+      <li>Norman L. Webb: <i>Depth of Knowledge (DOK).</i> University of Wisconsin–Madison, 1997/1999.</li>
+      <li>Margaret S. Smith &amp; Mary Kay Stein: <i>5 Practices for Orchestrating Productive Mathematics Discussions.</i>
+      NCTM, 2011 (Antizipieren, Monitoring, Auswählen, Sequenzieren, Verknüpfen). Vgl. Handreichung
+      <a href="Produktive-Unterrichtsgespraeche.html">„Produktive Unterrichtsgespräche"</a>.</li>
+      <li>Aufgabensammlung: <i>openmiddle.com</i> (Open Middle Partnership).</li>
+      <li>Begleitmaterial: Infografik <i>„Open Middle Math: Tiefes Verständnis statt bloßer Routine"</i> und
+      Video-Überblick.</li>
+    </ul>
+    <nav class="legal" aria-label="Rechtliches"><a href="/ausb/">Übersicht</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></nav>
+    <div class="printline">Fachseminar Mathematik · Studienseminar Hameln für das Lehramt an Gymnasien · Dr. Michael Glaubitz · Handreichung „Open Middle Math"</div>
+  </footer>
+
+</main>
+</body>
+</html>
