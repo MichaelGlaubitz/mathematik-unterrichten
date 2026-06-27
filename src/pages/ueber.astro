@@ -1,47 +1,71 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const showPortrait = true;
+const portraitSrc = '/michael-glaubitz.jpg';
 ---
 
-<BaseLayout sourceFile="src/pages/ueber.astro" title="Über die Seite">
+<BaseLayout sourceFile="src/pages/ueber.astro" title="Über">
   <div class="container-wide py-12">
   <article class="prose prose-ink max-w-none dark:prose-invert">
-    <h1>Über mathematik-unterrichten.de</h1>
+    <h1>Über</h1>
+
+    <div class="not-prose my-8 flex flex-col gap-6 sm:flex-row sm:items-start">
+      {showPortrait && (
+        <img
+          src={portraitSrc}
+          alt="Dr. Michael Glaubitz"
+          class="w-full max-w-[260px] sm:w-60 sm:max-w-none aspect-square flex-shrink-0 rounded-2xl object-cover shadow-md ring-1 ring-ink-200/80 dark:ring-white/10"
+          width="240"
+          height="240"
+          loading="lazy"
+        />
+      )}
+      <div>
+        <p class="text-xl font-serif font-semibold text-ink-900 dark:text-ink-50">
+          Dr. Michael Glaubitz
+        </p>
+        <p class="mt-1 text-ink-700 dark:text-ink-300">
+          Mathematik &amp; Physik · Lehrerausbildung · Schulleitung
+        </p>
+        <p class="mt-4 leading-relaxed text-ink-700 dark:text-ink-300">
+          Ich unterrichte seit über 30 Jahren Mathematik und Physik – und habe
+          das Fach aus nahezu jeder Perspektive erlebt, die das Schulsystem
+          kennt: an verschiedenen Gymnasien im Klassenzimmer, als Dozent in der
+          universitären Lehrerausbildung für Primar- und Sekundarstufe, als
+          schulfachlicher Koordinator, als Fachleiter Mathematik am
+          Studienseminar und als Direktor eines Gymnasiums.
+        </p>
+      </div>
+    </div>
+
     <p class="text-lg">
-      Diese Seite ist ein offenes Materialarchiv für Mathematik-Lehrkräfte – mit
-      Aufgaben, diagnostischen Fragen und didaktischen Reflexionen.
+      Diese Seite führt zusammen, was in diesen Rollen entstanden ist:
+      forschungsgestützte Mathematik-Didaktik, übersetzt in Material, das im
+      Unterricht trägt – Aufgabenfolgen, diagnostische Fragen und Reflexionen,
+      die zeigen, <em>wie</em> Lernende denken, nicht nur <em>ob</em> sie richtig
+      rechnen.
     </p>
 
     <h2>Was du hier findest</h2>
     <ul>
-      <li><strong>Aufgabensammlung</strong> – Aufgabenfolgen mit Lösungswegen und Begründungen, oft im Stil der <em>Variation Theory</em>.</li>
+      <li><strong>Themen</strong> – didaktische Einordnung pro Stoffgebiet, nach Jahrgangs-Clustern, mit verknüpften Aufgaben, Quizzes und Blog-Beiträgen.</li>
+      <li><strong>Aufgabensammlung</strong> – Aufgabenfolgen mit Lösungswegen und Begründungen, gebaut nach den Prinzipien der <em>Variation Theory</em>.</li>
       <li><strong>Diagnostische Fragen</strong> – Multiple-Choice-Fragen, in denen jede falsche Antwort einem typischen Denkfehler entspricht.</li>
-      <li><strong>Blog</strong> – Reflexionen, Praxisberichte, Fundstücke aus der Mathematik-Didaktik-Forschung.</li>
+      <li><strong>Blog</strong> – Reflexionen zu Forschung, Methodik und Praxis – von Bruner und Skemp bis Productive Failure und Retrieval Practice.</li>
     </ul>
 
-    <h2>Wer steckt dahinter</h2>
+    <h2>Haltung</h2>
     <p>
-      Mein Name ist <strong>Dr. Michael Glaubitz</strong>. Seit über 30 Jahren
-      unterrichte ich Mathematik und Physik. Neben der Tätigkeit an verschiedenen
-      Gymnasien habe ich als Dozent in der universitären Lehrerausbildung für
-      Primar- und Sekundarstufen gearbeitet, war schulfachlicher Koordinator,
-      Fachleiter Mathematik am Studienseminar und Direktor eines Gymnasiums.
-    </p>
-    <p>
-      Diese Seite ist mein Versuch, Erfahrungen aus diesen unterschiedlichen
-      Rollen – Klassenzimmer, Lehrerausbildung, Schulleitung – an einer Stelle
-      zusammenzuführen und für andere Lehrkräfte nutzbar zu machen.
-    </p>
-
-    <h2>Inspiration</h2>
-    <p>
-      Die Seite ist methodisch inspiriert von Craig Bartons
+      Methodisch steht die Seite in der Tradition von Craig Bartons
       <a href="https://mrbartonmaths.com/" rel="external">mrbartonmaths.com</a>,
-      von Forschung zur <em>Variation Theory</em> (Marton & Pang) und vom Konzept
-      der Diagnostic Questions. Inhalte sind eigene Arbeiten – Konzepte und
-      didaktische Ideen sind selbstverständlich Allgemeingut.
+      der Forschung zur <em>Variation Theory</em> (Marton &amp; Pang) und dem
+      Konzept der Diagnostic Questions. Die Texte und Aufgaben sind eigene
+      Arbeiten; die zugrunde liegenden didaktischen Konzepte sind
+      selbstverständlich Allgemeingut.
     </p>
 
-    <h2>Lizenz & Nutzung</h2>
+    <h2>Lizenz &amp; Nutzung</h2>
     <p>
       Sofern nicht anders gekennzeichnet, stehen die Inhalte unter
       <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" rel="external">CC BY-SA 4.0</a>.
