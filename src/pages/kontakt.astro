@@ -7,12 +7,12 @@ const WEB3FORMS_KEY = '6d19f86f-7bbc-41cd-86e3-cf227fcf9a97';
 
 <BaseLayout sourceFile="src/pages/kontakt.astro"
   title="Kontakt"
-  beschreibung="Schreib mir – ueber das Web3Forms-Kontaktformular. Anregungen, Korrekturen, Diskussionen zu Aufgaben und Didaktik sind willkommen."
+  beschreibung="Schreiben Sie mir – ueber das Web3Forms-Kontaktformular. Anregungen, Korrekturen, Diskussionen zu Aufgaben und Didaktik sind willkommen."
 >
   <article class="container-prose py-12">
     <header class="mb-8 pb-6 border-b border-ink-200 dark:border-violet-500/20">
       <p class="text-sm text-accent-700 font-semibold uppercase tracking-wide mb-2 dark:text-accent-100">
-        Schreib mir
+        Schreiben Sie mir
       </p>
       <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 leading-tight mb-3 dark:text-ink-50">
         Kontakt
@@ -173,7 +173,7 @@ const WEB3FORMS_KEY = '6d19f86f-7bbc-41cd-86e3-cf227fcf9a97';
       const data = new FormData(form);
       if (data.get('botcheck')) {
         // Stille Annahme, damit Bots nicht aufmerksam werden
-        setStatus('success', 'Vielen Dank! Deine Nachricht wurde uebermittelt.');
+        setStatus('success', 'Vielen Dank! Ihre Nachricht wurde uebermittelt.');
         form.reset();
         return;
       }
@@ -189,14 +189,14 @@ const WEB3FORMS_KEY = '6d19f86f-7bbc-41cd-86e3-cf227fcf9a97';
         });
         const json = await res.json().catch(() => ({}));
         if (res.ok && (json as { success?: boolean }).success !== false) {
-          setStatus('success', 'Danke fuer deine Nachricht! Ich melde mich in den naechsten Tagen per E-Mail zurueck.');
+          setStatus('success', 'Danke fuer Ihre Nachricht! Ich melde mich in den naechsten Tagen per E-Mail zurueck.');
           form.reset();
         } else {
           const msg = (json as { message?: string }).message ?? 'Senden fehlgeschlagen. Bitte spaeter erneut versuchen.';
           setStatus('error', msg);
         }
       } catch (err) {
-        setStatus('error', 'Netzwerkfehler – pruefe deine Verbindung und versuche es erneut.');
+        setStatus('error', 'Netzwerkfehler – pruefen Sie Ihre Verbindung und versuchen Sie es erneut.');
       } finally {
         setSubmitting(false);
       }

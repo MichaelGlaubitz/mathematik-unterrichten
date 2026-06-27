@@ -60,9 +60,9 @@ Retrieval Practice und Spacing wirken zusammen. Verteiltes Üben *ohne* Abruf is
 
 Praktisch: Die Aufwärm-Quiz-Routine, die ich im Spacing-Artikel beschrieben habe, ist gleichzeitig Spacing *und* Retrieval Practice – wenn die Schüler sie ohne Hilfsmittel und ohne Sitznachbarbesprechung machen.
 
-## Was du diese Woche tun kannst
+## Was Sie diese Woche tun können
 
-Eine kleine Veränderung, die in jeder Stunde funktioniert: Beim nächsten Mal, wenn du eine Wiederholungsphase einläutest, sag *nicht* „Schaut auf Seite 47 nach". Sag stattdessen: „Schreibt aus dem Kopf auf, was die binomischen Formeln sind. Drei Minuten, kein Buch."
+Eine kleine Veränderung, die in jeder Stunde funktioniert: Beim nächsten Mal, wenn Sie eine Wiederholungsphase einläuten, sagen Sie *nicht* „Schaut auf Seite 47 nach". Sagen Sie stattdessen: „Schreibt aus dem Kopf auf, was die binomischen Formeln sind. Drei Minuten, kein Buch."
 
 Beobachte:
 

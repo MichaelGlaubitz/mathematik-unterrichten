@@ -72,9 +72,9 @@ Wer die Bartonsche Schule der Mathematik-Didaktik verfolgt – Variation Theory,
 
 Wer also Variation-Theory-Aufgaben einsetzt, übt – ob er es so nennt oder nicht – relationales Verständnis. Wer diagnostische Fragen einsetzt, *misst* es. Skemp hat den theoretischen Rahmen geliefert, in den die heutige Mathe-Didaktik passt.
 
-## Was du diese Woche tun kannst
+## Was Sie diese Woche tun können
 
-Such dir das nächste zentrale Verfahren, das deine Klasse beherrschen soll. Plane *zwei* Aufgaben dazu:
+Suchen Sie sich das nächste zentrale Verfahren, das Ihre Klasse beherrschen soll. Planen Sie *zwei* Aufgaben dazu:
 
 - Eine, die das Verfahren *direkt anwendet* (instrumentell prüfbar).
 - Eine, die das Verfahren *erfordert*, aber in einer abgewandelten Form auftritt (relational prüfbar).

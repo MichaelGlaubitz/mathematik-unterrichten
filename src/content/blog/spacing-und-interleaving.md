@@ -43,9 +43,9 @@ Ergebnis: Die *gemischte* Gruppe schnitt mehr als doppelt so gut ab. Beim Üben 
 
 **Erstens: Hausaufgaben sollten gemischt sein.** Die typische Hausaufgabe „heute Stunde war Bruchrechnung, also 10 Bruchaufgaben für morgen" ist ineffektiv. Besser: 5 Bruchaufgaben (Stoff von heute) plus 3 Termaufgaben (Stoff aus letzter Woche) plus 2 Sachaufgaben (Stoff aus dem letzten Monat). Die Schüler schimpfen am Anfang. Sie lernen mehr.
 
-**Zweitens: Klassenarbeiten sollten kumulativ sein.** Wenn eine Klassenarbeit nur den Stoff der letzten zwei Wochen umfasst, signalisierst du der Klasse: „Was du vor zwei Monaten gelernt hast, brauchst du jetzt nicht mehr." Wenn 30 % der Punkte aus früheren Themen kommen, signalisierst du: „Mathematik ist kumulativ. Du musst dranbleiben."
+**Zweitens: Klassenarbeiten sollten kumulativ sein.** Wenn eine Klassenarbeit nur den Stoff der letzten zwei Wochen umfasst, signalisieren Sie der Klasse: „Was du vor zwei Monaten gelernt hast, brauchst du jetzt nicht mehr." Wenn 30 % der Punkte aus früheren Themen kommen, signalisieren Sie: „Mathematik ist kumulativ. Du musst dranbleiben."
 
-**Drittens: Das Curriculum lässt sich nicht ändern, aber das *Üben* schon.** Das deutsche Schulbuch ist meist als „Lokomotive" gebaut – Kapitel A, dann B, dann C. Das ist vielleicht nicht zu ändern. Aber wenn du am Montag das neue Thema einführst, kannst du am Mittwoch und Freitag in den Aufwärmphasen *alte* Themen wiederholen. Fünf Minuten, drei Aufgaben, schnell besprochen. Über das Schuljahr ergibt das Hunderte verteilte Wiederholungen.
+**Drittens: Das Curriculum lässt sich nicht ändern, aber das *Üben* schon.** Das deutsche Schulbuch ist meist als „Lokomotive" gebaut – Kapitel A, dann B, dann C. Das ist vielleicht nicht zu ändern. Aber wenn Sie am Montag das neue Thema einführen, können Sie am Mittwoch und Freitag in den Aufwärmphasen *alte* Themen wiederholen. Fünf Minuten, drei Aufgaben, schnell besprochen. Über das Schuljahr ergibt das Hunderte verteilte Wiederholungen.
 
 ## Eine konkrete Routine: das „Aufwärm-Quiz" zu Beginn jeder Stunde
 
@@ -64,11 +64,11 @@ Drei Aufgaben pro Stunde. Wenn man dafür auch nur 50 % der Stunden im Schuljahr
 
 Hier kommt der menschliche Haken: *Sowohl Schüler als auch Lehrkräfte halten massiertes Üben für effektiver*. Es fühlt sich glatter an, der Erfolg ist sichtbarer, die Stunde wirkt geordneter. Bjork und Bjork haben das in Studien dokumentiert: Studierende, denen man verteilten und massierten Modus gleichermaßen anbietet, schätzen ihren Lernerfolg im massierten Modus *höher* ein – obwohl er im Test *niedriger* ist.
 
-Das heißt für die Praxis: Du musst der Klasse erklären, *warum* du gemischt übst. Wenn du es nicht tust, beklagen die Schüler sich. Wenn du es erklärst – mit dem Hinweis, dass die Forschung hier eindeutig ist und dass das *Gefühl* der Mühe ein Zeichen für *echtes* Lernen ist – akzeptieren sie es.
+Das heißt für die Praxis: Sie müssen der Klasse erklären, *warum* Sie gemischt üben. Wenn Sie es nicht tun, beklagen die Schüler sich. Wenn Sie es erklären – mit dem Hinweis, dass die Forschung hier eindeutig ist und dass das *Gefühl* der Mühe ein Zeichen für *echtes* Lernen ist – akzeptieren sie es.
 
-## Was du diese Woche tun kannst
+## Was Sie diese Woche tun können
 
-Eine kleine, harmlose Veränderung: In der nächsten Hausaufgabe ersetze drei Aufgaben aus dem aktuellen Thema durch drei Aufgaben aus dem letzten Monat. Sag der Klasse, warum du das tust. Beobachte in zwei Wochen, ob die Diagnose-Aufgaben zu „alten" Themen besser laufen.
+Eine kleine, harmlose Veränderung: In der nächsten Hausaufgabe ersetzen Sie drei Aufgaben aus dem aktuellen Thema durch drei Aufgaben aus dem letzten Monat. Sagen Sie der Klasse, warum Sie das tun. Beobachten Sie in zwei Wochen, ob die Diagnose-Aufgaben zu „alten" Themen besser laufen.
 
 Wenn ja – mach weiter.
 

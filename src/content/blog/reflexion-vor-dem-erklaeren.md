@@ -49,7 +49,7 @@ Stimmt: Diese Stunde dauert länger als die klassische Erklärstunde mit demselb
 
 ## Eine kleine Selbstprüfung
 
-Wenn du am Ende einer Stunde das Gefühl hast, alles sei mühelos verstanden worden, frage dich: Habe ich heute das Lernen *gefühlt* zu leicht gemacht – oder *tatsächlich*? Eine Lerneinheit, in der Schüler nie an eine Grenze gestoßen sind, hinterlässt selten tiefe Spuren.
+Wenn Sie am Ende einer Stunde das Gefühl haben, alles sei mühelos verstanden worden, fragen Sie sich: Habe ich heute das Lernen *gefühlt* zu leicht gemacht – oder *tatsächlich*? Eine Lerneinheit, in der Schüler nie an eine Grenze gestoßen sind, hinterlässt selten tiefe Spuren.
 
 ## Quellen
 

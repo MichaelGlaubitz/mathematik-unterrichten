@@ -50,6 +50,6 @@ Bearbeite die Aufgaben **in dieser Reihenfolge**. Notiere bei jeder Lösung, was
 **Mögliche Stolpersteine.**
 
 - Aufgabe 9 verwirrt Schüler oft („0 ist doch keine Zahl?"). Aktiv ansprechen.
-- In Aufgabe 11 vertauschen Schüler häufig die Vorzeichen. Vorgreifen, indem du das *Wegrechnen* vom *Multiplizieren mit −1* unterscheidest.
+- In Aufgabe 11 vertauschen Schüler häufig die Vorzeichen. Vorgreifen, indem Sie das *Wegrechnen* vom *Multiplizieren mit −1* unterscheiden.
 
 **Möglicher Anschluss.** Eine zweite Folge mit Variablen auf beiden Seiten (z. B. 2x + 3 = x + 7), oder passende [Diagnostische Fragen](/quizzes) zu typischen Vorzeichenfehlern.

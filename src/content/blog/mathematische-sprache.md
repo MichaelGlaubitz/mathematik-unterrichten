@@ -58,11 +58,11 @@ Was passiert: Schüler, die den Begriff verstanden haben, schreiben Beispiele wi
 
 Das Verfahren ist diagnostisch außergewöhnlich gut: Eine falsche oder schwache Antwort verrät genau, *welcher* Aspekt des Begriffs unklar ist.
 
-## Was du diese Woche tun kannst
+## Was Sie diese Woche tun können
 
-Such dir einen Begriff aus deiner aktuellen Stunde – „Funktion", „Term", „Lösung", „äquivalent", „ähnlich" – und stell der Klasse die Frage: *„Welcher Unterschied ist zwischen X und ungefähr X?"* Beispiel: „Welcher Unterschied ist zwischen *eine Lösung haben* und *eine Antwort haben*?" Drei Minuten Zeit zum Aufschreiben.
+Suchen Sie sich einen Begriff aus Ihrer aktuellen Stunde – „Funktion", „Term", „Lösung", „äquivalent", „ähnlich" – und stellen Sie der Klasse die Frage: *„Welcher Unterschied ist zwischen X und ungefähr X?"* Beispiel: „Welcher Unterschied ist zwischen *eine Lösung haben* und *eine Antwort haben*?" Drei Minuten Zeit zum Aufschreiben.
 
-Du wirst überrascht sein, wie gut deine Klasse darüber Bescheid zu wissen glaubte – und wie viele Schüler beim Aufschreiben merken, dass sie es eigentlich nicht klar machen können.
+Sie werden überrascht sein, wie gut Ihre Klasse darüber Bescheid zu wissen glaubte – und wie viele Schüler beim Aufschreiben merken, dass sie es eigentlich nicht klar machen können.
 
 ## Eine letzte Geschichte
 

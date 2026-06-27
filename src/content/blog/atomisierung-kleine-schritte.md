@@ -15,7 +15,7 @@ Ich habe lange gebraucht, um zu verstehen, woran das lag. Es lag nicht am Inhalt
 
 ## Was Atomisierung meint
 
-Der Begriff stammt aus der englischen Lehrerliteratur (Craig Barton hat ihn populär gemacht, in Anlehnung an die Cognitive-Load-Forschung um John Sweller). Atomisierung heißt: Bevor du eine Aufgabe stellst, frage dich, *aus welchen elementaren Schritten* sie besteht – und ob jeder dieser Schritte schon automatisiert ist.
+Der Begriff stammt aus der englischen Lehrerliteratur (Craig Barton hat ihn populär gemacht, in Anlehnung an die Cognitive-Load-Forschung um John Sweller). Atomisierung heißt: Bevor Sie eine Aufgabe stellen, fragen Sie sich, *aus welchen elementaren Schritten* sie besteht – und ob jeder dieser Schritte schon automatisiert ist.
 
 Eine Aufgabe wie
 

@@ -1,6 +1,6 @@
 ---
 title: "Willkommen auf mathematik-unterrichten.de"
-untertitel: "Was du hier findest – und warum"
+untertitel: "Was Sie hier finden – und warum"
 autor: "Michael Glaubitz"
 datum: 2026-05-08
 aktualisiert: 2026-05-15
@@ -14,7 +14,7 @@ Diese Seite sammelt Material und Reflexionen, die beim **Mathematik-Unterrichten
 
 ## Vier Bereiche – und ein roter Faden
 
-1. **[Themen](/themen)** – Einstieg nach Fachgebiet und Klassenstufen-Cluster. Zu jedem Thema findest du verknüpfte **Aufgabenfolgen**, **Diagnostische Fragen**, **Mini-Whiteboard-Übungen** (inkl. Vollbild-Whiteboard) und passende **Blog**-Beiträge an einem Ort.
+1. **[Themen](/themen)** – Einstieg nach Fachgebiet und Klassenstufen-Cluster. Zu jedem Thema finden Sie verknüpfte **Aufgabenfolgen**, **Diagnostische Fragen**, **Mini-Whiteboard-Übungen** (inkl. Vollbild-Whiteboard) und passende **Blog**-Beiträge an einem Ort.
 2. **[Aufgabensammlung](/aufgaben)** – Aufgaben mit Lösungswegen *und* didaktischem Kommentar. Was ist das Ziel der Aufgabe? Welche Variation steckt drin? Was machen Schüler typischerweise falsch?
 3. **[Diagnostische Fragen](/quizzes)** – Multiple-Choice-Fragen im Stil von Craig Bartons *Diagnostic Questions*: Jede falsche Antwort entspricht einem typischen Denkfehler. So wird die *Verteilung* der Antworten zur Diagnose.
 4. **[Blog](/blog)** – Reflexionen, Forschungsfundstücke, Praxisberichte. Eher kurz und konkret als lang und allumfassend.
@@ -27,4 +27,4 @@ Diese Seite versucht, beides zusammenzubringen: die *Praxis-Orientierung* der en
 
 ## Wie es weitergeht
 
-Inhalte wachsen schrittweise: neue Themenblöcke, Aufgabenfolgen, Quizzes und Blogtexte. Wenn dir etwas fehlt oder du einen Fehler entdeckst, schreib mir gern über die [Kontaktseite](/kontakt).
+Inhalte wachsen schrittweise: neue Themenblöcke, Aufgabenfolgen, Quizzes und Blogtexte. Wenn Ihnen etwas fehlt oder Sie einen Fehler entdecken, schreiben Sie mir gern über die [Kontaktseite](/kontakt).

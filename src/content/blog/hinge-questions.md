@@ -17,19 +17,19 @@ Das Problem: Während der 15-Minuten-Erarbeitung weiß ich nicht, ob die Klasse 
 
 ## Was eine Hinge Question ist
 
-Eine Hinge Question ist eine *einzige* Frage, die du nach einem zentralen Konzept stellst – nicht am Ende der Stunde, sondern an dem Punkt, an dem die Stunde zwei Wege gehen kann. Daher der Name: *hinge* heißt Scharnier. Die Frage ist das Scharnier.
+Eine Hinge Question ist eine *einzige* Frage, die Sie nach einem zentralen Konzept stellen – nicht am Ende der Stunde, sondern an dem Punkt, an dem die Stunde zwei Wege gehen kann. Daher der Name: *hinge* heißt Scharnier. Die Frage ist das Scharnier.
 
 Sie hat drei Eigenschaften:
 
 1. **Sie zielt auf das eine zentrale Verständnis**, nicht auf eine periphere Detail-Frage.
 2. **Sie ist Multiple-Choice mit gezielten Distraktoren**: Jede falsche Antwort gehört zu einer typischen Fehlvorstellung. Der Schüler kann nicht durch Glück richtig liegen, ohne dass es etwas über sein Verständnis verrät.
-3. **Sie produziert in zwei Minuten ein klares Bild der Klasse.** Mit einer Hinge Question siehst du am Verteilungsmuster, wer wo steht – nicht nur, wer richtig liegt.
+3. **Sie produziert in zwei Minuten ein klares Bild der Klasse.** Mit einer Hinge Question sehen Sie am Verteilungsmuster, wer wo steht – nicht nur, wer richtig liegt.
 
 Eine gute Hinge Question entscheidet zwischen zwei Optionen: *weitermachen* (die Klasse hat das Konzept) oder *zurücktreten* (das Konzept ist noch nicht da, ich muss anders ansetzen, bevor ich weitergehe).
 
 ## Ein Beispiel
 
-Du hast die binomischen Formeln eingeführt. Bevor du Übungsaufgaben verteilst, stellst du diese Frage:
+Sie haben die binomischen Formeln eingeführt. Bevor Sie Übungsaufgaben verteilen, stellen Sie diese Frage:
 
 > Welche der folgenden Aussagen ist richtig?
 >
@@ -43,7 +43,7 @@ Wenn 50 % A wählen: zurücktreten – die Klasse hat die Quadrierung als „ver
 Wenn 30 % B wählen: zurücktreten – die Klasse hat *einen* Mittel-Term, aber den falschen Faktor.
 Wenn 20 % D wählen: zurücktreten – die Klasse hat die binomische Formel mit einer Linearform vermischt.
 
-Das Wertvolle ist nicht der Anteil der Richtigen. Das Wertvolle ist, *welche* falschen Antworten sich anhäufen. Jede der vier Optionen entspricht einer mentalen Konstruktion. Du siehst, welche du adressieren musst.
+Das Wertvolle ist nicht der Anteil der Richtigen. Das Wertvolle ist, *welche* falschen Antworten sich anhäufen. Jede der vier Optionen entspricht einer mentalen Konstruktion. Sie sehen, welche Sie adressieren müssen.
 
 ## Wie man sie konstruiert
 
@@ -81,11 +81,11 @@ In meiner Praxis haben sie sich vor allem an drei Stellen bewährt:
 - **Lehrkraft ignoriert das Ergebnis.** Ich habe das selbst gemacht: Hinge Question gestellt, 60 % falsch, trotzdem weitergemacht, weil mein Stundenplan das so vorsah. Das ist eine Verschwendung der Methode. Wenn ich die Verteilung ignoriere, kann ich auf die Frage auch verzichten.
 - **Lehrkraft bittet einen Schüler, „die richtige Antwort zu erklären".** Damit ist der Diagnose-Effekt weg – die anderen Schüler korrigieren sich nur scheinbar. Besser: Die Lehrkraft erklärt selbst und macht dabei explizit, *was an den falschen Antworten falsch ist*.
 
-## Wo du die Fragen findest
+## Wo Sie die Fragen finden
 
-Wenn du nicht jede Hinge Question selbst bauen willst, hilft die Sammlung der diagnostischen Fragen auf dieser Seite – jede dort eingestellte Frage hat genau diese Eigenschaft: ein zentrales Konzept, vier Optionen, jede mit einer Geschichte. Du kannst sie auch *außerhalb* eines Quiz benutzen, einzeln, im Stundenfluss.
+Wenn Sie nicht jede Hinge Question selbst bauen wollen, hilft die Sammlung der diagnostischen Fragen auf dieser Seite – jede dort eingestellte Frage hat genau diese Eigenschaft: ein zentrales Konzept, vier Optionen, jede mit einer Geschichte. Sie können sie auch *außerhalb* eines Quiz benutzen, einzeln, im Stundenfluss.
 
-Eine Stunde mit zwei oder drei Hinge Questions ist anstrengender für die Lehrkraft als eine ohne. Aber sie ist die Stunde, an deren Ende du *weißt*, wo deine Klasse steht. Das ist mehr wert als das Bauchgefühl, das ich zwanzig Jahre lang gepflegt habe.
+Eine Stunde mit zwei oder drei Hinge Questions ist anstrengender für die Lehrkraft als eine ohne. Aber sie ist die Stunde, an deren Ende Sie *wissen*, wo Ihre Klasse steht. Das ist mehr wert als das Bauchgefühl, das ich zwanzig Jahre lang gepflegt habe.
 
 ## Quellen
 

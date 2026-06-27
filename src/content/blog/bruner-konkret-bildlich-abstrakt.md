@@ -64,17 +64,17 @@ Bruners Pointe ist nicht „immer konkret zuerst". Es ist: *Mathematik ist nicht
 
 ## Drei Routinen für den Unterricht
 
-**Erstens: Frage nach dem Bild.** Wenn ein Schüler eine symbolische Aufgabe gelöst hat, frage gelegentlich: „Wie würdest du das *zeichnen*?" Eine Skizze, ein Diagramm, ein Streifenmodell. Wer keine Idee hat, hat möglicherweise nur das Verfahren – nicht den Begriff.
+**Erstens: Fragen Sie nach dem Bild.** Wenn ein Schüler eine symbolische Aufgabe gelöst hat, fragen Sie gelegentlich: „Wie würdest du das *zeichnen*?" Eine Skizze, ein Diagramm, ein Streifenmodell. Wer keine Idee hat, hat möglicherweise nur das Verfahren – nicht den Begriff.
 
-**Zweitens: Beginne mit der Geste, wenn möglich.** Vektoraddition wird greifbarer, wenn Schüler sich vorstellen, einen Vektor entlang zu „gehen". Funktionen werden greifbarer, wenn Schüler eine Größe „wachsen" lassen. Solche Handlungsbilder im Kopf sind enaktive Repräsentationen, auch ohne physisches Material.
+**Zweitens: Beginnen Sie mit der Geste, wenn möglich.** Vektoraddition wird greifbarer, wenn Schüler sich vorstellen, einen Vektor entlang zu „gehen". Funktionen werden greifbarer, wenn Schüler eine Größe „wachsen" lassen. Solche Handlungsbilder im Kopf sind enaktive Repräsentationen, auch ohne physisches Material.
 
-**Drittens: Lass mehrere Repräsentationen koexistieren.** Bei einer linearen Funktion $y = 2x + 3$ zeigen Schüler die Wertetabelle, das Diagramm und die Gleichung *nebeneinander* und beziehen sie aufeinander. Verschiedene Wege, dieselbe Sache zu sehen. Bruner hätte das so gewollt.
+**Drittens: Lassen Sie mehrere Repräsentationen koexistieren.** Bei einer linearen Funktion $y = 2x + 3$ zeigen Schüler die Wertetabelle, das Diagramm und die Gleichung *nebeneinander* und beziehen sie aufeinander. Verschiedene Wege, dieselbe Sache zu sehen. Bruner hätte das so gewollt.
 
-## Was du diese Woche tun kannst
+## Was Sie diese Woche tun können
 
-Such dir die nächste Unterrichtsstunde, in der du ein neues Konzept einführst. Plane eine ikonische Repräsentation ein, *bevor* du das Symbol oder die Formel einführst. Eine Skizze. Ein Streifendiagramm. Ein Funktionspfeil. Was auch immer das Konzept zugänglich macht.
+Suchen Sie sich die nächste Unterrichtsstunde, in der Sie ein neues Konzept einführen. Planen Sie eine ikonische Repräsentation ein, *bevor* Sie das Symbol oder die Formel einführen. Eine Skizze. Ein Streifendiagramm. Ein Funktionspfeil. Was auch immer das Konzept zugänglich macht.
 
-Frage dich nach der Stunde: Welche Schüler haben das Symbol verstanden, weil sie das Bild *davor* gesehen haben? Welche hätten ohne das Bild nur das Verfahren – aber keinen Begriff?
+Fragen Sie sich nach der Stunde: Welche Schüler haben das Symbol verstanden, weil sie das Bild *davor* gesehen haben? Welche hätten ohne das Bild nur das Verfahren – aber keinen Begriff?
 
 ## Quellen
 

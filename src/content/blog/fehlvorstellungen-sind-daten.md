@@ -43,9 +43,9 @@ Drei Konsequenzen ergeben sich aus dieser Sicht.
 
 ## Eine kleine Übung für die nächste Korrektur
 
-Beim nächsten Stapel Klassenarbeiten: Lies *einen* falschen Lösungsweg dreimal. Frag dich nicht: "Was hat der Schüler falsch gemacht?" Sondern: "Welche Theorie hat dieser Schüler in diesem Moment angewandt? Wo war diese Theorie schon einmal richtig? Wo bricht sie?"
+Beim nächsten Stapel Klassenarbeiten: Lesen Sie *einen* falschen Lösungsweg dreimal. Fragen Sie sich nicht: "Was hat der Schüler falsch gemacht?" Sondern: "Welche Theorie hat dieser Schüler in diesem Moment angewandt? Wo war diese Theorie schon einmal richtig? Wo bricht sie?"
 
-Du wirst feststellen, dass viele Fehler nicht mehr willkürlich erscheinen. Manche werden dich sogar beeindrucken.
+Sie werden feststellen, dass viele Fehler nicht mehr willkürlich erscheinen. Manche werden Sie sogar beeindrucken.
 
 ## Quellen und Anregungen
 

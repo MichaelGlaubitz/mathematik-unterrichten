@@ -116,7 +116,7 @@ Die Umkehrung. Schüler erleben, dass die Beziehung `a² + b² = c²` *charakter
 - *„a² + b² = c² gilt immer."* Klassisch übergangenes „rechtwinklig". Hilft: Aufgabe 26 ausführlich besprechen, mit Skizze.
 - *„Hypotenuse = die längste Seite, also rechne ich immer a² + b² = c²."* Aufgabe in Folge B bricht das auf – wenn die Hypotenuse gegeben ist, muss die Formel umgestellt werden.
 - *„Kathete und Hypotenuse sind dasselbe wie Ankathete/Gegenkathete."* Begriffsverwechslung mit der Trigonometrie. Pythagoras kennt nur Katheten und Hypotenuse; die trigonometrischen Bezeichnungen kommen erst, wenn ein bestimmter Winkel im Spiel ist.
-- *„Der Pythagoras hilft mir bei *jedem* Dreieck."* Nein – nur beim rechtwinkligen. Bei beliebigen Dreiecken brauchst du Sinus- oder Kosinussatz (Klasse 10/11).
+- *„Der Pythagoras hilft mir bei *jedem* Dreieck."* Nein – nur beim rechtwinkligen. Bei beliebigen Dreiecken braucht man Sinus- oder Kosinussatz (Klasse 10/11).
 
 **Möglicher Anschluss**
 

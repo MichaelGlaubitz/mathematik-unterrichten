@@ -66,15 +66,15 @@ Ein Wort zur deutschen Reformpädagogik, die seit drei Jahrzehnten gegen das „
 
 Das heißt nicht, dass entdeckendes Lernen niemals funktioniert. Es heißt: Es funktioniert *für Fortgeschrittene*, in *strukturell offenen* Problemen, *nach* dem Aufbau eines Schemas. Wer es als Standardform für Anfänger einsetzt, baut systematisch Lernverluste auf.
 
-## Was du diese Woche ausprobieren kannst
+## Was Sie diese Woche ausprobieren können
 
-Such dir eine Stunde dieser Woche, in der du ein neues Verfahren einführst. Ersetze die übliche „Wir entdecken das gemeinsam"-Phase durch zwei explizite Worked Examples. Beobachte am Ende der Stunde:
+Suchen Sie sich eine Stunde dieser Woche, in der Sie ein neues Verfahren einführen. Ersetzen Sie die übliche „Wir entdecken das gemeinsam"-Phase durch zwei explizite Worked Examples. Beobachten Sie am Ende der Stunde:
 
 - Wie viele Schüler können das Verfahren *selbständig* anwenden?
 - Wie viele Fragen, die normalerweise mitten in der Übungsphase kommen, kommen *gar nicht erst*?
 - Wie ist die Stimmung in der Klasse? (Spoiler: gelassener, weil weniger Schüler frustriert hängen.)
 
-Wenn du das ein paarmal gemacht hast, weißt du, was die Forschung schon lange weiß.
+Wenn Sie das ein paarmal gemacht haben, wissen Sie, was die Forschung schon lange weiß.
 
 ## Quellen
 
