@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Web3Forms-Key (wie im Kontaktformular) – interimsweise sammelt die Newsletter-
+// Anmeldung so Adressen per E-Mail ein. Später auf einen echten Newsletter-Dienst
+// (z. B. Brevo, Mailchimp) mit Double-Opt-in umstellen.
+const WEB3FORMS_KEY = '6d19f86f-7bbc-41cd-86e3-cf227fcf9a97';
+
+const schritte = [
+  {
+    letter: 'K',
+    name: 'Klären',
+    claim: 'Lernstand sichtbar machen',
+    text: 'Bevor neuer Stoff kommt, wird sichtbar, was die Klasse schon trägt. Eine kurze, pseudonyme Vorab-Diagnose zeigt pro Kompetenz, wo Lücken sitzen – und steuert das kurze Klassen-Quiz zu Stundenbeginn. Sie unterrichten nicht ins Blaue, sondern auf Datenbasis.',
+    badge: 'bg-amber-100/70 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300',
+    ring: 'ring-amber-100/70 dark:ring-amber-400/20',
+  },
+  {
+    letter: 'L',
+    name: 'Lösen lassen',
+    claim: 'Denken sichtbar machen',
+    text: 'Ein Problem, das die Klasse mit ihrem Vorwissen fast lösen kann, eröffnet die Stunde. In der Schülerphase entstehen echte Denkwege – auch Irrwege. Nicht die Lehrkraft erklärt zuerst; die Lernenden ringen, und ihr Denken wird zum eigentlichen Material des Unterrichts.',
+    badge: 'bg-accent-100/70 text-accent-700 dark:bg-sky-400/10 dark:text-sky-300',
+    ring: 'ring-accent-100/60 dark:ring-sky-400/25',
+  },
+  {
+    letter: 'A',
+    name: 'Abgleichen',
+    claim: 'Lösungen verbinden',
+    text: 'Ausgewählte Schülerlösungen werden in bewusster Reihenfolge präsentiert und aufeinander bezogen – nach den 5 Practices: anticipate, monitor, select, sequence, connect. Vom Irrweg zur tragfähigen Idee: Die Klasse sieht, *warum* etwas funktioniert, nicht nur *dass*.',
+    badge: 'bg-teal-100/70 text-teal-700 dark:bg-teal-400/10 dark:text-teal-300',
+    ring: 'ring-teal-100/70 dark:ring-teal-400/30',
+  },
+  {
+    letter: 'R',
+    name: 'Rückkopplung',
+    claim: 'Verstehen prüfen',
+    text: 'Der Tafelanschrieb sichert das Ergebnis sichtbar aus den präsentierten Lösungen. Ein kurzer Exit-Check misst am Stundenende, ob die Ziel-Kompetenzen jetzt tragen – und speist die nächste Stunde. Der Kreis schließt sich und beginnt von vorn.',
+    badge: 'bg-violet-100/70 text-violet-700 dark:bg-fuchsia-400/10 dark:text-fuchsia-300',
+    ring: 'ring-violet-100/70 dark:ring-fuchsia-400/25',
+  },
+];
+---
+
+<BaseLayout
+  sourceFile="src/pages/methode.astro"
+  title="Die KLAR-Methode"
+  beschreibung="Die KLAR-Methode nach Glaubitz – Verstehen sichtbar machen. Ein ritualisierter, diagnosegeleiteter Unterrichtsablauf in vier Schritten: Klären, Lösen lassen, Abgleichen, Rückkopplung."
+>
+  <!-- Hero -->
+  <section class="container-wide pt-12 pb-8">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Die Methode</p>
+    <h1 class="mt-2 font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      Die KLAR-Methode
+    </h1>
+    <p class="mt-3 text-lg text-ink-700 dark:text-ink-200">
+      <span class="font-semibold">nach Glaubitz</span> · Verstehen sichtbar machen
+    </p>
+    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      KLAR ist ein ritualisierter, diagnosegeleiteter Stundenablauf in vier Schritten. Er macht
+      Verstehen nicht nur zum Ziel, sondern <em>sichtbar</em> – durch Diagnose statt Bauchgefühl,
+      durch sichtbares Schülerdenken statt Vorzeigen, durch Messung statt Hoffnung. Aus über drei
+      Jahrzehnten Unterricht, Lehrerausbildung und Schulleitung.
+    </p>
+    <div class="mt-7 flex flex-wrap gap-3">
+      <a href="#anmeldung" class="inline-flex items-center rounded-full bg-accent-700 px-5 py-2.5 text-white font-medium hover:bg-accent-800 transition dark:bg-accent-600 dark:hover:bg-accent-700">
+        Beim Newsletter anmelden
+      </a>
+      <a href="/aufgaben" class="inline-flex items-center rounded-full px-5 py-2.5 font-medium text-ink-800 ring-1 ring-ink-300 hover:bg-ink-100 transition dark:text-ink-100 dark:ring-white/15 dark:hover:bg-white/[0.06]">
+        Methode in Aufgaben sehen →
+      </a>
+    </div>
+  </section>
+
+  <!-- Die vier Schritte -->
+  <section class="container-wide py-8">
+    <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Vier Schritte, ein Kreislauf</h2>
+    <p class="mt-2 max-w-2xl text-ink-700 dark:text-ink-300">
+      Jeder Buchstabe steht für eine Phase – und für eine Art, Verstehen sichtbar zu machen.
+    </p>
+    <div class="mt-6 space-y-4">
+      {schritte.map((s) => (
+        <article class={`flex gap-5 rounded-2xl border border-ink-200/90 bg-surface/60 p-5 shadow-sm ring-1 ${s.ring} dark:border-white/[0.08] dark:bg-white/[0.02]`}>
+          <span class={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl font-serif text-2xl font-bold ${s.badge}`}>
+            {s.letter}
+          </span>
+          <div>
+            <h3 class="font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">
+              {s.name} <span class="text-ink-400 dark:text-ink-500">·</span> <span class="text-base font-normal text-ink-600 dark:text-ink-300">{s.claim}</span>
+            </h3>
+            <p class="mt-2 leading-relaxed text-ink-700 dark:text-ink-300" set:html={s.text.replace(/\*(.+?)\*/g, '<em>$1</em>')} />
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- So sieht eine Stunde aus -->
+  <section class="container-wide py-8">
+    <div class="rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 sm:p-8 shadow-sm dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">So sieht eine Stunde aus</h2>
+      <p class="mt-2 max-w-2xl text-ink-700 dark:text-ink-300">
+        Ein ritualisierter 60-Minuten-Ablauf. Die Klasse kennt das Muster – das schafft Sicherheit
+        und macht den Kopf frei für den Inhalt.
+      </p>
+      <ol class="mt-6 space-y-4">
+        <li class="flex gap-4">
+          <span class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100/70 text-sm font-bold text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">K</span>
+          <p class="text-ink-700 dark:text-ink-300"><span class="font-semibold text-ink-900 dark:text-ink-100">Klären.</span> Vorab-Diagnose als Hausaufgabe (pseudonym), daraus ein Klassen-Quiz zur Wiederholung und die kurze Klärung der größten Stolpersteine.</p>
+        </li>
+        <li class="flex gap-4">
+          <span class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-accent-100/70 text-sm font-bold text-accent-700 dark:bg-sky-400/10 dark:text-sky-300">L</span>
+          <p class="text-ink-700 dark:text-ink-300"><span class="font-semibold text-ink-900 dark:text-ink-100">Lösen lassen.</span> Einstieg über ein Problem, das fast lösbar ist – dann die eigenständige Schülerphase, in der echte Denkwege entstehen.</p>
+        </li>
+        <li class="flex gap-4">
+          <span class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-teal-100/70 text-sm font-bold text-teal-700 dark:bg-teal-400/10 dark:text-teal-300">A</span>
+          <p class="text-ink-700 dark:text-ink-300"><span class="font-semibold text-ink-900 dark:text-ink-100">Abgleichen.</span> Ausgewählte Lösungen werden in bewusster Reihenfolge präsentiert und verbunden – vom Irrweg zur tragfähigen Idee.</p>
+        </li>
+        <li class="flex gap-4">
+          <span class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-violet-100/70 text-sm font-bold text-violet-700 dark:bg-fuchsia-400/10 dark:text-fuchsia-300">R</span>
+          <p class="text-ink-700 dark:text-ink-300"><span class="font-semibold text-ink-900 dark:text-ink-100">Rückkopplung.</span> Sicherung an der Tafel, dann ein Exit-Check, der misst, ob die Ziel-Kompetenzen jetzt tragen – und die nächste Stunde steuert.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Prinzip: diagnosegeleitet & datensparsam -->
+  <section class="container-wide py-8">
+    <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Diagnose statt Bauchgefühl – datensparsam</h2>
+    <p class="mt-3 max-w-2xl leading-relaxed text-ink-700 dark:text-ink-300">
+      Das Herz der Methode ist die Messung: Jede Diagnose-Frage ist einer Kompetenz zugeordnet, jede
+      falsche Antwort einem typischen Denkfehler. So zeigt die <em>Verteilung</em> der Antworten, wo
+      die Klasse wirklich steht. Die Auswertung läuft lokal – Schülerantworten werden nur über eine
+      Listennummer zugeordnet, es verlassen keine personenbezogenen Daten den Rechner.
+    </p>
+  </section>
+
+  <!-- Newsletter -->
+  <section id="anmeldung" class="container-wide py-10">
+    <div class="rounded-2xl border border-accent-200/70 bg-accent-50/50 p-6 sm:p-8 dark:border-teal-400/20 dark:bg-teal-950/20">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Bleiben Sie dran</h2>
+      <p class="mt-2 max-w-2xl text-ink-700 dark:text-ink-200">
+        Neue Aufgabenfolgen, diagnostische Fragen und Beiträge zur KLAR-Methode – in unregelmäßigen,
+        aber gehaltvollen Abständen. Kein Spam, jederzeit abbestellbar.
+      </p>
+
+      <form id="newsletter-form" class="mt-5 not-prose" novalidate>
+        <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+        <input type="hidden" name="subject" value="Newsletter-Anmeldung: mathematik-unterrichten.de" />
+        <input type="hidden" name="from_name" value="mathematik-unterrichten.de" />
+        <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <label for="nl-email" class="sr-only">E-Mail-Adresse</label>
+          <input
+            id="nl-email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="ihre@e-mail.de"
+            class="w-full flex-1 rounded-md border border-ink-300 bg-surface px-3 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-slate-600/55 dark:bg-slate-950/75 dark:text-ink-50 dark:placeholder:text-ink-500"
+          />
+          <button
+            type="submit"
+            class="nl-submit inline-flex items-center justify-center rounded-md bg-accent-700 px-5 py-2.5 font-medium text-white hover:bg-accent-800 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 disabled:opacity-60 transition dark:bg-accent-600 dark:hover:bg-accent-700"
+          >
+            <span class="nl-submit-label">Anmelden</span>
+          </button>
+        </div>
+
+        <label class="mt-3 flex items-start gap-2.5 text-sm text-ink-600 dark:text-ink-300">
+          <input id="nl-datenschutz" name="datenschutz" type="checkbox" required class="mt-1 h-4 w-4 rounded border-ink-300 text-accent-600 focus:ring-accent-500 dark:border-slate-600/55 dark:bg-slate-950/75" />
+          <span>Ich bin mit dem Erhalt des Newsletters einverstanden und habe die <a href="/datenschutz" class="text-accent-700 underline hover:text-accent-800 dark:text-accent-100">Datenschutzhinweise</a> gelesen.</span>
+        </label>
+
+        <div class="nl-status mt-3 hidden rounded-md border-l-4 p-3 text-sm" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('newsletter-form') as HTMLFormElement | null;
+  if (form) {
+    const btn = form.querySelector<HTMLButtonElement>('.nl-submit');
+    const label = form.querySelector<HTMLElement>('.nl-submit-label');
+    const status = form.querySelector<HTMLElement>('.nl-status');
+
+    const setStatus = (kind: 'success' | 'error' | 'info', msg: string) => {
+      if (!status) return;
+      status.className = 'nl-status mt-3 rounded-md border-l-4 p-3 text-sm';
+      const map: Record<string, string> = {
+        success: 'border-emerald-500 bg-emerald-50/60 text-emerald-900 dark:bg-emerald-900/25 dark:text-emerald-100',
+        error: 'border-rose-500 bg-rose-50/60 text-rose-900 dark:bg-rose-900/25 dark:text-rose-100',
+        info: 'border-ink-400 bg-ink-50 text-ink-800 dark:bg-slate-950/60 dark:text-ink-100',
+      };
+      status.classList.add(...map[kind].split(' '));
+      status.textContent = msg;
+      status.classList.remove('hidden');
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const data = new FormData(form);
+      if (data.get('botcheck')) { setStatus('success', 'Danke! Ihre Anmeldung ist eingegangen.'); form.reset(); return; }
+      if (btn) btn.disabled = true;
+      if (label) label.textContent = 'Sende…';
+      setStatus('info', 'Sende…');
+      try {
+        const payload: Record<string, string> = {};
+        data.forEach((v, k) => { payload[k] = typeof v === 'string' ? v : ''; });
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && (json as { success?: boolean }).success !== false) {
+          setStatus('success', 'Danke! Sie sind eingetragen. Ich melde mich mit dem nächsten Newsletter.');
+          form.reset();
+        } else {
+          setStatus('error', (json as { message?: string }).message ?? 'Anmeldung fehlgeschlagen. Bitte später erneut versuchen.');
+        }
+      } catch (err) {
+        setStatus('error', 'Netzwerkfehler – bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.');
+      } finally {
+        if (btn) btn.disabled = false;
+        if (label) label.textContent = 'Anmelden';
+      }
+    });
+  }
+</script>
