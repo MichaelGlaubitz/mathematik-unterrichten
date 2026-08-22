@@ -85,4 +85,58 @@ Denn solange keine Zahl danebensteht, ist die Arbeitszeit von Lehrkräften der e
 
 *Grundlage der Zählung ist der vollständige Brieftext ohne Briefkopf und Fußzeile; sie ist mit jeder Textsuche nachprüfbar. Rechtsgrundlagen der Grafik: NSchG, Nds. ArbZVO-Schule, Runderlasse im SVBl. Arbeitszeitwerte: Niedersächsische Arbeitszeitstudie 2015/2016, Universität Göttingen.*
 
+---
+
+<details>
+<summary><strong>Belege zur Grafik „Der Stapel“</strong> — aufklappen</summary>
+
+Jede Jahreszahl wurde einzeln geprüft. Sechs Angaben einer früheren Fassung waren falsch und sind korrigiert. **hoch** = amtliche Primärquelle, **mittel** = Sekundärquelle oder Teilaspekt ungeklärt.
+
+| Jahr | Eintrag | Beleg | Sicherheit |
+|---|---|---|---|
+| 1974 | Gremien und Konferenzwesen | Erstes Nds. Schulgesetz v. 30.5.1974 (Nds. GVBl. 1974 S. 289), Abschnitt „Schulverfassung“ | mittel — das GVBl. 1974 war nicht einsehbar; die heutigen §§ 34–37 stammen aus der Fassung v. 3.3.1998 |
+| 2000 | Vorgriffsstunde | § 5 Nds. ArbZVO-Schule: Gymnasien 1 Std. in 2000/01, 2 Std. 2001/02–2010/11 | hoch — 1998/99 ist der Startwert der anderen Schulformen |
+| 2004 | G8 | Landtagsbeschluss Juni 2003, Umstellung zum Schuljahr 2004/05, erstes G8-Abitur 2011 | mittel-hoch |
+| 2004 | Bildungsstandards | KMK-Beschluss MSA 4.12.2003, Primar/HSA 15.10.2004, Geltung ab 2004/05 | hoch — für die Oberstufe erst 2012 |
+| 2005 | Schulinspektion | Kabinettsbeschluss 19.4.2005, NSchI ab 1.5.2005, bundesweit erstes Land | hoch |
+| 2006 | Zentralabitur | eingeführt 2005/06, erste zentrale Prüfungen Frühjahr 2006 | hoch |
+| 2006 | Kerncurricula | erste Kerncurricula für das Gymnasium 2006 im SVBl | hoch |
+| 2006 | Dokumentation der Lernentwicklung | Pilotphase 2005/06, in Kraft 1.8.2006, aufsteigend ab Jg. 1 und 5 | hoch |
+| 2007 | Schulvorstand, Budget | Gesetz zur Eigenverantwortlichen Schule v. 17.7.2006, für Schulen in Kraft 1.8.2007 | hoch |
+| 2007 | Schulprogramm, interne Evaluation | § 32 Abs. 2 und 3 NSchG, Fassungsreihe ab 2007 | mittel |
+| 2011 | Doppeljahrgang | zwei Jahrgänge legen 2011 gleichzeitig das Abitur ab | hoch |
+| 2013 | Inklusion | Landtagsbeschluss 20.3.2012, in Kraft 1.8.2013, aufsteigend ab Jg. 1 bzw. 5 | hoch |
+| 2014 | VERA 8 | RdErl. v. 17.7.2014, in Kraft 1.8.2014, im Jg. 8 verbindlich nur Mathematik | mittel — VERA lief bundesweit ab 2006/07, seit 2019 in Niedersachsen freiwillig |
+| 2015 | G9 | NSchG-Änderung v. 3.6.2015, ab 2015/16 für Jg. 5–8, letztes G8-Abitur 2019 | hoch |
+| 2015/16 | Sprachlernklassen | Sept. 2014: 118 Klassen → Beginn 2016/17: rund 630; rund 36.200 neu zugewanderte SuS in 15 Monaten; Förderstunden 37.000 → 58.500 | hoch — Rechtsgrundlage besteht seit dem Erlass v. 21.7.2005 |
+| 2016 | Erste Hilfe, Brandschutz | RdErl. v. 27.6.2016: Ersthelferquote 50 %, Auffrischung alle 3 Jahre, jährliche Räumungsübung | hoch |
+| 2016 | Sicherheits- und Gewaltprävention | Gem. RdErl. v. 1.6.2016, verpflichtendes schulisches Sicherheitskonzept | hoch |
+| 2018 | DSGVO | Art. 37 DSGVO, anwendbar seit 25.5.2018 | hoch |
+| 2018 | Berufliche Orientierung | RdErl. v. 17.9.2018: mindestens 25 Schultage ab Jg. 7 | hoch |
+| 2019 | DigitalPakt, Medienbildungskonzept | DigitalPakt in Kraft 17.5.2019; Förderrichtlinie v. 8.8.2019 macht das Konzept zur Fördervoraussetzung | hoch bzw. mittel — Förder-, keine Rechtspflicht |
+| 2020 | Corona | Rahmen-Hygieneplan ab 24.4.2020; Erlass v. 17.9.2020 zu Szenario B/C | hoch — einen dauerhaften Distanzunterrichts-Erlass gibt es nicht |
+| 2021 | BNE, Demokratiebildung | RdErl. v. 1.3.2021 und v. 11.5.2021, beide in Kraft 1.6.2021 | hoch |
+| 2022 | Dienstliche E-Mail | RdErl. v. 24.6.2022, in Kraft 1.8.2022 | hoch |
+| 2023 | DaZ/DaB | RdErl. v. 1.12.2023, ersetzt die Sprachlernklasse durch Grund-, Aufbau- und Förderkurse | hoch |
+| 2025 | Arbeitsschutz | RdErl. v. 6.2.2025, rückwirkend ab 1.1.2025, mit psychosozialen Belastungen | hoch — Grundpflicht aus § 5 ArbSchG seit 1996 |
+| 2026 | Novelliertes Schulgesetz | beschlossen 23.6.2026 (Nds. GVBl. 2026 Nr. 48), in Kraft 1.8.2026 | hoch |
+| 2026 | Digitale Endgeräte Jg. 7 | ab 2026/27 für Jg. 7 und Lehrkräfte, aufwachsend; rund 800 Mio. € bis 2031 | hoch — „Betreuung“ als Lehrkraftaufgabe ist eine Wertung, kein Gesetzesinhalt |
+| 2026 | Fach „Christliche Religion“ | Runderlass v. 7.4.2026, Start 1.8.2026 in Jg. 1 und 5 | hoch |
+| durchgehend | Ausstattungsmängel improvisieren | keine Rechtsgrundlage — daher der Vermerk „ohne Erlass“ | Erfahrungswert |
+
+**Basiswerte**
+
+| Angabe | Beleg | Sicherheit |
+|---|---|---|
+| Regelstundenzahl 23,5 seit 1994 | § 3 Abs. 2 Nr. 6 Nds. ArbZVO-Schule; Historie in Landtags-Drs. 17/1057 (1983 = 23, 1986 = 22,5, seit 1994 = 23,5) | hoch bzw. mittel-hoch für 1994 |
+| Anhebung auf 24,5 zum 1.8.2014, 2015 aufgehoben | ÄndVO v. 4.6.2014; Nds. OVG, Urt. v. 9.6.2015 – 5 KN 148/14 u. a., Verstoß gegen die Fürsorgepflicht | hoch |
+| 49:43 Std. IST, 46:38 Std. SOLL | Niedersächsische Arbeitszeitstudie 2015/2016, Universität Göttingen (Mußmann u. a.); Differenz +03:05; Grundschule 47:58, Gesamtschule 46:42 | hoch — 46:38 ist die schulformübergreifende Soll-Normwoche |
+| 1999 Altersermäßigung gekürzt | zuvor 1 Std. ab 55 und 2 Std. ab 60; heute § 8 Nds. ArbZVO-Schule | hoch |
+| 2005 Weihnachts- und Urlaubsgeld gestrichen | bis 2003 noch 65 % eines Monatsbezugs, 2004 reduziert, ab 2005 entfallen | hoch |
+| 2019 VERA 8 freigestellt | Niedersachsen ist seither das einzige Land mit optionaler Teilnahme | hoch |
+
+Nicht öffentlich belegbar und deshalb gesondert zu behandeln: Korrekturtage im Abitur, gestrichene Dokumentationspflichten, Jahresbonus, angehobene Vergabegrenze.
+
+</details>
+
 **Was denken Sie?** Welche Aufgabe ist an Ihrer Schule zuletzt weggefallen — und wann war das? Ich bin ernsthaft neugierig, ob jemand ein Gegenbeispiel zur Monotonie hat.
