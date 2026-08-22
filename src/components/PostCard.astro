@@ -6,14 +6,16 @@ export interface Props {
   meta?: string;
   badges?: string[];
   datum?: Date;
+  /** Optional: macht die Karte für Kategorie-Filter adressierbar (data-kategorie) */
+  kategorie?: string;
 }
-const { href, titel, teaser, meta, badges = [], datum } = Astro.props;
+const { href, titel, teaser, meta, badges = [], datum, kategorie } = Astro.props;
 const datumString = datum
   ? new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }).format(datum)
   : '';
 ---
 
-<a href={href} class="card flex flex-col gap-3 group">
+<a href={href} class="card flex flex-col gap-3 group" data-kategorie={kategorie}>
   <div class="flex flex-wrap items-center gap-2 text-xs">
     {badges.map((b) => (
       <span class="badge-accent">{b}</span>

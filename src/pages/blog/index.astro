@@ -19,10 +19,25 @@ const kategorien = Array.from(new Set(posts.map((p) => p.data.kategorie)));
 
   {kategorien.length > 0 && (
     <section class="container-wide pb-4">
-      <ul class="flex flex-wrap gap-2">
+      <ul class="flex flex-wrap gap-2" data-kat-filter aria-label="Beiträge nach Kategorie filtern">
+        <li>
+          <a
+            href="/blog"
+            data-kat="alle"
+            aria-current="true"
+            class="badge-accent hover:bg-accent-50 hover:text-accent-700 transition"
+          >
+            Alle
+          </a>
+        </li>
         {kategorien.map((k) => (
           <li>
-            <a href={`#kat-${k}`} class="badge-ink hover:bg-accent-50 hover:text-accent-700 transition">
+            <a
+              href={`#kat-${encodeURIComponent(k)}`}
+              data-kat={k}
+              aria-current="false"
+              class="badge-ink hover:bg-accent-50 hover:text-accent-700 transition"
+            >
               {k}
             </a>
           </li>
@@ -32,18 +47,23 @@ const kategorien = Array.from(new Set(posts.map((p) => p.data.kategorie)));
   )}
 
   <section class="container-wide pb-16">
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-post-grid>
       {posts.map((post) => (
         <PostCard
           href={`/blog/${post.slug}`}
           titel={post.data.title}
           teaser={post.data.teaser}
           badges={[post.data.kategorie]}
+          kategorie={post.data.kategorie}
           datum={post.data.datum}
           meta={post.data.autor}
         />
       ))}
     </div>
+
+    <p class="text-ink-600 dark:text-ink-300 kat-aus" data-kat-leer>
+      Zu dieser Kategorie gibt es derzeit keine Beiträge.
+    </p>
 
     {posts.length === 0 && (
       <p class="text-ink-600 dark:text-ink-300">
@@ -53,3 +73,64 @@ const kategorien = Array.from(new Set(posts.map((p) => p.data.kategorie)));
     )}
   </section>
 </BaseLayout>
+
+<script>
+  // Kategorie-Filter der Blog-Übersicht.
+  // Die Pills bleiben echte Links (#kat-…), damit Deep-Links und "in neuem Tab
+  // öffnen" funktionieren; gefiltert wird ohne Neuladen.
+  function initKategorieFilter() {
+    const leiste = document.querySelector('[data-kat-filter]');
+    const raster = document.querySelector('[data-post-grid]');
+    if (!leiste || !raster || leiste.dataset.katInit === 'ja') return;
+    leiste.dataset.katInit = 'ja';
+
+    const pills = Array.from(leiste.querySelectorAll('a[data-kat]'));
+    const karten = Array.from(raster.querySelectorAll('[data-kategorie]'));
+    const leerHinweis = document.querySelector('[data-kat-leer]');
+    if (!pills.length || !karten.length) return;
+
+    const katAusHash = () =>
+      location.hash.startsWith('#kat-') ? decodeURIComponent(location.hash.slice(5)) : 'alle';
+
+    function anwenden(kategorie) {
+      const aktiv = kategorie && kategorie !== 'alle' ? kategorie : null;
+      let sichtbar = 0;
+
+      for (const karte of karten) {
+        const zeigen = !aktiv || karte.dataset.kategorie === aktiv;
+        karte.classList.toggle('kat-aus', !zeigen);
+        if (zeigen) sichtbar += 1;
+      }
+
+      leerHinweis?.classList.toggle('kat-aus', sichtbar > 0);
+
+      for (const pill of pills) {
+        const an = pill.dataset.kat === (aktiv ?? 'alle');
+        pill.classList.toggle('badge-accent', an);
+        pill.classList.toggle('badge-ink', !an);
+        pill.setAttribute('aria-current', an ? 'true' : 'false');
+      }
+    }
+
+    for (const pill of pills) {
+      pill.addEventListener('click', (event) => {
+        event.preventDefault();
+        const kategorie = pill.dataset.kat ?? 'alle';
+        history.replaceState(
+          null,
+          '',
+          kategorie === 'alle' ? location.pathname : `#kat-${encodeURIComponent(kategorie)}`,
+        );
+        anwenden(kategorie);
+      });
+    }
+
+    // Hash-Wechsel von außen (Zurück-Button, Link aus einem Beitrag heraus)
+    window.addEventListener('hashchange', () => anwenden(katAusHash()));
+
+    anwenden(katAusHash());
+  }
+
+  initKategorieFilter();
+  document.addEventListener('astro:page-load', initKategorieFilter);
+</script>
