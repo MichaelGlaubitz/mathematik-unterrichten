@@ -8,7 +8,7 @@ kategorie: "Meinung"
 bild: "/der-stapel.png"
 bildAlt: "Infografik „Der Stapel“: 29 seit 1950 hinzugekommene Aufgaben als schief übereinander liegende Blöcke, gestemmt von einer Figur mit durchgedrückten Armen und eingeknickten Knien; unten das ursprüngliche Amt von 1950 als bis heute geltende Bemessungsgrundlage."
 teaser: "Der Schuljahresanfangsbrief der Kultusministerin umfasst 1.306 Wörter. Zehnmal steht dort „Stellen“, viermal „digital“, viermal „Dank“. Die Wörter „Entlastung“, „Arbeitszeit“ und „Belastung“ kommen kein einziges Mal vor. Eine Zählung – und was sie über die Richtung verrät, in die Aufgabenlisten in der Schule wachsen."
-entwurf: true
+entwurf: false
 ---
 
 Am 20. August 2026 hat die niedersächsische Kultusministerin den üblichen Brief an die Schulen geschickt. 1.306 Wörter, freundlich im Ton, ordentlich gemacht. Ich habe ihn nicht kommentiert, sondern gezählt.
