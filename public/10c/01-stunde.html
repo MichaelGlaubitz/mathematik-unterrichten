@@ -1,0 +1,2855 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halbleiter – Elektrische Leitung und Energie (8.1)</title>
+<style>
+:root{
+  --blau:#0b5aa0; --blau-hell:#e8f1f9; --blau-mittel:#8fbde0;
+  --rot:#c62828; --gruen:#2e7d32; --orange:#ef6c00;
+  --grau:#f4f6f8; --linie:#d3dae0; --text:#1a2229;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text); background:#fff; line-height:1.55; font-size:17px;
+}
+header{
+  position:sticky; top:0; z-index:50; background:#fff;
+  border-bottom:2px solid var(--blau); padding:.5rem .9rem;
+}
+.kopf{display:flex; align-items:center; gap:.8rem; flex-wrap:wrap}
+.kopf h1{font-size:1.05rem; margin:0; color:var(--blau); flex:1 1 auto}
+.kopf h1 span{color:#607080; font-weight:400}
+.knopf{
+  font:inherit; font-size:.9rem; padding:.35rem .8rem; border-radius:999px;
+  border:1.5px solid var(--blau); background:#fff; color:var(--blau); cursor:pointer;
+}
+.knopf:hover{background:var(--blau-hell)}
+.knopf.voll{background:var(--blau); color:#fff}
+.knopf.voll:hover{background:#094a85}
+.knopf.klein{font-size:.82rem; padding:.25rem .6rem}
+.uhr{font-variant-numeric:tabular-nums; font-weight:700; font-size:1.1rem; min-width:4.2rem; text-align:center}
+.uhr.knapp{color:var(--rot)}
+.balken{height:5px; background:var(--linie); border-radius:3px; margin-top:.45rem; overflow:hidden}
+.balken>div{height:100%; background:var(--blau); width:0%; transition:width .3s}
+.pillen{display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.45rem}
+.pille{
+  font-size:.74rem; padding:.15rem .5rem; border-radius:999px;
+  background:var(--grau); border:1px solid var(--linie); cursor:pointer; white-space:nowrap;
+}
+.pille.aktiv{background:var(--blau); color:#fff; border-color:var(--blau)}
+.pille.fertig{background:#e6f4ea; border-color:#a8d5b5}
+main{max-width:1000px; margin:0 auto; padding:1.1rem .9rem 6rem}
+section.phase{display:none}
+section.phase.aktiv{display:block}
+h2{font-size:1.5rem; color:var(--blau); margin:.2rem 0 .3rem}
+h3{font-size:1.12rem; margin:1.4rem 0 .4rem}
+.zeitnote{font-size:.85rem; color:#607080; margin:0 0 1rem}
+.karte{background:var(--grau); border:1px solid var(--linie); border-radius:12px; padding:.9rem 1.1rem; margin:1rem 0}
+.karte.blau{background:var(--blau-hell); border-color:var(--blau-mittel)}
+.karte.merk{background:#fff8e1; border-color:#ffd54f}
+.karte.warn{background:#fff3e0; border-color:#ffb74d}
+.karte h4{margin:.1rem 0 .5rem; font-size:1rem; text-transform:uppercase; letter-spacing:.04em; color:var(--blau)}
+.karte.merk h4{color:#8d6e00}
+ol,ul{padding-left:1.3rem}
+li{margin:.3rem 0}
+.zwei{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+@media (max-width:780px){.zwei{grid-template-columns:1fr}}
+canvas{max-width:100%; border-radius:8px; background:#fff; border:1px solid var(--linie); display:block}
+label.reg{display:block; font-size:.9rem; font-weight:600; margin:.7rem 0 .1rem}
+input[type=range]{width:100%; accent-color:var(--blau)}
+.anzeige{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:#101418; color:#7dff9b;
+  padding:.5rem .8rem; border-radius:8px; font-size:1.25rem; display:inline-block; min-width:9rem; text-align:right;
+  border:3px solid #2b3238;
+}
+.anzeige small{color:#9fb; font-size:.7em}
+.werte{display:flex; gap:.9rem; flex-wrap:wrap; align-items:center; margin:.6rem 0}
+.tag{background:#fff; border:1px solid var(--linie); border-radius:8px; padding:.35rem .7rem; font-size:.9rem}
+.tag b{color:var(--blau)}
+table{border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.95rem}
+th,td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+th{background:var(--blau-hell)}
+td input{width:100%; border:none; font:inherit; text-align:center; background:#fffde7; padding:.25rem}
+td input:focus{outline:2px solid var(--blau)}
+td.ok{background:#e6f4ea}
+td.ok input{background:#e6f4ea}
+td.fast{background:#fff8e1}
+td.fast input{background:#fff8e1}
+textarea{width:100%; font:inherit; padding:.5rem; border:1px solid var(--linie); border-radius:8px; min-height:4.5rem; background:#fffde7}
+.mc{margin:.5rem 0}
+.mc button{
+  display:block; width:100%; text-align:left; font:inherit; margin:.3rem 0; padding:.5rem .8rem;
+  border:1.5px solid var(--linie); border-radius:9px; background:#fff; cursor:pointer;
+}
+.mc button:hover{border-color:var(--blau)}
+.mc button.richtig{background:#e6f4ea; border-color:var(--gruen)}
+.mc button.falsch{background:#fdecea; border-color:var(--rot)}
+.rueck{font-size:.92rem; margin:.35rem 0 0; padding:.5rem .7rem; border-radius:8px; display:none}
+.rueck.zeig{display:block}
+.rueck.gut{background:#e6f4ea; border-left:4px solid var(--gruen)}
+.rueck.schlecht{background:#fdecea; border-left:4px solid var(--rot)}
+details{border:1px solid var(--linie); border-radius:9px; padding:.5rem .8rem; margin:.6rem 0; background:#fff}
+details[open]{background:#fbfcfd}
+summary{cursor:pointer; font-weight:600; color:var(--blau)}
+.videobox{position:relative; padding-top:56.25%; background:#000; border-radius:10px; overflow:hidden}
+.videobox iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.videohinweis{font-size:.85rem; color:#607080; margin:.3rem 0 0}
+.nav{
+  position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--linie);
+  padding:.55rem .9rem; display:flex; gap:.6rem; justify-content:space-between; align-items:center; z-index:60;
+}
+.nav .mitte{font-size:.85rem; color:#607080}
+.aufgabe{border-left:4px solid var(--blau); padding:.1rem 0 .1rem .8rem; margin:1.2rem 0}
+.aufgabe .nr{
+  display:inline-block; background:var(--blau); color:#fff; font-weight:700; font-size:.8rem;
+  padding:.1rem .5rem; border-radius:5px; margin-right:.4rem;
+}
+.stern{color:var(--orange); font-size:.85rem}
+.quizfrage{border:1px solid var(--linie); border-radius:10px; padding:.7rem .9rem; margin:.8rem 0}
+.punkte{font-size:1.3rem; font-weight:700; color:var(--blau)}
+.lehrer{display:none; background:#f3e5f5; border:1px solid #ce93d8; border-radius:10px; padding:.7rem .9rem; margin:.8rem 0; font-size:.93rem}
+body.lehrermodus .lehrer{display:block}
+.lehrer h4{color:#6a1b9a; margin:.1rem 0 .4rem; font-size:.95rem; text-transform:uppercase; letter-spacing:.04em}
+.fertigmarke{color:var(--gruen); font-weight:700}
+svg.schaltung{background:#fff; border:1px solid var(--linie); border-radius:8px; max-width:100%; height:auto}
+details.gesperrt{background:#f7f7f8; border-style:dashed}
+details.gesperrt>summary{color:#8a949e; cursor:not-allowed}
+details.frei>summary{color:var(--gruen)}
+.schloss{font-size:.85rem; color:#8a949e; font-weight:400}
+.zeichenfeld{border:1px solid var(--linie); border-radius:10px; padding:.5rem; background:#fff; margin:.6rem 0}
+.zeichenfeld canvas{width:100%; height:auto; background:#fff; border:1px dashed #c3ccd4; border-radius:6px; touch-action:none; cursor:crosshair; display:block}
+.zwerkzeug{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
+.zwerkzeug .knopf{padding:.28rem .7rem; font-size:.85rem}
+.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff}
+.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem}
+.zstatus{font-size:.82rem; color:#607080}
+#protokollChip{font-size:.8rem; padding:.2rem .55rem; background:#e6f4ea; border:1px solid #a8d5b5; border-radius:999px; white-space:nowrap}
+#protokollChip.warn{background:#fff3e0; border-color:#ffb74d}
+.bild{background:#fff; border:1px solid var(--linie); border-radius:12px; padding:.6rem .9rem 0; margin:1rem 0; text-align:center}
+.bild svg{width:100%; max-width:520px; height:auto; display:block; margin:0 auto}
+.bildtext{font-size:.9rem; color:#4a5560; text-align:left; margin:.2rem 0 .8rem; line-height:1.45}
+@media print{
+  header,.nav,.pillen,.balken{display:none}
+  section.phase{display:block !important; page-break-after:always}
+  body{font-size:11pt}
+  .lehrer{display:block}
+}
+
+/* ---- Protokollvertrag Fassung 4: der ehrliche Ausweg ------------------
+   Sichtbar, aber leiser als der Weg ueber die eigene Antwort: erreichbar,
+   nicht einladend. */
+.hilfeknopf{display:inline-block;margin:.35rem 0 .1rem;padding:.3rem .7rem;
+  font:inherit;font-size:.86rem;background:transparent;color:#5a6570;
+  border:1px dashed #c3ccd4;border-radius:8px;cursor:pointer}
+.hilfeknopf:hover{border-color:#8fa0b0;color:#33414d}
+details.gesperrt > .hilfeknopf{display:inline-block}
+details.frei > .hilfeknopf{display:none}
+
+/* ---- Laborbuehne: Graph und Regler gleichzeitig im Bild ----------------
+   In einer Laborphase steht der Graph oben, das Bedienfeld darunter. Wer zum
+   Regler scrollt, schiebt den Graphen aus dem Fenster - und verstellt dann
+   einen Wert, ohne die Wirkung zu sehen. Die Buehne haelt ihn fest.
+   Das Markup dazu erzeugt das Skript (siehe laborbuehne()); im Koerper einer
+   Stunde ist dafuer nichts noetig. */
+.laborbuehne{position:sticky; top:var(--kopfhoehe,0px); z-index:6;
+  background:#fff; padding:.35rem 0 .55rem;
+  box-shadow:0 10px 12px -10px rgba(26,34,41,.45);
+  /* Die Buehne faengt KEINE Fingertipps ab. Das ist wichtiger, als es
+     aussieht: Eine haftende Flaeche liegt zwangslaeufig ueber dem, was gerade
+     unter sie scrollt - und das waren hier ausgerechnet die Schrittknoepfe.
+     Ein Schueler haette auf "Auftrag 2" getippt und nichts waere passiert.
+     Der Graph selbst hat nichts anzuklicken, also kostet das Durchlassen
+     nichts; er bleibt sichtbar, ist aber kein Hindernis mehr. */
+  pointer-events:none}
+.laborbuehne > canvas{display:block; margin:0 auto; pointer-events:none}
+/* Zusaetzlich weicht alles, was in einer Laborphase angesprungen wird, der
+   Buehne aus - damit gar nicht erst etwas unter ihr landet. Beides zusammen,
+   weil scroll-margin allein nicht reicht: Manche Browser (und der Selbsttest)
+   scrollen an ihm vorbei. */
+.phase:has(.laborbuehne) :is(.schritt,.aufgabe,details,summary,textarea,input,
+  button,.antwortfeld,.bedienfeld,.ablesekarte,.reglerblock,.punktreihe,.schritte){
+  scroll-margin-top:calc(var(--kopfhoehe,0px) + var(--buehnenhoehe,0px) + .6rem);
+}
+/* Ohne :has (aeltere Browser) wenigstens der Kopf - besser als nichts. */
+@supports not selector(:has(*)){
+  .schritt,.aufgabe,details,.antwortfeld{
+    scroll-margin-top:calc(var(--kopfhoehe,0px) + .6rem)}
+}
+/* Wer Bewegung reduziert haben will, bekommt das alte Verhalten. */
+@media (prefers-reduced-motion:reduce){ .laborbuehne{position:static} }
+
+/* ---- nachgeruestet: einfache Sprache ---- */
+.sprache-einfach{display:none}
+body.einfach .sprache-standard{display:none}
+body.einfach .sprache-einfach{display:inline}
+/* ---- nachgeruestet: Anmeldeschirm ---- */
+.anmeldeschirm{position:fixed;inset:0;background:#0f2733;display:grid;place-items:center;z-index:60;padding:1rem}
+.anmeldekarte{background:#fff;border-radius:14px;padding:1.6rem 1.8rem;max-width:34rem;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.anmeldezeile{display:flex;gap:.6rem;align-items:center;margin:.8rem 0}
+.anmeldezeile input{font-size:1.6rem;width:5rem;text-align:center;padding:.3rem;border:1px solid #b9c4cc;border-radius:8px}
+.anmelde-rueck{min-height:1.4rem;font-size:.92rem}
+.anmelde-rueck.gut{color:#1b6b3a}.anmelde-rueck.schlecht{color:#a3271f}
+body.angemeldet .anmeldeschirm{display:none}
+/* ---- nachgeruestet: Plan A / Plan B ---- */
+body[data-plan="A"] [data-plan="B"]{display:none !important}
+body[data-plan="B"] [data-plan="A"]{display:none !important}
+.planpille{font-size:.82rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;
+  background:#ede7f6;color:#4a148c;border:1px solid #d1c4e9;white-space:nowrap;cursor:pointer}
+body[data-plan="B"] .planpille{background:#e8f5e9;color:#1b5e20;border-color:#c8e6c9}
+.planpille:focus-visible{outline:2px solid #4a148c;outline-offset:2px}
+/* ---- nachgeruestet: Materialschirm vor dem Wechsel ---- */
+.materialschirm{position:fixed;inset:0;background:rgba(15,39,51,.72);display:grid;
+  place-items:center;z-index:70;padding:1rem}
+.materialschirm[hidden]{display:none}
+.materialkarte{background:#fff;border-radius:14px;padding:1.5rem 1.7rem;max-width:40rem;
+  max-height:82vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.materialkarte h2{margin:0 0 .4rem}
+.materialkarte ul{margin:.5rem 0 .9rem 1.1rem}
+.materialkarte li{margin:.25rem 0}
+.materialzeile{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+</style>
+</head>
+<body>
+<div class="anmeldeschirm" id="anmeldeschirm">
+  <div class="anmeldekarte">
+    <h2>Anmeldung zur Stunde</h2>
+    <p><span class="sprache-standard">An der Tafel steht eine <b>zweistellige Zahl</b>.
+    Trag sie hier ein &#8211; dann geht es los.</span>
+    <span class="sprache-einfach">An der Tafel steht eine Zahl. Sie hat zwei Ziffern.
+    Trag sie hier ein. Dann geht es los.</span></p>
+    <div class="anmeldezeile">
+      <input id="i-code" inputmode="numeric" pattern="[0-9]*" maxlength="2"
+             autocomplete="off" aria-label="Zweistellige Zahl von der Tafel">
+      <button class="knopf voll" id="k-anmelden">Anmelden</button>
+      <button class="knopf" id="k-ohne-zahl">Ohne Zahl weiter</button>
+    </div>
+    <p class="anmelde-rueck" id="anmelde-rueck" role="status" aria-live="polite"></p>
+    <p class="anmelde-rueck" style="color:#5a6570">In der Stunde: die Zahl von der Tafel
+    eintragen. &#8222;Ohne Zahl weiter&#8220; ist f&#252;r sp&#228;ter gedacht, wenn du das
+    Material allein noch einmal durchgehst.</p>
+  </div>
+</div>
+
+<div class="materialschirm" id="materialschirm" hidden role="dialog"
+     aria-modal="true" aria-labelledby="material-titel">
+  <div class="materialkarte">
+    <h2 id="material-titel">Das braucht ihr daf&#252;r</h2>
+    <p class="sprache-standard">Ihr wechselt auf den Weg mit dem <b>echten Versuch</b>.
+    Holt zuerst das Material &#8211; dann geht es weiter.</p>
+    <p class="sprache-einfach">Ihr wechselt zum <b>echten Versuch</b>.
+    Holt zuerst das Material. Dann geht es weiter.</p>
+    <div id="material-inhalt"></div>
+    <div class="materialzeile">
+      <button class="knopf voll" id="k-material-ja">Material ist da &#8211; weiter</button>
+      <button class="knopf" id="k-material-nein">Doch lieber am Bildschirm</button>
+    </div>
+  </div>
+</div>
+
+
+<header>
+  <div class="kopf">
+    <h1>8.1 Elektrische Leitung und Energie <span>· Halbleiter · Kl. 9/10</span></h1>
+    <div id="protokollChip">Protokoll: 0 Einträge</div>
+    <div class="uhr" id="uhr">--:--</div>
+    <button class="knopf klein" id="uhrKnopf">Pause</button>
+    <button class="knopf klein sprache" id="spracheKnopf" aria-pressed="false" title="Alle Texte in k&#252;rzeren, einfacheren S&#228;tzen">Aa Einfache Sprache</button><button class="knopf klein" id="lehrerKnopf">Lehrer-Ansicht</button>
+  </div>
+  <div class="balken"><div id="balken"></div></div>
+  <div class="pillen" id="pillen"></div>
+</header>
+
+<main>
+
+<!-- ============ PHASE 0 ============ -->
+<section class="phase aktiv" data-titel="Start" data-min="2">
+  <h2>Halbleiter – warum ein Thermometer die Temperatur „fühlt“</h2>
+  <p class="zeitnote"><span class="sprache-standard">Diese Doppelstunde führt sich selbst durch. Ihr arbeitet zu zweit an einem Gerät und klickt euch durch die Phasen. Unten rechts geht es weiter.</span><span class="sprache-einfach">Diese Doppelstunde läuft von allein. Ihr arbeitet zu zweit an einem Gerät. Ihr klickt euch selbst durch die Phasen. Unten rechts geht es weiter.</span></p>
+
+  <div class="bild">
+    <svg viewBox="0 0 470 130" role="img" aria-label="Digitales Fieberthermometer mit der Anzeige 37,8 Grad Celsius">
+      <defs>
+        <linearGradient id="korpus0" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dfe6ec"/>
+        </linearGradient>
+        <linearGradient id="metall0" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#eceff1"/><stop offset="1" stop-color="#b0bec5"/>
+        </linearGradient>
+      </defs>
+      <rect x="18" y="47" width="80" height="30" rx="14" fill="url(#metall0)" stroke="#78909c" stroke-width="1.6"/>
+      <rect x="88" y="30" width="345" height="64" rx="22" fill="url(#korpus0)" stroke="#8c98a4" stroke-width="1.8"/>
+      <rect x="268" y="42" width="150" height="40" rx="5" fill="#101418" stroke="#37474f" stroke-width="2"/>
+      <text x="406" y="71" font-size="24" font-weight="700" fill="#7dff9b" text-anchor="end" font-family="ui-monospace,monospace">37.8°C</text>
+      <circle cx="232" cy="62" r="9" fill="#b0bec5" stroke="#78909c" stroke-width="1.4"/>
+      <path d="M150 48 q10 14 0 28 M162 41 q16 21 0 42" stroke="#0b5aa0" stroke-width="1.6" fill="none" opacity=".55"/>
+      <text x="58" y="105" font-size="11" fill="#607080" text-anchor="middle" font-family="sans-serif">8 Sekunden – Piep</text>
+    </svg>
+    <p class="bildtext"><span class="sprache-standard"><b>Die Frage dieser Doppelstunde:</b> Wie kann dieses Gerät eine Temperatur anzeigen? Es enthält kein Quecksilber, keine Skala und keine Mechanik.</span><span class="sprache-einfach"><b>Die Frage dieser Doppelstunde:</b> Wie kann dieses Gerät eine Temperatur anzeigen? Es hat kein Quecksilber. Es hat keine Skala. Es hat keine Mechanik.</span></p>
+  </div>
+
+  <div class="karte blau">
+    <h4>Worum es geht</h4>
+    <p><span class="sprache-standard">Ein digitales Fieberthermometer hat kein Quecksilber und keine Skala. Es hat einen <b>elektrischen Widerstand</b>, der seinen Wert ändert, wenn er warm wird. Am Ende dieser Stunde könnt ihr erklären, wie das funktioniert – und warum sich Metalle dabei genau umgekehrt verhalten wie Halbleiter.</span><span class="sprache-einfach">Ein digitales Fieberthermometer hat kein Quecksilber und keine Skala. Es hat einen <b>elektrischen Widerstand</b>. Der ändert seinen Wert, wenn er warm wird. Am Ende der Stunde kannst du erklären, wie das geht. Und warum sich Metalle dabei genau umgekehrt verhalten wie Halbleiter.</span></p>
+  </div>
+
+  <h3>Ihr könnt danach …</h3>
+  <ol>
+    <li><span class="sprache-standard">… Stoffe in <b>Leiter</b>, <b>Halbleiter</b> und <b>Nichtleiter (Isolatoren)</b> einteilen.</span><span class="sprache-einfach">… Stoffe einteilen in <b>Leiter</b>, <b>Halbleiter</b> und <b>Nichtleiter</b>.</span></li>
+    <li><span class="sprache-standard">… beschreiben, wie sich der Widerstand von Metall und von Halbleitern bei Erwärmung ändert – und das mit der <b>Zahl der beweglichen Ladungsträger</b> erklären.</span><span class="sprache-einfach">… beschreiben: Wie ändert sich der Widerstand von Metall und von Halbleitern in der Wärme? Und das mit der <b>Zahl der beweglichen Ladungsträger</b> erklären.</span></li>
+    <li><span class="sprache-standard">… Messreihen zu <b>NTC</b> und <b>LDR</b> aufnehmen, in ein Diagramm eintragen und auswerten.</span><span class="sprache-einfach">… Messreihen zu <b>NTC</b> und <b>LDR</b> aufnehmen. Sie in ein Diagramm eintragen und auswerten.</span></li>
+    <li><span class="sprache-standard">… erklären, wie aus einem NTC ein Thermometer und aus einem LDR ein Lichtsensor wird.</span><span class="sprache-einfach">… erklären: Wie wird aus einem NTC ein Thermometer? Und aus einem LDR ein Lichtsensor?</span></li>
+  </ol>
+
+  <div class="karte">
+    <h4>Spielregeln</h4>
+    <ul>
+      <li><span class="sprache-standard">Jede Phase hat eine Zeitangabe und eine eigene Uhr. Sie ist ein Vorschlag, kein Befehl.</span><span class="sprache-einfach">Jede Phase hat eine Zeit und eine Uhr. Die Zeit ist ein Vorschlag. Kein Befehl.</span></li>
+      <li><span class="sprache-standard"><b>Die Lösungen sind verschlossen</b> 🔒 und öffnen sich erst, wenn ihr eure eigene Antwort eingetragen habt. Das ist kein Misstrauen, sondern der Trick: eine gelesene Lösung fühlt sich richtig an, eine selbst gedachte sitzt.</span><span class="sprache-einfach"><b>Die Lösungen sind zu</b> 🔒. Sie gehen erst auf, wenn du deine Antwort eingetragen hast. Das ist kein Misstrauen. Das ist der Trick: Eine gelesene Lösung fühlt sich richtig an. Eine selbst gedachte Lösung bleibt im Kopf.</span></li>
+      <li><span class="sprache-standard">Schreibt Ergebnisse in die gelben Felder, zeichnet in die Zeichenfelder. Alles wird <b>mitprotokolliert</b> – oben rechts seht ihr, wie viele Einträge euer Protokoll hat.</span><span class="sprache-einfach">Schreib deine Ergebnisse in die gelben Felder. Zeichne in die Zeichenfelder. Alles kommt ins <b>Protokoll</b>. Oben rechts siehst du, wie viele Einträge du hast.</span></li>
+      <li><span class="sprache-standard">Das Protokoll notiert auch, <b>wann</b> ihr eine Lösung geöffnet habt und was zu diesem Zeitpunkt in eurem Feld stand. Nachträgliches Abschreiben fällt also auf. Umgekehrt gilt: eine ehrliche falsche Antwort ist besser als eine abgeschriebene richtige.</span><span class="sprache-einfach">Das Protokoll notiert auch: <b>wann</b> du eine Lösung geöffnet hast. Und was vorher in deinem Feld stand. Abschreiben fällt also auf. Und umgekehrt: Eine ehrliche falsche Antwort ist besser als eine abgeschriebene richtige.</span></li>
+      <li><span class="sprache-standard">Am Ende (Phase 9) speichert ihr das Protokoll und schickt es an Herrn Glaubitz – <b>mit</b> euren Zeichnungen.</span><span class="sprache-einfach">Am Ende (Phase 9) speicherst du das Protokoll. Dann schickst du es an Herrn Glaubitz — <b>mit</b> deinen Zeichnungen.</span></li>
+    </ul>
+  </div>
+
+  <div class="lehrer">
+    <h4>Für die Lehrkraft</h4>
+    <p><b>Kein Demoexperiment nötig.</b> Alle Versuche der Doppelseite (V1–V4) sind als geprüfte Videos oder als interaktive Simulation ersetzt. Sie brauchen nur: Tablets/Laptops, diese Datei, optional Beamer für Einstieg und Sicherung.</p>
+    <p><b>Ihre Rolle:</b> Phase 1 gemeinsam starten (2 Min), dann herumgehen. Ansagen bei Phasenwechsel sind hilfreich, aber nicht nötig – die Seite taktet selbst.</p>
+    <p><b>Ohne Internet?</b> Alle Simulationen, Aufgaben und Lösungen laufen offline. Nur die vier YouTube-Einbettungen brauchen Netz; in jeder Videophase steht direkt darunter eine gleichwertige Simulation oder Textbeschreibung als Ersatz.</p>
+    <p><b>Lehrer-Ansicht</b> (oben rechts) blendet in jeder Phase diese violetten Kästen mit Lösungen, Timing und typischen Schülerfehlern ein. Strg+P druckt alles inklusive Lösungen.</p>
+    <p><b>Lösungssperre:</b> Jede Musterlösung ist verschlossen, bis im zugehörigen Feld genug steht (30–80 Zeichen, je Aufgabe). Beim Öffnen schreibt das Protokoll fest, <b>was zu diesem Zeitpunkt</b> im eigenen Feld stand – Sie sehen also die Antwort <i>vor</i> dem Lösungsblick, nicht die nachträglich korrigierte. Auch erfolglose Klicks auf verschlossene Lösungen werden vermerkt.</p>
+    <p><b>Protokoll:</b> läuft ab Start mit, nur anhängend, Zähler oben rechts. Es wird alle paar Sekunden im Browser des Geräts zwischengespeichert – bei versehentlichem Neuladen bietet die Seite an weiterzuarbeiten. Die Ehrlichkeit gehört dazu: es ist manipulations<i>erschwerend</i>, nicht manipulationssicher. Wer die Entwicklerwerkzeuge des Browsers bedienen kann, kann Einträge fälschen. Für den Unterrichtszweck – Abschreiben unattraktiv machen und Denkwege sichtbar – reicht das.</p>
+    <p><b>Zeichenfelder:</b> A1 hat zwei (Skizze a und b), A5 eine freiwillige. Finger oder Stift, mit „Strich zurück“ und Raster. Die Bilder gehen als PNG mit ins Protokoll.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 1 ============ -->
+<section class="phase" data-titel="Vorwissen" data-min="5"><h2>Kurz vorweg: Was sitzt schon?</h2><p><span class="sprache-standard">F&#252;nf Fragen zu dem, was diese Stunde voraussetzt. Es gibt keine Punkte und keine Note &#8211; sie zeigen dir und mir, worauf wir aufbauen k&#246;nnen.</span><span class="sprache-einfach">F&#252;nf kurze Fragen. Sie z&#228;hlen nicht f&#252;r die Note. Sie zeigen nur, was du schon kannst.</span></p><div id="quiz-start"></div></section><section class="phase" data-titel="Einstieg" data-min="6">
+  <h2>1 · Was steckt in der Spitze?</h2>
+  <p class="zeitnote"><span class="sprache-standard">6 Minuten · zuerst raten, dann prüfen</span><span class="sprache-einfach">6 Minuten · erst raten, dann prüfen</span></p>
+
+  <div class="bild">
+    <svg viewBox="0 0 470 240" role="img" aria-label="Digitales Fieberthermometer, aufgeschnitten: in der Spitze sitzt ein NTC aus Halbleitermaterial">
+      <defs>
+        <linearGradient id="korpus" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dfe6ec"/>
+        </linearGradient>
+        <linearGradient id="metall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#eceff1"/><stop offset="1" stop-color="#b0bec5"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Lupenlinien -->
+      <path d="M40 141 L32 92 M88 141 L300 92" stroke="#9aa7b2" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+
+      <!-- Lupenkasten -->
+      <rect x="26" y="12" width="278" height="80" rx="10" fill="#f7fafc" stroke="#9aa7b2" stroke-width="1.4"/>
+      <rect x="40" y="26" width="132" height="52" rx="13" fill="url(#metall)" stroke="#78909c" stroke-width="1.6"/>
+      <line x1="106" y1="47" x2="168" y2="40" stroke="#c62828" stroke-width="2.4"/>
+      <line x1="106" y1="56" x2="168" y2="64" stroke="#263238" stroke-width="2.4"/>
+      <ellipse cx="92" cy="52" rx="15" ry="12" fill="#263238"/>
+      <text x="92" y="56" font-size="9" font-weight="700" fill="#7dff9b" text-anchor="middle" font-family="sans-serif">NTC</text>
+      <text x="186" y="45" font-size="13" font-weight="700" fill="#0b5aa0" font-family="sans-serif">In der Spitze: ein NTC</text>
+      <text x="186" y="64" font-size="11" fill="#4a5560" font-family="sans-serif">Halbleiter, kein Quecksilber</text>
+
+      <!-- Messfühler -->
+      <rect x="18" y="139" width="80" height="30" rx="14" fill="url(#metall)" stroke="#78909c" stroke-width="1.6"/>
+      <!-- Korpus -->
+      <rect x="88" y="122" width="345" height="64" rx="22" fill="url(#korpus)" stroke="#8c98a4" stroke-width="1.8"/>
+      <!-- Display -->
+      <rect x="268" y="134" width="150" height="40" rx="5" fill="#101418" stroke="#37474f" stroke-width="2"/>
+      <text x="406" y="163" font-size="24" font-weight="700" fill="#7dff9b" text-anchor="end" font-family="ui-monospace,monospace">37.8°C</text>
+      <!-- Knopf -->
+      <circle cx="232" cy="154" r="9" fill="#b0bec5" stroke="#78909c" stroke-width="1.4"/>
+      <text x="232" y="180" font-size="9" fill="#78909c" text-anchor="middle" font-family="sans-serif">ein/aus</text>
+      <!-- Piepton -->
+      <path d="M150 140 q10 14 0 28 M162 133 q16 21 0 42" stroke="#0b5aa0" stroke-width="1.6" fill="none" opacity=".55"/>
+
+      <text x="60" y="212" font-size="11" fill="#607080" font-family="sans-serif">Messfühler</text>
+      <text x="300" y="212" font-size="11" fill="#607080" font-family="sans-serif">Anzeige</text>
+    </svg>
+    <p class="bildtext"><span class="sprache-standard"><b>Digitales Fieberthermometer, aufgeschnitten.</b> In der Spitze sitzt ein winziges schwarzes Bauteil an zwei Drähten: ein <b>NTC</b> aus Halbleitermaterial. Die Elektronik misst dessen <b>Widerstand</b> – und rechnet daraus die Temperatur aus.</span><span class="sprache-einfach"><b>Ein digitales Fieberthermometer, aufgeschnitten.</b> In der Spitze sitzt ein winziges schwarzes Bauteil an zwei Drähten: ein <b>NTC</b> aus Halbleitermaterial. Die Elektronik misst seinen <b>Widerstand</b>. Daraus rechnet sie die Temperatur aus.</span></p>
+  </div>
+
+  <div class="karte blau">
+    <p style="font-size:1.1rem;margin:.2rem 0"><span class="sprache-standard"><b>Fieber messen früher:</b> Glasröhrchen, Quecksilber, 5 Minuten warten.<br>
+    <b>Fieber messen heute:</b> Plastikspitze, Piepton, 8 Sekunden.</span><span class="sprache-einfach"><b>Fieber messen früher:</b> Glasröhrchen, Quecksilber, 5 Minuten warten.<br> <b>Fieber messen heute:</b> Plastikspitze, Piepton, 8 Sekunden.</span></p>
+    <p style="margin:.4rem 0 0"><span class="sprache-standard">In der Spitze sitzt <b>kein</b> Quecksilber und <b>keine</b> Mechanik – sondern ein winziges Bauteil, das seinen elektrischen Widerstand ändert, wenn es wärmer wird. Das Thermometer misst also gar keine Temperatur. Es misst einen <b>Widerstand</b> und rechnet um.</span><span class="sprache-einfach">In der Spitze sitzt <b>kein</b> Quecksilber. Und <b>keine</b> Mechanik. Dort sitzt ein winziges Bauteil. Es ändert seinen Widerstand, wenn es wärmer wird. Das Thermometer misst also gar keine Temperatur. Es misst einen <b>Widerstand</b>. Und rechnet ihn um.</span></p>
+  </div>
+
+  <h3>Eure Prognose</h3>
+  <p><span class="sprache-standard">Ein Draht aus Metall und ein Halbleiter-Bauteil werden von 20 °C auf 70 °C erwärmt. Was passiert mit dem Widerstand?</span><span class="sprache-einfach">Ein Draht aus Metall und ein Halbleiter werden erwärmt: von 20 °C auf 70 °C. Was passiert mit dem Widerstand?</span></p>
+  <div class="mc" id="mc-einstieg"></div>
+  <div class="rueck" id="rueck-einstieg"></div>
+
+  <h3>Und jetzt genau hinsehen</h3>
+  <p><span class="sprache-standard">Notiert in einem Satz, was ihr <i>vermutet</i>, warum sich ein Stoff so verhält. (Es gibt hier kein Falsch – wir kommen darauf zurück.)</span><span class="sprache-einfach">Schreib einen Satz: Warum verhält sich ein Stoff so? Was <i>vermutest</i> du? Hier gibt es kein Falsch. Wir kommen später darauf zurück.</span></p>
+  <textarea id="t-vermutung" placeholder="Ich vermute, dass …"></textarea>
+
+  <div class="lehrer">
+    <h4>Timing &amp; Hinweise</h4>
+    <p>Die Prognose ist bewusst als Konflikt gebaut: Fast alle Klassen tippen „Widerstand steigt“ für beide Bauteile, weil „warm = mehr Bewegung = mehr Störung“ das einzige Modell ist, das sie kennen. Der Widerspruch trägt die ganze Stunde.</p>
+    <p><b>Häufige Fehlvorstellung:</b> „Wärme macht Elektronen schneller, also fließt mehr Strom.“ Das erklärt Metall falsch <i>und</i> Halbleiter aus dem falschen Grund richtig. Entscheidend ist die <b>Anzahl</b> beweglicher Ladungsträger, nicht ihre Geschwindigkeit.</p>
+    <p>Wenn Sie mit Beamer einsteigen wollen: Frage vorlesen, per Handzeichen abstimmen lassen, Ergebnis an die Tafel – dauert 90 Sekunden und lohnt sich.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 2 ============ -->
+<section class="phase" data-titel="Simulation" data-min="11">
+  <h2>2 · Wer leitet Strom – und warum?</h2>
+  <p class="zeitnote"><span class="sprache-standard">11 Minuten · Simulation, Partnerarbeit</span><span class="sprache-einfach">11 Minuten · Simulation · zu zweit</span></p>
+
+  <p><span class="sprache-standard">Unten seht ihr einen Stoff zwischen Pluspol (links) und Minuspol (rechts), dazu eine Glühlampe im Stromkreis. Ihr könnt <b>Material</b> und <b>Temperatur</b> einstellen. Blaue Kugeln sind bewegliche Elektronen (negativ), rote Kugeln sind bewegliche positive Ladungsträger.</span><span class="sprache-einfach">Unten seht ihr einen Stoff. Links ist der Pluspol, rechts der Minuspol. Dazu eine Glühlampe im Stromkreis. Ihr könnt <b>Material</b> und <b>Temperatur</b> einstellen. Blaue Kugeln sind bewegliche Elektronen. Sie sind negativ. Rote Kugeln sind bewegliche positive Ladungsträger.</span></p>
+
+  <canvas id="c-leitung" width="900" height="320"></canvas>
+  <div class="werte">
+    <div class="tag">Material:
+      <button class="knopf klein mat aktiv" data-mat="metall">Metall (Kupfer)</button>
+      <button class="knopf klein mat" data-mat="halbleiter">Halbleiter (Silicium)</button>
+      <button class="knopf klein mat" data-mat="isolator">Isolator (Glas)</button>
+    </div>
+  </div>
+  <label class="reg">Temperatur: <span id="l-temp">20 °C</span> <span style="font-weight:400;color:#607080">(Zimmer 20 °C · Hand 35 °C · Teelicht ≈ 200 °C · Bunsenbrenner ≈ 900 °C)</span></label>
+  <input type="range" id="r-temp" min="20" max="1000" value="20" step="5">
+  <div class="werte">
+    <div class="tag">bewegliche Ladungsträger: <b id="a-n">viele</b></div>
+    <div class="tag">Stromstärke: <b id="a-i">–</b></div>
+    <div class="tag">Widerstand: <b id="a-r">–</b></div>
+    <div class="tag">Lampe: <b id="a-lampe">–</b></div>
+  </div>
+  <p class="videohinweis"><span class="sprache-standard">* Modellwerte einer Simulation, keine echten Messwerte. Die Größenordnungen und die Richtung der Änderung stimmen, die Zahlen sind nicht die von Kupfer oder Silicium.</span><span class="sprache-einfach">* Das sind Modellwerte, keine echten Messwerte. Die Größenordnung stimmt. Die Richtung der Änderung auch. Die Zahlen sind aber nicht die von Kupfer oder Silicium.</span></p>
+
+  <div class="karte">
+    <h4>Aufträge</h4>
+    <ol>
+      <li><span class="sprache-standard">Stellt <b>Metall</b> ein. Schiebt die Temperatur langsam von 20 °C auf 1000 °C. Was ändert sich an der <b>Zahl</b> der blauen Kugeln? Was am Widerstand?</span><span class="sprache-einfach">Stellt <b>Metall</b> ein. Schiebt die Temperatur langsam von 20 °C auf 1000 °C. Was passiert mit der <b>Zahl</b> der blauen Kugeln? Was passiert mit dem Widerstand?</span></li>
+      <li><span class="sprache-standard">Stellt <b>Halbleiter</b> ein und macht das Gleiche. Was ist hier anders?</span><span class="sprache-einfach">Stellt <b>Halbleiter</b> ein. Macht dasselbe noch einmal. Was ist hier anders?</span></li>
+      <li><span class="sprache-standard">Stellt <b>Isolator (Glas)</b> ein. Ab welcher Temperatur leuchtet die Lampe überhaupt? Was passiert dort im Material?</span><span class="sprache-einfach">Stellt <b>Isolator (Glas)</b> ein. Ab welcher Temperatur leuchtet die Lampe? Was passiert dort im Material?</span></li>
+    </ol>
+  </div>
+
+  <label class="reg">Notiz zu Auftrag 1 (Metall):</label>
+  <textarea id="t-metall" placeholder="Zahl der Kugeln: … · Widerstand: …"></textarea>
+  <label class="reg">Notiz zu Auftrag 2 (Halbleiter):</label>
+  <textarea id="t-halbleiter" placeholder="Zahl der Kugeln: … · Widerstand: …"></textarea>
+  <label class="reg">Notiz zu Auftrag 3 (Glas):</label>
+  <textarea id="t-glas" placeholder="Lampe leuchtet ab etwa … °C, weil …"></textarea>
+
+  <details class="gesperrt" data-fuer="t-metall,t-halbleiter,t-glas" data-min="30">
+    <summary>Kontrolle – erst nach eigenen Notizen öffnen</summary>
+    <p><span class="sprache-standard"><b>Metall:</b> Die Zahl der beweglichen Elektronen bleibt praktisch <b>gleich</b> – schon bei Zimmertemperatur sind es sehr viele. Beim Erwärmen schwingen die Atomrümpfe stärker und stören die Elektronen auf ihrem Weg. Der Widerstand <b>steigt</b> darum leicht.</span><span class="sprache-einfach"><b>Metall:</b> Die Zahl der beweglichen Elektronen bleibt fast <b>gleich</b>. Schon bei Zimmertemperatur sind es sehr viele. In der Wärme schwingen die Atomrümpfe stärker. Sie stören die Elektronen auf ihrem Weg. Darum <b>steigt</b> der Widerstand ein wenig.</span></p>
+    <p><span class="sprache-standard"><b>Halbleiter:</b> Bei Zimmertemperatur gibt es nur <b>sehr wenige</b> bewegliche Ladungsträger. Mit steigender Temperatur werden es <b>viel mehr</b> – Elektronen (blau) <i>und</i> positive Ladungsträger (rot). Dieser Zugewinn überwiegt die Störung bei weitem: der Widerstand <b>sinkt stark</b>.</span><span class="sprache-einfach"><b>Halbleiter:</b> Bei Zimmertemperatur gibt es nur <b>sehr wenige</b> bewegliche Ladungsträger. In der Wärme werden es <b>viel mehr</b>. Elektronen (blau) <i>und</i> positive Ladungsträger (rot). Das ist viel wichtiger als die Störung. Darum <b>sinkt</b> der Widerstand stark.</span></p>
+    <p><span class="sprache-standard"><b>Glas:</b> Bei Zimmertemperatur praktisch <b>keine</b> beweglichen Ladungsträger → Isolator, die Lampe bleibt dunkel. Erst bei sehr starkem Erhitzen (im Modell ab ca. 600 °C, real beim Erweichen/Schmelzen) entstehen bewegliche Ladungsträger und die Lampe beginnt zu leuchten.</span><span class="sprache-einfach"><b>Glas:</b> Bei Zimmertemperatur gibt es fast <b>keine</b> beweglichen Ladungsträger. Glas ist ein Isolator. Die Lampe bleibt dunkel. Erst bei sehr großer Hitze entstehen bewegliche Ladungsträger. Im Modell ab etwa 600 °C. In Wirklichkeit, wenn das Glas weich wird. Dann leuchtet die Lampe.</span></p>
+    <p><span class="sprache-standard"><b>Die Kernidee:</b> Ob ein Stoff leitet, hängt davon ab, wie viele <b>bewegliche</b> Ladungsträger es in ihm gibt. Energiezufuhr kann diese Zahl erhöhen.</span><span class="sprache-einfach"><b>Die Kernidee:</b> Ob ein Stoff leitet, hängt von einer Zahl ab: Wie viele <b>bewegliche</b> Ladungsträger gibt es in ihm? Energie kann diese Zahl größer machen.</span></p>
+  </details>
+
+  <div class="lehrer">
+    <h4>Zur Simulation</h4>
+    <p>Das Modell ist <b>qualitativ</b>, die Zahlenwerte sind keine Messwerte. Bewusst gesetzt: Metall ändert die Trägerzahl nicht (nur die Beweglichkeit sinkt → R steigt um Faktor ≈ 2,2), Halbleiter gewinnt Träger paarweise (Elektron + positiver Träger) → R fällt von 10 kΩ auf unter 600 Ω, Glas bleibt bis ca. 600 °C bei null.</p>
+    <p><b>Zwei bewusste Modellentscheidungen</b>, damit die Kurven nicht gegeneinander arbeiten: (1) Die Beweglichkeit ist nur beim Metall temperaturabhängig gemacht – beim Halbleiter existiert dieser Effekt auch, wird aber vom Trägerzuwachs weit überdeckt, und im Modell würde er den Widerstand bei sehr hohen Temperaturen künstlich wieder ansteigen lassen. (2) Die Trägerzahl des Halbleiters ist so begrenzt, dass sein Widerstand <b>immer</b> über dem des Metalls bleibt – Halbleiter sind auch heiß die schlechteren Leiter, nur eben steuerbare.</p>
+    <p><b>Fachlich ehrlich bleiben:</b> Die positiven Ladungsträger im Halbleiter sind „Löcher“ – fehlende Elektronen in Bindungen, die weiterwandern. Für Kl. 9/10 genügt „bewegliche positive Ladungsträger“. Wer im Kurs nachfragt: das ist ein Platzwechsel-Effekt, kein Wandern von Protonen.</p>
+    <p><b>Beobachtungsauftrag für Sie:</b> Wer bei Auftrag 2 „die Kugeln werden schneller“ schreibt, hat die Kernidee noch nicht. Gegenfrage: „Zähl mal die Kugeln bei 20 °C und bei 600 °C.“</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 3 ============ -->
+<section class="phase" data-titel="Glasstab" data-min="7">
+  <h2>3 · Der Versuch, den man nicht glauben will</h2>
+  <p class="zeitnote"><span class="sprache-standard">7 Minuten · Video (4:39) mit Beobachtungsauftrag</span><span class="sprache-einfach">7 Minuten · Video (4:39) mit Beobachtungsauftrag</span></p>
+
+  <div class="karte blau">
+    <h4>Aufbau</h4>
+    <p><span class="sprache-standard">Ein <b>Glasstab</b> ist in Reihe mit einer Glühlampe an eine elektrische Quelle geschaltet. Dann wird der Glasstab mit dem Bunsenbrenner erhitzt. Glas gilt als guter Isolator – die Lampe dürfte also nie leuchten.</span><span class="sprache-einfach">Ein <b>Glasstab</b> hängt mit einer Glühlampe in einem Stromkreis. Dann wird der Glasstab mit dem Bunsenbrenner erhitzt. Glas ist ein guter Isolator. Die Lampe dürfte also nie leuchten.</span></p>
+    <p><span class="sprache-standard"><b>Bevor ihr startet:</b> Was erwartet ihr? Kurz mit dem Partner sagen, nicht schreiben.</span><span class="sprache-einfach"><b>Bevor ihr startet:</b> Was erwartet ihr? Sagt es eurem Partner. Schreibt nichts auf.</span></p>
+  </div>
+
+  <div class="videobox">
+    <iframe src="https://www.youtube-nocookie.com/embed/rMMMIovSwTU?rel=0" title="Leitet Glas den elektrischen Strom?" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="videohinweis"><span class="sprache-standard">„Leitet Glas den elektrischen Strom?“ · Kanal <i>yogi2001</i> · 4:39 · <a href="https://www.youtube.com/watch?v=rMMMIovSwTU" target="_blank" rel="noopener">direkt auf YouTube öffnen</a>, falls die Einbettung blockiert ist. Ersatz ohne Internet: Simulation in Phase 2 auf „Isolator (Glas)“ stellen und die Temperatur hochziehen – das ist genau dieser Versuch.</span><span class="sprache-einfach">„Leitet Glas den elektrischen Strom?“ · Kanal <i>yogi2001</i> · 4:39 · <a href="https://www.youtube.com/watch?v=rMMMIovSwTU" target="_blank" rel="noopener">direkt auf YouTube öffnen</a>, falls das Video hier nicht läuft. Kein Internet? Dann stellt die Simulation aus Phase 2 auf „Isolator (Glas)“. Zieht die Temperatur hoch. Das ist genau dieser Versuch.</span></p>
+
+  <h3>Beobachtungsauftrag</h3>
+  <p><span class="sprache-standard">Beantwortet aus dem Video (bzw. aus der Simulation):</span><span class="sprache-einfach">Beantwortet mit dem Video oder mit der Simulation:</span></p>
+  <ol>
+    <li><span class="sprache-standard">Wann beginnt die Lampe zu leuchten – sofort, oder erst ab einer bestimmten Bedingung?</span><span class="sprache-einfach">Wann beginnt die Lampe zu leuchten? Sofort? Oder erst ab einer bestimmten Bedingung?</span></li>
+    <li><span class="sprache-standard">Wie ändert sich die Helligkeit, wenn der Brenner weiter erhitzt? Und wenn man ihn wegnimmt?</span><span class="sprache-einfach">Wie ändert sich die Helligkeit, wenn der Brenner weiter heizt? Und wenn man ihn wegnimmt?</span></li>
+  </ol>
+  <label class="reg">Eure Beobachtung:</label>
+  <textarea id="t-glasvideo" placeholder="1) … 2) …"></textarea>
+
+  <h3>Erklären</h3>
+  <p><span class="sprache-standard">Erklärt die Vorgänge im Glasstab. Nutzt dabei die Wörter <b>bewegliche Ladungsträger</b> und <b>Energiezufuhr</b>.</span><span class="sprache-einfach">Erklärt, was im Glasstab passiert. Benutzt dabei die Wörter <b>bewegliche Ladungsträger</b> und <b>Energiezufuhr</b>.</span></p>
+  <textarea id="t-glaserkl" placeholder="Bei Zimmertemperatur … Beim starken Erhitzen …"></textarea>
+
+  <details class="gesperrt" data-fuer="t-glasvideo,t-glaserkl" data-min="40">
+    <summary>Musterlösung</summary>
+    <p><span class="sprache-standard"><b>Bei Zimmertemperatur</b> ist Glas ein Isolator: es fehlen bewegliche Ladungsträger. Der Stromkreis ist geschlossen, aber es fließt kein Strom – die Lampe bleibt dunkel.</span><span class="sprache-einfach"><b>Bei Zimmertemperatur</b> ist Glas ein Isolator. Es fehlen bewegliche Ladungsträger. Der Stromkreis ist zwar geschlossen. Aber es fließt kein Strom. Die Lampe bleibt dunkel.</span></p>
+    <p><span class="sprache-standard"><b>Beim starken Erhitzen</b> wird dem Glas Energie zugeführt. Dadurch entstehen bewegliche Ladungsträger; das Glas wird leitend. Jetzt fließt Strom, und die Lampe leuchtet. Je heißer das Glas, desto mehr bewegliche Ladungsträger, desto größer die Stromstärke, desto heller die Lampe. Nimmt man den Brenner weg, kühlt das Glas ab, die Zahl der Ladungsträger sinkt wieder – die Lampe wird dunkler und geht aus.</span><span class="sprache-einfach"><b>Beim starken Erhitzen</b> bekommt das Glas Energie. Dadurch entstehen bewegliche Ladungsträger. Das Glas wird leitend. Jetzt fließt Strom. Die Lampe leuchtet. Je heißer das Glas, desto mehr bewegliche Ladungsträger. Desto größer der Strom. Desto heller die Lampe. Nimmt man den Brenner weg, kühlt das Glas ab. Die Zahl der Ladungsträger sinkt wieder. Die Lampe wird dunkler und geht aus.</span></p>
+  </details>
+
+  <details>
+    <summary>Für Genaue: Stimmt das so ganz? <span class="stern">★ Vertiefung</span></summary>
+    <p><span class="sprache-standard">Das Schulbuch stellt den heißen Glasstab neben Silicium und Germanium, als wäre es dasselbe. Das ist eine <b>Vereinfachung</b>. In heißem, weichem Glas wandern überwiegend <b>Ionen</b> (geladene Atome) durch die Schmelze – nicht Elektronen und Löcher wie im Halbleiterkristall. Das Ergebnis sieht gleich aus (Widerstand sinkt beim Erwärmen), der Mechanismus ist ein anderer.</span><span class="sprache-einfach">Das Schulbuch stellt den heißen Glasstab neben Silicium und Germanium. So, als wäre es dasselbe. Das ist eine <b>Vereinfachung</b>. In heißem, weichem Glas wandern vor allem <b>Ionen</b> — das sind geladene Atome. Im Halbleiterkristall wandern dagegen Elektronen und Löcher. Das Ergebnis sieht gleich aus: Der Widerstand sinkt beim Erwärmen. Aber der Weg dorthin ist ein anderer.</span></p>
+    <p><span class="sprache-standard">Gemeinsam ist beiden Fällen genau die Aussage, auf die es hier ankommt: <b>Energiezufuhr erhöht die Zahl der beweglichen Ladungsträger.</b> Wer das im Kopf hat, hat den Kern – und weiß außerdem, dass „Widerstand sinkt beim Erwärmen“ nicht automatisch „ist ein Halbleiter“ bedeutet.</span><span class="sprache-einfach">Beiden Fällen gemeinsam ist genau der Satz, auf den es hier ankommt: <b>Energie macht mehr Ladungsträger beweglich.</b> Wer das im Kopf hat, hat den Kern. Und weiß auch: „Widerstand sinkt beim Erwärmen“ heißt nicht automatisch „ist ein Halbleiter“.</span></p>
+  </details>
+
+  <div class="lehrer">
+    <h4>Video geprüft am 14.08.2026</h4>
+    <p>„Leitet Glas den elektrischen Strom?“, Kanal <i>yogi2001</i>, 4:39, veröffentlicht 28.07.2013, ca. 7.000 Aufrufe. Über die YouTube-Daten-API abgerufen: Video existiert, ist öffentlich, Titel und Länge wie angegeben. Ob Ihre Schul-Firewall YouTube-Einbettungen zulässt, kann ich von hier aus nicht prüfen – deshalb steht unter jedem Video ein Ersatz ohne Internet.</p>
+    <p><b>Inhaltlich:</b> Das Video zeigt genau den Buch-Versuch (Glasstab in Reihe mit Glühlampe, Bunsenbrenner) und geht am Ende sogar darauf ein, was passiert, wenn man die Lampe durch einen kleineren Widerstand ersetzt – der Prozess läuft dann weg, bis das Glas verdampft. Guter Anlass, die Rolle der Glühlampe als Strombegrenzung zu thematisieren.</p>
+    <p><b>Fachliche Präzisierung</b> siehe Vertiefungskasten: Ionenleitung in der Schmelze vs. Eigenleitung im Halbleiter. Das Buch verwischt das; im Kurs reicht die gemeinsame Aussage über die Ladungsträgerzahl.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 4 ============ -->
+<section class="phase" data-titel="Messung NTC" data-min="14">
+  <h2>4 · Virtuelles Experiment: NTC gegen Eisendraht</h2>
+<div data-plan="A">
+  <p><span class="sprache-standard">Vor euch liegt der ELO-Kasten und ein Mobile-CASSY.
+  Ihr messt selbst, was die Simulation sonst zeigt: wie sich der Widerstand &#228;ndert,
+  wenn ein Bauteil w&#228;rmer wird. Zwei Bauteile bekommen dieselbe W&#228;rme ab &#8211;
+  und nur eines von beiden reagiert darauf.</span>
+  <span class="sprache-einfach">Vor euch liegt der ELO-Kasten und ein Mobile-CASSY.
+  Ihr messt selbst. Die Frage ist: Was passiert mit dem Widerstand, wenn ein Bauteil
+  w&#228;rmer wird? Ihr messt zwei Bauteile. Beide werden gleich warm.
+  Aber nur eines &#228;ndert sich.</span></p>
+
+  <div class="karte">
+    <b class="kopf">Das braucht ihr am Tisch</b>
+    <div class="sprache-standard">
+      <p><b>ELO-1-Kasten</b> mit dem Baustein <b>NTC/2,2 k&#8486;</b> und einem
+      <b>Festwiderstand</b> (1 k&#8486; oder 4,7 k&#8486;), ein <b>Mobile-CASSY 2</b> mit
+      zwei Messkabeln. Alles steht in der <b>Sammlung Westwand</b>.</p>
+      <p><b>Warum kein Eisendraht:</b> In der Sammlung liegt keiner. Gebraucht wird er
+      auch nicht &#8211; der Festwiderstand tut hier denselben Dienst, weil es auf den
+      <i>Vergleich</i> ankommt, nicht auf das Metall selbst.</p>
+    </div>
+    <div class="sprache-einfach">
+      <p>Ihr braucht: den <b>ELO-1-Kasten</b> mit dem <b>NTC</b> und einem
+      <b>Festwiderstand</b>. Dazu ein <b>Mobile-CASSY</b> mit zwei Kabeln.
+      Das liegt in der <b>Sammlung Westwand</b>.</p>
+      <p>Ihr braucht kein Netzteil. Und keinen Eisendraht.</p>
+    </div>
+  </div>
+  <figure class="bild" data-plan="A">
+    <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aufbau: NTC und Festwiderstand am Mobile-CASSY"><polygon points="241.5,159.0 212.3,175.9 212.3,157.7 241.5,140.8" fill="#adb4b9" stroke="#707578" stroke-width="1"/><polygon points="162.7,147.3 212.3,175.9 212.3,157.7 162.7,129.1" fill="#c8cfd6" stroke="#82868b" stroke-width="1"/><polygon points="192.0,112.2 241.5,140.8 212.3,157.7 162.7,129.1" fill="#e2e9f0" stroke="#92979c" stroke-width="1"/><polygon points="192.7,118.7 230.3,140.4 218.6,147.2 181.0,125.4" fill="#12313f" stroke="#0a1d26" stroke-width="1"/><text x="205.6" y="136.9" text-anchor="middle" font-size="10.9" fill="#7dffb0" font-family="ui-monospace,monospace">2,18 k&#8486;</text><ellipse cx="177.6" cy="145.9" rx="8.8" ry="5.2" fill="#b03030" stroke="#2a3238" stroke-width=".8"/><ellipse cx="197.4" cy="157.3" rx="8.8" ry="5.2" fill="#20262b" stroke="#2a3238" stroke-width=".8"/><line x1="216.8" y1="126.5" x2="143.0" y2="38.0" stroke="#0b3d66" stroke-width="1" stroke-dasharray="2.5 2.5" opacity=".75"/><circle cx="216.8" cy="126.5" r="2" fill="#0b3d66"/><text x="150.0" y="34.0" text-anchor="end" font-size="12.5" fill="#0b3d66" font-family="system-ui,sans-serif">Mobile-CASSY 2 &#8211; auf <tspan font-weight="700">&#8486;</tspan></text><polygon points="338.3,168.1 322.6,177.2 322.6,168.9 338.3,159.8" fill="#b4b9bd" stroke="#75787a" stroke-width="1"/><polygon points="293.3,160.3 322.6,177.2 322.6,168.9 293.3,152.0" fill="#d0d6da" stroke="#878b8d" stroke-width="1"/><polygon points="309.1,142.9 338.3,159.8 322.6,168.9 293.3,152.0" fill="#eaf0f4" stroke="#989c9e" stroke-width="1"/><ellipse cx="306.1" cy="150.3" rx="8.8" ry="5.2" fill="#20262b" stroke="#2a3238" stroke-width=".8"/><ellipse cx="325.5" cy="161.5" rx="8.8" ry="5.2" fill="#20262b" stroke="#2a3238" stroke-width=".8"/><rect x="302.8" y="151.4" width="26" height="9" rx="1.5" fill="none" stroke="#0b3d66" stroke-width="1.6"/><path d="M298.8 164.4 l7 0 l14 -9" stroke="#e07000" stroke-width="1.4" fill="none"/><text x="327.8" y="166.9" font-size="8.5" fill="#e07000" font-family="system-ui,sans-serif">&#952;</text><line x1="323.7" y1="151.3" x2="477.0" y2="58.0" stroke="#0b3d66" stroke-width="1" stroke-dasharray="2.5 2.5" opacity=".75"/><circle cx="323.7" cy="151.3" r="2" fill="#0b3d66"/><text x="470.0" y="54.0" text-anchor="start" font-size="12.5" fill="#0b3d66" font-family="system-ui,sans-serif">NTC 2,2 k&#8486;</text><polygon points="275.3,204.5 259.5,213.6 259.5,205.3 275.3,196.2" fill="#b4b9bd" stroke="#75787a" stroke-width="1"/><polygon points="230.3,196.7 259.5,213.6 259.5,205.3 230.3,188.4" fill="#d0d6da" stroke="#878b8d" stroke-width="1"/><polygon points="246.0,179.3 275.3,196.2 259.5,205.3 230.3,188.4" fill="#eaf0f4" stroke="#989c9e" stroke-width="1"/><ellipse cx="243.1" cy="186.7" rx="8.8" ry="5.2" fill="#20262b" stroke="#2a3238" stroke-width=".8"/><ellipse cx="262.5" cy="197.9" rx="8.8" ry="5.2" fill="#20262b" stroke="#2a3238" stroke-width=".8"/><rect x="239.8" y="187.8" width="26" height="9" rx="1.5" fill="none" stroke="#0b3d66" stroke-width="1.6"/><line x1="244.9" y1="196.8" x2="477.0" y2="233.0" stroke="#0b3d66" stroke-width="1" stroke-dasharray="2.5 2.5" opacity=".75"/><circle cx="244.9" cy="196.8" r="2" fill="#0b3d66"/><text x="470.0" y="244.0" text-anchor="start" font-size="12.5" fill="#0b3d66" font-family="system-ui,sans-serif">Festwiderstand</text><path d="M177.6 145.9 Q241.9 174.1 306.1 150.3" fill="none" stroke="#c62828" stroke-width="6.8" stroke-linecap="round"/><path d="M197.4 157.3 Q261.5 185.4 325.5 161.5" fill="none" stroke="#2a3238" stroke-width="6.8" stroke-linecap="round"/><path d="M0 0 q-4 -20 6 -22 q5 -1 6 6 l1 -9 q1 -6 6 -5 q5 1 4 7 l1 -6 q1 -5 6 -4 q4 1 3 6 l0 5 q3 -4 6 -1 q3 3 0 8 l-6 12 q-5 9 -16 8 q-11 -1 -17 -5 z" fill="#f3d3bd" stroke="#c99b7d" stroke-width="1.2" opacity=".92" transform="translate(340.3,157.8)"/><text x="470.0" y="88.0" text-anchor="start" font-size="12.5" fill="#e07000" font-family="system-ui,sans-serif">fest mit der Hand umschlie&#223;en</text><text x="470.0" y="260.0" text-anchor="start" font-size="11.5" fill="#5a6570" font-family="system-ui,sans-serif">bleibt zum Vergleich unangetastet</text><text x="360" y="292" text-anchor="middle" font-size="12" fill="#5a6570" font-family="system-ui,sans-serif">Schematisch. Zwei Kabel, kein Netzteil – das Mobile-CASSY misst den Widerstand selbst.</text></svg>
+    <figcaption class="bildtext"><span class="sprache-standard">So sieht der Messplatz aus. Nur zwei Kabel &#8211; das Mobile-CASSY misst den Widerstand selbst, ein Netzteil braucht ihr nicht.</span><span class="sprache-einfach">So sieht der Messplatz aus. Ihr braucht nur zwei Kabel. Das Mobile-CASSY misst den Widerstand selbst.</span></figcaption>
+  </figure>
+
+
+  <h3>Versuch 1: der NTC in eurer Hand</h3>
+  <div class="tuwas">
+    <b class="kopf">Das macht ihr</b>
+    <div class="sprache-standard"><ol>
+      <li>Steckt den <b>NTC-Baustein</b> in den Rahmen. Schlie&#223;t das Mobile-CASSY mit
+      zwei Kabeln an die beiden Buchsen an und stellt es auf <b>Widerstand</b>.</li>
+      <li>Lest den Wert bei Zimmertemperatur ab und tragt ihn unten ein.</li>
+      <li>Umschlie&#223;t den NTC <b>fest mit der Hand</b> und beobachtet die Anzeige eine
+      halbe Minute lang. Tragt den Wert ein, bei dem sie stehen bleibt.</li>
+      <li>Lasst wieder los. Geht der Wert zur&#252;ck? Notiert, wie lange das dauert.</li>
+    </ol></div>
+    <div class="sprache-einfach"><ol>
+      <li>Steckt den <b>NTC</b> in den Rahmen. Schlie&#223;t das Mobile-CASSY mit zwei Kabeln an.
+      Stellt es auf <b>Widerstand</b>.</li>
+      <li>Lest den Wert ab. Tragt ihn unten ein.</li>
+      <li>Haltet den NTC <b>fest in der Hand</b>. Wartet eine halbe Minute.
+      Tragt den neuen Wert ein.</li>
+      <li>Lasst los. Wird der Wert wieder gr&#246;&#223;er? Wie lange dauert das?</li>
+    </ol></div>
+  </div>
+
+  <div class="zwei">
+    <div><b>NTC am Mobile-CASSY</b>
+      <table class="messtabelle">
+        <tr><th>Zustand</th><td>Zimmertemperatur</td><td>in der Hand</td><td>nach dem Loslassen</td></tr>
+        <tr><th>R in k&#8486;</th>
+          <td><input id="a-ntc-kalt" inputmode="decimal"></td>
+          <td><input id="a-ntc-hand" inputmode="decimal"></td>
+          <td><input id="a-ntc-zurueck" inputmode="decimal"></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>Versuch 2: derselbe Handgriff, ein gew&#246;hnlicher Widerstand</h3>
+  <p><span class="sprache-standard">Jetzt dasselbe noch einmal &#8211; nur mit einem
+  <b>Festwiderstand</b> aus demselben Kasten, etwa 1 k&#8486;. Gleiche Hand, gleiche Zeit,
+  gleiches Messger&#228;t. Nur das Bauteil ist ein anderes.</span>
+  <span class="sprache-einfach">Macht jetzt dasselbe noch einmal. Nehmt aber einen
+  <b>normalen Widerstand</b> aus dem Kasten, zum Beispiel 1 k&#8486;.
+  Gleiche Hand, gleiche Zeit, gleiches Ger&#228;t. Nur das Bauteil ist anders.</span></p>
+  <div class="tuwas">
+    <b class="kopf">Das macht ihr</b>
+    <div class="sprache-standard"><ol>
+      <li>Festwiderstand einstecken, CASSY auf <b>Widerstand</b>, Wert bei Zimmertemperatur ablesen.</li>
+      <li>Fest in die Hand nehmen, wieder eine halbe Minute warten, Wert ablesen.</li>
+      <li>Vergleicht die beiden &#196;nderungen: die des NTC und die des Festwiderstands.</li>
+    </ol></div>
+    <div class="sprache-einfach"><ol>
+      <li>Steckt den Festwiderstand ein. CASSY auf <b>Widerstand</b>. Wert ablesen.</li>
+      <li>Nehmt ihn fest in die Hand. Wartet eine halbe Minute. Wert ablesen.</li>
+      <li>Vergleicht: Wie stark &#228;ndert sich der NTC? Wie stark der Festwiderstand?</li>
+    </ol></div>
+  </div>
+  <div class="zwei">
+    <div><b>Festwiderstand am Mobile-CASSY</b>
+      <table class="messtabelle">
+        <tr><th>Zustand</th><td>Zimmertemperatur</td><td>in der Hand</td></tr>
+        <tr><th>R</th>
+          <td><input id="a-fest-kalt" inputmode="decimal"></td>
+          <td><input id="a-fest-hand" inputmode="decimal"></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <details class="gesperrt" data-fuer="a-ntc-kalt,a-ntc-hand,a-fest-hand" data-min="3">
+    <summary>Was ihr sehen solltet</summary>
+    <div class="sprache-standard">
+      <p>Der <b>NTC</b> steht bei Zimmertemperatur bei etwa 2 k&#8486; und f&#228;llt in der
+      Hand deutlich &#8211; oft auf die H&#228;lfte. Beim Loslassen steigt er langsam zur&#252;ck;
+      das Bauteil muss ja erst wieder abk&#252;hlen. Genaue Zahlen h&#228;ngen von eurer
+      Handw&#228;rme ab und d&#252;rfen sich von Tisch zu Tisch unterscheiden.</p>
+      <p>Der <b>Festwiderstand</b> dagegen r&#252;hrt sich nicht &#8211; er zeigt vorher und nachher denselben Wert. <b>Das ist der ganze Punkt:</b> Beide Bauteile bekommen dieselbe W&#228;rme ab, nur eines reagiert darauf. Beim Metall &#228;ndert sich der Widerstand zwar auch, aber so wenig, dass Handw&#228;rme daf&#252;r nicht reicht &#8211; um das zu sehen, braucht es ein Wasserbad bis 100 &#176;C. Genau das zeigt die Simulation im anderen Weg dieser Stunde.</p>
+    </div>
+    <div class="sprache-einfach">
+      <p>Der <b>NTC</b> hat bei Zimmertemperatur etwa 2 k&#8486;. In der Hand wird der Wert
+      kleiner. Oft nur noch die H&#228;lfte. Nach dem Loslassen steigt er langsam wieder.
+      Eure Zahlen d&#252;rfen anders sein als bei anderen Tischen.</p>
+      <p>Der <b>Festwiderstand</b> &#228;ndert sich nicht. Vorher und nachher der gleiche Wert.</p>
+      <p><b>Merkt euch:</b> Beide &#228;ndern sich mit der W&#228;rme. Aber in verschiedene
+      Richtungen. Metall wird schlechter. Der Halbleiter wird besser.</p>
+    </div>
+  </details>
+</div>
+<div data-plan="B">
+  <p class="zeitnote"><span class="sprache-standard">14 Minuten · Versuche V2 und V3 der Doppelseite – hier als Messplatz</span><span class="sprache-einfach">14 Minuten · die Versuche V2 und V3 aus dem Buch · hier als Messplatz</span></p>
+
+  <p><span class="sprache-standard">Zwei Bauteile hängen im Wasserbad am Ohmmeter: ein <b>Heißleiter (NTC)</b> aus Halbleitermaterial und ein <b>Eisendraht</b>. Stellt die Temperatur ein und lest den Widerstand ab.</span><span class="sprache-einfach">Zwei Bauteile hängen im Wasserbad am Ohmmeter. Ein <b>Heißleiter (NTC)</b> aus Halbleitermaterial. Und ein <b>Eisendraht</b>. Stellt die Temperatur ein. Lest den Widerstand ab.</span></p>
+
+  <div class="werte">
+    <div class="tag">Prüfling:
+      <button class="knopf klein bauteil aktiv" data-bt="ntc">NTC (Heißleiter)</button>
+      <button class="knopf klein bauteil" data-bt="eisen">Eisendraht</button>
+    </div>
+  </div>
+  <canvas id="c-messplatz" width="900" height="260"></canvas>
+  <label class="reg">Temperatur des Wasserbads: <span id="l-wtemp">20 °C</span></label>
+  <input type="range" id="r-wtemp" min="20" max="100" value="20" step="1">
+  <p>Ohmmeter: <span class="anzeige" id="a-ohm">12.4 <small>kΩ</small></span></p>
+
+  <h3>Messreihe aufnehmen</h3>
+  <p><span class="sprache-standard">Tragt die abgelesenen Werte ein. Für den NTC in <b>kΩ</b>, für den Eisendraht in <b>Ω</b>.</span><span class="sprache-einfach">Tragt die Werte ein. Den NTC in <b>kΩ</b>. Den Eisendraht in <b>Ω</b>.</span></p>
+
+  <div class="zwei">
+    <div>
+      <b>NTC</b>
+      <table id="tab-ntc">
+        <tr><th>ϑ in °C</th><td>20</td><td>30</td><td>40</td><td>50</td><td>60</td><td>70</td></tr>
+        <tr><th>R in kΩ</th>
+          <td><input data-soll="12.4" data-tol="0.3"></td>
+          <td><input data-soll="8.2" data-tol="0.3"></td>
+          <td><input data-soll="5.3" data-tol="0.3"></td>
+          <td><input data-soll="3.5" data-tol="0.3"></td>
+          <td><input data-soll="2.4" data-tol="0.3"></td>
+          <td><input data-soll="1.7" data-tol="0.3"></td>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <b>Eisendraht</b>
+      <table id="tab-eisen">
+        <tr><th>ϑ in °C</th><td>20</td><td>40</td><td>60</td><td>80</td><td>100</td></tr>
+        <tr><th>R in Ω</th>
+          <td><input data-soll="7.2" data-tol="0.15"></td>
+          <td><input data-soll="7.3" data-tol="0.15"></td>
+          <td><input data-soll="7.5" data-tol="0.15"></td>
+          <td><input data-soll="7.7" data-tol="0.15"></td>
+          <td><input data-soll="7.9" data-tol="0.15"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <button class="knopf voll" id="k-pruefe-mess">Messreihen prüfen &amp; Diagramm zeichnen</button>
+  <div class="rueck" id="rueck-mess"></div>
+
+  <canvas id="c-diagramm" width="900" height="380"></canvas>
+  <p class="videohinweis"><span class="sprache-standard">Blau: NTC (linke Achse, kΩ) · Rot: Eisendraht (rechte Achse, Ω). Beide Achsen starten bei 0, damit man die Größenordnungen wirklich vergleicht.</span><span class="sprache-einfach">Blau ist der NTC (linke Achse, kΩ). Rot ist der Eisendraht (rechte Achse, Ω). Beide Achsen fangen bei 0 an. So könnt ihr die Größen wirklich vergleichen.</span></p>
+
+  <h3>Auswerten</h3>
+  <div class="karte">
+    <ol>
+      <li><span class="sprache-standard">Um welchen <b>Faktor</b> ändert sich der Widerstand des NTC von 20 °C auf 70 °C? Und der des Eisendrahts von 20 °C auf 100 °C?</span><span class="sprache-einfach">Um welchen <b>Faktor</b> ändert sich der NTC von 20 °C auf 70 °C? Und der Eisendraht von 20 °C auf 100 °C?</span></li>
+      <li><span class="sprache-standard">Vervollständigt: „Der Widerstand eines Metalldrahtes nimmt mit steigender Temperatur __________ , der von Halbleiterbauteilen __________ .“</span><span class="sprache-einfach">Ergänzt den Satz: „Der Widerstand eines Metalldrahtes wird bei mehr Wärme __________ . Der von Halbleitern wird __________ .“</span></li>
+    </ol>
+  </div>
+  <label class="reg">Faktoren (mit Rechnung):</label>
+  <textarea id="t-faktoren" placeholder="NTC: 12,4 kΩ : 1,7 kΩ ≈ … · Eisen: 7,9 Ω : 7,2 Ω ≈ …"></textarea>
+
+  <div class="mc" id="mc-satz"></div>
+  <div class="rueck" id="rueck-satz"></div>
+
+  <details class="gesperrt" data-fuer="t-faktoren" data-min="20">
+    <summary>Kontrolle</summary>
+    <p><span class="sprache-standard"><b>NTC:</b> 12,4 kΩ : 1,7 kΩ ≈ <b>7,3</b>. Der Widerstand fällt auf etwa ein Siebtel – bei nur 50 °C Unterschied.</span><span class="sprache-einfach"><b>NTC:</b> 12,4 kΩ : 1,7 kΩ ≈ <b>7,3</b>. Der Widerstand fällt auf etwa ein Siebtel. Und das bei nur 50 °C Unterschied.</span></p>
+    <p><span class="sprache-standard"><b>Eisendraht:</b> 7,9 Ω : 7,2 Ω ≈ <b>1,1</b>. Also rund 10 % mehr – bei sogar 80 °C Unterschied.</span><span class="sprache-einfach"><b>Eisendraht:</b> 7,9 Ω : 7,2 Ω ≈ <b>1,1</b>. Das sind etwa 10 % mehr. Und das sogar bei 80 °C Unterschied.</span></p>
+    <p><span class="sprache-standard">Der Effekt beim Halbleiter ist nicht nur umgekehrt, er ist auch <b>drastisch größer</b>. Genau deshalb baut man Thermometer mit NTC und nicht mit Eisendraht: eine kleine Temperaturänderung erzeugt ein gut messbares Signal.</span><span class="sprache-einfach">Beim Halbleiter ist der Effekt nicht nur umgekehrt. Er ist auch <b>viel größer</b>. Darum baut man Thermometer mit einem NTC. Und nicht mit Eisendraht. Eine kleine Temperaturänderung gibt dann schon ein deutliches Signal.</span></p>
+  </details>
+
+  </div><div class="lehrer">
+    <h4>Datenherkunft &amp; Modell</h4>
+    <p>Die Sollwerte sind exakt die Messreihen der Doppelseite: NTC 12,4 / 8,2 / 5,3 / 3,5 / 2,4 / 1,7 kΩ bei 20–70 °C; Eisendraht 7,2 / 7,3 / 7,5 / 7,7 / 7,9 Ω bei 20–100 °C. Zwischen den Stützstellen interpoliert die Simulation logarithmisch (NTC) bzw. linear (Eisen), sodass an den sechs bzw. fünf Buchtemperaturen <b>genau</b> die Buchwerte erscheinen.</p>
+    <p><b>Toleranz</b> beim Prüfen: ±0,3 kΩ (NTC) bzw. ±0,15 Ω (Eisen). Komma und Punkt werden beide akzeptiert.</p>
+    <p><b>Erwartbarer Stolperstein:</b> Beim Eisendraht halten Schüler den Effekt für „Messfehler“, weil er so klein ist. Das ist eine gute Beobachtung – der Vergleich der beiden Faktoren (7,3 gegen 1,1) ist der eigentliche Lernmoment dieser Phase. Falls Zeit knapp wird: Eisen-Tabelle im Plenum ansagen lassen und nur den Faktorvergleich einfordern.</p>
+    <p><b>Warum kein reales V1/V2/V3:</b> ersetzt. Wer später doch experimentieren will, braucht NTC, Ohmmeter, Teelicht bzw. Wasserbad, Eisen- und Konstantandraht – dann sind diese Daten die Sollkurve.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 5 ============ -->
+<section class="phase" data-titel="LDR" data-min="11">
+  <h2>5 · Licht statt Wärme: der LDR</h2>
+<div data-plan="A">
+  <p><span class="sprache-standard">Denselben Kasten, dasselbe CASSY &#8211; jetzt der
+  <b>LDR05</b>. Statt W&#228;rme kommt Licht.</span>
+  <span class="sprache-einfach">Gleicher Kasten, gleiches CASSY. Jetzt nehmt ihr den
+  <b>LDR</b>. Statt W&#228;rme kommt Licht.</span></p>
+  <div class="tuwas">
+    <b class="kopf">Das macht ihr</b>
+    <div class="sprache-standard"><ol>
+      <li>LDR-Baustein einstecken, CASSY auf <b>Widerstand</b>.</li>
+      <li>Drei Werte messen: bei <b>Raumlicht</b>, mit der <b>Hand abgedeckt</b>,
+      und mit dem <b>iPad-Bildschirm dicht davor</b> &#8211; wei&#223;e Seite, Helligkeit
+      ganz auf. Der Bildschirm ist eure Lichtquelle; im Kasten liegt keine.</li>
+      <li>Ordnet die drei Werte der Gr&#246;&#223;e nach und schreibt in einem Satz, was
+      das &#252;ber den Zusammenhang von Licht und Widerstand sagt.</li>
+    </ol></div>
+    <div class="sprache-einfach"><ol>
+      <li>Steckt den LDR ein. CASSY auf <b>Widerstand</b>.</li>
+      <li>Messt dreimal: bei <b>Raumlicht</b>, mit der <b>Hand darauf</b>, und mit dem
+      <b>iPad-Bildschirm dicht davor</b>. Macht den Bildschirm wei&#223; und ganz hell.</li>
+      <li>Sortiert die drei Werte. Schreibt einen Satz dazu: Was hat Licht mit dem
+      Widerstand zu tun?</li>
+    </ol></div>
+  </div>
+  <div class="zwei">
+    <div><b>LDR05 am Mobile-CASSY</b>
+      <table class="messtabelle">
+        <tr><th>Beleuchtung</th><td>Raumlicht</td><td>abgedeckt</td><td>iPad davor</td></tr>
+        <tr><th>R</th>
+          <td><input id="a-ldr-raum" inputmode="decimal"></td>
+          <td><input id="a-ldr-dunkel" inputmode="decimal"></td>
+          <td><input id="a-ldr-hell" inputmode="decimal"></td></tr>
+      </table>
+    </div>
+  </div>
+  <details class="gesperrt" data-fuer="a-ldr-raum,a-ldr-dunkel,a-ldr-hell" data-min="3">
+    <summary>Was ihr sehen solltet</summary>
+    <div class="sprache-standard">
+      <p><b>Abgedeckt</b> ist der Widerstand am gr&#246;&#223;ten &#8211; oft einige hundert
+      Kiloohm. Bei <b>Raumlicht</b> liegt er dazwischen, mit dem <b>Bildschirm davor</b> f&#228;llt
+      er noch einmal deutlich. Der Bereich umfasst also mehrere Zehnerpotenzen; das ist
+      viel mehr, als der NTC bei Handw&#228;rme schafft.</p>
+      <p><b>Je heller, desto kleiner der Widerstand</b> &#8211; und der Grund ist derselbe
+      wie beim NTC: zugef&#252;hrte Energie macht mehr Ladungstr&#228;ger beweglich. Nur
+      kommt sie hier als Licht statt als W&#228;rme.</p>
+    </div>
+    <div class="sprache-einfach">
+      <p><b>Abgedeckt</b> ist der Widerstand am gr&#246;&#223;ten. Oft mehrere hundert Kiloohm.
+      Bei <b>Raumlicht</b> ist er kleiner. Mit dem <b>Bildschirm</b> ist er am kleinsten.</p>
+      <p><b>Mehr Licht hei&#223;t weniger Widerstand.</b> Der Grund ist der gleiche wie beim
+      NTC: Energie macht mehr Ladungstr&#228;ger frei. Hier kommt sie als Licht.
+      Beim NTC kommt sie als W&#228;rme.</p>
+    </div>
+  </details>
+</div>
+<div data-plan="B">
+  <p class="zeitnote"><span class="sprache-standard">11 Minuten · Kurzvideo (2:19) + virtuelles Experiment V4</span><span class="sprache-einfach">11 Minuten · kurzes Video (2:19) und ein virtuelles Experiment</span></p>
+
+  <div class="videobox">
+    <iframe src="https://www.youtube-nocookie.com/embed/-uPMH00wFaI?rel=0" title="NTC PTC LDR Widerstände" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="videohinweis"><span class="sprache-standard">„** NTC PTC LDR Widerstände“ · Kanal <i>Stephan Mueller</i> (phys.ch) · 2:19 · <a href="https://www.youtube.com/watch?v=-uPMH00wFaI" target="_blank" rel="noopener">direkt auf YouTube</a>. Ohne Internet: der Kasten „Was ist ein LDR?“ direkt darunter genügt.</span><span class="sprache-einfach">„** NTC PTC LDR Widerstände“ · Kanal <i>Stephan Mueller</i> (phys.ch) · 2:19 · <a href="https://www.youtube.com/watch?v=-uPMH00wFaI" target="_blank" rel="noopener">direkt auf YouTube</a>. Kein Internet? Dann reicht der Kasten „Was ist ein LDR?“ darunter.</span></p>
+
+  <div class="karte blau">
+    <h4>Was ist ein LDR?</h4>
+    <p><span class="sprache-standard"><b>LDR</b> steht für <i>Light Dependent Resistor</i> – Fotowiderstand. Er besteht aus Halbleitermaterial. Trifft Licht darauf, wird <b>Strahlungsenergie</b> zugeführt. Auch das erhöht die Zahl der beweglichen Ladungsträger – ohne dass sich das Bauteil merklich erwärmt. Ergebnis: <b>je heller, desto kleiner der Widerstand.</b></span><span class="sprache-einfach"><b>LDR</b> ist die Abkürzung für <i>Light Dependent Resistor</i>. Auf Deutsch: Fotowiderstand. Er besteht aus Halbleitermaterial. Trifft Licht darauf, kommt <b>Energie</b> dazu. Auch das macht mehr Ladungsträger beweglich. Das Bauteil wird dabei nicht wärmer. Das Ergebnis: <b>Je heller, desto kleiner der Widerstand.</b></span></p>
+    <p><span class="sprache-standard">Metalle machen das <b>nicht</b>: Bei ihnen sind ohnehin schon sehr viele Ladungsträger beweglich, kurze Bestrahlung ändert daran nichts.</span><span class="sprache-einfach">Metalle machen das <b>nicht</b>. Bei ihnen sind schon sehr viele Ladungsträger beweglich. Kurzes Licht ändert daran nichts.</span></p>
+  </div>
+
+  <h3>Virtuelles Experiment (V4): Abstand der Lampe verändern</h3>
+  <p><span class="sprache-standard">Eine Lampe leuchtet auf einen LDR. Verschiebt sie und lest ab, was Luxmeter und Ohmmeter anzeigen.</span><span class="sprache-einfach">Eine Lampe leuchtet auf einen LDR. Verschiebt die Lampe. Lest ab, was Luxmeter und Ohmmeter anzeigen.</span></p>
+  <canvas id="c-ldr" width="900" height="260"></canvas>
+  <label class="reg">Abstand Lampe – LDR: <span id="l-abstand">20 cm</span></label>
+  <input type="range" id="r-abstand" min="10" max="200" value="20" step="1">
+  <div class="werte">
+    <button class="knopf klein" id="k-abdecken">LDR abdecken (dunkel)</button>
+    <div class="tag">Beleuchtungsstärke: <span class="anzeige" id="a-lux" style="font-size:1rem">–</span></div>
+    <div class="tag">Widerstand des LDR: <span class="anzeige" id="a-rldr" style="font-size:1rem">–</span></div>
+  </div>
+
+  <div class="karte">
+    <h4>Auftrag</h4>
+    <ol>
+      <li><span class="sprache-standard">Füllt die Tabelle mit vier Abständen und formuliert einen Zusammenhang in Worten.</span><span class="sprache-einfach">Füllt die Tabelle mit vier Abständen. Schreibt den Zusammenhang in Worten auf.</span></li>
+      <li><span class="sprache-standard">Vergleicht: Wie stark ändert sich der Widerstand zwischen „hell“ (10 cm) und „abgedeckt“?</span><span class="sprache-einfach">Vergleicht: Wie stark ändert sich der Widerstand zwischen „hell“ (10 cm) und „abgedeckt“?</span></li>
+    </ol>
+    <table>
+      <tr><th>Abstand in cm</th><td>10</td><td>20</td><td>50</td><td>100</td><th>abgedeckt</th></tr>
+      <tr><th>R des LDR</th>
+        <td><input id="ldr1"></td><td><input id="ldr2"></td><td><input id="ldr3"></td><td><input id="ldr4"></td><td><input id="ldr5"></td></tr>
+    </table>
+    <label class="reg">Zusammenhang in Worten:</label>
+    <textarea id="t-ldrsatz" placeholder="Je größer der Abstand, … Je heller es auf den LDR trifft, …"></textarea>
+  </div>
+
+  <details class="gesperrt" data-fuer="ldr1,ldr2,ldr3,ldr4,ldr5,t-ldrsatz" data-min="40">
+    <summary>Kontrolle</summary>
+    <p><span class="sprache-standard">Je <b>größer</b> der Abstand, desto <b>weniger</b> Licht trifft auf den LDR (bei doppeltem Abstand nur ein Viertel der Beleuchtungsstärke) und desto <b>größer</b> sein Widerstand. Umgekehrt: <b>je heller das Licht, desto geringer der Widerstand.</b></span><span class="sprache-einfach">Je <b>größer</b> der Abstand, desto <b>weniger</b> Licht trifft den LDR. Bei doppeltem Abstand ist es nur noch ein Viertel. Und desto <b>größer</b> wird sein Widerstand. Umgekehrt gilt: <b>Je heller das Licht, desto kleiner der Widerstand.</b></span></p>
+    <p><span class="sprache-standard">Größenordnung im Modell: bei 10 cm etwa 0,17 kΩ, bei 20 cm 0,5 kΩ, bei 50 cm etwa 2,2 kΩ, bei 100 cm etwa 6,6 kΩ, abgedeckt rund 1000 kΩ = 1 MΩ. Zwischen hell und dunkel liegen also mehr als drei Zehnerpotenzen – ein LDR ist ein sehr empfindlicher Lichtsensor.</span><span class="sprache-einfach">So groß sind die Werte im Modell: bei 10 cm etwa 0,17 kΩ. Bei 20 cm 0,5 kΩ. Bei 50 cm etwa 2,2 kΩ. Bei 100 cm etwa 6,6 kΩ. Abgedeckt rund 1000 kΩ, also 1 MΩ. Zwischen hell und dunkel liegt mehr als das Tausendfache. Ein LDR ist also ein sehr empfindlicher Lichtsensor.</span></p>
+  </details>
+
+  </div><div class="lehrer">
+    <h4>Modell &amp; Video</h4>
+    <p><b>Video geprüft am 14.08.2026</b> über die YouTube-Daten-API: „** NTC PTC LDR Widerstände“, Kanal <i>Stephan Mueller</i>, 2:19, veröffentlicht 07.11.2018, ca. 2.700 Aufrufe, Niveau laut Kanalbeschreibung „Berufsschule/Gymnasium“. Sehr knapp und sachlich, kein Werbeanteil. Es behandelt NTC, PTC <i>und</i> LDR – der PTC kommt im Buch auf dieser Doppelseite nicht vor, stört aber nicht (Metall = Kaltleiter-Verhalten passt sogar dazu).</p>
+    <p><b>LDR-Modell:</b> Beleuchtungsstärke E ∝ 1/d² (Punktlichtquelle, 1000 lx bei 20 cm), Widerstand R = 0,5 kΩ · (1000 lx / E)^0,8, abgedeckt 1 MΩ. Das entspricht in Größenordnung und Exponent einem handelsüblichen CdS-Fotowiderstand (z. B. GL5528). <b>Nicht</b> exakt: reale LDRs haben Exemplarstreuung von einigen zehn Prozent und reagieren träge (Sekundenbereich) – bitte nicht als Präzisionsmessung verkaufen.</p>
+    <p><b>Alternative Aufgabenstellung</b>, wenn Sie mehr Mathematik wollen: doppelter Abstand → ein Viertel der Beleuchtungsstärke. Das ist das Abstandsgesetz und lässt sich hier sauber ablesen (20 cm → 1000 lx, 40 cm → 250 lx).</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 6 ============ -->
+<section class="phase" data-titel="Erklärung" data-min="7">
+  <h2>6 · Die Erklärung – ein Satz, der alles trägt</h2>
+  <p class="zeitnote"><span class="sprache-standard">7 Minuten · Sicherung, bitte ins Heft</span><span class="sprache-einfach">7 Minuten · Sicherung, bitte ins Heft</span></p>
+
+  <div class="karte merk">
+    <h4>Merksatz</h4>
+    <p style="font-size:1.15rem"><span class="sprache-standard"><b>Ob ein Stoff den elektrischen Strom leitet, hängt davon ab, wie viele <u>bewegliche</u> Ladungsträger er enthält.</b></span><span class="sprache-einfach"><b>Ob ein Stoff Strom leitet, hängt von einer Zahl ab: Wie viele <u>bewegliche</u> Ladungsträger hat er?</b></span></p>
+    <ul>
+      <li><span class="sprache-standard"><b>Leiter (Metalle):</b> sehr viele bewegliche Elektronen, schon bei Zimmertemperatur. Erwärmen erhöht die Zahl nicht, stört aber die Bewegung → <b>Widerstand steigt</b>.</span><span class="sprache-einfach"><b>Leiter (Metalle):</b> Sie haben sehr viele bewegliche Elektronen. Schon bei Zimmertemperatur. Wärme macht daraus nicht mehr. Sie stört aber die Bewegung. → <b>Der Widerstand steigt.</b></span></li>
+      <li><span class="sprache-standard"><b>Halbleiter:</b> bei Zimmertemperatur nur wenige bewegliche Ladungsträger – Elektronen und positive Ladungsträger. <b>Energiezufuhr</b> (Wärme <i>oder</i> Licht) erhöht ihre Zahl deutlich → <b>Widerstand sinkt</b>.</span><span class="sprache-einfach"><b>Halbleiter:</b> Bei Zimmertemperatur haben sie nur wenige bewegliche Ladungsträger. Elektronen und positive Ladungsträger. <b>Energie</b> — als Wärme <i>oder</i> als Licht — macht daraus viel mehr. → <b>Der Widerstand sinkt.</b></span></li>
+      <li><span class="sprache-standard"><b>Nichtleiter (Isolatoren):</b> bei Zimmertemperatur praktisch keine beweglichen Ladungsträger → kein Strom. Bei extremer Energiezufuhr (glühendes Glas) kann sich das ändern.</span><span class="sprache-einfach"><b>Nichtleiter (Isolatoren):</b> Bei Zimmertemperatur haben sie fast keine beweglichen Ladungsträger. Also fließt kein Strom. Bei sehr viel Energie kann sich das ändern. Zum Beispiel bei glühendem Glas.</span></li>
+    </ul>
+  </div>
+
+  <div class="karte">
+    <h4>Und zurück zur Einstiegsfrage</h4>
+    <p><span class="sprache-standard">Im digitalen Fieberthermometer sitzt ein <b>NTC</b> (Negative Temperature Coefficient) aus Halbleitermaterial. Die Elektronik legt eine Spannung an, misst die Stromstärke, berechnet daraus den Widerstand und rechnet ihn mit einer gespeicherten Kennlinie in eine Temperatur um. Weil der Widerstand so stark auf Temperatur reagiert (Faktor 7 auf 50 °C), reicht ein winziges Bauteil und wenige Sekunden.</span><span class="sprache-einfach">Im digitalen Fieberthermometer sitzt ein <b>NTC</b> aus Halbleitermaterial. NTC ist die Abkürzung für Negative Temperature Coefficient. Die Elektronik legt eine Spannung an. Sie misst die Stromstärke. Daraus berechnet sie den Widerstand. Und daraus rechnet sie mit einer gespeicherten Tabelle die Temperatur aus. Der Widerstand reagiert sehr stark auf Temperatur — Faktor 7 auf 50 °C. Darum reicht ein winziges Bauteil. Und ein paar Sekunden.</span></p>
+    <p><span class="sprache-standard">Der <b>LDR</b> macht dasselbe mit Licht – er steckt in Dämmerungsschaltern für Straßenlaternen und in Nachtlichtern.</span><span class="sprache-einfach">Der <b>LDR</b> macht dasselbe mit Licht. Er steckt in Dämmerungsschaltern für Straßenlaternen. Und in Nachtlichtern.</span></p>
+  </div>
+
+  <h3>Selbstcheck</h3>
+  <div class="mc" id="mc-erkl"></div>
+  <div class="rueck" id="rueck-erkl"></div>
+
+  <details>
+    <summary>Für Genaue: Woher kommen die positiven Ladungsträger? <span class="stern">★ Vertiefung</span></summary>
+    <p><span class="sprache-standard">Im Silicium-Kristall ist jedes Atom über Elektronenpaare an vier Nachbarn gebunden. Bei Energiezufuhr reißt eine dieser Bindungen: ein Elektron wird frei <b>und</b> lässt eine Lücke zurück. In diese Lücke kann ein Elektron aus einer Nachbarbindung springen – dann ist die Lücke dort. Die Lücke wandert also, und zwar so, als wäre sie ein <b>positiver</b> Ladungsträger. Man nennt sie „Loch“.</span><span class="sprache-einfach">Im Silicium-Kristall ist jedes Atom an vier Nachbarn gebunden. Die Bindung besteht aus Elektronenpaaren. Kommt Energie dazu, reißt eine dieser Bindungen. Ein Elektron wird frei. <b>Und</b> es bleibt eine Lücke zurück. In diese Lücke kann ein Elektron von nebenan springen. Dann ist die Lücke dort. Die Lücke wandert also. Sie verhält sich wie ein <b>positiver</b> Ladungsträger. Man nennt sie „Loch“.</span></p>
+    <p><span class="sprache-standard">Deshalb entstehen die Ladungsträger immer <b>paarweise</b>, und deshalb bewegen sich im Halbleiter Ladungsträger in <b>beide</b> Richtungen: Elektronen zum Pluspol, Löcher zum Minuspol. Beides trägt zum Strom bei – der Strom wird dadurch größer, nicht kleiner.</span><span class="sprache-einfach">Darum entstehen die Ladungsträger immer <b>paarweise</b>. Und darum bewegen sie sich im Halbleiter in <b>zwei</b> Richtungen: Elektronen zum Pluspol, Löcher zum Minuspol. Beides gehört zum Strom. Der Strom wird dadurch größer, nicht kleiner.</span></p>
+  </details>
+
+  <div class="lehrer">
+    <h4>Sicherung</h4>
+    <p>Der Merksatz ist so formuliert, dass er die drei Stoffklassen <i>und</i> beide Energieformen (Wärme, Licht) trägt. Wenn Sie nur eine Sache an der Tafel haben wollen: den ersten fetten Satz plus die drei Spiegelstriche.</p>
+    <p><b>Bewusst nicht drin:</b> Bändermodell, Dotierung, p-n-Übergang, Diode. Das ist Kl. 11+ und würde hier den Kern zerreden. Die Vertiefung zum „Loch“ reicht für starke Gruppen.</p>
+    <p><b>Anschluss an die nächste Stunde:</b> Aus dem Merksatz folgt direkt die Frage „Was passiert, wenn man Fremdatome einbaut?“ → Dotierung. Und aus dem LDR die Frage „Geht das auch umgekehrt – Strom rein, Licht raus?“ → LED.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 7 ============ -->
+<section class="phase" data-titel="Aufgaben" data-min="17">
+  <h2>7 · Aufgaben A1 – A5</h2>
+  <p class="zeitnote"><span class="sprache-standard">17 Minuten · A1–A3 alle, A4/A5 für Schnelle · Lösungen jeweils darunter</span><span class="sprache-einfach">17 Minuten · A1 bis A3 machen alle · A4 und A5 für Schnelle · Lösungen stehen darunter</span></p>
+
+  <div class="aufgabe">
+    <p><span class="sprache-standard"><span class="nr">A1</span> Fertige eine Schaltskizze zur Bestimmung des Widerstandes eines LDR an – <b>a)</b> mit einem Ohmmeter, <b>b)</b> ohne Ohmmeter.</span><span class="sprache-einfach"><span class="nr">A1</span> Zeichne eine Schaltskizze. Du willst den Widerstand eines LDR bestimmen. <b>a)</b> mit einem Ohmmeter. <b>b)</b> ohne Ohmmeter.</span></p>
+    <p style="font-size:.92rem;color:#607080"><span class="sprache-standard">Zeichnet mit dem Finger oder dem Stift direkt in die Felder. Die Skizzen gehen mit eurem Protokoll an Herrn Glaubitz. Die Lösung öffnet sich, sobald in <b>beiden</b> Feldern etwas gezeichnet ist.</span><span class="sprache-einfach">Zeichne mit dem Finger oder mit dem Stift in die Felder. Die Skizzen gehen mit deinem Protokoll an Herrn Glaubitz. Die Lösung geht auf, wenn in <b>beiden</b> Feldern etwas gezeichnet ist.</span></p>
+    <div class="zeichenfeld" data-zid="a1a" data-titel="a) mit einem Ohmmeter" data-hoehe="300"></div>
+    <div class="zeichenfeld" data-zid="a1b" data-titel="b) ohne Ohmmeter" data-hoehe="300"></div>
+    <details class="gesperrt" data-fuer="zeichnung:a1a,zeichnung:a1b">
+      <summary>Lösung A1</summary>
+      <div class="zwei">
+        <div>
+          <p><b>a) mit Ohmmeter</b></p>
+          <svg class="schaltung" viewBox="0 0 300 170" width="300" height="170" role="img" aria-label="Schaltskizze LDR mit Ohmmeter">
+            <rect x="40" y="30" width="220" height="110" fill="none" stroke="#1a2229" stroke-width="2"/>
+            <rect x="115" y="18" width="70" height="24" fill="#fff" stroke="#1a2229" stroke-width="2"/>
+            <line x1="125" y1="14" x2="137" y2="4" stroke="#ef6c00" stroke-width="2"/><polygon points="137,4 131,5 135,10" fill="#ef6c00"/>
+            <line x1="150" y1="14" x2="162" y2="4" stroke="#ef6c00" stroke-width="2"/><polygon points="162,4 156,5 160,10" fill="#ef6c00"/>
+            <text x="150" y="35" font-size="13" text-anchor="middle" font-family="sans-serif">LDR</text>
+            <circle cx="150" cy="140" r="22" fill="#fff" stroke="#1a2229" stroke-width="2"/>
+            <text x="150" y="146" font-size="16" text-anchor="middle" font-family="sans-serif">Ω</text>
+            <text x="150" y="168" font-size="11" text-anchor="middle" fill="#607080" font-family="sans-serif">Ohmmeter</text>
+          </svg>
+          <p style="font-size:.92rem"><span class="sprache-standard">Nur zwei Bauteile: LDR und Ohmmeter in einem geschlossenen Kreis. Das Ohmmeter liefert die Spannung selbst und zeigt R direkt an. <b>Keine</b> zusätzliche Quelle anschließen.</span><span class="sprache-einfach">Nur zwei Bauteile: LDR und Ohmmeter in einem geschlossenen Kreis. Das Ohmmeter hat seine Spannung selbst dabei. Es zeigt R direkt an. Schließ <b>keine</b> zusätzliche Quelle an.</span></p>
+        </div>
+        <div>
+          <p><b>b) ohne Ohmmeter</b></p>
+          <svg class="schaltung" viewBox="0 0 320 200" width="320" height="200" role="img" aria-label="Schaltskizze LDR mit Spannungsquelle, Amperemeter und Voltmeter">
+            <rect x="40" y="30" width="240" height="100" fill="none" stroke="#1a2229" stroke-width="2"/>
+            <rect x="120" y="18" width="70" height="24" fill="#fff" stroke="#1a2229" stroke-width="2"/>
+            <line x1="130" y1="14" x2="142" y2="4" stroke="#ef6c00" stroke-width="2"/><polygon points="142,4 136,5 140,10" fill="#ef6c00"/>
+            <line x1="155" y1="14" x2="167" y2="4" stroke="#ef6c00" stroke-width="2"/><polygon points="167,4 161,5 165,10" fill="#ef6c00"/>
+            <text x="155" y="35" font-size="13" text-anchor="middle" font-family="sans-serif">LDR</text>
+            <circle cx="240" cy="30" r="18" fill="#fff" stroke="#1a2229" stroke-width="2"/>
+            <text x="240" y="36" font-size="14" text-anchor="middle" font-family="sans-serif">A</text>
+            <line x1="60" y1="118" x2="60" y2="142" stroke="#1a2229" stroke-width="2"/>
+            <line x1="46" y1="118" x2="74" y2="118" stroke="#1a2229" stroke-width="3"/>
+            <line x1="52" y1="130" x2="68" y2="130" stroke="#1a2229" stroke-width="3"/>
+            <text x="86" y="126" font-size="12" fill="#607080" font-family="sans-serif">Quelle U</text>
+            <line x1="120" y1="30" x2="120" y2="170" stroke="#1a2229" stroke-width="2"/>
+            <line x1="190" y1="30" x2="190" y2="170" stroke="#1a2229" stroke-width="2"/>
+            <line x1="120" y1="170" x2="133" y2="170" stroke="#1a2229" stroke-width="2"/>
+            <line x1="177" y1="170" x2="190" y2="170" stroke="#1a2229" stroke-width="2"/>
+            <circle cx="155" cy="170" r="18" fill="#fff" stroke="#1a2229" stroke-width="2"/>
+            <text x="155" y="176" font-size="14" text-anchor="middle" font-family="sans-serif">V</text>
+          </svg>
+          <p style="font-size:.92rem"><span class="sprache-standard">LDR in Reihe mit <b>Amperemeter</b> an die Quelle, <b>Voltmeter parallel</b> zum LDR. Dann R = U : I. Wichtig ist genau diese Anordnung – Amperemeter in Reihe, Voltmeter parallel.</span><span class="sprache-einfach">LDR in Reihe mit dem <b>Amperemeter</b> an die Quelle. Das <b>Voltmeter parallel</b> zum LDR. Dann ist R = U : I. Genau diese Anordnung ist wichtig: Amperemeter in Reihe, Voltmeter parallel.</span></p>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="sprache-standard"><span class="nr">A2</span> Begründe, dass die Stromstärke beim Einschalten einer Glühlampe größer ist als später.</span><span class="sprache-einfach"><span class="nr">A2</span> Begründe: Warum ist die Stromstärke beim Einschalten einer Glühlampe größer als später?</span></p>
+    <textarea id="t-a2" placeholder="Der Glühdraht ist beim Einschalten …"></textarea>
+    <details class="gesperrt" data-fuer="t-a2" data-min="40">
+      <summary>Lösung A2</summary>
+      <p><span class="sprache-standard">Der Glühdraht ist aus <b>Metall</b>. Beim Einschalten ist er <b>kalt</b>, sein Widerstand ist deshalb klein. Nach dem Ohmschen Gesetz I = U : R fließt bei kleinem R eine <b>große</b> Stromstärke. Der Strom heizt den Draht in Bruchteilen einer Sekunde auf über 2000 °C. Beim Metall <b>steigt</b> der Widerstand mit der Temperatur – also sinkt die Stromstärke wieder und stellt sich auf den Betriebswert ein.</span><span class="sprache-einfach">Der Glühdraht ist aus <b>Metall</b>. Beim Einschalten ist er <b>kalt</b>. Sein Widerstand ist also klein. Nach I = U : R fließt bei kleinem R ein <b>großer</b> Strom. Der Strom heizt den Draht in Sekundenbruchteilen auf über 2000 °C. Bei Metall <b>steigt</b> der Widerstand mit der Temperatur. Also sinkt der Strom wieder. Er bleibt dann beim normalen Wert.</span></p>
+      <p><span class="sprache-standard">Deshalb gehen Glühlampen fast immer <b>beim Einschalten</b> kaputt.</span><span class="sprache-einfach">Darum gehen Glühlampen fast immer <b>beim Einschalten</b> kaputt.</span></p>
+    </details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="sprache-standard"><span class="nr">A3</span> Erläutere die Abnahme des Widerstandes bei einem Halbleiter, wenn die Temperatur steigt.</span><span class="sprache-einfach"><span class="nr">A3</span> Erkläre: Warum wird der Widerstand eines Halbleiters kleiner, wenn die Temperatur steigt?</span></p>
+    <textarea id="t-a3" placeholder="Bei Zimmertemperatur … Bei Erwärmung …"></textarea>
+    <details class="gesperrt" data-fuer="t-a3" data-min="60">
+      <summary>Lösung A3</summary>
+      <p><span class="sprache-standard">Bei Zimmertemperatur hat ein Halbleiter nur <b>wenige</b> bewegliche Ladungsträger – deshalb ist sein Widerstand groß. Wird er erwärmt, wird ihm <b>Energie zugeführt</b>. Dadurch werden Bindungen aufgebrochen: es entstehen zusätzliche bewegliche Elektronen und ebenso viele bewegliche positive Ladungsträger. Weil nun <b>mehr</b> Ladungsträger am Ladungstransport teilnehmen, fließt bei gleicher Spannung ein größerer Strom – der Widerstand ist <b>kleiner</b> geworden.</span><span class="sprache-einfach">Bei Zimmertemperatur hat ein Halbleiter nur <b>wenige</b> bewegliche Ladungsträger. Darum ist sein Widerstand groß. Wird er wärmer, bekommt er <b>Energie</b>. Dadurch brechen Bindungen auf. Es entstehen zusätzliche freie Elektronen. Und genauso viele bewegliche positive Ladungsträger. Jetzt tragen <b>mehr</b> Ladungsträger den Strom. Bei gleicher Spannung fließt also mehr Strom. Der Widerstand ist <b>kleiner</b> geworden.</span></p>
+      <p><span class="sprache-standard"><b>Abgrenzung zum Metall:</b> Auch im Metall behindern die stärkeren Schwingungen der Atomrümpfe die Ladungsträger – das passiert im Halbleiter genauso. Nur wird dieser Effekt beim Halbleiter durch den enormen Zugewinn an Ladungsträgern weit überkompensiert.</span><span class="sprache-einfach"><b>Unterschied zum Metall:</b> Auch im Metall stören die stärkeren Schwingungen der Atomrümpfe die Ladungsträger. Im Halbleiter passiert das genauso. Aber dort kommen so viele neue Ladungsträger dazu, dass die Störung dagegen nicht ins Gewicht fällt.</span></p>
+    </details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="sprache-standard"><span class="nr">A4</span> <span class="stern">★</span> Ein LDR und ein Ohmscher Widerstand werden in Reihe an eine Quelle angeschlossen. Die Spannung am Ohmschen Widerstand und am LDR werden mit und ohne Beleuchtung gemessen. Erläutere die Änderungen der Spannung an den Bauteilen.</span><span class="sprache-einfach"><span class="nr">A4</span> <span class="stern">★</span> Ein LDR und ein normaler Widerstand hängen in Reihe an einer Quelle. Man misst die Spannung an beiden — einmal mit Licht, einmal ohne. Erkläre, wie sich die Spannungen ändern.</span></p>
+    <p style="font-size:.92rem;color:#607080"><span class="sprache-standard">Probiert es zuerst am Modell aus, dann formulieren.</span><span class="sprache-einfach">Probiert es erst am Modell aus. Schreibt dann eure Erklärung auf.</span></p>
+    <canvas id="c-teiler" width="900" height="230"></canvas>
+    <label class="reg">Beleuchtung des LDR: <span id="l-hell">hell (Lampe an)</span></label>
+    <input type="range" id="r-hell" min="0" max="100" value="100" step="1">
+    <div class="werte">
+      <div class="tag">R<sub>LDR</sub>: <b id="a-t-rldr">–</b></div>
+      <div class="tag">U<sub>LDR</sub>: <b id="a-t-uldr">–</b></div>
+      <div class="tag">U<sub>R</sub> (5 kΩ): <b id="a-t-ur">–</b></div>
+      <div class="tag">I: <b id="a-t-i">–</b></div>
+    </div>
+    <textarea id="t-a4" placeholder="Bei Beleuchtung … Ohne Beleuchtung …"></textarea>
+    <details class="gesperrt" data-fuer="t-a4" data-min="40">
+      <summary>Lösung A4</summary>
+      <p><span class="sprache-standard">In der Reihenschaltung fließt <b>überall dieselbe</b> Stromstärke, und die beiden Teilspannungen ergeben zusammen die Quellenspannung: U = U<sub>LDR</sub> + U<sub>R</sub>. Am größeren Widerstand liegt die größere Spannung.</span><span class="sprache-einfach">In der Reihenschaltung fließt <b>überall der gleiche</b> Strom. Und die beiden Teilspannungen ergeben zusammen die Quellenspannung: U = U<sub>LDR</sub> + U<sub>R</sub>. Am größeren Widerstand liegt die größere Spannung.</span></p>
+      <p><span class="sprache-standard"><b>Mit Beleuchtung:</b> R<sub>LDR</sub> ist klein (hier ≈ 0,5 kΩ), also viel kleiner als 5 kΩ. Damit ist U<sub>LDR</sub> <b>klein</b> und U<sub>R</sub> <b>groß</b>. Die Stromstärke ist groß.</span><span class="sprache-einfach"><b>Mit Licht:</b> R<sub>LDR</sub> ist klein, hier etwa 0,5 kΩ. Also viel kleiner als 5 kΩ. Damit ist U<sub>LDR</sub> <b>klein</b> und U<sub>R</sub> <b>groß</b>. Der Strom ist groß.</span></p>
+      <p><span class="sprache-standard"><b>Ohne Beleuchtung:</b> R<sub>LDR</sub> wird sehr groß (hier bis 1000 kΩ), also viel größer als 5 kΩ. Jetzt liegt fast die <b>gesamte</b> Quellenspannung am LDR, U<sub>R</sub> ist klein. Die Stromstärke ist klein.</span><span class="sprache-einfach"><b>Ohne Licht:</b> R<sub>LDR</sub> wird sehr groß, hier bis 1000 kΩ. Also viel größer als 5 kΩ. Jetzt liegt fast die <b>ganze</b> Quellenspannung am LDR. U<sub>R</sub> ist klein. Der Strom ist klein.</span></p>
+      <p><span class="sprache-standard">Genau das nutzt ein <b>Dämmerungsschalter</b>: Man wertet die Spannung am festen Widerstand aus – sie kippt beim Dunkelwerden von „groß“ auf „klein“ und kann eine Lampe schalten.</span><span class="sprache-einfach">Genau das nutzt ein <b>Dämmerungsschalter</b>. Man schaut auf die Spannung am festen Widerstand. Beim Dunkelwerden springt sie von „groß“ auf „klein“. Damit kann man eine Lampe schalten.</span></p>
+    </details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="sprache-standard"><span class="nr">A5</span> <span class="stern">★</span> Plane ein Experiment, mit dem es gelingt, mit einem NTC die Temperatur zu bestimmen.</span><span class="sprache-einfach"><span class="nr">A5</span> <span class="stern">★</span> Plane ein Experiment: Wie kannst du mit einem NTC eine Temperatur bestimmen?</span></p>
+    <textarea id="t-a5" placeholder="Material: … Durchführung: … Auswertung: …" style="min-height:7rem"></textarea>
+    <div class="zeichenfeld" data-zid="a5" data-titel="Skizze des Versuchsaufbaus (freiwillig)" data-hoehe="300"></div>
+    <details class="gesperrt" data-fuer="t-a5" data-min="80">
+      <summary>Lösung A5 – eine mögliche Planung</summary>
+      <p><span class="sprache-standard"><b>Grundidee:</b> Der NTC misst keine Temperatur, sondern einen Widerstand. Man braucht deshalb zwei Schritte: <b>kalibrieren</b>, dann <b>messen</b>.</span><span class="sprache-einfach"><b>Die Grundidee:</b> Der NTC misst keine Temperatur. Er misst einen Widerstand. Darum brauchst du zwei Schritte: erst <b>kalibrieren</b>, dann <b>messen</b>.</span></p>
+      <p><span class="sprache-standard"><b>Material:</b> NTC, Ohmmeter, Becherglas mit Wasser, Heizplatte oder Wasserkocher, geeichtes Thermometer, Eiswasser.</span><span class="sprache-einfach"><b>Material:</b> NTC, Ohmmeter, Becherglas mit Wasser, Heizplatte oder Wasserkocher, ein geeichtes Thermometer, Eiswasser.</span></p>
+      <p><span class="sprache-standard"><b>1. Kalibrierung:</b> NTC und Thermometer zusammen ins Wasserbad. Wasser von etwa 0 °C bis 90 °C erwärmen und alle 10 °C beide Werte notieren: ϑ und R. Wertepaare in ein R-ϑ-Diagramm eintragen und die Punkte zu einer glatten Kurve verbinden – das ist die <b>Kennlinie</b>.</span><span class="sprache-einfach"><b>1. Kalibrieren:</b> NTC und Thermometer zusammen ins Wasser. Wasser von etwa 0 °C auf 90 °C erwärmen. Alle 10 °C beide Werte notieren: ϑ und R. Die Wertepaare in ein R-ϑ-Diagramm eintragen. Die Punkte zu einer weichen Kurve verbinden. Das ist die <b>Kennlinie</b>.</span></p>
+      <p><span class="sprache-standard"><b>2. Messung:</b> NTC in die Flüssigkeit unbekannter Temperatur, Widerstand ablesen, im Diagramm den zugehörigen Temperaturwert ablesen.</span><span class="sprache-einfach"><b>2. Messen:</b> NTC in die Flüssigkeit halten, deren Temperatur du nicht kennst. Widerstand ablesen. Im Diagramm die passende Temperatur ablesen.</span></p>
+      <p><span class="sprache-standard"><b>Worauf man achten muss:</b> NTC gegen Wasser isolieren (Folie), sonst leitet das Wasser mit; ausreichend warten, bis NTC und Wasser gleiche Temperatur haben; Ohmmeter mit passendem Messbereich (kΩ); nicht über den vom NTC zugelassenen Temperaturbereich hinausgehen. Und: die Kennlinie ist <b>nicht</b> eine Gerade – zwei Kalibrierpunkte genügen nicht.</span><span class="sprache-einfach"><b>Darauf musst du achten:</b> Wickle den NTC in Folie. Sonst leitet das Wasser mit. Warte lange genug, bis NTC und Wasser gleich warm sind. Stell das Ohmmeter auf den richtigen Bereich (kΩ). Geh nicht über die Temperatur hinaus, die der NTC verträgt. Und: Die Kennlinie ist <b>keine</b> Gerade. Zwei Punkte reichen also nicht.</span></p>
+    </details>
+  </div>
+
+  <div class="lehrer">
+    <h4>Differenzierung &amp; Bewertung</h4>
+    <p><b>A1 wird jetzt digital gezeichnet</b> (zwei Zeichenfelder, Finger oder Stift). Die Lösung öffnet sich erst, wenn in beiden Feldern mindestens drei Striche liegen – ein Punkt reicht nicht. Wer lieber ins Heft zeichnet, soll das Feld trotzdem grob befüllen, sonst bleibt die Lösung zu; alternativ per Lehrer-Ansicht vorlesen.</p>
+    <p><b>Minimum für alle:</b> A2 und A3. Wer die beiden kann, hat das Stundenziel erreicht. A1 ist Handwerk (Messschaltung) und lohnt sich, weil es die Unterscheidung Amperemeter/Voltmeter wiederholt.</p>
+    <p><b>A4</b> ist die eigentliche Denkaufgabe – Reihenschaltung + veränderlicher Widerstand. Das Modell darunter macht sie ohne Vorwissen zugänglich: erst schieben und ablesen, dann begründen. Wenn Ihre Klasse den Spannungsteiler noch nicht hatte, reicht die qualitative Aussage „am größeren Widerstand die größere Spannung“.</p>
+    <p><b>A5</b> ist die Transferaufgabe. Das entscheidende Kriterium ist, ob die Kalibrierung <b>vor</b> der Messung auftaucht. Wer direkt „NTC reinhalten und Temperatur ablesen“ schreibt, hat den Kern verpasst: das Bauteil liefert Ohm, nicht Grad.</p>
+    <p><b>Bewertungsvorschlag Exit-Ticket:</b> Punkt 1 = A3-Kern (Ladungsträgerzahl), Punkt 2 = Gegensatz Metall/Halbleiter. Beides vorhanden = Ziel erreicht.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 8 ============ -->
+<section class="phase" data-titel="Quiz" data-min="7">
+  <h2>8 · Quiz: sitzt es?</h2>
+  <p class="zeitnote"><span class="sprache-standard">7 Minuten · 8 Fragen, sofortige Rückmeldung</span><span class="sprache-einfach">7 Minuten · 8 Fragen · du bekommst sofort eine Rückmeldung</span></p>
+  <div id="quiz"></div>
+  <div class="karte blau" id="quiz-ergebnis" style="display:none">
+    <h4>Ergebnis</h4>
+    <p><span class="punkte" id="quiz-punkte">0 / 8</span> <span id="quiz-text"></span></p>
+  </div>
+
+  <div class="lehrer">
+    <h4>Diagnose</h4>
+    <p>Die acht Fragen prüfen genau die acht Stellen, an denen es erfahrungsgemäß klemmt. Falls Sie im Plenum abfragen wollen: Fragen 2, 3 und 6 sind die tragenden. Wer die drei hat, hat die Stunde.</p>
+    <p>Frage 5 (Glasstab) und Frage 8 (Einschaltstrom) sind die Transferfragen – hier zeigt sich, ob das Modell verstanden oder nur auswendig gelernt wurde.</p>
+  </div>
+</section>
+
+<!-- ============ PHASE 9 ============ -->
+<section class="phase" data-titel="Abschluss" data-min="5">
+  <h2>9 · Exit-Ticket &amp; Ergebnisse</h2>
+  <p class="zeitnote">5 Minuten</p>
+
+  <div class="karte merk">
+    <h4>Zwei Sätze, dann ist Schluss</h4>
+    <p><span class="sprache-standard"><b>1.</b> Warum sinkt der Widerstand eines Halbleiters beim Erwärmen?</span><span class="sprache-einfach"><b>1.</b> Warum wird der Widerstand eines Halbleiters kleiner, wenn er warm wird?</span></p>
+    <textarea id="t-exit1" placeholder="Weil …"></textarea>
+    <p style="margin-top:.8rem"><span class="sprache-standard"><b>2.</b> Wieso verhält sich ein Metalldraht genau umgekehrt?</span><span class="sprache-einfach"><b>2.</b> Warum macht ein Metalldraht genau das Gegenteil?</span></p>
+    <textarea id="t-exit2" placeholder="Weil …"></textarea>
+  </div>
+
+  <div class="karte">
+    <h4>Und was war unklar?</h4>
+    <textarea id="t-unklar" placeholder="Eine Frage, die offen geblieben ist (darf auch leer bleiben)"></textarea>
+  </div>
+
+  <div class="karte blau">
+    <h4>Abgabe – Protokoll an Herrn Glaubitz</h4>
+    <div class="zwei">
+      <div>
+        <label class="reg">Namen (beide, wenn zu zweit gearbeitet):</label>
+        <input id="i-name" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="Vorname Nachname, Vorname Nachname">
+      </div>
+      <div>
+        <label class="reg">Klasse:</label>
+        <input id="i-klasse" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="z. B. 10b">
+      </div>
+    </div>
+
+    <p style="margin:.9rem 0 .2rem"><span class="sprache-standard"><b>So geht die Abgabe – drei Schritte:</b></span><span class="sprache-einfach"><b>So gibst du ab – in drei Schritten:</b></span></p>
+    <ol style="margin-top:.2rem">
+      <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">📄 Protokoll speichern</button><br>
+        <span style="font-size:.88rem;color:#4a5560"><span class="sprache-standard">Eine Datei mit allen Antworten, Zeichnungen und Zeitstempeln. Landet in „Downloads“ bzw. in der Dateien-App.</span><span class="sprache-einfach">Das ist eine Datei mit allen deinen Antworten und Zeichnungen. Sie landet in „Downloads“ oder in der Dateien-App.</span></span></li>
+      <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">✉ Senden / Teilen</button><br>
+        <span style="font-size:.88rem;color:#4a5560"><span class="sprache-standard">Öffnet den Teilen-Dialog des iPads → <b>Mail</b> wählen → die Datei ist als Anhang dabei. Empfänger eintragen:</span><span class="sprache-einfach">Es öffnet sich das Teilen-Fenster. Wähle <b>Mail</b>. Die Datei hängt dann schon dran. Trag den Empfänger ein:</span>
+        <b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
+      <li><span class="sprache-standard"><b>Kontrollieren:</b> Steht euer Name in der Mail? Ist der Anhang dabei? Dann senden.</span><span class="sprache-einfach"><b>Kontrollieren:</b> Steht dein Name in der Mail? Ist die Datei angehängt? Dann sende sie ab.</span></li>
+    </ol>
+
+    <p style="margin-top:.7rem">
+      <button class="knopf" id="k-json">Rohdaten als JSON</button>
+      <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
+      <button class="knopf" id="k-kopieren">Text kopieren</button>
+    </p>
+    <p class="videohinweis" id="mail-hinweis"><span class="sprache-standard">Wenn „Senden / Teilen“ auf eurem Gerät nicht funktioniert: Protokoll speichern, dann selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b> schreiben und die gespeicherte Datei anhängen.</span><span class="sprache-einfach">„Senden / Teilen“ geht auf deinem Gerät nicht? Dann speichere das Protokoll. Schreib selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b>. Häng die Datei an.</span></p>
+  </div>
+
+  <p>
+    <button class="knopf" id="k-zusammenfassung">Ergebnisse am Bildschirm ansehen</button>
+    <button class="knopf" id="k-drucken">Drucken / als PDF speichern</button>
+  </p>
+  <div id="ausgabe"></div>
+
+  <details>
+    <summary>Weiterschauen – geprüfte Videos zum Thema <span class="stern">★ freiwillig</span></summary>
+    <ul>
+      <li><span class="sprache-standard"><a href="https://www.youtube.com/watch?v=cNIrrjd2KBU" target="_blank" rel="noopener">NTC (Heißleiter) / PTC (Kaltleiter) einfach erklärt</a> · Sven Stemmler · 7:42 · ausführlich, mit Kennlinien; Elektrotechnik-Perspektive</span><span class="sprache-einfach"><a href="https://www.youtube.com/watch?v=cNIrrjd2KBU" target="_blank" rel="noopener">NTC (Heißleiter) / PTC (Kaltleiter) einfach erklärt</a> · Sven Stemmler · 7:42 · ausführlich, mit Kennlinien. Aus Sicht der Elektrotechnik.</span></li>
+      <li><span class="sprache-standard"><a href="https://www.youtube.com/watch?v=See0cm5RBNM" target="_blank" rel="noopener">Kompakt: Der NTC-Widerstand</a> · Der Schrauberclub · 4:37 · zeigt echtes Messen an einem NTC aus der Kfz-Technik</span><span class="sprache-einfach"><a href="https://www.youtube.com/watch?v=See0cm5RBNM" target="_blank" rel="noopener">Kompakt: Der NTC-Widerstand</a> · Der Schrauberclub · 4:37 · zeigt echtes Messen an einem NTC aus dem Auto.</span></li>
+      <li><span class="sprache-standard"><a href="https://www.youtube.com/watch?v=xq1LkN5Hi34" target="_blank" rel="noopener">Was sind Halbleiter?</a> · simpleclub · 4:46 · Ausblick auf Diode und Transistor (enthält Eigenwerbung)</span><span class="sprache-einfach"><a href="https://www.youtube.com/watch?v=xq1LkN5Hi34" target="_blank" rel="noopener">Was sind Halbleiter?</a> · simpleclub · 4:46 · Ausblick auf Diode und Transistor. Enthält Werbung für den Kanal.</span></li>
+      <li><span class="sprache-standard"><a href="https://www.youtube.com/watch?v=xH1jHQttaZI" target="_blank" rel="noopener">Halbleiter – Erklärung</a> · F.M.H. Studios · 8:43 · geht bis zum Bändermodell, Niveau Oberstufe/Berufsschule</span><span class="sprache-einfach"><a href="https://www.youtube.com/watch?v=xH1jHQttaZI" target="_blank" rel="noopener">Halbleiter – Erklärung</a> · F.M.H. Studios · 8:43 · geht bis zum Bändermodell. Das ist schon Oberstufe.</span></li>
+    </ul>
+  </details>
+
+  <div class="lehrer">
+    <h4>Abschluss</h4>
+    <p><b>Warum drei Schritte und nicht ein Knopf:</b> Eine Webseite ohne Server kann keine Mail verschicken – und Anhänge kann ein <code>mailto:</code>-Link grundsätzlich nicht mitnehmen. Der Weg ist deshalb: Protokolldatei erzeugen → iOS-Teilen-Dialog → Mail. Beim Teilen ist die Datei <b>als Anhang</b> dabei; die Empfängeradresse müssen die Schüler eintragen (Knopf „Adresse kopieren“ hilft). Gesendet wird immer von den Schülern.</p>
+    <p><b>Was in der Datei steht:</b> alle Antworten, alle Zeichnungen als Bild, das vollständige Verlaufsprotokoll mit Zeitstempeln – und dieselben Daten zusätzlich maschinenlesbar als JSON im Dateiende (<code>&lt;script type="application/json"&gt;</code>). Sie öffnen die Datei mit einem Doppelklick im Browser und sehen alles auf einer Seite. Wer die Klasse auswerten will, kann die JSON-Blöcke skriptgestützt einlesen.</p>
+    <p><b>Der Knopf „Nur Text per Mail“</b> ist der alte <code>mailto:</code>-Weg. Er ist bequem, überträgt aber <b>keine Zeichnungen</b> – das steht auch für die Schüler dort. Für A1 also unbrauchbar.</p>
+    <p><b>Vorher einmal testen:</b> Öffnen Sie die Seite auf einem Schul-iPad, zeichnen Sie zwei Striche und gehen Sie die drei Schritte durch. Ob der Teilen-Dialog Dateien annimmt, hängt an iOS-Version und Mail-Einrichtung – das lässt sich von außen nicht garantieren. Rechnen Sie mit einer Mail pro Gerät, also 12–15 pro Klasse; Label/Filter vorab lohnt sich.</p>
+    <p><b>Rückfallebene:</b> „Drucken / als PDF speichern“ (enthält auch die Zeichnungen) oder die Ergebnisseite abfotografieren.</p>
+    <p><b>Hausaufgabe, falls gewünscht:</b> Buchseite 136/137 lesen und A5 schriftlich ausarbeiten. Oder: „Finde drei Geräte bei dir zu Hause, in denen ein NTC oder ein LDR steckt, und begründe.“ (Antworten u. a.: Fieberthermometer, Backofen-/Kühlschrankfühler, Handy-Akkuladung, Dämmerungsschalter, Nachtlicht, automatische Displayhelligkeit, Kaffeemaschine.)</p>
+    <p><b>Nächste Stunde:</b> Dotierung (n- und p-Halbleiter) → Diode → LED. Der Merksatz aus Phase 6 ist die Brücke.</p>
+  </div>
+</section>
+
+<!-- ============ LEHRER-ÜBERSICHT ============ -->
+<section class="phase" data-titel="⚙ Lehrerblatt" data-min="0">
+  <h2>Lehrerblatt – alles auf einen Blick</h2>
+  <p class="zeitnote">Diese Phase überspringen die Schüler; sie ist für Sie. Über die Pillen oben erreichbar.</p>
+
+  <div class="karte blau">
+    <h4>Was Sie tun müssen</h4>
+    <ol>
+      <li>Datei an die Klasse verteilen (IServ, oder auf jedem Gerät öffnen). Läuft in jedem Browser, ohne Installation.</li>
+      <li>Zwei Minuten Einstieg: „Wie messen digitale Fieberthermometer?“ – Prognose per Handzeichen.</li>
+      <li>„Arbeitet zu zweit, klickt euch durch, Lösungen erst nach eigenem Versuch.“</li>
+      <li>Herumgehen. Bei Phase 4 nachfragen: „Um welchen Faktor?“ Bei Phase 7 auf A5 schauen.</li>
+      <li>Letzte 5 Minuten: Merksatz aus Phase 6 gemeinsam sichern. Exit-Ticket ausfüllen, Namen eintragen, <b>Mail-Knopf drücken</b> – die Ergebnisse landen als Mail an michael.glaubitz@ae-gym.de in Ihrem Postfach.</li>
+    </ol>
+    <p style="margin-bottom:0"><b>Kein Experimentiermaterial, keine Vorbereitung, kein Ausdruck erforderlich.</b></p>
+  </div>
+
+  <h3>Zeitraster (90 Minuten)</h3>
+  <table>
+    <tr><th>Phase</th><th>Min</th><th>Inhalt</th><th>Ersetzt aus dem Buch</th></tr>
+    <tr><td>0</td><td>2</td><td>Start, Ziele</td><td>–</td></tr>
+    <tr><td>1</td><td>6</td><td>Einstieg Fieberthermometer, Prognose</td><td>Einstiegsfrage S. 136</td></tr>
+    <tr><td>2</td><td>11</td><td>Simulation Leiter/Halbleiter/Isolator</td><td>B3, B4, Grundtext</td></tr>
+    <tr><td>3</td><td>7</td><td>Video Glasstab + Erklärung</td><td>Beispiel/Lösung S. 137</td></tr>
+    <tr><td>4</td><td>14</td><td>Messplatz NTC vs. Eisendraht, Diagramm</td><td>V1, V2, V3</td></tr>
+    <tr><td>5</td><td>11</td><td>Video Bauteile + LDR-Messung</td><td>B1, B2, V4</td></tr>
+    <tr><td>6</td><td>7</td><td>Merksatz, Rückbezug Thermometer</td><td>roter Kasten S. 136</td></tr>
+    <tr><td>7</td><td>17</td><td>Aufgaben A1–A5</td><td>A1–A5</td></tr>
+    <tr><td>8</td><td>7</td><td>Quiz mit Rückmeldung</td><td>–</td></tr>
+    <tr><td>9</td><td>5</td><td>Exit-Ticket, Ergebnisse</td><td>–</td></tr>
+    <tr><td colspan="2"><b>87 Min</b></td><td colspan="2">3 Minuten Puffer</td></tr>
+  </table>
+
+  <h3>Wenn die Zeit knapp wird</h3>
+  <ul>
+    <li><b>Zuerst streichen:</b> Phase 5 Video (Kasten darunter reicht), Eisendraht-Tabelle in Phase 4 (im Plenum ansagen), A1.</li>
+    <li><b>Nie streichen:</b> Phase 2 Simulation, Phase 4 Faktorvergleich, Phase 6 Merksatz, A3.</li>
+    <li>Aus 90 werden 45: Phasen 0–2, 4 (nur NTC), 6, Quiz. Läuft in 45 Minuten.</li>
+  </ul>
+
+  <h3>Womit man rechnen muss</h3>
+  <ul>
+    <li><b>„Wärme macht die Elektronen schneller, deshalb leitet es besser.“</b> Die häufigste Fehlvorstellung. Gegenmittel: in der Simulation die Kugeln <i>zählen</i> lassen.</li>
+    <li><b>„Der Eisendraht ändert sich gar nicht.“</b> Er ändert sich um 10 %. Der Punkt ist der Vergleich mit Faktor 7.</li>
+    <li><b>„Der NTC ist kaputt, der Widerstand geht runter.“</b> Ja – und genau das ist die Funktion.</li>
+    <li><b>„Halbleiter leiten halb so gut.“</b> Nein: sie liegen zwischen Leiter und Isolator und sind <b>steuerbar</b>. Das ist der Grund für ihre technische Bedeutung.</li>
+    <li><b>Glas als „Halbleiter“.</b> Siehe Vertiefungskasten Phase 3: in der Schmelze überwiegt Ionenleitung. Das Buch verwischt das.</li>
+  </ul>
+
+  <h3>Geprüfte Quellen (Stand 14.08.2026)</h3>
+  <p style="font-size:.93rem">Alle sechs eingebetteten bzw. verlinkten Videos wurden am 14.08.2026 einzeln über die YouTube-Daten-API abgefragt: Existenz, öffentlicher Status, Titel, Kanal, Länge, Veröffentlichungsdatum und Aufrufzahl sind bestätigt. <b>Nicht</b> geprüft: ob Ihr Schulnetz YouTube-Einbettungen zulässt und ob die Kanäle die Einbettung erlauben – deshalb steht unter jedem Video ein direkter Link und ein Ersatz ohne Internet. Die Videoinhalte wurden nicht Bild für Bild gesichtet; die Einordnung stützt sich auf Titel, Beschreibung und Kanalprofil. Sehen Sie sich die 4:39 des Glasstab-Videos vorab an, wenn Sie es vorn zeigen wollen.</p>
+  <p style="font-size:.93rem">Alle Messwerte stammen aus den Tabellen der Doppelseite 136/137. Die Simulationen sind eigene, qualitative Modelle – Details in den violetten Kästen der jeweiligen Phase.</p>
+</section>
+
+</main>
+
+<div class="nav">
+  <button class="knopf" id="zurueck">‹ Zurück</button>
+  <div class="mitte" id="navinfo"></div>
+  <button class="knopf voll" id="weiter">Weiter ›</button>
+</div>
+
+<script>
+/* ============================================================
+   Halbleiter-Doppelstunde – Steuerung, Simulationen, Auswertung
+   Keine externen Bibliotheken, kein Speichern, kein Tracking.
+   ============================================================ */
+"use strict";
+
+/* ---------- 1 Phasensteuerung ---------- */
+const phasen = Array.from(document.querySelectorAll("section.phase"));
+const pillen = document.getElementById("pillen");
+let aktuell = 0;
+let besucht = new Set([0]);
+
+phasen.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "pille";
+  b.textContent = (i < phasen.length - 1 ? i + " " : "") + p.dataset.titel;
+  b.addEventListener("click", () => zeige(i));
+  pillen.appendChild(b);
+});
+
+function zeige(i) {
+  if (i < 0 || i >= phasen.length) return;
+  phasen[aktuell].classList.remove("aktiv");
+  aktuell = i;
+  besucht.add(i);
+  phasen[aktuell].classList.add("aktiv");
+  Array.from(pillen.children).forEach((b, k) => {
+    b.classList.toggle("aktiv", k === i);
+    b.classList.toggle("fertig", k !== i && besucht.has(k));
+  });
+  document.getElementById("balken").style.width =
+    Math.round((i / (phasen.length - 2)) * 100) + "%";
+  document.getElementById("navinfo").textContent =
+    (i === phasen.length - 1) ? "Lehrerblatt (nicht für Schüler)"
+      : "Phase " + i + " von " + (phasen.length - 2);
+  document.getElementById("zurueck").disabled = (i === 0);
+  const wb = document.getElementById("weiter");
+  const letzte = (i >= phasen.length - 2);
+  wb.disabled = letzte;
+  wb.textContent = letzte ? "Fertig" : "Weiter ›";
+  starteUhr(parseInt(phasen[i].dataset.min, 10) || 0);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.getElementById("weiter").addEventListener("click", () => zeige(aktuell + 1));
+document.getElementById("zurueck").addEventListener("click", () => zeige(aktuell - 1));
+
+/* ---------- 2 Uhr ---------- */
+let rest = 0, laufend = true, ticker = null;
+const uhrEl = document.getElementById("uhr");
+function starteUhr(min) {
+  clearInterval(ticker);
+  if (!min) { uhrEl.textContent = "--:--"; uhrEl.classList.remove("knapp"); return; }
+  rest = min * 60; laufend = true;
+  document.getElementById("uhrKnopf").textContent = "Pause";
+  malUhr();
+  ticker = setInterval(() => {
+    if (!laufend) return;
+    if (rest > 0) rest--;
+    malUhr();
+  }, 1000);
+}
+function malUhr() {
+  const m = Math.floor(rest / 60), s = rest % 60;
+  uhrEl.textContent = m + ":" + String(s).padStart(2, "0");
+  uhrEl.classList.toggle("knapp", rest <= 60);
+}
+document.getElementById("uhrKnopf").addEventListener("click", (e) => {
+  laufend = !laufend;
+  e.target.textContent = laufend ? "Pause" : "Weiter";
+});
+
+/* ---------- 3 Lehrer-Ansicht ---------- */
+document.getElementById("lehrerKnopf").addEventListener("click", () => {
+  document.body.classList.toggle("lehrermodus");
+  document.getElementById("lehrerKnopf").textContent =
+    document.body.classList.contains("lehrermodus") ? "Lehrer-Ansicht aus" : "Lehrer-Ansicht";
+});
+
+/* ---------- 4 Multiple-Choice-Baustein ---------- */
+function mc(ziel, rueckId, frage) {
+  const box = document.getElementById(ziel);
+  const rb = document.getElementById(rueckId);
+  frage.optionen.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.textContent = o.text;
+    b.addEventListener("click", () => {
+      Array.from(box.children).forEach(x => x.classList.remove("richtig", "falsch"));
+      b.classList.add(o.richtig ? "richtig" : "falsch");
+      rb.className = "rueck zeig " + (o.richtig ? "gut" : "schlecht");
+      rb.innerHTML = (o.richtig ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + o.hinweis;
+      antworten[ziel] = o.text + (o.richtig ? "  [richtig]" : "  [falsch]");
+    });
+    box.appendChild(b);
+  });
+}
+const protokollEintraege = [];
+let exportiert = false;
+const antwortenRoh = {};
+const antworten = new Proxy(antwortenRoh, {
+  set(ziel, schluessel, wert) {
+    const alt = ziel[schluessel];
+    ziel[schluessel] = wert;
+    if (alt !== wert) protokolliere("auswahl", schluessel, wert);
+    return true;
+  }
+});
+
+mc("mc-einstieg", "rueck-einstieg", {
+  optionen: [
+    { text: "Bei beiden steigt der Widerstand.", richtig: false,
+      hinweis: "Das gilt nur für das Metall. Der Halbleiter macht etwas anderes – ihr werdet es gleich messen." },
+    { text: "Bei beiden sinkt der Widerstand.", richtig: false,
+      hinweis: "Beim Halbleiter stimmt das, beim Metalldraht nicht. Metalle werden beim Erwärmen zu schlechteren Leitern." },
+    { text: "Beim Metall steigt er, beim Halbleiter sinkt er.", richtig: true,
+      hinweis: "Genau das messen wir in Phase 4 nach – und zwar mit einem verblüffend großen Unterschied in der Stärke des Effekts." },
+    { text: "Beim Metall sinkt er, beim Halbleiter steigt er.", richtig: false,
+      hinweis: "Genau umgekehrt. Merkhilfe: Ein Glühdraht (Metall) bremst den Strom, sobald er heiß ist." }
+  ]
+});
+
+mc("mc-satz", "rueck-satz", {
+  optionen: [
+    { text: "… nimmt zu, der von Halbleiterbauteilen nimmt ab.", richtig: true,
+      hinweis: "Das ist der Kernsatz der Doppelseite. Bitte ins Heft." },
+    { text: "… nimmt ab, der von Halbleiterbauteilen nimmt zu.", richtig: false,
+      hinweis: "Vertauscht. Schaut noch einmal auf eure beiden Messreihen: Welche Zahlen werden kleiner?" },
+    { text: "… nimmt zu, der von Halbleiterbauteilen nimmt ebenfalls zu.", richtig: false,
+      hinweis: "Die NTC-Werte werden von 12,4 kΩ auf 1,7 kΩ kleiner – also nimmt der Widerstand ab." },
+    { text: "… bleibt gleich, nur Halbleiter ändern sich.", richtig: false,
+      hinweis: "Der Eisendraht ändert sich messbar: von 7,2 Ω auf 7,9 Ω. Wenig, aber eindeutig." }
+  ]
+});
+
+mc("mc-erkl", "rueck-erkl", {
+  optionen: [
+    { text: "Weil sich die Ladungsträger bei höherer Temperatur schneller bewegen.", richtig: false,
+      hinweis: "Das ist die verbreitetste Fehlvorstellung. Stärkere Wärmebewegung <i>behindert</i> die Ladungsträger sogar – deshalb steigt der Widerstand beim Metall. Entscheidend ist die <b>Anzahl</b>." },
+    { text: "Weil zusätzliche bewegliche Ladungsträger entstehen.", richtig: true,
+      hinweis: "Genau. Energiezufuhr erhöht die Zahl der beweglichen Ladungsträger – und zwar paarweise: Elektronen und positive Ladungsträger." },
+    { text: "Weil die Atomrümpfe bei höherer Temperatur ruhiger werden.", richtig: false,
+      hinweis: "Umgekehrt: sie schwingen stärker. Dieser Effekt allein würde den Widerstand erhöhen." },
+    { text: "Weil die Spannung an dem Bauteil größer wird.", richtig: false,
+      hinweis: "Die Spannung wird von der Quelle vorgegeben und ändert sich hier nicht. Der Widerstand ist eine Eigenschaft des Materials." }
+  ]
+});
+
+/* ---------- 5 Simulation Leiter / Halbleiter / Isolator ---------- */
+const cL = document.getElementById("c-leitung"), ctxL = cL.getContext("2d");
+let material = "metall", temp = 20, teilchen = [];
+const BAR = { x: 70, y: 70, w: 520, h: 150 };
+
+function modell() {
+  let nE = 0, nH = 0, name = "", mob = 1;
+  if (material === "metall") {
+    // Trägerzahl konstant, nur die Beweglichkeit sinkt -> Widerstand steigt
+    nE = 90; nH = 0; name = "Metall";
+    mob = 1 / (1 + (temp - 20) / 900);
+  } else if (material === "halbleiter") {
+    // Trägerzahl wächst mit Energiezufuhr, bleibt aber unter dem Metall
+    const n = Math.max(1, Math.round(1 + 17 * (1 - Math.exp(-(temp - 20) / 300))));
+    nE = n; nH = n; name = "Halbleiter";
+  } else {
+    const n = temp < 600 ? 0 : Math.round(12 * Math.pow((temp - 600) / 400, 1.5));
+    nE = n; nH = n; name = "Glas";
+  }
+  const I = 0.5 * (nE + nH) * mob;            // Modell-mA
+  return { nE, nH, mob, I, name, R: I > 0.01 ? 10000 / I : Infinity };
+}
+
+function neueTeilchen() {
+  const m = modell();
+  teilchen = [];
+  for (let i = 0; i < m.nE; i++) teilchen.push(neu("e"));
+  for (let i = 0; i < m.nH; i++) teilchen.push(neu("h"));
+}
+function neu(t) {
+  return {
+    t: t,
+    x: BAR.x + 6 + Math.random() * (BAR.w - 12),
+    y: BAR.y + 8 + Math.random() * (BAR.h - 16),
+    vx: (Math.random() - 0.5) * 2,
+    vy: (Math.random() - 0.5) * 2
+  };
+}
+
+function malLeitung() {
+  const m = modell();
+  const w = cL.width, h = cL.height;
+  ctxL.clearRect(0, 0, w, h);
+
+  // Leitungen zur Lampe
+  ctxL.strokeStyle = "#1a2229"; ctxL.lineWidth = 3;
+  ctxL.beginPath();
+  ctxL.moveTo(BAR.x + BAR.w, BAR.y + BAR.h / 2); ctxL.lineTo(700, BAR.y + BAR.h / 2);
+  ctxL.moveTo(BAR.x, BAR.y + BAR.h / 2); ctxL.lineTo(30, BAR.y + BAR.h / 2);
+  ctxL.lineTo(30, 290); ctxL.lineTo(800, 290); ctxL.lineTo(800, BAR.y + BAR.h / 2);
+  ctxL.lineTo(790, BAR.y + BAR.h / 2);
+  ctxL.stroke();
+
+  // Stab
+  const warm = Math.min(1, Math.max(0, (temp - 20) / 980));
+  ctxL.fillStyle = material === "metall" ? "#dfe6ec"
+    : material === "halbleiter" ? "#e9e2f5" : "#e4f3f6";
+  ctxL.fillRect(BAR.x, BAR.y, BAR.w, BAR.h);
+  ctxL.fillStyle = "rgba(255," + Math.round(140 - 100 * warm) + ",0," + (0.32 * warm) + ")";
+  ctxL.fillRect(BAR.x, BAR.y, BAR.w, BAR.h);
+  ctxL.strokeStyle = "#8c98a4"; ctxL.lineWidth = 2;
+  ctxL.strokeRect(BAR.x, BAR.y, BAR.w, BAR.h);
+
+  ctxL.fillStyle = "#1a2229"; ctxL.font = "bold 30px sans-serif";
+  ctxL.textAlign = "center";
+  ctxL.fillText("+", BAR.x - 26, BAR.y + BAR.h / 2 + 10);
+  ctxL.fillText("–", BAR.x + BAR.w + 26, BAR.y + BAR.h / 2 + 8);
+  ctxL.font = "14px sans-serif"; ctxL.fillStyle = "#4a5560";
+  ctxL.fillText(m.name + " · " + temp + " °C", BAR.x + BAR.w / 2, BAR.y - 14);
+
+  // Teilchen
+  teilchen.forEach(p => {
+    p.x += p.vx * (0.6 + 1.6 * warm) + (p.t === "e" ? -1.1 : 1.1) * m.mob;
+    p.y += p.vy * (0.6 + 1.6 * warm);
+    if (p.x < BAR.x + 5) p.x = BAR.x + BAR.w - 6;
+    if (p.x > BAR.x + BAR.w - 5) p.x = BAR.x + 6;
+    if (p.y < BAR.y + 6 || p.y > BAR.y + BAR.h - 6) p.vy *= -1;
+    p.y = Math.min(BAR.y + BAR.h - 6, Math.max(BAR.y + 6, p.y));
+    ctxL.beginPath();
+    ctxL.arc(p.x, p.y, 5.5, 0, 6.284);
+    ctxL.fillStyle = p.t === "e" ? "#1565c0" : "#c62828";
+    ctxL.fill();
+    ctxL.strokeStyle = "#fff"; ctxL.lineWidth = 1; ctxL.stroke();
+    ctxL.fillStyle = "#fff"; ctxL.font = "bold 9px sans-serif";
+    ctxL.fillText(p.t === "e" ? "–" : "+", p.x, p.y + 3);
+  });
+
+  // Lampe
+  const hell = Math.min(1, m.I / 45);
+  ctxL.beginPath(); ctxL.arc(745, BAR.y + BAR.h / 2, 34, 0, 6.284);
+  ctxL.fillStyle = "rgba(255,214,64," + (0.15 + 0.85 * hell) + ")";
+  ctxL.fill();
+  if (hell > 0.03) {
+    ctxL.beginPath(); ctxL.arc(745, BAR.y + BAR.h / 2, 34 + 22 * hell, 0, 6.284);
+    ctxL.fillStyle = "rgba(255,214,64," + (0.30 * hell) + ")"; ctxL.fill();
+  }
+  ctxL.beginPath(); ctxL.arc(745, BAR.y + BAR.h / 2, 34, 0, 6.284);
+  ctxL.strokeStyle = "#1a2229"; ctxL.lineWidth = 2.5; ctxL.stroke();
+  ctxL.fillStyle = "#4a5560"; ctxL.font = "13px sans-serif";
+  ctxL.fillText(hell > 0.03 ? "leuchtet" : "dunkel", 745, BAR.y + BAR.h / 2 + 62);
+
+  // Anzeigen
+  const ges = m.nE + m.nH;
+  document.getElementById("a-n").textContent =
+    ges + (ges === 0 ? " (keine)" : ges < 6 ? " (sehr wenige)" : ges < 25 ? " (einige)"
+      : ges < 65 ? " (viele)" : " (sehr viele)");
+  document.getElementById("a-i").textContent = m.I < 0.05 ? "0 – kein Strom" : m.I.toFixed(1) + " mA*";
+  document.getElementById("a-r").textContent = m.R === Infinity ? "sehr groß"
+    : m.R > 1000 ? (m.R / 1000).toFixed(1) + " kΩ*" : Math.round(m.R) + " Ω*";
+  document.getElementById("a-lampe").textContent = hell > 0.5 ? "hell" : hell > 0.03 ? "schwach" : "aus";
+  requestAnimationFrame(malLeitung);
+}
+document.querySelectorAll(".mat").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".mat").forEach(x => x.classList.remove("voll"));
+    b.classList.add("voll");
+    material = b.dataset.mat;
+    neueTeilchen();
+  });
+});
+document.getElementById("r-temp").addEventListener("input", e => {
+  temp = +e.target.value;
+  document.getElementById("l-temp").textContent = temp + " °C";
+  neueTeilchen();
+});
+document.querySelector('.mat[data-mat="metall"]').classList.add("voll");
+neueTeilchen(); malLeitung();
+
+/* ---------- 6 Messplatz NTC / Eisendraht ---------- */
+const NTC = [[20, 12.4], [30, 8.2], [40, 5.3], [50, 3.5], [60, 2.4], [70, 1.7]];
+const EISEN = [[20, 7.2], [40, 7.3], [60, 7.5], [80, 7.7], [100, 7.9]];
+
+function interpLog(tab, x) {           // logarithmisch (NTC)
+  let i = 0;
+  while (i < tab.length - 2 && x > tab[i + 1][0]) i++;
+  const [x1, y1] = tab[i], [x2, y2] = tab[i + 1];
+  const f = (x - x1) / (x2 - x1);
+  return Math.exp(Math.log(y1) + f * (Math.log(y2) - Math.log(y1)));
+}
+function interpLin(tab, x) {
+  let i = 0;
+  while (i < tab.length - 2 && x > tab[i + 1][0]) i++;
+  const [x1, y1] = tab[i], [x2, y2] = tab[i + 1];
+  return y1 + (x - x1) / (x2 - x1) * (y2 - y1);
+}
+const rNTC = t => interpLog(NTC, t);
+const rEisen = t => interpLin(EISEN, t);
+
+const cM = document.getElementById("c-messplatz"), ctxM = cM.getContext("2d");
+let bauteil = "ntc", wtemp = 20;
+
+function malMessplatz() {
+  const ctx = ctxM, w = cM.width;
+  ctx.clearRect(0, 0, w, cM.height);
+  const f = (wtemp - 20) / 80;
+
+  // Becherglas
+  ctx.strokeStyle = "#8c98a4"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(120, 40); ctx.lineTo(120, 210);
+  ctx.lineTo(330, 210); ctx.lineTo(330, 40); ctx.stroke();
+  ctx.fillStyle = "rgba(" + Math.round(80 + 160 * f) + ",120," + Math.round(230 - 150 * f) + ",0.45)";
+  ctx.fillRect(122, 70, 206, 139);
+  ctx.strokeStyle = "#5b6874"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(122, 70); ctx.lineTo(328, 70); ctx.stroke();
+
+  // Blasen bei hoher Temperatur
+  if (wtemp > 80) {
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    for (let i = 0; i < 14; i++) {
+      const bx = 135 + ((i * 53) % 180), by = 200 - ((i * 37 + (Date.now() / 18)) % 125);
+      ctx.beginPath(); ctx.arc(bx, by, 2 + (i % 3), 0, 6.284); ctx.fill();
+    }
+  }
+
+  // Thermometer
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2;
+  ctx.strokeRect(150, 55, 12, 145);
+  ctx.fillStyle = "#c62828";
+  const hSaeule = 20 + 120 * f;
+  ctx.fillRect(152, 200 - hSaeule, 8, hSaeule);
+  ctx.beginPath(); ctx.arc(156, 202, 8, 0, 6.284); ctx.fill();
+  ctx.fillStyle = "#1a2229"; ctx.font = "bold 15px sans-serif"; ctx.textAlign = "left";
+  ctx.fillText(wtemp + " °C", 170, 52);
+
+  // Prüfling
+  ctx.textAlign = "center";
+  if (bauteil === "ntc") {
+    ctx.fillStyle = "#37474f"; ctx.fillRect(255, 120, 40, 26);
+    ctx.strokeStyle = "#1a2229"; ctx.strokeRect(255, 120, 40, 26);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 12px sans-serif"; ctx.fillText("NTC", 275, 138);
+  } else {
+    ctx.strokeStyle = "#8d6e63"; ctx.lineWidth = 3; ctx.beginPath();
+    for (let i = 0; i <= 40; i++) {
+      const x = 253 + i * 1.1, y = 133 + 11 * Math.sin(i * 0.9);
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#4a5560"; ctx.font = "12px sans-serif"; ctx.fillText("Eisendraht", 275, 168);
+  }
+
+  // Kabel zum Ohmmeter
+  ctx.strokeStyle = "#c62828"; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(258, 120); ctx.lineTo(258, 30); ctx.lineTo(560, 30); ctx.lineTo(560, 78); ctx.stroke();
+  ctx.strokeStyle = "#1a2229";
+  ctx.beginPath(); ctx.moveTo(292, 120); ctx.lineTo(292, 45); ctx.lineTo(640, 45); ctx.lineTo(640, 78); ctx.stroke();
+
+  // Ohmmeter
+  ctx.fillStyle = "#eceff1"; ctx.strokeStyle = "#37474f"; ctx.lineWidth = 3;
+  ctx.fillRect(500, 78, 220, 120); ctx.strokeRect(500, 78, 220, 120);
+  ctx.fillStyle = "#101418"; ctx.fillRect(516, 96, 188, 52);
+  const wert = bauteil === "ntc" ? rNTC(wtemp).toFixed(1) + " kΩ" : rEisen(wtemp).toFixed(1) + " Ω";
+  ctx.fillStyle = "#7dff9b"; ctx.font = "bold 30px ui-monospace,monospace";
+  ctx.textAlign = "right"; ctx.fillText(wert, 696, 134);
+  ctx.textAlign = "center"; ctx.fillStyle = "#37474f"; ctx.font = "12px sans-serif";
+  ctx.fillText("OHMMETER", 610, 170);
+  ctx.beginPath(); ctx.arc(540, 186, 6, 0, 6.284); ctx.fillStyle = "#c62828"; ctx.fill();
+  ctx.beginPath(); ctx.arc(680, 186, 6, 0, 6.284); ctx.fillStyle = "#1a2229"; ctx.fill();
+
+  document.getElementById("a-ohm").innerHTML = bauteil === "ntc"
+    ? rNTC(wtemp).toFixed(1) + ' <small>kΩ</small>'
+    : rEisen(wtemp).toFixed(1) + ' <small>Ω</small>';
+}
+document.querySelectorAll(".bauteil").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".bauteil").forEach(x => x.classList.remove("voll"));
+    b.classList.add("voll"); bauteil = b.dataset.bt; malMessplatz();
+  });
+});
+document.querySelector('.bauteil[data-bt="ntc"]').classList.add("voll");
+document.getElementById("r-wtemp").addEventListener("input", e => {
+  wtemp = +e.target.value;
+  document.getElementById("l-wtemp").textContent = wtemp + " °C";
+  malMessplatz();
+});
+setInterval(() => { if (wtemp > 80) malMessplatz(); }, 90);
+malMessplatz();
+
+/* Messreihen prüfen */
+function zahl(s) { return parseFloat(String(s).replace(",", ".").replace(/[^0-9.\-]/g, "")); }
+document.getElementById("k-pruefe-mess").addEventListener("click", () => {
+  let gut = 0, ges = 0;
+  const eingaben = { ntc: [], eisen: [] };
+  ["tab-ntc", "tab-eisen"].forEach(id => {
+    document.querySelectorAll("#" + id + " input").forEach((inp, k) => {
+      ges++;
+      const td = inp.parentElement;
+      const soll = parseFloat(inp.dataset.soll), tol = parseFloat(inp.dataset.tol);
+      const ist = zahl(inp.value);
+      td.classList.remove("ok", "fast");
+      const temps = id === "tab-ntc" ? [20, 30, 40, 50, 60, 70] : [20, 40, 60, 80, 100];
+      if (!isNaN(ist)) {
+        eingaben[id === "tab-ntc" ? "ntc" : "eisen"].push([temps[k], ist, Math.abs(ist - soll) <= tol]);
+        if (Math.abs(ist - soll) <= tol) { td.classList.add("ok"); gut++; }
+        else if (Math.abs(ist - soll) <= 3 * tol) td.classList.add("fast");
+      }
+    });
+  });
+  const rb = document.getElementById("rueck-mess");
+  rb.className = "rueck zeig " + (gut >= ges - 1 ? "gut" : "schlecht");
+  rb.innerHTML = "<b>" + gut + " von " + ges + "</b> Werten stimmen (grün). Gelb = knapp daneben, " +
+    "weiß = fehlt oder deutlich daneben. " +
+    (gut >= ges - 1 ? "Sauber gemessen. Das Diagramm ist unten gezeichnet."
+      : "Stellt die Temperatur genau auf den Tabellenwert und lest neu ab. Das Diagramm ist trotzdem gezeichnet – ihr seht darin, welche Punkte aus der Reihe fallen.");
+  malDiagramm(eingaben);
+  antworten["messreihe"] = gut + " von " + ges + " Messwerten korrekt";
+});
+
+const cD = document.getElementById("c-diagramm"), ctxD = cD.getContext("2d");
+function achsenRahmen() {
+  const ctx = ctxD;
+  ctx.clearRect(0, 0, cD.width, cD.height);
+  ctx.fillStyle = "#607080"; ctx.font = "15px sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("Das Diagramm wird gezeichnet, sobald ihr auf „Messreihen prüfen“ klickt.", cD.width / 2, cD.height / 2);
+}
+achsenRahmen();
+
+function malDiagramm(eing) {
+  const ctx = ctxD, L = 80, R = cD.width - 80, T = 30, B = cD.height - 50;
+  ctx.clearRect(0, 0, cD.width, cD.height);
+  const px = t => L + (t - 20) / 80 * (R - L);
+  const pyN = r => B - r / 14 * (B - T);      // 0 … 14 kΩ
+  const pyE = r => B - r / 8 * (B - T);       // 0 … 8 Ω
+
+  // Gitter
+  ctx.strokeStyle = "#e7ebee"; ctx.lineWidth = 1;
+  for (let t = 20; t <= 100; t += 10) { ctx.beginPath(); ctx.moveTo(px(t), T); ctx.lineTo(px(t), B); ctx.stroke(); }
+  for (let r = 0; r <= 14; r += 2) { ctx.beginPath(); ctx.moveTo(L, pyN(r)); ctx.lineTo(R, pyN(r)); ctx.stroke(); }
+
+  // Achsen
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(L, T); ctx.lineTo(L, B); ctx.lineTo(R, B); ctx.stroke();
+  ctx.strokeStyle = "#c62828";
+  ctx.beginPath(); ctx.moveTo(R, T); ctx.lineTo(R, B); ctx.stroke();
+
+  ctx.fillStyle = "#1a2229"; ctx.font = "13px sans-serif"; ctx.textAlign = "center";
+  for (let t = 20; t <= 100; t += 10) ctx.fillText(t, px(t), B + 20);
+  ctx.fillText("ϑ in °C", (L + R) / 2, B + 42);
+  ctx.textAlign = "right"; ctx.fillStyle = "#1565c0";
+  for (let r = 0; r <= 14; r += 2) ctx.fillText(r, L - 10, pyN(r) + 4);
+  ctx.save(); ctx.translate(24, (T + B) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center"; ctx.fillText("R (NTC) in kΩ", 0, 0); ctx.restore();
+  ctx.textAlign = "left"; ctx.fillStyle = "#c62828";
+  for (let r = 0; r <= 8; r += 1) ctx.fillText(r, R + 10, pyE(r) + 4);
+  ctx.save(); ctx.translate(cD.width - 20, (T + B) / 2); ctx.rotate(Math.PI / 2);
+  ctx.textAlign = "center"; ctx.fillText("R (Eisen) in Ω", 0, 0); ctx.restore();
+
+  // Modellkurven
+  ctx.lineWidth = 2.5; ctx.strokeStyle = "#1565c0"; ctx.beginPath();
+  for (let t = 20; t <= 70; t += 1) { const x = px(t), y = pyN(rNTC(t)); t === 20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+  ctx.stroke();
+  ctx.strokeStyle = "#c62828"; ctx.beginPath();
+  for (let t = 20; t <= 100; t += 1) { const x = px(t), y = pyE(rEisen(t)); t === 20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+  ctx.stroke();
+
+  // Schülerpunkte
+  function punkte(liste, fy, farbe) {
+    liste.forEach(([t, r, ok]) => {
+      ctx.beginPath(); ctx.arc(px(t), fy(r), 6, 0, 6.284);
+      ctx.fillStyle = ok ? farbe : "#ef6c00"; ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    });
+  }
+  punkte(eing.ntc, pyN, "#1565c0");
+  punkte(eing.eisen, pyE, "#c62828");
+
+  // Legende
+  ctx.font = "13px sans-serif"; ctx.textAlign = "left";
+  const lx0 = px(63), ly0 = pyN(5.4);
+  ctx.fillStyle = "rgba(255,255,255,.88)"; ctx.fillRect(lx0 - 8, ly0 - 18, 280, 66);
+  ctx.fillStyle = "#1565c0"; ctx.fillText("● NTC (Halbleiter) – fällt steil", lx0, ly0);
+  ctx.fillStyle = "#c62828"; ctx.fillText("● Eisendraht (Metall) – steigt kaum", lx0, ly0 + 20);
+  ctx.fillStyle = "#ef6c00"; ctx.fillText("● eigener Wert außerhalb der Toleranz", lx0, ly0 + 40);
+}
+
+/* ---------- 7 LDR-Experiment ---------- */
+const cP = document.getElementById("c-ldr"), ctxP = cP.getContext("2d");
+let abstand = 20, abgedeckt = false;
+const luxVon = d => 1000 * Math.pow(20 / d, 2);
+const rLdrVonLux = E => 0.5 * Math.pow(1000 / E, 0.8);   // kΩ
+
+function malLdr() {
+  const ctx = ctxP; ctx.clearRect(0, 0, cP.width, cP.height);
+  const E = abgedeckt ? 0 : luxVon(abstand);
+  const R = abgedeckt ? 1000 : rLdrVonLux(E);
+  const lx = 90 + (abstand - 10) / 190 * 380;   // Lampenposition
+  const ldrX = 640;
+
+  // Lichtkegel (die Lampe leuchtet auch bei abgedecktem LDR weiter)
+  {
+    const g = ctx.createLinearGradient(lx, 0, ldrX, 0);
+    g.addColorStop(0, "rgba(255,213,79,.85)"); g.addColorStop(1, "rgba(255,213,79,.05)");
+    ctx.fillStyle = g; ctx.beginPath();
+    ctx.moveTo(lx + 26, 130); ctx.lineTo(ldrX, 60); ctx.lineTo(ldrX, 200); ctx.closePath(); ctx.fill();
+  }
+  // Lampe
+  ctx.beginPath(); ctx.arc(lx, 130, 24, 0, 6.284);
+  ctx.fillStyle = "#ffd54f"; ctx.fill(); ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.fillStyle = "#37474f"; ctx.fillRect(lx - 10, 154, 20, 16);
+  ctx.font = "13px sans-serif"; ctx.textAlign = "center"; ctx.fillStyle = "#4a5560";
+  ctx.fillText("Lampe", lx, 196);
+
+  // Maßband
+  ctx.strokeStyle = "#8c98a4"; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(lx, 218); ctx.lineTo(ldrX, 218); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = "#4a5560"; ctx.fillText(abstand + " cm", (lx + ldrX) / 2, 236);
+
+  // LDR
+  ctx.fillStyle = "#fff8e1"; ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(ldrX + 22, 130, 24, 0, 6.284); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = "#ef6c00"; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let i = 0; i < 5; i++) { ctx.moveTo(ldrX + 8, 116 + i * 7); ctx.lineTo(ldrX + 36, 116 + i * 7); }
+  ctx.stroke();
+  if (abgedeckt) {
+    ctx.fillStyle = "#37474f"; ctx.fillRect(ldrX - 8, 98, 62, 64);
+    ctx.fillStyle = "#fff"; ctx.font = "11px sans-serif"; ctx.fillText("abgedeckt", ldrX + 23, 134);
+  }
+  ctx.fillStyle = "#4a5560"; ctx.font = "13px sans-serif"; ctx.fillText("LDR", ldrX + 22, 176);
+
+  // Luxmeter
+  ctx.fillStyle = "#eceff1"; ctx.strokeStyle = "#37474f"; ctx.lineWidth = 2;
+  ctx.fillRect(740, 40, 140, 70); ctx.strokeRect(740, 40, 140, 70);
+  ctx.fillStyle = "#101418"; ctx.fillRect(750, 52, 120, 34);
+  ctx.fillStyle = "#7dff9b"; ctx.font = "bold 18px ui-monospace,monospace"; ctx.textAlign = "right";
+  ctx.fillText(abgedeckt ? "0 lx" : Math.round(E) + " lx", 864, 76);
+  ctx.textAlign = "center"; ctx.fillStyle = "#37474f"; ctx.font = "11px sans-serif";
+  ctx.fillText("LUXMETER", 810, 102);
+
+  // Ohmmeter
+  ctx.fillStyle = "#eceff1"; ctx.strokeStyle = "#37474f"; ctx.lineWidth = 2;
+  ctx.fillRect(740, 140, 140, 70); ctx.strokeRect(740, 140, 140, 70);
+  ctx.fillStyle = "#101418"; ctx.fillRect(750, 152, 120, 34);
+  ctx.fillStyle = "#7dff9b"; ctx.font = "bold 18px ui-monospace,monospace"; ctx.textAlign = "right";
+  ctx.fillText((R >= 100 ? Math.round(R) : R.toFixed(2)) + " kΩ", 864, 176);
+  ctx.textAlign = "center"; ctx.fillStyle = "#37474f"; ctx.font = "11px sans-serif";
+  ctx.fillText("OHMMETER", 810, 202);
+
+  document.getElementById("a-lux").textContent = abgedeckt ? "0 lx" : Math.round(E) + " lx";
+  document.getElementById("a-rldr").textContent = (R >= 100 ? Math.round(R) : R.toFixed(2)) + " kΩ";
+}
+document.getElementById("r-abstand").addEventListener("input", e => {
+  abstand = +e.target.value; abgedeckt = false;
+  document.getElementById("l-abstand").textContent = abstand + " cm";
+  malLdr();
+});
+document.getElementById("k-abdecken").addEventListener("click", e => {
+  abgedeckt = !abgedeckt;
+  e.target.textContent = abgedeckt ? "Abdeckung entfernen" : "LDR abdecken (dunkel)";
+  malLdr();
+});
+malLdr();
+
+/* ---------- 8 Spannungsteiler (A4) ---------- */
+const cT = document.getElementById("c-teiler"), ctxT = cT.getContext("2d");
+let helligkeit = 100;
+function malTeiler() {
+  const ctx = ctxT; ctx.clearRect(0, 0, cT.width, cT.height);
+  const RL = 1000 * Math.pow(0.5 / 1000, helligkeit / 100);   // kΩ
+  const RF = 5, U = 9;
+  const I = U / (RL + RF);                                    // mA
+  const UL = I * RL, UR = I * RF;
+
+  // Stromkreis
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 3;
+  ctx.strokeRect(70, 50, 700, 130);
+  ctx.fillStyle = "#fff";
+  // LDR
+  ctx.fillRect(250, 34, 90, 32); ctx.strokeRect(250, 34, 90, 32);
+  ctx.strokeStyle = "#ef6c00"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(268, 24); ctx.lineTo(282, 8); ctx.moveTo(292, 24); ctx.lineTo(306, 8); ctx.stroke();
+  ctx.fillStyle = "#1a2229"; ctx.font = "13px sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("LDR", 295, 55);
+  // Festwiderstand
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 3; ctx.fillStyle = "#fff";
+  ctx.fillRect(500, 34, 90, 32); ctx.strokeRect(500, 34, 90, 32);
+  ctx.fillStyle = "#1a2229"; ctx.fillText("R = 5 kΩ", 545, 55);
+  // Quelle
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(400, 168); ctx.lineTo(400, 192); ctx.stroke();
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(386, 168); ctx.lineTo(414, 168); ctx.moveTo(392, 180); ctx.lineTo(408, 180); ctx.stroke();
+  ctx.fillText("U = 9 V", 455, 178);
+
+  // Spannungsbalken
+  const bx = 120, bw = 600, by = 208;
+  ctx.fillStyle = "#e7ebee"; ctx.fillRect(bx, by, bw, 16);
+  ctx.fillStyle = "#8e24aa"; ctx.fillRect(bx, by, bw * UL / U, 16);
+  ctx.fillStyle = "#2e7d32"; ctx.fillRect(bx + bw * UL / U, by, bw * UR / U, 16);
+  ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "left";
+  if (UL / U > 0.18) ctx.fillText("U(LDR)", bx + 6, by + 12);
+  if (UR / U > 0.18) ctx.fillText("U(R)", bx + bw * UL / U + 6, by + 12);
+
+  // Strompfeile
+  const n = Math.max(1, Math.round(I * 3));
+  ctx.fillStyle = "#1565c0";
+  for (let i = 0; i < Math.min(n, 14); i++) {
+    const x = 90 + i * 48;
+    ctx.beginPath(); ctx.moveTo(x, 44); ctx.lineTo(x + 12, 50); ctx.lineTo(x, 56); ctx.closePath(); ctx.fill();
+  }
+
+  document.getElementById("a-t-rldr").textContent = (RL >= 100 ? Math.round(RL) : RL.toFixed(2)) + " kΩ";
+  document.getElementById("a-t-uldr").textContent = UL.toFixed(2) + " V";
+  document.getElementById("a-t-ur").textContent = UR.toFixed(2) + " V";
+  document.getElementById("a-t-i").textContent = (I >= 0.1 ? I.toFixed(2) : I.toFixed(3)) + " mA";
+  document.getElementById("l-hell").textContent =
+    helligkeit > 85 ? "hell (Lampe direkt davor)" : helligkeit > 50 ? "mittel (Zimmerlicht)"
+      : helligkeit > 15 ? "dämmerig" : helligkeit > 0 ? "fast dunkel" : "dunkel (abgedeckt)";
+}
+document.getElementById("r-hell").addEventListener("input", e => {
+  helligkeit = +e.target.value; malTeiler();
+});
+malTeiler();
+
+/* ---------- 9 Quiz ---------- */
+const fragen = [
+  { f: "Ein Kupferdraht wird von 20 °C auf 200 °C erwärmt. Sein Widerstand …",
+    o: ["… steigt.", "… sinkt.", "… bleibt genau gleich.", "… wird null."], r: 0,
+    e: "Metalle sind Kaltleiter: die Zahl der beweglichen Elektronen bleibt gleich, die stärkere Wärmebewegung behindert sie." },
+  { f: "Ein NTC wird von 20 °C auf 70 °C erwärmt. Sein Widerstand …",
+    o: ["… steigt um etwa 10 %.", "… sinkt auf etwa ein Siebtel.", "… bleibt gleich.", "… sinkt um etwa 10 %."], r: 1,
+    e: "12,4 kΩ : 1,7 kΩ ≈ 7. Der Effekt ist nicht nur umgekehrt, sondern viel stärker als beim Metall." },
+  { f: "Warum sinkt der Widerstand eines Halbleiters beim Erwärmen?",
+    o: ["Die Ladungsträger werden schneller.", "Es entstehen mehr bewegliche Ladungsträger.",
+        "Der Draht wird länger.", "Die Spannung steigt."], r: 1,
+    e: "Energiezufuhr bricht Bindungen auf; dabei entstehen zusätzliche bewegliche Ladungsträger – paarweise." },
+  { f: "Welche beweglichen Ladungsträger gibt es in einem Halbleiter?",
+    o: ["nur Elektronen", "nur positive Ladungsträger", "Elektronen und positive Ladungsträger", "Protonen"], r: 2,
+    e: "Beide, und zwar immer paarweise entstehend. Die positiven wandern zum Minuspol, die Elektronen zum Pluspol." },
+  { f: "Ein Glasstab liegt in Reihe mit einer Glühlampe an einer Quelle. Wann leuchtet die Lampe?",
+    o: ["sofort", "nie", "erst wenn das Glas sehr stark erhitzt wird", "nur bei Dunkelheit"], r: 2,
+    e: "Bei Zimmertemperatur fehlen bewegliche Ladungsträger. Erst starkes Erhitzen erzeugt sie – dann fließt Strom." },
+  { f: "Ein LDR wird heller beleuchtet. Sein Widerstand …",
+    o: ["… wird kleiner.", "… wird größer.", "… bleibt gleich.", "… hängt nur von der Temperatur ab."], r: 0,
+    e: "Strahlungsenergie erhöht ebenfalls die Zahl der beweglichen Ladungsträger – auch ohne merkliche Erwärmung." },
+  { f: "Welches Bauteil steckt im digitalen Fieberthermometer?",
+    o: ["ein LDR", "ein NTC", "ein Kupferdraht", "eine Glühlampe"], r: 1,
+    e: "Ein NTC. Gemessen wird sein Widerstand; die Elektronik rechnet ihn über eine Kennlinie in eine Temperatur um." },
+  { f: "Was kennzeichnet einen Ohmschen Widerstand?",
+    o: ["Sein Widerstand hängt von der Temperatur ab.", "Sein Widerstand hängt von der Helligkeit ab.",
+        "Sein Widerstand ist unabhängig von der angelegten Spannung.", "Er leitet nur in eine Richtung."], r: 2,
+    e: "So definiert es die Bemerkung auf der Doppelseite: konstanter Widerstand, unabhängig von der angelegten Spannung." }
+];
+let quizPunkte = 0, quizBeantwortet = 0;
+const quizBox = document.getElementById("quiz");
+fragen.forEach((q, i) => {
+  const d = document.createElement("div");
+  d.className = "quizfrage";
+  d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+  const mcb = document.createElement("div"); mcb.className = "mc";
+  const rb = document.createElement("div"); rb.className = "rueck";
+  let erledigt = false;
+  q.o.forEach((text, k) => {
+    const b = document.createElement("button");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (erledigt) return;
+      erledigt = true; quizBeantwortet++;
+      Array.from(mcb.children).forEach((x, j) => {
+        if (j === q.r) x.classList.add("richtig");
+      });
+      if (k !== q.r) b.classList.add("falsch"); else quizPunkte++;
+      rb.className = "rueck zeig " + (k === q.r ? "gut" : "schlecht");
+      rb.innerHTML = (k === q.r ? "<b>Richtig.</b> " : "<b>Falsch.</b> ") + q.e;
+      const erg = document.getElementById("quiz-ergebnis");
+      erg.style.display = "block";
+      document.getElementById("quiz-punkte").textContent = quizPunkte + " / " + fragen.length;
+      document.getElementById("quiz-text").textContent =
+        quizBeantwortet < fragen.length ? "(" + quizBeantwortet + " von " + fragen.length + " beantwortet)"
+          : quizPunkte >= 7 ? "– sehr gut, das sitzt."
+            : quizPunkte >= 5 ? "– solide. Schaut euch die falschen Erklärungen noch einmal an."
+              : "– noch wacklig. Gehe zurück zu Phase 6 und lies den Merksatz.";
+      antworten["quiz"] = quizPunkte + " von " + fragen.length + " Quizfragen richtig";
+    });
+    mcb.appendChild(b);
+  });
+  d.appendChild(mcb); d.appendChild(rb); quizBox.appendChild(d);
+});
+
+/* ============================================================
+   10  Protokoll – läuft mit, ist nur erweiterbar
+   ============================================================ */
+const PROTOKOLL_VERSION = 4;
+const SPEICHER = "hl81-protokoll-v3";
+const LEHRER_MAIL = "michael.glaubitz@ae-gym.de";
+const gestartet = new Date();
+
+function zwei(n) { return String(n).padStart(2, "0"); }
+function stempel(d) {
+  d = d || new Date();
+  return d.getFullYear() + "-" + zwei(d.getMonth() + 1) + "-" + zwei(d.getDate()) +
+    " " + zwei(d.getHours()) + ":" + zwei(d.getMinutes()) + ":" + zwei(d.getSeconds());
+}
+function protokolliere(art, feld, wert, zusatz) {
+  const e = {
+    nr: protokollEintraege.length + 1, zeit: stempel(), art: art,
+    feld: feld || "", wert: wert === undefined || wert === null ? "" : String(wert)
+  };
+  if (zusatz) e.zusatz = String(zusatz);
+  protokollEintraege.push(Object.freeze(e));   // bestehende Einträge werden nie verändert
+  chipMalen();
+  speichern();
+}
+function chipMalen() {
+  const c = document.getElementById("protokollChip");
+  if (!c) return;
+  c.textContent = "Protokoll: " + protokollEintraege.length + (exportiert ? " · gesichert" : " Einträge");
+  c.classList.toggle("warn", protokollEintraege.length > 4 && !exportiert);
+}
+
+/* ---------- 11 Zeichenfelder (Touch / Stift) ---------- */
+const zeichnungen = {};
+document.querySelectorAll(".zeichenfeld").forEach(aufbauZeichnung);
+
+function aufbauZeichnung(box) {
+  const zid = box.dataset.zid;
+  const hoehe = parseInt(box.dataset.hoehe || "300", 10);
+  const z = { striche: [], farbe: "#1a2229", breite: 3, letztesLog: 0 };
+  zeichnungen[zid] = z;
+
+  const wz = document.createElement("div");
+  wz.className = "zwerkzeug";
+  const titel = document.createElement("span");
+  titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
+  wz.appendChild(titel);
+
+  function knopf(text, wirkung, gruppe) {
+    const b = document.createElement("button");
+    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (gruppe) {
+        wz.querySelectorAll(".g-" + gruppe).forEach(x => x.classList.remove("aktivw"));
+        b.classList.add("aktivw");
+      }
+      wirkung();
+    });
+    wz.appendChild(b);
+    return b;
+  }
+  const kDuenn = knopf("dünn", () => z.breite = 2, "b" + zid);
+  const kDick = knopf("dick", () => z.breite = 5, "b" + zid);
+  const kSchwarz = knopf("schwarz", () => z.farbe = "#1a2229", "f" + zid);
+  knopf("rot", () => z.farbe = "#c62828", "f" + zid);
+  knopf("Strich zurück", () => {
+    if (!z.striche.length) return;
+    z.striche.pop(); malen(); protokolliere("zeichnung", zid, "Strich zurückgenommen (" + z.striche.length + " Striche)");
+    sperrenPruefen();
+  });
+  knopf("alles löschen", () => {
+    if (!z.striche.length) return;
+    protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.striche.length + " Striche)");
+    z.striche = []; malen(); sperrenPruefen();
+  });
+  kDick.classList.add("aktivw"); z.breite = 5;
+  kSchwarz.classList.add("aktivw");
+  const status = document.createElement("span");
+  status.className = "zstatus"; status.textContent = "0 Striche";
+  wz.appendChild(status);
+
+  const cv = document.createElement("canvas");
+  cv.width = 1000;
+  cv.height = Math.round(hoehe * 1000 / 900);
+  box.appendChild(wz); box.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  z.canvas = cv;
+
+  function malen() {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "#dde4ea";
+    for (let x = 25; x < cv.width; x += 25)
+      for (let y = 25; y < cv.height; y += 25) ctx.fillRect(x, y, 1.4, 1.4);
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const alle = z.striche.concat(z.aktuell ? [z.aktuell] : []);
+    alle.forEach(st => {
+      ctx.strokeStyle = st.farbe; ctx.lineWidth = st.breite;
+      ctx.beginPath();
+      st.punkte.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+      if (st.punkte.length === 1) { ctx.lineTo(st.punkte[0].x + .1, st.punkte[0].y + .1); }
+      ctx.stroke();
+    });
+    status.textContent = z.striche.length + (z.striche.length === 1 ? " Strich" : " Striche");
+  }
+  z.malen = malen;
+
+  function pos(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+  }
+  cv.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    try { cv.setPointerCapture(e.pointerId); } catch (x) { }
+    z.aktuell = { farbe: z.farbe, breite: z.breite, punkte: [pos(e)] };
+    malen();
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!z.aktuell) return;
+    e.preventDefault();
+    const p = pos(e), letzt = z.aktuell.punkte[z.aktuell.punkte.length - 1];
+    if (Math.abs(p.x - letzt.x) + Math.abs(p.y - letzt.y) < 1.5) return;
+    z.aktuell.punkte.push(p); malen();
+  });
+  function fertig() {
+    if (!z.aktuell) return;
+    if (z.aktuell.punkte.length >= 1) z.striche.push(z.aktuell);
+    z.aktuell = null; malen(); sperrenPruefen(); speichern();
+    const jetzt = Date.now();
+    if (z.striche.length <= 1 || jetzt - z.letztesLog > 6000) {
+      z.letztesLog = jetzt;
+      protokolliere("zeichnung", zid, z.striche.length + " Striche gezeichnet");
+    }
+  }
+  cv.addEventListener("pointerup", fertig);
+  cv.addEventListener("pointercancel", fertig);
+  cv.addEventListener("pointerleave", fertig);
+  malen();
+}
+function zeichnungBild(zid) {
+  const z = zeichnungen[zid];
+  if (!z || !z.striche.length) return null;
+  return z.canvas.toDataURL("image/png");
+}
+
+/* ---------- 12 Lösungen sperren ---------- */
+const FELDNAMEN = {
+  "t-vermutung": "Vermutung", "t-metall": "Notiz Metall", "t-halbleiter": "Notiz Halbleiter",
+  "t-glas": "Notiz Glas", "t-glasvideo": "Beobachtung", "t-glaserkl": "Erklärung",
+  "t-faktoren": "Faktoren", "t-ldrsatz": "Zusammenhang LDR", "t-a2": "A2", "t-a3": "A3",
+  "t-a4": "A4", "t-a5": "A5", "t-exit1": "Exit 1", "t-exit2": "Exit 2",
+  "ldr1": "LDR 10 cm", "ldr2": "LDR 20 cm", "ldr3": "LDR 50 cm", "ldr4": "LDR 100 cm", "ldr5": "LDR abgedeckt",
+  "zeichnung:a1a": "Skizze a)", "zeichnung:a1b": "Skizze b)", "zeichnung:a5": "Skizze A5"
+};
+function feldWert(feld) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return z ? z.striche.length + " Striche" : "";
+  }
+  const el = document.getElementById(feld);
+  return el ? (el.value || "").trim() : "";
+}
+function feldReicht(feld, min) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return !!z && z.striche.length >= 3;
+  }
+  const el = document.getElementById(feld);
+  if (!el) return true;
+  const v = (el.value || "").trim();
+  return v.length >= (el.tagName === "TEXTAREA" ? (min || 40) : 1);
+}
+const sperren = [];
+document.querySelectorAll("details.gesperrt").forEach(d => {
+  const sum = d.querySelector("summary");
+  const text = sum.innerHTML;
+  const felder = (d.dataset.fuer || "").split(",").filter(x => x);
+  const min = parseInt(d.dataset.min || "40", 10);
+  let warFrei = false;
+  sum.innerHTML = '<span class="sperrsymbol">🔒</span> ' + text + ' <span class="schloss"></span>';
+  const symbolEl = sum.querySelector(".sperrsymbol");
+  const noteEl = sum.querySelector(".schloss");
+
+  function istFrei() { return felder.every(f => feldReicht(f, min)); }
+
+  function pruefe() {
+    const fehlt = felder.filter(f => !feldReicht(f, min));
+    const frei = fehlt.length === 0;
+    d.classList.toggle("gesperrt", !frei);
+    d.classList.toggle("frei", frei);
+    if (!frei && d.open) d.open = false;
+    let note;
+    if (frei) note = "– jetzt vergleichen";
+    else {
+      const namen = fehlt.map(f => FELDNAMEN[f] || f);
+      note = "– zuerst ausfüllen: " + namen.join(", ");
+      if (fehlt.length === 1 && fehlt[0].indexOf("zeichnung:") !== 0) {
+        const el = document.getElementById(fehlt[0]);
+        if (el && el.tagName === "TEXTAREA")
+          note = "– noch " + Math.max(1, min - (el.value || "").trim().length) + " Zeichen in „" + (FELDNAMEN[fehlt[0]] || fehlt[0]) + "“";
+      }
+    }
+    if (symbolEl.textContent !== (frei ? "🔓" : "🔒")) symbolEl.textContent = frei ? "🔓" : "🔒";
+    if (noteEl.textContent !== note) noteEl.textContent = note;
+    if (frei && !warFrei) { warFrei = true; }
+    return frei;
+  }
+  sperren.push(pruefe);
+
+  function blockieren(e) {
+    // Wichtig: bei erlaubtem Klick darf das Summary nicht neu aufgebaut werden,
+    // sonst verwirft der Browser das Standardverhalten (Auf-/Zuklappen).
+    if (istFrei()) {
+      sperrpause = true;
+      setTimeout(() => { sperrpause = false; sperrenPruefen(); }, 0);
+      if (!d.open) {
+        const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
+        protokolliere("loesung-geoeffnet", d.dataset.fuer || "", "Stand der eigenen Antwort beim Öffnen der Lösung", schnapp);
+      }
+      return;
+    }
+    e.preventDefault();
+    d.open = false;
+    pruefe();
+    d.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" },
+      { transform: "translateX(6px)" }, { transform: "translateX(0)" }], { duration: 220 });
+    protokolliere("loesung-gesperrt", d.dataset.fuer || "", "Lösung angeklickt, aber noch nicht freigeschaltet");
+  }
+  sum.addEventListener("click", blockieren);
+  sum.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") blockieren(e); });
+});
+let sperrpause = false;
+function sperrenPruefen() { if (sperrpause) return; sperren.forEach(f => f()); }
+
+/* ---------- 13 Eingaben erfassen ---------- */
+["#tab-ntc", "#tab-eisen"].forEach(sel => {
+  const temps = sel === "#tab-ntc" ? [20, 30, 40, 50, 60, 70] : [20, 40, 60, 80, 100];
+  document.querySelectorAll(sel + " input").forEach((inp, k) => {
+    inp.id = (sel === "#tab-ntc" ? "ntc" : "eisen") + temps[k];
+    FELDNAMEN[inp.id] = (sel === "#tab-ntc" ? "NTC " : "Eisen ") + temps[k] + " °C";
+  });
+});
+const letzteWerte = {};
+function erfassen(el) {
+  if (!el.id) return;
+  const v = (el.value || "").trim();
+  if (letzteWerte[el.id] === v) return;
+  letzteWerte[el.id] = v;
+  protokolliere("eingabe", el.id, v);
+}
+document.querySelectorAll("textarea, input[type=text], td input, .karte input").forEach(el => {
+  if (el.type === "range") return;
+  el.addEventListener("change", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("blur", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("input", () => { sperrenPruefen(); if (el.tagName === "TEXTAREA") verzoegertErfassen(el); });
+});
+let erfassTimer = null;
+function verzoegertErfassen(el) {
+  clearTimeout(erfassTimer);
+  erfassTimer = setTimeout(() => erfassen(el), 4000);
+}
+
+/* ---------- 14 Speichern / Wiederherstellen ---------- */
+function zustand() {
+  const felderWerte = {};
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => {
+    if (el.id && el.value) felderWerte[el.id] = el.value;
+  });
+  const striche = {};
+  Object.keys(zeichnungen).forEach(zid => { striche[zid] = zeichnungen[zid].striche; });
+  return {
+    version: PROTOKOLL_VERSION, gestartet: stempel(gestartet), gespeichert: stempel(),
+    name: (document.getElementById("i-name") || {}).value || "",
+    klasse: (document.getElementById("i-klasse") || {}).value || "",
+    felder: felderWerte, striche: striche, eintraege: protokollEintraege
+  };
+}
+let speicherTimer = null;
+function speichern() {
+  clearTimeout(speicherTimer);
+  speicherTimer = setTimeout(() => {
+    try { localStorage.setItem(SPEICHER, JSON.stringify(zustand())); } catch (e) { }
+  }, 600);
+}
+function wiederherstellen(z) {
+  Object.keys(z.felder || {}).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
+  });
+  Object.keys(z.striche || {}).forEach(zid => {
+    if (zeichnungen[zid]) { zeichnungen[zid].striche = z.striche[zid] || []; zeichnungen[zid].malen(); }
+  });
+  (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
+  protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
+  sperrenPruefen(); chipMalen();
+}
+(function angebotPruefen() {
+  let z = null;
+  try { const roh = localStorage.getItem(SPEICHER); if (roh) z = JSON.parse(roh); } catch (e) { }
+  if (!z || !z.eintraege || !z.eintraege.length) return;
+  const banner = document.createElement("div");
+  banner.className = "karte warn";
+  banner.innerHTML = '<h4>Angefangenes Protokoll gefunden</h4><p>Auf diesem Gerät liegt ein Protokoll von <b>' +
+    (z.gespeichert || z.gestartet) + '</b> mit ' + z.eintraege.length + ' Einträgen' +
+    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>';
+  const w = document.createElement("button"); w.className = "knopf voll"; w.textContent = "Daran weiterarbeiten";
+  const n = document.createElement("button"); n.className = "knopf"; n.textContent = "Neu beginnen (löscht das alte)";
+  const p = document.createElement("p"); p.appendChild(w); p.appendChild(document.createTextNode(" ")); p.appendChild(n);
+  banner.appendChild(p);
+  w.addEventListener("click", () => { wiederherstellen(z); banner.remove(); });
+  n.addEventListener("click", () => {
+    try { localStorage.removeItem(SPEICHER); } catch (e) { }
+    protokolliere("neu", "", "Neues Protokoll begonnen, altes verworfen");
+    banner.remove();
+  });
+  const ziel = document.querySelector("section.phase");
+  ziel.insertBefore(banner, ziel.children[2]);
+})();
+
+/* ---------- 15 Ausgabe: Text, Protokolldatei, Versand ---------- */
+const felder = [
+  ["t-vermutung", "Vermutung zum Einstieg"],
+  ["mc-einstieg", "Prognose Metall/Halbleiter"],
+  ["t-metall", "Simulation – Metall"],
+  ["t-halbleiter", "Simulation – Halbleiter"],
+  ["t-glas", "Simulation – Glas"],
+  ["t-glasvideo", "Beobachtung Glasstab-Versuch"],
+  ["t-glaserkl", "Erklärung Glasstab"],
+  ["messreihe", "Messreihen NTC / Eisendraht (Prüfung)"],
+  ["t-faktoren", "Faktoren der Widerstandsänderung"],
+  ["mc-satz", "Merksatz-Auswahl"],
+  ["t-ldrsatz", "Zusammenhang LDR"],
+  ["mc-erkl", "Selbstcheck Erklärung"],
+  ["t-a2", "A2 – Einschaltstrom der Glühlampe"],
+  ["t-a3", "A3 – Widerstandsabnahme im Halbleiter"],
+  ["t-a4", "A4 – Spannungen an LDR und Widerstand"],
+  ["t-a5", "A5 – Experiment zur Temperaturbestimmung"],
+  ["quiz", "Quiz"],
+  ["t-exit1", "Exit-Ticket 1 – Halbleiter"],
+  ["t-exit2", "Exit-Ticket 2 – Metall"],
+  ["t-unklar", "Offene Frage"]
+];
+function messwerteText(sel, temps, einheit) {
+  const w = [];
+  document.querySelectorAll(sel + " input").forEach((inp, k) => {
+    if ((inp.value || "").trim()) w.push(temps[k] + " °C: " + inp.value.trim() + " " + einheit);
+  });
+  return w.join(" · ");
+}
+function ldrListe() {
+  const ids = ["ldr1", "ldr2", "ldr3", "ldr4", "ldr5"];
+  const w = ids.map(id => (document.getElementById(id).value || "").trim());
+  if (!w.some(x => x)) return "";
+  return w.map(x => x || "–").join(" / ");
+}
+function eintraegeInhalt() {
+  const liste = [];
+  const ldrW = ldrListe();
+  felder.forEach(([id, titel]) => {
+    let wert = antwortenRoh[id];
+    const el = document.getElementById(id);
+    if (el && el.value !== undefined) wert = el.value.trim();
+    if (id === "t-ldrsatz" && ldrW) wert = (wert || "") + "\nLDR-Messwerte 10/20/50/100 cm/abgedeckt: " + ldrW;
+    if (!wert || !String(wert).trim()) return;
+    liste.push([titel, String(wert).trim()]);
+  });
+  const ntc = messwerteText("#tab-ntc", [20, 30, 40, 50, 60, 70], "kΩ");
+  const eisen = messwerteText("#tab-eisen", [20, 40, 60, 80, 100], "Ω");
+  if (ntc) liste.splice(7, 0, ["Messreihe NTC", ntc]);
+  if (eisen) liste.splice(ntc ? 8 : 7, 0, ["Messreihe Eisendraht", eisen]);
+  return liste;
+}
+function namen() { return ((document.getElementById("i-name") || {}).value || "").trim(); }
+function klasse() { return ((document.getElementById("i-klasse") || {}).value || "").trim(); }
+function betreff() { return "Physik Halbleiter – " + (namen() || "ohne Namen") + (klasse() ? " (" + klasse() + ")" : ""); }
+function dateiname() {
+  const roh = "Protokoll_Halbleiter_" + (namen() || "ohneNamen") + (klasse() ? "_" + klasse() : "");
+  return roh.replace(/[^A-Za-z0-9_äöüÄÖÜß-]+/g, "_").slice(0, 80);
+}
+function textFassung() {
+  let t = "Ergebnisse Physik 8.1 Halbleiter (Elektrische Leitung und Energie)\n";
+  t += "Namen: " + (namen() || "ohne Namen") + "\nKlasse: " + (klasse() || "–") + "\n";
+  t += "Bearbeitet: " + stempel(gestartet) + " bis " + stempel() + "\n";
+  t += "----------------------------------------\n";
+  eintraegeInhalt().forEach(([titel, wert]) => { t += "\n" + titel + ":\n" + wert + "\n"; });
+  const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].striche.length);
+  t += "\nZeichnungen: " + (gez.length ? gez.join(", ") + " (nur in der Protokolldatei enthalten, nicht in dieser Textmail)" : "keine");
+  t += "\nProtokolleinträge: " + protokollEintraege.length + "\n";
+  t += "----------------------------------------\n";
+  return t;
+}
+function sicher(x) {
+  return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function protokollHtml() {
+  const z = zustand();
+  const bilder = Object.keys(zeichnungen).map(zid => {
+    const d = zeichnungBild(zid);
+    return d ? '<figure><figcaption>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ' – ' + zeichnungen[zid].striche.length + ' Striche</figcaption><img src="' + d + '" alt="Zeichnung ' + sicher(zid) + '"></figure>' : "";
+  }).join("");
+  const antwortenHtml = eintraegeInhalt().map(([t, w]) =>
+    "<h3>" + sicher(t) + "</h3><p>" + sicher(w).replace(/\n/g, "<br>") + "</p>").join("");
+  const logHtml = protokollEintraege.map(e =>
+    "<tr><td>" + e.nr + "</td><td>" + sicher(e.zeit) + "</td><td>" + sicher(e.art) + "</td><td>" +
+    sicher(e.feld) + "</td><td>" + sicher(e.wert) + (e.zusatz ? "<br><i>" + sicher(e.zusatz) + "</i>" : "") + "</td></tr>").join("");
+  return '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">' +
+    '<title>' + sicher(betreff()) + '</title><style>' +
+    'body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a2229;line-height:1.5}' +
+    'h1{font-size:1.3rem;color:#0b5aa0}h2{font-size:1.05rem;color:#0b5aa0;border-bottom:1px solid #cfd8de;padding-bottom:.2rem;margin-top:2rem}' +
+    'h3{font-size:.95rem;margin:1rem 0 .2rem}p{margin:.2rem 0 .6rem}' +
+    'table{border-collapse:collapse;width:100%;font-size:.8rem}td,th{border:1px solid #cfd8de;padding:.25rem .4rem;text-align:left;vertical-align:top}' +
+    'th{background:#e8f1f9}figure{margin:1rem 0}figcaption{font-size:.85rem;color:#4a5560;margin-bottom:.2rem}' +
+    'img{max-width:100%;border:1px solid #cfd8de;border-radius:6px}' +
+    '.kopf{background:#e8f1f9;border:1px solid #8fbde0;border-radius:8px;padding:.6rem .9rem}</style></head><body>' +
+    '<h1>Physik 8.1 – Halbleiter: Protokoll der Doppelstunde</h1>' +
+    '<div class="kopf"><b>Namen:</b> ' + sicher(namen() || "ohne Namen") +
+    ' &nbsp;·&nbsp; <b>Klasse:</b> ' + sicher(klasse() || "–") +
+    '<br><b>Bearbeitet:</b> ' + sicher(stempel(gestartet)) + " bis " + sicher(stempel()) +
+    ' &nbsp;·&nbsp; <b>Protokolleinträge:</b> ' + protokollEintraege.length + '</div>' +
+    '<h2>Antworten</h2>' + (antwortenHtml || "<p>keine Eingaben</p>") +
+    '<h2>Zeichnungen</h2>' + (bilder || "<p>keine Zeichnungen</p>") +
+    '<h2>Verlaufsprotokoll</h2>' +
+    '<p style="font-size:.85rem;color:#4a5560">Jeder Eintrag wurde beim Entstehen angehängt und danach nicht mehr verändert. ' +
+    'Einträge der Art <i>loesung-geoeffnet</i> halten fest, was zum Zeitpunkt des Öffnens einer Musterlösung im eigenen Feld stand.</p>' +
+    '<table><tr><th>Nr.</th><th>Zeit</th><th>Art</th><th>Feld</th><th>Inhalt</th></tr>' + logHtml + '</table>' +
+    '<h2>Rohdaten</h2><p style="font-size:.85rem;color:#4a5560">Maschinenlesbare Fassung dieses Protokolls (JSON, ohne Bilder):</p>' +
+    '<script type="application/json" id="rohdaten">' + JSON.stringify(z).replace(/</g, "\\u003c") + '<\/script>' +
+    '<p style="font-size:.8rem;color:#607080">Erzeugt vom Selbstlern-Material zur Doppelseite 136/137.</p></body></html>';
+}
+function herunterladen(name, inhalt, typ) {
+  const b = new Blob([inhalt], { type: typ });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+}
+function nameFehlt() {
+  if (namen()) return false;
+  hinweis("<b style='color:#c62828'>Bitte zuerst die Namen eintragen</b> – sonst weiß Herr Glaubitz nicht, von wem das Protokoll kommt.");
+  const el = document.getElementById("i-name"); el.focus(); el.scrollIntoView({ block: "center" });
+  return true;
+}
+function hinweis(html) { document.getElementById("mail-hinweis").innerHTML = html; }
+
+document.getElementById("k-protokoll").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "protokoll", "Protokolldatei erzeugt: " + dateiname() + ".html");
+  hinweis("<b>Protokoll gespeichert</b> als <b>" + dateiname() + ".html</b> (auf dem iPad in der Dateien-App unter „Downloads“). Jetzt Schritt 2: Senden / Teilen.");
+});
+document.getElementById("k-json").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const roh = zustand();
+  roh.zeichnungen = {};
+  Object.keys(zeichnungen).forEach(zid => { const d = zeichnungBild(zid); if (d) roh.zeichnungen[zid] = d; });
+  herunterladen(dateiname() + ".json", JSON.stringify(roh, null, 2), "application/json");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "json", "Rohdaten erzeugt: " + dateiname() + ".json");
+});
+document.getElementById("k-teilen").addEventListener("click", async () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const datei = new File([protokollHtml()], dateiname() + ".html", { type: "text/html" });
+  const daten = { title: betreff(), text: "Protokoll der Physikstunde (Halbleiter) – bitte an " + LEHRER_MAIL + " senden.\n\n" + textFassung(), files: [datei] };
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+      await navigator.share(daten);
+      exportiert = true; chipMalen();
+      protokolliere("abgabe", "teilen", "Teilen-Dialog geöffnet, Datei angehängt");
+      hinweis("Wählt im Teilen-Dialog <b>Mail</b>, tragt <b>" + LEHRER_MAIL + "</b> als Empfänger ein und sendet. Der Anhang ist euer Protokoll.");
+      return;
+    }
+  } catch (e) {
+    protokolliere("abgabe", "teilen", "Teilen abgebrochen oder nicht möglich");
+    hinweis("Teilen wurde abgebrochen. Zweiter Weg: „Protokoll speichern“, dann selbst eine Mail an <b>" + LEHRER_MAIL + "</b> schreiben und die Datei anhängen.");
+    return;
+  }
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "teilen-ersatz", "Teilen nicht verfügbar, Datei heruntergeladen");
+  hinweis("Dieses Gerät kann nicht direkt teilen. Das Protokoll wurde <b>gespeichert</b>: schreibt eine Mail an <b>" +
+    LEHRER_MAIL + "</b> und hängt die Datei <b>" + dateiname() + ".html</b> an.");
+});
+document.getElementById("k-adresse").addEventListener("click", () => {
+  kopieren(LEHRER_MAIL);
+  hinweis("Adresse <b>" + LEHRER_MAIL + "</b> kopiert – im Mailprogramm ins Feld „An“ einfügen.");
+});
+document.getElementById("k-mail").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const koerper = textFassung();
+  const url = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(koerper);
+  protokolliere("abgabe", "mailto", "Textmail geöffnet (ohne Zeichnungen)");
+  if (url.length > 1900) {
+    kopieren(koerper);
+    hinweis("Der Text ist lang und wurde <b>kopiert</b>. Mailprogramm öffnet sich – Text mit Einfügen ergänzen. <b>Achtung:</b> Zeichnungen sind in dieser Textmail nicht enthalten, dafür Schritt 1 und 2 benutzen.");
+    window.location.href = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff());
+    return;
+  }
+  window.location.href = url;
+  hinweis("<b>Achtung:</b> Diese Textmail enthält <b>keine Zeichnungen</b>. Wenn ihr bei A1 gezeichnet habt, benutzt zusätzlich Schritt 1 und 2.");
+});
+document.getElementById("k-kopieren").addEventListener("click", () => {
+  erfassenAlle(); kopieren(textFassung());
+  hinweis("<b>Text kopiert.</b> In eine Mail an <b>" + LEHRER_MAIL + "</b> einfügen. Zeichnungen fehlen darin – dafür Schritt 1 und 2.");
+});
+function erfassenAlle() {
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => { if (el.id) erfassen(el); });
+}
+function kopieren(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => notfallKopie(text));
+  } else notfallKopie(text);
+}
+function notfallKopie(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); } catch (e) { }
+  document.body.removeChild(ta);
+}
+
+document.getElementById("k-zusammenfassung").addEventListener("click", () => {
+  erfassenAlle();
+  let html = '<div class="karte blau"><h4>Meine Ergebnisse</h4>' +
+    '<p><b>Namen:</b> ' + (sicher(namen()) || "______________________") +
+    ' &nbsp;<b>Klasse:</b> ' + (sicher(klasse()) || "________") +
+    ' &nbsp;<b>Protokolleinträge:</b> ' + protokollEintraege.length + '</p>';
+  eintraegeInhalt().forEach(([t, w]) => {
+    html += '<p style="margin:.7rem 0 0"><b>' + sicher(t) + ":</b><br>" + sicher(w).replace(/\n/g, "<br>") + "</p>";
+  });
+  Object.keys(zeichnungen).forEach(zid => {
+    const d = zeichnungBild(zid);
+    if (d) html += '<p style="margin:.7rem 0 0"><b>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ':</b><br><img src="' + d + '" style="max-width:100%;border:1px solid #d3dae0;border-radius:6px"></p>';
+  });
+  html += "</div>";
+  const box = document.getElementById("ausgabe");
+  box.innerHTML = html;
+  box.scrollIntoView({ behavior: "smooth" });
+});
+document.getElementById("k-drucken").addEventListener("click", () => window.print());
+
+window.addEventListener("beforeunload", e => {
+  if (protokollEintraege.length > 4 && !exportiert) { e.preventDefault(); e.returnValue = ""; return ""; }
+});
+protokolliere("start", "", "Doppelstunde geöffnet");
+sperrenPruefen();
+
+
+/* ---------- Start ---------- */
+zeige(0);
+
+/* ============================================================
+   Nachgeruestet (Werkzeuge/nachruesten.py)
+   Diese Stunde bringt Phasensteuerung, Protokoll und ihre Simulationen
+   selbst mit. Ergaenzt wird hier nur, was ihre Vorlagengeneration noch
+   nicht kannte.
+   ============================================================ */
+(function nachgeruestet(){
+  "use strict";
+
+  /* ---------- Laborbuehne ----------
+     Sucht in jeder Phase einen Graphen, unter dem ein Regler sitzt, und wickelt
+     ihn in eine haftende Buehne. Danach werden Kopf- und Buehnenhoehe gemessen
+     und als CSS-Variablen hinterlegt; das Stylesheet rechnet damit.
+
+     Gemessen statt geraten, weil beides nicht fest ist: Die Pillenzeile im Kopf
+     bricht je nach Fensterbreite um, und beim Umschalten auf einfache Sprache
+     aendern sich Beschriftungen und damit Hoehen. */
+  (function laborbuehne() {
+    const BUEHNENANTEIL = 0.44;   /* hoechstens 44 % der Fensterhoehe fuer den Graphen */
+
+    /* --- 1 · Graphen einwickeln, die ein Bedienelement unter sich haben --- */
+    const buehnen = [];
+    document.querySelectorAll("section.phase").forEach(function (sec) {
+      /* Zeichenfelder der Schueler sind ausgenommen: Sie sind selbst das
+         Arbeitsgeraet und gehoeren nicht an den oberen Rand. */
+      const cv = Array.prototype.find.call(
+        sec.querySelectorAll("canvas"),
+        c => c.id && !c.closest(".zeichenfeld"));
+      if (!cv) return;
+      const regler = sec.querySelector('input[type="range"]');
+      if (!regler) return;
+      /* Nur wenn der Graph VOR dem Regler steht - sonst sieht man ihn ohnehin. */
+      const danach = cv.compareDocumentPosition(regler) & Node.DOCUMENT_POSITION_FOLLOWING;
+      if (!danach) return;
+      let b = cv.parentElement;
+      if (!b || !b.classList.contains("laborbuehne")) {
+        b = document.createElement("div");
+        b.className = "laborbuehne";
+        cv.parentNode.insertBefore(b, cv);
+        b.appendChild(cv);
+      }
+      buehnen.push(b);
+    });
+    if (!buehnen.length) return;
+
+    /* --- 2 · Hoehen messen und die Zeichenflaeche noetigenfalls begrenzen --- */
+    const kopf = document.querySelector("header");
+    /* Schutz gegen eine Schleife: messen() setzt die Breite der Zeichenflaeche,
+       was den ResizeObserver erneut ausloest. Ein Durchlauf je Bild genuegt. */
+    let laeuft = false;
+    function messen() {
+      if (laeuft) return;
+      laeuft = true;
+      requestAnimationFrame(function () { laeuft = false; });
+      const wurzel = document.documentElement.style;
+      if (kopf) {
+        wurzel.setProperty("--kopfhoehe",
+          Math.round(kopf.getBoundingClientRect().height) + "px");
+      }
+      const grenze = window.innerHeight * BUEHNENANTEIL;
+      buehnen.forEach(function (b) {
+        const cv = b.querySelector("canvas");
+        if (!cv || !cv.width || !cv.height) return;
+        /* Erst die eigene Begrenzung loesen, dann neu urteilen: Sonst bliebe
+           eine einmal gesetzte Breite auch nach dem Vergroessern des Fensters
+           stehen. Stundeneigene Regeln (etwa das 30vh-Netz der 10c) werden
+           dabei nicht angefasst - sie stehen im Stylesheet, nicht hier. */
+        cv.style.maxWidth = "";
+        const hoehe = cv.getBoundingClientRect().height;
+        if (hoehe > grenze) {
+          const verhaeltnis = cv.width / cv.height;
+          cv.style.maxWidth = Math.round(grenze * verhaeltnis) + "px";
+        }
+        b.style.removeProperty("--buehnenhoehe");
+      });
+      const hoechste = buehnen.reduce(
+        (h, b) => Math.max(h, b.getBoundingClientRect().height), 0);
+      document.documentElement.style.setProperty(
+        "--buehnenhoehe", Math.round(hoechste) + "px");
+    }
+    messen();
+    window.addEventListener("resize", messen);
+    window.addEventListener("orientationchange", messen);
+    if (window.ResizeObserver) {
+      if (kopf) new ResizeObserver(messen).observe(kopf);
+      /* Jede Buehne beobachtet sich selbst. Das ist nicht Beiwerk, sondern
+         notwendig: Beim Laden ist die Laborphase noch ausgeblendet, die
+         Zeichenflaeche misst sich also als 0 Pixel hoch - und eine Begrenzung
+         auf 44 % der Fensterhoehe greift nie. Erst wenn die Phase sichtbar
+         wird, gibt es etwas zu messen. */
+      const beobachter = new ResizeObserver(messen);
+      buehnen.forEach(function (b) { beobachter.observe(b); });
+    }
+    /* Der Sprachschalter aendert Texthoehen im Kopf und in den Phasen. */
+    const sprache = document.getElementById("spracheKnopf");
+    if (sprache) sprache.addEventListener("click", () => setTimeout(messen, 30));
+  })();
+  var log = (typeof protokolliere === "function") ? protokolliere : function(){};
+
+  /* ---- Einfache Sprache -------------------------------------------- */
+  var sk = document.getElementById("spracheKnopf");
+  if (sk) sk.addEventListener("click", function(){
+    var an = document.body.classList.toggle("einfach");
+    sk.setAttribute("aria-pressed", an ? "true" : "false");
+    sk.classList.toggle("aktiv", an);
+    log("sprache", "", an ? "einfache Sprache an" : "einfache Sprache aus");
+  });
+
+  /* ---- Plan A / Plan B --------------------------------------------- */
+  var CODE_A = "41", CODE_B = "58";
+  /* Zwei Zahlen an der Tafel: eine je Weg. Fehlt die zweite, faellt nur
+     die Wahl bei der Anmeldung weg - der Wechsel bleibt trotzdem offen. */
+  var ZWEITE_ZAHL = /^\d{2}$/.test(CODE_B) && CODE_B !== CODE_A;
+  /* Angeboten wird der Wechsel, sobald die Stunde beide Wege wirklich
+     enthaelt. Das entscheidet der Inhalt, nicht die Tafelzahl. */
+  var HAT_PLAN_B = !!(document.querySelector('[data-plan="A"]') &&
+                      document.querySelector('[data-plan="B"]'));
+  var PLAN_KEY = "plan-" + (document.title || "stunde");
+  function pille(){
+    var p = document.getElementById("planPille");
+    if (p || !HAT_PLAN_B) return p;
+    var neben = document.getElementById("lehrerKnopf");
+    if (!neben || !neben.parentNode) return null;
+    p = document.createElement("button");
+    p.className = "planpille"; p.id = "planPille"; p.type = "button";
+    p.addEventListener("click", planWechseln);
+    neben.parentNode.insertBefore(p, neben.nextSibling);
+    return p;
+  }
+  function setzePlan(p, merken){
+    if (!HAT_PLAN_B) return;
+    document.body.setAttribute("data-plan", p);
+    if (merken !== false) { try { localStorage.setItem(PLAN_KEY, p); } catch(e){} }
+    var el = pille();
+    if (!el) return;
+    /* Die Pille zeigt, wo man ist, UND sagt, wohin ein Klick fuehrt -
+       sonst raet man, ob sie Zustand oder Schalter ist. */
+    el.textContent = (p === "A" ? "Plan A \u00b7 echter Versuch" : "Plan B \u00b7 am Bildschirm");
+    el.title = (p === "A" ? "Zum Bildschirmweg wechseln" : "Auf den echten Versuch wechseln");
+  }
+
+  /* Der Materialschirm: vor jedem Wechsel nach A steht die Liste. */
+  var mSchirm = document.getElementById("materialschirm");
+  function materialZeigen(weiter){
+    var quelle = document.getElementById("plan-a-material");
+    var ziel = document.getElementById("material-inhalt");
+    if (!mSchirm || !ziel) { weiter(); return; }
+    ziel.innerHTML = quelle ? quelle.innerHTML
+      : "<p><b>Zu dieser Stunde ist keine Materialliste hinterlegt.</b> " +
+        "Schaut im Lehrerblatt nach, was der Versuch braucht.</p>";
+    mSchirm.hidden = false;
+    var ja = document.getElementById("k-material-ja");
+    var nein = document.getElementById("k-material-nein");
+    function schliessen(){ mSchirm.hidden = true; }
+    ja.onclick = function(){ schliessen(); weiter(); };
+    nein.onclick = schliessen;
+    mSchirm.onclick = function(e){ if (e.target === mSchirm) schliessen(); };
+    document.addEventListener("keydown", function esc(e){
+      if (e.key === "Escape") { schliessen(); document.removeEventListener("keydown", esc); }
+    });
+    ja.focus();
+    log("planwechsel", "", "Materialliste angesehen");
+  }
+
+  function planWechseln(){
+    /* Jederzeit erlaubt: Wer aufbauen will, soll aufbauen duerfen.
+       Der Weg nach A fuehrt aber immer erst ueber die Materialliste. */
+    var jetzt = document.body.getAttribute("data-plan");
+    if (jetzt === "A") {
+      setzePlan("B", true);
+      log("planwechsel", "", "zurueck auf den Bildschirmweg");
+      return;
+    }
+    materialZeigen(function(){
+      setzePlan("A", true);
+      log("planwechsel", "", "auf den echten Versuch gewechselt");
+    });
+  }
+
+  /* ---- Anmeldung ---------------------------------------------------- */
+  var ANGEMELDET = "angemeldet-" + (document.title || "stunde");
+  var schirm = document.getElementById("anmeldeschirm");
+  if (schirm) {
+    var feld = document.getElementById("i-code");
+    var rueck = document.getElementById("anmelde-rueck");
+    var schon = false;
+    try { schon = localStorage.getItem(ANGEMELDET) === "ja"; } catch(e){}
+    if (schon) {
+      var p = "A";
+      try { p = localStorage.getItem(PLAN_KEY) || "A"; } catch(e){}
+      setzePlan(p, false);
+      oeffnen(true);
+    }
+    function oeffnen(still){
+      document.body.classList.add("angemeldet");
+      if (schirm.parentNode) schirm.parentNode.removeChild(schirm);
+      try { localStorage.setItem(ANGEMELDET, "ja"); } catch(e){}
+      if (!still) log("anmeldung", "", "Zur Stunde angemeldet" +
+        (HAT_PLAN_B ? " \u2013 Plan " + (document.body.getAttribute("data-plan") || "A") : ""));
+    }
+    function pruefen(){
+      var ein = (feld.value || "").trim();
+      if (!/^\d{2}$/.test(ein)) {
+        rueck.className = "anmelde-rueck schlecht";
+        rueck.textContent = "Bitte genau zwei Ziffern eintragen \u2013 die Zahl steht an der Tafel.";
+        return;
+      }
+      if (ein === CODE_A || (ZWEITE_ZAHL && ein === CODE_B)) {
+        setzePlan((ZWEITE_ZAHL && ein === CODE_B) ? "B" : "A", true);
+        rueck.className = "anmelde-rueck gut";
+        rueck.textContent = "Stimmt \u2013 los geht\u2019s.";
+        setTimeout(function(){ oeffnen(false); }, 300);
+        return;
+      }
+      log("anmeldung-falsch", "", ein + " \u2013 falsch");
+      rueck.className = "anmelde-rueck schlecht";
+      rueck.textContent = "Das ist nicht die Zahl von der Tafel. Schau noch einmal hin.";
+      feld.value = "";
+    }
+    document.getElementById("k-anmelden").addEventListener("click", pruefen);
+    feld.addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); pruefen(); } });
+    feld.addEventListener("input", function(){ feld.value = feld.value.replace(/\D/g, "").slice(0, 2); });
+    document.getElementById("k-ohne-zahl").addEventListener("click", function(){
+      /* Kein Riegel: Wer das Material Wochen spaeter noch einmal durchgeht,
+         hat die Zahl laengst vergessen. Ohne Material ist Plan B der richtige Weg. */
+      setzePlan("B", true);
+      log("anmeldung-ohne", "", "Ohne Tafelzahl begonnen" + (HAT_PLAN_B ? " \u2013 Plan B" : ""));
+      oeffnen(true);
+    });
+  }
+
+  /* ---- Einstiegsquiz ------------------------------------------------ */
+  var vorfragen = [
+  { f: "Was gibt der Widerstand eines Bauteils an?",
+    o: ["wie viel Strom hindurchpasst", "wie stark es den Strom hemmt",
+        "wie viel Spannung es erzeugt", "wie warm es wird"], r: 1,
+    e: "Der Widerstand sagt, wie stark ein Bauteil den Strom <b>hemmt</b>. Gro&#223;er Widerstand hei&#223;t: wenig Strom bei gleicher Spannung.",
+    ek: "Der Widerstand bremst den Strom. Viel Widerstand hei&#223;t wenig Strom." },
+  { f: "An einem Widerstand von 2 k&#8486; liegen 6 V. Wie gro&#223; ist die Stromst&#228;rke?",
+    o: ["3 mA", "12 mA", "0,3 mA", "3 A"], r: 0,
+    e: "6 V : 2 k&#8486; = 3 mA. <b>Volt durch Kiloohm ergibt Milliampere</b> &#8211; diese Einheitenwahl benutzt die ganze Stunde.",
+    ek: "6 geteilt durch 2 ist 3. Volt durch Kiloohm ergibt Milliampere." },
+  { f: "Welches Material leitet den Strom am besten?",
+    o: ["Glas", "Kupfer", "Gummi", "trockenes Holz"], r: 1,
+    e: "Metalle leiten gut, weil sie frei bewegliche Elektronen haben. Glas, Gummi und Holz sind Isolatoren.",
+    ek: "Metall leitet gut. Glas, Gummi und Holz leiten nicht." },
+  { f: "Ein Draht wird w&#228;rmer. Was passiert mit seinem Widerstand?",
+    o: ["Er wird größer", "Er wird kleiner", "Er bleibt gleich", "Er wird null"], r: 0,
+    e: "Bei Metallen steigt der Widerstand mit der Temperatur &#8211; die Atomr&#252;mpfe schwingen st&#228;rker und st&#246;ren die Elektronen. Genau davon weicht der Halbleiter heute ab.",
+    ek: "Bei Metall wird der Widerstand gr&#246;&#223;er, wenn es w&#228;rmer wird." },
+  { f: "Wie liest man aus einer Kennlinie den Widerstand an einer Stelle ab?",
+    o: ["Spannung mal Stromstärke", "Spannung durch Stromstärke",
+        "Stromstärke durch Spannung", "Man kann ihn nicht ablesen"], r: 1,
+    e: "R = U : I &#8211; an jeder einzelnen Stelle der Kennlinie. Bei einer Geraden durch den Ursprung ist dieser Wert &#252;berall gleich; bei einem Halbleiter nicht.",
+    ek: "Widerstand ist Spannung geteilt durch Stromst&#228;rke." }
+];
+  var box = document.getElementById("quiz-start");
+  if (box && vorfragen.length) vorfragen.forEach(function(q, i){
+    var d = document.createElement("div"); d.className = "quizfrage";
+    d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+    var mcb = document.createElement("div"); mcb.className = "mc";
+    var rb = document.createElement("div"); rb.className = "rueck";
+    var fertig = false;
+    q.o.forEach(function(text, k){
+      var b = document.createElement("button");
+      b.textContent = text;
+      b.addEventListener("click", function(){
+        if (fertig) return;
+        fertig = true;
+        Array.prototype.forEach.call(mcb.children, function(x, j){
+          if (j === q.r) x.classList.add("richtig");
+        });
+        if (k !== q.r) b.classList.add("falsch");
+        rb.className = "rueck zeig " + (k === q.r ? "gut" : "schlecht");
+        rb.innerHTML = (k === q.r ? "<b>Richtig.</b> " : "<b>Noch nicht.</b> ") +
+          '<span class="sprache-standard">' + q.e + '</span>' +
+          '<span class="sprache-einfach">' + (q.ek || q.e) + '</span>';
+        log("vorwissen", "vor-" + (i + 1), (k === q.r ? "richtig" : "FALSCH") + ": " + text,
+            k === q.r ? "" : "richtig gewesen w\u00e4re: " + q.o[q.r]);
+      });
+      mcb.appendChild(b);
+    });
+    d.appendChild(mcb); d.appendChild(rb); box.appendChild(d);
+  });
+})();
+
+  /* ============================================================
+     Protokollvertrag Fassung 4 - nachgeruestet
+     Diese Stunde stand bei Fassung 3. Ergaenzt werden die vier Waechter
+     und der ehrliche Ausweg; ihre eigene Sperrenlogik bleibt bestehen.
+     ============================================================ */
+  (function vertrag4(){
+    /* --- 1 - Wiederholung zaehlt nicht ---------------------------------
+       Zerlegt in Saetze, normalisiert, dedupliziert. Damit ist eine
+       Mindestlaenge nicht mehr durch dreimaliges Einfuegen desselben
+       Satzes zu erfuellen. Die einzige echte Sperre der vier - und sie ist
+       vertretbar, weil niemand einen Satz fuenfmal schreiben muss. */
+    window.eigenLaenge = function (text) {
+      if (!text) return 0;
+      var gesehen = {}, summe = 0;
+      String(text).split(/[.!?;\n]+/).forEach(function (satz) {
+        var k = satz.toLowerCase().replace(/\s+/g, " ").trim();
+        if (!k || gesehen[k]) return;
+        gesehen[k] = true;
+        summe += k.length;
+      });
+      return summe;
+    };
+
+    /* --- 2 - Abgleich gegen geoeffnete Loesungen ------------------------
+       Dice-Koeffizient ueber Zeichen-Trigramme. Gemessene Trennschaerfe:
+       woertlich kopiert 100 %, leicht umformuliert 85 %, eigene Antwort
+       20 % - die Schwelle bei 60 % trennt sauber. */
+    function trigramme(s) {
+      s = " " + String(s).toLowerCase().replace(/\s+/g, " ").trim() + " ";
+      var raus = [];
+      for (var i = 0; i < s.length - 2; i++) raus.push(s.slice(i, i + 3));
+      return raus;
+    }
+    window.aehnlichkeit = function (a, b) {
+      var A = trigramme(a), B = trigramme(b);
+      if (!A.length || !B.length) return 0;
+      var zaehler = {}, treffer = 0;
+      A.forEach(function (t) { zaehler[t] = (zaehler[t] || 0) + 1; });
+      B.forEach(function (t) { if (zaehler[t] > 0) { zaehler[t]--; treffer++; } });
+      return 2 * treffer / (A.length + B.length);
+    };
+
+    var geoeffneteLoesungen = [];
+    window.geoeffneteLoesungen = geoeffneteLoesungen;
+
+    /* --- 3 - Der ehrliche Ausweg ---------------------------------------
+       Felder, deren Sperre per Hilfeknopf geoeffnet wurde. feldReicht()
+       wertet sie als frei - sonst klappt die stundeneigene pruefe() die
+       Loesung beim naechsten Tastendruck wieder zu. */
+    var hilfeFelder = {};
+
+    /* --- 4 - feldReicht umhuellen ---------------------------------------
+       Zwei Aenderungen, jede aus einem konkreten Befund:
+
+       (a) TEXTFELDER werden strenger geprueft: Die Mindestlaenge zaehlt ohne
+           Wiederholungen, ist also nicht durch mehrfaches Einfuegen desselben
+           Satzes zu erfuellen.
+
+       (b) MESSWERTFELDER werden ueberhaupt erst erfuellbar. Die LDR-Sperre in
+           halbleiter-10c verlangt data-min="40" - und zwar von JEDEM ihrer
+           Felder, auch von ldr1 bis ldr5. Dort steht aber ein Messwert wie
+           "1,2 kOhm", also sechs Zeichen. Diese Kontrolle konnte sich nie
+           oeffnen: Die Klasse haette gemessen, eingetragen und waere trotzdem
+           vor einer verschlossenen Loesung gestanden. Ein einzeiliges
+           Eingabefeld ist kein Aufsatz - ausgefuellt genuegt. */
+    if (typeof feldReicht === "function") {
+      var alt = feldReicht;
+      feldReicht = function (f, min) {
+        var name = String(f);
+        if (hilfeFelder[name]) return true;
+        if (name.indexOf("zeichnung:") === 0) return alt(f, min);
+        var el = document.getElementById(name);
+        if (el && el.tagName === "INPUT" && typeof el.value === "string") {
+          return el.value.trim().length > 0;
+        }
+        if (!alt(f, min)) return false;
+        if (!el || el.tagName !== "TEXTAREA" || typeof el.value !== "string") return true;
+        return window.eigenLaenge(el.value) >= (+min || 0);
+      };
+    }
+
+    function feldstand(d) {
+      return (d.dataset.fuer || "").split(",").map(function (f) {
+        var el = document.getElementById(f.trim());
+        return el && typeof el.value === "string"
+          ? f.trim() + ": " + el.value.length + " Zeichen" : null;
+      }).filter(Boolean).join(" · ");
+    }
+
+    document.querySelectorAll("details[data-fuer]").forEach(function (d) {
+      /* Hilfeknopf anlegen - direkt hinter das summary. */
+      if (!d.querySelector(".hilfeknopf")) {
+        var k = document.createElement("button");
+        k.type = "button";
+        k.className = "hilfeknopf";
+        k.innerHTML = '<span class="sprache-standard">Ich verstehe die Aufgabe nicht'
+          + ' – Lösung zeigen</span>'
+          + '<span class="sprache-einfach">Ich verstehe die Aufgabe nicht.'
+          + ' Zeig mir die Lösung.</span>';
+        k.addEventListener("click", function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          (d.dataset.fuer || "").split(",").forEach(function (f) {
+            hilfeFelder[f.trim()] = true;
+          });
+          d.classList.remove("gesperrt");
+          d.classList.add("frei");
+          d.open = true;
+          if (typeof protokolliere === "function") {
+            protokolliere("hilfe-angefordert", d.dataset.fuer || "",
+              "Lösung ohne eigene Antwort geöffnet", feldstand(d));
+          }
+        });
+        var sum = d.querySelector("summary");
+        if (sum && sum.nextSibling) d.insertBefore(k, sum.nextSibling);
+        else d.appendChild(k);
+      }
+
+      /* Geoeffnete Loesungen sammeln - Grundlage fuer den Abgleich. */
+      d.addEventListener("toggle", function () {
+        if (!d.open) return;
+        var txt = d.textContent.replace(/\s+/g, " ").trim();
+        if (txt && geoeffneteLoesungen.indexOf(txt) < 0) geoeffneteLoesungen.push(txt);
+      });
+    });
+
+    /* --- 5 - Einfuegen festhalten und Antworten abgleichen -------------
+       Nie blockieren: Befund, kein Urteil. */
+    document.querySelectorAll("textarea, input[type=text]").forEach(function (el) {
+      el.addEventListener("paste", function (ev) {
+        var t = (ev.clipboardData || window.clipboardData);
+        var s = t ? t.getData("text") : "";
+        if (s && s.length >= 40 && typeof protokolliere === "function") {
+          protokolliere("eingefuegt", el.id || el.dataset.label || "",
+            s.length + " Zeichen eingefügt", s.slice(0, 300));
+        }
+      });
+      el.addEventListener("blur", function () {
+        if (!el.value || el.value.length < 40) return;
+        var bester = 0;
+        geoeffneteLoesungen.forEach(function (l) {
+          var w = window.aehnlichkeit(el.value, l);
+          if (w > bester) bester = w;
+        });
+        if (bester >= 0.6 && typeof protokolliere === "function") {
+          protokolliere("gleicht-loesung", el.id || "",
+            Math.round(bester * 100) + " % Übereinstimmung mit einer geöffneten Lösung",
+            "Befund, kein Urteil – Diktat und Nachteilsausgleich sehen genauso aus.");
+        }
+      });
+    });
+  })();
+</script>
+
+<div id="plan-a-material" hidden>
+  <div class="sprache-standard">
+    <p>Alles steht in der <b>Sammlung Westwand</b>. Ein Satz reicht f&#252;r
+    <b>ein Paar</b>:</p>
+    <ul>
+      <li>ein <b>ELO-1-Kasten</b>, und daraus:
+        <ul>
+          <li>der <b>NTC 2,2 k&#8486;</b></li>
+          <li>ein <b>Festwiderstand</b> (1 k&#8486; oder 4,7 k&#8486;) zum Vergleich</li>
+        </ul>
+      </li>
+      <li>ein <b>Mobile-CASSY 2</b>, auf <b>Widerstand</b> gestellt</li>
+      <li><b>zwei Messkabel</b></li>
+    </ul>
+    <p>Ein Netzteil braucht ihr nicht: Das Mobile-CASSY misst den Widerstand
+    selbst. Die W&#228;rme kommt aus eurer <b>Hand</b>.</p>
+    <p><b>Nicht in der Sammlung:</b> Eisendraht und Wasserbad. Den Versuch bis
+    100 &#176;C zeigt weiterhin die Simulation &#8211; ihr k&#246;nnt jederzeit
+    zur&#252;ckwechseln.</p>
+  </div>
+  <div class="sprache-einfach">
+    <p>Alles liegt in der <b>Sammlung Westwand</b>. Ein Satz f&#252;r <b>ein Paar</b>:</p>
+    <ul>
+      <li>ein <b>ELO-1-Kasten</b>. Daraus braucht ihr:
+        <ul>
+          <li>den <b>NTC 2,2 k&#8486;</b></li>
+          <li>einen <b>Festwiderstand</b> (1 k&#8486; oder 4,7 k&#8486;)</li>
+        </ul>
+      </li>
+      <li>ein <b>Mobile-CASSY</b>. Stellt es auf <b>Widerstand</b>.</li>
+      <li><b>zwei Kabel</b></li>
+    </ul>
+    <p>Ihr braucht kein Netzteil. Das Mobile-CASSY misst den Widerstand selbst.
+    Die W&#228;rme kommt aus eurer <b>Hand</b>.</p>
+    <p><b>Nicht in der Sammlung:</b> Eisendraht und Wasserbad. Den Versuch bis
+    100 &#176;C zeigt nur die Simulation. Ihr k&#246;nnt jederzeit zur&#252;ckwechseln.</p>
+  </div>
+</div>
+</body>
+</html>
