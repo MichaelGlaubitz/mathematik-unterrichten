@@ -2311,7 +2311,10 @@ function aufbauZeichnung(box) {
     palette.className = "zpalette";
     const pTitel = document.createElement("p");
     pTitel.className = "zhinweis";
+    /* Der Hinweis nennt beide Gesten. Auf dem Touchscreen gibt es keine
+       Tooltips - was hier nicht steht, findet niemand heraus. */
     pTitel.textContent = "Bauteil antippen, dann in die Zeichnung tippen. "
+      + "Leitungen werden gezogen: aufsetzen, fahren, loslassen. "
       + "Zum Verschieben auf „Auswählen“ gehen.";
     palette.appendChild(pTitel);
 
@@ -2723,6 +2726,25 @@ function aufbauZeichnung(box) {
     return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
   }
 
+  /* Wohin zeigt der Finger gerade? Auf einen Anschluss in Reichweite, sonst
+     auf den Gitterpunkt darunter. Beide Enden einer Leitung gehen durch
+     dieselbe Funktion - so rastet der Anfang genauso ein wie das Ende. */
+  function leitungsziel(e) {
+    const q = posPixel(e);
+    const pin = nahesterPin(q.x, q.y);
+    return pin ? { x: wx(pin.x), y: wy(pin.y) } : pos(e);
+  }
+
+  /* Der rechtwinklige Weg von a nach b: erst die laengere Richtung, dann die
+     kuerzere. Das trifft fast immer die Fuehrung, die man von Hand zoege. */
+  function leitungsweg(a, b) {
+    if (Math.abs(b.x - a.x) < 1e-9 || Math.abs(b.y - a.y) < 1e-9) return [a, b];
+    const waagerechtZuerst =
+      Math.abs(gx(b.x) - gx(a.x)) >= Math.abs(gy(b.y) - gy(a.y));
+    const knie = waagerechtZuerst ? { x: b.x, y: a.y } : { x: a.x, y: b.y };
+    return [a, knie, b];
+  }
+
   /* Der naechste Anschluss in Reichweite - daran rasten die Leitungen ein.
      Ohne das waere jede Schaltung ein Millimeterspiel. */
   function nahesterPin(px, py) {
@@ -2815,27 +2837,14 @@ function aufbauZeichnung(box) {
         ? { dx: z.auswahl.p.x - p.x, dy: z.auswahl.p.y - p.y } : null;
       auswahlZeigen(); malen(); return;
     }
+    /* Die Leitung wird GEZOGEN, nicht zweimal getippt: aufsetzen, fahren,
+       loslassen. Das ist auf dem Touchscreen die natuerlichere Geste - und man
+       sieht die ganze Zeit, wohin die Leitung laeuft, statt nach dem ersten
+       Tipp raten zu muessen, ob er angekommen ist. */
     if (z.werkzeug === "leitung") {
-      /* An einem Anschluss in Reichweite rastet der Endpunkt ein. */
-      const q = posPixel(e);
-      const pin = nahesterPin(q.x, q.y);
-      const ziel = pin ? { x: wx(pin.x), y: wy(pin.y) } : p;
-      if (!z.warte) { z.warte = ziel; malen(); return; }
-      const a = z.warte;
-      if (Math.hypot(gx(ziel.x) - gx(a.x), gy(ziel.y) - gy(a.y)) < 6) {
-        z.warte = null; malen(); return;
-      }
-      /* Rechtwinklig: erst die laengere Richtung, dann die kuerzere. Das
-         trifft fast immer die Leitungsfuehrung, die man von Hand zoege. */
-      const waagerechtZuerst =
-        Math.abs(gx(ziel.x) - gx(a.x)) >= Math.abs(gy(ziel.y) - gy(a.y));
-      const knie = waagerechtZuerst ? { x: ziel.x, y: a.y } : { x: a.x, y: ziel.y };
-      const punkte = (Math.abs(ziel.x - a.x) < 1e-9 || Math.abs(ziel.y - a.y) < 1e-9)
-        ? [a, ziel] : [a, knie, ziel];
-      z.vorschau = null;                    /* sonst bliebe die Vorschau liegen */
-      neu({ art: "leitung", farbe: z.farbe, breite: z.breite, punkte: punkte });
-      z.warte = null;
-      protokolliere("zeichnung", zid, "Leitung gezogen");
+      z.warte = leitungsziel(e);
+      z.letztePos = z.warte;
+      z.vorschau = null;
       malen();
       return;
     }
@@ -2888,22 +2897,30 @@ function aufbauZeichnung(box) {
       malen();
       return;
     }
-    /* Vorschau der rechtwinkligen Leitung, waehrend der zweite Punkt gesucht wird. */
+    /* Vorschau, solange gezogen wird. */
     if (z.warte && z.werkzeug === "leitung") {
-      const q = posPixel(e);
-      const pin = nahesterPin(q.x, q.y);
-      const ziel = pin ? { x: wx(pin.x), y: wy(pin.y) } : pos(e);
-      const a = z.warte;
-      const waagerechtZuerst =
-        Math.abs(gx(ziel.x) - gx(a.x)) >= Math.abs(gy(ziel.y) - gy(a.y));
-      const knie = waagerechtZuerst ? { x: ziel.x, y: a.y } : { x: a.x, y: ziel.y };
+      e.preventDefault();
+      z.letztePos = leitungsziel(e);
       z.vorschau = { art: "leitung", farbe: z.farbe, breite: z.breite,
-                     punkte: [a, knie, ziel] };
+                     punkte: leitungsweg(z.warte, z.letztePos) };
       malen();
     }
   });
 
   function fertig() {
+    /* Loslassen legt die Leitung fest. Ein blosser Tipp - aufsetzen und
+       loslassen, ohne zu fahren - erzeugt KEINE Leitung: Sonst saeße nach
+       jedem verrutschten Fingertipp ein Stummel in der Zeichnung. */
+    if (z.werkzeug === "leitung") {
+      const a = z.warte, b = z.letztePos;
+      z.warte = null; z.letztePos = null; z.vorschau = null;
+      if (!a || !b) { malen(); return; }
+      if (Math.hypot(gx(b.x) - gx(a.x), gy(b.y) - gy(a.y)) < 8) { malen(); return; }
+      neu({ art: "leitung", farbe: z.farbe, breite: z.breite, punkte: leitungsweg(a, b) });
+      protokolliere("zeichnung", zid, "Leitung gezogen");
+      malen();
+      return;
+    }
     if (z.werkzeug === "zeiger") {
       if (z.zieht && z.auswahl) {
         protokolliere("zeichnung", zid,
@@ -2918,8 +2935,17 @@ function aufbauZeichnung(box) {
     if (el.punkte.length >= 1) neu(el); else malen();
   }
   cv.addEventListener("pointerup", fertig);
-  cv.addEventListener("pointercancel", fertig);
   cv.addEventListener("pointerleave", fertig);
+  /* Abgebrochen heisst abgebrochen: Wenn das Geraet den Zeiger wegnimmt (ein
+     zweiter Finger, ein Anruf, eine Geste des Systems), soll KEINE Leitung
+     entstehen - sonst faende der Schueler hinterher eine, die er nie gezogen
+     hat. Der angefangene Freihandstrich wird dagegen wie bisher behandelt. */
+  cv.addEventListener("pointercancel", () => {
+    if (z.werkzeug === "leitung") {
+      z.warte = null; z.letztePos = null; z.vorschau = null; malen(); return;
+    }
+    fertig();
+  });
 
   setzeWerkzeug(schaltung ? "leitung" : "frei");
   setzeGrundStill(z.grund);
