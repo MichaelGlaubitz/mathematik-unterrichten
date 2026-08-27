@@ -139,6 +139,20 @@ details.frei>summary{color:var(--gruen)}
   .lehrer{display:block}
 }
 
+/* ---- Werkzeugleiste der Zeichenfelder: Bild und Wort ------------------- */
+.zwerkzeug{display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
+.zwerkzeug .knopf{display:inline-flex; align-items:center; gap:.3rem;
+  min-height:44px; padding:.3rem .62rem; font-size:.85rem; line-height:1.15}
+.zwerkzeug .knopf svg{width:19px; height:19px; flex:none; display:block}
+.zwerkzeug .knopf.nurbild{min-width:44px; justify-content:center; padding:.3rem}
+.zwerkzeug .knopf.aktivw{background:var(--blau,#0b5aa0); color:#fff; border-color:var(--blau,#0b5aa0)}
+.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem; width:100%}
+.zwerkzeug .zfarbe{min-width:44px; justify-content:center; padding:.3rem}
+.zwerkzeug .zfarbe .fleck{width:20px; height:20px; border-radius:50%;
+  border:1px solid rgba(0,0,0,.28); display:block}
+.zwerkzeug .zfarbe.aktivw{background:var(--blau-hell,#eaf2fa); border-color:var(--blau,#0b5aa0)}
+.zwerkzeug .zfarbe.aktivw .fleck{box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--blau,#0b5aa0)}
+
 /* ---- Protokollvertrag Fassung 4: der ehrliche Ausweg ------------------
    Sichtbar, aber leiser als der Weg ueber die eigene Antwort: erreichbar,
    nicht einladend. */
@@ -1864,10 +1878,25 @@ function aufbauZeichnung(box) {
   titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
   wz.appendChild(titel);
 
-  function knopf(text, wirkung, gruppe) {
+  const ZBILD = {
+    duenn: '<path d="M3 10h14" stroke-width="1.4"/>',
+    dick:  '<path d="M3 10h14" stroke-width="4.6"/>',
+    zurueck: '<path d="M8 5 3.5 9.5 8 14"/><path d="M3.5 9.5H12a4.5 4.5 0 0 1 0 9h-1.5"/>',
+    muell: '<path d="M4 6h12M8 6V4h4v2M6 6l.9 11h6.2L14 6"/><path d="M9 9v5M11 9v5"/>'
+  };
+  function zsvg(name) {
+    return '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" '
+      + 'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + ZBILD[name] + '</svg>';
+  }
+  /* bild: Name aus ZBILD oder null · text: "" macht einen reinen Bildknopf.
+     titelText wird Tooltip UND aria-label - Letzteres traegt den Knopf dort,
+     wo es kein Hover gibt. */
+  function knopf(bild, text, wirkung, gruppe, titelText) {
     const b = document.createElement("button");
-    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "");
-    b.textContent = text;
+    b.type = "button";
+    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "") + (text ? "" : " nurbild");
+    b.innerHTML = (bild ? zsvg(bild) : "") + (text ? "<span>" + text + "</span>" : "");
+    if (titelText) { b.title = titelText; b.setAttribute("aria-label", titelText); }
     b.addEventListener("click", () => {
       if (gruppe) {
         wz.querySelectorAll(".g-" + gruppe).forEach(x => x.classList.remove("aktivw"));
@@ -1878,20 +1907,28 @@ function aufbauZeichnung(box) {
     wz.appendChild(b);
     return b;
   }
-  const kDuenn = knopf("dünn", () => z.breite = 2, "b" + zid);
-  const kDick = knopf("dick", () => z.breite = 5, "b" + zid);
-  const kSchwarz = knopf("schwarz", () => z.farbe = "#1a2229", "f" + zid);
-  knopf("rot", () => z.farbe = "#c62828", "f" + zid);
-  knopf("Strich zurück", () => {
+
+  /* Der Farbfleck IST die Beschriftung - ein Wort braucht er nicht. */
+  function zfarbknopf(farbe, name) {
+    const b = knopf(null, "", () => z.farbe = farbe, "f" + zid, name);
+    b.classList.add("zfarbe");
+    b.innerHTML = '<span class="fleck" style="background:' + farbe + '"></span>';
+    return b;
+  }
+  const kDuenn = knopf("duenn", "", () => z.breite = 2, "b" + zid, "dünner Strich");
+  const kDick = knopf("dick", "", () => z.breite = 5, "b" + zid, "dicker Strich");
+  const kSchwarz = zfarbknopf("#1a2229", "schwarz");
+  zfarbknopf("#c62828", "rot");
+  knopf("zurueck", "", () => {
     if (!z.striche.length) return;
     z.striche.pop(); malen(); protokolliere("zeichnung", zid, "Strich zurückgenommen (" + z.striche.length + " Striche)");
     sperrenPruefen();
-  });
-  knopf("alles löschen", () => {
+  }, null, "Strich zurücknehmen");
+  knopf("muell", "", () => {
     if (!z.striche.length) return;
     protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.striche.length + " Striche)");
     z.striche = []; malen(); sperrenPruefen();
-  });
+  }, null, "Alles löschen");
   kDick.classList.add("aktivw"); z.breite = 5;
   kSchwarz.classList.add("aktivw");
   const status = document.createElement("span");
