@@ -90,7 +90,7 @@ Denn solange keine Zahl danebensteht, ist die Arbeitszeit von Lehrkräften der e
 <details>
 <summary><strong>Belege zur Grafik „Der Stapel“</strong> — aufklappen</summary>
 
-Jede Jahreszahl wurde einzeln geprüft. Sechs Angaben einer früheren Fassung waren falsch und sind korrigiert. **hoch** = amtliche Primärquelle, **mittel** = Sekundärquelle oder Teilaspekt ungeklärt.
+Jede Jahreszahl wurde einzeln geprüft. Bei Fehlern oder wenn etwas unvollständig ist, bitte ich höflich um kurze Info. **hoch** = amtliche Primärquelle, **mittel** = Sekundärquelle oder Teilaspekt ungeklärt.
 
 | Jahr | Eintrag | Beleg | Sicherheit |
 |---|---|---|---|
