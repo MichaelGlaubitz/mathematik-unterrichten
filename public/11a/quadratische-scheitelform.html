@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratische Funktion – Scheitelpunktform f(x) = a(x−d)² + e</title>
+<style>
+  :root{
+    --cream:#fdf7e6; --cream-border:#d8c98f; --card:#ffffff;
+    --green:#5aa02c; --green-d:#4c8a25; --green-tab:#6db33f;
+    --blue:#2f3bd0; --blue-d:#1f2aa8; --red:#c0392b;
+    --ink:#243044; --grid:#e6eef6; --axis:#243044;
+    --graph:#2f3bd0; --graph-fill:rgba(80,120,230,.16);
+    --a-c:#c0392b; --d-c:#1f6feb; --e-c:#0e9e5a; --s-c:#e67e22;
+    --tool:#f3f4f6; --tool-border:#c9ced6;
+    --ok:#2e7d32; --bad:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--ink);
+       background:#f1ecd9;padding:18px;line-height:1.45}
+  h1{font-size:23px;text-align:center;color:var(--blue);margin:2px 0 16px;font-weight:700}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:16px;max-width:1060px;margin:0 auto}
+  @media(max-width:840px){.layout{grid-template-columns:1fr}}
+
+  /* ---- Zurück-Leiste ---- */
+  .backbar{max-width:1060px;margin:0 auto 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .backbar a{color:var(--blue);text-decoration:none;font-weight:700;background:var(--card);
+             border:1px solid var(--cream-border);padding:6px 12px;border-radius:8px}
+  .backbar a:hover{background:#eef1f6}
+
+  /* ---- linke Erklärspalte ---- */
+  .side{background:var(--cream);border:1px solid var(--cream-border);border-radius:10px;padding:14px}
+  .tab{display:block;background:var(--green-tab);color:#fff;font-weight:700;text-align:center;
+       padding:8px 14px;border-radius:8px;font-size:15px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  .infocard{background:var(--card);border:1px solid var(--cream-border);border-radius:8px;
+            padding:14px 16px;margin-top:12px}
+  .infocard .thema{text-align:center;font-size:15px;margin:0}
+  .infocard .thema .go{color:var(--red);font-weight:700}
+  .infocard .thema .ti{color:var(--blue);font-weight:700;display:block;margin-top:2px}
+  .infocard h3{color:var(--ink);font-style:italic;text-decoration:underline;margin:16px 0 6px;
+               font-size:15px;text-align:center}
+  .infocard p{margin:7px 0;font-size:14.5px}
+  .infocard .aa{color:var(--a-c);font-weight:700}
+  .infocard .dd{color:var(--d-c);font-weight:700}
+  .infocard .ee{color:var(--e-c);font-weight:700}
+  .infocard .ss{color:var(--s-c);font-weight:700}
+  .infocard .merk{background:var(--cream);border:1px solid var(--cream-border);border-radius:8px;
+                  padding:10px 12px;margin-top:12px;font-size:14px}
+  .infocard .merk b{color:var(--blue)}
+  .infocard .merk .row{margin:4px 0}
+
+  /* ---- rechte Spalte ---- */
+  .figcard{background:var(--cream);border:1px solid var(--cream-border);border-radius:10px;padding:12px}
+  .figtitle{text-align:center;color:var(--blue);font-weight:700;font-size:18px;margin:2px 0 10px}
+  .stage{position:relative;background:#fff;border:1px solid var(--cream-border);border-radius:8px;overflow:hidden}
+  svg.board{display:block;width:100%;height:auto;touch-action:none;user-select:none;background:#fff}
+  svg.board text{pointer-events:none}
+  .handle{cursor:grab} .handle:active{cursor:grabbing}
+
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:8px;
+            padding:10px 12px;background:var(--tool);border:1px solid var(--cream-border);border-radius:8px}
+  .controls .ctl{display:flex;align-items:center;gap:8px}
+  .controls label{font-size:14px;font-weight:700}
+  .controls label.a{color:var(--a-c)} .controls label.d{color:var(--d-c)} .controls label.e{color:var(--e-c)}
+  .controls .val{font-weight:700;min-width:36px;display:inline-block;text-align:right}
+  input[type=range]{vertical-align:middle;width:128px}
+  input.a{accent-color:var(--a-c)} input.d{accent-color:var(--d-c)} input.e{accent-color:var(--e-c)}
+  .tbtn{border:1px solid var(--cream-border);background:#fff;border-radius:6px;padding:7px 13px;
+        font-size:14px;font-weight:700;color:var(--ink);cursor:pointer}
+  .tbtn:hover{background:#eef1f6}
+  .chk{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--ink);margin-left:auto}
+  .chk input{width:16px;height:16px;cursor:pointer}
+
+  .eqbar{margin-top:8px;background:#fff;border:1px solid var(--cream-border);border-radius:8px;
+         padding:9px 14px;font-size:20px;font-weight:700;color:var(--graph);text-align:center}
+  .eqbar .a{color:var(--a-c)} .eqbar .d{color:var(--d-c)} .eqbar .e{color:var(--e-c)}
+
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .readout .box{background:#fff;border:1px solid var(--cream-border);border-radius:8px;padding:8px 12px;font-size:14px}
+  .readout .box .k{color:#6b7383;font-size:12.5px;display:block}
+  .readout .box b{font-size:15.5px}
+  .readout .s-c{color:var(--s-c)} .readout .a-c{color:var(--a-c)}
+  .warn{grid-column:1 / -1;background:#fdf0e2;border:1px solid #edc89a;color:#a15c11;
+        border-radius:8px;padding:8px 12px;font-size:13.5px;display:none}
+  .warn.show{display:block}
+
+  .tablewrap{margin-top:8px;background:#fff;border:1px solid var(--cream-border);border-radius:8px;padding:8px 10px;overflow-x:auto}
+  table.vt{border-collapse:collapse;width:100%;font-size:14px;text-align:center}
+  table.vt th,table.vt td{border:1px solid var(--cream-border);padding:4px 6px}
+  table.vt .rowh{font-weight:700;background:#f6f1df;text-align:left;white-space:nowrap}
+  table.vt td.y{color:var(--graph);font-weight:700}
+  table.vt td.vx{background:#fdeede;color:var(--s-c)}
+  table.vt td.y.vx{background:#fdeede;color:var(--s-c)}
+
+  /* ---- Quiz ---- */
+  .quiz{background:var(--cream);border:1px solid var(--cream-border);border-radius:10px;padding:14px;margin-top:14px}
+  .quiz h2{margin:0 0 4px;font-size:17px;color:var(--blue);text-align:center}
+  .quiz .sub{text-align:center;font-size:13.5px;color:#6b7383;margin:0 0 10px}
+  .quiz .fx{text-align:center;font-size:18px;font-weight:700;color:var(--graph);margin:0 0 10px}
+  .opt{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--cream-border);
+       border-radius:8px;padding:9px 12px;margin:7px 0;font-size:15px;cursor:pointer}
+  .opt:hover{border-color:var(--blue)}
+  .opt input{width:18px;height:18px;cursor:pointer;flex:none}
+  .quizbtns{display:flex;gap:10px;margin-top:12px;justify-content:center}
+  .btn{border:none;border-radius:7px;padding:9px 20px;font-size:15px;font-weight:700;cursor:pointer;
+       color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .btn.start{background:var(--green)} .btn.start:hover{background:var(--green-d)}
+  .btn.nav{background:#eef1ff;color:var(--blue);border:1px solid #c2c9f5}
+  .btn.nav:hover{background:#dfe5ff}
+  .feedback{margin-top:14px;border-radius:8px;padding:14px;font-size:15px;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:#e8f6e9;border:1px solid #b6e0b9;color:var(--ok)}
+  .feedback.bad{background:#fdecea;border:1px solid #f5c6c2;color:var(--bad)}
+  .feedback h3{margin:0 0 6px}
+  .feedback .formula{font-size:19px;color:var(--blue);margin:8px 0;font-weight:700}
+  small.note{display:block;color:#5a7488;margin-top:6px}
+</style>
+</head>
+<body>
+
+
+<h1>Quadratische Funktion – Scheitelpunktform</h1>
+
+<div class="layout">
+
+  <!-- ===== linke Erklärspalte ===== -->
+  <aside class="side">
+    <span class="tab">Quadratische Funktionen</span>
+    <div class="infocard">
+      <p class="thema"><b>Thema:</b> <span class="go">Scheitelpunktform</span>
+        <span class="ti">f(x) = a·(x − d)² + e</span></p>
+
+      <h3>Aufgabe:</h3>
+      <p style="text-align:center">Erkunde, wie die Parameter <span class="aa">a</span>,
+        <span class="dd">d</span> und <span class="ee">e</span> die Parabel formen und verschieben.</p>
+
+      <h3>So gehst du vor:</h3>
+      <p>Stelle mit den Reglern <span class="aa">a</span> (Öffnung &amp; Streckung),
+        <span class="dd">d</span> (waagerechte Verschiebung) und <span class="ee">e</span> (senkrechte Verschiebung)
+        ein. Oder ziehe den <span class="ss">Scheitelpunkt S</span> direkt im Bild.</p>
+      <p>Beachte: <span class="dd">d</span> &gt; 0 verschiebt <b>nach rechts</b> (Minuszeichen!),
+        <span class="ee">e</span> hebt/senkt die Parabel. Die <span class="ss">Symmetrieachse</span>
+        ist x = <span class="dd">d</span>; die Wertetabelle zeigt die Symmetrie um den Scheitel.</p>
+
+      <div class="merk">
+        <div class="row"><b>Merksatz.</b> Scheitel <span class="ss">S(d | e)</span>.</div>
+        <div class="row"><span class="aa">a</span> &gt; 0 → nach oben (Tiefpunkt),
+          <span class="aa">a</span> &lt; 0 → nach unten (Hochpunkt).</div>
+        <div class="row">|<span class="aa">a</span>| &gt; 1 gestreckt (schmaler),
+          |<span class="aa">a</span>| &lt; 1 gestaucht (breiter).</div>
+        <div class="row">Ableitungen: f′(x) = 2a·(x − d), &nbsp; f″(x) = 2a.</div>
+      </div>
+      <p style="text-align:center;margin-top:12px">Welche Aussagen stimmen? <i>Kreuze an und drücke „prüfe".</i></p>
+    </div>
+  </aside>
+
+  <!-- ===== rechte interaktive Spalte ===== -->
+  <main class="figcard">
+    <div class="figtitle">Parabel im Koordinatensystem</div>
+
+    <div class="stage">
+      <svg id="board" class="board" viewBox="0 0 520 460" aria-label="Parabel in Scheitelpunktform">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L8,3 L0,6 Z" fill="var(--axis)"/>
+          </marker>
+        </defs>
+        <g id="static"></g>
+        <!-- Symmetrieachse x = d -->
+        <line id="axisSym" stroke="var(--s-c)" stroke-width="1.3" stroke-dasharray="5 5" opacity="0.75"/>
+        <!-- Parabel -->
+        <polyline id="gline" fill="none" stroke="var(--graph)" stroke-width="2.8" stroke-linejoin="round"/>
+        <!-- Nullstellen -->
+        <circle id="z1" r="4.5" fill="#fff" stroke="var(--graph)" stroke-width="2" style="display:none"/>
+        <circle id="z2" r="4.5" fill="#fff" stroke="var(--graph)" stroke-width="2" style="display:none"/>
+        <!-- Scheitelpunkt S (ziehbar) -->
+        <circle id="sdot" class="handle" data-p="S" r="8" fill="var(--s-c)" stroke="#fff" stroke-width="2.4"/>
+        <text id="slbl" font-size="14" font-weight="700" fill="var(--s-c)"></text>
+      </svg>
+    </div>
+
+    <div class="controls">
+      <div class="ctl"><label class="a">a:</label>
+        <input class="a" id="a" type="range" min="-3" max="3" value="0.5" step="0.25">
+        <span class="val" id="aOut" style="color:var(--a-c)">0,5</span></div>
+      <div class="ctl"><label class="d">d:</label>
+        <input class="d" id="d" type="range" min="-6" max="6" value="2" step="0.5">
+        <span class="val" id="dOut" style="color:var(--d-c)">2</span></div>
+      <div class="ctl"><label class="e">e:</label>
+        <input class="e" id="e" type="range" min="-6" max="6" value="-3" step="0.5">
+        <span class="val" id="eOut" style="color:var(--e-c)">−3</span></div>
+      <button class="tbtn" id="reset">⟳ zurücksetzen</button>
+      <label class="chk"><input type="checkbox" id="tblToggle" checked> Wertetabelle</label>
+    </div>
+
+    <div class="eqbar" id="eq"></div>
+
+    <div class="readout" id="readout"></div>
+
+    <div class="tablewrap" id="tablewrap">
+      <table class="vt" id="vt">
+        <tr id="vrow-x"></tr>
+        <tr id="vrow-y"></tr>
+      </table>
+    </div>
+
+    <!-- ===== Abschluss-Quiz ===== -->
+    <div class="quiz">
+      <h2>Abschluss-Quiz</h2>
+      <p class="sub">Betrachte die quadratische Funktion</p>
+      <p class="fx">f(x) = −2·(x + 3)² + 5</p>
+      <p class="sub">Welche Aussagen sind richtig? Kreuze <b>alle</b> richtigen an.</p>
+      <label class="opt"><input type="checkbox" data-k="0"><span>Der Scheitelpunkt ist <b>S(−3 | 5)</b>.</span></label>
+      <label class="opt"><input type="checkbox" data-k="1"><span>Die Parabel ist <b>nach unten geöffnet</b>.</span></label>
+      <label class="opt"><input type="checkbox" data-k="2"><span>Der Scheitel ist ein <b>Hochpunkt (Maximum)</b>; der größte Funktionswert ist <b>y = 5</b>.</span></label>
+      <label class="opt"><input type="checkbox" data-k="3"><span>Gegenüber der Normalparabel ist die Parabel <b>gestreckt</b> (schmaler), da |a| = 2 &gt; 1.</span></label>
+      <label class="opt"><input type="checkbox" data-k="4"><span>Der Scheitelpunkt ist <b>S(3 | 5)</b>.</span></label>
+      <label class="opt"><input type="checkbox" data-k="5"><span>Es gilt <b>f″(x) = 2</b>, die Parabel ist also linksgekrümmt.</span></label>
+      <div class="quizbtns">
+        <button class="btn start" id="checkBtn">prüfe</button>
+        <button class="btn nav" id="resetQuizBtn">reset</button>
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const W=520,H=460,U=26,OX=260,OY=230;     // Pixel pro Einheit, Ursprung
+  const $=id=>document.getElementById(id);
+  const svg=$('board');
+
+  // ---- Welt <-> Pixel ----
+  const px=(x,y)=>({x:OX+x*U, y:OY-y*U});
+  const worldX=p=>(p-OX)/U, worldY=p=>(OY-p)/U;
+  const XMIN=worldX(0), XMAX=worldX(W), YTOP=worldY(0), YBOT=worldY(H);
+
+  // ---- Parameter / Zustand ----
+  const HOME={a:0.5,d:2,e:-3};
+  let a=HOME.a, d=HOME.d, e=HOME.e;
+  const f=x=>a*(x-d)*(x-d)+e;
+  const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+  const fmt=n=>{const r=Math.abs(n)<1e-9?0:n;return Number(r).toLocaleString('de-DE',{maximumFractionDigits:2});};
+  const fmtM=n=>fmt(n).replace('-','−');            // echtes Minuszeichen
+
+  // ---- statisches Koordinatensystem (einmal) ----
+  (function buildStatic(){
+    let s='';
+    for(let x=Math.ceil(XMIN);x<=Math.floor(XMAX);x++){const p=px(x,0);
+      s+=`<line x1="${p.x}" y1="0" x2="${p.x}" y2="${H}" stroke="var(--grid)" stroke-width="1"/>`;}
+    for(let y=Math.ceil(YBOT);y<=Math.floor(YTOP);y++){const p=px(0,y);
+      s+=`<line x1="0" y1="${p.y}" x2="${W}" y2="${p.y}" stroke="var(--grid)" stroke-width="1"/>`;}
+    s+=`<line x1="0" y1="${OY}" x2="${W-2}" y2="${OY}" stroke="var(--axis)" stroke-width="1.6" marker-end="url(#arrow)"/>`;
+    s+=`<line x1="${OX}" y1="${H}" x2="${OX}" y2="2" stroke="var(--axis)" stroke-width="1.6" marker-end="url(#arrow)"/>`;
+    s+=`<text x="${W-12}" y="${OY-8}" font-size="14" font-weight="700" fill="var(--axis)">x</text>`;
+    s+=`<text x="${OX+8}" y="14" font-size="14" font-weight="700" fill="var(--axis)">y</text>`;
+    for(let x=Math.ceil(XMIN);x<=Math.floor(XMAX);x++){if(x===0)continue;const p=px(x,0);
+      s+=`<line x1="${p.x}" y1="${OY-3}" x2="${p.x}" y2="${OY+3}" stroke="var(--axis)" stroke-width="1.4"/>`;
+      if(x%2===0)s+=`<text x="${p.x}" y="${OY+15}" font-size="10" fill="var(--axis)" text-anchor="middle">${x}</text>`;}
+    for(let y=Math.ceil(YBOT);y<=Math.floor(YTOP);y++){if(y===0)continue;const p=px(0,y);
+      s+=`<line x1="${OX-3}" y1="${p.y}" x2="${OX+3}" y2="${p.y}" stroke="var(--axis)" stroke-width="1.4"/>`;
+      if(y%2===0)s+=`<text x="${OX-7}" y="${p.y+4}" font-size="10" fill="var(--axis)" text-anchor="end">${y}</text>`;}
+    s+=`<text x="${OX-7}" y="${OY+15}" font-size="10" fill="var(--axis)" text-anchor="end">0</text>`;
+    $('static').innerHTML=s;
+  })();
+
+  // ---- Graph abtasten ----
+  function graphPoints(fn){let pts=[];const steps=160;
+    for(let i=0;i<=steps;i++){const x=XMIN+(XMAX-XMIN)*i/steps;const p=px(x,fn(x));
+      pts.push(p.x.toFixed(1)+','+p.y.toFixed(1));}return pts.join(' ');}
+
+  // ---- Gleichungs-Anzeige ----
+  function eqHTML(){
+    let aStr;
+    if(a===1) aStr='';
+    else if(a===-1) aStr='<span class="a">−</span>';
+    else aStr='<span class="a">'+fmtM(a)+'</span> · ';
+    let sqStr;
+    if(d===0) sqStr='x²';
+    else sqStr='(x '+(d>0?'−':'+')+' <span class="d">'+fmt(Math.abs(d))+'</span>)²';
+    let eStr;
+    if(e===0) eStr='';
+    else eStr=' '+(e>0?'+':'−')+' <span class="e">'+fmt(Math.abs(e))+'</span>';
+    return 'f(x) = '+aStr+sqStr+eStr;
+  }
+
+  function draw(){
+    // Regler-Ausgaben
+    $('aOut').textContent=fmtM(a); $('dOut').textContent=fmtM(d); $('eOut').textContent=fmtM(e);
+    // Parabel
+    $('gline').setAttribute('points',graphPoints(f));
+    // Symmetrieachse x = d
+    const ax=px(d,0).x;
+    $('axisSym').setAttribute('x1',ax); $('axisSym').setAttribute('y1',0);
+    $('axisSym').setAttribute('x2',ax); $('axisSym').setAttribute('y2',H);
+    // Scheitelpunkt
+    const S=px(d,e);
+    $('sdot').setAttribute('cx',S.x); $('sdot').setAttribute('cy',S.y);
+    const up=a>=0;                                   // Öffnung nach oben → Platz nach unten frei
+    $('slbl').setAttribute('x',S.x+12);
+    $('slbl').setAttribute('y',up?S.y+18:S.y-11);
+    $('slbl').textContent='S('+fmtM(d)+' | '+fmtM(e)+')';
+    // Nullstellen
+    let nz=[];
+    if(a!==0){const val=-e/a;
+      if(val>1e-9){const r=Math.sqrt(val);nz=[d-r,d+r];}
+      else if(Math.abs(val)<=1e-9){nz=[d];}}
+    [['z1',0],['z2',1]].forEach(([id,i])=>{const el=$(id);
+      if(i<nz.length){const p=px(nz[i],0);el.setAttribute('cx',p.x);el.setAttribute('cy',p.y);el.style.display='';}
+      else el.style.display='none';});
+    // Readout
+    const twoA=2*a;
+    let oeff,streck,nzTxt;
+    if(a===0){oeff='—';streck='—';nzTxt='—';}
+    else{
+      oeff=a>0?'nach oben – Tiefpunkt (Minimum)':'nach unten – Hochpunkt (Maximum)';
+      const abs=Math.abs(a);
+      streck=abs>1?('gestreckt / schmaler (|a| = '+fmt(abs)+' > 1)')
+            :abs<1?('gestaucht / breiter (|a| = '+fmt(abs)+' < 1)')
+            :'Normalparabel (|a| = 1)';
+      if(nz.length===2)nzTxt='x₁ = '+fmtM(nz[0])+' ;&nbsp; x₂ = '+fmtM(nz[1]);
+      else if(nz.length===1)nzTxt='x = '+fmtM(nz[0])+' (doppelt)';
+      else nzTxt='keine reelle Nullstelle';
+    }
+    let dCoef;
+    if(twoA===1) dCoef='';
+    else if(twoA===-1) dCoef='−';
+    else dCoef=fmtM(twoA)+'·';
+    const dFactor = d===0 ? 'x' : ('(x '+(d>0?'− '+fmt(d):'+ '+fmt(-d))+')');
+    $('readout').innerHTML=
+      '<div class="box"><span class="k">Scheitelpunkt</span><b class="s-c">S('+fmtM(d)+' | '+fmtM(e)+')</b></div>'+
+      '<div class="box"><span class="k">Öffnung</span><b class="a-c">'+oeff+'</b></div>'+
+      '<div class="box"><span class="k">Streckung</span><b>'+streck+'</b></div>'+
+      '<div class="box"><span class="k">Nullstellen</span><b>'+nzTxt+'</b></div>'+
+      '<div class="box"><span class="k">1. Ableitung</span><b>f′(x) = '+dCoef+dFactor+'</b></div>'+
+      '<div class="box"><span class="k">2. Ableitung</span><b>f″(x) = '+fmtM(twoA)+'</b></div>'+
+      '<div class="warn'+(a===0?' show':'')+'">Für a = 0 entsteht keine Parabel, sondern die konstante Gerade y = e. Die Scheitelpunktform verlangt a ≠ 0.</div>';
+    // Gleichung
+    $('eq').innerHTML=eqHTML();
+    // Wertetabelle (zentriert um den Scheitel → Symmetrie sichtbar)
+    let xr='<td class="rowh">x</td>', yr='<td class="rowh">f(x)</td>';
+    [-3,-2,-1,0,1,2,3].forEach(o=>{const xv=d+o;const c=o===0?' vx':'';
+      xr+='<td class="'+c.trim()+'">'+fmtM(xv)+'</td>';
+      yr+='<td class="y'+c+'">'+fmtM(f(xv))+'</td>';});
+    $('vrow-x').innerHTML=xr; $('vrow-y').innerHTML=yr;
+  }
+
+  // ---- Schieberegler (jeder löst SOFORT Neuberechnung + Redraw aus) ----
+  $('a').addEventListener('input',()=>{a=+$('a').value;draw();});
+  $('d').addEventListener('input',()=>{d=+$('d').value;draw();});
+  $('e').addEventListener('input',()=>{e=+$('e').value;draw();});
+
+  // ---- Scheitelpunkt ziehen (setzt d und e, rastet auf halbe Einheiten) ----
+  let drag=false;
+  function svgPt(ev){const r=svg.getBoundingClientRect();
+    const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;
+    const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top;
+    return {x:cx*W/r.width, y:cy*H/r.height};}
+  svg.addEventListener('pointerdown',ev=>{if(ev.target.dataset&&ev.target.dataset.p==='S'){
+    drag=true;ev.target.setPointerCapture(ev.pointerId);}});
+  svg.addEventListener('pointermove',ev=>{if(!drag)return;const p=svgPt(ev);
+    d=clamp(Math.round(worldX(p.x)*2)/2,-6,6);
+    e=clamp(Math.round(worldY(p.y)*2)/2,-6,6);
+    $('d').value=d; $('e').value=e; draw();});
+  svg.addEventListener('pointerup',()=>{drag=false;});
+  svg.addEventListener('pointercancel',()=>{drag=false;});
+
+  // ---- zurücksetzen ----
+  $('reset').addEventListener('click',()=>{a=HOME.a;d=HOME.d;e=HOME.e;
+    $('a').value=a;$('d').value=d;$('e').value=e;draw();});
+
+  // ---- Wertetabelle ein/aus ----
+  $('tblToggle').addEventListener('change',()=>{$('tablewrap').style.display=$('tblToggle').checked?'':'none';});
+
+  // ---- Quiz ----
+  const CORRECT=new Set([0,1,2,3]);const fb=$('fb');
+  const checkedSet=()=>new Set([...document.querySelectorAll('.opt input:checked')].map(i=>+i.dataset.k));
+  const eqSet=(s1,s2)=>s1.size===s2.size&&[...s1].every(x=>s2.has(x));
+  $('checkBtn').addEventListener('click',()=>{const ok=eqSet(checkedSet(),CORRECT);
+    fb.className='feedback show '+(ok?'ok':'bad');
+    if(ok){fb.innerHTML=`<h3>Ausgezeichnet! 🎉</h3>
+      Aus <b>f(x) = −2·(x + 3)² + 5</b> liest man d = −3 und e = 5 ab, also
+      <b style="color:var(--s-c)">S(−3 | 5)</b>. Wegen a = −2 &lt; 0 öffnet die Parabel nach unten,
+      der Scheitel ist ein <b>Hochpunkt</b> mit Maximalwert y = 5; wegen |a| = 2 &gt; 1 ist sie
+      <b>gestreckt</b>.
+      <div class="formula">S(d | e), &nbsp; f″(x) = 2a = −4 &lt; 0 → rechtsgekrümmt</div>
+      <small class="note">Die beiden falschen Aussagen: S(3 | 5) verwechselt das Vorzeichen von d
+      – in (x + 3) ist d = −3. Und f″(x) = 2a = −4 (nicht 2), die Parabel ist also rechts- (nicht links-)gekrümmt.</small>`;
+    } else {fb.innerHTML=`<h3>Noch nicht ganz …</h3>Genau vier Aussagen sind richtig – prüfe noch einmal.
+      <small class="note">Tipp: In (x + 3) ist d = −3, denn (x − d) = (x + 3). Bestimme Öffnung und
+      Krümmung über das Vorzeichen von a bzw. f″(x) = 2a und die Streckung über |a|.</small>`;}});
+  $('resetQuizBtn').addEventListener('click',()=>{document.querySelectorAll('.opt input').forEach(i=>i.checked=false);fb.className='feedback';});
+
+  draw();
+})();
+</script>
+
+<script>
+window.NEON_CFG = {
+  glow: [{sel:'#gline',c1:'#36e0ff',c2:'#2f9fff'},{sel:'#axisSym',c1:'#ffb454'},
+         {sel:'#sdot',c1:'#ffb454'},{sel:'#z1',c1:'#39ffa8'},{sel:'#z2',c1:'#39ffa8'}],
+  emit: {nodes:['#sdot']}
+};
+</script>
+<script>
+/* === Neon-Theme (gemeinsame eingebettete Theme-Schicht). Konfig: window.NEON_CFG === */
+(function(){"use strict";
+var C=window.NEON_CFG||{}, S=C.svg||'#board';
+var svg=document.querySelector(S); if(!svg)return;
+var stage=document.querySelector(C.stage||'.stage')||svg.parentNode;
+var host=document.querySelector(C.controls||'.controls,.toolbar');
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var vb=(svg.getAttribute('viewBox')||('0 0 '+(svg.clientWidth||100)+' '+(svg.clientHeight||100))).split(/\s+/).map(Number);
+var VW=vb[2]||100, VH=vb[3]||100, glow=C.glow||[], emit=C.emit||{};
+function gr(g){var s=typeof g==='string'?g:g.sel,a=(g.c1)||'#36e0ff',b=(g.c2)||a;
+  return 'body[data-theme="neon"] '+S+' '+s+'{filter:drop-shadow(0 0 calc(var(--glow,1)*2.5px) '+a+') drop-shadow(0 0 calc(var(--glow,1)*7px) '+b+')}';}
+var CSS=[
+'body[data-theme="neon"]{--cream:rgba(11,17,32,.74);--cream-border:#22406e;--card:rgba(8,12,24,.82);--ink:#cfe0f5;--blue:#36e0ff;--blue-d:#8af0ff;--red:#ff6b6b;--green:#1f9d76;--green-d:#178a66;--green-tab:#0e9a82;--grid:rgba(70,130,210,.16);--axis:#7fb0e8;--tri:#36e0ff;--tri-fill:rgba(40,120,200,.10);--ms:#7ad7ff;--circ:#39ffa8;--mu:#ff4fd8;--tool:rgba(12,18,34,.85);--tool-border:#22406e;--tool-active:rgba(40,90,160,.5);--sel:#ffb454;--bar:#3f7bd6;--bar-d:#7ad7ff;--bar-edge:#7ad7ff;--bar-fill:#2f6fd0;--graph:#36e0ff;--graph-fill:rgba(40,120,200,.14);--a-c:#ff8ad0;--d-c:#7ad7ff;--e-c:#39ffa8;--s-c:#ffb454;--m-c:#ff8ad0;--b-c:#ffb454;--q-c:#39ffa8;--p-c:#ff7a7a;--w-c:#39ffa8;--rect:#39ffa8;--bar-bg:rgba(40,70,120,.22);background:#04060d;color:#cfe0f5}',
+'body[data-theme="neon"] h1{color:#36e0ff;text-shadow:0 0 10px rgba(54,224,255,.6)}',
+'body[data-theme="neon"] .tab{background:linear-gradient(90deg,#0aa07e,#0b86c4);box-shadow:0 0 14px rgba(20,200,180,.5)}',
+'body[data-theme="neon"] .stage{background:#04060d;border-color:#22406e}',
+'body[data-theme="neon"] '+S+'{position:relative;z-index:1;background:transparent}',
+'body[data-theme="neon"] .backbar a{background:rgba(12,18,34,.9);color:#8af0ff;border-color:#22406e}',
+'body[data-theme="neon"] .opt{background:rgba(10,16,30,.8);color:#cfe0f5}',
+'body[data-theme="neon"] .tbtn{background:rgba(12,18,34,.9);color:#cfe0f5;border-color:#22406e}',
+'body[data-theme="neon"] .tbtn:hover{background:rgba(40,80,140,.45)}',
+'body[data-theme="neon"] .controls{background:rgba(12,18,34,.85);border-color:#22406e}',
+'body[data-theme="neon"] .eqbar{background:rgba(8,12,24,.85);color:#cfe0f5;border-color:#22406e}',
+'body[data-theme="neon"] .readout .box,body[data-theme="neon"] .tablewrap{background:rgba(8,12,24,.82);border-color:#22406e;color:#cfe0f5}',
+'body[data-theme="neon"] .warn{background:rgba(60,40,14,.7);border-color:#a3801a;color:#ffd98a}',
+'body[data-theme="neon"] table.vt .rowh{background:rgba(20,32,58,.9)}',
+'body[data-theme="neon"] table.vt td{border-color:#22406e}',
+'body[data-theme="neon"] table.vt td.vx,body[data-theme="neon"] table.vt td.y.vx{background:rgba(90,60,20,.6);color:#ffb454}',
+'body[data-theme="neon"] .badge{color:#ff6ad5;text-shadow:0 0 8px rgba(255,90,210,.7);z-index:5}',
+'.neon-bgsvg{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:none;pointer-events:none}',
+'body[data-theme="neon"] .neon-bgsvg{display:block}',
+'.neon-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;display:none}',
+'body[data-theme="neon"] .neon-canvas{display:block}',
+'.neon-ctl{display:none;align-items:center;gap:5px;margin-left:6px}',
+'body[data-theme="neon"] .neon-ctl{display:inline-flex}',
+'.neon-ctl .gl{color:#36e0ff;font-size:15px;text-shadow:0 0 6px rgba(54,224,255,.7)}',
+'.neon-ctl input[type=range]{width:84px;vertical-align:middle;accent-color:#36e0ff}'
+].concat(glow.map(gr)).join('\n');
+var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
+if(getComputedStyle(stage).position==='static')stage.style.position='relative';
+var ns='http://www.w3.org/2000/svg';
+var bgsvg=document.createElementNS(ns,'svg');bgsvg.setAttribute('class','neon-bgsvg');
+bgsvg.setAttribute('viewBox','0 0 '+VW+' '+VH);bgsvg.setAttribute('preserveAspectRatio','none');
+bgsvg.innerHTML='<defs><radialGradient id="neonNebGrad" cx="50%" cy="42%" r="78%"><stop offset="0%" stop-color="#0b1430"/><stop offset="60%" stop-color="#060a1a"/><stop offset="100%" stop-color="#02030a"/></radialGradient><filter id="neonNeb" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.016" numOctaves="3" seed="7" stitchTiles="stitch" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0.13 0 0 0 0 0.22 0 0 0 0 0.55 0 0 0 0.7 0"/></filter></defs><rect width="'+VW+'" height="'+VH+'" fill="url(#neonNebGrad)"/><rect width="'+VW+'" height="'+VH+'" filter="url(#neonNeb)" opacity="0.55"/>';
+stage.insertBefore(bgsvg, stage.firstChild);
+var cv=document.createElement('canvas');cv.className='neon-canvas';stage.appendChild(cv);
+var ctx=cv.getContext('2d');
+var btn=document.createElement('button');btn.type='button';btn.className='tbtn';btn.id='neonBtn';btn.textContent='⚡ Neon';
+var ctl=document.createElement('span');ctl.className='neon-ctl';ctl.innerHTML='<span class="gl">✦</span><input id="neonGlow" type="range" min="0" max="200" value="100" title="Glow-Stärke">';
+if(host){host.appendChild(btn);host.appendChild(ctl);}
+var CFG=C.spark||{maxParts:180,prob:[0.07,0.012,0.010],speedMin:24,speedMax:95,lifeMin:0.30,lifeMax:0.70,grav:32,up:14,width:1.0,core:1.3,halo:3.6,alpha:0.9};
+var COLS=C.sparkColors||['150,225,255','120,195,255','205,240,255'];
+var parts=[],raf=null,last=null,running=false;
+function resize(){var r=svg.getBoundingClientRect();cv.width=Math.max(1,Math.round(r.width));cv.height=Math.max(1,Math.round(r.height));}
+window.addEventListener('resize',resize);
+function clip(x1,y1,x2,y2){var dx=x2-x1,dy=y2-y1,t0=0,t1=1,p=[-dx,dx,-dy,dy],q=[x1,VW-x1,y1,VH-y1],i,r;
+  for(i=0;i<4;i++){if(p[i]===0){if(q[i]<0)return null;}else{r=q[i]/p[i];if(p[i]<0){if(r>t1)return null;if(r>t0)t0=r;}else{if(r<t0)return null;if(r<t1)t1=r;}}}
+  return[x1+t0*dx,y1+t0*dy,x1+t1*dx,y1+t1*dy];}
+function aln(ax,ay,bx,by,out,k){var L=Math.hypot(bx-ax,by-ay),n=Math.max(1,Math.min(5,Math.round(L/(VW*0.17))));
+  for(var i=0;i<n;i++){var t=(i+0.5)/n;out.push({x:ax+(bx-ax)*t,y:ay+(by-ay)*t,k:k});}}
+function cen(el){var a=el.getAttribute('cx');if(a!==null)return{x:+a,y:+el.getAttribute('cy')};
+  if(el.tagName.toLowerCase()==='rect'){var x=+el.getAttribute('x'),y=+el.getAttribute('y'),w=+(el.getAttribute('width')||0);return{x:x+w/2,y:y};}
+  try{var b=el.getBBox();return{x:b.x+b.width/2,y:b.y+b.height/2};}catch(e){return null;}}
+function srcs(){var out=[];
+  (emit.nodes||[]).forEach(function(s){svg.querySelectorAll(s).forEach(function(el){if(el.style&&el.style.display==='none')return;var c=cen(el);if(c&&isFinite(c.x))out.push({x:c.x,y:c.y,k:0});});});
+  (emit.lines||[]).forEach(function(s){svg.querySelectorAll(s).forEach(function(l){var c=clip(+l.getAttribute('x1'),+l.getAttribute('y1'),+l.getAttribute('x2'),+l.getAttribute('y2'));if(c)aln(c[0],c[1],c[2],c[3],out,1);});});
+  (emit.circles||[]).forEach(function(s){svg.querySelectorAll(s).forEach(function(c){var cx=+c.getAttribute('cx'),cy=+c.getAttribute('cy'),r=+c.getAttribute('r');if(!(r>4))return;var n=Math.max(6,Math.min(18,Math.round(r/18)));for(var i=0;i<n;i++){var a=i/n*6.2832,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;if(x>=0&&x<=VW&&y>=0&&y<=VH)out.push({x:x,y:y,k:2});}});});
+  if(emit.custom){try{(emit.custom(svg,VW,VH)||[]).forEach(function(p){out.push(p);});}catch(e){}}
+  return out;}
+function spawn(x,y){var a=Math.random()*6.2832,sp=CFG.speedMin+Math.random()*(CFG.speedMax-CFG.speedMin),m=CFG.lifeMin+Math.random()*(CFG.lifeMax-CFG.lifeMin);
+  parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-CFG.up,life:m,max:m,col:COLS[(Math.random()*COLS.length)|0]});}
+function frame(ts){if(!running)return;if(last===null)last=ts;var dt=Math.min(0.05,(ts-last)/1000);last=ts;
+  srcs().forEach(function(pp){if(parts.length<CFG.maxParts&&Math.random()<CFG.prob[pp.k])spawn(pp.x+(Math.random()-0.5)*2,pp.y+(Math.random()-0.5)*2);});
+  ctx.clearRect(0,0,cv.width,cv.height);ctx.globalCompositeOperation='lighter';var sx=cv.width/VW,sy=cv.height/VH;
+  for(var i=parts.length-1;i>=0;i--){var p=parts[i],ox=p.x,oy=p.y;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=CFG.grav*dt;p.life-=dt;
+    if(p.life<=0){parts.splice(i,1);continue;}var al=Math.max(0,p.life/p.max)*CFG.alpha*(0.7+0.3*Math.random()),X=p.x*sx,Y=p.y*sy;
+    ctx.fillStyle='rgba('+p.col+','+(al*0.18).toFixed(3)+')';ctx.beginPath();ctx.arc(X,Y,CFG.halo,0,6.2832);ctx.fill();
+    ctx.strokeStyle='rgba('+p.col+','+(al*0.6).toFixed(3)+')';ctx.lineWidth=CFG.width;ctx.beginPath();ctx.moveTo(ox*sx,oy*sy);ctx.lineTo(X,Y);ctx.stroke();
+    ctx.fillStyle='rgba('+p.col+','+al.toFixed(3)+')';ctx.beginPath();ctx.arc(X,Y,CFG.core,0,6.2832);ctx.fill();}
+  ctx.globalCompositeOperation='source-over';raf=requestAnimationFrame(frame);
+  if(window.__neonSafety)clearTimeout(window.__neonSafety);
+  window.__neonSafety=setTimeout(function(){if(running)frame(performance.now());},60);}
+function start(){if(running||reduce)return;running=true;resize();last=null;raf=requestAnimationFrame(frame);}
+function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;if(window.__neonSafety)clearTimeout(window.__neonSafety);parts=[];if(ctx)ctx.clearRect(0,0,cv.width,cv.height);}
+function setTheme(neon){document.body.dataset.theme=neon?'neon':'';btn.textContent=neon?'☀ Hausstil':'⚡ Neon';btn.title=neon?'Zurück zum hellen Hausstil':'Cineastischen Neon-Stil einschalten';if(neon)start();else stop();try{localStorage.setItem('mathe-theme',neon?'neon':'light');}catch(e){}}
+btn.addEventListener('click',function(){setTheme(document.body.dataset.theme!=='neon');});
+var glowIn=document.getElementById('neonGlow');
+function applyGlow(v){document.body.style.setProperty('--glow',(v/100).toFixed(2));try{localStorage.setItem('mathe-glow',v);}catch(e){}}
+if(glowIn)glowIn.addEventListener('input',function(){applyGlow(+glowIn.value);});
+var gv=100;try{var sg=localStorage.getItem('mathe-glow');if(sg!==null)gv=+sg;}catch(e){}if(glowIn)glowIn.value=gv;applyGlow(gv);
+var it='light';try{it=localStorage.getItem('mathe-theme')||'light';}catch(e){}setTheme(it==='neon');
+})();
+</script>
+</body>
+</html>
