@@ -138,20 +138,59 @@ details.frei>summary{color:var(--gruen)}
   body{font-size:11pt}
   .lehrer{display:block}
 }
+/* --- Werkzeugleiste der Zeichenfelder -------------------------------------
+   Piktogramm UND Wort, nicht Piktogramm allein: title-Tooltips erscheinen auf
+   dem Touchscreen nie, weil es dort kein Hover gibt. Auf dem iPad - also im
+   Regelfall - waere eine reine Bildleiste damit schlechter zu entziffern als
+   eine Textleiste. Das Bild dient dem Wiederfinden, das Wort dem Verstehen;
+   der Tooltip ist die Zugabe fuer die Maus.
 
-/* ---- Werkzeugleiste der Zeichenfelder: Bild und Wort ------------------- */
+   Fingergroesse: mindestens 44 px hoch. Darunter wird das Treffen zum
+   Geduldsspiel - dieselbe Lehre wie beim Bedienfeld der Regler.             */
 .zwerkzeug{display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
 .zwerkzeug .knopf{display:inline-flex; align-items:center; gap:.3rem;
   min-height:44px; padding:.3rem .62rem; font-size:.85rem; line-height:1.15}
 .zwerkzeug .knopf svg{width:19px; height:19px; flex:none; display:block}
+.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff; border-color:var(--blau)}
+.zwerkzeug .knopf:disabled{opacity:.38; cursor:default}
 .zwerkzeug .knopf.nurbild{min-width:44px; justify-content:center; padding:.3rem}
-.zwerkzeug .knopf.aktivw{background:var(--blau,#0b5aa0); color:#fff; border-color:var(--blau,#0b5aa0)}
+.zwerkzeug .knopf.zform{min-width:44px; justify-content:center; font-size:1.05rem}
+.zwerkzeug .ztrenn{display:inline-block; width:1px; height:1.7rem; background:var(--linie); margin:0 .25rem}
 .zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem; width:100%}
-.zwerkzeug .zfarbe{min-width:44px; justify-content:center; padding:.3rem}
-.zwerkzeug .zfarbe .fleck{width:20px; height:20px; border-radius:50%;
+/* Farbknopf: der Farbfleck IST die Beschriftung, ein Wort braucht er nicht. */
+.zwerkzeug .knopf.zfarbe{min-width:44px; justify-content:center; padding:.3rem}
+.zwerkzeug .knopf.zfarbe .fleck{width:20px; height:20px; border-radius:50%;
   border:1px solid rgba(0,0,0,.28); display:block}
-.zwerkzeug .zfarbe.aktivw{background:var(--blau-hell,#eaf2fa); border-color:var(--blau,#0b5aa0)}
-.zwerkzeug .zfarbe.aktivw .fleck{box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--blau,#0b5aa0)}
+.zwerkzeug .knopf.zfarbe.aktivw{background:var(--blau-hell); border-color:var(--blau)}
+.zwerkzeug .knopf.zfarbe.aktivw .fleck{box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--blau)}
+
+/* Die Achsen-Einstellungen: eingeklappt. Elf Bedienelemente, die dauerhaft
+   sichtbar waren und beim Zeichnen so gut wie nie gebraucht werden - die
+   Einteilung gibt die Aufgabe vor, nicht der Schueler. */
+.zachsen{display:flex; gap:.35rem; flex-wrap:wrap; align-items:center;
+  margin:0 0 .5rem; padding:.55rem .65rem; border:1px dashed var(--blau-mittel);
+  border-radius:8px; background:var(--blau-hell)}
+.zachsen[hidden]{display:none}
+.zachsen .knopf{display:inline-flex; align-items:center; gap:.3rem; min-height:40px;
+  padding:.25rem .55rem; font-size:.84rem; background:#fff}
+.zachsen .knopf svg{width:17px; height:17px; flex:none; display:block}
+.zachsen .zhinweis{font-size:.8rem; color:#5a6570; width:100%; margin:0}
+.zachsen .zskala{font-size:.82rem; font-weight:600; color:var(--blau); background:#fff;
+  border:1px solid var(--blau-mittel); border-radius:6px; padding:.25rem .45rem; white-space:nowrap}
+
+/* --- Bauteil-Palette der Schaltskizze ------------------------------------
+   Jeder Knopf traegt das Symbol, das er zeichnet - gemalt mit derselben
+   Funktion wie in der Skizze. Ein Wort braucht er deshalb nicht; den Namen
+   tragen title und aria-label, damit er auch auf dem Touchscreen einen hat. */
+.zpalette{display:flex; gap:.35rem; flex-wrap:wrap; align-items:center;
+  margin:0 0 .5rem; padding:.5rem .6rem; border:1px solid var(--linie);
+  border-radius:8px; background:#fbfcfd}
+.zpalette .zhinweis{font-size:.8rem; color:#5a6570; width:100%; margin:0 0 .15rem}
+.zpalette .zteil{padding:.2rem .3rem; min-height:44px; min-width:56px;
+  display:inline-flex; align-items:center; justify-content:center; background:#fff}
+.zpalette .zteil canvas{display:block; pointer-events:none}
+.zpalette .zteil.aktivw{background:var(--blau-hell); border-color:var(--blau); border-width:2px}
+.zwerkzeug .knopf.zentfernen:not(:disabled){color:#c62828; border-color:#e6b4b4}
 
 /* ---- Protokollvertrag Fassung 4: der ehrliche Ausweg ------------------
    Sichtbar, aber leiser als der Weg ueber die eigene Antwort: erreichbar,
@@ -879,8 +918,8 @@ body[data-plan="B"] .planpille{background:#e8f5e9;color:#1b5e20;border-color:#c8
   <div class="aufgabe">
     <p><span class="sprache-standard"><span class="nr">A1</span> Fertige eine Schaltskizze zur Bestimmung des Widerstandes eines LDR an – <b>a)</b> mit einem Ohmmeter, <b>b)</b> ohne Ohmmeter.</span><span class="sprache-einfach"><span class="nr">A1</span> Zeichne eine Schaltskizze. Du willst den Widerstand eines LDR bestimmen. <b>a)</b> mit einem Ohmmeter. <b>b)</b> ohne Ohmmeter.</span></p>
     <p style="font-size:.92rem;color:#607080"><span class="sprache-standard">Zeichnet mit dem Finger oder dem Stift direkt in die Felder. Die Skizzen gehen mit eurem Protokoll an Herrn Glaubitz. Die Lösung öffnet sich, sobald in <b>beiden</b> Feldern etwas gezeichnet ist.</span><span class="sprache-einfach">Zeichne mit dem Finger oder mit dem Stift in die Felder. Die Skizzen gehen mit deinem Protokoll an Herrn Glaubitz. Die Lösung geht auf, wenn in <b>beiden</b> Feldern etwas gezeichnet ist.</span></p>
-    <div class="zeichenfeld" data-zid="a1a" data-titel="a) mit einem Ohmmeter" data-hoehe="300"></div>
-    <div class="zeichenfeld" data-zid="a1b" data-titel="b) ohne Ohmmeter" data-hoehe="300"></div>
+    <div class="zeichenfeld" data-modus="schaltung" data-gitter="gitter" data-zid="a1a" data-titel="a) mit einem Ohmmeter" data-hoehe="360"></div>
+    <div class="zeichenfeld" data-modus="schaltung" data-gitter="gitter" data-zid="a1b" data-titel="b) ohne Ohmmeter" data-hoehe="360"></div>
     <details class="gesperrt" data-fuer="zeichnung:a1a,zeichnung:a1b">
       <summary>Lösung A1</summary>
       <div class="zwei">
@@ -1864,38 +1903,284 @@ function chipMalen() {
 
 /* ---------- 11 Zeichenfelder (Touch / Stift) ---------- */
 const zeichnungen = {};
+/* ===========================================================================
+   Schaltskizzen: Bauteile, Anschluesse, Symbole
+
+   Eingeschaltet wird der Modus am Feld selbst:
+       <div class="zeichenfeld" data-modus="schaltung" …>
+   Ohne dieses Merkmal aendert sich an einem Zeichenfeld nichts - eine
+   Mathematikaufgabe bekommt keinen einzigen Knopf dazu. Das ist Absicht:
+   Die Leiste ist gerade erst entruempelt worden.
+
+   Jedes Bauteil ist in einem EIGENEN Koordinatensystem beschrieben: Mitte im
+   Ursprung, Laengsachse nach +x, Laenge zwei Kaestchen. Gedreht wird beim
+   Zeichnen, nicht in der Beschreibung - so gibt es jedes Symbol nur einmal,
+   und eine Korrektur am Widerstand gilt sofort fuer alle vier Lagen.
+
+   pins nennt die Anschluesse in derselben Einheit (Kaestchen, Mitte = 0).
+   Daran rasten die Leitungen ein; ohne sie waere jede Schaltung ein
+   Millimeterspiel.
+=========================================================================== */
+const SCHALT_TEILE = {
+  /* --- Quellen ------------------------------------------------------- */
+  /* Die Quelle muss sich auf den ersten Blick vom Kondensator unterscheiden:
+     dort zwei GLEICH lange Platten, hier eine lange duenne (Pluspol) und eine
+     kurze dicke (Minuspol). Im ersten Entwurf war der Unterschied zu klein -
+     beide Symbole sahen in der Palette gleich aus. */
+  quelle: { name: "Spannungsquelle", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    /* Die Platten sind bewusst nicht groesser als der Widerstandskasten:
+       Im ersten Entwurf ragte die Quelle so weit heraus, dass sie in einer
+       fertigen Schaltung alles andere erschlug. */
+    schaltDraht(c, -1 * e, -0.16 * e, 0.16 * e, 1 * e);
+    c.beginPath(); c.moveTo(-0.16 * e, -0.55 * e); c.lineTo(-0.16 * e, 0.55 * e); c.stroke();
+    const strich = c.lineWidth;
+    c.lineWidth = strich * 2.0;
+    c.beginPath(); c.moveTo(0.16 * e, -0.22 * e); c.lineTo(0.16 * e, 0.22 * e); c.stroke();
+    c.lineWidth = strich;
+  } },
+  quelle_regelbar: { name: "Spannungsquelle, regelbar", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    SCHALT_TEILE.quelle.mal(c, e);
+    schaltPfeil(c, -0.6 * e, 0.68 * e, 0.6 * e, -0.68 * e);
+  } },
+  /* --- Widerstaende --------------------------------------------------- */
+  widerstand: { name: "Widerstand", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    schaltDraht(c, -1 * e, -0.5 * e, 0.5 * e, 1 * e);
+    c.strokeRect(-0.5 * e, -0.32 * e, 1 * e, 0.64 * e);
+  } },
+  widerstand_regelbar: { name: "Widerstand, regelbar", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    SCHALT_TEILE.widerstand.mal(c, e);
+    schaltPfeil(c, -0.62 * e, 0.62 * e, 0.62 * e, -0.62 * e);
+  } },
+  /* NTC: Widerstand mit durchgehendem Schraegstrich, das θ ueber dem Kasten -
+     im ersten Entwurf sass es rechts daneben und stiess mit der Zuleitung
+     zusammen. */
+  ntc: { name: "NTC (Heißleiter)", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    SCHALT_TEILE.widerstand.mal(c, e);
+    c.beginPath(); c.moveTo(-0.62 * e, 0.44 * e); c.lineTo(0.62 * e, -0.44 * e); c.stroke();
+    schaltText(c, "θ", -0.62 * e, -0.62 * e, e * 0.8);
+  } },
+  /* LDR: zwei Lichtpfeile VON AUSSEN auf den Kasten zu, deutlich ueber ihm -
+     vorher zeigten sie in den Kasten hinein und verschwammen mit ihm. */
+  ldr: { name: "LDR (Fotowiderstand)", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    SCHALT_TEILE.widerstand.mal(c, e);
+    schaltPfeil(c, -0.72 * e, -1.05 * e, -0.28 * e, -0.5 * e);
+    schaltPfeil(c, -0.16 * e, -1.05 * e, 0.28 * e, -0.5 * e);
+  } },
+  /* --- Verbraucher und Schalter --------------------------------------- */
+  laempchen: { name: "Lämpchen", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    schaltDraht(c, -1 * e, -0.45 * e, 0.45 * e, 1 * e);
+    c.beginPath(); c.arc(0, 0, 0.45 * e, 0, 2 * Math.PI); c.stroke();
+    const r = 0.45 * e * Math.SQRT1_2;
+    c.beginPath();
+    c.moveTo(-r, -r); c.lineTo(r, r); c.moveTo(r, -r); c.lineTo(-r, r);
+    c.stroke();
+  } },
+  schalter: { name: "Schalter", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    schaltDraht(c, -1 * e, -0.45 * e, 0.45 * e, 1 * e);
+    c.beginPath(); c.moveTo(-0.45 * e, 0); c.lineTo(0.35 * e, -0.5 * e); c.stroke();
+    [-0.45, 0.45].forEach(x => {
+      c.beginPath(); c.arc(x * e, 0, 0.08 * e, 0, 2 * Math.PI); c.fill();
+    });
+  } },
+  /* --- Messgeraete ----------------------------------------------------- */
+  amperemeter: { name: "Amperemeter", pins: [[-1, 0], [1, 0]], mal: (c, e) => schaltMessgeraet(c, e, "A") },
+  voltmeter:   { name: "Voltmeter",   pins: [[-1, 0], [1, 0]], mal: (c, e) => schaltMessgeraet(c, e, "V") },
+  ohmmeter:    { name: "Ohmmeter",    pins: [[-1, 0], [1, 0]], mal: (c, e) => schaltMessgeraet(c, e, "Ω") },
+  /* --- Elektronik ------------------------------------------------------ */
+  diode: { name: "Diode", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    schaltDraht(c, -1 * e, -0.4 * e, 0.4 * e, 1 * e);
+    c.beginPath();
+    c.moveTo(-0.4 * e, -0.42 * e); c.lineTo(0.4 * e, 0); c.lineTo(-0.4 * e, 0.42 * e);
+    c.closePath(); c.stroke();
+    c.beginPath(); c.moveTo(0.4 * e, -0.45 * e); c.lineTo(0.4 * e, 0.45 * e); c.stroke();
+  } },
+  /* LED: dieselben zwei Pfeile wie beim LDR, nur andersherum - hier geht das
+     Licht WEG vom Bauteil. Sie sitzen ueber dem Dreieck, nicht darauf. */
+  led: { name: "LED", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    SCHALT_TEILE.diode.mal(c, e);
+    schaltPfeil(c, -0.28 * e, -0.6 * e, -0.72 * e, -1.05 * e);
+    schaltPfeil(c, 0.28 * e, -0.6 * e, -0.16 * e, -1.05 * e);
+  } },
+  /* Kondensator: zwei GLEICH lange Platten - das ist der Unterschied zur
+     Spannungsquelle, und er muss auf einen Blick zu sehen sein. */
+  kondensator: { name: "Kondensator", pins: [[-1, 0], [1, 0]], mal: (c, e) => {
+    schaltDraht(c, -1 * e, -0.14 * e, 0.14 * e, 1 * e);
+    const strich = c.lineWidth;
+    c.lineWidth = strich * 1.5;
+    [-0.14, 0.14].forEach(x => {
+      c.beginPath(); c.moveTo(x * e, -0.55 * e); c.lineTo(x * e, 0.55 * e); c.stroke();
+    });
+    c.lineWidth = strich;
+  } },
+  transistor: { name: "Transistor (npn)", pins: [[-1, 0], [1, -1], [1, 1]], mal: (c, e) => {
+    c.beginPath(); c.arc(0, 0, 0.7 * e, 0, 2 * Math.PI); c.stroke();
+    schaltDraht(c, -1 * e, -0.28 * e, 99, 99);                 /* Basisleitung */
+    c.beginPath(); c.moveTo(-0.28 * e, -0.45 * e); c.lineTo(-0.28 * e, 0.45 * e); c.stroke();
+    /* Kollektor nach oben rechts, Emitter nach unten rechts */
+    c.beginPath();
+    c.moveTo(-0.28 * e, -0.26 * e); c.lineTo(0.42 * e, -0.62 * e); c.lineTo(0.42 * e, -1 * e);
+    c.moveTo(-0.28 * e, 0.26 * e); c.lineTo(0.42 * e, 0.62 * e); c.lineTo(0.42 * e, 1 * e);
+    c.stroke();
+    /* Emitterpfeil */
+    schaltPfeil(c, 0.05 * e, 0.44 * e, 0.42 * e, 0.62 * e);
+    c.beginPath(); c.moveTo(0.42 * e, -1 * e); c.lineTo(1 * e, -1 * e);
+    c.moveTo(0.42 * e, 1 * e); c.lineTo(1 * e, 1 * e); c.stroke();
+  } },
+  knoten: { name: "Knotenpunkt", pins: [[0, 0]], mal: (c, e) => {
+    c.beginPath(); c.arc(0, 0, 0.16 * e, 0, 2 * Math.PI); c.fill();
+  } },
+};
+
+/* Die Zuleitungen links und rechts. 99 heisst: diese Seite hat keine. */
+function schaltDraht(c, x1, x2, x3, x4) {
+  c.beginPath();
+  if (x1 < 90) { c.moveTo(x1, 0); c.lineTo(x2, 0); }
+  if (x3 < 90) { c.moveTo(x3, 0); c.lineTo(x4, 0); }
+  c.stroke();
+}
+function schaltPfeil(c, x1, y1, x2, y2) {
+  const w = Math.atan2(y2 - y1, x2 - x1), s = Math.hypot(x2 - x1, y2 - y1) * 0.3;
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
+  c.lineTo(x2 - s * Math.cos(w - 0.4), y2 - s * Math.sin(w - 0.4));
+  c.moveTo(x2, y2);
+  c.lineTo(x2 - s * Math.cos(w + 0.4), y2 - s * Math.sin(w + 0.4));
+  c.stroke();
+}
+function schaltText(c, t, x, y, e) {
+  c.save();
+  c.font = "600 " + Math.round(0.5 * e) + "px sans-serif";
+  c.textAlign = "center"; c.textBaseline = "middle";
+  c.fillText(t, x, y);
+  c.restore();
+}
+function schaltMessgeraet(c, e, buchstabe) {
+  schaltDraht(c, -1 * e, -0.5 * e, 0.5 * e, 1 * e);
+  c.beginPath(); c.arc(0, 0, 0.5 * e, 0, 2 * Math.PI); c.stroke();
+  schaltText(c, buchstabe, 0, 0.02 * e, e);
+}
+
+/* Reihenfolge in der Palette: erst der Stromkreis, dann die Elektronik. */
+const SCHALT_PALETTE = [
+  "quelle", "quelle_regelbar", "widerstand", "widerstand_regelbar",
+  "laempchen", "ntc", "ldr", "schalter",
+  "amperemeter", "voltmeter", "ohmmeter", "knoten",
+  "diode", "led", "kondensator", "transistor",
+];
+
 document.querySelectorAll(".zeichenfeld").forEach(aufbauZeichnung);
 
 function aufbauZeichnung(box) {
   const zid = box.dataset.zid;
   const hoehe = parseInt(box.dataset.hoehe || "300", 10);
-  const z = { striche: [], farbe: "#1a2229", breite: 3, letztesLog: 0 };
+  const cv = document.createElement("canvas");
+  cv.width = 1000;
+  cv.height = Math.round(hoehe * 1000 / 900);
+
+  /* Zwei Dinge je Achse, und beide unabhängig voneinander:
+       ehx/ehy = wie BREIT ein Kästchen auf dem Schirm ist (Pixel),
+       sx/sy   = welchen WERT ein Kästchen bedeutet (1, 5, 10, 100 …).
+     Ohne das Zweite lässt sich eine Höhe von 145 m in keinem Feld eintragen,
+     egal wie groß man die Kästchen zieht. Startwerte je Aufgabe über
+     data-xwert / data-ywert. */
+  const z = {
+    elemente: [], papierkorb: [],
+    farbe: "#1a2229", breite: 5, werkzeug: "frei", form: "kreuz",
+    grund: box.dataset.gitter || "punkte",     // punkte | gitter | achsen
+    einrasten: true,
+    ox: 90, oy: cv.height - 70,                       // Ursprung in px (s. u.)
+    ehx: parseFloat(box.dataset.xkaestchen || "50"),  // Kästchengröße in px
+    ehy: parseFloat(box.dataset.ykaestchen || "50"),
+    sx: parseFloat(box.dataset.xwert || "1"),         // Wert je Kästchen
+    sy: parseFloat(box.dataset.ywert || "1"),
+    canvas: cv
+  };
+
+  /* --- Wo liegt der Nullpunkt? ------------------------------------------
+     Voreinstellung ist unten links - das passt, solange eine Aufgabe nur im
+     ersten Quadranten spielt. Sobald negative Werte vorkommen, passt es nicht,
+     und frueher musste der Schueler den Nullpunkt selbst verschieben. Das ist
+     keine mathematische Arbeit, sondern Bedienarbeit: Sie gehoert in die
+     Aufgabe, nicht in die Stunde.
+
+     data-xvon / data-yvon nennen den KLEINSTEN sichtbaren Wert je Achse -
+     also genau das, was beim Schreiben der Aufgabe ohnehin feststeht
+     ("von -1 bis 5 nach rechts, von -6 bis 4 nach oben").                  */
+  const xvon = box.dataset.xvon, yvon = box.dataset.yvon;
+  if (xvon !== undefined) z.ox = (0 - parseFloat(xvon)) / z.sx * z.ehx;
+  if (yvon !== undefined) z.oy = cv.height - (0 - parseFloat(yvon)) / z.sy * z.ehy;
+
   zeichnungen[zid] = z;
 
+  /* 1-2-5-Reihe über acht Zehnerpotenzen – deckt 0,01 bis 1 000 000 ab. */
+  const WERTE = [];
+  for (let e = -2; e <= 6; e++) [1, 2, 5].forEach(m => WERTE.push(m * Math.pow(10, e)));
+  function wertText(v) {
+    if (v >= 1000) return (v / 1000) + "k";
+    return String(v).replace(".", ",");
+  }
+
+  /* ---------- Werkzeugleiste ---------- */
   const wz = document.createElement("div");
   wz.className = "zwerkzeug";
   const titel = document.createElement("span");
   titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
   wz.appendChild(titel);
 
-  const ZBILD = {
-    duenn: '<path d="M3 10h14" stroke-width="1.4"/>',
-    dick:  '<path d="M3 10h14" stroke-width="4.6"/>',
+  /* ---------- Piktogramme ----------
+     Inline-SVG statt Emoji: Emoji werden je nach Geraet anders gezeichnet, und
+     ihre eigene Farbe kaempft mit dem blauen Aktiv-Zustand. Ein SVG mit
+     currentColor dreht sich beim Umschalten korrekt mit.
+     Alle Zeichnungen im Feld 0 0 20 20.                                     */
+  const BILD = {
+    frei:    '<path d="M2 14c3-9 5 5 8-2s5 2 8-3"/>',
+    punkt:   '<circle cx="10" cy="10" r="3.2" fill="currentColor" stroke="none"/>'
+           + '<path d="M10 2v3M10 15v3M2 10h3M15 10h3" opacity=".55"/>',
+    strecke: '<path d="M4.5 15.5 15.5 4.5"/>'
+           + '<circle cx="4.5" cy="15.5" r="2.2" fill="currentColor" stroke="none"/>'
+           + '<circle cx="15.5" cy="4.5" r="2.2" fill="currentColor" stroke="none"/>',
+    gerade:  '<path d="M2 15 18 5"/><path d="M2 15l3.4-.6M2 15l.6-3.4"/>'
+           + '<path d="M18 5l-3.4.6M18 5l-.6 3.4"/>',
+    duenn:   '<path d="M3 10h14" stroke-width="1.4"/>',
+    dick:    '<path d="M3 10h14" stroke-width="4.6"/>',
+    rasterP: '<g fill="currentColor" stroke="none">'
+           + '<circle cx="5" cy="5" r="1.3"/><circle cx="10" cy="5" r="1.3"/><circle cx="15" cy="5" r="1.3"/>'
+           + '<circle cx="5" cy="10" r="1.3"/><circle cx="10" cy="10" r="1.3"/><circle cx="15" cy="10" r="1.3"/>'
+           + '<circle cx="5" cy="15" r="1.3"/><circle cx="10" cy="15" r="1.3"/><circle cx="15" cy="15" r="1.3"/></g>',
+    rasterG: '<path d="M3 7.5h14M3 12.5h14M7.5 3v14M12.5 3v14"/>',
+    rasterA: '<path d="M4 16V3M4 16h13"/><path d="M4 3l-1.6 2.2M4 3l1.6 2.2"/>'
+           + '<path d="M17 16l-2.2-1.6M17 16l-2.2 1.6"/>',
+    magnet:  '<path d="M5 4v7a5 5 0 0 0 10 0V4"/><path d="M5 8h4M11 8h4"/>',
+    achsen:  '<path d="M3 6h14M3 14h14"/>'
+           + '<circle cx="8" cy="6" r="2.3" fill="#fff"/><circle cx="13" cy="14" r="2.3" fill="#fff"/>',
     zurueck: '<path d="M8 5 3.5 9.5 8 14"/><path d="M3.5 9.5H12a4.5 4.5 0 0 1 0 9h-1.5"/>',
-    muell: '<path d="M4 6h12M8 6V4h4v2M6 6l.9 11h6.2L14 6"/><path d="M9 9v5M11 9v5"/>'
+    vor:     '<path d="M12 5l4.5 4.5L12 14"/><path d="M16.5 9.5H8a4.5 4.5 0 0 0 0 9h1.5"/>',
+    muell:   '<path d="M4 6h12M8 6V4h4v2M6 6l.9 11h6.2L14 6"/><path d="M9 9v5M11 9v5"/>',
+    kleiner: '<path d="M12 4 6.5 10 12 16"/>',
+    groesser:'<path d="M8 4l5.5 6L8 16"/>',
+    minus:   '<path d="M4.5 10h11"/>',
+    plus:    '<path d="M4.5 10h11M10 4.5v11"/>',
+    /* Schaltskizze */
+    leitung: '<path d="M2 14h5v-8h6v8h5"/>',
+    zeiger:  '<path d="M5 3l11 7-4.6 1.2L13 17l-2 .8-1.7-4.8L5 15.6z" fill="currentColor" stroke="none"/>',
+    drehen:  '<path d="M15.5 8A6 6 0 1 0 16 12"/><path d="M16.5 3.5v4.7h-4.7"/>',
   };
-  function zsvg(name) {
+  function svg(name) {
     return '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" '
-      + 'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + ZBILD[name] + '</svg>';
+      + 'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + BILD[name] + '</svg>';
   }
-  /* bild: Name aus ZBILD oder null · text: "" macht einen reinen Bildknopf.
-     titelText wird Tooltip UND aria-label - Letzteres traegt den Knopf dort,
-     wo es kein Hover gibt. */
-  function knopf(bild, text, wirkung, gruppe, titelText) {
+
+  /* knopf(…) baut einen Knopf aus Bild und Wort.
+       bild      Name aus BILD, oder null fuer reinen Text
+       text      sichtbare Beschriftung, oder "" fuer einen reinen Bildknopf
+       titelText Tooltip UND aria-label - Letzteres traegt den reinen
+                 Bildknopf fuer Screenreader und fuer den Touchscreen,
+                 wo der Tooltip nie erscheint.
+       ziel      wohin der Knopf gehaengt wird (Leiste oder Achsenfeld) */
+  function knopf(bild, text, wirkung, gruppe, titelText, ziel) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "") + (text ? "" : " nurbild");
-    b.innerHTML = (bild ? zsvg(bild) : "") + (text ? "<span>" + text + "</span>" : "");
+    b.innerHTML = (bild ? svg(bild) : "") + (text ? "<span>" + text + "</span>" : "");
     if (titelText) { b.title = titelText; b.setAttribute("aria-label", titelText); }
     b.addEventListener("click", () => {
       if (gruppe) {
@@ -1904,97 +2189,752 @@ function aufbauZeichnung(box) {
       }
       wirkung();
     });
-    wz.appendChild(b);
+    (ziel || wz).appendChild(b);
     return b;
   }
+  function trenner() {
+    const s = document.createElement("span");
+    s.className = "ztrenn"; wz.appendChild(s);
+  }
 
-  /* Der Farbfleck IST die Beschriftung - ein Wort braucht er nicht. */
-  function zfarbknopf(farbe, name) {
+  /* Schaltskizze oder gewoehnliches Zeichenfeld? Der Modus entscheidet nur
+     ueber die Werkzeuge - Farben, Strichstaerke, Hintergrund, Rueckgaengig
+     und das Protokoll bleiben in beiden Faellen dieselben. */
+  const schaltung = box.dataset.modus === "schaltung";
+
+  /* Werkzeuge */
+  const kFrei    = knopf("frei", "Freihand", () => setzeWerkzeug("frei"), "w" + zid, "Freihand zeichnen");
+  const kPunkt   = schaltung ? null
+    : knopf("punkt", "Punkt", () => setzeWerkzeug("punkt"), "w" + zid, "einen Punkt setzen");
+  const kStrecke = schaltung ? null
+    : knopf("strecke", "Strecke", () => setzeWerkzeug("strecke"), "w" + zid, "Strecke von Punkt zu Punkt");
+  const kGerade  = schaltung ? null
+    : knopf("gerade", "Gerade", () => setzeWerkzeug("gerade"), "w" + zid, "Gerade durch zwei Punkte");
+
+  /* --- Werkzeuge der Schaltskizze -------------------------------------- */
+  let kLeitung = null, kZeiger = null, kDrehen = null, kEntfernen = null;
+  if (schaltung) {
+    kLeitung = knopf("leitung", "Leitung", () => setzeWerkzeug("leitung"), "w" + zid,
+      "Leitung ziehen — läuft nur waagerecht und senkrecht und rastet an den Anschlüssen ein");
+    kZeiger = knopf("zeiger", "Auswählen", () => setzeWerkzeug("zeiger"), "w" + zid,
+      "Bauteil antippen und verschieben");
+    kDrehen = knopf("drehen", "", () => {
+      if (!z.auswahl || z.auswahl.art !== "bauteil") return;
+      z.auswahl.rot = ((z.auswahl.rot || 0) + 1) % 4;
+      protokolliere("zeichnung", zid,
+        SCHALT_TEILE[z.auswahl.typ].name + " gedreht (" + (z.auswahl.rot * 90) + "°)");
+      malen(); speichern();
+    }, null, "Ausgewähltes Bauteil um 90° drehen");
+    kEntfernen = knopf("muell", "", () => {
+      if (!z.auswahl) return;
+      const i = z.elemente.indexOf(z.auswahl);
+      if (i < 0) return;
+      const was = z.auswahl.art === "bauteil"
+        ? SCHALT_TEILE[z.auswahl.typ].name : "Leitung";
+      z.papierkorb.push(z.elemente.splice(i, 1)[0]);
+      z.auswahl = null;
+      protokolliere("zeichnung", zid, was + " entfernt");
+      malen(); sperrenPruefen(); speichern();
+    }, null, "Ausgewähltes Teil entfernen");
+    kEntfernen.classList.add("zentfernen");
+  }
+  const kForm = schaltung ? null : knopf(null, "✕", () => {
+    z.form = (z.form === "kreuz") ? "punkt" : "kreuz";
+    kForm.querySelector("span").textContent = (z.form === "kreuz") ? "✕" : "●";
+    const t = (z.form === "kreuz") ? "Punkte als Kreuz — tippen für Punkt"
+                                   : "Punkte als Punkt — tippen für Kreuz";
+    kForm.title = t; kForm.setAttribute("aria-label", t);
+  }, null, "Punkte als Kreuz — tippen für Punkt");
+  if (kForm) kForm.classList.add("zform");
+
+  trenner();
+  const kDuenn = knopf("duenn", "", () => z.breite = 2, "b" + zid, "dünner Strich");
+  const kDick  = knopf("dick", "", () => z.breite = 5, "b" + zid, "dicker Strich");
+
+  trenner();
+  function farbknopf(farbe, name) {
     const b = knopf(null, "", () => z.farbe = farbe, "f" + zid, name);
     b.classList.add("zfarbe");
     b.innerHTML = '<span class="fleck" style="background:' + farbe + '"></span>';
     return b;
   }
-  const kDuenn = knopf("duenn", "", () => z.breite = 2, "b" + zid, "dünner Strich");
-  const kDick = knopf("dick", "", () => z.breite = 5, "b" + zid, "dicker Strich");
-  const kSchwarz = zfarbknopf("#1a2229", "schwarz");
-  zfarbknopf("#c62828", "rot");
-  knopf("zurueck", "", () => {
-    if (!z.striche.length) return;
-    z.striche.pop(); malen(); protokolliere("zeichnung", zid, "Strich zurückgenommen (" + z.striche.length + " Striche)");
-    sperrenPruefen();
-  }, null, "Strich zurücknehmen");
+  const kSchwarz = farbknopf("#1a2229", "schwarz");
+  farbknopf("#c62828", "rot");
+  farbknopf("#0b5aa0", "blau");
+
+  trenner();
+  /* Hintergrund */
+  const kPunkteG = knopf("rasterP", "Punkte", () => setzeGrund("punkte"), "h" + zid, "Punktraster im Hintergrund");
+  const kGitter  = knopf("rasterG", "Gitter", () => setzeGrund("gitter"), "h" + zid, "blassgraues Koordinatengitter");
+  const kAchsen  = knopf("rasterA", "Achsen", () => setzeGrund("achsen"), "h" + zid, "Koordinatensystem mit Nullpunkt und Skala");
+
+  const kRasten = knopf("magnet", "Einrasten", () => {
+    z.einrasten = !z.einrasten;
+    rastenZeigen();
+    protokolliere("zeichnung", zid, "Einrasten " + (z.einrasten ? "an" : "aus"));
+  }, null, "Punkte auf die Gitterpunkte ziehen");
+  function rastenZeigen() {
+    kRasten.classList.toggle("aktivw", z.einrasten);
+    kRasten.setAttribute("aria-pressed", z.einrasten ? "true" : "false");
+    const t = z.einrasten ? "Einrasten ist an — tippen zum Ausschalten"
+                          : "Einrasten ist aus — tippen zum Einschalten";
+    kRasten.title = t; kRasten.setAttribute("aria-label", t);
+  }
+  /* Ohne Achsen gibt es nichts einzuteilen. Der Knopf verschwindet dann, und
+     ein offenes Feld klappt zu - sonst blieben Regler ohne Wirkung stehen. */
+  function achsFeldZeigen(moeglich) {
+    kAchsFeld.style.display = moeglich ? "" : "none";
+    if (!moeglich) {
+      zPanel.hidden = true;
+      kAchsFeld.classList.remove("aktivw");
+      kAchsFeld.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  /* Ein Knopf statt elf: die Achsen-Einteilung wird eingeklappt. */
+  const kAchsFeld = knopf("achsen", "Einteilung", () => {
+    zPanel.hidden = !zPanel.hidden;
+    kAchsFeld.classList.toggle("aktivw", !zPanel.hidden);
+    kAchsFeld.setAttribute("aria-expanded", zPanel.hidden ? "false" : "true");
+  }, null, "Nullpunkt und Kästchen-Einteilung ändern");
+  kAchsFeld.setAttribute("aria-expanded", "false");
+
+  trenner();
+
+  /* --- Die Bauteil-Palette ---------------------------------------------
+     Jeder Knopf zeichnet SEIN EIGENES Symbol auf ein kleines Canvas - mit
+     derselben mal()-Funktion, die es spaeter in der Skizze zeichnet. Damit
+     koennen Knopf und Zeichnung gar nicht auseinanderlaufen, und ein neues
+     Bauteil braucht nur einen Eintrag in SCHALT_TEILE.                    */
+  if (schaltung) {
+    const palette = document.createElement("div");
+    palette.className = "zpalette";
+    const pTitel = document.createElement("p");
+    pTitel.className = "zhinweis";
+    pTitel.textContent = "Bauteil antippen, dann in die Zeichnung tippen. "
+      + "Zum Verschieben auf „Auswählen“ gehen.";
+    palette.appendChild(pTitel);
+
+    SCHALT_PALETTE.forEach(typ => {
+      const def = SCHALT_TEILE[typ];
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "knopf klein zteil g-w" + zid;
+      b.title = def.name;
+      b.setAttribute("aria-label", def.name);
+      const mini = document.createElement("canvas");
+      mini.width = 96; mini.height = 60;
+      mini.style.width = "48px"; mini.style.height = "30px";
+      const mc = mini.getContext("2d");
+      mc.translate(48, 30);
+      mc.strokeStyle = "#1a2229"; mc.fillStyle = "#1a2229";
+      mc.lineWidth = 3; mc.lineCap = "round";
+      def.mal(mc, 22);
+      b.appendChild(mini);
+      b.addEventListener("click", () => {
+        wz.querySelectorAll(".g-w" + zid).forEach(x => x.classList.remove("aktivw"));
+        palette.querySelectorAll(".zteil").forEach(x => x.classList.remove("aktivw"));
+        b.classList.add("aktivw");
+        z.bauteil = typ;
+        setzeWerkzeug("bauteil");
+      });
+      palette.appendChild(b);
+    });
+    z.palette = palette;          /* eingehaengt wird weiter unten, der Reihe nach */
+  }
+
+  /* --- Das ausklappbare Achsenfeld ------------------------------------- */
+  const zPanel = document.createElement("div");
+  zPanel.className = "zachsen";
+  zPanel.hidden = true;
+  const zHinweis = document.createElement("p");
+  zHinweis.className = "zhinweis";
+  zHinweis.textContent = "Meist musst du hier nichts ändern — die Einteilung passt schon zur Aufgabe.";
+  zPanel.appendChild(zHinweis);
+
+  const kNull = knopf("punkt", "0-Punkt setzen", () => {
+    setzeWerkzeug("ursprung");
+    kNull.classList.add("aktivw");
+  }, null, "Nullpunkt an die nächste angetippte Stelle legen", zPanel);
+
+  /* Pro Achse: Wert je Kästchen (‹ ›) und Kästchengröße (− +). */
+  function achsZeile(achse) {
+    const gross = achse.toUpperCase();
+    knopf("kleiner", "", () => wertStufe(achse, -1), null,
+      gross + "-Achse: kleinerer Wert je Kästchen", zPanel);
+    const anz = document.createElement("span");
+    anz.className = "zskala";
+    zPanel.appendChild(anz);
+    knopf("groesser", "", () => wertStufe(achse, +1), null,
+      gross + "-Achse: größerer Wert je Kästchen", zPanel);
+    knopf("minus", "", () => kaestchen(achse, -1), null,
+      gross + "-Kästchen schmaler", zPanel);
+    knopf("plus", "", () => kaestchen(achse, +1), null,
+      gross + "-Kästchen breiter", zPanel);
+    return anz;
+  }
+  const anzX = achsZeile("x");
+  const anzY = achsZeile("y");
+
+  function wertStufe(achse, richtung) {
+    const schl = achse === "x" ? "sx" : "sy";
+    let i = WERTE.findIndex(v => Math.abs(v - z[schl]) < 1e-9);
+    if (i < 0) i = WERTE.indexOf(1);
+    i = Math.max(0, Math.min(WERTE.length - 1, i + richtung));
+    z[schl] = WERTE[i];
+    skalaAnzeigen(); malen();
+  }
+  function kaestchen(achse, richtung) {
+    const stufen = [16, 20, 25, 32, 40, 50, 65, 80, 100];
+    const schl = achse === "x" ? "ehx" : "ehy";
+    let i = stufen.findIndex(v => v >= z[schl]);
+    if (i < 0) i = stufen.length - 1;
+    i = Math.max(0, Math.min(stufen.length - 1, i + richtung));
+    z[schl] = stufen[i];
+    malen();
+  }
+  function skalaAnzeigen() {
+    anzX.textContent = "x: " + wertText(z.sx) + "/Käst.";
+    anzY.textContent = "y: " + wertText(z.sy) + "/Käst.";
+  }
+  skalaAnzeigen();
+
+  const kZurueck = knopf("zurueck", "", () => zurueck(), null, "Rückgängig — letztes Element zurücknehmen");
+  const kVor = knopf("vor", "", () => vor(), null, "Wiederherstellen — zurückgenommenes Element wiederholen");
   knopf("muell", "", () => {
-    if (!z.striche.length) return;
-    protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.striche.length + " Striche)");
-    z.striche = []; malen(); sperrenPruefen();
+    if (!z.elemente.length) return;
+    protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.elemente.length + " Elemente)");
+    z.papierkorb = z.elemente.slice().reverse().concat(z.papierkorb);
+    z.elemente = []; malen(); sperrenPruefen(); speichern();
   }, null, "Alles löschen");
-  kDick.classList.add("aktivw"); z.breite = 5;
-  kSchwarz.classList.add("aktivw");
+
   const status = document.createElement("span");
-  status.className = "zstatus"; status.textContent = "0 Striche";
+  status.className = "zstatus"; status.textContent = "0 Elemente";
   wz.appendChild(status);
 
-  const cv = document.createElement("canvas");
-  cv.width = 1000;
-  cv.height = Math.round(hoehe * 1000 / 900);
-  box.appendChild(wz); box.appendChild(cv);
-  const ctx = cv.getContext("2d");
-  z.canvas = cv;
+  /* In der Schaltskizze faengt man mit der Leitung an, nicht mit Freihand:
+     Das ist der Strich, den man am haeufigsten zieht. */
+  (schaltung ? kLeitung : kFrei).classList.add("aktivw");
+  kDick.classList.add("aktivw");
+  kSchwarz.classList.add("aktivw");
+  (z.grund === "achsen" ? kAchsen : z.grund === "gitter" ? kGitter : kPunkteG).classList.add("aktivw");
 
+  box.appendChild(wz);
+  if (z.palette) box.appendChild(z.palette);
+  box.appendChild(zPanel); box.appendChild(cv);
+  const ctx = cv.getContext("2d");
+
+  function setzeWerkzeug(w) {
+    z.werkzeug = w; z.warte = null;
+    if (w !== "ursprung") kNull.classList.remove("aktivw");
+    if (kForm) kForm.style.display = (w === "punkt") ? "" : "none";
+    /* Ein anderes Werkzeug hebt die Bauteilwahl auf - sonst leuchtete in der
+       Palette noch ein Teil, das gar nicht mehr gesetzt wird. */
+    if (w !== "bauteil" && z.palette)
+      z.palette.querySelectorAll(".zteil").forEach(x => x.classList.remove("aktivw"));
+    if (w !== "zeiger") { z.auswahl = null; z.zieht = null; }
+    auswahlZeigen();
+    malen();
+  }
+  /* Drehen und Entfernen wirken nur auf etwas Ausgewaehltes. Sie bleiben
+     sichtbar, aber ausgegraut - so sieht man, dass es sie gibt, und
+     versteht zugleich, warum sie gerade nichts tun. */
+  function auswahlZeigen() {
+    if (!kDrehen) return;
+    const teil = z.auswahl && z.auswahl.art === "bauteil";
+    kDrehen.disabled = !teil;
+    kEntfernen.disabled = !z.auswahl;
+  }
+  function setzeGrund(g) {
+    z.grund = g;
+    if (g === "punkte") z.einrasten = false;
+    else if (!z.einrasten) { z.einrasten = true; }
+    rastenZeigen();
+    /* Ohne Achsen gibt es nichts einzuteilen: Der Knopf verschwindet, und ein
+       offenes Feld klappt zu - sonst stuenden dort Regler ohne Wirkung. */
+    achsFeldZeigen(g !== "punkte");
+    protokolliere("zeichnung", zid, "Hintergrund gewechselt: " +
+      (g === "achsen" ? "Koordinatensystem" : g === "gitter" ? "Koordinatengitter" : "Punktraster"));
+    malen();
+  }
+  function neu(el) {
+    z.elemente.push(el);
+    z.papierkorb = [];               // ein neuer Zug verwirft die Wiederherstellen-Kette
+    malen(); sperrenPruefen(); speichern();
+    logNachlaufend();
+  }
+  function zurueck() {
+    if (!z.elemente.length) return;
+    z.papierkorb.push(z.elemente.pop());
+    malen(); sperrenPruefen(); speichern();
+    protokolliere("zeichnung", zid, "zurückgenommen (" + z.elemente.length + " Elemente)");
+  }
+  function vor() {
+    if (!z.papierkorb.length) return;
+    z.elemente.push(z.papierkorb.pop());
+    malen(); sperrenPruefen(); speichern();
+    protokolliere("zeichnung", zid, "wiederhergestellt (" + z.elemente.length + " Elemente)");
+  }
+  z.zurueck = zurueck; z.vor = vor;
+
+  /* Achsenzustand als Ganzes lesen und wieder herstellen. Ohne ihn sähe eine
+     fortgesetzte Zeichnung anders aus als beim Speichern: Die Elemente tragen
+     Koordinatenwerte, deren Bild aber von Nullpunkt und Skala abhängt. */
+  z.achsenStand = () => ({ ox: z.ox, oy: z.oy, ehx: z.ehx, ehy: z.ehy,
+                           sx: z.sx, sy: z.sy, grund: z.grund });
+  z.achsenSetzen = function (a) {
+    if (!a) return;
+    ["ox", "oy", "ehx", "ehy", "sx", "sy"].forEach(k => {
+      if (typeof a[k] === "number" && isFinite(a[k])) z[k] = a[k];
+    });
+    if (a.grund && a.grund !== z.grund) {
+      z.grund = a.grund;
+      [kPunkteG, kGitter, kAchsen].forEach(b => b.classList.remove("aktivw"));
+      (a.grund === "achsen" ? kAchsen : a.grund === "gitter" ? kGitter : kPunkteG)
+        .classList.add("aktivw");
+      setzeGrundStill(a.grund);
+    }
+    skalaAnzeigen(); malen();
+  };
+
+  /* Nachlaufende Drossel: nicht jedes Element eine Zeile, aber der zuletzt
+     erreichte Stand muss immer ankommen (siehe Protokollvertrag). */
+  function logNachlaufend() {
+    if (z.elemente.length === 1 && !z.ersterGeloggt) {
+      z.ersterGeloggt = true;
+      protokolliere("zeichnung", zid, "1 Elemente gezeichnet");
+      return;
+    }
+    clearTimeout(z.logTimer);
+    z.logTimer = setTimeout(() => {
+      if (z.zuletztGeloggt === z.elemente.length) return;
+      z.zuletztGeloggt = z.elemente.length;
+      protokolliere("zeichnung", zid, z.elemente.length + " Elemente gezeichnet");
+    }, 1200);
+  }
+
+  /* ---------- Umrechnung Koordinatenwert <-> Pixel ---------- */
+  const gx = w => z.ox + w / z.sx * z.ehx;      // Wert  -> Pixel
+  const gy = w => z.oy - w / z.sy * z.ehy;
+  const wx = p => (p - z.ox) / z.ehx * z.sx;    // Pixel -> Wert
+  const wy = p => (z.oy - p) / z.ehy * z.sy;
+
+  /* ---------- Zeichnen ---------- */
   function malen() {
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
-    ctx.fillStyle = "#dde4ea";
-    for (let x = 25; x < cv.width; x += 25)
-      for (let y = 25; y < cv.height; y += 25) ctx.fillRect(x, y, 1.4, 1.4);
+    if (z.grund === "punkte") malPunktraster();
+    else malGitter(z.grund === "achsen");
     ctx.lineCap = "round"; ctx.lineJoin = "round";
-    const alle = z.striche.concat(z.aktuell ? [z.aktuell] : []);
-    alle.forEach(st => {
-      ctx.strokeStyle = st.farbe; ctx.lineWidth = st.breite;
-      ctx.beginPath();
-      st.punkte.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
-      if (st.punkte.length === 1) { ctx.lineTo(st.punkte[0].x + .1, st.punkte[0].y + .1); }
-      ctx.stroke();
-    });
-    status.textContent = z.striche.length + (z.striche.length === 1 ? " Strich" : " Striche");
+    z.elemente.forEach(malElement);
+    if (z.vorschau) malElement(z.vorschau, true);
+    if (z.warte) {                                  /* gesetzter erster Punkt */
+      ctx.fillStyle = "#ef6c00";
+      ctx.beginPath(); ctx.arc(gx(z.warte.x), gy(z.warte.y), 6, 0, 2 * Math.PI); ctx.fill();
+    }
+    /* Das ausgewaehlte Bauteil bekommt einen Ring - sonst weiss niemand,
+       worauf "Drehen" und "Entfernen" gleich wirken. */
+    if (z.auswahl && z.elemente.indexOf(z.auswahl) >= 0) {
+      const el = z.auswahl;
+      ctx.save();
+      ctx.strokeStyle = "#ef6c00"; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+      if (el.art === "bauteil") {
+        const e = zelle();
+        ctx.beginPath();
+        ctx.arc(gx(el.p.x), gy(el.p.y), e * 0.85, 0, 2 * Math.PI);
+        ctx.stroke();
+      } else if (el.art === "leitung") {
+        ctx.beginPath();
+        el.punkte.forEach((pt, i) => i ? ctx.lineTo(gx(pt.x), gy(pt.y)) : ctx.moveTo(gx(pt.x), gy(pt.y)));
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    status.textContent = z.elemente.length + (z.elemente.length === 1 ? " Element" : " Elemente")
+      + (z.papierkorb.length ? " · " + z.papierkorb.length + " zurückgenommen" : "")
+      + (z.letzterPunkt && z.grund === "achsen" ? " · zuletzt " + z.letzterPunkt : "");
+    kZurueck.disabled = !z.elemente.length;
+    kVor.disabled = !z.papierkorb.length;
   }
   z.malen = malen;
 
-  function pos(e) {
-    const r = cv.getBoundingClientRect();
-    return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+  function malPunktraster() {
+    ctx.fillStyle = "#dde4ea";
+    for (let x = 25; x < cv.width; x += 25)
+      for (let y = 25; y < cv.height; y += 25) ctx.fillRect(x, y, 1.4, 1.4);
   }
+
+  /* Zahl an der Achse: Dezimalkomma, keine Nachkommanullen, ab 10 000 gekürzt. */
+  function achsZahl(v) {
+    if (v === 0) return "0";
+    if (Math.abs(v) >= 10000) {
+      const t = v / 1000;
+      return (Math.round(t * 10) / 10).toString().replace(".", ",") + "k";
+    }
+    return (Math.round(v * 1000) / 1000).toString().replace(".", ",");
+  }
+
+  function malGitter(mitAchsen) {
+    const ex = z.ehx, ey = z.ehy, ox = z.ox, oy = z.oy;
+    /* feine Linien */
+    ctx.strokeStyle = "#e3e9ee"; ctx.lineWidth = 1;
+    for (let x = ox % ex; x < cv.width; x += ex) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, cv.height); ctx.stroke();
+    }
+    for (let y = oy % ey; y < cv.height; y += ey) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cv.width, y); ctx.stroke();
+    }
+    /* jede fünfte Linie kräftiger */
+    ctx.strokeStyle = "#cdd6de";
+    for (let k = -200; k <= 200; k++) {
+      const x = ox + k * 5 * ex;
+      if (x >= 0 && x <= cv.width) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, cv.height); ctx.stroke(); }
+      const y = oy + k * 5 * ey;
+      if (y >= 0 && y <= cv.height) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cv.width, y); ctx.stroke(); }
+    }
+    if (!mitAchsen) return;
+    /* Achsen mit Pfeilen */
+    ctx.strokeStyle = "#5a6570"; ctx.fillStyle = "#5a6570"; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(cv.width - 6, oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, cv.height); ctx.lineTo(ox, 6); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cv.width, oy); ctx.lineTo(cv.width - 14, oy - 6); ctx.lineTo(cv.width - 14, oy + 6);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(ox, 0); ctx.lineTo(ox - 6, 14); ctx.lineTo(ox + 6, 14);
+    ctx.closePath(); ctx.fill();
+    /* Skalenzahlen: k-tes Kästchen trägt den Wert k · sx bzw. k · sy.
+       Beschriftet wird nur so dicht, dass die Zahlen sich nicht überlappen. */
+    ctx.font = "15px sans-serif"; ctx.fillStyle = "#5a6570";
+    const jedesX = ex >= 46 ? 1 : ex >= 24 ? 2 : 5;
+    const jedesY = ey >= 30 ? 1 : ey >= 20 ? 2 : 5;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (let k = -200; k <= 200; k++) {
+      if (k === 0) continue;
+      const x = ox + k * ex;
+      if (x < 14 || x > cv.width - 14) continue;
+      ctx.beginPath(); ctx.moveTo(x, oy - 5); ctx.lineTo(x, oy + 5); ctx.stroke();
+      if (k % jedesX === 0) ctx.fillText(achsZahl(k * z.sx), x, oy + 8);
+    }
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (let k = -200; k <= 200; k++) {
+      if (k === 0) continue;
+      const y = oy - k * ey;
+      if (y < 12 || y > cv.height - 12) continue;
+      ctx.beginPath(); ctx.moveTo(ox - 5, y); ctx.lineTo(ox + 5, y); ctx.stroke();
+      if (k % jedesY === 0) ctx.fillText(achsZahl(k * z.sy), ox - 9, y);
+    }
+    ctx.textAlign = "right"; ctx.textBaseline = "top";
+    ctx.fillText("0", ox - 8, oy + 8);
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  }
+
+  function malElement(el, blass) {
+    ctx.save();
+    if (blass) ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = el.farbe; ctx.fillStyle = el.farbe;
+    ctx.lineWidth = el.breite || 3;
+    if (el.art === "frei") {
+      ctx.beginPath();
+      el.punkte.forEach((pt, i) => i ? ctx.lineTo(gx(pt.x), gy(pt.y)) : ctx.moveTo(gx(pt.x), gy(pt.y)));
+      if (el.punkte.length === 1) ctx.lineTo(gx(el.punkte[0].x) + .1, gy(el.punkte[0].y) + .1);
+      ctx.stroke();
+    } else if (el.art === "punkt") {
+      const px = gx(el.p.x), py = gy(el.p.y);
+      if (el.form === "kreuz") {
+        const r = 9;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(px - r, py - r); ctx.lineTo(px + r, py + r);
+        ctx.moveTo(px + r, py - r); ctx.lineTo(px - r, py + r);
+        ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(px, py, 6, 0, 2 * Math.PI); ctx.fill();
+      }
+    } else if (el.art === "strecke") {
+      ctx.beginPath();
+      ctx.moveTo(gx(el.a.x), gy(el.a.y)); ctx.lineTo(gx(el.b.x), gy(el.b.y));
+      ctx.stroke();
+    } else if (el.art === "gerade") {
+      const p = geradeRand({ x: gx(el.a.x), y: gy(el.a.y) }, { x: gx(el.b.x), y: gy(el.b.y) });
+      if (p) { ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); ctx.lineTo(p[1].x, p[1].y); ctx.stroke(); }
+    } else if (el.art === "leitung") {
+      ctx.beginPath();
+      el.punkte.forEach((pt, i) => i ? ctx.lineTo(gx(pt.x), gy(pt.y)) : ctx.moveTo(gx(pt.x), gy(pt.y)));
+      ctx.stroke();
+    } else if (el.art === "bauteil") {
+      const def = SCHALT_TEILE[el.typ];
+      if (def) {
+        ctx.save();
+        ctx.translate(gx(el.p.x), gy(el.p.y));
+        ctx.rotate((el.rot || 0) * Math.PI / 2);
+        ctx.lineJoin = "miter";
+        def.mal(ctx, zelle());
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  /* --- Schaltskizze: Masse, Anschluesse, Treffer ------------------------
+     Die Symbole werden in Pixeln gezeichnet, ihre LAGE aber wie jedes andere
+     Element in Werten gehalten - so wandert ein Bauteil beim Umskalieren mit
+     seinem Gitter mit, statt auf dem Schirm liegenzubleiben.
+     Als Kantenlaenge gilt das kleinere der beiden Kaestchenmasse: Sonst
+     verzerrte ein Bauteil, sobald die Achsen verschieden eingeteilt sind. */
+  function zelle() { return Math.min(z.ehx, z.ehy); }
+
+  /* Anschluesse eines Bauteils in Bildschirmpunkten. */
+  function pins(el) {
+    const def = SCHALT_TEILE[el.typ];
+    if (!def) return [];
+    const e = zelle(), w = (el.rot || 0) * Math.PI / 2;
+    const cx = gx(el.p.x), cy = gy(el.p.y);
+    return def.pins.map(([px, py]) => ({
+      x: cx + (px * e) * Math.cos(w) - (py * e) * Math.sin(w),
+      y: cy + (px * e) * Math.sin(w) + (py * e) * Math.cos(w),
+    }));
+  }
+
+  /* Welches Element liegt unter dem Finger? Bauteile zuerst - sie liegen
+     obenauf, und wer eines treffen will, meint selten die Leitung darunter. */
+  function trefferBei(px, py) {
+    const e = zelle();
+    for (let i = z.elemente.length - 1; i >= 0; i--) {
+      const el = z.elemente[i];
+      if (el.art === "bauteil" && Math.hypot(gx(el.p.x) - px, gy(el.p.y) - py) < e * 0.8) return el;
+    }
+    for (let i = z.elemente.length - 1; i >= 0; i--) {
+      const el = z.elemente[i];
+      if (el.art !== "leitung") continue;
+      for (let k = 1; k < el.punkte.length; k++) {
+        if (abstandZuStrecke(px, py,
+          gx(el.punkte[k - 1].x), gy(el.punkte[k - 1].y),
+          gx(el.punkte[k].x), gy(el.punkte[k].y)) < 10) return el;
+      }
+    }
+    return null;
+  }
+  function abstandZuStrecke(px, py, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const l2 = dx * dx + dy * dy;
+    if (l2 < 1e-9) return Math.hypot(px - x1, py - y1);
+    let t = ((px - x1) * dx + (py - y1) * dy) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+  }
+
+  /* Der naechste Anschluss in Reichweite - daran rasten die Leitungen ein.
+     Ohne das waere jede Schaltung ein Millimeterspiel. */
+  function nahesterPin(px, py) {
+    let best = null, bestD = zelle() * 0.55;
+    z.elemente.forEach(el => {
+      if (el.art !== "bauteil") return;
+      pins(el).forEach(q => {
+        const d = Math.hypot(q.x - px, q.y - py);
+        if (d < bestD) { bestD = d; best = q; }
+      });
+    });
+    return best;
+  }
+
+  /* Schnittpunkte der Geraden durch a und b mit dem Feldrand. */
+  function geradeRand(a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    if (Math.abs(dx) < 1e-9 && Math.abs(dy) < 1e-9) return null;
+    const ts = [];
+    if (Math.abs(dx) > 1e-9) { ts.push((0 - a.x) / dx, (cv.width - a.x) / dx); }
+    if (Math.abs(dy) > 1e-9) { ts.push((0 - a.y) / dy, (cv.height - a.y) / dy); }
+    const treffer = ts
+      .map(t => ({ x: a.x + t * dx, y: a.y + t * dy }))
+      .filter(p => p.x >= -1 && p.x <= cv.width + 1 && p.y >= -1 && p.y <= cv.height + 1);
+    if (treffer.length < 2) return null;
+    let best = [treffer[0], treffer[1]], w = -1;
+    for (let i = 0; i < treffer.length; i++)
+      for (let j = i + 1; j < treffer.length; j++) {
+        const d = Math.hypot(treffer[i].x - treffer[j].x, treffer[i].y - treffer[j].y);
+        if (d > w) { w = d; best = [treffer[i], treffer[j]]; }
+      }
+    return best;
+  }
+
+  /* ---------- Eingabe ---------- */
+  /* Rohe Pixelposition des Zeigers auf der Zeichenfläche. */
+  function posPixel(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * cv.width / r.width,
+             y: (e.clientY - r.top) * cv.height / r.height };
+  }
+  /* Dieselbe Stelle als Koordinatenwert, mit Einrasten auf die Gitterpunkte.
+     Nachrunden, weil Math.round(v / 0,01) * 0,01 sonst 0,30000000000000004 liefert. */
+  function pos(e) {
+    const q = posPixel(e);
+    let x = wx(q.x), y = wy(q.y);
+    if (z.einrasten && z.grund !== "punkte") {
+      x = +(Math.round(x / z.sx) * z.sx).toFixed(6);
+      y = +(Math.round(y / z.sy) * z.sy).toFixed(6);
+    }
+    return { x: x, y: y };
+  }
+
+  /* Welches Wertepaar ist das? Für Statuszeile und Protokoll. */
+  function wertePaar(p) {
+    return "(" + achsZahl(p.x) + " | " + achsZahl(p.y) + ")";
+  }
+
   cv.addEventListener("pointerdown", e => {
     e.preventDefault();
     try { cv.setPointerCapture(e.pointerId); } catch (x) { }
-    z.aktuell = { farbe: z.farbe, breite: z.breite, punkte: [pos(e)] };
-    malen();
-  });
-  cv.addEventListener("pointermove", e => {
-    if (!z.aktuell) return;
-    e.preventDefault();
-    const p = pos(e), letzt = z.aktuell.punkte[z.aktuell.punkte.length - 1];
-    if (Math.abs(p.x - letzt.x) + Math.abs(p.y - letzt.y) < 1.5) return;
-    z.aktuell.punkte.push(p); malen();
-  });
-  function fertig() {
-    if (!z.aktuell) return;
-    if (z.aktuell.punkte.length >= 1) z.striche.push(z.aktuell);
-    z.aktuell = null; malen(); sperrenPruefen(); speichern();
-    const jetzt = Date.now();
-    if (z.striche.length <= 1 || jetzt - z.letztesLog > 6000) {
-      z.letztesLog = jetzt;
-      protokolliere("zeichnung", zid, z.striche.length + " Striche gezeichnet");
+    const p = pos(e);
+    if (z.werkzeug === "ursprung") {
+      /* Der Nullpunkt ist eine Eigenschaft der Achsen, nicht der Zeichnung:
+         Er wird in Pixeln gesetzt, die Elemente behalten ihre Werte und
+         rücken deshalb sichtbar mit dem Gitter mit. */
+      const q = posPixel(e);
+      z.ox = q.x; z.oy = q.y;
+      protokolliere("zeichnung", zid, "Nullpunkt neu gesetzt");
+      setzeWerkzeug("frei");
+      kFrei.classList.add("aktivw");
+      wz.querySelectorAll(".g-w" + zid).forEach(x => x.classList.remove("aktivw"));
+      kFrei.classList.add("aktivw");
+      malen();
+      return;
     }
+    /* ---------- Schaltskizze ---------- */
+    if (z.werkzeug === "bauteil") {
+      neu({ art: "bauteil", typ: z.bauteil, p: p, rot: 0,
+            farbe: z.farbe, breite: z.breite });
+      protokolliere("zeichnung", zid, SCHALT_TEILE[z.bauteil].name + " gesetzt");
+      return;
+    }
+    if (z.werkzeug === "zeiger") {
+      const q = posPixel(e);
+      z.auswahl = trefferBei(q.x, q.y);
+      /* Beim Verschieben wird der GRIFFPUNKT gemerkt, nicht die Mitte: Sonst
+         springt das Bauteil beim ersten Antippen unter den Finger. */
+      z.zieht = (z.auswahl && z.auswahl.art === "bauteil")
+        ? { dx: z.auswahl.p.x - p.x, dy: z.auswahl.p.y - p.y } : null;
+      auswahlZeigen(); malen(); return;
+    }
+    if (z.werkzeug === "leitung") {
+      /* An einem Anschluss in Reichweite rastet der Endpunkt ein. */
+      const q = posPixel(e);
+      const pin = nahesterPin(q.x, q.y);
+      const ziel = pin ? { x: wx(pin.x), y: wy(pin.y) } : p;
+      if (!z.warte) { z.warte = ziel; malen(); return; }
+      const a = z.warte;
+      if (Math.hypot(gx(ziel.x) - gx(a.x), gy(ziel.y) - gy(a.y)) < 6) {
+        z.warte = null; malen(); return;
+      }
+      /* Rechtwinklig: erst die laengere Richtung, dann die kuerzere. Das
+         trifft fast immer die Leitungsfuehrung, die man von Hand zoege. */
+      const waagerechtZuerst =
+        Math.abs(gx(ziel.x) - gx(a.x)) >= Math.abs(gy(ziel.y) - gy(a.y));
+      const knie = waagerechtZuerst ? { x: ziel.x, y: a.y } : { x: a.x, y: ziel.y };
+      const punkte = (Math.abs(ziel.x - a.x) < 1e-9 || Math.abs(ziel.y - a.y) < 1e-9)
+        ? [a, ziel] : [a, knie, ziel];
+      z.vorschau = null;                    /* sonst bliebe die Vorschau liegen */
+      neu({ art: "leitung", farbe: z.farbe, breite: z.breite, punkte: punkte });
+      z.warte = null;
+      protokolliere("zeichnung", zid, "Leitung gezogen");
+      malen();
+      return;
+    }
+
+    if (z.werkzeug === "frei") {
+      z.vorschau = { art: "frei", farbe: z.farbe, breite: z.breite, punkte: [p] };
+      malen(); return;
+    }
+    if (z.werkzeug === "punkt") {
+      neu({ art: "punkt", farbe: z.farbe, form: z.form, p: p });
+      if (z.grund === "achsen") {
+        /* Das abgelesene Wertepaar mitschreiben: Der Schüler sieht beim Eintragen,
+           ob er wirklich (16 | 120) getroffen hat, und die Lehrkraft sieht es im
+           Protokoll. Genau daran scheitert das Zeichnen sonst unbemerkt. */
+        z.letzterPunkt = wertePaar(p);
+        protokolliere("zeichnung", zid, "Punkt gesetzt bei " + z.letzterPunkt);
+        malen();
+      }
+      return;
+    }
+    /* Strecke und Gerade: erster Klick merkt, zweiter Klick legt fest.
+       Der Mindestabstand wird in Pixeln geprüft, damit er von der Skala unabhängig ist. */
+    if (!z.warte) { z.warte = p; malen(); return; }
+    if (Math.hypot(gx(p.x) - gx(z.warte.x), gy(p.y) - gy(z.warte.y)) < 6) {
+      z.warte = null; malen(); return;
+    }
+    neu({ art: z.werkzeug, farbe: z.farbe, breite: z.breite, a: z.warte, b: p });
+    z.warte = null; z.vorschau = null; malen();
+  });
+
+  cv.addEventListener("pointermove", e => {
+    if (z.werkzeug === "frei") {
+      if (!z.vorschau) return;
+      e.preventDefault();
+      const p = pos(e), letzt = z.vorschau.punkte[z.vorschau.punkte.length - 1];
+      if (Math.abs(gx(p.x) - gx(letzt.x)) + Math.abs(gy(p.y) - gy(letzt.y)) < 1.5) return;
+      z.vorschau.punkte.push(p); malen();
+      return;
+    }
+    if (z.warte && (z.werkzeug === "strecke" || z.werkzeug === "gerade")) {
+      const p = pos(e);
+      z.vorschau = { art: z.werkzeug, farbe: z.farbe, breite: z.breite, a: z.warte, b: p };
+      malen();
+    }
+    /* Bauteil unter dem Finger mitziehen. */
+    if (z.werkzeug === "zeiger" && z.zieht && z.auswahl) {
+      e.preventDefault();
+      const p = pos(e);
+      z.auswahl.p = { x: p.x + z.zieht.dx, y: p.y + z.zieht.dy };
+      malen();
+      return;
+    }
+    /* Vorschau der rechtwinkligen Leitung, waehrend der zweite Punkt gesucht wird. */
+    if (z.warte && z.werkzeug === "leitung") {
+      const q = posPixel(e);
+      const pin = nahesterPin(q.x, q.y);
+      const ziel = pin ? { x: wx(pin.x), y: wy(pin.y) } : pos(e);
+      const a = z.warte;
+      const waagerechtZuerst =
+        Math.abs(gx(ziel.x) - gx(a.x)) >= Math.abs(gy(ziel.y) - gy(a.y));
+      const knie = waagerechtZuerst ? { x: ziel.x, y: a.y } : { x: a.x, y: ziel.y };
+      z.vorschau = { art: "leitung", farbe: z.farbe, breite: z.breite,
+                     punkte: [a, knie, ziel] };
+      malen();
+    }
+  });
+
+  function fertig() {
+    if (z.werkzeug === "zeiger") {
+      if (z.zieht && z.auswahl) {
+        protokolliere("zeichnung", zid,
+          SCHALT_TEILE[z.auswahl.typ].name + " verschoben");
+        speichern();
+      }
+      z.zieht = null;
+      return;
+    }
+    if (z.werkzeug !== "frei" || !z.vorschau) return;
+    const el = z.vorschau; z.vorschau = null;
+    if (el.punkte.length >= 1) neu(el); else malen();
   }
   cv.addEventListener("pointerup", fertig);
   cv.addEventListener("pointercancel", fertig);
   cv.addEventListener("pointerleave", fertig);
+
+  setzeWerkzeug(schaltung ? "leitung" : "frei");
+  setzeGrundStill(z.grund);
   malen();
+
+  /* beim Aufbau denselben Zustand herstellen wie setzeGrund, aber ohne Protokolleintrag */
+  function setzeGrundStill(g) {
+    z.einrasten = (g !== "punkte");
+    rastenZeigen();
+    achsFeldZeigen(g !== "punkte");
+  }
 }
 function zeichnungBild(zid) {
   const z = zeichnungen[zid];
-  if (!z || !z.striche.length) return null;
+  if (!z || !z.elemente.length) return null;
   return z.canvas.toDataURL("image/png");
 }
 
@@ -2010,7 +2950,7 @@ const FELDNAMEN = {
 function feldWert(feld) {
   if (feld.indexOf("zeichnung:") === 0) {
     const z = zeichnungen[feld.slice(10)];
-    return z ? z.striche.length + " Striche" : "";
+    return z ? z.elemente.length + " Elemente" : "";
   }
   const el = document.getElementById(feld);
   return el ? (el.value || "").trim() : "";
@@ -2018,7 +2958,7 @@ function feldWert(feld) {
 function feldReicht(feld, min) {
   if (feld.indexOf("zeichnung:") === 0) {
     const z = zeichnungen[feld.slice(10)];
-    return !!z && z.striche.length >= 3;
+    return !!z && z.elemente.length >= 3;
   }
   const el = document.getElementById(feld);
   if (!el) return true;
@@ -2121,13 +3061,13 @@ function zustand() {
   document.querySelectorAll("textarea, input[type=text], td input").forEach(el => {
     if (el.id && el.value) felderWerte[el.id] = el.value;
   });
-  const striche = {};
-  Object.keys(zeichnungen).forEach(zid => { striche[zid] = zeichnungen[zid].striche; });
+  const elemente = {};
+  Object.keys(zeichnungen).forEach(zid => { elemente[zid] = zeichnungen[zid].elemente; });
   return {
     version: PROTOKOLL_VERSION, gestartet: stempel(gestartet), gespeichert: stempel(),
     name: (document.getElementById("i-name") || {}).value || "",
     klasse: (document.getElementById("i-klasse") || {}).value || "",
-    felder: felderWerte, striche: striche, eintraege: protokollEintraege
+    felder: felderWerte, elemente: elemente, eintraege: protokollEintraege
   };
 }
 let speicherTimer = null;
@@ -2142,8 +3082,8 @@ function wiederherstellen(z) {
     const el = document.getElementById(id);
     if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
   });
-  Object.keys(z.striche || {}).forEach(zid => {
-    if (zeichnungen[zid]) { zeichnungen[zid].striche = z.striche[zid] || []; zeichnungen[zid].malen(); }
+  Object.keys(z.elemente || {}).forEach(zid => {
+    if (zeichnungen[zid]) { zeichnungen[zid].elemente = z.elemente[zid] || []; zeichnungen[zid].malen(); }
   });
   (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
   protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
@@ -2238,7 +3178,7 @@ function textFassung() {
   t += "Bearbeitet: " + stempel(gestartet) + " bis " + stempel() + "\n";
   t += "----------------------------------------\n";
   eintraegeInhalt().forEach(([titel, wert]) => { t += "\n" + titel + ":\n" + wert + "\n"; });
-  const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].striche.length);
+  const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].elemente.length);
   t += "\nZeichnungen: " + (gez.length ? gez.join(", ") + " (nur in der Protokolldatei enthalten, nicht in dieser Textmail)" : "keine");
   t += "\nProtokolleinträge: " + protokollEintraege.length + "\n";
   t += "----------------------------------------\n";
@@ -2252,7 +3192,7 @@ function protokollHtml() {
   const bilder = Object.keys(zeichnungen).map(zid => {
     const d = zeichnungBild(zid);
     return d ? '<figure><figcaption>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
-      ' – ' + zeichnungen[zid].striche.length + ' Striche</figcaption><img src="' + d + '" alt="Zeichnung ' + sicher(zid) + '"></figure>' : "";
+      ' – ' + zeichnungen[zid].elemente.length + ' Elemente</figcaption><img src="' + d + '" alt="Zeichnung ' + sicher(zid) + '"></figure>' : "";
   }).join("");
   const antwortenHtml = eintraegeInhalt().map(([t, w]) =>
     "<h3>" + sicher(t) + "</h3><p>" + sicher(w).replace(/\n/g, "<br>") + "</p>").join("");
