@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Comments from '../../components/Comments.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.entwurf);
@@ -54,13 +53,6 @@ const aktualisiert = post.data.aktualisiert
     <div class="prose prose-ink prose-mathe max-w-none dark:prose-invert">
       <Content />
     </div>
-
-    <Comments
-      pageId={post.slug}
-      pageUrl={new URL(Astro.url.pathname, Astro.site || 'https://mathematik-unterrichten.de').toString()}
-      pageTitle={post.data.title}
-      staticComments={post.data.kommentare}
-    />
 
     <footer class="mt-12 pt-6 border-t border-ink-200 flex justify-between text-sm dark:border-violet-500/20">
       <a href="/blog" class="link-arrow">Alle Beiträge</a>
