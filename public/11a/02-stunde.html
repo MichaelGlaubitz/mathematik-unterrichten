@@ -3377,10 +3377,14 @@ document.querySelectorAll("textarea, input[type=text], td input, .karte input").
   el.addEventListener("input", () => { sperrenPruefen(); if (el.tagName === "TEXTAREA") verzoegertErfassen(el); });
   el.addEventListener("paste", e => einfuegenErfassen(el, e));
 });
-let erfassTimer = null;
+/* Jedes Feld bekommt seinen EIGENEN Timer. Mit einem gemeinsamen Timer loeschte
+   der Wechsel ins naechste Feld die noch offene Erfassung des vorigen: Dessen
+   Antwort stand am Ende im Ergebnisteil, tauchte im Verlauf aber nie auf. */
+const erfassTimer = {};
 function verzoegertErfassen(el) {
-  clearTimeout(erfassTimer);
-  erfassTimer = setTimeout(() => erfassen(el), 4000);
+  if (!el.id) return;
+  clearTimeout(erfassTimer[el.id]);
+  erfassTimer[el.id] = setTimeout(() => erfassen(el), 4000);
 }
 
 /* ---------- 14 Speichern / Wiederherstellen ---------- */
@@ -3409,9 +3413,13 @@ function speichern() {
   }, 600);
 }
 function wiederherstellen(z) {
+  const schonGefuellt = [];
   Object.keys(z.felder || {}).forEach(id => {
     const el = document.getElementById(id);
-    if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
+    if (!el) return;
+    el.value = z.felder[id];
+    const v = String(z.felder[id]).trim();
+    if (v) schonGefuellt.push([id, v]);   // wird unten protokolliert, DANN gemerkt
   });
   const gezeichnet = z.elemente || z.striche || {};   // "striche": Protokolle vor der Werkzeug-Erweiterung
   Object.keys(gezeichnet).forEach(zid => {
@@ -3421,8 +3429,27 @@ function wiederherstellen(z) {
       zeichnungen[zid].malen();
     }
   });
-  (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
+  /* Die frueheren Eintraege werden eingemischt und die ganze Liste einmal
+     chronologisch neu durchnummeriert. Sonst traegt der Start der neuen Sitzung
+     dieselbe Nummer 1 wie der Start der alten, die Zeiten laufen rueckwaerts und
+     die Tabelle liest sich, als fehlten Eintraege. Veraendert wird dabei nur die
+     laufende Nummer - Zeit, Art, Feld und Inhalt bleiben, wie sie entstanden. */
+  (z.eintraege || []).forEach(e => protokollEintraege.push(e));
+  protokollEintraege.sort((a, b) => String(a.zeit).localeCompare(String(b.zeit)));
+  protokollEintraege.forEach((e, i) => {
+    const n = { nr: i + 1, zeit: e.zeit, art: e.art, feld: e.feld || "", wert: e.wert };
+    if (e.zusatz) n.zusatz = e.zusatz;
+    protokollEintraege[i] = Object.freeze(n);
+  });
   protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
+  /* Was beim Fortsetzen schon in den Feldern stand, bekommt eine eigene Zeile.
+     Sonst erschiene die Antwort am Ende im Ergebnisteil, ohne dass der Verlauf
+     sie ein einziges Mal erwaehnt - genau der Nachweis, um den es hier geht.
+     Erst danach gilt der Wert als bekannt, sonst faengt ihn keiner mehr ein. */
+  schonGefuellt.forEach(([id, wert]) => {
+    protokolliere("wiederhergestellt-feld", id, wert);
+    letzteWerte[id] = wert;
+  });
   sperrenPruefen(); chipMalen();
 }
 (function angebotPruefen() {
@@ -3491,10 +3518,19 @@ function dateiname() {
   const roh = "Protokoll_parabelformen-11a_" + (namen() || "ohneNamen") + (klasse() ? "_" + klasse() : "");
   return roh.replace(/[^A-Za-z0-9_äöüÄÖÜß-]+/g, "_").slice(0, 80);
 }
+/* Der Kopf nennt die tatsaechliche Arbeitszeit: vom fruehesten Eintrag bis
+   jetzt. Bei einer fortgesetzten Sitzung ist der Start DIESES Aufrufs die
+   falsche Angabe - gearbeitet wurde oft Stunden vorher. */
+function zeitraum() {
+  const zeiten = protokollEintraege.map(e => e.zeit).filter(Boolean).sort();
+  const sitzungen = protokollEintraege.filter(e => e.art === "start").length;
+  return (zeiten.length ? zeiten[0] : stempel(gestartet)) + " bis " + stempel() +
+    (sitzungen > 1 ? " (in " + sitzungen + " Sitzungen)" : "");
+}
 function textFassung() {
   let t = "Ergebnisse Mathematik – Eine Parabel, drei Darstellungen\n";
   t += "Namen: " + (namen() || "ohne Namen") + "\nKlasse: " + (klasse() || "–") + "\n";
-  t += "Bearbeitet: " + stempel(gestartet) + " bis " + stempel() + "\n";
+  t += "Bearbeitet: " + zeitraum() + "\n";
   t += "----------------------------------------\n";
   eintraegeInhalt().forEach(([titel, wert]) => { t += "\n" + titel + ":\n" + wert + "\n"; });
   const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].elemente.length);
@@ -3530,13 +3566,15 @@ function protokollHtml() {
     '<h1>Mathematik – Eine Parabel, drei Darstellungen: Protokoll der Doppelstunde</h1>' +
     '<div class="kopf"><b>Namen:</b> ' + sicher(namen() || "ohne Namen") +
     ' &nbsp;·&nbsp; <b>Klasse:</b> ' + sicher(klasse() || "–") +
-    '<br><b>Bearbeitet:</b> ' + sicher(stempel(gestartet)) + " bis " + sicher(stempel()) +
+    '<br><b>Bearbeitet:</b> ' + sicher(zeitraum()) +
     ' &nbsp;·&nbsp; <b>Protokolleinträge:</b> ' + protokollEintraege.length + '</div>' +
     '<h2>Antworten</h2>' + (antwortenHtml || "<p>keine Eingaben</p>") +
     '<h2>Zeichnungen</h2>' + (bilder || "<p>keine Zeichnungen</p>") +
     '<h2>Verlaufsprotokoll</h2>' +
-    '<p style="font-size:.85rem;color:#4a5560">Jeder Eintrag wurde beim Entstehen angehängt und danach nicht mehr verändert. ' +
-    'Einträge der Art <i>loesung-geoeffnet</i> halten fest, was zum Zeitpunkt des Öffnens einer Musterlösung im eigenen Feld stand.</p>' +
+    '<p style="font-size:.85rem;color:#4a5560">Jeder Eintrag wurde beim Entstehen angehängt; Zeit, Art, Feld und Inhalt bleiben danach unverändert. ' +
+    'Wurde eine unterbrochene Sitzung fortgesetzt, stehen die Einträge beider Sitzungen zeitlich einsortiert und sind einmal neu durchnummeriert. ' +
+    'Einträge der Art <i>loesung-geoeffnet</i> halten fest, was zum Zeitpunkt des Öffnens einer Musterlösung im eigenen Feld stand. ' +
+    'Einträge der Art <i>wiederhergestellt-feld</i> zeigen, was beim Fortsetzen einer unterbrochenen Sitzung bereits im Feld stand.</p>' +
     '<table><tr><th>Nr.</th><th>Zeit</th><th>Art</th><th>Feld</th><th>Inhalt</th></tr>' + logHtml + '</table>' +
     '<h2>Rohdaten</h2><p style="font-size:.85rem;color:#4a5560">Maschinenlesbare Fassung dieses Protokolls (JSON, ohne Bilder):</p>' +
     '<script type="application/json" id="rohdaten">' + JSON.stringify(z).replace(/</g, "\\u003c") + '<\/script>' +
