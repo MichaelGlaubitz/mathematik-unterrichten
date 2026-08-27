@@ -129,20 +129,45 @@ details.frei>summary{color:var(--gruen)}
 .schloss{font-size:.85rem; color:#8a949e; font-weight:400}
 .zeichenfeld{border:1px solid var(--linie); border-radius:10px; padding:.5rem; background:#fff; margin:.6rem 0}
 .zeichenfeld canvas{width:100%; height:auto; background:#fff; border:1px dashed #c3ccd4; border-radius:6px; touch-action:none; cursor:crosshair; display:block}
-.zwerkzeug{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
-.zwerkzeug .knopf{padding:.28rem .7rem; font-size:.85rem}
-.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff}
+/* --- Werkzeugleiste der Zeichenfelder -------------------------------------
+   Piktogramm UND Wort, nicht Piktogramm allein: title-Tooltips erscheinen auf
+   dem Touchscreen nie, weil es dort kein Hover gibt. Auf dem iPad - also im
+   Regelfall - waere eine reine Bildleiste damit schlechter zu entziffern als
+   eine Textleiste. Das Bild dient dem Wiederfinden, das Wort dem Verstehen;
+   der Tooltip ist die Zugabe fuer die Maus.
+
+   Fingergroesse: mindestens 44 px hoch. Darunter wird das Treffen zum
+   Geduldsspiel - dieselbe Lehre wie beim Bedienfeld der Regler.             */
+.zwerkzeug{display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
+.zwerkzeug .knopf{display:inline-flex; align-items:center; gap:.3rem;
+  min-height:44px; padding:.3rem .62rem; font-size:.85rem; line-height:1.15}
+.zwerkzeug .knopf svg{width:19px; height:19px; flex:none; display:block}
+.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff; border-color:var(--blau)}
 .zwerkzeug .knopf:disabled{opacity:.38; cursor:default}
-.zwerkzeug .knopf.zform{min-width:2.3rem; text-align:center; font-size:1rem; line-height:1.1}
-.zwerkzeug .ztrenn{display:inline-block; width:1px; height:1.3rem; background:var(--linie); margin:0 .2rem}
-.zwerkzeug .zskala{font-size:.82rem; font-weight:600; color:var(--blau); background:var(--blau-hell);
-  border:1px solid var(--blau-mittel); border-radius:6px; padding:.2rem .45rem; white-space:nowrap}
-.zwerkzeug .zskala{font-size:.82rem; font-weight:600; color:var(--blau); background:var(--blau-hell);
-  border:1px solid var(--blau-mittel); border-radius:6px; padding:.2rem .45rem; white-space:nowrap}
-.zwerkzeug .knopf:disabled{opacity:.38; cursor:default}
-.zwerkzeug .knopf.zform{min-width:2.3rem; text-align:center; font-size:1rem; line-height:1.1}
-.zwerkzeug .ztrenn{display:inline-block; width:1px; height:1.3rem; background:var(--linie); margin:0 .2rem}
-.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem}
+.zwerkzeug .knopf.nurbild{min-width:44px; justify-content:center; padding:.3rem}
+.zwerkzeug .knopf.zform{min-width:44px; justify-content:center; font-size:1.05rem}
+.zwerkzeug .ztrenn{display:inline-block; width:1px; height:1.7rem; background:var(--linie); margin:0 .25rem}
+.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem; width:100%}
+/* Farbknopf: der Farbfleck IST die Beschriftung, ein Wort braucht er nicht. */
+.zwerkzeug .knopf.zfarbe{min-width:44px; justify-content:center; padding:.3rem}
+.zwerkzeug .knopf.zfarbe .fleck{width:20px; height:20px; border-radius:50%;
+  border:1px solid rgba(0,0,0,.28); display:block}
+.zwerkzeug .knopf.zfarbe.aktivw{background:var(--blau-hell); border-color:var(--blau)}
+.zwerkzeug .knopf.zfarbe.aktivw .fleck{box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--blau)}
+
+/* Die Achsen-Einstellungen: eingeklappt. Elf Bedienelemente, die dauerhaft
+   sichtbar waren und beim Zeichnen so gut wie nie gebraucht werden - die
+   Einteilung gibt die Aufgabe vor, nicht der Schueler. */
+.zachsen{display:flex; gap:.35rem; flex-wrap:wrap; align-items:center;
+  margin:0 0 .5rem; padding:.55rem .65rem; border:1px dashed var(--blau-mittel);
+  border-radius:8px; background:var(--blau-hell)}
+.zachsen[hidden]{display:none}
+.zachsen .knopf{display:inline-flex; align-items:center; gap:.3rem; min-height:40px;
+  padding:.25rem .55rem; font-size:.84rem; background:#fff}
+.zachsen .knopf svg{width:17px; height:17px; flex:none; display:block}
+.zachsen .zhinweis{font-size:.8rem; color:#5a6570; width:100%; margin:0}
+.zachsen .zskala{font-size:.82rem; font-weight:600; color:var(--blau); background:#fff;
+  border:1px solid var(--blau-mittel); border-radius:6px; padding:.25rem .45rem; white-space:nowrap}
 
 /* --- Plan A / Plan B ---------------------------------------------------
    Sichtbar ist nur, was zum gewaehlten Weg gehoert. Ohne data-plan-Attribut
@@ -2534,13 +2559,28 @@ function aufbauZeichnung(box) {
     farbe: "#1a2229", breite: 5, werkzeug: "frei", form: "kreuz",
     grund: box.dataset.gitter || "punkte",     // punkte | gitter | achsen
     einrasten: true,
-    ox: 90, oy: cv.height - 70,                       // Ursprung in px
+    ox: 90, oy: cv.height - 70,                       // Ursprung in px (s. u.)
     ehx: parseFloat(box.dataset.xkaestchen || "50"),  // Kästchengröße in px
     ehy: parseFloat(box.dataset.ykaestchen || "50"),
     sx: parseFloat(box.dataset.xwert || "1"),         // Wert je Kästchen
     sy: parseFloat(box.dataset.ywert || "1"),
     canvas: cv
   };
+
+  /* --- Wo liegt der Nullpunkt? ------------------------------------------
+     Voreinstellung ist unten links - das passt, solange eine Aufgabe nur im
+     ersten Quadranten spielt. Sobald negative Werte vorkommen, passt es nicht,
+     und frueher musste der Schueler den Nullpunkt selbst verschieben. Das ist
+     keine mathematische Arbeit, sondern Bedienarbeit: Sie gehoert in die
+     Aufgabe, nicht in die Stunde.
+
+     data-xvon / data-yvon nennen den KLEINSTEN sichtbaren Wert je Achse -
+     also genau das, was beim Schreiben der Aufgabe ohnehin feststeht
+     ("von -1 bis 5 nach rechts, von -6 bis 4 nach oben").                  */
+  const xvon = box.dataset.xvon, yvon = box.dataset.yvon;
+  if (xvon !== undefined) z.ox = (0 - parseFloat(xvon)) / z.sx * z.ehx;
+  if (yvon !== undefined) z.oy = cv.height - (0 - parseFloat(yvon)) / z.sy * z.ehy;
+
   zeichnungen[zid] = z;
 
   /* 1-2-5-Reihe über acht Zehnerpotenzen – deckt 0,01 bis 1 000 000 ab. */
@@ -2558,12 +2598,58 @@ function aufbauZeichnung(box) {
   titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
   wz.appendChild(titel);
 
-  function knopf(text, wirkung, gruppe, titelText) {
+  /* ---------- Piktogramme ----------
+     Inline-SVG statt Emoji: Emoji werden je nach Geraet anders gezeichnet, und
+     ihre eigene Farbe kaempft mit dem blauen Aktiv-Zustand. Ein SVG mit
+     currentColor dreht sich beim Umschalten korrekt mit.
+     Alle Zeichnungen im Feld 0 0 20 20.                                     */
+  const BILD = {
+    frei:    '<path d="M2 14c3-9 5 5 8-2s5 2 8-3"/>',
+    punkt:   '<circle cx="10" cy="10" r="3.2" fill="currentColor" stroke="none"/>'
+           + '<path d="M10 2v3M10 15v3M2 10h3M15 10h3" opacity=".55"/>',
+    strecke: '<path d="M4.5 15.5 15.5 4.5"/>'
+           + '<circle cx="4.5" cy="15.5" r="2.2" fill="currentColor" stroke="none"/>'
+           + '<circle cx="15.5" cy="4.5" r="2.2" fill="currentColor" stroke="none"/>',
+    gerade:  '<path d="M2 15 18 5"/><path d="M2 15l3.4-.6M2 15l.6-3.4"/>'
+           + '<path d="M18 5l-3.4.6M18 5l-.6 3.4"/>',
+    duenn:   '<path d="M3 10h14" stroke-width="1.4"/>',
+    dick:    '<path d="M3 10h14" stroke-width="4.6"/>',
+    rasterP: '<g fill="currentColor" stroke="none">'
+           + '<circle cx="5" cy="5" r="1.3"/><circle cx="10" cy="5" r="1.3"/><circle cx="15" cy="5" r="1.3"/>'
+           + '<circle cx="5" cy="10" r="1.3"/><circle cx="10" cy="10" r="1.3"/><circle cx="15" cy="10" r="1.3"/>'
+           + '<circle cx="5" cy="15" r="1.3"/><circle cx="10" cy="15" r="1.3"/><circle cx="15" cy="15" r="1.3"/></g>',
+    rasterG: '<path d="M3 7.5h14M3 12.5h14M7.5 3v14M12.5 3v14"/>',
+    rasterA: '<path d="M4 16V3M4 16h13"/><path d="M4 3l-1.6 2.2M4 3l1.6 2.2"/>'
+           + '<path d="M17 16l-2.2-1.6M17 16l-2.2 1.6"/>',
+    magnet:  '<path d="M5 4v7a5 5 0 0 0 10 0V4"/><path d="M5 8h4M11 8h4"/>',
+    achsen:  '<path d="M3 6h14M3 14h14"/>'
+           + '<circle cx="8" cy="6" r="2.3" fill="#fff"/><circle cx="13" cy="14" r="2.3" fill="#fff"/>',
+    zurueck: '<path d="M8 5 3.5 9.5 8 14"/><path d="M3.5 9.5H12a4.5 4.5 0 0 1 0 9h-1.5"/>',
+    vor:     '<path d="M12 5l4.5 4.5L12 14"/><path d="M16.5 9.5H8a4.5 4.5 0 0 0 0 9h1.5"/>',
+    muell:   '<path d="M4 6h12M8 6V4h4v2M6 6l.9 11h6.2L14 6"/><path d="M9 9v5M11 9v5"/>',
+    kleiner: '<path d="M12 4 6.5 10 12 16"/>',
+    groesser:'<path d="M8 4l5.5 6L8 16"/>',
+    minus:   '<path d="M4.5 10h11"/>',
+    plus:    '<path d="M4.5 10h11M10 4.5v11"/>',
+  };
+  function svg(name) {
+    return '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" '
+      + 'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + BILD[name] + '</svg>';
+  }
+
+  /* knopf(…) baut einen Knopf aus Bild und Wort.
+       bild      Name aus BILD, oder null fuer reinen Text
+       text      sichtbare Beschriftung, oder "" fuer einen reinen Bildknopf
+       titelText Tooltip UND aria-label - Letzteres traegt den reinen
+                 Bildknopf fuer Screenreader und fuer den Touchscreen,
+                 wo der Tooltip nie erscheint.
+       ziel      wohin der Knopf gehaengt wird (Leiste oder Achsenfeld) */
+  function knopf(bild, text, wirkung, gruppe, titelText, ziel) {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "");
-    b.textContent = text;
-    if (titelText) b.title = titelText;
+    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "") + (text ? "" : " nurbild");
+    b.innerHTML = (bild ? svg(bild) : "") + (text ? "<span>" + text + "</span>" : "");
+    if (titelText) { b.title = titelText; b.setAttribute("aria-label", titelText); }
     b.addEventListener("click", () => {
       if (gruppe) {
         wz.querySelectorAll(".g-" + gruppe).forEach(x => x.classList.remove("aktivw"));
@@ -2571,7 +2657,7 @@ function aufbauZeichnung(box) {
       }
       wirkung();
     });
-    wz.appendChild(b);
+    (ziel || wz).appendChild(b);
     return b;
   }
   function trenner() {
@@ -2580,48 +2666,101 @@ function aufbauZeichnung(box) {
   }
 
   /* Werkzeuge */
-  const kFrei    = knopf("Freihand", () => setzeWerkzeug("frei"), "w" + zid, "frei zeichnen");
-  const kPunkt   = knopf("Punkt", () => setzeWerkzeug("punkt"), "w" + zid, "einen Punkt setzen");
-  const kStrecke = knopf("Strecke", () => setzeWerkzeug("strecke"), "w" + zid, "Strecke von Punkt zu Punkt");
-  const kGerade  = knopf("Gerade", () => setzeWerkzeug("gerade"), "w" + zid, "Gerade durch zwei Punkte");
-  const kForm = knopf("✕", () => {
+  const kFrei    = knopf("frei", "Freihand", () => setzeWerkzeug("frei"), "w" + zid, "Freihand zeichnen");
+  const kPunkt   = knopf("punkt", "Punkt", () => setzeWerkzeug("punkt"), "w" + zid, "einen Punkt setzen");
+  const kStrecke = knopf("strecke", "Strecke", () => setzeWerkzeug("strecke"), "w" + zid, "Strecke von Punkt zu Punkt");
+  const kGerade  = knopf("gerade", "Gerade", () => setzeWerkzeug("gerade"), "w" + zid, "Gerade durch zwei Punkte");
+  const kForm = knopf(null, "✕", () => {
     z.form = (z.form === "kreuz") ? "punkt" : "kreuz";
-    kForm.textContent = (z.form === "kreuz") ? "✕" : "●";
-    kForm.title = (z.form === "kreuz") ? "Punktform: Kreuz (umschalten)" : "Punktform: Punkt (umschalten)";
-  }, null, "Punktform: Kreuz (umschalten)");
+    kForm.querySelector("span").textContent = (z.form === "kreuz") ? "✕" : "●";
+    const t = (z.form === "kreuz") ? "Punkte als Kreuz — tippen für Punkt"
+                                   : "Punkte als Punkt — tippen für Kreuz";
+    kForm.title = t; kForm.setAttribute("aria-label", t);
+  }, null, "Punkte als Kreuz — tippen für Punkt");
   kForm.classList.add("zform");
 
   trenner();
-  const kDuenn = knopf("dünn", () => z.breite = 2, "b" + zid);
-  const kDick  = knopf("dick", () => z.breite = 5, "b" + zid);
-  const kSchwarz = knopf("schwarz", () => z.farbe = "#1a2229", "f" + zid);
-  knopf("rot", () => z.farbe = "#c62828", "f" + zid);
-  knopf("blau", () => z.farbe = "#0b5aa0", "f" + zid);
+  const kDuenn = knopf("duenn", "", () => z.breite = 2, "b" + zid, "dünner Strich");
+  const kDick  = knopf("dick", "", () => z.breite = 5, "b" + zid, "dicker Strich");
+
+  trenner();
+  function farbknopf(farbe, name) {
+    const b = knopf(null, "", () => z.farbe = farbe, "f" + zid, name);
+    b.classList.add("zfarbe");
+    b.innerHTML = '<span class="fleck" style="background:' + farbe + '"></span>';
+    return b;
+  }
+  const kSchwarz = farbknopf("#1a2229", "schwarz");
+  farbknopf("#c62828", "rot");
+  farbknopf("#0b5aa0", "blau");
 
   trenner();
   /* Hintergrund */
-  const kPunkteG = knopf("Punkte", () => setzeGrund("punkte"), "h" + zid, "Punktraster im Hintergrund");
-  const kGitter  = knopf("Gitter", () => setzeGrund("gitter"), "h" + zid, "blassgraues Koordinatengitter");
-  const kAchsen  = knopf("Koordinatensystem", () => setzeGrund("achsen"), "h" + zid, "Achsen mit Nullpunkt und Skala");
-  const kNull = knopf("0-Punkt setzen", () => {
+  const kPunkteG = knopf("rasterP", "Punkte", () => setzeGrund("punkte"), "h" + zid, "Punktraster im Hintergrund");
+  const kGitter  = knopf("rasterG", "Gitter", () => setzeGrund("gitter"), "h" + zid, "blassgraues Koordinatengitter");
+  const kAchsen  = knopf("rasterA", "Achsen", () => setzeGrund("achsen"), "h" + zid, "Koordinatensystem mit Nullpunkt und Skala");
+
+  const kRasten = knopf("magnet", "Einrasten", () => {
+    z.einrasten = !z.einrasten;
+    rastenZeigen();
+    protokolliere("zeichnung", zid, "Einrasten " + (z.einrasten ? "an" : "aus"));
+  }, null, "Punkte auf die Gitterpunkte ziehen");
+  function rastenZeigen() {
+    kRasten.classList.toggle("aktivw", z.einrasten);
+    kRasten.setAttribute("aria-pressed", z.einrasten ? "true" : "false");
+    const t = z.einrasten ? "Einrasten ist an — tippen zum Ausschalten"
+                          : "Einrasten ist aus — tippen zum Einschalten";
+    kRasten.title = t; kRasten.setAttribute("aria-label", t);
+  }
+  /* Ohne Achsen gibt es nichts einzuteilen. Der Knopf verschwindet dann, und
+     ein offenes Feld klappt zu - sonst blieben Regler ohne Wirkung stehen. */
+  function achsFeldZeigen(moeglich) {
+    kAchsFeld.style.display = moeglich ? "" : "none";
+    if (!moeglich) {
+      zPanel.hidden = true;
+      kAchsFeld.classList.remove("aktivw");
+      kAchsFeld.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  /* Ein Knopf statt elf: die Achsen-Einteilung wird eingeklappt. */
+  const kAchsFeld = knopf("achsen", "Einteilung", () => {
+    zPanel.hidden = !zPanel.hidden;
+    kAchsFeld.classList.toggle("aktivw", !zPanel.hidden);
+    kAchsFeld.setAttribute("aria-expanded", zPanel.hidden ? "false" : "true");
+  }, null, "Nullpunkt und Kästchen-Einteilung ändern");
+  kAchsFeld.setAttribute("aria-expanded", "false");
+
+  trenner();
+
+  /* --- Das ausklappbare Achsenfeld ------------------------------------- */
+  const zPanel = document.createElement("div");
+  zPanel.className = "zachsen";
+  zPanel.hidden = true;
+  const zHinweis = document.createElement("p");
+  zHinweis.className = "zhinweis";
+  zHinweis.textContent = "Meist musst du hier nichts ändern — die Einteilung passt schon zur Aufgabe.";
+  zPanel.appendChild(zHinweis);
+
+  const kNull = knopf("punkt", "0-Punkt setzen", () => {
     setzeWerkzeug("ursprung");
     kNull.classList.add("aktivw");
-  }, null, "Nullpunkt an die nächste angetippte Stelle legen");
+  }, null, "Nullpunkt an die nächste angetippte Stelle legen", zPanel);
 
-  /* Pro Achse: Wert je Kästchen (◂ ▸) und Kästchengröße (− +). */
-  const achsRegler = [];
+  /* Pro Achse: Wert je Kästchen (‹ ›) und Kästchengröße (− +). */
   function achsZeile(achse) {
     const gross = achse.toUpperCase();
-    const bMinus = knopf(gross + " ◂", () => wertStufe(achse, -1), null,
-      gross + "-Achse: kleinerer Wert je Kästchen");
+    knopf("kleiner", "", () => wertStufe(achse, -1), null,
+      gross + "-Achse: kleinerer Wert je Kästchen", zPanel);
     const anz = document.createElement("span");
     anz.className = "zskala";
-    const bPlus = knopf(gross + " ▸", () => wertStufe(achse, +1), null,
-      gross + "-Achse: größerer Wert je Kästchen");
-    wz.insertBefore(anz, bPlus);
-    const bEng = knopf("−", () => kaestchen(achse, -1), null, gross + "-Kästchen schmaler");
-    const bWeit = knopf("+", () => kaestchen(achse, +1), null, gross + "-Kästchen breiter");
-    achsRegler.push(bMinus, anz, bPlus, bEng, bWeit);
+    zPanel.appendChild(anz);
+    knopf("groesser", "", () => wertStufe(achse, +1), null,
+      gross + "-Achse: größerer Wert je Kästchen", zPanel);
+    knopf("minus", "", () => kaestchen(achse, -1), null,
+      gross + "-Kästchen schmaler", zPanel);
+    knopf("plus", "", () => kaestchen(achse, +1), null,
+      gross + "-Kästchen breiter", zPanel);
     return anz;
   }
   const anzX = achsZeile("x");
@@ -2650,22 +2789,14 @@ function aufbauZeichnung(box) {
   }
   skalaAnzeigen();
 
-  const kRasten = knopf("Einrasten: an", () => {
-    z.einrasten = !z.einrasten;
-    kRasten.textContent = "Einrasten: " + (z.einrasten ? "an" : "aus");
-    kRasten.classList.toggle("aktivw", z.einrasten);
-  }, null, "Punkte auf die Gitterpunkte ziehen");
-  kRasten.classList.add("aktivw");
-
-  trenner();
-  const kZurueck = knopf("↶ Rückgängig", () => zurueck(), null, "letztes Element zurücknehmen");
-  const kVor = knopf("↷ Wiederherstellen", () => vor(), null, "zurückgenommenes Element wiederholen");
-  knopf("alles löschen", () => {
+  const kZurueck = knopf("zurueck", "", () => zurueck(), null, "Rückgängig — letztes Element zurücknehmen");
+  const kVor = knopf("vor", "", () => vor(), null, "Wiederherstellen — zurückgenommenes Element wiederholen");
+  knopf("muell", "", () => {
     if (!z.elemente.length) return;
     protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.elemente.length + " Elemente)");
     z.papierkorb = z.elemente.slice().reverse().concat(z.papierkorb);
     z.elemente = []; malen(); sperrenPruefen(); speichern();
-  });
+  }, null, "Alles löschen");
 
   const status = document.createElement("span");
   status.className = "zstatus"; status.textContent = "0 Elemente";
@@ -2676,7 +2807,7 @@ function aufbauZeichnung(box) {
   kSchwarz.classList.add("aktivw");
   (z.grund === "achsen" ? kAchsen : z.grund === "gitter" ? kGitter : kPunkteG).classList.add("aktivw");
 
-  box.appendChild(wz); box.appendChild(cv);
+  box.appendChild(wz); box.appendChild(zPanel); box.appendChild(cv);
   const ctx = cv.getContext("2d");
 
   function setzeWerkzeug(w) {
@@ -2689,11 +2820,10 @@ function aufbauZeichnung(box) {
     z.grund = g;
     if (g === "punkte") z.einrasten = false;
     else if (!z.einrasten) { z.einrasten = true; }
-    kRasten.textContent = "Einrasten: " + (z.einrasten ? "an" : "aus");
-    kRasten.classList.toggle("aktivw", z.einrasten);
-    const zeigen = (g !== "punkte") ? "" : "none";
-    kNull.style.display = zeigen;
-    achsRegler.forEach(el => { el.style.display = zeigen; });
+    rastenZeigen();
+    /* Ohne Achsen gibt es nichts einzuteilen: Der Knopf verschwindet, und ein
+       offenes Feld klappt zu - sonst stuenden dort Regler ohne Wirkung. */
+    achsFeldZeigen(g !== "punkte");
     protokolliere("zeichnung", zid, "Hintergrund gewechselt: " +
       (g === "achsen" ? "Koordinatensystem" : g === "gitter" ? "Koordinatengitter" : "Punktraster"));
     malen();
@@ -3004,11 +3134,8 @@ function aufbauZeichnung(box) {
   /* beim Aufbau denselben Zustand herstellen wie setzeGrund, aber ohne Protokolleintrag */
   function setzeGrundStill(g) {
     z.einrasten = (g !== "punkte");
-    kRasten.textContent = "Einrasten: " + (z.einrasten ? "an" : "aus");
-    kRasten.classList.toggle("aktivw", z.einrasten);
-    const zeigen = (g !== "punkte") ? "" : "none";
-    kNull.style.display = zeigen;
-    achsRegler.forEach(el => { el.style.display = zeigen; });
+    rastenZeigen();
+    achsFeldZeigen(g !== "punkte");
   }
 }
 function zeichnungBild(zid) {
