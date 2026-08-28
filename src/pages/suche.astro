@@ -1,0 +1,274 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { baueSuchindex } from '../lib/suchindex';
+
+// Nur für die Anzeige „durchsucht n Einträge“ – die Suche selbst lädt
+// /suchindex.json im Browser.
+const anzahl = (await baueSuchindex()).length;
+
+const bereiche = [
+  'Werkzeug',
+  'Methode',
+  'Thema',
+  'Fehlvorstellung',
+  'Aufgabe',
+  'Diagnosefrage',
+  'Blog',
+  'KI-Prompt',
+  'Handreichung',
+  'Seite',
+];
+---
+
+<BaseLayout
+  sourceFile="src/pages/suche.astro"
+  title="Suche"
+  beschreibung="Volltextsuche über alle Werkzeuge, Methoden, Themen, Aufgaben, diagnostischen Fragen und Blogbeiträge von mathematik-unterrichten.de."
+>
+  <section class="container-wide pt-12 pb-6">
+    <h1 class="font-serif text-4xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">Suche</h1>
+    <p class="mt-3 max-w-2xl text-ink-700 dark:text-ink-300">
+      Durchsucht alle {anzahl} Einträge dieser Seite – Werkzeuge, Methoden, Themen,
+      Fehlvorstellungen, Aufgaben, diagnostische Fragen, Prompts und Beiträge.
+      Die Suche läuft vollständig im Browser.
+    </p>
+
+    <div class="mt-6">
+      <label class="block">
+        <span class="sr-only">Suchbegriff</span>
+        <input
+          id="su-feld"
+          type="search"
+          autocomplete="off"
+          autofocus
+          placeholder="z. B. Bruch addieren, Steigung, Zufallsgruppen, Exit-Ticket …"
+          class="w-full rounded-xl border border-ink-300 bg-surface px-5 py-4 text-lg text-ink-900 shadow-sm placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-white/15 dark:bg-slate-950/60 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+      </label>
+
+      <div class="mt-4 flex flex-wrap gap-2" id="su-filter" role="group" aria-label="Nach Bereich filtern">
+        <button type="button" data-bereich="alle" aria-pressed="true" class="su-chip">alle Bereiche</button>
+        {bereiche.map((b) => (
+          <button type="button" data-bereich={b} aria-pressed="false" class="su-chip">{b}</button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-20">
+    <p id="su-status" class="mb-4 text-sm text-ink-500 dark:text-ink-400" role="status" aria-live="polite">
+      Index wird geladen …
+    </p>
+    <ul id="su-treffer" class="space-y-3"></ul>
+
+    <div id="su-start" class="rounded-2xl border border-ink-200/90 bg-surface/70 p-6 dark:border-white/[0.08] dark:bg-white/[0.02]">
+      <h2 class="font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">Häufig gesucht</h2>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {['Bruch addieren', 'Steigung', 'Hypotenuse', 'Zufallsgruppen', 'Exit-Ticket', 'Prozent', 'Retrieval', 'Scheitelpunkt', 'Whiteboard', 'Prompt', 'Lernziele', 'Open Middle'].map((wort) => (
+          <button type="button" class="su-vorschlag su-chip" data-wort={wort}>{wort}</button>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .su-chip {
+    @apply rounded-full border border-ink-200/90 bg-surface/80 px-3.5 py-1.5 text-sm font-medium text-ink-700 transition;
+  }
+  .su-chip:hover {
+    @apply border-accent-300 text-accent-800;
+  }
+  .su-chip[aria-pressed='true'] {
+    @apply border-accent-500 bg-accent-600 text-white;
+  }
+  .dark .su-chip {
+    @apply border-white/10 bg-white/[0.04] text-ink-200;
+  }
+  .dark .su-chip[aria-pressed='true'] {
+    @apply border-teal-400/60 bg-teal-500/80 text-teal-950;
+  }
+  mark.su-hervor {
+    @apply rounded bg-amber-200/70 px-0.5 text-ink-900 dark:bg-amber-400/30 dark:text-ink-50;
+  }
+</style>
+
+<script>
+  type Eintrag = { t: string; u: string; b: string; s: string; k?: string };
+
+  const feld = document.getElementById('su-feld') as HTMLInputElement | null;
+  const liste = document.getElementById('su-treffer') as HTMLUListElement | null;
+  const status = document.getElementById('su-status');
+  const startblock = document.getElementById('su-start');
+  const filterLeiste = document.getElementById('su-filter');
+
+  let index: Eintrag[] = [];
+  let vorbereitet: { e: Eintrag; text: string; titel: string }[] = [];
+  let bereich = 'alle';
+
+  const bereichFarbe: Record<string, string> = {
+    Werkzeug: 'bg-accent-100 text-accent-800 dark:bg-sky-950/60 dark:text-sky-200',
+    Methode: 'bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-200',
+    Thema: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-200',
+    Fehlvorstellung: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-200',
+    Aufgabe: 'bg-violet-100 text-violet-800 dark:bg-fuchsia-950/60 dark:text-fuchsia-200',
+    Diagnosefrage: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200',
+    Blog: 'bg-ink-100 text-ink-700 dark:bg-white/10 dark:text-ink-200',
+    'KI-Prompt': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-200',
+    Handreichung: 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-200',
+    Seite: 'bg-ink-100 text-ink-700 dark:bg-white/10 dark:text-ink-200',
+  };
+
+  /** Umlaute und Zeichensetzung normalisieren, damit „Bruche“ auch „Brüche“ findet. */
+  const normalisieren = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9\s/+-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  function maskieren(s: string) {
+    return s.replace(/[&<>"']/g, (z) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[z] as string));
+  }
+
+  /** Treffer im angezeigten Text hervorheben (nur ganze Suchwörter im Klartext). */
+  function hervorheben(text: string, woerter: string[]) {
+    let html = maskieren(text);
+    for (const wort of woerter) {
+      if (wort.length < 3) continue;
+      const muster = new RegExp('(' + wort.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      html = html.replace(muster, '<mark class="su-hervor">$1</mark>');
+    }
+    return html;
+  }
+
+  /**
+   * Bewertung: Treffer im Titel wiegen am schwersten, dann in der
+   * Beschreibung, dann in den unsichtbaren Schlagwörtern. Ein Präfix-Treffer
+   * am Wortanfang zählt mehr als irgendwo in der Mitte.
+   */
+  function bewerten(eintrag: { e: Eintrag; text: string; titel: string }, woerter: string[]) {
+    let punkte = 0;
+    for (const wort of woerter) {
+      const imTitel = eintrag.titel.indexOf(wort);
+      const imText = eintrag.text.indexOf(wort);
+      if (imTitel === -1 && imText === -1) return 0;
+      if (imTitel === 0) punkte += 12;
+      else if (imTitel > 0) punkte += eintrag.titel[imTitel - 1] === ' ' ? 9 : 5;
+      if (imText >= 0) punkte += eintrag.text[Math.max(0, imText - 1)] === ' ' ? 3 : 1;
+    }
+    if (eintrag.e.b === 'Werkzeug' || eintrag.e.b === 'Methode') punkte += 1;
+    return punkte;
+  }
+
+  function anzeigen() {
+    if (!liste || !feld) return;
+    const roh = feld.value.trim();
+    const woerter = normalisieren(roh).split(' ').filter((w) => w.length >= 2);
+
+    if (woerter.length === 0) {
+      liste.textContent = '';
+      if (status) status.textContent = '';
+      if (startblock) startblock.hidden = false;
+      return;
+    }
+    if (startblock) startblock.hidden = true;
+
+    const gefiltert = vorbereitet.filter((v) => bereich === 'alle' || v.e.b === bereich);
+
+    // Zuerst streng: Alle Suchwörter müssen vorkommen.
+    let treffer = gefiltert
+      .map((v) => ({ v, punkte: bewerten(v, woerter) }))
+      .filter((x) => x.punkte > 0)
+      .sort((a, b) => b.punkte - a.punkte)
+      .slice(0, 60);
+
+    // Bei mehreren Suchwörtern und sehr wenigen Treffern zusätzlich locker
+    // suchen: Einträge, die wenigstens ein Wort enthalten, hinten anhängen.
+    let gelockert = false;
+    if (woerter.length > 1 && treffer.length < 3) {
+      const bekannt = new Set(treffer.map((x) => x.v.e.u + x.v.e.t));
+      const weitere = gefiltert
+        .filter((v) => !bekannt.has(v.e.u + v.e.t))
+        .map((v) => ({
+          v,
+          punkte: woerter.reduce((summe, w) => summe + bewerten(v, [w]), 0),
+        }))
+        .filter((x) => x.punkte > 0)
+        .sort((a, b) => b.punkte - a.punkte)
+        .slice(0, 30);
+      if (weitere.length > 0) {
+        gelockert = true;
+        treffer = treffer.concat(weitere);
+      }
+    }
+
+    if (status) {
+      status.textContent =
+        treffer.length === 0
+          ? `Nichts gefunden für „${roh}“.`
+          : `${treffer.length}${treffer.length >= 60 ? '+' : ''} Treffer für „${roh}“` +
+            (gelockert ? ' – die hinteren enthalten nur einen Teil der Suchwörter.' : '');
+    }
+
+    const rohWoerter = roh.split(/\s+/).filter((w) => w.length >= 3);
+    liste.textContent = '';
+    for (const { v } of treffer) {
+      const li = document.createElement('li');
+      li.className =
+        'rounded-xl border border-ink-200/90 bg-surface/85 p-4 shadow-sm transition hover:border-accent-300 hover:shadow-md dark:border-white/[0.08] dark:bg-white/[0.02] dark:hover:border-teal-400/40';
+      li.innerHTML =
+        `<a href="${maskieren(v.e.u)}" class="block">` +
+        `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${bereichFarbe[v.e.b] ?? bereichFarbe.Seite}">${maskieren(v.e.b)}</span>` +
+        `<span class="mt-1.5 block font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">${hervorheben(v.e.t, rohWoerter)}</span>` +
+        `<span class="mt-1 block text-sm leading-relaxed text-ink-600 dark:text-ink-400">${hervorheben(v.e.s, rohWoerter)}</span>` +
+        `</a>`;
+      liste.appendChild(li);
+    }
+  }
+
+  async function laden() {
+    try {
+      const antwort = await fetch('/suchindex.json');
+      index = (await antwort.json()) as Eintrag[];
+      vorbereitet = index.map((e) => ({
+        e,
+        titel: normalisieren(e.t),
+        text: normalisieren([e.t, e.s, e.k ?? ''].join(' ')),
+      }));
+      if (status) status.textContent = '';
+      const parameter = new URLSearchParams(window.location.search).get('q');
+      if (parameter && feld) feld.value = parameter;
+      anzeigen();
+    } catch (e) {
+      if (status) status.textContent = 'Der Suchindex konnte nicht geladen werden. Bitte Seite neu laden.';
+    }
+  }
+
+  feld?.addEventListener('input', anzeigen);
+
+  filterLeiste?.addEventListener('click', (e) => {
+    const knopf = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-bereich]');
+    if (!knopf) return;
+    bereich = knopf.dataset.bereich ?? 'alle';
+    filterLeiste
+      .querySelectorAll<HTMLButtonElement>('button[data-bereich]')
+      .forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    anzeigen();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.su-vorschlag').forEach((knopf) => {
+    knopf.addEventListener('click', () => {
+      if (!feld) return;
+      feld.value = knopf.dataset.wort ?? '';
+      feld.focus();
+      anzeigen();
+    });
+  });
+
+  laden();
+</script>

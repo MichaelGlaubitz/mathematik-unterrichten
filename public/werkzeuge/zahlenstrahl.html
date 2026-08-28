@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zahlenstrahl &amp; Stellenwert · mathematik-unterrichten.de</title>
+<meta name="description" content="Zoombarer Zahlenstrahl mit synchroner Stellenwerttafel: Dezimalzahlen ordnen, runden, negative Zahlen einordnen. Bricht die klassischen Fehlvorstellungen am Bild auf.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  #zs-svg { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; }
+  #zs-svg.zs-zieht { cursor: grabbing; }
+
+  .zs-tafel { border-collapse: collapse; margin-top: .8rem; font-variant-numeric: tabular-nums; }
+  .zs-tafel th, .zs-tafel td { border: 1px solid var(--linie-stark); text-align: center; padding: .35rem .55rem; min-width: 2.6rem; }
+  .zs-tafel th { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-schwach); font-weight: 600; background: var(--flaeche-2); }
+  .zs-tafel td { font-family: var(--schrift-serif); font-size: 1.5rem; font-weight: 600; }
+  .zs-tafel .zs-komma { border: 0; min-width: .9rem; padding: 0; font-size: 1.6rem; vertical-align: bottom; }
+  .zs-tafel .zs-nach { background: color-mix(in srgb, var(--akzent) 8%, transparent); }
+
+  .zs-marker-liste { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+  .zs-marker-chip { display: inline-flex; align-items: center; gap: .4rem; padding: .22rem .55rem; border-radius: 999px; font-size: .9rem; font-weight: 600; color: #fff; }
+  .zs-marker-chip button { background: none; border: 0; color: inherit; cursor: pointer; font: inherit; opacity: .8; padding: 0 0 0 .2rem; }
+
+  .zs-ordnung { font-family: var(--schrift-serif); font-size: clamp(1.1rem, 3vw, 1.7rem); font-weight: 600; margin-top: .5rem; }
+  .zs-sprung { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .zs-sprung button { font-size: .85rem; padding: .3rem .65rem; min-height: 2rem; }
+
+  @media (min-width: 1000px) { .zs-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Zahlenstrahl und Stellenwerttafel</h1>
+
+  <div class="zs-layout">
+    <section>
+      <div class="wz-karte" style="position:relative">
+        <svg id="zs-svg" viewBox="0 0 900 260" role="img" aria-labelledby="zs-titel">
+          <title id="zs-titel">Zahlenstrahl mit den eingetragenen Zahlen</title>
+        </svg>
+        <div class="wz-reihe wz-nicht-drucken" style="position:absolute;right:1rem;top:1rem;gap:.3rem">
+          <button class="wz-knopf wz-icon-knopf" id="zs-plus" type="button" title="Hineinzoomen (+)" style="background:var(--flaeche);border-color:var(--linie)">＋</button>
+          <button class="wz-knopf wz-icon-knopf" id="zs-minus" type="button" title="Herauszoomen (−)" style="background:var(--flaeche);border-color:var(--linie)">−</button>
+        </div>
+      </div>
+
+      <div class="wz-karte wz-abstand">
+        <h2>Stellenwerttafel</h2>
+        <p style="font-size:.88rem;color:var(--text-leise);margin:.3rem 0 0">
+          Zeigt die zuletzt gewählte Zahl <span id="zs-tafel-zahl" style="font-weight:600;color:var(--text)">–</span>.
+          Klicken Sie auf eine farbige Zahl unten oder auf den Zahlenstrahl.
+        </p>
+        <div style="overflow-x:auto">
+          <table class="zs-tafel" id="zs-tafel"></table>
+        </div>
+        <p class="wz-hinweis wz-abstand" id="zs-tafel-satz"></p>
+      </div>
+
+      <div class="wz-karte wz-abstand" id="zs-ordnungskarte">
+        <h2>Der Größe nach</h2>
+        <p class="zs-ordnung" id="zs-ordnung">–</p>
+      </div>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Zahlen eintragen</h2>
+        <label class="wz-label" style="margin-top:.6rem">
+          <span>Mit Komma oder Bruch, getrennt durch Semikolon</span>
+          <input class="wz-feld" id="zs-eingabe" type="text" value="0,7; 0,25; 0,45" spellcheck="false">
+        </label>
+        <div class="wz-reihe wz-abstand">
+          <button class="wz-knopf wz-knopf-haupt" id="zs-eintragen" type="button">Eintragen</button>
+          <button class="wz-knopf wz-knopf-still" id="zs-leeren" type="button">Leeren</button>
+        </div>
+        <div class="zs-marker-liste" id="zs-marker"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Ausschnitt</h2>
+        <div class="zs-sprung wz-abstand" id="zs-spruenge"></div>
+        <div class="wz-reihe wz-abstand">
+          <label class="wz-label" style="flex:1">
+            <span>von</span>
+            <input class="wz-feld" id="zs-von" type="text" value="0">
+          </label>
+          <label class="wz-label" style="flex:1">
+            <span>bis</span>
+            <input class="wz-feld" id="zs-bis" type="text" value="1">
+          </label>
+        </div>
+        <button class="wz-knopf wz-abstand" id="zs-uebernehmen" type="button">Übernehmen</button>
+        <p style="font-size:.82rem;color:var(--text-schwach);margin:.8rem 0 0">
+          Ziehen verschiebt den Ausschnitt, Mausrad und <kbd>+</kbd>/<kbd>−</kbd> zoomen.
+          Beim Hineinzoomen wird die Skala automatisch feiner unterteilt.
+        </p>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Typische Aufgaben</h2>
+        <div class="zs-sprung wz-abstand" id="zs-aufgaben"></div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="wz-lead wz-abstand">
+    „0,7 ist kleiner als 0,25, weil 7 kleiner als 25 ist“ – diese Fehlvorstellung hält sich hartnäckig,
+    solange Dezimalzahlen nur als zwei aneinandergehängte Zahlen gelesen werden. Auf dem Zahlenstrahl
+    ist sie in zehn Sekunden erledigt: Die Klasse schätzt zuerst, dann tragen Sie ein.
+  </p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const FARBEN = ['#2563eb', '#be123c', '#0d9488', '#7c3aed', '#b45309', '#15803d'];
+  const B = 900, H = 260, LINKS = 46, RECHTS = 862, Y = 150;
+
+  let sicht = { von: 0, bis: 1 };
+  let marken = [];      // { wert, text }
+  let gewaehlt = null;
+
+  const svg = document.getElementById('zs-svg');
+
+  function neu(tag, attr, text) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    if (text !== undefined) k.textContent = text;
+    return k;
+  }
+
+  function px(w) { return LINKS + ((w - sicht.von) / (sicht.bis - sicht.von)) * (RECHTS - LINKS); }
+  function zuWert(p) { return sicht.von + ((p - LINKS) / (RECHTS - LINKS)) * (sicht.bis - sicht.von); }
+
+  /** Zahl aus Text: „0,7“, „3/4“, „-2.5“. */
+  function leseZahl(text) {
+    const t = String(text).trim().replace(/\s/g, '');
+    if (!t) return null;
+    const bruch = t.match(/^(-?\d+)\/(\d+)$/);
+    if (bruch) {
+      const n = parseInt(bruch[2], 10);
+      return n === 0 ? null : parseInt(bruch[1], 10) / n;
+    }
+    const zahl = parseFloat(t.replace(',', '.'));
+    return isFinite(zahl) ? zahl : null;
+  }
+
+  function zeigeZahl(w) {
+    const gerundet = Math.round(w * 1e6) / 1e6;
+    return String(gerundet).replace('.', ',');
+  }
+
+  /** Feinheit der Skala: 1, 0,5, 0,2, 0,1 … abhängig vom Ausschnitt. */
+  function skalenschritt(spanne, zielAnzahl) {
+    const roh = spanne / zielAnzahl;
+    const groesse = Math.pow(10, Math.floor(Math.log10(roh)));
+    const rest = roh / groesse;
+    return (rest >= 5 ? 5 : rest >= 2 ? 2 : 1) * groesse;
+  }
+
+  function zeichnen() {
+    svg.textContent = '';
+    svg.appendChild(neu('title', {}, 'Zahlenstrahl von ' + zeigeZahl(sicht.von) + ' bis ' + zeigeZahl(sicht.bis)));
+
+    const spanne = sicht.bis - sicht.von;
+    const gross = skalenschritt(spanne, 10);
+    const klein = gross / 10;
+
+    // Feine Teilstriche
+    const startKlein = Math.ceil(sicht.von / klein) * klein;
+    if ((spanne / klein) < 400) {
+      for (let w = startKlein; w <= sicht.bis + 1e-12; w += klein) {
+        svg.appendChild(neu('line', { x1: px(w).toFixed(2), y1: Y - 5, x2: px(w).toFixed(2), y2: Y + 5, stroke: 'var(--linie-stark)', 'stroke-width': 1 }));
+      }
+    }
+
+    // Grobe Teilstriche mit Zahl
+    const startGross = Math.ceil(sicht.von / gross) * gross;
+    const stellen = Math.max(0, Math.min(6, -Math.floor(Math.log10(gross)) + 0));
+    for (let w = startGross; w <= sicht.bis + 1e-12; w += gross) {
+      const wert = Math.round(w / gross) * gross;
+      svg.appendChild(neu('line', { x1: px(wert).toFixed(2), y1: Y - 13, x2: px(wert).toFixed(2), y2: Y + 13, stroke: 'var(--text)', 'stroke-width': 2 }));
+      svg.appendChild(neu('text', {
+        x: px(wert).toFixed(2), y: Y + 36, 'text-anchor': 'middle', 'font-size': 17,
+        fill: 'var(--text)', 'font-family': 'var(--schrift)'
+      }, wert.toFixed(stellen).replace('.', ',')));
+    }
+
+    // Achse mit Pfeilspitze
+    svg.appendChild(neu('line', { x1: LINKS - 14, y1: Y, x2: RECHTS + 16, y2: Y, stroke: 'var(--text)', 'stroke-width': 2.4 }));
+    svg.appendChild(neu('polygon', {
+      points: (RECHTS + 24) + ',' + Y + ' ' + (RECHTS + 8) + ',' + (Y - 6) + ' ' + (RECHTS + 8) + ',' + (Y + 6),
+      fill: 'var(--text)'
+    }));
+
+    // Marken – abwechselnd hoch/tief, damit die Etiketten nicht kollidieren
+    const sortiert = marken.map(function (m, i) { return { m: m, i: i }; })
+      .sort(function (p, q) { return p.m.wert - q.m.wert; });
+    sortiert.forEach(function (eintrag, rang) {
+      const m = eintrag.m;
+      if (m.wert < sicht.von || m.wert > sicht.bis) return;
+      const farbe = FARBEN[eintrag.i % FARBEN.length];
+      const hoehe = 46 + (rang % 3) * 30;
+      const x = px(m.wert);
+      svg.appendChild(neu('line', { x1: x.toFixed(2), y1: Y, x2: x.toFixed(2), y2: Y - hoehe, stroke: farbe, 'stroke-width': 3 }));
+      svg.appendChild(neu('circle', { cx: x.toFixed(2), cy: Y, r: 6, fill: farbe }));
+      const etikett = neu('text', {
+        x: x.toFixed(2), y: Y - hoehe - 9, 'text-anchor': 'middle', 'font-size': 20,
+        fill: farbe, 'font-family': 'var(--schrift-serif)', 'font-weight': 600, style: 'cursor:pointer'
+      }, m.text);
+      etikett.addEventListener('click', function () { waehlen(eintrag.i); });
+      svg.appendChild(etikett);
+    });
+
+    // Hinweis, wenn Marken außerhalb des Ausschnitts liegen
+    const drausen = marken.filter(function (m) { return m.wert < sicht.von || m.wert > sicht.bis; });
+    if (drausen.length) {
+      svg.appendChild(neu('text', {
+        x: B / 2, y: H - 12, 'text-anchor': 'middle', 'font-size': 14,
+        fill: 'var(--text-schwach)', 'font-family': 'var(--schrift)'
+      }, drausen.length + ' Zahl' + (drausen.length > 1 ? 'en liegen' : ' liegt') + ' außerhalb des Ausschnitts'));
+    }
+  }
+
+  // --- Stellenwerttafel ----------------------------------------------------
+
+  const SPALTEN_VOR = [
+    { kurz: 'HT', lang: 'Hunderttausender', wert: 100000 },
+    { kurz: 'ZT', lang: 'Zehntausender', wert: 10000 },
+    { kurz: 'T', lang: 'Tausender', wert: 1000 },
+    { kurz: 'H', lang: 'Hunderter', wert: 100 },
+    { kurz: 'Z', lang: 'Zehner', wert: 10 },
+    { kurz: 'E', lang: 'Einer', wert: 1 }
+  ];
+  const SPALTEN_NACH = [
+    { kurz: 'z', lang: 'Zehntel', wert: 0.1 },
+    { kurz: 'h', lang: 'Hundertstel', wert: 0.01 },
+    { kurz: 't', lang: 'Tausendstel', wert: 0.001 },
+    { kurz: 'zt', lang: 'Zehntausendstel', wert: 0.0001 }
+  ];
+
+  function tafelZeichnen() {
+    const tab = document.getElementById('zs-tafel');
+    const satz = document.getElementById('zs-tafel-satz');
+    const anzeige = document.getElementById('zs-tafel-zahl');
+    tab.textContent = '';
+
+    const m = gewaehlt !== null ? marken[gewaehlt] : null;
+    if (!m) {
+      anzeige.textContent = '–';
+      satz.textContent = 'Noch keine Zahl gewählt.';
+      return;
+    }
+    anzeige.textContent = m.text;
+
+    const negativ = m.wert < 0;
+    const betrag = Math.abs(m.wert);
+    const text = betrag.toFixed(4);
+    const teile = text.split('.');
+    const vor = teile[0].padStart(6, '0');
+    const nach = teile[1] || '0000';
+
+    // Nur so viele Vorkommastellen zeigen, wie die Zahl wirklich braucht
+    const ersteRelevant = Math.max(0, 6 - Math.max(1, String(Math.floor(betrag)).length));
+    const spaltenVor = SPALTEN_VOR.slice(ersteRelevant);
+    const letzteNach = Math.max(1, nach.replace(/0+$/, '').length);
+    const spaltenNach = SPALTEN_NACH.slice(0, Math.max(letzteNach, 2));
+
+    const kopf = WZ.el('tr');
+    spaltenVor.forEach(function (s) { kopf.appendChild(WZ.el('th', { title: s.lang, text: s.kurz })); });
+    kopf.appendChild(WZ.el('th', { class: 'zs-komma', text: '' }));
+    spaltenNach.forEach(function (s) { kopf.appendChild(WZ.el('th', { class: 'zs-nach', title: s.lang, text: s.kurz })); });
+    tab.appendChild(WZ.el('thead', {}, [kopf]));
+
+    const zeile = WZ.el('tr');
+    spaltenVor.forEach(function (s, i) {
+      const ziffer = vor[ersteRelevant + i];
+      zeile.appendChild(WZ.el('td', { text: (i === 0 && negativ ? '−' : '') + ziffer }));
+    });
+    zeile.appendChild(WZ.el('td', { class: 'zs-komma', text: ',' }));
+    spaltenNach.forEach(function (s, i) {
+      zeile.appendChild(WZ.el('td', { class: 'zs-nach', text: nach[i] || '0' }));
+    });
+    tab.appendChild(WZ.el('tbody', {}, [zeile]));
+
+    // Sprechweise: was die erste Nachkommastelle bedeutet
+    const zehntel = parseInt(nach[0], 10);
+    const hundertstel = parseInt(nach[1], 10);
+    satz.innerHTML = '<strong>' + m.text + '</strong> heißt: ' +
+      (Math.floor(betrag) > 0 ? Math.floor(betrag) + ' Ganze, ' : '') +
+      zehntel + ' Zehntel und ' + hundertstel + ' Hundertstel. ' +
+      'Ein Zehntel ist <strong>zehnmal so groß</strong> wie ein Hundertstel – deshalb entscheidet ' +
+      'die erste Stelle nach dem Komma zuerst.';
+  }
+
+  function ordnungZeichnen() {
+    const p = document.getElementById('zs-ordnung');
+    if (marken.length < 2) { p.textContent = marken.length === 1 ? marken[0].text : '–'; return; }
+    const sortiert = marken.slice().sort(function (a, b) { return a.wert - b.wert; });
+    p.innerHTML = sortiert.map(function (m) {
+      const i = marken.indexOf(m);
+      return '<span style="color:' + FARBEN[i % FARBEN.length] + '">' + WZ.esc(m.text) + '</span>';
+    }).join(' <span style="color:var(--text-leise)">&lt;</span> ');
+  }
+
+  function markenlisteZeichnen() {
+    const wurzel = document.getElementById('zs-marker');
+    wurzel.textContent = '';
+    marken.forEach(function (m, i) {
+      wurzel.appendChild(WZ.el('span', {
+        class: 'zs-marker-chip',
+        style: 'background:' + FARBEN[i % FARBEN.length] + (gewaehlt === i ? ';outline:3px solid var(--text)' : '')
+      }, [
+        WZ.el('button', { type: 'button', title: 'In der Stellenwerttafel zeigen', onclick: function () { waehlen(i); } }, [m.text]),
+        WZ.el('button', { type: 'button', title: 'Entfernen', onclick: function () {
+          marken.splice(i, 1);
+          if (gewaehlt !== null && gewaehlt >= marken.length) gewaehlt = marken.length ? marken.length - 1 : null;
+          alles();
+        } }, ['✕'])
+      ]));
+    });
+  }
+
+  function waehlen(i) {
+    gewaehlt = i;
+    markenlisteZeichnen();
+    tafelZeichnen();
+  }
+
+  function alles() {
+    zeichnen();
+    markenlisteZeichnen();
+    tafelZeichnen();
+    ordnungZeichnen();
+  }
+
+  // --- Eingaben ------------------------------------------------------------
+
+  function eintragen(text) {
+    // Trennzeichen ist das Semikolon – das Komma bleibt Dezimaltrennzeichen.
+    const stuecke = String(text).split(';').map(function (t) { return t.trim(); }).filter(Boolean);
+    marken = [];
+    stuecke.forEach(function (t) {
+      const w = leseZahl(t);
+      if (w !== null) marken.push({ wert: w, text: t.replace('.', ',') });
+    });
+    if (marken.length) {
+      gewaehlt = 0;
+      const werte = marken.map(function (m) { return m.wert; });
+      const min = Math.min.apply(null, werte);
+      const max = Math.max.apply(null, werte);
+      const luft = Math.max((max - min) * 0.35, Math.max(Math.abs(max), 0.5) * 0.15);
+      // Auf glatte Werte aufrunden, damit im Feld nicht „0,0925 bis 0,8575“ steht
+      const raster = skalenschritt((max - min) + 2 * luft, 10);
+      sicht = {
+        von: Math.floor((min - luft) / raster) * raster,
+        bis: Math.ceil((max + luft) / raster) * raster
+      };
+      if (sicht.bis - sicht.von < raster) sicht.bis = sicht.von + raster;
+      document.getElementById('zs-von').value = zeigeZahl(sicht.von);
+      document.getElementById('zs-bis').value = zeigeZahl(sicht.bis);
+    }
+    alles();
+  }
+
+  document.getElementById('zs-eintragen').addEventListener('click', function () {
+    eintragen(document.getElementById('zs-eingabe').value);
+  });
+  document.getElementById('zs-eingabe').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') eintragen(e.target.value);
+  });
+  document.getElementById('zs-leeren').addEventListener('click', function () {
+    marken = [];
+    gewaehlt = null;
+    alles();
+  });
+
+  document.getElementById('zs-uebernehmen').addEventListener('click', function () {
+    const von = leseZahl(document.getElementById('zs-von').value);
+    const bis = leseZahl(document.getElementById('zs-bis').value);
+    if (von === null || bis === null || bis <= von) { alert('Bitte „von“ kleiner als „bis“ angeben.'); return; }
+    sicht = { von: von, bis: bis };
+    zeichnen();
+  });
+
+  const SPRUENGE = [
+    { name: '0 bis 1', von: 0, bis: 1 },
+    { name: '0 bis 10', von: 0, bis: 10 },
+    { name: '0 bis 100', von: 0, bis: 100 },
+    { name: '0,2 bis 0,3', von: 0.2, bis: 0.3 },
+    { name: '−10 bis 10', von: -10, bis: 10 },
+    { name: '−1 bis 1', von: -1, bis: 1 }
+  ];
+  const spruengeWurzel = document.getElementById('zs-spruenge');
+  SPRUENGE.forEach(function (s) {
+    spruengeWurzel.appendChild(WZ.el('button', {
+      class: 'wz-knopf', type: 'button',
+      onclick: function () {
+        sicht = { von: s.von, bis: s.bis };
+        document.getElementById('zs-von').value = zeigeZahl(s.von);
+        document.getElementById('zs-bis').value = zeigeZahl(s.bis);
+        zeichnen();
+      }
+    }, [s.name]));
+  });
+
+  const AUFGABEN = [
+    { name: 'Dezimalzahlen ordnen', zahlen: '0,7; 0,25; 0,45; 0,9' },
+    { name: 'Gleich lang?', zahlen: '0,5; 0,50; 0,500' },
+    { name: 'Brüche einordnen', zahlen: '1/2; 2/3; 3/4; 5/8' },
+    { name: 'Runden auf Zehntel', zahlen: '0,44; 0,45; 0,46' },
+    { name: 'Negative Zahlen', zahlen: '-3; -0,5; 1,5; -2,25' },
+    { name: 'Zwischen zwei Zahlen', zahlen: '0,23; 0,24; 0,235' }
+  ];
+  const aufgabenWurzel = document.getElementById('zs-aufgaben');
+  AUFGABEN.forEach(function (a) {
+    aufgabenWurzel.appendChild(WZ.el('button', {
+      class: 'wz-knopf', type: 'button',
+      onclick: function () {
+        document.getElementById('zs-eingabe').value = a.zahlen;
+        eintragen(a.zahlen);
+      }
+    }, [a.name]));
+  });
+
+  // Zoomen und Ziehen
+  function zoomen(faktor, mitte) {
+    const m = mitte === undefined ? (sicht.von + sicht.bis) / 2 : mitte;
+    const spanne = (sicht.bis - sicht.von) * faktor;
+    if (spanne < 1e-6 || spanne > 1e9) return;
+    sicht = { von: m - (m - sicht.von) * faktor, bis: m + (sicht.bis - m) * faktor };
+    document.getElementById('zs-von').value = zeigeZahl(sicht.von);
+    document.getElementById('zs-bis').value = zeigeZahl(sicht.bis);
+    zeichnen();
+  }
+  document.getElementById('zs-plus').addEventListener('click', function () { zoomen(1 / 1.4); });
+  document.getElementById('zs-minus').addEventListener('click', function () { zoomen(1.4); });
+
+  let zieht = null;
+  svg.addEventListener('pointerdown', function (e) {
+    zieht = { x: e.clientX, sicht: Object.assign({}, sicht) };
+    svg.classList.add('zs-zieht');
+    svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', function (e) {
+    if (!zieht) return;
+    const rect = svg.getBoundingClientRect();
+    const d = ((e.clientX - zieht.x) / rect.width) * (B / (RECHTS - LINKS)) * (zieht.sicht.bis - zieht.sicht.von);
+    sicht = { von: zieht.sicht.von - d, bis: zieht.sicht.bis - d };
+    zeichnen();
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (art) {
+    svg.addEventListener(art, function () {
+      if (zieht) {
+        document.getElementById('zs-von').value = zeigeZahl(sicht.von);
+        document.getElementById('zs-bis').value = zeigeZahl(sicht.bis);
+      }
+      zieht = null;
+      svg.classList.remove('zs-zieht');
+    });
+  });
+  svg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    zoomen(e.deltaY > 0 ? 1.15 : 1 / 1.15, zuWert(((e.clientX - rect.left) / rect.width) * B));
+  }, { passive: false });
+
+  document.addEventListener('keydown', function (e) {
+    const z = e.target;
+    if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA')) return;
+    if (e.key === '+') zoomen(1 / 1.4);
+    else if (e.key === '-') zoomen(1.4);
+  });
+
+  WZ.kopf({ titel: 'Zahlenstrahl & Stellenwert' });
+  WZ.fuss('Brüche dürfen als 3/4 eingegeben werden, Dezimalzahlen mit Komma.');
+  eintragen(document.getElementById('zs-eingabe').value);
+})();
+</script>
+</body>
+</html>

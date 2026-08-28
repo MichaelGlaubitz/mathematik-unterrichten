@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exit-Ticket · mathematik-unterrichten.de</title>
+<meta name="description" content="Zwei bis drei Fragen zum Stundenende: groß projizieren oder als Zettelbogen drucken – acht Tickets auf ein Blatt. Der R-Schritt des KLAR-Konzepts in seiner kleinsten Form.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .et-projektion { text-align: left; }
+  .et-projektion h2 { font-size: clamp(1.2rem, 3vw, 1.9rem); margin-bottom: 1.2rem; }
+  .et-frage {
+    display: flex; gap: .9rem; align-items: flex-start; margin-bottom: 1.4rem;
+    font-size: clamp(1.15rem, 3.2vw, 2rem); font-family: var(--schrift-serif); font-weight: 600;
+    line-height: 1.35;
+  }
+  .et-frage span.et-nr {
+    flex: none; width: 1.9em; height: 1.9em; border-radius: 50%;
+    background: var(--akzent); color: #fff; display: inline-flex;
+    align-items: center; justify-content: center; font-size: .62em;
+  }
+
+  .et-bogen { display: none; }
+  .et-karte {
+    border: 1px dashed #666; padding: 3.5mm 4.5mm; break-inside: avoid;
+    display: flex; flex-direction: column; justify-content: space-between;
+    overflow: hidden; min-height: 0;
+  }
+  .et-karte h3 { font-size: 10pt; margin: 0 0 1mm; }
+  .et-karte .et-kopf { font-size: 7.5pt; color: #444; margin-bottom: 2mm; }
+  .et-karte ol { margin: 0; padding-left: 4mm; font-size: 9pt; }
+  .et-karte li { margin-bottom: 5mm; }
+  .et-karte .et-linie { display: block; border-bottom: .3pt solid #999; height: 4mm; }
+  .et-ampel { display: flex; gap: 3mm; font-size: 7.5pt; color: #333; margin-top: 2mm; align-items: center; }
+  .et-ampel i { display: inline-block; width: 3.5mm; height: 3.5mm; border: .4pt solid #333; border-radius: 50%; }
+
+  .et-bibliothek { display: flex; flex-direction: column; gap: .35rem; }
+  .et-bibliothek button { justify-content: flex-start; text-align: left; font-size: .88rem; }
+
+  @page { size: A4 portrait; margin: 8mm; }
+  @media print {
+    .et-nur-bildschirm { display: none !important; }
+    /* Vier Zeilen zu je einem Viertel der nutzbaren Blatthöhe: Die Karten
+       füllen das Blatt exakt aus und können sich nicht überlappen. */
+    .et-bogen {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(4, 1fr);
+      gap: 3mm;
+      height: 281mm;
+    }
+    body { background: #fff; }
+    .wz-huelle { padding: 0; max-width: none; }
+  }
+
+  @media (min-width: 1000px) { .et-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Exit-Ticket</h1>
+
+  <div class="et-layout et-nur-bildschirm">
+    <section>
+      <div class="wz-buehne" style="align-items:stretch;justify-content:flex-start;text-align:left">
+        <div class="et-projektion" style="width:100%">
+          <p class="wz-pill" style="margin-bottom:.6rem">Exit-Ticket</p>
+          <h2 id="et-ueberschrift">Bevor Sie gehen</h2>
+          <div id="et-anzeige"></div>
+        </div>
+      </div>
+
+      <div class="wz-reihe wz-abstand">
+        <button class="wz-knopf wz-knopf-haupt wz-knopf-gross" id="et-drucken" type="button">Zettelbogen drucken (8 Tickets)</button>
+        <button class="wz-knopf" onclick="WZ.vollbild()" type="button">Vollbild projizieren</button>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        Ein Exit-Ticket misst nicht die Stimmung, sondern das <strong>Stundenziel</strong>.
+        Zwei Fragen reichen: eine, die jede und jeder können muss, und eine, die zeigt,
+        ob es wirklich verstanden wurde. Die Antworten sortieren Sie in drei Stapel –
+        genau daraus entsteht der Einstieg der nächsten Stunde.
+      </p>
+    </section>
+
+    <aside>
+      <div class="wz-karte">
+        <h2>Fragen</h2>
+        <label class="wz-label" style="margin-top:.6rem">
+          <span>Überschrift</span>
+          <input class="wz-feld" id="et-titel" type="text" value="Bevor Sie gehen">
+        </label>
+        <div id="et-felder" class="wz-abstand"></div>
+        <label class="wz-label wz-label-quer wz-abstand">
+          <input type="checkbox" id="et-ampel" checked> Selbsteinschätzung (drei Punkte) mitdrucken
+        </label>
+        <label class="wz-label wz-label-quer">
+          <input type="checkbox" id="et-namensfeld" checked> Namenszeile mitdrucken
+        </label>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Fertige Tickets</h2>
+        <p style="font-size:.85rem;color:var(--text-leise);margin:.4rem 0 .7rem">
+          Ein Klick übernimmt die Fragen – danach anpassen, wie es zur Stunde passt.
+        </p>
+        <div class="et-bibliothek" id="et-bibliothek"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Drei Stapel</h2>
+        <p style="font-size:.9rem;color:var(--text-leise);margin:.5rem 0 0">
+          Beim Einsammeln sofort sortieren: <strong>trägt</strong> · <strong>wackelt</strong> ·
+          <strong>trägt nicht</strong>. Der mittlere Stapel liefert die Beispiele für den Einstieg
+          der nächsten Stunde – anonymisiert an der Tafel, nie mit Namen.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Nur für den Druck: acht Tickets auf einem A4-Blatt -->
+  <div class="et-bogen" id="et-bogen"></div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const BIBLIOTHEK = [
+    {
+      name: 'Bruchrechnung – Addition',
+      titel: 'Brüche addieren',
+      fragen: ['Rechne: 2/3 + 1/4', 'Erkläre in einem Satz, warum man die Nenner nicht addiert.']
+    },
+    {
+      name: 'Dezimalzahlen ordnen',
+      titel: 'Dezimalzahlen',
+      fragen: ['Ordne der Größe nach: 0,7 · 0,25 · 0,45', 'Woran erkennst du, welche Zahl größer ist?']
+    },
+    {
+      name: 'Lineare Funktionen',
+      titel: 'Lineare Funktionen',
+      fragen: ['Gib die Steigung von y = −3x + 4 an.', 'Zeichne den Punkt, an dem der Graph die y-Achse schneidet.', 'Was ändert sich am Graphen, wenn die 4 zu einer 7 wird?']
+    },
+    {
+      name: 'Satz des Pythagoras',
+      titel: 'Pythagoras',
+      fragen: ['Berechne die Hypotenuse für a = 6 cm und b = 8 cm.', 'Woran erkennst du in einer Figur, welche Seite die Hypotenuse ist?']
+    },
+    {
+      name: 'Prozentrechnung',
+      titel: 'Prozente',
+      fragen: ['Berechne 15 % von 240 €.', 'Ein Preis steigt um 20 %. Mit welcher Zahl multipliziert man?']
+    },
+    {
+      name: 'Quadratische Gleichungen',
+      titel: 'Quadratische Gleichungen',
+      fragen: ['Löse: x² − 5x = 0', 'Warum darf man hier nicht durch x teilen?']
+    },
+    {
+      name: 'Termumformungen',
+      titel: 'Terme',
+      fragen: ['Fasse zusammen: 3(x + 2) − 2x', 'Nenne einen Fehler, den man bei dieser Aufgabe leicht macht.']
+    },
+    {
+      name: 'Allgemein (fachunabhängig)',
+      titel: 'Rückblick',
+      fragen: ['Was war heute die wichtigste Idee?', 'Wo bist du noch unsicher? Schreibe eine konkrete Frage auf.']
+    }
+  ];
+
+  let fragen = BIBLIOTHEK[7].fragen.slice();
+  const felder = [];
+
+  function anzeigen() {
+    const wurzel = document.getElementById('et-anzeige');
+    wurzel.textContent = '';
+    fragen.filter(function (f) { return f.trim(); }).forEach(function (f, i) {
+      wurzel.appendChild(WZ.el('p', { class: 'et-frage' }, [
+        WZ.el('span', { class: 'et-nr', text: String(i + 1) }),
+        WZ.el('span', { text: f })
+      ]));
+    });
+    document.getElementById('et-ueberschrift').textContent = document.getElementById('et-titel').value || 'Exit-Ticket';
+    bogenZeichnen();
+  }
+
+  function bogenZeichnen() {
+    const bogen = document.getElementById('et-bogen');
+    bogen.textContent = '';
+    const titel = document.getElementById('et-titel').value || 'Exit-Ticket';
+    const aktive = fragen.filter(function (f) { return f.trim(); });
+    const mitAmpel = document.getElementById('et-ampel').checked;
+    const mitName = document.getElementById('et-namensfeld').checked;
+
+    for (let k = 0; k < 8; k++) {
+      // Bei drei Fragen bleibt nur eine Schreiblinie je Frage, sonst platzt die Karte
+      const zeilen = aktive.length >= 3 ? 1 : 2;
+      const liste = WZ.el('ol', {}, aktive.map(function (f) {
+        const teileFrage = [WZ.el('span', { text: f })];
+        for (let z = 0; z < zeilen; z++) teileFrage.push(WZ.el('span', { class: 'et-linie' }));
+        return WZ.el('li', {}, teileFrage);
+      }));
+
+      const teile = [
+        WZ.el('div', {}, [
+          WZ.el('h3', { text: titel }),
+          mitName
+            ? WZ.el('p', { class: 'et-kopf', text: 'Name: ______________________   Datum: ____________' })
+            : WZ.el('p', { class: 'et-kopf', text: 'Datum: ____________' }),
+          liste
+        ])
+      ];
+
+      if (mitAmpel) {
+        teile.push(WZ.el('div', { class: 'et-ampel' }, [
+          WZ.el('span', { text: 'Ich kann das:' }),
+          WZ.el('i'), WZ.el('span', { text: 'sicher' }),
+          WZ.el('i'), WZ.el('span', { text: 'fast' }),
+          WZ.el('i'), WZ.el('span', { text: 'noch nicht' })
+        ]));
+      }
+
+      bogen.appendChild(WZ.el('div', { class: 'et-karte' }, teile));
+    }
+  }
+
+  function felderZeichnen() {
+    const wurzel = document.getElementById('et-felder');
+    wurzel.textContent = '';
+    felder.length = 0;
+    for (let i = 0; i < 3; i++) {
+      const feld = WZ.el('input', {
+        class: 'wz-feld', type: 'text', value: fragen[i] || '',
+        placeholder: i === 0 ? 'Erste Frage' : i === 1 ? 'Zweite Frage' : 'Dritte Frage (optional)',
+        'aria-label': 'Frage ' + (i + 1),
+        style: 'width:100%;margin-top:.45rem',
+        oninput: function (e) { fragen[i] = e.target.value; anzeigen(); }
+      });
+      felder.push(feld);
+      wurzel.appendChild(feld);
+    }
+  }
+
+  const bibliothek = document.getElementById('et-bibliothek');
+  BIBLIOTHEK.forEach(function (b) {
+    bibliothek.appendChild(WZ.el('button', {
+      class: 'wz-knopf', type: 'button',
+      onclick: function () {
+        fragen = b.fragen.slice();
+        while (fragen.length < 3) fragen.push('');
+        document.getElementById('et-titel').value = b.titel;
+        felderZeichnen();
+        anzeigen();
+      }
+    }, [b.name]));
+  });
+
+  document.getElementById('et-titel').addEventListener('input', anzeigen);
+  document.getElementById('et-ampel').addEventListener('change', bogenZeichnen);
+  document.getElementById('et-namensfeld').addEventListener('change', bogenZeichnen);
+  document.getElementById('et-drucken').addEventListener('click', function () { window.print(); });
+
+  WZ.kopf({ titel: 'Exit-Ticket' });
+  WZ.fuss('Der Zettelbogen bringt acht Tickets auf ein DIN-A4-Blatt – einmal quer durchschneiden reicht.');
+  while (fragen.length < 3) fragen.push('');
+  felderZeichnen();
+  anzeigen();
+})();
+</script>
+</body>
+</html>

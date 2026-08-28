@@ -1,7 +1,6 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { devContentToolsPlugin } from './dev-content-tools.mjs';
@@ -12,7 +11,8 @@ export default defineConfig({
   integrations: [
     tailwind(),
     mdx(),
-    //sitemap(),
+    // Sitemap: eigener Endpunkt src/pages/sitemap.xml.ts (liefert echte lastmod-Daten
+    // aus den Content-Collections; @astrojs/sitemap 3.7 setzt Astro 5 voraus).
   ],
   markdown: {
     remarkPlugins: [remarkMath],

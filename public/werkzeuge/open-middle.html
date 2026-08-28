@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open-Middle-Werkstatt · mathematik-unterrichten.de</title>
+<meta name="description" content="Open-Middle-Aufgaben mit Ziffernkacheln: eine Aufgabe, viele Wege, sofortige Rückmeldung. Von Termen über Gleichungen bis zu Flächeninhalten.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .om-aufgabe {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: .35rem; font-family: var(--schrift-serif); font-weight: 600;
+    font-size: clamp(1.6rem, 5vw, 3rem); line-height: 1.5; margin: 1.2rem 0;
+  }
+  .om-slot {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.5em; height: 1.5em; border-radius: 10px;
+    border: 3px dashed var(--linie-stark); background: var(--flaeche-2);
+    color: var(--text); font: inherit; cursor: pointer; padding: 0;
+  }
+  .om-slot[data-voll="ja"] { border-style: solid; border-color: var(--akzent); background: var(--akzent-hell); color: var(--akzent-tief); }
+  html[data-thema="dunkel"] .om-slot[data-voll="ja"] { color: var(--text); }
+  .om-slot[data-aktiv="ja"] { outline: 4px solid var(--akzent); outline-offset: 3px; }
+
+  .om-ziffern { display: flex; flex-wrap: wrap; gap: .45rem; justify-content: center; }
+  .om-ziffer {
+    width: 3rem; height: 3rem; border-radius: 10px; border: 2px solid var(--linie-stark);
+    background: var(--flaeche); color: var(--text); cursor: pointer;
+    font-family: var(--schrift-serif); font-size: 1.5rem; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .om-ziffer:hover { border-color: var(--akzent); background: var(--flaeche-2); }
+  .om-ziffer[data-benutzt="ja"] { opacity: .3; cursor: not-allowed; }
+
+  .om-ergebnis { text-align: center; margin-top: 1rem; }
+  .om-wert { font-family: var(--schrift-serif); font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 600; }
+  .om-urteil { font-size: 1rem; margin-top: .4rem; color: var(--text-leise); }
+  .om-urteil b { color: var(--gruen); }
+  .om-bestwert { font-size: .9rem; color: var(--text-schwach); margin-top: .3rem; }
+
+  .om-liste { display: flex; flex-direction: column; gap: .35rem; }
+  .om-liste button { text-align: left; justify-content: flex-start; font-size: .9rem; }
+  .om-liste button[aria-pressed="true"] { background: var(--akzent); border-color: var(--akzent); color: #fff; font-weight: 600; }
+
+  @media (min-width: 1000px) { .om-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Open-Middle-Werkstatt</h1>
+
+  <div class="om-layout">
+    <section>
+      <div class="wz-karte">
+        <p class="wz-pill" id="om-stufe">–</p>
+        <h2 id="om-titel" style="margin-top:.4rem">–</h2>
+        <p id="om-auftrag" style="color:var(--text-leise);margin-top:.3rem"></p>
+
+        <div class="om-aufgabe" id="om-aufgabe"></div>
+
+        <div class="om-ziffern wz-nicht-drucken" id="om-ziffern"></div>
+
+        <div class="om-ergebnis">
+          <p class="om-wert" id="om-wert">–</p>
+          <p class="om-urteil" id="om-urteil">Ziffern anklicken und in die Kästchen setzen.</p>
+          <p class="om-bestwert" id="om-best"></p>
+        </div>
+
+        <div class="wz-reihe wz-abstand wz-nicht-drucken" style="justify-content:center">
+          <button class="wz-knopf" id="om-leeren" type="button">Kästchen leeren</button>
+          <button class="wz-knopf wz-knopf-still" id="om-best-loeschen" type="button">Bestwert vergessen</button>
+          <button class="wz-knopf wz-knopf-still" id="om-drucken" type="button">Aufgabe drucken</button>
+        </div>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        Open-Middle-Aufgaben haben einen festen Anfang und ein festes Ende, aber viele Wege dazwischen.
+        Genau das macht sie differenzierend: Jede und jeder findet <em>eine</em> Lösung, und wer weiter ist,
+        sucht die beste. Fragen Sie nach der Klasse nie nur nach dem Ergebnis, sondern nach der
+        <strong>Strategie</strong>: Woran hast du gemerkt, dass die große Ziffer nach vorn muss?
+      </p>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Aufgaben</h2>
+        <div class="om-liste wz-abstand" id="om-liste"></div>
+      </div>
+      <div class="wz-karte">
+        <h2>Bedienung</h2>
+        <p style="font-size:.88rem;color:var(--text-leise);margin:.5rem 0 0">
+          Erst ein Kästchen antippen, dann eine Ziffer – oder umgekehrt.
+          Ein volles Kästchen noch einmal antippen gibt die Ziffer zurück.
+          Auf der Tastatur setzen die Zifferntasten direkt ins nächste freie Kästchen,
+          <kbd>Rücktaste</kbd> nimmt zurück.
+        </p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /**
+   * Jede Aufgabe beschreibt sich selbst:
+   *   teile    – Textstücke und Kästchen ('#') in Reihenfolge
+   *   ziffern  – erlaubte Ziffern
+   *   einmal   – jede Ziffer höchstens einmal?
+   *   wert(z)  – berechnet aus den gesetzten Ziffern den Zielwert (oder null)
+   *   ziel     – { art: 'max'|'min'|'nah', wert?: Zahl }
+   *   einheit  – Text hinter dem Wert
+   */
+  const AUFGABEN = [
+    {
+      titel: 'Größte Summe', stufe: 'Klasse 5–6',
+      auftrag: 'Setze vier verschiedene Ziffern so ein, dass die Summe möglichst groß wird.',
+      teile: ['#', '#', ' + ', '#', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) { return (z[0] * 10 + z[1]) + (z[2] * 10 + z[3]); },
+      ziel: { art: 'max' },
+      hinweis: 'Die beiden größten Ziffern gehören an die Zehnerstellen – warum?'
+    },
+    {
+      titel: 'Differenz nahe null', stufe: 'Klasse 5–6',
+      auftrag: 'Vier verschiedene Ziffern: Die Differenz soll möglichst nahe bei 0 liegen (aber nicht negativ).',
+      teile: ['#', '#', ' − ', '#', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) { return (z[0] * 10 + z[1]) - (z[2] * 10 + z[3]); },
+      ziel: { art: 'nah', wert: 0 },
+      hinweis: 'Benachbarte Zehner, dann die Einer gegeneinander ausspielen.'
+    },
+    {
+      titel: 'Kleinstes Produkt', stufe: 'Klasse 5–7',
+      auftrag: 'Drei verschiedene Ziffern: Das Produkt soll möglichst klein werden.',
+      teile: ['#', '#', ' · ', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) { return (z[0] * 10 + z[1]) * z[2]; },
+      ziel: { art: 'min' },
+      hinweis: 'Wohin gehört die kleinste Ziffer – an die Zehnerstelle oder zum Einzelfaktor?'
+    },
+    {
+      titel: 'Summe nahe 1', stufe: 'Klasse 6–7',
+      auftrag: 'Vier verschiedene Ziffern als zwei Brüche. Die Summe soll möglichst nahe bei 1 liegen.',
+      teile: ['#', '/', '#', ' + ', '#', '/', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) {
+        if (z[1] === 0 || z[3] === 0) return null;
+        return z[0] / z[1] + z[2] / z[3];
+      },
+      ziel: { art: 'nah', wert: 1 }, stellen: 4,
+      hinweis: 'Zwei Brüche knapp unter 1/2 – oder einer groß, einer winzig?'
+    },
+    {
+      titel: 'Dezimalsumme nahe 5', stufe: 'Klasse 6–7',
+      auftrag: 'Vier verschiedene Ziffern. Die Summe der beiden Dezimalzahlen soll möglichst nahe bei 5 liegen.',
+      teile: ['#', ',', '#', ' + ', '#', ',', '#'], ziffern: '0123456789', einmal: true,
+      wert: function (z) { return (z[0] + z[1] / 10) + (z[2] + z[3] / 10); },
+      ziel: { art: 'nah', wert: 5 }, stellen: 2,
+      hinweis: 'Erst die Einer auf 4 bringen, dann die Zehntel auf 10.'
+    },
+    {
+      titel: 'Gleichung mit Lösung 2', stufe: 'Klasse 7–8',
+      auftrag: 'Setze vier verschiedene Ziffern so ein, dass die Gleichung die Lösung x = 2 hat.',
+      teile: ['#', 'x + ', '#', ' = ', '#', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) { return 2 * z[0] + z[1] - (z[2] * 10 + z[3]); },
+      ziel: { art: 'nah', wert: 0 },
+      pruefe: function (z) { return 2 * z[0] + z[1] === z[2] * 10 + z[3]; },
+      hinweis: 'Zweimal die erste Ziffer plus die zweite muss die zweistellige Zahl ergeben.'
+    },
+    {
+      titel: 'Fläche nahe 100', stufe: 'Klasse 5–7',
+      auftrag: 'Ein Rechteck mit diesen Seitenlängen (in cm). Der Flächeninhalt soll möglichst nahe bei 100 cm² liegen.',
+      teile: ['#', '#', ' cm · ', '#', ' cm'], ziffern: '123456789', einmal: true,
+      wert: function (z) { return (z[0] * 10 + z[1]) * z[2]; },
+      ziel: { art: 'nah', wert: 100 }, einheit: 'cm²',
+      hinweis: 'Welche Zerlegungen von 100 gibt es überhaupt mit einer einstelligen Zahl?'
+    },
+    {
+      titel: 'Größter Quotient', stufe: 'Klasse 6–8',
+      auftrag: 'Vier verschiedene Ziffern: Der Quotient soll möglichst groß werden.',
+      teile: ['#', '#', ' : ', '#', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) {
+        const nenner = z[2] * 10 + z[3];
+        return nenner === 0 ? null : (z[0] * 10 + z[1]) / nenner;
+      },
+      ziel: { art: 'max' }, stellen: 4,
+      hinweis: 'Zähler so groß wie möglich, Nenner so klein wie möglich – aber alle Ziffern nur einmal.'
+    },
+    {
+      titel: 'Scheitel möglichst tief', stufe: 'Klasse 9–10',
+      auftrag: 'Drei verschiedene Ziffern in f(x) = a(x − b)² − c. Der Scheitelpunkt soll möglichst tief liegen.',
+      teile: ['#', '(x − ', '#', ')² − ', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) { return -z[2]; },
+      ziel: { art: 'min' }, einheit: '(y-Wert des Scheitels)',
+      hinweis: 'Nur eine der drei Ziffern beeinflusst die Höhe des Scheitels – welche?'
+    },
+    {
+      titel: 'Prozent möglichst nahe 50', stufe: 'Klasse 7–8',
+      auftrag: 'Vier verschiedene Ziffern. Der Anteil soll möglichst nahe bei 50 % liegen.',
+      teile: ['#', '#', ' von ', '#', '#'], ziffern: '123456789', einmal: true,
+      wert: function (z) {
+        const g = z[2] * 10 + z[3];
+        return g === 0 ? null : ((z[0] * 10 + z[1]) / g) * 100;
+      },
+      ziel: { art: 'nah', wert: 50 }, einheit: '%', stellen: 2,
+      hinweis: 'Die vordere Zahl muss etwa halb so groß sein wie die hintere.'
+    }
+  ];
+
+  let index = 0;
+  let belegung = [];      // Ziffer je Kästchen (oder null)
+  let aktiverSlot = 0;
+  let bestwerte = WZ.lies('wz-om-best', {});
+
+  const el = {};
+  ['titel', 'stufe', 'auftrag', 'aufgabe', 'ziffern', 'wert', 'urteil', 'best', 'liste',
+   'leeren', 'best-loeschen', 'drucken'].forEach(function (id) { el[id] = document.getElementById('om-' + id); });
+
+  function aufgabe() { return AUFGABEN[index]; }
+  function slotAnzahl() { return aufgabe().teile.filter(function (t) { return t === '#'; }).length; }
+
+  function laden(i) {
+    index = i;
+    belegung = new Array(slotAnzahl()).fill(null);
+    aktiverSlot = 0;
+    zeichnen();
+    listeZeichnen();
+  }
+
+  function zeichnen() {
+    const a = aufgabe();
+    el.titel.textContent = a.titel;
+    el.stufe.textContent = a.stufe;
+    el.auftrag.textContent = a.auftrag;
+
+    el.aufgabe.textContent = '';
+    let slot = 0;
+    a.teile.forEach(function (teil) {
+      if (teil === '#') {
+        const nr = slot;
+        el.aufgabe.appendChild(WZ.el('button', {
+          class: 'om-slot', type: 'button',
+          'data-voll': belegung[nr] === null ? 'nein' : 'ja',
+          'data-aktiv': nr === aktiverSlot ? 'ja' : 'nein',
+          'aria-label': 'Kästchen ' + (nr + 1) + (belegung[nr] === null ? ', leer' : ', enthält ' + belegung[nr]),
+          onclick: function () {
+            if (belegung[nr] !== null) belegung[nr] = null;
+            aktiverSlot = nr;
+            zeichnen();
+          }
+        }, [belegung[nr] === null ? '' : String(belegung[nr])]));
+        slot++;
+      } else {
+        el.aufgabe.appendChild(WZ.el('span', { text: teil }));
+      }
+    });
+
+    zifferZeichnen();
+    auswerten();
+  }
+
+  function zifferZeichnen() {
+    const a = aufgabe();
+    el.ziffern.textContent = '';
+    a.ziffern.split('').forEach(function (z) {
+      const zahl = parseInt(z, 10);
+      const benutzt = a.einmal && belegung.indexOf(zahl) !== -1;
+      el.ziffern.appendChild(WZ.el('button', {
+        class: 'om-ziffer', type: 'button', 'data-benutzt': benutzt ? 'ja' : 'nein',
+        disabled: benutzt, 'aria-label': 'Ziffer ' + z,
+        onclick: function () { setze(zahl); }
+      }, [z]));
+    });
+  }
+
+  function setze(zahl) {
+    const a = aufgabe();
+    if (a.einmal && belegung.indexOf(zahl) !== -1) return;
+    let ziel = aktiverSlot;
+    if (belegung[ziel] !== null) {
+      const frei = belegung.indexOf(null);
+      if (frei === -1) return;
+      ziel = frei;
+    }
+    belegung[ziel] = zahl;
+    const naechstesFreie = belegung.indexOf(null);
+    aktiverSlot = naechstesFreie === -1 ? ziel : naechstesFreie;
+    zeichnen();
+  }
+
+  function auswerten() {
+    const a = aufgabe();
+    if (belegung.indexOf(null) !== -1) {
+      el.wert.textContent = '–';
+      el.urteil.textContent = 'Noch ' + belegung.filter(function (b) { return b === null; }).length + ' Kästchen frei.';
+      bestZeigen();
+      return;
+    }
+    const w = a.wert(belegung);
+    if (w === null || !isFinite(w)) {
+      el.wert.textContent = 'nicht definiert';
+      el.urteil.textContent = 'Diese Belegung ergibt keinen sinnvollen Wert.';
+      return;
+    }
+    const stellen = a.stellen || 0;
+    const angezeigt = a.pruefe ? '' : WZ.zahl(w, stellen) + (a.einheit ? ' ' + a.einheit : '');
+
+    if (a.pruefe) {
+      const stimmt = a.pruefe(belegung);
+      el.wert.textContent = stimmt ? 'Passt!' : 'Passt noch nicht';
+      el.wert.style.color = stimmt ? 'var(--gruen)' : 'var(--text)';
+      el.urteil.textContent = stimmt
+        ? 'Die Gleichung hat wirklich die Lösung x = 2. Gibt es weitere Belegungen?'
+        : 'Setze so um, dass beide Seiten für x = 2 denselben Wert haben.';
+      bestZeigen();
+      return;
+    }
+
+    el.wert.style.color = '';
+    el.wert.textContent = angezeigt;
+
+    const schluessel = a.titel;
+    const alt = bestwerte[schluessel];
+    let besser = false;
+    if (a.ziel.art === 'max') besser = alt === undefined || w > alt;
+    else if (a.ziel.art === 'min') besser = alt === undefined || w < alt;
+    else besser = alt === undefined || Math.abs(w - a.ziel.wert) < Math.abs(alt - a.ziel.wert);
+
+    if (besser) {
+      bestwerte[schluessel] = w;
+      WZ.schreib('wz-om-best', bestwerte);
+      el.urteil.innerHTML = '<b>Neuer Bestwert!</b> ' + (a.hinweis || '');
+    } else {
+      el.urteil.textContent = a.ziel.art === 'nah'
+        ? 'Abstand zum Ziel: ' + WZ.zahl(Math.abs(w - a.ziel.wert), Math.max(2, stellen)) + '. ' + (a.hinweis || '')
+        : (a.hinweis || 'Geht das noch besser?');
+    }
+    bestZeigen();
+  }
+
+  function bestZeigen() {
+    const a = aufgabe();
+    const b = bestwerte[a.titel];
+    el.best.textContent = b === undefined
+      ? 'Noch kein Bestwert in diesem Browser gespeichert.'
+      : 'Bisher bester Wert in diesem Browser: ' + WZ.zahl(b, a.stellen || 0) + (a.einheit ? ' ' + a.einheit : '');
+  }
+
+  function listeZeichnen() {
+    el.liste.textContent = '';
+    AUFGABEN.forEach(function (a, i) {
+      el.liste.appendChild(WZ.el('button', {
+        class: 'wz-knopf', type: 'button', 'aria-pressed': String(i === index),
+        onclick: function () { laden(i); }
+      }, [a.titel]));
+    });
+  }
+
+  el.leeren.addEventListener('click', function () {
+    belegung = new Array(slotAnzahl()).fill(null);
+    aktiverSlot = 0;
+    zeichnen();
+  });
+  el['best-loeschen'].addEventListener('click', function () {
+    delete bestwerte[aufgabe().titel];
+    WZ.schreib('wz-om-best', bestwerte);
+    bestZeigen();
+  });
+  el.drucken.addEventListener('click', function () { window.print(); });
+
+  document.addEventListener('keydown', function (e) {
+    const z = e.target;
+    if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA')) return;
+    if (/^[0-9]$/.test(e.key)) {
+      if (aufgabe().ziffern.indexOf(e.key) !== -1) setze(parseInt(e.key, 10));
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      for (let i = belegung.length - 1; i >= 0; i--) {
+        if (belegung[i] !== null) { belegung[i] = null; aktiverSlot = i; break; }
+      }
+      zeichnen();
+    }
+  });
+
+  WZ.kopf({ titel: 'Open-Middle-Werkstatt' });
+  WZ.fuss('Bestwerte bleiben in diesem Browser gespeichert – gut für einen Klassenrekord über mehrere Stunden.');
+  laden(0);
+})();
+</script>
+</body>
+</html>

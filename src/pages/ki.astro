@@ -1,0 +1,216 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { kiPrompts, promptFelder } from '../lib/kiPrompts';
+
+const nachFeld = promptFelder
+  .map((feld) => ({ feld, liste: kiPrompts.filter((p) => p.feld === feld) }))
+  .filter((g) => g.liste.length > 0);
+
+const pdfReihe = [1, 2, 3, 4, 5].map((n) => ({
+  nummer: n,
+  href: `/downloads/KI_im_Mathematikunterricht_Teil_${n}.pdf`,
+}));
+
+const pdfTitel: Record<number, string> = {
+  1: 'Grundlagen und Grenzen',
+  2: 'Aufgaben erzeugen',
+  3: 'LaTeX und Diagramme',
+  4: 'Diagnose und Auswertung',
+  5: 'Rechtliches und Datenschutz',
+};
+---
+
+<BaseLayout
+  sourceFile="src/pages/ki.astro"
+  title="KI im Mathematikunterricht"
+  beschreibung="Erprobte Prompts für den Mathematikunterricht: Aufgabenserien, diagnostische Fragen, Differenzierung, Klassenarbeiten – mit Kopierfunktion und dem Hinweis, was vor dem Einsatz zu prüfen ist."
+>
+  <section class="container-wide pt-12 pb-8">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Werkzeug</p>
+    <h1 class="mt-2 font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      KI im Mathematikunterricht
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      Sprachmodelle sind im Mathematikunterricht dort stark, wo es um <em>Formulieren,
+      Variieren und Strukturieren</em> geht – und unzuverlässig genau dort, wo gerechnet wird.
+      Diese {kiPrompts.length} Prompts nutzen das erste aus und fangen das zweite ab:
+      Zu jedem steht, was Sie vor dem Einsatz nachprüfen müssen.
+    </p>
+  </section>
+
+  <!-- Die drei Regeln -->
+  <section class="container-wide pb-10">
+    <div class="grid gap-5 md:grid-cols-3">
+      <div class="rounded-xl border-l-4 border-rose-500 bg-rose-50/50 p-5 dark:border-rose-400/70 dark:bg-rose-950/20">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Keine Schülerdaten</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          Keine Namen, keine Noten, keine Klassenzuordnung, keine Klassenarbeiten von Lernenden
+          in ein Sprachmodell eingeben – auch nicht „nur zum Korrigieren“. Beschreiben Sie den
+          Sachverhalt abstrakt und setzen Sie Namen erst im fertigen Text ein.
+        </p>
+      </div>
+      <div class="rounded-xl border-l-4 border-amber-500 bg-amber-50/50 p-5 dark:border-amber-400/70 dark:bg-amber-950/20">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Nachrechnen ist Pflicht</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          Sprachmodelle rechnen nicht, sie schreiben plausibel. Fehler sehen aus wie Lösungen.
+          Jede erzeugte Aufgabe wird vor dem Einsatz nachgerechnet – am besten mit dem
+          <a href="#zahlen-pruefen" class="underline underline-offset-2">Kontroll-Prompt</a> in einem frischen Chat.
+        </p>
+      </div>
+      <div class="rounded-xl border-l-4 border-teal-600 bg-teal-50/50 p-5 dark:border-teal-400/70 dark:bg-teal-950/20">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Die Didaktik bleibt bei Ihnen</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          Ein Modell weiß nicht, wo Ihre Klasse steht. Es liefert Rohmaterial – die Entscheidung,
+          welche Aufgabe in welcher Reihenfolge gestellt wird, ist der fachdidaktische Kern
+          und bleibt Ihre Arbeit.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter -->
+  <section class="container-wide pb-6">
+    <div class="flex flex-wrap gap-2" id="ki-filter" role="group" aria-label="Nach Einsatzfeld filtern">
+      <button type="button" data-feld="alle" aria-pressed="true" class="ki-chip">alle {kiPrompts.length}</button>
+      {nachFeld.map((g) => (
+        <button type="button" data-feld={g.feld} aria-pressed="false" class="ki-chip">
+          {g.feld} <span class="opacity-60">{g.liste.length}</span>
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <!-- Prompts -->
+  <section class="container-wide pb-14">
+    <div class="space-y-5">
+      {kiPrompts.map((p) => (
+        <article
+          class="ki-karte overflow-hidden rounded-2xl border border-ink-200/90 bg-surface/85 shadow-sm mu-dark-glass-panel"
+          data-feld={p.feld}
+          id={p.slug}
+          style="scroll-margin-top: 5rem"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3 border-b border-ink-200/70 p-5 dark:border-white/10">
+            <div class="min-w-0">
+              <span class="badge-accent">{p.feld}</span>
+              <h2 class="mt-2 font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">{p.titel}</h2>
+              <p class="mt-1 text-ink-700 dark:text-ink-300">{p.zweck}</p>
+            </div>
+            <button
+              type="button"
+              class="ki-kopieren inline-flex flex-none items-center gap-2 rounded-md border border-accent-300 bg-accent-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-accent-700 dark:border-teal-400/50 dark:bg-teal-600 dark:hover:bg-teal-500"
+            >
+              <span aria-hidden="true">⧉</span>
+              <span class="ki-kopieren-text">Prompt kopieren</span>
+            </button>
+          </div>
+
+          <pre class="ki-prompt overflow-x-auto whitespace-pre-wrap break-words px-5 py-4 font-mono text-[0.82rem] leading-relaxed text-ink-800 dark:text-ink-200">{p.prompt}</pre>
+
+          <p class="border-t border-ink-200/70 bg-amber-50/40 px-5 py-3 text-sm leading-relaxed text-ink-700 dark:border-white/10 dark:bg-amber-950/15 dark:text-ink-300">
+            <span class="font-semibold text-ink-800 dark:text-ink-200">Vorher prüfen: </span>{p.pruefen}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Vertiefung: PDF-Reihe -->
+  <section class="container-wide pb-20">
+    <div class="rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 sm:p-8 shadow-sm dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Zum Weiterlesen: die Reihe</h2>
+      <p class="mt-3 max-w-3xl leading-relaxed text-ink-700 dark:text-ink-300">
+        Fünf Hefte zum Einsatz von Sprachmodellen im Mathematikunterricht – von den
+        Grundlagen über das Erzeugen von Aufgaben und LaTeX-Diagrammen bis zu den
+        rechtlichen Rahmenbedingungen.
+      </p>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {pdfReihe.map((p) => (
+          <a
+            href={p.href}
+            class="flex items-center gap-3 rounded-lg border border-ink-200/90 bg-surface/80 px-4 py-3 transition hover:border-accent-300 hover:bg-accent-50/40 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-teal-400/40"
+          >
+            <span class="text-xl" aria-hidden="true">📄</span>
+            <span>
+              <span class="block font-medium text-ink-900 dark:text-ink-50">Teil {p.nummer}</span>
+              <span class="block text-sm text-ink-600 dark:text-ink-400">{pdfTitel[p.nummer]}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+      <p class="mt-5 text-sm">
+        <a href="/blog/ki-mathematikunterricht-latex-prompting-serie" class="link-arrow">Der Begleitbeitrag im Blog </a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .ki-chip {
+    @apply rounded-full border border-ink-200/90 bg-surface/80 px-3.5 py-1.5 text-sm font-medium text-ink-700 transition;
+  }
+  .ki-chip:hover {
+    @apply border-accent-300 text-accent-800;
+  }
+  .ki-chip[aria-pressed='true'] {
+    @apply border-accent-500 bg-accent-600 text-white;
+  }
+  .dark .ki-chip {
+    @apply border-white/10 bg-white/[0.04] text-ink-200;
+  }
+  .dark .ki-chip[aria-pressed='true'] {
+    @apply border-teal-400/60 bg-teal-500/80 text-teal-950;
+  }
+  .ki-prompt {
+    background: rgb(243 239 230 / 0.7);
+  }
+  .dark .ki-prompt {
+    background: rgb(0 0 0 / 0.28);
+  }
+  .ki-aus {
+    display: none !important;
+  }
+</style>
+
+<script>
+  // Kopieren mit Rückmeldung im Knopf – kein Toast, keine Bibliothek.
+  document.querySelectorAll<HTMLButtonElement>('.ki-kopieren').forEach((knopf) => {
+    knopf.addEventListener('click', async () => {
+      const karte = knopf.closest('.ki-karte');
+      const text = karte?.querySelector('.ki-prompt')?.textContent ?? '';
+      const anzeige = knopf.querySelector('.ki-kopieren-text');
+      try {
+        await navigator.clipboard.writeText(text);
+        if (anzeige) anzeige.textContent = 'Kopiert!';
+      } catch (e) {
+        // Ältere Browser oder fehlende Berechtigung: Text markieren, damit
+        // Strg+C weiterhin funktioniert.
+        const bereich = karte?.querySelector('.ki-prompt');
+        if (bereich) {
+          const auswahl = window.getSelection();
+          const bereichRange = document.createRange();
+          bereichRange.selectNodeContents(bereich);
+          auswahl?.removeAllRanges();
+          auswahl?.addRange(bereichRange);
+        }
+        if (anzeige) anzeige.textContent = 'Markiert – Strg+C';
+      }
+      window.setTimeout(() => {
+        if (anzeige) anzeige.textContent = 'Prompt kopieren';
+      }, 2200);
+    });
+  });
+
+  const filter = document.getElementById('ki-filter');
+  filter?.addEventListener('click', (e) => {
+    const knopf = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-feld]');
+    if (!knopf) return;
+    const feld = knopf.dataset.feld ?? 'alle';
+    filter
+      .querySelectorAll<HTMLButtonElement>('button[data-feld]')
+      .forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    document.querySelectorAll<HTMLElement>('.ki-karte').forEach((karte) => {
+      karte.classList.toggle('ki-aus', feld !== 'alle' && karte.dataset.feld !== feld);
+    });
+  });
+</script>

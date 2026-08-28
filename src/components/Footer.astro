@@ -1,44 +1,88 @@
 ---
+import { werkzeuge } from '../lib/werkzeuge';
+
 const jahr = new Date().getFullYear();
+
+const spalten = [
+  {
+    titel: 'Unterrichten',
+    links: [
+      { href: '/schnellstart', label: 'Schnellstart' },
+      { href: '/konzept', label: 'Das KLAR-Konzept' },
+      { href: '/methoden', label: 'Methodenkoffer' },
+      { href: '/fehlvorstellungen', label: 'Fehlvorstellungen' },
+      { href: '/ausb/', label: 'Handreichungen' },
+    ],
+  },
+  {
+    titel: 'Material',
+    links: [
+      { href: '/themen', label: 'Themen & Übungen' },
+      { href: '/aufgaben', label: 'Aufgabensammlung' },
+      { href: '/quizzes', label: 'Diagnostische Fragen' },
+      { href: '/blog', label: 'Blog' },
+      { href: '/rss.xml', label: 'RSS-Feed' },
+    ],
+  },
+  {
+    titel: 'Werkzeuge',
+    links: [
+      { href: '/werkzeuge', label: `Werkzeugkasten (${werkzeuge.length})` },
+      { href: '/werkzeuge/unterrichts-timer.html', label: 'Unterrichts-Timer' },
+      { href: '/werkzeuge/zufalls-gruppen.html', label: 'Zufallsgruppen' },
+      { href: '/werkzeuge/karopapier.html', label: 'Papier-Werkstatt' },
+      { href: '/ki', label: 'KI-Prompts' },
+    ],
+  },
+  {
+    titel: 'Kontakt & Rechtliches',
+    links: [
+      { href: '/fortbildung', label: 'Fortbildung anfragen' },
+      { href: '/kontakt', label: 'Kontakt' },
+      { href: '/ueber', label: 'Über diese Seite' },
+      { href: '/impressum', label: 'Impressum' },
+      { href: '/datenschutz', label: 'Datenschutz' },
+    ],
+  },
+];
 ---
 
 <footer class="relative mt-16 border-t border-ink-200/80 bg-gradient-to-b from-surface via-surface to-accent-50/25 dark:border-violet-500/20 dark:from-ink-900 dark:via-violet-950/30 dark:to-teal-950/25">
   <div
-    class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent-500 via-teal-500 to-violet-500 opacity-80 dark:opacity-100 dark:saturate-125 dark:from-sky-400 dark:via-teal-400 dark:to-fuchsia-400"
+    class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent-500 via-teal-500 to-violet-500 opacity-80 dark:from-sky-400 dark:via-teal-400 dark:to-fuchsia-400 dark:opacity-100 dark:saturate-125"
     aria-hidden="true"
   ></div>
-  <div class="container-wide py-10 grid gap-8 md:grid-cols-3 text-sm">
-    <div>
-      <p class="font-serif text-lg font-semibold text-ink-900 mb-2 dark:text-ink-50">
+
+  <div class="container-wide grid gap-8 py-10 text-sm md:grid-cols-2 lg:grid-cols-5">
+    <div class="lg:col-span-1">
+      <p class="mb-2 font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
         mathematik-unterrichten.de
       </p>
-      <p class="text-ink-600 leading-relaxed dark:text-ink-300">
-        Didaktische Anregungen, Aufgaben und diagnostische Fragen für den Mathematikunterricht – evidenzbasiert und praxisnah.
+      <p class="leading-relaxed text-ink-600 dark:text-ink-300">
+        Fachdidaktik, Diagnose und sofort einsetzbare Werkzeuge für den
+        Mathematikunterricht – evidenzbasiert und aus der Praxis.
       </p>
+      <a href="/suche" class="link-arrow mt-3 inline-block">Alles durchsuchen </a>
     </div>
 
-    <div>
-      <p class="font-semibold text-ink-900 mb-2 dark:text-ink-50">Bereiche</p>
-      <ul class="space-y-1 text-ink-700 dark:text-ink-300">
-        <li><a class="hover:text-accent-700 dark:hover:text-teal-300" href="/blog">Blog</a></li>
-        <li><a class="hover:text-accent-700 dark:hover:text-teal-300" href="/aufgaben">Aufgabensammlung</a></li>
-        <li><a class="hover:text-accent-700 dark:hover:text-teal-300" href="/quizzes">Diagnostische Fragen</a></li>
-        <li><a class="hover:text-accent-700 dark:hover:text-teal-300" href="/rss.xml">RSS-Feed</a></li>
-      </ul>
-    </div>
-
-    <div>
-      <p class="font-semibold text-ink-900 mb-2 dark:text-ink-50">Rechtliches & Kontakt</p>
-      <ul class="space-y-1 text-ink-700 dark:text-ink-300">
-        <li><a class="hover:text-accent-700 dark:hover:text-fuchsia-300" href="/kontakt">Kontakt</a></li>
-        <li><a class="hover:text-accent-700 dark:hover:text-fuchsia-300" href="/impressum">Impressum</a></li>
-        <li><a class="hover:text-accent-700 dark:hover:text-fuchsia-300" href="/datenschutz">Datenschutz</a></li>
-      </ul>
-    </div>
+    {spalten.map((s) => (
+      <div>
+        <p class="mb-2 font-semibold text-ink-900 dark:text-ink-50">{s.titel}</p>
+        <ul class="space-y-1 text-ink-700 dark:text-ink-300">
+          {s.links.map((l) => (
+            <li>
+              <a class="hover:text-accent-700 dark:hover:text-teal-300" href={l.href}>{l.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
   </div>
+
   <div class="border-t border-ink-200/80 bg-ink-50/40 dark:border-violet-500/15 dark:bg-black/25">
     <p class="container-wide py-4 text-xs text-ink-500 dark:text-ink-400">
-      © {jahr} mathematik-unterrichten.de. Inhalte – sofern nicht anders gekennzeichnet – unter CC BY-SA 4.0.
+      © {jahr} mathematik-unterrichten.de. Inhalte – sofern nicht anders gekennzeichnet – unter CC BY-SA 4.0,
+      Quelltext der Werkzeuge unter MIT.
     </p>
   </div>
 </footer>

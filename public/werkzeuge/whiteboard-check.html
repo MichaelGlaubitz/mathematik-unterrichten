@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whiteboard-Check · mathematik-unterrichten.de</title>
+<meta name="description" content="Die Mini-Whiteboard-Runde in Sekunden auswerten: pro Kind antippen, Trefferquote sehen, entscheiden ob es weitergeht. Läuft offline im Browser.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .wc-raster { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
+  .wc-kachel {
+    font: inherit; text-align: left; cursor: pointer;
+    border: 2px solid var(--linie); border-radius: var(--radius-klein);
+    background: var(--flaeche); color: var(--text);
+    padding: .55rem .7rem; min-height: 3.1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+    transition: background-color 120ms ease, border-color 120ms ease;
+  }
+  .wc-kachel:focus-visible { outline: 3px solid var(--akzent); outline-offset: 2px; }
+  .wc-kachel .wc-zeichen { font-size: 1.3rem; line-height: 1; font-weight: 700; opacity: .35; }
+  .wc-kachel[data-stand="richtig"] { background: var(--gruen-hell); border-color: var(--gruen); }
+  .wc-kachel[data-stand="richtig"] .wc-zeichen { color: var(--gruen); opacity: 1; }
+  .wc-kachel[data-stand="halb"] { background: var(--gold-hell); border-color: var(--gold); }
+  .wc-kachel[data-stand="halb"] .wc-zeichen { color: var(--gold); opacity: 1; }
+  .wc-kachel[data-stand="falsch"] { background: var(--rot-hell); border-color: var(--rot); }
+  .wc-kachel[data-stand="falsch"] .wc-zeichen { color: var(--rot); opacity: 1; }
+  .wc-kachel[data-stand="fehlt"] { opacity: .4; border-style: dashed; }
+
+  .wc-quote { display: flex; align-items: baseline; gap: .5rem; }
+  .wc-quote b { font-family: var(--schrift-serif); font-size: 2.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .wc-balken { display: flex; height: 16px; border-radius: 8px; overflow: hidden; border: 1px solid var(--linie); margin-top: .6rem; background: var(--flaeche-2); }
+  .wc-balken i { display: block; height: 100%; transition: width 240ms ease; }
+  .wc-legende { display: flex; flex-wrap: wrap; gap: .8rem; font-size: .82rem; color: var(--text-leise); margin-top: .5rem; }
+  .wc-legende span { display: inline-flex; align-items: center; gap: .35rem; }
+  .wc-punkt { width: .7rem; height: .7rem; border-radius: 3px; display: inline-block; }
+
+  .wc-urteil { font-size: 1rem; margin-top: .9rem; padding: .7rem .9rem; border-radius: var(--radius-klein); border-left: 4px solid; }
+  .wc-urteil[data-art="weiter"] { border-color: var(--gruen); background: var(--gruen-hell); color: var(--gruen); }
+  .wc-urteil[data-art="runde"] { border-color: var(--gold); background: var(--gold-hell); color: var(--gold); }
+  .wc-urteil[data-art="stopp"] { border-color: var(--rot); background: var(--rot-hell); color: var(--rot); }
+
+  .wc-verlauf td.wc-z { text-align: center; font-weight: 700; }
+  .wc-verlauf td.wc-z[data-stand="richtig"] { color: var(--gruen); }
+  .wc-verlauf td.wc-z[data-stand="halb"] { color: var(--gold); }
+  .wc-verlauf td.wc-z[data-stand="falsch"] { color: var(--rot); }
+  .wc-verlauf td.wc-z[data-stand="fehlt"] { color: var(--text-schwach); }
+  .wc-tabellenhuelle { overflow-x: auto; }
+
+  @media (min-width: 1000px) { .wc-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Whiteboard-Check</h1>
+
+  <div class="wc-layout">
+    <section>
+      <div class="wz-karte">
+        <div class="wz-reihe" style="justify-content:space-between;align-items:flex-end">
+          <label class="wz-label" style="flex:1;min-width:220px">
+            <span>Frage dieser Runde</span>
+            <input class="wz-feld" id="wc-frage" type="text" placeholder="z. B. Ist 0,7 größer oder kleiner als 0,25?">
+          </label>
+          <span class="wz-pill" id="wc-rundennr">Runde 1</span>
+        </div>
+
+        <p class="wz-hinweis wz-abstand">
+          Klasse zeigt die Whiteboards – Sie tippen jede Kachel an:
+          <strong>1× richtig</strong>, <strong>2× halb</strong>, <strong>3× falsch</strong>, <strong>4× fehlt</strong>, dann wieder von vorn.
+        </p>
+
+        <div class="wc-raster wz-abstand" id="wc-raster"></div>
+
+        <div class="wz-reihe wz-abstand">
+          <button class="wz-knopf wz-knopf-haupt" id="wc-runde-fertig" type="button">Runde auswerten &amp; speichern</button>
+          <button class="wz-knopf" id="wc-alle-richtig" type="button">Alle auf ✓</button>
+          <button class="wz-knopf wz-knopf-still" id="wc-runde-leeren" type="button">Runde leeren</button>
+        </div>
+      </div>
+
+      <div class="wz-karte" id="wc-verlauf-karte" hidden>
+        <div class="wz-reihe" style="justify-content:space-between">
+          <h2>Klassenbild</h2>
+          <div class="wz-reihe">
+            <button class="wz-knopf wz-knopf-still" id="wc-csv" type="button">CSV exportieren</button>
+            <button class="wz-knopf wz-knopf-still" id="wc-drucken" type="button">Drucken</button>
+            <button class="wz-knopf wz-knopf-still" id="wc-alles-loeschen" type="button">Alles löschen</button>
+          </div>
+        </div>
+        <div class="wc-tabellenhuelle wz-abstand">
+          <table class="wz-tabelle wc-verlauf" id="wc-verlauf"></table>
+        </div>
+        <p style="font-size:.82rem;color:var(--text-schwach);margin:.8rem 0 0">
+          Lesart der letzten Spalte: Anteil richtiger Antworten über alle gespeicherten Runden.
+          Zwei rote Zeilen nebeneinander sind ein Förderhinweis, kein Urteil.
+        </p>
+      </div>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Auswertung</h2>
+        <div class="wc-quote wz-abstand">
+          <b id="wc-prozent">–</b>
+          <span style="color:var(--text-leise)">richtig</span>
+        </div>
+        <div class="wc-balken" id="wc-balken">
+          <i id="wc-b-richtig" style="width:0%;background:var(--gruen)"></i>
+          <i id="wc-b-halb" style="width:0%;background:var(--gold)"></i>
+          <i id="wc-b-falsch" style="width:0%;background:var(--rot)"></i>
+        </div>
+        <div class="wc-legende">
+          <span><i class="wc-punkt" style="background:var(--gruen)"></i> richtig <b id="wc-n-richtig">0</b></span>
+          <span><i class="wc-punkt" style="background:var(--gold)"></i> halb <b id="wc-n-halb">0</b></span>
+          <span><i class="wc-punkt" style="background:var(--rot)"></i> falsch <b id="wc-n-falsch">0</b></span>
+          <span><i class="wc-punkt" style="background:var(--linie-stark)"></i> offen <b id="wc-n-offen">0</b></span>
+        </div>
+        <p class="wc-urteil" id="wc-urteil" data-art="runde">Noch keine Antworten erfasst.</p>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Klasse</h2>
+        <label class="wz-label" style="margin-top:.6rem">
+          <span>Gespeicherte Klasse</span>
+          <select class="wz-feld" id="wc-klassenwahl"></select>
+        </label>
+        <p style="font-size:.85rem;color:var(--text-leise);margin:.7rem 0 0">
+          Klassenlisten werden mit
+          <a href="zufalls-gruppen.html">Zufallsgruppen&nbsp;&amp;&nbsp;Aufrufen</a>
+          gepflegt – beide Werkzeuge greifen auf denselben Speicher in diesem Browser zu.
+        </p>
+        <label class="wz-label" style="margin-top:.9rem">
+          <span>Oder schnell hier eintragen (ein Name pro Zeile)</span>
+          <textarea class="wz-feld" id="wc-namen" spellcheck="false" style="min-height:6rem"></textarea>
+        </label>
+        <button class="wz-knopf wz-abstand" id="wc-namen-uebernehmen" type="button">Übernehmen</button>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Faustregel</h2>
+        <p style="font-size:.9rem;color:var(--text-leise);margin:.5rem 0 0">
+          Dylan Wiliam schlägt für Hinge Questions vor: <strong>ab etwa 80 % richtig</strong> weitergehen,
+          <strong>unter 50 %</strong> gemeinsam neu ansetzen, dazwischen eine zweite Runde mit einer
+          leicht veränderten Aufgabe. Die Ampel rechts folgt genau dieser Regel.
+        </p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const SPEICHER_RUNDEN = 'wz-wb-runden';
+  const STAENDE = ['offen', 'richtig', 'halb', 'falsch', 'fehlt'];
+  const ZEICHEN = { offen: '·', richtig: '✓', halb: '~', falsch: '✗', fehlt: '–' };
+
+  let klassen = WZ.lies('wz-klassen', {});
+  let aktiv = WZ.lies('wz-klasse-aktiv', null);
+  let namen = [];
+  let runde = {};                                   // name -> Stand
+  let runden = WZ.lies(SPEICHER_RUNDEN, []);        // [{frage, zeit, werte:{name:stand}}]
+
+  const el = {};
+  ['raster', 'frage', 'rundennr', 'runde-fertig', 'runde-leeren', 'alle-richtig', 'prozent',
+   'b-richtig', 'b-halb', 'b-falsch', 'n-richtig', 'n-halb', 'n-falsch', 'n-offen', 'urteil',
+   'klassenwahl', 'namen', 'namen-uebernehmen', 'verlauf', 'verlauf-karte', 'csv', 'drucken',
+   'alles-loeschen'].forEach(function (id) { el[id] = document.getElementById('wc-' + id); });
+
+  function namenLaden() {
+    if (aktiv && klassen[aktiv]) namen = klassen[aktiv].namen.slice();
+    else namen = [];
+    el.namen.value = namen.join('\n');
+  }
+
+  function rasterZeichnen() {
+    el.raster.textContent = '';
+    if (namen.length === 0) {
+      el.raster.appendChild(WZ.el('p', {
+        style: 'color:var(--text-leise);grid-column:1/-1',
+        text: 'Noch keine Namen. Rechts eine Klasse wählen oder Namen eintragen.'
+      }));
+      return;
+    }
+    namen.forEach(function (n) {
+      const stand = runde[n] || 'offen';
+      const zeichen = WZ.el('span', { class: 'wc-zeichen', text: ZEICHEN[stand], 'aria-hidden': 'true' });
+      // Beim Tippen nur diese eine Kachel aktualisieren: Das Raster bleibt stehen,
+      // der Fokus geht nicht verloren und schnelles Durchtippen bleibt zuverlaessig.
+      const kachel = WZ.el('button', {
+        class: 'wc-kachel', type: 'button', 'data-stand': stand,
+        'aria-label': n + ': ' + stand,
+        onclick: function () {
+          const i = STAENDE.indexOf(runde[n] || 'offen');
+          const neuerStand = STAENDE[(i + 1) % STAENDE.length];
+          runde[n] = neuerStand;
+          kachel.setAttribute('data-stand', neuerStand);
+          kachel.setAttribute('aria-label', n + ': ' + neuerStand);
+          zeichen.textContent = ZEICHEN[neuerStand];
+          auswerten();
+        }
+      }, [
+        WZ.el('span', { text: n, style: 'font-weight:500' }),
+        zeichen
+      ]);
+      el.raster.appendChild(kachel);
+    });
+  }
+
+  function zaehlen(werte, liste) {
+    const z = { richtig: 0, halb: 0, falsch: 0, fehlt: 0, offen: 0 };
+    liste.forEach(function (n) { z[werte[n] || 'offen']++; });
+    return z;
+  }
+
+  function auswerten() {
+    const z = zaehlen(runde, namen);
+    const gewertet = z.richtig + z.halb + z.falsch;
+    const prozent = gewertet ? Math.round((z.richtig / gewertet) * 100) : null;
+
+    el['n-richtig'].textContent = z.richtig;
+    el['n-halb'].textContent = z.halb;
+    el['n-falsch'].textContent = z.falsch;
+    el['n-offen'].textContent = z.offen;
+    el.prozent.textContent = prozent === null ? '–' : prozent + ' %';
+
+    const teil = function (n) { return gewertet ? (n / gewertet) * 100 + '%' : '0%'; };
+    el['b-richtig'].style.width = teil(z.richtig);
+    el['b-halb'].style.width = teil(z.halb);
+    el['b-falsch'].style.width = teil(z.falsch);
+
+    if (prozent === null) {
+      el.urteil.dataset.art = 'runde';
+      el.urteil.textContent = 'Noch keine Antworten erfasst.';
+    } else if (prozent >= 80) {
+      const wacklig = z.falsch + z.halb;
+      el.urteil.dataset.art = 'weiter';
+      el.urteil.textContent = wacklig === 0
+        ? 'Die Klasse trägt geschlossen. Weitergehen – und ruhig einen Schritt größer.'
+        : 'Die Klasse trägt. Weitergehen – ' +
+          (wacklig === 1 ? 'die eine unsichere Person' : 'die ' + wacklig + ' unsicheren Lernenden') +
+          ' gezielt in der Übungsphase begleiten.';
+    } else if (prozent >= 50) {
+      el.urteil.dataset.art = 'runde';
+      el.urteil.textContent = 'Wackelig. Eine zweite Runde mit einer leicht veränderten Aufgabe – ' +
+        'nicht dieselbe noch einmal.';
+    } else {
+      el.urteil.dataset.art = 'stopp';
+      el.urteil.textContent = 'Mehrheitlich nicht verstanden. Hier lohnt kein Weitergehen: ' +
+        'gemeinsam an einem Beispiel neu ansetzen.';
+    }
+  }
+
+  function verlaufZeichnen() {
+    el['verlauf-karte'].hidden = runden.length === 0;
+    if (runden.length === 0) return;
+
+    const tab = el.verlauf;
+    tab.textContent = '';
+
+    const kopf = WZ.el('tr', {}, [WZ.el('th', { text: 'Name' })]);
+    runden.forEach(function (r, i) {
+      kopf.appendChild(WZ.el('th', { title: r.frage || '', style: 'text-align:center', text: String(i + 1) }));
+    });
+    kopf.appendChild(WZ.el('th', { style: 'text-align:right', text: 'richtig' }));
+    tab.appendChild(WZ.el('thead', {}, [kopf]));
+
+    const koerper = WZ.el('tbody');
+    const alleNamen = [];
+    runden.forEach(function (r) {
+      Object.keys(r.werte).forEach(function (n) { if (alleNamen.indexOf(n) === -1) alleNamen.push(n); });
+    });
+    namen.forEach(function (n) { if (alleNamen.indexOf(n) === -1) alleNamen.push(n); });
+    alleNamen.sort(function (a, b) { return a.localeCompare(b, 'de'); });
+
+    alleNamen.forEach(function (n) {
+      const zeile = WZ.el('tr', {}, [WZ.el('td', { text: n })]);
+      let richtig = 0;
+      let gewertet = 0;
+      runden.forEach(function (r) {
+        const stand = r.werte[n] || 'offen';
+        if (stand === 'richtig') { richtig++; gewertet++; }
+        else if (stand === 'halb' || stand === 'falsch') gewertet++;
+        zeile.appendChild(WZ.el('td', { class: 'wc-z', 'data-stand': stand, text: ZEICHEN[stand] }));
+      });
+      zeile.appendChild(WZ.el('td', {
+        style: 'text-align:right;font-variant-numeric:tabular-nums',
+        text: gewertet ? Math.round((richtig / gewertet) * 100) + ' %' : '–'
+      }));
+      koerper.appendChild(zeile);
+    });
+
+    // Fußzeile: Trefferquote je Runde
+    const fuss = WZ.el('tr', { style: 'font-weight:600' }, [WZ.el('td', { text: 'Runde gesamt' })]);
+    runden.forEach(function (r) {
+      const z = zaehlen(r.werte, Object.keys(r.werte));
+      const g = z.richtig + z.halb + z.falsch;
+      fuss.appendChild(WZ.el('td', {
+        style: 'text-align:center;font-variant-numeric:tabular-nums;font-size:.8rem',
+        text: g ? Math.round((z.richtig / g) * 100) + '%' : '–'
+      }));
+    });
+    fuss.appendChild(WZ.el('td', { text: '' }));
+    koerper.appendChild(fuss);
+
+    tab.appendChild(koerper);
+  }
+
+  function klassenwahlZeichnen() {
+    el.klassenwahl.textContent = '';
+    const liste = Object.keys(klassen).sort();
+    if (liste.length === 0) el.klassenwahl.appendChild(WZ.el('option', { value: '' }, ['– keine gespeichert –']));
+    liste.forEach(function (n) {
+      el.klassenwahl.appendChild(WZ.el('option', { value: n, selected: n === aktiv }, [n]));
+    });
+  }
+
+  // --- Aktionen ------------------------------------------------------------
+
+  el['runde-fertig'].addEventListener('click', function () {
+    const werte = {};
+    let gezaehlt = 0;
+    namen.forEach(function (n) {
+      const s = runde[n] || 'offen';
+      werte[n] = s;
+      if (s !== 'offen') gezaehlt++;
+    });
+    if (gezaehlt === 0) { alert('In dieser Runde ist noch nichts erfasst.'); return; }
+    runden.push({ frage: el.frage.value.trim(), zeit: new Date().toISOString(), werte: werte });
+    WZ.schreib(SPEICHER_RUNDEN, runden);
+    runde = {};
+    el.frage.value = '';
+    el.rundennr.textContent = 'Runde ' + (runden.length + 1);
+    rasterZeichnen();
+    auswerten();
+    verlaufZeichnen();
+  });
+
+  el['runde-leeren'].addEventListener('click', function () {
+    runde = {};
+    rasterZeichnen();
+    auswerten();
+  });
+
+  el['alle-richtig'].addEventListener('click', function () {
+    namen.forEach(function (n) { runde[n] = 'richtig'; });
+    rasterZeichnen();
+    auswerten();
+  });
+
+  el['namen-uebernehmen'].addEventListener('click', function () {
+    namen = el.namen.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    runde = {};
+    rasterZeichnen();
+    auswerten();
+    verlaufZeichnen();
+  });
+
+  el.klassenwahl.addEventListener('change', function (e) {
+    aktiv = e.target.value || null;
+    WZ.schreib('wz-klasse-aktiv', aktiv);
+    namenLaden();
+    runde = {};
+    rasterZeichnen();
+    auswerten();
+    verlaufZeichnen();
+  });
+
+  el.csv.addEventListener('click', function () {
+    const kopf = ['Name'].concat(runden.map(function (r, i) { return 'Runde ' + (i + 1) + (r.frage ? ' – ' + r.frage.replace(/;/g, ',') : ''); }));
+    const zeilen = [kopf.join(';')];
+    const alle = [];
+    runden.forEach(function (r) { Object.keys(r.werte).forEach(function (n) { if (alle.indexOf(n) === -1) alle.push(n); }); });
+    alle.sort(function (a, b) { return a.localeCompare(b, 'de'); });
+    alle.forEach(function (n) {
+      zeilen.push([n].concat(runden.map(function (r) { return r.werte[n] || 'offen'; })).join(';'));
+    });
+    WZ.herunterladen('whiteboard-check.csv', zeilen.join('\n'));
+  });
+
+  el.drucken.addEventListener('click', function () { window.print(); });
+
+  el['alles-loeschen'].addEventListener('click', function () {
+    if (!confirm('Alle gespeicherten Runden aus diesem Browser löschen?')) return;
+    runden = [];
+    WZ.loesche(SPEICHER_RUNDEN);
+    el.rundennr.textContent = 'Runde 1';
+    verlaufZeichnen();
+  });
+
+  WZ.kopf({ titel: 'Whiteboard-Check' });
+  WZ.fuss('Antworten bleiben in diesem Browser. Für die Notengebung ist das Werkzeug ausdrücklich nicht gedacht.');
+  klassenwahlZeichnen();
+  namenLaden();
+  el.rundennr.textContent = 'Runde ' + (runden.length + 1);
+  rasterZeichnen();
+  auswerten();
+  verlaufZeichnen();
+})();
+</script>
+</body>
+</html>

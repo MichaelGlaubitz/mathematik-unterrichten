@@ -1,61 +1,152 @@
 ---
-const navItems = [
-  { href: '/', label: 'Start' },
-  { href: '/konzept', label: 'Konzept' },
-  { href: '/themen', label: 'Themen' },
-  { href: '/aufgaben', label: 'Aufgaben' },
-  { href: '/quizzes', label: 'Diagnostische Fragen' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/ueber', label: 'Über' },
-  { href: '/kontakt', label: 'Kontakt' },
+/**
+ * Kopfleiste mit gruppierter Navigation.
+ *
+ * Die Seite ist über die Jahre gewachsen; eine flache Liste aus zehn Punkten
+ * wäre nicht mehr lesbar. Deshalb vier Gruppen mit Klappmenü, dazu die
+ * direkten Einstiege „Schnellstart“ und „Suche“.
+ */
+type Punkt = { href: string; label: string; hinweis?: string };
+type Gruppe = { label: string; punkte: Punkt[] };
+
+const gruppen: Gruppe[] = [
+  {
+    label: 'Unterrichten',
+    punkte: [
+      { href: '/konzept', label: 'Das KLAR-Konzept', hinweis: 'Der Stundenablauf in vier Schritten' },
+      { href: '/methoden', label: 'Methodenkoffer', hinweis: '16 Methoden, je drei Schritte' },
+      { href: '/fehlvorstellungen', label: 'Fehlvorstellungen', hinweis: 'Katalog mit Gegenmitteln' },
+      { href: '/ausb/', label: 'Handreichungen', hinweis: 'Für Referendariat und Seminar' },
+    ],
+  },
+  {
+    label: 'Material',
+    punkte: [
+      { href: '/themen', label: 'Themen & Übungen', hinweis: 'Klasse 5 bis Oberstufe' },
+      { href: '/aufgaben', label: 'Aufgabensammlung', hinweis: 'Aufgabenfolgen mit Kommentar' },
+      { href: '/quizzes', label: 'Diagnostische Fragen', hinweis: 'Multiple Choice mit Distraktoren' },
+      { href: '/blog', label: 'Blog', hinweis: 'Didaktik kurz und praxisnah' },
+    ],
+  },
+  {
+    label: 'Werkzeuge',
+    punkte: [
+      { href: '/werkzeuge', label: 'Werkzeugkasten', hinweis: '12 Werkzeuge, sofort einsetzbar' },
+      { href: '/werkzeuge/unterrichts-timer.html', label: 'Unterrichts-Timer', hinweis: 'Phasen groß projizieren' },
+      { href: '/werkzeuge/zufalls-gruppen.html', label: 'Zufallsgruppen', hinweis: 'Gruppen ziehen und aufrufen' },
+      { href: '/ki', label: 'KI-Prompts', hinweis: 'Erprobt und zum Kopieren' },
+    ],
+  },
+  {
+    label: 'Angebot',
+    punkte: [
+      { href: '/fortbildung', label: 'Fortbildung', hinweis: 'Für Fachschaften und Seminare' },
+      { href: '/ueber', label: 'Über diese Seite', hinweis: 'Wer hier schreibt' },
+      { href: '/kontakt', label: 'Kontakt', hinweis: 'Nachricht schreiben' },
+    ],
+  },
 ];
 
 const path = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/' ? path === '/' : path.startsWith(href);
+const istAktiv = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const gruppeAktiv = (g: Gruppe) => g.punkte.some((p) => istAktiv(p.href));
 ---
 
 <header class="sticky top-0 z-40 border-b border-ink-200/80 bg-surface/85 shadow-sm backdrop-blur-md dark:border-white/[0.08] dark:bg-[rgb(26_22_35)] dark:shadow-[0_12px_32px_-8px_rgba(0,0,0,0.75)] dark:backdrop-blur-none">
-  <div class="container-wide py-4 flex items-center justify-between gap-6">
-    <a href="/" class="font-serif text-xl sm:text-2xl font-semibold text-ink-900 tracking-tight dark:text-ink-50">
+  <div class="container-wide flex items-center justify-between gap-4 py-3.5">
+    <a href="/" class="font-serif text-lg font-semibold tracking-tight text-ink-900 sm:text-xl dark:text-ink-50">
       mathematik-unterrichten<span class="bg-gradient-to-r from-accent-600 via-teal-600 to-violet-600 bg-clip-text font-bold text-transparent dark:from-sky-300 dark:via-teal-300 dark:to-fuchsia-300">.de</span>
     </a>
 
-    <nav aria-label="Hauptnavigation" class="hidden md:block">
-      <ul class="flex items-center gap-2 text-sm">
-        {navItems.map((item) => (
-          <li>
-            <a
-              href={item.href}
+    <nav aria-label="Hauptnavigation" class="hidden lg:block">
+      <ul class="flex items-center gap-1 text-sm">
+        <li>
+          <a
+            href="/schnellstart"
+            class={[
+              'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium transition-colors',
+              istAktiv('/schnellstart')
+                ? 'bg-accent-600 text-white dark:bg-teal-500 dark:text-teal-950'
+                : 'text-accent-800 ring-1 ring-accent-300/70 hover:bg-accent-50 dark:text-teal-100 dark:ring-teal-500/35 dark:hover:bg-white/[0.06]',
+            ].join(' ')}
+          >
+            <span aria-hidden="true">⚡</span> Schnellstart
+          </a>
+        </li>
+
+        {gruppen.map((g, i) => (
+          <li class="mu-gruppe relative">
+            <button
+              type="button"
               class={[
-                'rounded-full px-3 py-1.5 transition-colors',
-                isActive(item.href)
-                  ? 'bg-gradient-to-r from-accent-600/15 via-teal-600/10 to-violet-600/15 text-accent-800 ring-1 ring-accent-300/60 dark:bg-[rgb(35_30_48)] dark:text-ink-50 dark:ring-teal-500/35 font-semibold'
+                'mu-gruppe-knopf inline-flex items-center gap-1 rounded-full px-3 py-1.5 transition-colors',
+                gruppeAktiv(g)
+                  ? 'bg-gradient-to-r from-accent-600/15 via-teal-600/10 to-violet-600/15 font-semibold text-accent-800 ring-1 ring-accent-300/60 dark:bg-[rgb(35_30_48)] dark:text-ink-50 dark:ring-teal-500/35'
                   : 'text-ink-700 hover:bg-ink-100/80 hover:text-accent-700 dark:text-ink-200 dark:hover:bg-white/[0.07] dark:hover:text-teal-100',
               ].join(' ')}
-              aria-current={isActive(item.href) ? 'page' : undefined}
+              aria-expanded="false"
+              aria-controls={`mu-menue-${i}`}
             >
-              {item.label}
-            </a>
+              {g.label}
+              <svg class="mu-pfeil h-3 w-3 transition-transform" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M2 4.5 6 8.5 10 4.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <div
+              id={`mu-menue-${i}`}
+              class="mu-menue invisible absolute left-0 top-full z-50 mt-2 w-[19rem] -translate-y-1 rounded-xl border border-ink-200/90 bg-surface p-2 opacity-0 shadow-lg transition-[opacity,transform] duration-150 dark:border-white/10 dark:bg-[rgb(30_26_40)] dark:shadow-[0_18px_40px_-12px_rgba(0,0,0,0.85)]"
+            >
+              <ul>
+                {g.punkte.map((p) => (
+                  <li>
+                    <a
+                      href={p.href}
+                      class={[
+                        'block rounded-lg px-3 py-2 transition-colors',
+                        istAktiv(p.href)
+                          ? 'bg-accent-50 text-accent-800 dark:bg-white/[0.08] dark:text-teal-100'
+                          : 'hover:bg-ink-100/70 dark:hover:bg-white/[0.06]',
+                      ].join(' ')}
+                      aria-current={istAktiv(p.href) ? 'page' : undefined}
+                    >
+                      <span class="block font-medium text-ink-900 dark:text-ink-50">{p.label}</span>
+                      {p.hinweis && <span class="mt-0.5 block text-xs text-ink-500 dark:text-ink-400">{p.hinweis}</span>}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </li>
         ))}
       </ul>
     </nav>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5">
+      <a
+        href="/suche"
+        class="inline-flex items-center gap-2 rounded-full border border-ink-200/90 bg-surface/70 px-3 py-1.5 text-sm text-ink-600 transition hover:border-accent-300 hover:text-accent-800 dark:border-white/10 dark:bg-white/[0.04] dark:text-ink-300 dark:hover:border-teal-400/40 dark:hover:text-teal-100"
+        title="Suche (Taste /)"
+      >
+        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="9" cy="9" r="6" />
+          <path d="m14 14 4 4" stroke-linecap="round" />
+        </svg>
+        <span class="hidden xl:inline">Suchen</span>
+        <kbd class="hidden rounded border border-ink-300 px-1 text-[10px] text-ink-500 xl:inline dark:border-white/20 dark:text-ink-400">/</kbd>
+      </a>
+
       <button
         id="theme-toggle"
         type="button"
-        class="inline-flex items-center justify-center rounded-md p-2 text-ink-600 hover:bg-ink-100 hover:text-ink-900 transition-colors dark:text-teal-300/85 dark:hover:bg-white/[0.06] dark:hover:text-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400/70"
+        class="inline-flex items-center justify-center rounded-md p-2 text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:text-teal-300/85 dark:hover:bg-white/[0.06] dark:hover:text-teal-100 dark:focus:ring-teal-400/70"
         aria-label="Hell-/Dunkelmodus wechseln"
         title="Hell-/Dunkelmodus wechseln"
       >
-        {/* Sonne (sichtbar im Dark Mode -> "zu hell wechseln") */}
         <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="4"></circle>
           <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
         </svg>
-        {/* Mond (sichtbar im Light Mode -> "zu dunkel wechseln") */}
         <svg class="block h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
@@ -63,7 +154,7 @@ const isActive = (href: string) =>
 
       <button
         id="mobile-menu-toggle"
-        class="md:hidden inline-flex items-center justify-center rounded p-2 text-ink-700 hover:bg-ink-100 dark:text-ink-200 dark:hover:bg-white/[0.08]"
+        class="inline-flex items-center justify-center rounded p-2 text-ink-700 hover:bg-ink-100 lg:hidden dark:text-ink-200 dark:hover:bg-white/[0.08]"
         aria-controls="mobile-menu"
         aria-expanded="false"
       >
@@ -76,38 +167,126 @@ const isActive = (href: string) =>
   </div>
 
   <div
-    class="h-1 w-full bg-gradient-to-r from-accent-500 via-teal-500 to-violet-500 opacity-90 dark:opacity-100 dark:saturate-125 dark:from-sky-400 dark:via-teal-400 dark:to-fuchsia-400"
+    class="h-1 w-full bg-gradient-to-r from-accent-500 via-teal-500 to-violet-500 opacity-90 dark:from-sky-400 dark:via-teal-400 dark:to-fuchsia-400 dark:opacity-100 dark:saturate-125"
     aria-hidden="true"
   ></div>
 
-  <nav id="mobile-menu" aria-label="Mobile Navigation" class="md:hidden hidden border-t border-ink-200/80 bg-surface/92 dark:border-white/[0.08] dark:bg-[rgb(26_22_35)] dark:backdrop-blur-none">
-    <ul class="container-wide py-3 flex flex-col gap-2 text-sm">
-      {navItems.map((item) => (
-        <li>
-          <a
-            href={item.href}
-            class={[
-              'block rounded-md px-2 py-2 transition-colors',
-              isActive(item.href)
-                ? 'bg-accent-500/10 text-accent-800 font-semibold dark:bg-white/[0.08] dark:text-teal-100 dark:ring-1 dark:ring-teal-400/25'
-                : 'text-ink-700 dark:text-ink-300 dark:hover:bg-white/[0.06]',
-            ].join(' ')}
-          >
-            {item.label}
-          </a>
-        </li>
+  <nav id="mobile-menu" aria-label="Mobile Navigation" class="hidden border-t border-ink-200/80 bg-surface/95 lg:hidden dark:border-white/[0.08] dark:bg-[rgb(26_22_35)]">
+    <div class="container-wide space-y-4 py-4">
+      <a
+        href="/schnellstart"
+        class="flex items-center gap-2 rounded-lg bg-accent-600 px-3 py-2.5 font-medium text-white dark:bg-teal-500 dark:text-teal-950"
+      >
+        <span aria-hidden="true">⚡</span> Schnellstart – ich brauche jetzt etwas
+      </a>
+
+      {gruppen.map((g) => (
+        <div>
+          <p class="px-1 pb-1 text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">{g.label}</p>
+          <ul class="space-y-0.5">
+            {g.punkte.map((p) => (
+              <li>
+                <a
+                  href={p.href}
+                  class={[
+                    'block rounded-md px-3 py-2 text-sm transition-colors',
+                    istAktiv(p.href)
+                      ? 'bg-accent-500/10 font-semibold text-accent-800 dark:bg-white/[0.08] dark:text-teal-100'
+                      : 'text-ink-700 hover:bg-ink-100/70 dark:text-ink-300 dark:hover:bg-white/[0.06]',
+                  ].join(' ')}
+                >
+                  {p.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       ))}
-    </ul>
+
+      <a
+        href="/suche"
+        class="block rounded-md border border-ink-200/90 px-3 py-2 text-sm text-ink-700 dark:border-white/10 dark:text-ink-300"
+      >
+        Suche
+      </a>
+    </div>
   </nav>
 </header>
+
+<style>
+  /* Klappmenü: sichtbar bei .mu-offen und bei Tastaturfokus im Menü */
+  .mu-gruppe.mu-offen .mu-menue,
+  .mu-menue:focus-within {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .mu-gruppe.mu-offen .mu-pfeil {
+    transform: rotate(180deg);
+  }
+  /* Die letzte Gruppe rechtsbündig ausklappen, sonst läuft sie aus dem Bild */
+  .mu-gruppe:last-child .mu-menue {
+    left: auto;
+    right: 0;
+  }
+</style>
 
 <script>
   // Mobiles Menü
   const toggle = document.getElementById('mobile-menu-toggle');
   const menu = document.getElementById('mobile-menu');
   toggle?.addEventListener('click', () => {
-    const open = menu?.classList.toggle('hidden') === false;
-    toggle.setAttribute('aria-expanded', String(open));
+    const offen = menu?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(offen));
+  });
+
+  // Klappmenüs der Hauptnavigation
+  const gruppen = Array.from(document.querySelectorAll<HTMLElement>('.mu-gruppe'));
+
+  function schliesseAlle(ausser?: HTMLElement) {
+    for (const g of gruppen) {
+      if (g === ausser) continue;
+      g.classList.remove('mu-offen');
+      g.querySelector('.mu-gruppe-knopf')?.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  for (const gruppe of gruppen) {
+    const knopf = gruppe.querySelector<HTMLButtonElement>('.mu-gruppe-knopf');
+    knopf?.addEventListener('click', () => {
+      const offen = gruppe.classList.toggle('mu-offen');
+      knopf.setAttribute('aria-expanded', String(offen));
+      schliesseAlle(gruppe);
+    });
+    // Zeigen genügt auf dem Desktop; auf Touchgeräten löst mouseenter nicht aus,
+    // dort bleibt der Klick der Weg.
+    gruppe.addEventListener('mouseenter', () => {
+      if (!window.matchMedia('(hover: hover)').matches) return;
+      schliesseAlle(gruppe);
+      gruppe.classList.add('mu-offen');
+      knopf?.setAttribute('aria-expanded', 'true');
+    });
+    gruppe.addEventListener('mouseleave', () => {
+      if (!window.matchMedia('(hover: hover)').matches) return;
+      gruppe.classList.remove('mu-offen');
+      knopf?.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!(e.target as HTMLElement).closest('.mu-gruppe')) schliesseAlle();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') schliesseAlle();
+  });
+
+  // Tastenkürzel „/“ springt zur Suche
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const ziel = e.target as HTMLElement | null;
+    if (ziel && (ziel.tagName === 'INPUT' || ziel.tagName === 'TEXTAREA' || ziel.isContentEditable)) return;
+    e.preventDefault();
+    window.location.href = '/suche';
   });
 
   // Hell/Dunkel-Schalter

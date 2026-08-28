@@ -1,0 +1,330 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { findeGegenmittel, type Gegenmittel } from '../lib/gegenmittel';
+
+const themen = (await getCollection('themen', ({ data }) => !data.entwurf)).sort(
+  (a, b) => a.data.ordnung - b.data.ordnung
+);
+const quizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+const bandReihenfolge = ['5/6', '7/8', '9/10', 'Oberstufe'] as const;
+const bandLabel: Record<string, string> = {
+  '5/6': 'Klasse 5–6',
+  '7/8': 'Klasse 7–8',
+  '9/10': 'Klasse 9–10',
+  Oberstufe: 'Oberstufe',
+};
+
+/**
+ * Jede Fehlvorstellung bekommt höchstens ein Gegenmittel – und jedes Gegenmittel
+ * wird pro Thema nur einmal ausgespielt, auch wenn der Suchtext auf mehrere
+ * Einträge passt.
+ */
+type Eintrag = {
+  text: string;
+  thema: string;
+  band: string;
+  themaSlug: string;
+  gegenmittel?: Gegenmittel;
+};
+
+const eintraege: Eintrag[] = [];
+for (const t of themen) {
+  const vergeben = new Set<Gegenmittel>();
+  for (const fv of t.data.fehlvorstellungen) {
+    const treffer = findeGegenmittel(t.data.thema, fv);
+    const gm = treffer && !vergeben.has(treffer) ? treffer : undefined;
+    if (gm) vergeben.add(gm);
+    eintraege.push({
+      text: fv,
+      thema: t.data.thema,
+      band: t.data.klassenstufeBand,
+      themaSlug: slugify(t.data.thema),
+      gegenmittel: gm,
+    });
+  }
+}
+
+const gruppen = bandReihenfolge
+  .map((band) => ({
+    band,
+    label: bandLabel[band],
+    themen: themen
+      .filter((t) => t.data.klassenstufeBand === band)
+      .map((t) => ({
+        titel: t.data.titel,
+        thema: t.data.thema,
+        slug: slugify(t.data.thema),
+        stufe: t.data.klassenstufenAnzeige,
+        eintraege: eintraege.filter((e) => e.thema === t.data.thema),
+        quiz: quizzes.find((q) => q.data.thema === t.data.thema),
+      }))
+      .filter((t) => t.eintraege.length > 0),
+  }))
+  .filter((g) => g.themen.length > 0);
+
+const anzahl = eintraege.length;
+const mitGegenmittel = eintraege.filter((e) => e.gegenmittel).length;
+---
+
+<BaseLayout
+  sourceFile="src/pages/fehlvorstellungen.astro"
+  title="Fehlvorstellungs-Katalog"
+  beschreibung={`${anzahl} typische Fehlvorstellungen im Mathematikunterricht von Klasse 5 bis zur Oberstufe – nach Thema sortiert, mit Ursache und ausgearbeitetem Gegenmittel für die nächste Stunde.`}
+>
+  <section class="container-wide pt-12 pb-8">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Diagnose</p>
+    <h1 class="mt-2 font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      {anzahl} Fehlvorstellungen –<br class="hidden sm:block" />
+      <span class="bg-gradient-to-r from-accent-600 via-teal-600 to-violet-600 bg-clip-text text-transparent dark:from-sky-300 dark:via-teal-200 dark:to-fuchsia-300">und was dagegen hilft</span>
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      Fehler sind keine Betriebsunfälle, sondern Daten: Fast jeder falsche Rechenweg folgt
+      einer Regel, die irgendwann einmal gestimmt hat. Dieser Katalog sammelt die
+      Fehlvorstellungen, die im Mathematikunterricht am teuersten sind –
+      und zu {mitGegenmittel} von ihnen ein ausgearbeitetes Gegenmittel in drei Schritten.
+    </p>
+
+    <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <label class="flex-1">
+        <span class="sr-only">Fehlvorstellungen durchsuchen</span>
+        <input
+          id="fv-suche"
+          type="search"
+          placeholder="Suchen – z. B. Nenner, Steigung, Hypotenuse …"
+          autocomplete="off"
+          class="w-full rounded-lg border border-ink-300 bg-surface px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-white/15 dark:bg-slate-950/60 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+      </label>
+      <div class="flex flex-wrap gap-2" id="fv-filter" role="group" aria-label="Nach Klassenstufe filtern">
+        <button type="button" data-band="alle" aria-pressed="true" class="fv-chip">alle</button>
+        {gruppen.map((g) => (
+          <button type="button" data-band={g.band} aria-pressed="false" class="fv-chip">{g.label}</button>
+        ))}
+        <button type="button" id="fv-nur-gegenmittel" aria-pressed="false" class="fv-chip">nur mit Gegenmittel</button>
+      </div>
+    </div>
+    <p id="fv-status" class="mt-3 text-sm text-ink-500 dark:text-ink-400" role="status" aria-live="polite"></p>
+  </section>
+
+  {gruppen.map((g) => (
+    <section class="container-wide pb-10 fv-band" data-band={g.band}>
+      <h2 class="mb-4 font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">{g.label}</h2>
+
+      <div class="space-y-6">
+        {g.themen.map((t) => (
+          <article class="fv-thema rounded-2xl border border-ink-200/90 bg-surface/85 p-5 shadow-sm mu-dark-glass-panel" id={`thema-${t.slug}`} style="scroll-margin-top: 5rem">
+            <header class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-ink-200/70 pb-3 dark:border-white/10">
+              <h3 class="font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">{t.titel}</h3>
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <a href={`/themen#thema-${t.slug}`} class="link-arrow">Thema </a>
+                {t.quiz && <a href={`/quizzes/${t.quiz.id}`} class="link-arrow">Diagnosefragen </a>}
+              </div>
+            </header>
+
+            <ul class="mt-4 space-y-4">
+              {t.eintraege.map((e) => (
+                <li class="fv-eintrag" data-band={e.band} data-gegenmittel={e.gegenmittel ? 'ja' : 'nein'}>
+                  <div class="flex gap-3">
+                    <span class="mt-1.5 h-2 w-2 flex-none rounded-full bg-rose-500/80" aria-hidden="true"></span>
+                    <div class="min-w-0 flex-1">
+                      <p class="fv-text leading-relaxed text-ink-800 dark:text-ink-200" set:html={e.text} />
+
+                      {e.gegenmittel && (
+                        <details class="mt-2.5 rounded-xl border border-teal-200/80 bg-teal-50/40 dark:border-teal-400/25 dark:bg-teal-950/25">
+                          <summary class="cursor-pointer list-none px-4 py-2.5 text-sm font-semibold text-teal-900 marker:content-none dark:text-teal-100">
+                            <span class="mr-1.5" aria-hidden="true">▸</span>Gegenmittel in drei Schritten
+                          </summary>
+                          <div class="border-t border-teal-200/70 px-4 py-3.5 dark:border-teal-400/20">
+                            <p class="text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+                              <span class="font-semibold text-ink-800 dark:text-ink-200">Woher das kommt: </span>
+                              <span set:html={e.gegenmittel.ursache} />
+                            </p>
+                            <ol class="mt-3 space-y-2">
+                              {e.gegenmittel.schritte.map((s, i) => (
+                                <li class="flex gap-2.5 text-sm">
+                                  <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-teal-600 text-[11px] font-bold text-white dark:bg-teal-500 dark:text-teal-950">
+                                    {i + 1}
+                                  </span>
+                                  <span class="leading-relaxed text-ink-700 dark:text-ink-300" set:html={s} />
+                                </li>
+                              ))}
+                            </ol>
+                            {e.gegenmittel.werkzeug && (
+                              <p class="mt-3 text-sm">
+                                <a href={e.gegenmittel.werkzeug.href} class="link-arrow">{e.gegenmittel.werkzeug.text} </a>
+                              </p>
+                            )}
+                          </div>
+                        </details>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <section class="container-wide pb-20">
+    <div class="rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 sm:p-8 shadow-sm dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">So wird der Katalog nützlich</h2>
+      <div class="mt-4 grid gap-6 md:grid-cols-3">
+        <div>
+          <p class="font-semibold text-ink-800 dark:text-ink-200">Vor der Reihe</p>
+          <p class="mt-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
+            Die vier Fehlvorstellungen zum kommenden Thema lesen und entscheiden, welche
+            Sie durch die Aufgabenauswahl von vornherein vermeiden – und welche Sie
+            absichtlich provozieren wollen, um sie zu bearbeiten.
+          </p>
+        </div>
+        <div>
+          <p class="font-semibold text-ink-800 dark:text-ink-200">In der Stunde</p>
+          <p class="mt-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
+            Fehlvorstellungen sind die besten Distraktoren: Wer sie als falsche
+            Antwortmöglichkeiten in eine diagnostische Frage einbaut, misst nicht
+            „richtig/falsch“, sondern <em>welchen</em> Denkweg die Klasse geht.
+          </p>
+        </div>
+        <div>
+          <p class="font-semibold text-ink-800 dark:text-ink-200">Nach der Klassenarbeit</p>
+          <p class="mt-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
+            Fehler nicht nach Punkten, sondern nach Fehlvorstellung sortieren.
+            Meist stecken hinter 60 % der Punktverluste zwei oder drei Ursachen –
+            und die sind gezielt behandelbar.
+          </p>
+        </div>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="/quizzes" class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-4 py-2 font-medium text-white shadow-sm transition hover:brightness-105 dark:from-sky-500 dark:to-teal-400">
+          Zu den diagnostischen Fragen <span aria-hidden="true">→</span>
+        </a>
+        <a href="/methoden#diagnostische-fragen" class="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-surface/80 px-4 py-2 font-medium text-ink-800 transition hover:border-accent-400 dark:border-white/15 dark:bg-white/[0.04] dark:text-ink-100">
+          Methode: Diagnostische Fragen
+        </a>
+        <a href="/werkzeuge/whiteboard-check.html" class="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-surface/80 px-4 py-2 font-medium text-ink-800 transition hover:border-accent-400 dark:border-white/15 dark:bg-white/[0.04] dark:text-ink-100">
+          Werkzeug: Whiteboard-Check
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .fv-chip {
+    @apply rounded-full border border-ink-200/90 bg-surface/80 px-3.5 py-1.5 text-sm font-medium text-ink-700 transition;
+  }
+  .fv-chip:hover {
+    @apply border-accent-300 text-accent-800;
+  }
+  .fv-chip[aria-pressed='true'] {
+    @apply border-accent-500 bg-accent-600 text-white;
+  }
+  .dark .fv-chip {
+    @apply border-white/10 bg-white/[0.04] text-ink-200;
+  }
+  .dark .fv-chip[aria-pressed='true'] {
+    @apply border-teal-400/60 bg-teal-500/80 text-teal-950;
+  }
+  .fv-aus {
+    display: none !important;
+  }
+</style>
+
+<script>
+  // Filter und Suche laufen vollständig im Browser über die bereits
+  // gerenderten Einträge – kein Nachladen, kein Framework.
+  const sucheFeld = document.getElementById('fv-suche') as HTMLInputElement | null;
+  const filterLeiste = document.getElementById('fv-filter');
+  const status = document.getElementById('fv-status');
+  const eintraege = Array.from(document.querySelectorAll<HTMLElement>('.fv-eintrag'));
+  const themen = Array.from(document.querySelectorAll<HTMLElement>('.fv-thema'));
+  const baender = Array.from(document.querySelectorAll<HTMLElement>('.fv-band'));
+
+  let band = 'alle';
+  let nurGegenmittel = false;
+
+  const normalisieren = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss');
+
+  function anwenden() {
+    const suche = normalisieren(sucheFeld?.value.trim() ?? '');
+    let sichtbar = 0;
+
+    for (const eintrag of eintraege) {
+      const textEl = eintrag.querySelector('.fv-text');
+      const text = normalisieren(textEl?.textContent ?? '');
+      const passtSuche = suche.length === 0 || text.includes(suche);
+      const passtBand = band === 'alle' || eintrag.dataset.band === band;
+      const passtGegenmittel = !nurGegenmittel || eintrag.dataset.gegenmittel === 'ja';
+      const zeigen = passtSuche && passtBand && passtGegenmittel;
+      eintrag.classList.toggle('fv-aus', !zeigen);
+      if (zeigen) sichtbar++;
+    }
+
+    // Themen und Klassenbänder ohne sichtbare Einträge ausblenden
+    for (const thema of themen) {
+      const hatEintrag = thema.querySelector('.fv-eintrag:not(.fv-aus)') !== null;
+      thema.classList.toggle('fv-aus', !hatEintrag);
+    }
+    for (const bandBlock of baender) {
+      const hatThema = bandBlock.querySelector('.fv-thema:not(.fv-aus)') !== null;
+      bandBlock.classList.toggle('fv-aus', !hatThema);
+    }
+
+    if (status) {
+      const gefiltert = suche.length > 0 || band !== 'alle' || nurGegenmittel;
+      status.textContent = gefiltert
+        ? sichtbar === 0
+          ? 'Keine Fehlvorstellung passt zu dieser Suche.'
+          : `${sichtbar} von ${eintraege.length} Fehlvorstellungen`
+        : '';
+    }
+  }
+
+  sucheFeld?.addEventListener('input', anwenden);
+
+  filterLeiste?.addEventListener('click', (e) => {
+    const knopf = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-band]');
+    if (!knopf) return;
+    band = knopf.dataset.band ?? 'alle';
+    filterLeiste
+      .querySelectorAll<HTMLButtonElement>('button[data-band]')
+      .forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    anwenden();
+  });
+
+  const nurKnopf = document.getElementById('fv-nur-gegenmittel');
+  nurKnopf?.addEventListener('click', () => {
+    nurGegenmittel = !nurGegenmittel;
+    nurKnopf.setAttribute('aria-pressed', String(nurGegenmittel));
+    anwenden();
+  });
+
+  // Vorbelegung über ?q= erlaubt Verlinkung aus der Volltextsuche heraus
+  const parameter = new URLSearchParams(window.location.search).get('q');
+  if (parameter && sucheFeld) {
+    sucheFeld.value = parameter;
+    anwenden();
+  }
+</script>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papier-Werkstatt · mathematik-unterrichten.de</title>
+<meta name="description" content="Karo-, Millimeter-, Isometrie- und Koordinatenpapier maßgenau auf DIN A4 drucken – mit wählbarer Kästchengröße, Achsenbeschriftung und mehreren Systemen pro Blatt.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .pw-blatt {
+    background: #fff; color: #111;
+    width: 100%; max-width: 720px; margin: 0 auto;
+    aspect-ratio: 210 / 297;
+    box-shadow: var(--schatten);
+    border: 1px solid var(--linie);
+  }
+  .pw-blatt svg { display: block; width: 100%; height: 100%; }
+
+  .pw-optionen { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .pw-vorlagen { display: flex; flex-direction: column; gap: .35rem; }
+  .pw-vorlagen button { justify-content: flex-start; text-align: left; font-size: .92rem; }
+  .pw-vorlagen button[aria-pressed="true"] { background: var(--akzent); border-color: var(--akzent); color: #fff; font-weight: 600; }
+
+  @media (min-width: 1000px) { .pw-layout { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 1.25rem; align-items: start; } }
+
+  /* Druck: exakt ein A4-Blatt, randlos bis auf den eingestellten Rand */
+  @page { size: A4 portrait; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    .wz-huelle { padding: 0; }
+    .pw-nur-bildschirm { display: none !important; }
+    .pw-blatt { max-width: none; width: 210mm; height: 297mm; box-shadow: none; border: 0; margin: 0; aspect-ratio: auto; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Papier-Werkstatt</h1>
+
+  <div class="pw-layout">
+    <section>
+      <div class="pw-blatt" id="pw-blatt"></div>
+      <div class="wz-reihe wz-abstand pw-nur-bildschirm" style="justify-content:center">
+        <button class="wz-knopf wz-knopf-haupt wz-knopf-gross" id="pw-drucken" type="button">Auf DIN A4 drucken</button>
+        <button class="wz-knopf" id="pw-svg" type="button">Als SVG speichern</button>
+      </div>
+      <p class="wz-lead wz-abstand pw-nur-bildschirm">
+        Alle Maße sind in Millimetern gerechnet und werden auf DIN A4 <strong>maßstabsgetreu</strong> gedruckt –
+        ein 5-mm-Kästchen ist auf dem Papier wirklich 5 mm breit. Achten Sie im Druckdialog darauf,
+        dass „Anpassen an Seitengröße“ ausgeschaltet und der Seitenrand auf „keine“ steht.
+      </p>
+    </section>
+
+    <aside class="pw-nur-bildschirm">
+      <div class="wz-karte">
+        <h2>Vorlage</h2>
+        <div class="pw-vorlagen wz-abstand" id="pw-vorlagen"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Einstellungen</h2>
+        <div class="pw-optionen wz-abstand" id="pw-optionen"></div>
+        <label class="wz-label" style="margin-top:.8rem">
+          <span>Kopfzeile (optional)</span>
+          <input class="wz-feld" id="pw-kopf" type="text" placeholder="z. B. Name / Klasse / Datum">
+        </label>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Warum kein PDF?</h2>
+        <p style="font-size:.88rem;color:var(--text-leise);margin:.5rem 0 0">
+          Weil der Umweg über einen Server nicht nötig ist: Das Blatt entsteht als SVG im Browser
+          und geht direkt in den Druckdialog. Kein Konto, kein Wasserzeichen, keine Datenübertragung.
+        </p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const A4B = 210, A4H = 297;   // Millimeter
+
+  function sv(tag, attr, text) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    if (text !== undefined) k.textContent = text;
+    return k;
+  }
+
+  /** Optionen einer Vorlage: { schluessel: {art, name, werte|min|max|schritt, standard} } */
+  const VORLAGEN = [
+    {
+      id: 'karo', name: 'Karopapier',
+      optionen: {
+        kaestchen: { art: 'wahl', name: 'Kästchen', werte: [['5', '5 mm'], ['7', '7 mm (Schulheft)'], ['10', '1 cm'], ['4', '4 mm']], standard: '5' },
+        rand: { art: 'wahl', name: 'Rand', werte: [['10', '10 mm'], ['5', '5 mm'], ['20', '20 mm (Heftrand)']], standard: '10' },
+        staerke: { art: 'wahl', name: 'Linien', werte: [['fein', 'fein'], ['normal', 'normal'], ['kraeftig', 'kräftig']], standard: 'normal' }
+      },
+      zeichne: function (g, o) {
+        const k = parseFloat(o.kaestchen), rand = parseFloat(o.rand);
+        gitter(g, rand, k, o.staerke, true);
+      }
+    },
+    {
+      id: 'millimeter', name: 'Millimeterpapier',
+      optionen: { rand: { art: 'wahl', name: 'Rand', werte: [['10', '10 mm'], ['5', '5 mm']], standard: '10' } },
+      zeichne: function (g, o) {
+        const rand = parseFloat(o.rand);
+        const b = A4B - 2 * rand, h = A4H - 2 * rand;
+        for (let x = 0; x <= b + 0.001; x += 1) {
+          const stark = Math.abs(x % 10) < 1e-9;
+          const mittel = Math.abs(x % 5) < 1e-9;
+          g.appendChild(sv('line', {
+            x1: (rand + x).toFixed(2), y1: rand, x2: (rand + x).toFixed(2), y2: rand + h,
+            stroke: stark ? '#c2410c' : mittel ? '#ea580c' : '#fb923c',
+            'stroke-width': stark ? 0.28 : mittel ? 0.2 : 0.1
+          }));
+        }
+        for (let y = 0; y <= h + 0.001; y += 1) {
+          const stark = Math.abs(y % 10) < 1e-9;
+          const mittel = Math.abs(y % 5) < 1e-9;
+          g.appendChild(sv('line', {
+            x1: rand, y1: (rand + y).toFixed(2), x2: rand + b, y2: (rand + y).toFixed(2),
+            stroke: stark ? '#c2410c' : mittel ? '#ea580c' : '#fb923c',
+            'stroke-width': stark ? 0.28 : mittel ? 0.2 : 0.1
+          }));
+        }
+      }
+    },
+    {
+      id: 'punkt', name: 'Punktraster',
+      optionen: {
+        abstand: { art: 'wahl', name: 'Abstand', werte: [['5', '5 mm'], ['10', '1 cm'], ['7', '7 mm']], standard: '5' },
+        rand: { art: 'wahl', name: 'Rand', werte: [['10', '10 mm'], ['15', '15 mm']], standard: '10' }
+      },
+      zeichne: function (g, o) {
+        const a = parseFloat(o.abstand), rand = parseFloat(o.rand);
+        for (let x = rand; x <= A4B - rand + 0.001; x += a) {
+          for (let y = rand; y <= A4H - rand + 0.001; y += a) {
+            g.appendChild(sv('circle', { cx: x.toFixed(2), cy: y.toFixed(2), r: 0.28, fill: '#64748b' }));
+          }
+        }
+      }
+    },
+    {
+      id: 'isometrie', name: 'Isometriepapier',
+      optionen: {
+        abstand: { art: 'wahl', name: 'Abstand', werte: [['10', '1 cm'], ['7', '7 mm'], ['14', '14 mm']], standard: '10' },
+        rand: { art: 'wahl', name: 'Rand', werte: [['10', '10 mm'], ['15', '15 mm']], standard: '10' }
+      },
+      zeichne: function (g, o) {
+        // Dreiecksraster: senkrechte Linien plus zwei Scharen unter ±30°
+        const a = parseFloat(o.abstand), rand = parseFloat(o.rand);
+        const b = A4B - 2 * rand, h = A4H - 2 * rand;
+        const dx = a * Math.cos(Math.PI / 6);
+        const farbe = '#94a3b8', dicke = 0.18;
+        for (let x = 0; x <= b + 0.001; x += dx) {
+          g.appendChild(sv('line', {
+            x1: (rand + x).toFixed(2), y1: rand, x2: (rand + x).toFixed(2), y2: rand + h,
+            stroke: farbe, 'stroke-width': dicke
+          }));
+        }
+        const steigung = Math.tan(Math.PI / 6);
+        for (let y0 = -h; y0 <= h * 2; y0 += a) {
+          g.appendChild(sv('line', {
+            x1: rand, y1: (rand + y0).toFixed(2),
+            x2: rand + b, y2: (rand + y0 + b * steigung).toFixed(2),
+            stroke: farbe, 'stroke-width': dicke, 'clip-path': 'url(#pw-clip)'
+          }));
+          g.appendChild(sv('line', {
+            x1: rand, y1: (rand + y0).toFixed(2),
+            x2: rand + b, y2: (rand + y0 - b * steigung).toFixed(2),
+            stroke: farbe, 'stroke-width': dicke, 'clip-path': 'url(#pw-clip)'
+          }));
+        }
+      }
+    },
+    {
+      id: 'koordinaten', name: 'Koordinatensysteme',
+      optionen: {
+        anzahl: { art: 'wahl', name: 'pro Blatt', werte: [['1', '1'], ['2', '2'], ['4', '4'], ['6', '6']], standard: '2' },
+        quadranten: { art: 'wahl', name: 'Quadranten', werte: [['4', 'alle vier'], ['1', 'nur erster']], standard: '4' },
+        spanne: { art: 'wahl', name: 'Bereich', werte: [['5', '−5 … 5'], ['8', '−8 … 8'], ['10', '−10 … 10'], ['4', '−4 … 4']], standard: '5' },
+        zahlen: { art: 'schalter', name: 'Achsen beschriften', standard: true }
+      },
+      zeichne: function (g, o) {
+        const anzahl = parseInt(o.anzahl, 10);
+        const spalten = anzahl >= 4 ? 2 : 1;
+        const zeilen = Math.ceil(anzahl / spalten);
+        const rand = 12;
+        const zellB = (A4B - 2 * rand) / spalten;
+        const zellH = (A4H - 2 * rand - 8) / zeilen;
+        for (let i = 0; i < anzahl; i++) {
+          const sp = i % spalten, ze = Math.floor(i / spalten);
+          koordinatensystem(g, rand + sp * zellB, rand + 8 + ze * zellH, zellB, zellH,
+            parseInt(o.spanne, 10), o.quadranten === '4', o.zahlen);
+        }
+      }
+    },
+    {
+      id: 'zahlenstrahl', name: 'Zahlenstrahl-Vorlagen',
+      optionen: {
+        anzahl: { art: 'wahl', name: 'pro Blatt', werte: [['6', '6'], ['8', '8'], ['10', '10'], ['4', '4']], standard: '8' },
+        teilung: { art: 'wahl', name: 'Teilung', werte: [['10', 'in 10 Schritten'], ['5', 'in 5 Schritten'], ['4', 'in 4 Schritten'], ['0', 'ohne Teilstriche']], standard: '10' }
+      },
+      zeichne: function (g, o) {
+        const anzahl = parseInt(o.anzahl, 10);
+        const teilung = parseInt(o.teilung, 10);
+        const rand = 18;
+        const b = A4B - 2 * rand;
+        const abstand = (A4H - 2 * rand - 10) / anzahl;
+        for (let i = 0; i < anzahl; i++) {
+          const y = rand + 14 + i * abstand;
+          g.appendChild(sv('line', { x1: rand, y1: y, x2: rand + b - 6, y2: y, stroke: '#111', 'stroke-width': 0.5 }));
+          g.appendChild(sv('polygon', {
+            points: (rand + b) + ',' + y + ' ' + (rand + b - 6) + ',' + (y - 1.6) + ' ' + (rand + b - 6) + ',' + (y + 1.6),
+            fill: '#111'
+          }));
+          if (teilung > 0) {
+            for (let k = 0; k <= teilung; k++) {
+              const x = rand + (k / teilung) * (b - 8);
+              g.appendChild(sv('line', {
+                x1: x.toFixed(2), y1: y - (k === 0 || k === teilung ? 3 : 1.8),
+                x2: x.toFixed(2), y2: y + (k === 0 || k === teilung ? 3 : 1.8),
+                stroke: '#111', 'stroke-width': k === 0 || k === teilung ? 0.5 : 0.3
+              }));
+            }
+          }
+        }
+      }
+    },
+    {
+      id: 'bruchstreifen', name: 'Bruchstreifen',
+      optionen: {
+        bis: { art: 'wahl', name: 'Nenner bis', werte: [['8', '8'], ['10', '10'], ['12', '12'], ['6', '6']], standard: '10' }
+      },
+      zeichne: function (g, o) {
+        const bis = parseInt(o.bis, 10);
+        const rand = 18;
+        const b = A4B - 2 * rand;
+        const hoehe = Math.min(16, (A4H - 2 * rand - 10) / bis);
+        for (let n = 1; n <= bis; n++) {
+          const y = rand + 8 + (n - 1) * (hoehe + 2);
+          for (let i = 0; i < n; i++) {
+            g.appendChild(sv('rect', {
+              x: (rand + (i * b) / n).toFixed(2), y: y.toFixed(2),
+              width: (b / n).toFixed(2), height: hoehe.toFixed(2),
+              fill: 'none', stroke: '#111', 'stroke-width': 0.35
+            }));
+          }
+          g.appendChild(sv('text', {
+            x: (rand - 3).toFixed(2), y: (y + hoehe / 2 + 1.4).toFixed(2),
+            'text-anchor': 'end', 'font-size': 3.4, fill: '#111', 'font-family': 'sans-serif'
+          }, n === 1 ? '1' : '1/' + n));
+        }
+      }
+    },
+    {
+      id: 'wertetabelle', name: 'Wertetabellen',
+      optionen: {
+        spalten: { art: 'wahl', name: 'Spalten', werte: [['8', '8'], ['10', '10'], ['6', '6'], ['12', '12']], standard: '8' },
+        anzahl: { art: 'wahl', name: 'Tabellen', werte: [['6', '6'], ['8', '8'], ['4', '4']], standard: '6' }
+      },
+      zeichne: function (g, o) {
+        const spalten = parseInt(o.spalten, 10) + 1;
+        const anzahl = parseInt(o.anzahl, 10);
+        const rand = 16;
+        const b = A4B - 2 * rand;
+        const zeilenH = 8;
+        const block = 2 * zeilenH + 10;
+        for (let t = 0; t < anzahl; t++) {
+          const y = rand + 6 + t * block;
+          for (let r = 0; r <= 2; r++) {
+            g.appendChild(sv('line', {
+              x1: rand, y1: (y + r * zeilenH).toFixed(2), x2: rand + b, y2: (y + r * zeilenH).toFixed(2),
+              stroke: '#111', 'stroke-width': 0.35
+            }));
+          }
+          for (let c = 0; c <= spalten; c++) {
+            const x = rand + (c * b) / spalten;
+            g.appendChild(sv('line', {
+              x1: x.toFixed(2), y1: y.toFixed(2), x2: x.toFixed(2), y2: (y + 2 * zeilenH).toFixed(2),
+              stroke: '#111', 'stroke-width': 0.35
+            }));
+          }
+          g.appendChild(sv('text', { x: (rand + b / spalten / 2).toFixed(2), y: (y + zeilenH * 0.68).toFixed(2), 'text-anchor': 'middle', 'font-size': 4, 'font-style': 'italic', fill: '#111', 'font-family': 'serif' }, 'x'));
+          g.appendChild(sv('text', { x: (rand + b / spalten / 2).toFixed(2), y: (y + zeilenH * 1.68).toFixed(2), 'text-anchor': 'middle', 'font-size': 4, 'font-style': 'italic', fill: '#111', 'font-family': 'serif' }, 'y'));
+        }
+      }
+    }
+  ];
+
+  /** Karo-/Rasterlinien mit betonter Zentimeterlinie. */
+  function gitter(g, rand, k, staerke, betontZehner) {
+    const b = A4B - 2 * rand, h = A4H - 2 * rand;
+    const dick = staerke === 'fein' ? 0.12 : staerke === 'kraeftig' ? 0.32 : 0.2;
+    const farbe = staerke === 'kraeftig' ? '#475569' : '#94a3b8';
+    for (let x = 0; x <= b + 0.001; x += k) {
+      const stark = betontZehner && Math.abs((x / k) % 5) < 1e-9;
+      g.appendChild(sv('line', {
+        x1: (rand + x).toFixed(2), y1: rand, x2: (rand + x).toFixed(2), y2: rand + h,
+        stroke: farbe, 'stroke-width': stark ? dick * 1.8 : dick
+      }));
+    }
+    for (let y = 0; y <= h + 0.001; y += k) {
+      const stark = betontZehner && Math.abs((y / k) % 5) < 1e-9;
+      g.appendChild(sv('line', {
+        x1: rand, y1: (rand + y).toFixed(2), x2: rand + b, y2: (rand + y).toFixed(2),
+        stroke: farbe, 'stroke-width': stark ? dick * 1.8 : dick
+      }));
+    }
+  }
+
+  /**
+   * Ein vollständiges Koordinatensystem: Gitter, Achsen mit Pfeilspitzen in
+   * positiver Richtung, Skalenticks und Achsennamen x und y.
+   */
+  function koordinatensystem(g, x0, y0, breite, hoehe, spanne, vierQuadranten, mitZahlen) {
+    const pad = 6;
+    const b = breite - 2 * pad, h = hoehe - 2 * pad - 4;
+    const xMin = vierQuadranten ? -spanne : 0;
+    const yMin = vierQuadranten ? -spanne : 0;
+    const xMax = spanne, yMax = spanne;
+    // gleiche Einheit auf beiden Achsen – sonst stimmen Steigungen optisch nicht
+    const einheit = Math.min(b / (xMax - xMin), h / (yMax - yMin));
+    const zeichenB = einheit * (xMax - xMin), zeichenH = einheit * (yMax - yMin);
+    const links = x0 + pad + (b - zeichenB) / 2;
+    const oben = y0 + pad + (h - zeichenH) / 2;
+    const px = function (x) { return links + (x - xMin) * einheit; };
+    const py = function (y) { return oben + (yMax - y) * einheit; };
+
+    for (let x = xMin; x <= xMax + 1e-9; x++) {
+      g.appendChild(sv('line', { x1: px(x).toFixed(2), y1: py(yMax).toFixed(2), x2: px(x).toFixed(2), y2: py(yMin).toFixed(2), stroke: '#cbd5e1', 'stroke-width': 0.15 }));
+    }
+    for (let y = yMin; y <= yMax + 1e-9; y++) {
+      g.appendChild(sv('line', { x1: px(xMin).toFixed(2), y1: py(y).toFixed(2), x2: px(xMax).toFixed(2), y2: py(y).toFixed(2), stroke: '#cbd5e1', 'stroke-width': 0.15 }));
+    }
+
+    const ax = py(0), ay = px(0);
+    g.appendChild(sv('line', { x1: px(xMin).toFixed(2), y1: ax.toFixed(2), x2: (px(xMax) + 3).toFixed(2), y2: ax.toFixed(2), stroke: '#111', 'stroke-width': 0.4 }));
+    g.appendChild(sv('line', { x1: ay.toFixed(2), y1: py(yMin).toFixed(2), x2: ay.toFixed(2), y2: (py(yMax) - 3).toFixed(2), stroke: '#111', 'stroke-width': 0.4 }));
+    g.appendChild(sv('polygon', {
+      points: (px(xMax) + 4.5) + ',' + ax + ' ' + (px(xMax) + 1) + ',' + (ax - 1.3) + ' ' + (px(xMax) + 1) + ',' + (ax + 1.3), fill: '#111'
+    }));
+    g.appendChild(sv('polygon', {
+      points: ay + ',' + (py(yMax) - 4.5) + ' ' + (ay - 1.3) + ',' + (py(yMax) - 1) + ' ' + (ay + 1.3) + ',' + (py(yMax) - 1), fill: '#111'
+    }));
+    g.appendChild(sv('text', { x: (px(xMax) + 4).toFixed(2), y: (ax + 5).toFixed(2), 'font-size': 3.6, 'font-style': 'italic', fill: '#111', 'text-anchor': 'end', 'font-family': 'serif' }, 'x'));
+    g.appendChild(sv('text', { x: (ay + 2).toFixed(2), y: (py(yMax) - 4).toFixed(2), 'font-size': 3.6, 'font-style': 'italic', fill: '#111', 'font-family': 'serif' }, 'y'));
+
+    for (let x = Math.ceil(xMin); x <= xMax; x++) {
+      if (x === 0) continue;
+      g.appendChild(sv('line', { x1: px(x).toFixed(2), y1: (ax - 0.9).toFixed(2), x2: px(x).toFixed(2), y2: (ax + 0.9).toFixed(2), stroke: '#111', 'stroke-width': 0.3 }));
+      if (mitZahlen && (spanne <= 5 || x % 2 === 0)) {
+        g.appendChild(sv('text', { x: px(x).toFixed(2), y: (ax + 4).toFixed(2), 'font-size': 2.6, fill: '#111', 'text-anchor': 'middle', 'font-family': 'sans-serif' }, String(x)));
+      }
+    }
+    for (let y = Math.ceil(yMin); y <= yMax; y++) {
+      if (y === 0) continue;
+      g.appendChild(sv('line', { x1: (ay - 0.9).toFixed(2), y1: py(y).toFixed(2), x2: (ay + 0.9).toFixed(2), y2: py(y).toFixed(2), stroke: '#111', 'stroke-width': 0.3 }));
+      if (mitZahlen && (spanne <= 5 || y % 2 === 0)) {
+        g.appendChild(sv('text', { x: (ay - 1.6).toFixed(2), y: (py(y) + 1).toFixed(2), 'font-size': 2.6, fill: '#111', 'text-anchor': 'end', 'font-family': 'sans-serif' }, String(y)));
+      }
+    }
+    if (mitZahlen) {
+      g.appendChild(sv('text', { x: (ay - 1.6).toFixed(2), y: (ax + 4).toFixed(2), 'font-size': 2.6, fill: '#111', 'text-anchor': 'end', 'font-family': 'sans-serif' }, '0'));
+    }
+  }
+
+  let aktiv = VORLAGEN[0];
+  let werte = {};
+
+  function standardwerte() {
+    werte = {};
+    Object.keys(aktiv.optionen || {}).forEach(function (k) {
+      werte[k] = aktiv.optionen[k].standard;
+    });
+  }
+
+  function blattZeichnen() {
+    const huelle = document.getElementById('pw-blatt');
+    huelle.textContent = '';
+    const svg = sv('svg', {
+      viewBox: '0 0 ' + A4B + ' ' + A4H,
+      width: A4B + 'mm', height: A4H + 'mm',
+      xmlns: NS, role: 'img',
+      'aria-label': 'Druckvorlage: ' + aktiv.name
+    });
+    const defs = sv('defs', {});
+    const clip = sv('clipPath', { id: 'pw-clip' });
+    clip.appendChild(sv('rect', { x: 10, y: 10, width: A4B - 20, height: A4H - 20 }));
+    defs.appendChild(clip);
+    svg.appendChild(defs);
+    svg.appendChild(sv('rect', { x: 0, y: 0, width: A4B, height: A4H, fill: '#fff' }));
+
+    const g = sv('g', {});
+    aktiv.zeichne(g, werte);
+    svg.appendChild(g);
+
+    const kopf = document.getElementById('pw-kopf').value.trim();
+    if (kopf) {
+      svg.appendChild(sv('text', {
+        x: 12, y: 8, 'font-size': 3.6, fill: '#111', 'font-family': 'sans-serif'
+      }, kopf));
+    }
+    svg.appendChild(sv('text', {
+      x: A4B - 10, y: A4H - 4, 'font-size': 2.4, fill: '#94a3b8',
+      'text-anchor': 'end', 'font-family': 'sans-serif'
+    }, 'mathematik-unterrichten.de'));
+
+    huelle.appendChild(svg);
+  }
+
+  function optionenZeichnen() {
+    const wurzel = document.getElementById('pw-optionen');
+    wurzel.textContent = '';
+    Object.keys(aktiv.optionen || {}).forEach(function (schluessel) {
+      const o = aktiv.optionen[schluessel];
+      if (o.art === 'schalter') {
+        wurzel.appendChild(WZ.el('label', { class: 'wz-label wz-label-quer' }, [
+          WZ.el('input', {
+            type: 'checkbox', checked: werte[schluessel],
+            onchange: function (e) { werte[schluessel] = e.target.checked; blattZeichnen(); }
+          }),
+          WZ.el('span', { text: o.name })
+        ]));
+        return;
+      }
+      const auswahl = WZ.el('select', {
+        class: 'wz-feld',
+        onchange: function (e) { werte[schluessel] = e.target.value; blattZeichnen(); }
+      }, o.werte.map(function (paar) {
+        return WZ.el('option', { value: paar[0], selected: paar[0] === werte[schluessel] }, [paar[1]]);
+      }));
+      wurzel.appendChild(WZ.el('label', { class: 'wz-label' }, [WZ.el('span', { text: o.name }), auswahl]));
+    });
+  }
+
+  function vorlagenZeichnen() {
+    const wurzel = document.getElementById('pw-vorlagen');
+    wurzel.textContent = '';
+    VORLAGEN.forEach(function (v) {
+      wurzel.appendChild(WZ.el('button', {
+        class: 'wz-knopf', type: 'button', 'aria-pressed': String(v === aktiv),
+        onclick: function () {
+          aktiv = v;
+          standardwerte();
+          vorlagenZeichnen();
+          optionenZeichnen();
+          blattZeichnen();
+        }
+      }, [v.name]));
+    });
+  }
+
+  document.getElementById('pw-drucken').addEventListener('click', function () { window.print(); });
+  document.getElementById('pw-kopf').addEventListener('input', blattZeichnen);
+  document.getElementById('pw-svg').addEventListener('click', function () {
+    const svg = document.querySelector('#pw-blatt svg');
+    WZ.herunterladen(aktiv.id + '-a4.svg', new XMLSerializer().serializeToString(svg), 'image/svg+xml');
+  });
+
+  WZ.kopf({ titel: 'Papier-Werkstatt' });
+  WZ.fuss('Maßstabsgetreu: Im Druckdialog „Tatsächliche Größe“ bzw. Skalierung 100 % wählen.');
+  standardwerte();
+  vorlagenZeichnen();
+  optionenZeichnen();
+  blattZeichnen();
+})();
+</script>
+</body>
+</html>
