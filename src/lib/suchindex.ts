@@ -14,6 +14,7 @@ import { kiPrompts } from './kiPrompts';
 export type Bereich =
   | 'Blog'
   | 'Aufgabe'
+  | 'Stundenverlauf'
   | 'Diagnosefrage'
   | 'Thema'
   | 'Fehlvorstellung'
@@ -221,6 +222,27 @@ export async function baueSuchindex(): Promise<Sucheintrag[]> {
       b: 'Aufgabe',
       s: kuerzen(e.data.didaktischerHinweis),
       k: [e.data.thema, `Klasse ${e.data.klassenstufe.join(' ')}`, e.data.schwierigkeit, ...(e.data.tags ?? [])].join(' '),
+    });
+  }
+
+  const stunden = await getCollection('stunden', ({ data }) => !data.entwurf);
+  for (const e of stunden) {
+    eintraege.push({
+      t: e.data.titel,
+      u: `/stunden/${e.slug}`,
+      b: 'Stundenverlauf',
+      s: kuerzen(e.data.kurz),
+      // Stundenziel, Phasentitel und Exit-Fragen mitindizieren: So findet man
+      // eine Stunde auch über das, was in ihr passiert.
+      k: [
+        e.data.thema,
+        `Klasse ${e.data.klassenstufe.join(' ')}`,
+        `${e.data.dauer} Minuten`,
+        klartext(e.data.stundenziel),
+        ...e.data.phasen.map((f) => f.titel),
+        ...e.data.exitTicket.map((f) => klartext(f)),
+        ...(e.data.tags ?? []),
+      ].join(' '),
     });
   }
 

@@ -21,6 +21,7 @@ const quizzes = [...alleQuizzes]
   .slice(0, 3);
 
 const themen = await getCollection('themen', ({ data }) => !data.entwurf);
+const alleStunden = await getCollection('stunden', ({ data }) => !data.entwurf);
 const anzahlFehlvorstellungen = themen.reduce((s, t) => s + t.data.fehlvorstellungen.length, 0);
 
 // Drei Werkzeuge, die den Charakter des Kastens am besten zeigen
@@ -29,6 +30,16 @@ const gezeigteWerkzeuge = ['unterrichts-timer', 'whiteboard-check', 'funktionenp
   .filter((w): w is (typeof werkzeuge)[number] => Boolean(w));
 
 const bereiche = [
+  {
+    titel: 'Stundenverläufe',
+    href: '/stunden',
+    kennzahl: `${alleStunden.length} Stunden`,
+    text: 'Vollständig geplante Stunden nach KLAR: diagnostische Einstiegsfrage, Minutenplan, Werkzeuge, Weichen und Exit-Ticket.',
+    farbe: 'from-sky-500 to-indigo-500',
+    ring: 'ring-sky-100/70 dark:ring-indigo-400/25',
+    flaeche: 'to-sky-50/45 dark:to-indigo-950/35',
+    symbol: '🗓️',
+  },
   {
     titel: 'Werkzeugkasten',
     href: '/werkzeuge',
@@ -80,6 +91,16 @@ const bereiche = [
     symbol: '🎯',
   },
   {
+    titel: 'Aufgabensammlung',
+    href: '/aufgaben',
+    kennzahl: `${alleAufgaben.length} Folgen`,
+    text: 'Aufgabenfolgen, in denen sich von Aufgabe zu Aufgabe genau eine Sache ändert – mit Lösungen und didaktischem Kommentar.',
+    farbe: 'from-orange-500 to-rose-500',
+    ring: 'ring-orange-100/70 dark:ring-orange-400/25',
+    flaeche: 'to-orange-50/45 dark:to-orange-950/30',
+    symbol: '📚',
+  },
+  {
     titel: 'KI im Unterricht',
     href: '/ki',
     kennzahl: `${kiPrompts.length} Prompts`,
@@ -128,7 +149,7 @@ const bereiche = [
     </div>
   </section>
 
-  <!-- Die sechs Bereiche -->
+  <!-- Die Bereiche der Seite -->
   <section class="container-wide pb-16">
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {bereiche.map((b) => (

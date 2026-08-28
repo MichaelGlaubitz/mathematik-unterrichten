@@ -1,0 +1,212 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const stunden = await getCollection('stunden', ({ data }) => !data.entwurf);
+  return stunden.map((s) => ({ params: { slug: s.slug }, props: { stunde: s } }));
+}
+
+const { stunde } = Astro.props;
+const { Content } = await stunde.render();
+const d = stunde.data;
+
+// Die vier KLAR-Schritte tragen die Farben der Konzeptseite.
+const schrittName: Record<string, string> = {
+  K: 'Klären',
+  L: 'Lösen lassen',
+  A: 'Abgleichen',
+  R: 'Rückkoppeln',
+};
+const schrittFarbe: Record<string, string> = {
+  K: 'bg-amber-100/70 text-amber-800 ring-amber-200/70 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/25',
+  L: 'bg-accent-100/70 text-accent-800 ring-accent-200/70 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/25',
+  A: 'bg-teal-100/70 text-teal-800 ring-teal-200/70 dark:bg-teal-400/10 dark:text-teal-300 dark:ring-teal-400/30',
+  R: 'bg-violet-100/70 text-violet-800 ring-violet-200/70 dark:bg-fuchsia-400/10 dark:text-fuchsia-300 dark:ring-fuchsia-400/25',
+};
+
+/** "0:00" ab Stundenbeginn – so lässt sich der Plan neben die Uhr legen. */
+const zeit = (minute: number) => `${Math.floor(minute / 60)}:${String(minute % 60).padStart(2, '0')}`;
+
+const gesamt = d.phasen.reduce((summe, p) => summe + p.dauer, 0);
+---
+
+<BaseLayout
+  sourceFile="src/pages/stunden/[slug].astro"
+  githubEditPath={`src/content/stunden/${stunde.id}`}
+  title={d.titel}
+  beschreibung={d.kurz}
+  seitentyp="article"
+  datum={d.datum}
+  aktualisiert={d.aktualisiert}
+  schlagwoerter={d.tags}
+>
+  <article class="container-prose py-12">
+    <!-- Kopf -->
+    <header class="mb-8 border-b border-ink-200 pb-6 dark:border-violet-500/20">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">
+        Stundenverlauf · {d.thema} · Klasse {d.klassenstufe.join('/')}
+      </p>
+      <h1 class="mb-3 font-serif text-3xl font-semibold leading-tight text-ink-900 md:text-4xl dark:text-ink-50">
+        {d.titel}
+      </h1>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="badge-accent">{d.dauer} Minuten</span>
+        {d.tags.map((t) => <span class="badge-ink">#{t}</span>)}
+      </div>
+
+      <aside class="mt-6 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4 dark:bg-accent-700/15">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Stundenziel</p>
+        <p class="text-sm leading-relaxed text-ink-800 dark:text-ink-100">{d.stundenziel}</p>
+      </aside>
+    </header>
+
+    <!-- Vorbereitung -->
+    <section class="mb-10 grid gap-5 sm:grid-cols-2">
+      <div class="rounded-xl border border-ink-200/90 bg-surface p-5 dark:border-white/[0.08] dark:bg-white/[0.03]">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Das braucht die Klasse schon</h2>
+        <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          {d.voraussetzungen.map((v) => <li class="flex gap-2"><span aria-hidden="true" class="text-accent-600 dark:text-sky-300">·</span><span>{v}</span></li>)}
+        </ul>
+      </div>
+      <div class="rounded-xl border border-ink-200/90 bg-surface p-5 dark:border-white/[0.08] dark:bg-white/[0.03]">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Material</h2>
+        <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          {d.material.map((m) => <li class="flex gap-2"><span aria-hidden="true" class="text-accent-600 dark:text-sky-300">·</span><span>{m}</span></li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- Einstiegsfrage -->
+    <section class="mb-10">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Die Frage zu Stundenbeginn</h2>
+      <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
+        Alle antworten gleichzeitig. Nicht die richtige Lösung ist der Ertrag, sondern die Verteilung.
+      </p>
+      <div class="mt-4 rounded-xl border border-ink-200/90 bg-surface p-5 dark:border-white/[0.08] dark:bg-white/[0.03]">
+        <p class="font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">{d.einstiegsfrage.frage}</p>
+        <ul class="mt-4 space-y-3">
+          {d.einstiegsfrage.antworten.map((a) => (
+            <li class="rounded-lg border p-3 text-sm leading-relaxed" class:list={[
+              a.korrekt
+                ? 'border-emerald-300/80 bg-emerald-50/60 dark:border-emerald-400/30 dark:bg-emerald-400/[0.07]'
+                : 'border-ink-200/80 bg-ink-50/40 dark:border-white/10 dark:bg-white/[0.03]',
+            ]}>
+              <p class="font-semibold text-ink-900 dark:text-ink-50">
+                {a.text}
+                {a.korrekt && <span class="ml-2 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">richtig</span>}
+              </p>
+              <p class="mt-1 text-ink-700 dark:text-ink-300">{a.deutung}</p>
+            </li>
+          ))}
+        </ul>
+        {d.einstiegsfrage.quiz && (
+          <p class="mt-4 text-sm">
+            <a class="link-arrow" href={`/quizzes/${d.einstiegsfrage.quiz}`}>Längere Diagnose: das ganze Quiz </a>
+          </p>
+        )}
+      </div>
+    </section>
+
+    <!-- Verlauf -->
+    <section class="mb-10">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Verlauf</h2>
+      <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
+        {gesamt} Minuten in {d.phasen.length} Phasen, nach dem <a class="underline decoration-dotted underline-offset-2" href="/konzept">KLAR-Ablauf</a>.
+        Die Zeiten sind Anhaltspunkte – die Weichen darunter sagen, wann man abweichen sollte.
+      </p>
+      <ol class="mt-5 space-y-4">
+        {d.phasen.map((p) => (
+          <li class="rounded-xl border border-ink-200/90 bg-surface p-5 dark:border-white/[0.08] dark:bg-white/[0.03]">
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span class={`inline-flex h-7 w-7 items-center justify-center rounded-full font-serif text-sm font-bold ring-1 ${schrittFarbe[p.schritt]}`}>
+                {p.schritt}
+              </span>
+              <span class="font-mono text-sm tabular-nums text-ink-500 dark:text-ink-400">
+                {zeit(p.minute)}–{zeit(p.minute + p.dauer)}
+              </span>
+              <span class="text-xs uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                {schrittName[p.schritt]} · {p.dauer} min
+              </span>
+            </div>
+            <h3 class="mt-2 font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">{p.titel}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">{p.ablauf}</p>
+            <p class="mt-3 border-l-2 border-accent-400/70 pl-3 text-sm leading-relaxed text-ink-600 dark:border-sky-400/40 dark:text-ink-400">
+              <span class="font-semibold text-ink-800 dark:text-ink-200">Lehrkraft:</span> {p.lehrkraft}
+            </p>
+            {p.werkzeug && (
+              <p class="mt-3 text-sm"><a class="link-arrow" href={p.werkzeug.href}>{p.werkzeug.text} </a></p>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- Weichen -->
+    {d.weichen.length > 0 && (
+      <section class="mb-10">
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Weichen</h2>
+        <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
+          Eine Diagnose, die den Plan nicht ändern darf, ist keine Diagnose. Diese Fälle sind vorgedacht.
+        </p>
+        <dl class="mt-4 space-y-3">
+          {d.weichen.map((w) => (
+            <div class="rounded-lg border border-ink-200/80 bg-ink-50/40 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+              <dt class="text-sm font-semibold text-ink-900 dark:text-ink-50">Wenn: {w.wenn}</dt>
+              <dd class="mt-1 text-sm leading-relaxed text-ink-700 dark:text-ink-300">Dann: {w.dann}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )}
+
+    <!-- Exit-Ticket und Differenzierung -->
+    <section class="mb-10 grid gap-5 lg:grid-cols-2">
+      <div class="rounded-xl border border-violet-200/80 bg-violet-50/40 p-5 dark:border-fuchsia-400/20 dark:bg-fuchsia-400/[0.06]">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Exit-Ticket</h2>
+        <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-ink-700 dark:text-ink-200">
+          {d.exitTicket.map((f) => <li>{f}</li>)}
+        </ol>
+        <p class="mt-4 text-sm">
+          <a class="link-arrow" href="/werkzeuge/exit-ticket.html">Als Zettelbogen drucken </a>
+        </p>
+      </div>
+      <div class="rounded-xl border border-ink-200/90 bg-surface p-5 dark:border-white/[0.08] dark:bg-white/[0.03]">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Differenzierung</h2>
+        <p class="mt-3 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          <span class="font-semibold text-ink-900 dark:text-ink-100">Wer schneller fertig ist:</span> {d.differenzierung.schneller}
+        </p>
+        <p class="mt-3 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          <span class="font-semibold text-ink-900 dark:text-ink-100">Wer mehr Zeit braucht:</span> {d.differenzierung.langsamer}
+        </p>
+      </div>
+    </section>
+
+    <!-- Stolpersteine -->
+    {d.stolpersteine.length > 0 && (
+      <section class="mb-10">
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Stolpersteine</h2>
+        <div class="mt-4 space-y-3">
+          {d.stolpersteine.map((s) => (
+            <div class="rounded-lg border border-amber-200/80 bg-amber-50/40 p-4 dark:border-amber-400/20 dark:bg-amber-400/[0.06]">
+              <p class="text-sm font-semibold text-ink-900 dark:text-ink-50">{s.fehlvorstellung}</p>
+              <p class="mt-1 text-sm leading-relaxed text-ink-700 dark:text-ink-300">{s.reaktion}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {d.hausaufgabe && (
+      <section class="mb-10 rounded-xl border border-ink-200/90 bg-surface p-5 dark:border-white/[0.08] dark:bg-white/[0.03]">
+        <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Hausaufgabe</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">{d.hausaufgabe}</p>
+      </section>
+    )}
+
+    <!-- Freitext aus der Markdown-Datei -->
+    <div class="prose prose-ink prose-mathe max-w-none dark:prose-invert">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

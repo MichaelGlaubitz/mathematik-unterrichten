@@ -49,17 +49,20 @@ export const GET: APIRoute = async () => {
   const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
   const quizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
   const themen = await getCollection('themen', ({ data }) => !data.entwurf);
+  const stunden = await getCollection('stunden', ({ data }) => !data.entwurf);
 
   const zuletztInhalt = neuestes([
     ...blog.map((e) => e.data.aktualisiert ?? e.data.datum),
     ...aufgaben.map((e) => e.data.aktualisiert ?? e.data.datum),
     ...quizzes.map((e) => e.data.aktualisiert ?? e.data.datum),
+    ...stunden.map((e) => e.data.aktualisiert ?? e.data.datum),
   ]);
 
   const eintraege: Eintrag[] = [
     { pfad: '/', prioritaet: 1.0, frequenz: 'weekly', lastmod: zuletztInhalt },
     { pfad: '/schnellstart', prioritaet: 0.9, frequenz: 'monthly' },
     { pfad: '/konzept', prioritaet: 0.9, frequenz: 'monthly' },
+    { pfad: '/stunden', prioritaet: 0.9, frequenz: 'weekly', lastmod: zuletztInhalt },
     { pfad: '/werkzeuge', prioritaet: 0.9, frequenz: 'monthly' },
     { pfad: '/themen', prioritaet: 0.9, frequenz: 'weekly', lastmod: zuletztInhalt },
     { pfad: '/fehlvorstellungen', prioritaet: 0.85, frequenz: 'monthly' },
@@ -81,6 +84,14 @@ export const GET: APIRoute = async () => {
       pfad: `/blog/${e.slug}`,
       lastmod: e.data.aktualisiert ?? e.data.datum,
       prioritaet: 0.7,
+      frequenz: 'monthly',
+    });
+  }
+  for (const e of stunden) {
+    eintraege.push({
+      pfad: `/stunden/${e.slug}`,
+      lastmod: e.data.aktualisiert ?? e.data.datum,
+      prioritaet: 0.8,
       frequenz: 'monthly',
     });
   }
