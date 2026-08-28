@@ -123,6 +123,11 @@
 
     document.addEventListener('keydown', function (e) {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
+      // Werkzeuge, die die Buchstaben selbst brauchen (Abstimmung zaehlt A-E,
+      // Whiteboard-Check R/H/F/N), fangen die Taste vorher ab und rufen
+      // preventDefault. Dann darf hier nichts mehr passieren - sonst schaltet
+      // ein getipptes "B" mitten in der Erfassung den Beamer-Modus um.
+      if (e.defaultPrevented) return;
       const ziel = e.target;
       if (ziel && (ziel.tagName === 'INPUT' || ziel.tagName === 'TEXTAREA' || ziel.isContentEditable)) return;
       if (e.key === 'b' || e.key === 'B') {
@@ -133,12 +138,12 @@
     });
   }
 
-  function fuss(zusatz) {
+  function fuss(zusatz, tasten) {
     const el = document.createElement('footer');
     el.className = 'wz-fuss wz-nicht-drucken';
     el.innerHTML =
       '<span>' + (zusatz || 'Läuft vollständig im Browser — es werden keine Daten übertragen.') + '</span>' +
-      '<span><kbd>B</kbd> Beamer · <kbd>F</kbd> Vollbild</span>' +
+      '<span>' + (tasten || '<kbd>B</kbd> Beamer · <kbd>F</kbd> Vollbild') + '</span>' +
       '<span style="margin-left:auto"><a href="/werkzeuge">Alle Werkzeuge</a> · ' +
       '<a href="/">mathematik-unterrichten.de</a> · ' +
       '<a href="/impressum">Impressum</a></span>';

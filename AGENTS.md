@@ -65,6 +65,14 @@ Bedingung dafür, dass die Dateien im Klassenzimmer benutzbar bleiben.
 3. **Beamer zuerst.** Jedes Werkzeug muss im Beamer-Modus (`data-beamer="an"`,
    Taste `B`) aus der letzten Reihe lesbar sein. Bedienelemente mindestens
    2,4 rem hoch.
+   Braucht ein Werkzeug die Buchstaben selbst – die Abstimmung zählt `A`–`E`,
+   der Whiteboard-Check `R`/`H`/`F`/`N` –, dann gehört der `keydown`-Hörer in die
+   **Capture-Phase** und muss `preventDefault()` **und** `stopPropagation()`
+   rufen; sonst schaltet ein getipptes `B` mitten in der Erfassung den
+   Beamer-Modus um. `werkzeug.js` steigt zusätzlich bei `defaultPrevented` aus.
+   Wer so eine Taste belegt, übergibt `WZ.fuss()` als zweites Argument einen
+   ehrlichen Tastenhinweis und sagt im Werkzeug, dass Beamer und Vollbild dann
+   über die Knöpfe der Kopfleiste laufen.
 4. **Hell und dunkel.** Farben ausschließlich über die CSS-Variablen aus
    `werkzeug.css`; keine festen Hex-Werte im Werkzeug-CSS, außer für
    Datenreihen in Diagrammen.

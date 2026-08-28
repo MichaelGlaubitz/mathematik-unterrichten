@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abstimmung · mathematik-unterrichten.de</title>
-<meta name="description" content="Die Stimmen einer diagnostischen Frage zählen und die Verteilung groß projizieren – mit Entscheidungsregel, Rundenverlauf und ohne dass Schülerdaten den Rechner verlassen.">
+<meta name="description" content="Die Stimmen einer diagnostischen Frage verdeckt zählen – über die Tastatur oder durch Antippen – und die Verteilung erst auf Kommando aufdecken. Mit Entscheidungsregel, Rundenvergleich und ohne dass Daten den Rechner verlassen.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="werkzeug.css">
 <script src="werkzeug.js"></script>
@@ -14,7 +14,11 @@
     font-size: clamp(1.15rem, 3vw, 1.9rem); line-height: 1.35; margin: 0;
   }
 
-  /* Zählfläche: große Ziele, aus der letzten Reihe lesbar */
+  .ab-kopfzeile { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .ab-summe { font-family: var(--schrift-mono); font-size: 1.1rem; color: var(--text-leise); }
+  .ab-summe[data-puls="ja"] { color: var(--akzent); }
+
+  /* Zählfläche */
   .ab-raster { display: grid; gap: .6rem; }
   .ab-zeile {
     display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) 6.5rem 2.6rem;
@@ -26,7 +30,7 @@
     font-family: var(--schrift-serif); font-size: 1.5rem; font-weight: 700;
     background: var(--flaeche-2); color: var(--text); border: 2px solid var(--linie-stark);
   }
-  .ab-zeile[data-richtig="ja"] .ab-buchstabe {
+  .ab-zeile[data-richtig="ja"][data-auf="ja"] .ab-buchstabe {
     background: var(--gruen); color: var(--grund); border-color: var(--gruen);
   }
 
@@ -41,11 +45,12 @@
     background: var(--akzent); opacity: .8; transition: width var(--tempo) ease-out;
   }
   .ab-zeile[data-richtig="ja"] .ab-fuellung { background: var(--gruen); }
-  /* Zahlen stehen neben dem Balken, nicht darauf – sonst sind sie auf der
-     Füllung schlecht lesbar und wechseln je nach Anteil den Untergrund. */
+
+  /* Zahlen neben dem Balken – auf der Füllung wären sie je nach Anteil unlesbar. */
   .ab-werte { display: flex; align-items: baseline; gap: .5rem; justify-content: flex-end; }
   .ab-anzahl { font-family: var(--schrift-mono); font-weight: 700; font-size: 1.45rem; }
   .ab-anteil { color: var(--text-leise); font-variant-numeric: tabular-nums; font-size: .95rem; }
+  .ab-verdeckt { color: var(--text-schwach); font-size: 1.45rem; }
 
   .ab-minus {
     font: inherit; width: 2.6rem; height: 3.2rem; border-radius: var(--radius-klein);
@@ -53,6 +58,18 @@
     cursor: pointer; font-size: 1.3rem;
   }
   .ab-minus:disabled { opacity: .35; cursor: default; }
+
+  /* Eingegebene Folge: verdeckt nur Punkte, aufgedeckt die Buchstaben */
+  .ab-folge {
+    display: flex; flex-wrap: wrap; gap: .25rem; align-items: center;
+    font-family: var(--schrift-mono); font-size: 1rem; min-height: 2rem;
+  }
+  .ab-zeichen {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.6rem; height: 1.6rem; padding: 0 .3rem; border-radius: 4px;
+    background: var(--flaeche-2); border: 1px solid var(--linie);
+  }
+  .ab-zeichen[data-letzt="ja"] { border-color: var(--akzent); color: var(--akzent); font-weight: 700; }
 
   .ab-urteil { font-size: 1.05rem; padding: .8rem 1rem; border-radius: var(--radius-klein); border-left: 4px solid; }
   .ab-weiter { border-color: var(--gruen); background: var(--gruen-hell); color: var(--gruen); }
@@ -64,6 +81,12 @@
     font-family: var(--schrift-mono); font-size: .85rem;
     border: 1px solid var(--linie); border-radius: var(--radius-klein);
     padding: .3rem .55rem; background: var(--flaeche-2);
+  }
+
+  kbd {
+    font-family: var(--schrift-mono); font-size: .85em;
+    border: 1px solid var(--linie-stark); border-bottom-width: 2px; border-radius: 4px;
+    padding: .05em .35em; background: var(--flaeche);
   }
 
   @media (min-width: 1000px) { .ab-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 1.25rem; align-items: start; } }
@@ -78,15 +101,29 @@
     <section>
       <div class="wz-karte">
         <p class="ab-frage" id="ab-frage">Frage eintippen oder einfügen …</p>
-        <p style="font-size:.85rem;color:var(--text-schwach);margin:.6rem 0 0" id="ab-zaehler">Noch keine Stimme</p>
+        <div class="ab-kopfzeile wz-abstand">
+          <span class="ab-summe" id="ab-zaehler">Noch keine Stimme</span>
+          <button class="wz-knopf wz-knopf-haupt wz-nicht-drucken" id="ab-aufdecken" type="button">
+            Verteilung zeigen
+          </button>
+        </div>
       </div>
 
       <div class="wz-karte wz-abstand">
         <div class="ab-raster" id="ab-raster"></div>
+
+        <div class="wz-reihe wz-abstand" style="justify-content:space-between;align-items:center;gap:.6rem">
+          <div class="ab-folge" id="ab-folge" aria-live="off"></div>
+          <button class="wz-knopf wz-nicht-drucken" id="ab-zurueck" type="button">↶ letzte zurück</button>
+        </div>
+
         <p class="wz-hinweis wz-abstand">
-          Auf den Balken tippen zählt eine Stimme dazu, das Minus nimmt eine weg.
-          Die Klasse stimmt gleichzeitig ab – mit Karten, Fingern oder Mini-Whiteboards –,
-          Sie zählen mit. Nichts wird übertragen; die Zahlen bleiben auf diesem Gerät.
+          <strong>Tastatur:</strong> <kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>D</kbd> – oder
+          <kbd>1</kbd> bis <kbd>5</kbd> – zählt eine Stimme. <kbd>Rücktaste</kbd> nimmt die letzte
+          zurück, <kbd>Leertaste</kbd> deckt auf und wieder zu. Solange verdeckt ist, sieht die
+          Klasse nur, wie viele Stimmen gezählt sind – nicht, wie sie sich verteilen.
+          <br><span style="color:var(--text-schwach)">Die Buchstaben gehören hier der Abstimmung
+          — Beamer-Modus und Vollbild darum über die Knöpfe oben rechts.</span>
         </p>
       </div>
 
@@ -114,8 +151,7 @@
           <select class="wz-feld" id="ab-richtig"></select>
         </label>
         <p style="font-size:.8rem;color:var(--text-schwach);margin:.7rem 0 0">
-          Die richtige Antwort steuert nur die Auswertung. Solange sie auf „noch offen“ steht,
-          bleibt die Verteilung unkommentiert – nützlich, wenn die Klasse zuerst raten soll.
+          Die richtige Antwort steuert nur die Auswertung und wird erst beim Aufdecken sichtbar.
         </p>
       </div>
 
@@ -126,9 +162,9 @@
           <button class="wz-knopf" id="ab-null" type="button">Zurücksetzen</button>
         </div>
         <div class="ab-runden wz-abstand" id="ab-verlauf"></div>
-        <p style="font-size:.8rem;color:var(--text-schwach);margin:.7rem 0 0" id="ab-verlauf-hinweis">
-          Gesicherte Runden bleiben stehen, bis Sie sie löschen – so lässt sich die zweite
-          Abstimmung mit der ersten vergleichen.
+        <p style="font-size:.8rem;color:var(--text-schwach);margin:.7rem 0 0">
+          Nach dem Sichern ist die nächste Runde wieder verdeckt. So lässt sich die zweite
+          Abstimmung mit der ersten vergleichen, ohne dass die erste noch an der Wand steht.
         </p>
       </div>
 
@@ -137,8 +173,8 @@
         <ol style="font-size:.9rem;color:var(--text-leise);padding-left:1.1rem;margin:.5rem 0 0;line-height:1.6">
           <li>Frage zeigen, 30 Sekunden Denkzeit, <strong>niemand</strong> meldet sich.</li>
           <li>Auf ein Zeichen antworten alle gleichzeitig – Karte hoch, Finger, Whiteboard.</li>
-          <li>Sie zählen und tippen mit. Erst danach wird die Verteilung gezeigt.</li>
-          <li>Die häufigste falsche Antwort besprechen: Was muss jemand gedacht haben?</li>
+          <li>Reihe für Reihe eintippen: <kbd>A</kbd><kbd>B</kbd><kbd>A</kbd><kbd>C</kbd> … Die Verteilung bleibt verdeckt.</li>
+          <li>Erst wenn alle gezählt sind, mit <kbd>Leertaste</kbd> aufdecken – und die häufigste falsche Antwort besprechen.</li>
         </ol>
       </div>
     </aside>
@@ -162,20 +198,23 @@
     frage: '',
     anzahlOptionen: 4,
     richtig: -1,          // -1 = noch offen
-    stimmen: [0, 0, 0, 0, 0],
-    runden: []            // [{ stimmen: [...], richtig, frage }]
+    folge: [],            // Reihenfolge der Eingaben, als Indizes – die Quelle der Wahrheit
+    aufgedeckt: false,
+    runden: []
   };
 
   function speichern() { WZ.schreib(SCHLUESSEL, zustand); }
 
-  function summe() {
-    return zustand.stimmen.slice(0, zustand.anzahlOptionen).reduce(function (s, n) { return s + n; }, 0);
+  /** Stimmen je Option aus der Eingabefolge zählen. */
+  function zaehlung() {
+    const z = [0, 0, 0, 0, 0];
+    zustand.folge.forEach(function (i) { if (i >= 0 && i < 5) z[i]++; });
+    return z;
   }
 
-  /** Anteil in Prozent; bei null Stimmen null, damit nichts durch null geteilt wird. */
-  function anteil(i) {
-    const g = summe();
-    return g === 0 ? 0 : (zustand.stimmen[i] / g) * 100;
+  function anteil(z, i) {
+    const g = zustand.folge.length;
+    return g === 0 ? 0 : (z[i] / g) * 100;
   }
 
   // --- Zählfläche ----------------------------------------------------------
@@ -185,81 +224,123 @@
     wurzel.textContent = '';
 
     for (let i = 0; i < zustand.anzahlOptionen; i++) {
-      const istRichtig = zustand.richtig === i;
-
       const fuellung = WZ.el('span', { class: 'ab-fuellung' });
-      const anzahlEl = WZ.el('span', { class: 'ab-anzahl', text: String(zustand.stimmen[i]) });
-      const anteilEl = WZ.el('span', { class: 'ab-anteil', text: '' });
+      const anzahlEl = WZ.el('span', { class: 'ab-anzahl' });
+      const anteilEl = WZ.el('span', { class: 'ab-anteil' });
 
       const balken = WZ.el('div', {
         class: 'ab-balken', role: 'button', tabindex: '0',
         'aria-label': 'Eine Stimme für ' + BUCHSTABEN[i] + ' zählen',
-        onClick: function () { zaehlen(i, +1); },
+        onClick: function () { stimmeDazu(i); },
         onKeydown: function (e) {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); zaehlen(i, +1); }
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stimmeDazu(i); }
         }
       }, [fuellung]);
 
-      const werte = WZ.el('span', { class: 'ab-werte' }, [anzahlEl, anteilEl]);
-
       const minus = WZ.el('button', {
         class: 'ab-minus', type: 'button', text: '−',
-        'aria-label': 'Eine Stimme für ' + BUCHSTABEN[i] + ' abziehen',
-        onClick: function () { zaehlen(i, -1); }
+        'aria-label': 'Letzte Stimme für ' + BUCHSTABEN[i] + ' zurücknehmen',
+        onClick: function () { stimmeWeg(i); }
       });
 
-      wurzel.appendChild(WZ.el('div', {
-        class: 'ab-zeile', 'data-richtig': istRichtig ? 'ja' : 'nein'
-      }, [
+      wurzel.appendChild(WZ.el('div', { class: 'ab-zeile' }, [
         WZ.el('span', { class: 'ab-buchstabe', text: BUCHSTABEN[i] }),
         balken,
-        werte,
+        WZ.el('span', { class: 'ab-werte' }, [anzahlEl, anteilEl]),
         minus
       ]));
     }
-    balkenAktualisieren();
+    anzeigeAktualisieren();
   }
 
-  /** Nur die Zahlen und Breiten neu setzen – die Elemente bleiben stehen. */
-  function balkenAktualisieren() {
-    const zeilen = document.querySelectorAll('.ab-zeile');
-    const g = summe();
-    zeilen.forEach(function (zeile, i) {
-      zeile.querySelector('.ab-fuellung').style.width = anteil(i) + '%';
-      zeile.querySelector('.ab-anzahl').textContent = String(zustand.stimmen[i]);
+  /** Zahlen, Balken und Folge neu setzen – abhängig davon, ob aufgedeckt ist. */
+  function anzeigeAktualisieren() {
+    const z = zaehlung();
+    const g = zustand.folge.length;
+    const auf = zustand.aufgedeckt;
+
+    document.querySelectorAll('.ab-zeile').forEach(function (zeile, i) {
+      zeile.setAttribute('data-auf', auf ? 'ja' : 'nein');
+      zeile.setAttribute('data-richtig', zustand.richtig === i ? 'ja' : 'nein');
+      zeile.querySelector('.ab-fuellung').style.width = auf ? anteil(z, i) + '%' : '0';
+      const anzahlEl = zeile.querySelector('.ab-anzahl');
+      anzahlEl.textContent = auf ? String(z[i]) : '·';
+      anzahlEl.className = auf ? 'ab-anzahl' : 'ab-anzahl ab-verdeckt';
       zeile.querySelector('.ab-anteil').textContent =
-        g === 0 ? '' : WZ.zahl(anteil(i), 0) + ' %';
-      zeile.querySelector('.ab-minus').disabled = zustand.stimmen[i] === 0;
+        auf && g > 0 ? WZ.zahl(anteil(z, i), 0) + ' %' : '';
+      zeile.querySelector('.ab-minus').disabled = z[i] === 0;
     });
 
     document.getElementById('ab-zaehler').textContent =
       g === 0 ? 'Noch keine Stimme' : g === 1 ? '1 Stimme' : g + ' Stimmen';
 
-    urteilZeichnen();
+    const knopf = document.getElementById('ab-aufdecken');
+    knopf.textContent = auf ? 'Wieder verdecken (Leertaste)' : 'Verteilung zeigen (Leertaste)';
+    knopf.disabled = g === 0;
+
+    folgeZeichnen();
+    urteilZeichnen(z);
   }
 
-  function zaehlen(i, richtung) {
-    zustand.stimmen[i] = Math.max(0, zustand.stimmen[i] + richtung);
+  /** Verdeckt nur Punkte: Die Länge darf man sehen, den Inhalt nicht. */
+  function folgeZeichnen() {
+    const wurzel = document.getElementById('ab-folge');
+    wurzel.textContent = '';
+    const letzte = zustand.folge.length - 1;
+    zustand.folge.forEach(function (idx, n) {
+      wurzel.appendChild(WZ.el('span', {
+        class: 'ab-zeichen',
+        'data-letzt': n === letzte ? 'ja' : 'nein',
+        text: zustand.aufgedeckt ? BUCHSTABEN[idx] : '·'
+      }));
+    });
+  }
+
+  function pulsen() {
+    const el = document.getElementById('ab-zaehler');
+    el.setAttribute('data-puls', 'ja');
+    window.setTimeout(function () { el.removeAttribute('data-puls'); }, 180);
+  }
+
+  function stimmeDazu(i) {
+    if (i < 0 || i >= zustand.anzahlOptionen) return;
+    zustand.folge.push(i);
     speichern();
-    balkenAktualisieren();
+    anzeigeAktualisieren();
+    pulsen();
+  }
+
+  /** Nimmt die zuletzt gezählte Stimme für diese Option zurück. */
+  function stimmeWeg(i) {
+    for (let n = zustand.folge.length - 1; n >= 0; n--) {
+      if (zustand.folge[n] === i) { zustand.folge.splice(n, 1); break; }
+    }
+    speichern();
+    anzeigeAktualisieren();
+  }
+
+  function letzteZurueck() {
+    if (zustand.folge.length === 0) return;
+    zustand.folge.pop();
+    speichern();
+    anzeigeAktualisieren();
   }
 
   // --- Auswertung ----------------------------------------------------------
 
-  function urteilZeichnen() {
+  function urteilZeichnen(z) {
     const karte = document.getElementById('ab-urteil-karte');
     const ziel = document.getElementById('ab-urteil');
-    const g = summe();
+    const g = zustand.folge.length;
 
-    if (g === 0 || zustand.richtig < 0) {
+    if (!zustand.aufgedeckt || g === 0 || zustand.richtig < 0) {
       karte.hidden = true;
       return;
     }
     karte.hidden = false;
     ziel.textContent = '';
 
-    const quote = anteil(zustand.richtig);
-
+    const quote = anteil(z, zustand.richtig);
     let klasse, satz;
     if (quote >= 80) {
       klasse = 'ab-weiter';
@@ -276,20 +357,16 @@
     }
     ziel.appendChild(WZ.el('p', { class: 'ab-urteil ' + klasse, style: 'margin:0', text: satz }));
 
-    // Die häufigste falsche Antwort benennen – sie ist der eigentliche Ertrag
     let groesster = -1, groesstIndex = -1;
     for (let i = 0; i < zustand.anzahlOptionen; i++) {
-      if (i !== zustand.richtig && zustand.stimmen[i] > groesster) {
-        groesster = zustand.stimmen[i];
-        groesstIndex = i;
-      }
+      if (i !== zustand.richtig && z[i] > groesster) { groesster = z[i]; groesstIndex = i; }
     }
     if (groesster > 0) {
       ziel.appendChild(WZ.el('p', {
         style: 'margin:.7rem 0 0;font-size:.95rem;color:var(--text-leise)',
         text: 'Häufigste falsche Antwort: ' + BUCHSTABEN[groesstIndex] + ' mit ' + groesster +
           (groesster === 1 ? ' Stimme' : ' Stimmen') +
-          ' (' + WZ.zahl(anteil(groesstIndex), 0) + ' %). Diese Antwort besprechen, nicht die richtige.'
+          ' (' + WZ.zahl(anteil(z, groesstIndex), 0) + ' %). Diese Antwort besprechen, nicht die richtige.'
       }));
     }
   }
@@ -312,10 +389,56 @@
       wurzel.appendChild(WZ.el('span', {
         class: 'ab-runde',
         title: r.frage || 'ohne Fragetext',
-        text: (i + 1) + '. ' + r.stimmen.filter(function (_, k) { return k < r.anzahlOptionen; }).join('/') +
+        text: (i + 1) + '. ' + r.stimmen.slice(0, r.anzahlOptionen).join('/') +
           (quote === null ? '' : ' · ' + WZ.zahl(quote, 0) + ' %')
       }));
     });
+  }
+
+  // --- Tastatur ------------------------------------------------------------
+
+  /**
+   * In der Capture-Phase, damit die Buchstaben vor den globalen Kürzeln aus
+   * werkzeug.js ankommen – sonst würde B den Beamer-Modus umschalten statt zu
+   * zählen. F (Vollbild) bleibt frei, weil höchstens bis E gezählt wird.
+   */
+  function tastatur(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const ziel = e.target;
+    if (ziel && (ziel.tagName === 'INPUT' || ziel.tagName === 'TEXTAREA' ||
+        ziel.tagName === 'SELECT' || ziel.isContentEditable)) return;
+
+    const taste = e.key;
+
+    if (taste === 'Backspace') {
+      e.preventDefault();
+      e.stopPropagation();
+      letzteZurueck();
+      return;
+    }
+    // Leertaste ist der Hauptweg – die trifft man, ohne hinzusehen. Das
+    // preventDefault verhindert zugleich das Scrollen der Seite.
+    if (taste === ' ' || taste === 'Spacebar' || taste === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      aufdeckenUmschalten();
+      return;
+    }
+
+    let index = BUCHSTABEN.indexOf(taste.toUpperCase());
+    if (index < 0 && /^[1-5]$/.test(taste)) index = Number(taste) - 1;
+    if (index < 0 || index >= zustand.anzahlOptionen) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    stimmeDazu(index);
+  }
+
+  function aufdeckenUmschalten() {
+    if (zustand.folge.length === 0) return;
+    zustand.aufgedeckt = !zustand.aufgedeckt;
+    speichern();
+    anzeigeAktualisieren();
   }
 
   // --- Verdrahten ----------------------------------------------------------
@@ -340,7 +463,7 @@
   document.getElementById('ab-anzahl-optionen').addEventListener('change', function () {
     zustand.anzahlOptionen = Number(this.value);
     // Stimmen für weggefallene Optionen verwerfen, damit die Summe stimmt
-    for (let i = zustand.anzahlOptionen; i < BUCHSTABEN.length; i++) zustand.stimmen[i] = 0;
+    zustand.folge = zustand.folge.filter(function (i) { return i < zustand.anzahlOptionen; });
     if (zustand.richtig >= zustand.anzahlOptionen) zustand.richtig = -1;
     speichern();
     richtigAuswahlBauen();
@@ -350,37 +473,55 @@
   document.getElementById('ab-richtig').addEventListener('change', function () {
     zustand.richtig = Number(this.value);
     speichern();
-    rasterZeichnen();
+    anzeigeAktualisieren();
   });
 
+  document.getElementById('ab-aufdecken').addEventListener('click', aufdeckenUmschalten);
+  document.getElementById('ab-zurueck').addEventListener('click', letzteZurueck);
+
   document.getElementById('ab-sichern').addEventListener('click', function () {
-    if (summe() === 0) return;
+    if (zustand.folge.length === 0) return;
     zustand.runden.push({
-      stimmen: zustand.stimmen.slice(),
+      stimmen: zaehlung(),
       anzahlOptionen: zustand.anzahlOptionen,
       richtig: zustand.richtig,
       frage: zustand.frage
     });
-    zustand.stimmen = [0, 0, 0, 0, 0];
+    zustand.folge = [];
+    zustand.aufgedeckt = false;   // die nächste Runde beginnt wieder verdeckt
     speichern();
-    balkenAktualisieren();
+    anzeigeAktualisieren();
     verlaufZeichnen();
   });
 
   document.getElementById('ab-null').addEventListener('click', function () {
-    if (summe() > 0 && !window.confirm('Die laufende Zählung verwerfen?')) return;
-    zustand.stimmen = [0, 0, 0, 0, 0];
+    if (zustand.folge.length > 0 && !window.confirm('Die laufende Zählung verwerfen?')) return;
+    zustand.folge = [];
+    zustand.aufgedeckt = false;
     speichern();
-    balkenAktualisieren();
+    anzeigeAktualisieren();
   });
 
+  document.addEventListener('keydown', tastatur, true);
+
   WZ.kopf({ titel: 'Abstimmung' });
-  WZ.fuss('Alle antworten gleichzeitig – niemand meldet sich. Die Verteilung entscheidet, wie es weitergeht.');
+  WZ.fuss(
+    'Verdeckt zählen, gemeinsam aufdecken. Die Verteilung entscheidet, wie es weitergeht.',
+    '<kbd>A</kbd>–<kbd>E</kbd> zählen · <kbd>Leertaste</kbd> deckt auf · Beamer und Vollbild über die Knöpfe oben'
+  );
 
   const gespeichert = WZ.lies(SCHLUESSEL, null);
-  if (gespeichert && Array.isArray(gespeichert.stimmen)) {
+  if (gespeichert) {
     zustand = Object.assign(zustand, gespeichert);
     if (!Array.isArray(zustand.runden)) zustand.runden = [];
+    // Ältere Stände hielten nur Summen; daraus eine Folge herstellen.
+    if (!Array.isArray(zustand.folge)) {
+      zustand.folge = [];
+      (gespeichert.stimmen || []).forEach(function (n, i) {
+        for (let k = 0; k < n; k++) zustand.folge.push(i);
+      });
+    }
+    zustand.aufgedeckt = false;   // nach dem Laden nie offen anzeigen
   }
   document.getElementById('ab-eingabe').value = zustand.frage;
   document.getElementById('ab-frage').textContent =

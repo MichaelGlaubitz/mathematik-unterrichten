@@ -35,7 +35,7 @@ Der häufigste Fehler beim Einstieg ist, dass die Boards zwar eingeführt werden
 
 Dylan Wiliam schlägt für solche Entscheidungsfragen eine einfache Faustregel vor: **ab etwa 80 Prozent richtig weitergehen**, **unter 50 Prozent gemeinsam neu ansetzen**, dazwischen eine zweite Runde mit einer leicht veränderten Aufgabe. Nicht mit derselben – wer sie beim ersten Mal falsch verstanden hat, versteht sie beim zweiten Mal genauso falsch.
 
-Genau diese Auswertung nimmt Ihnen der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) ab: pro Kind einmal antippen, und Sie sehen die Quote, die Ampel und nach drei Runden ein Klassenbild, aus dem hervorgeht, wer dauerhaft wackelt.
+Genau diese Auswertung nimmt Ihnen der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) ab. Voreingestellt ist der anonyme Modus: Sie zählen die Reihen durch und tippen dabei mit — `R` richtig, `H` halb, `F` falsch, `N` nichts —, und Quote und Ampel stehen sofort da. Es wird nichts erfasst, was sich einer Person zuordnen ließe. Wer die Entwicklung Einzelner begleiten möchte, schaltet auf den Namensmodus und bekommt nach drei Runden ein Klassenbild, aus dem hervorgeht, wer dauerhaft wackelt.
 
 ## Der Nebeneffekt, den niemand erwartet
 

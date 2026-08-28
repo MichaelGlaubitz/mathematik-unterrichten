@@ -86,13 +86,13 @@ export const werkzeuge: Werkzeug[] = [
   {
     slug: 'whiteboard-check',
     titel: 'Whiteboard-Check',
-    kurz: 'Die Mini-Whiteboard-Runde in Sekunden auswerten – mit Klassenbild und Verlauf.',
+    kurz: 'Die Mini-Whiteboard-Runde in Sekunden auswerten – anonym über die Tastatur oder namentlich.',
     beschreibung:
-      'Sie stellen eine Frage, die Klasse hält die Whiteboards hoch, Sie tippen pro Kind nur richtig/falsch/halb an. Nach drei Runden sehen Sie ein Klassenbild: Wer trägt, wer kippt, welche Frage hat gehakt. Die Auswertung entscheidet, ob Sie weitergehen oder noch eine Runde brauchen – Full-Response statt Stichprobe.',
+      'Die Klasse hält die Whiteboards hoch, Sie zählen die Reihen durch und tippen dabei einfach mit: R richtig, H halb, F falsch, N nichts. Die Trefferquote steht sofort da, und die Ampel sagt, ob Sie weitergehen oder noch eine Runde brauchen – Full-Response statt Stichprobe. Voreingestellt ist der anonyme Modus: Es wird nichts erfasst, was sich einer Person zuordnen ließe. Wer die Entwicklung einzelner Lernender begleiten will, schaltet auf den Namensmodus mit Kachel je Kind und Klassenbild über mehrere Runden.',
     kategorie: 'Diagnose',
     stufe: 'alle',
     einsatz: 'Schülergerät',
-    schlagwoerter: ['mini-whiteboard', 'formatives assessment', 'hinge question', 'diagnose', 'full response', 'ampel'],
+    schlagwoerter: ['mini-whiteboard', 'formatives assessment', 'hinge question', 'diagnose', 'full response', 'ampel', 'anonym', 'tastatur'],
     hintergrund: { text: 'Hinge Questions', href: '/blog/hinge-questions' },
   },
   {

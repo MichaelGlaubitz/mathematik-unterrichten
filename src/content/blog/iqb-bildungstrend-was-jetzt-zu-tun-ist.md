@@ -33,7 +33,7 @@ Ich habe keine Antwort auf die bildungspolitische Frage. Auf die unterrichtliche
 
 **3. Grundvorstellungen vor Verfahren.** Wer weiß, *warum* beim Addieren von Brüchen die Nenner gleich sein müssen, braucht die Regel nicht auswendig. Wer es nicht weiß, wird sie vergessen – zuverlässig, und zwar bis Klasse 9. Zwei Minuten am [Bruchstreifen](/werkzeuge/bruchstreifen.html) ersparen zwei Jahre Nachkorrektur.
 
-**4. Die schwächsten Lernenden namentlich kennen.** Nicht im Gefühl, sondern in Daten: Wer hat bei den letzten drei Whiteboard-Runden zweimal danebengelegen? Diese Liste ist kürzer, als man denkt, und sie ist der Ansatzpunkt. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) führt sie nebenbei mit.
+**4. Die schwächsten Lernenden namentlich kennen.** Nicht im Gefühl, sondern in Daten: Wer hat bei den letzten drei Whiteboard-Runden zweimal danebengelegen? Diese Liste ist kürzer, als man denkt, und sie ist der Ansatzpunkt. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) führt sie im Namensmodus nebenbei mit — für die schnelle Runde zwischendurch bleibt der anonyme Modus voreingestellt.
 
 ## Was ich nicht schreibe
 

@@ -43,7 +43,11 @@
   .tm-glied.tm-fertig { opacity: .5; text-decoration: line-through; }
   .tm-punkt { width: .6rem; height: .6rem; border-radius: 50%; flex: none; }
 
-  .tm-editor-zeile { display: grid; grid-template-columns: 1.6rem 1fr 5.5rem 2.4rem; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+  /* minmax(0,…) und min-width:0 sind hier nötig: Eingabefelder bringen eine
+     eigene Mindestbreite mit, an der eine reine 1fr-Spalte nicht vorbeikommt –
+     auf dem Handy schob die Zeile die ganze Seite nach rechts. */
+  .tm-editor-zeile { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) 4.5rem 2.4rem; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+  .tm-editor-zeile > * { min-width: 0; }
   .tm-griff { color: var(--text-schwach); font-size: .85rem; text-align: center; cursor: grab; }
   .tm-vorlagen { display: flex; flex-wrap: wrap; gap: .5rem; }
 
