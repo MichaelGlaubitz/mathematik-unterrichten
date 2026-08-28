@@ -4,11 +4,46 @@ Statisch generierte Mathe-Didaktik-Seite für Lehrkräfte – inspiriert von [mr
 
 ## Was die Seite kann
 
+### Inhalte (Content-Collections)
+
 | Bereich | Inhaltstyp | Pfad |
 |---|---|---|
 | **Blog** | Markdown (.md/.mdx) – didaktische Artikel | `src/content/blog/` |
-| **Aufgabensammlung** | Markdown – Aufgaben mit Lösungen + Kommentar | `src/content/aufgaben/` |
-| **Diagnostische Fragen** | JSON – interaktive MC-Quizzes | `src/content/quizzes/` |
+| **Aufgabensammlung** | Markdown – Aufgabenfolgen mit Lösungen + Kommentar | `src/content/aufgaben/` |
+| **Diagnostische Fragen** | JSON – interaktive MC-Quizzes (genau 6 Fragen) | `src/content/quizzes/` |
+| **Themen** | JSON – Einordnung, Fehlvorstellungen, Whiteboard-Aufgaben | `src/content/themen/` |
+
+### Redaktionell gepflegte Datenmodule
+
+Diese Bereiche werden nicht über Content-Collections, sondern über typisierte
+TypeScript-Module gepflegt. Sie sind jeweils die einzige Quelle der Wahrheit –
+Seiten, Suchindex und Sitemap lesen alle dort.
+
+| Bereich | Modul | Seite |
+|---|---|---|
+| **Werkzeugkasten** | `src/lib/werkzeuge.ts` | `/werkzeuge` |
+| **Methodenkoffer** | `src/lib/methoden.ts` | `/methoden` |
+| **Gegenmittel zu Fehlvorstellungen** | `src/lib/gegenmittel.ts` | `/fehlvorstellungen` |
+| **KI-Prompts** | `src/lib/kiPrompts.ts` | `/ki` |
+| **Suchindex** | `src/lib/suchindex.ts` | `/suche`, `/suchindex.json` |
+
+### Eigenständige Werkzeuge
+
+Unter `public/werkzeuge/` liegt je Werkzeug **eine** HTML-Datei. Sie sind
+absichtlich ohne Framework, ohne CDN und ohne Server gebaut, damit sie am
+Beamer auch ohne Netz laufen. Gemeinsame Grundlage sind `werkzeug.css`
+(Design-Tokens, Beamer-Modus, Druckansicht) und `werkzeug.js` (Kopfleiste,
+Hell/Dunkel, Vollbild, `localStorage`, Zufall, Ton).
+
+Ein neues Werkzeug anlegen:
+
+1. `public/werkzeuge/<slug>.html` nach dem Muster der vorhandenen Dateien
+   (Kopf mit `werkzeug.css`/`werkzeug.js`, `WZ.kopf({titel})`, `WZ.fuss()`).
+2. Eintrag in `src/lib/werkzeuge.ts` ergänzen – damit erscheint es automatisch
+   auf `/werkzeuge`, im Suchindex und in der Sitemap.
+3. Konventionen einhalten: beschriftete Achsen mit Skalenticks und
+   Pfeilspitzen, maßstabsgetreue Bilder, Beamer-Modus lesbar, keine
+   Datenübertragung. Siehe `AGENTS.md`.
 
 ## Voraussetzungen
 
@@ -153,6 +188,20 @@ $$\int_0^1 x^2\,dx = \tfrac{1}{3}$$
 
 Damit Astro die Formeln auch wirklich rendert, installiere zusätzlich `remark-math` und `rehype-katex` (siehe [Astro-Doku zu KaTeX](https://docs.astro.build/en/guides/markdown-content/#math)) und ergänze das in `astro.config.mjs`.
 
+## Suche und Sitemap
+
+Beides wird beim Build erzeugt und braucht keinen Dienst von außen:
+
+- `src/pages/suchindex.json.ts` schreibt den Volltextindex über alle Inhalte
+  nach `/suchindex.json`; `/suche` lädt ihn und sucht im Browser.
+- `src/pages/sitemap.xml.ts` erzeugt `/sitemap.xml` mit echten `lastmod`-Daten
+  aus den Content-Collections. `@astrojs/sitemap` wird bewusst **nicht**
+  verwendet: Ab Version 3.7 setzt es Astro 5 voraus, dieses Projekt läuft auf
+  Astro 4.
+
+Das OG-Standardbild `public/og-default.png` wird von `scripts/og-bild.py`
+erzeugt (`python3 scripts/og-bild.py`, benötigt Pillow).
+
 ## Deployment
 
 Die Seite ist eine reine statische Website (`npm run build` erzeugt `dist/`). Drei kostenlose Hosting-Optionen:
@@ -209,7 +258,7 @@ Die Website unterstützt Google Analytics 4 (GA4) im Hintergrund.
 - [ ] `src/pages/ueber.astro` – Selbstvorstellung gegengelesen
 - [ ] Web3Forms-Access-Key gesetzt (siehe oben)
 - [ ] Google Fonts ggf. lokal einbinden (DSGVO-strikt)
-- [ ] OG-Bild `public/og-default.png` hinzufügen (1200 × 630 px)
+- [x] OG-Bild `public/og-default.png` vorhanden (1200 × 630 px, `scripts/og-bild.py`)
 
 ## Projektstruktur
 

@@ -48,6 +48,34 @@ Wenn alle Parameter geklärt sind:
 2. Vollständiger, ausführbarer Code.
 3. Kurze Iterationsfrage für Feinanpassungen.
 
+## Werkzeuge unter `public/werkzeuge/`
+
+Die eigenständigen Unterrichtswerkzeuge folgen zusätzlich zu den
+Diagramm-Regeln oben diesen Vorgaben. Sie sind keine Stilfrage, sondern die
+Bedingung dafür, dass die Dateien im Klassenzimmer benutzbar bleiben.
+
+1. **Eine Datei je Werkzeug.** Kein Framework, kein CDN, kein Build-Schritt.
+   Erlaubt sind ausschließlich die gemeinsamen Dateien `werkzeug.css` und
+   `werkzeug.js`. Damit läuft das Werkzeug auch dann weiter, wenn das Schulnetz
+   während der Stunde ausfällt, und lässt sich per „Seite speichern“ vom Stick
+   starten.
+2. **Keine Datenübertragung.** Klassenlisten, Auswertungen und Einstellungen
+   bleiben im `localStorage`. Es gibt keinen Server, der Schülerdaten
+   entgegennimmt – auch nicht optional.
+3. **Beamer zuerst.** Jedes Werkzeug muss im Beamer-Modus (`data-beamer="an"`,
+   Taste `B`) aus der letzten Reihe lesbar sein. Bedienelemente mindestens
+   2,4 rem hoch.
+4. **Hell und dunkel.** Farben ausschließlich über die CSS-Variablen aus
+   `werkzeug.css`; keine festen Hex-Werte im Werkzeug-CSS, außer für
+   Datenreihen in Diagrammen.
+5. **Kein `eval`.** Nutzereingaben, die ausgewertet werden (Terme im
+   Funktionenplotter), werden geparst, nicht ausgeführt.
+6. **Nachrechenbar.** Wo ein Werkzeug Aufgaben erzeugt, muss die Lösung
+   programmatisch überprüfbar sein. Für den Kopfrechen-Sprint gibt es dafür
+   einen Browser-Test, der alle Bereiche und Stufen durchrechnet.
+7. **Registrieren.** Jedes neue Werkzeug wird in `src/lib/werkzeuge.ts`
+   eingetragen; Hub-Seite, Suchindex und Sitemap ziehen von dort.
+
 ## Cursor Cloud specific instructions
 
 ### Project overview
