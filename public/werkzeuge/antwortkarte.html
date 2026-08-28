@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Antwortkarte · mathematik-unterrichten.de</title>
+<meta name="description" content="Die kurze Antwort auf dem eigenen Gerät groß anzeigen und auf ein Zeichen hochhalten – wie ein Mini-Whiteboard, nur lesbar. Tippen oder mit dem Stift schreiben. Ohne Konto, ohne Netz, ohne Datenübertragung.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  /* Die Karte füllt den Bildschirm: Sie wird aus zwei Metern Entfernung gelesen. */
+  .ak-karte {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    /* Feste Höhe, nicht min-height: Sonst wächst die Karte mit dem Text, statt
+       die Schrift zu verkleinern – und man müsste am Gerät scrollen. */
+    height: min(58vh, 30rem);
+    padding: 1rem;
+    border: 3px solid var(--linie-stark); border-radius: var(--radius);
+    background: var(--flaeche);
+    overflow: hidden;
+  }
+  .ak-karte[data-zeigt="nein"] { border-style: dashed; background: var(--flaeche-2); }
+
+  .ak-antwort {
+    font-family: var(--schrift-serif);
+    font-weight: 700; line-height: 1.1; text-align: center;
+    word-break: break-word; hyphens: none;
+    width: 100%;
+  }
+  .ak-warte {
+    display: flex; flex-direction: column; align-items: center; gap: .6rem;
+    color: var(--text-schwach); text-align: center;
+  }
+  .ak-warte b { font-size: 1.4rem; color: var(--text-leise); font-family: var(--schrift-serif); }
+
+  /* Zeichenfläche für den Stift – Brüche und Skizzen tippt niemand. */
+  .ak-brett { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+  .ak-brett[hidden] { display: none !important; }
+
+  .ak-eingabe {
+    font-size: 1.35rem; font-family: var(--schrift-mono);
+    text-align: center; padding: .7rem;
+  }
+
+  .ak-tasten { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; }
+  .ak-taste {
+    font: inherit; font-family: var(--schrift-mono); font-size: 1.1rem;
+    min-width: 2.9rem; height: 2.9rem; cursor: pointer;
+    border: 1px solid var(--linie-stark); border-radius: var(--radius-klein);
+    background: var(--flaeche); color: var(--text);
+  }
+  .ak-taste:active { background: var(--flaeche-2); }
+
+  .ak-art { display: inline-flex; border: 1px solid var(--linie-stark); border-radius: var(--radius-klein); overflow: hidden; }
+  .ak-art button {
+    font: inherit; border: 0; padding: .5rem 1rem; cursor: pointer;
+    background: var(--flaeche); color: var(--text-leise);
+  }
+  .ak-art button + button { border-left: 1px solid var(--linie); }
+  .ak-art button[aria-pressed="true"] { background: var(--akzent); color: var(--grund); font-weight: 700; }
+
+  .ak-gross { font-size: 1.15rem; padding: .9rem 1.4rem; }
+
+  /* Im Vollbild zählt nur noch die Karte. */
+  :fullscreen .ak-nur-bearbeiten { display: none; }
+  :fullscreen .ak-karte { height: 88vh; }
+
+  kbd {
+    font-family: var(--schrift-mono); font-size: .85em;
+    border: 1px solid var(--linie-stark); border-bottom-width: 2px; border-radius: 4px;
+    padding: .05em .35em; background: var(--flaeche);
+  }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Antwortkarte</h1>
+
+  <div class="wz-karte">
+    <div class="ak-karte" id="ak-karte" data-zeigt="nein">
+      <canvas class="ak-brett" id="ak-brett" hidden></canvas>
+      <div class="ak-antwort" id="ak-antwort" hidden></div>
+      <div class="ak-warte" id="ak-warte">
+        <b>Noch verdeckt</b>
+        <span>Antwort unten eintragen, dann <strong>Zeigen</strong> – und hochhalten.</span>
+      </div>
+    </div>
+
+    <div class="wz-reihe wz-abstand" style="justify-content:center">
+      <button class="wz-knopf wz-knopf-haupt ak-gross" id="ak-zeigen" type="button">Zeigen</button>
+      <button class="wz-knopf ak-gross" id="ak-leeren" type="button">Neue Antwort</button>
+    </div>
+  </div>
+
+  <div class="wz-karte wz-abstand ak-nur-bearbeiten" id="ak-werkbank">
+    <div class="wz-reihe" style="justify-content:center">
+      <span class="ak-art" id="ak-art" role="group" aria-label="Art der Antwort">
+        <button type="button" data-art="text" aria-pressed="true">Tippen</button>
+        <button type="button" data-art="stift" aria-pressed="false">Schreiben</button>
+      </span>
+    </div>
+
+    <div id="ak-textbereich">
+      <label class="wz-label wz-abstand">
+        <span class="wz-nur-lesbar">Deine Antwort</span>
+        <input class="wz-feld ak-eingabe" id="ak-eingabe" type="text" inputmode="text"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               placeholder="deine Antwort">
+      </label>
+      <div class="ak-tasten wz-abstand" id="ak-tasten"></div>
+    </div>
+
+    <div id="ak-stiftbereich" hidden>
+      <p class="wz-hinweis" style="text-align:center">
+        Mit dem Stift oder dem Finger direkt in die Karte oben schreiben.
+      </p>
+      <div class="wz-reihe" style="justify-content:center">
+        <button class="wz-knopf" id="ak-zurueck" type="button">↶ Strich zurück</button>
+        <button class="wz-knopf wz-knopf-still" id="ak-brett-leeren" type="button">Karte wischen</button>
+      </div>
+    </div>
+
+    <p class="wz-hinweis wz-abstand">
+      Diese Karte ersetzt das Mini-Whiteboard: Alle antworten gleichzeitig, niemand meldet sich.
+      Solange <strong>Zeigen</strong> nicht gedrückt ist, sieht der Nachbar nichts.
+      <br><span style="color:var(--text-schwach)">Es wird nichts gespeichert und nichts gesendet –
+      kein Name, kein Konto, keine Übertragung. Die Karte funktioniert auch ohne Netz.</span>
+    </p>
+  </div>
+
+  <div class="wz-karte wz-abstand ak-nur-bearbeiten">
+    <h2>Für die Lehrkraft</h2>
+    <p style="font-size:.9rem;color:var(--text-leise);margin:.5rem 0 0">
+      Die Klasse öffnet <strong>mathematik-unterrichten.de/karte</strong> und hält auf Ihr Zeichen
+      hoch. Sie zählen die Reihen mit dem
+      <a href="whiteboard-check.html">Whiteboard-Check</a> durch
+      (<kbd>R</kbd> richtig, <kbd>H</kbd> halb, <kbd>F</kbd> falsch, <kbd>N</kbd> nichts) und sehen
+      Quote und Ampel sofort. Für Fragen mit festen Antwortmöglichkeiten nehmen Sie die
+      <a href="abstimmung.html">Abstimmung</a>.
+    </p>
+    <p style="font-size:.9rem;color:var(--text-leise);margin:.7rem 0 0">
+      Antworten wandern absichtlich nicht von den Geräten zu Ihrem Rechner: Dafür bräuchte es
+      einen Server, der Schülerantworten entgegennimmt. Den gibt es hier nicht – der Rückkanal
+      ist der Blick durch den Raum.
+    </p>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const SPEICHER_ART = 'wz-ak-art';
+  // Zeichen, die auf der iPad-Tastatur weit weg liegen, aber in fast jeder
+  // kurzen Mathe-Antwort vorkommen.
+  const TASTEN = ['/', '−', '²', '³', '√', 'π', '°', '≈', '≤', '≥', '≠', '·', ','];
+
+  const el = {};
+  ['karte', 'antwort', 'warte', 'brett', 'zeigen', 'leeren', 'eingabe', 'tasten',
+   'art', 'textbereich', 'stiftbereich', 'zurueck', 'brett-leeren'
+  ].forEach(function (id) { el[id] = document.getElementById('ak-' + id); });
+
+  let art = WZ.lies(SPEICHER_ART, 'text') === 'stift' ? 'stift' : 'text';
+  let zeigt = false;
+  let striche = [];        // [[{x,y},…], …] – in Anteilen der Kartengröße
+  let laufend = null;
+
+  // --- Anzeige -------------------------------------------------------------
+
+  /**
+   * Die Schrift so groß setzen, wie sie in die Karte passt. Gesucht wird die
+   * größte Größe, bei der nichts überläuft – zwölf Halbierungsschritte reichen
+   * für eine Genauigkeit unter einem Prozent.
+   */
+  function schriftEinpassen() {
+    const feld = el.antwort;
+    if (feld.hidden || !feld.textContent) return;
+    const breite = el.karte.clientWidth - 32;
+    const hoehe = el.karte.clientHeight - 32;
+    let klein = 12;
+    let gross = Math.max(24, hoehe);
+    for (let i = 0; i < 12; i++) {
+      const mitte = (klein + gross) / 2;
+      feld.style.fontSize = mitte + 'px';
+      if (feld.scrollWidth <= breite && feld.scrollHeight <= hoehe) klein = mitte;
+      else gross = mitte;
+    }
+    feld.style.fontSize = klein + 'px';
+  }
+
+  function anzeigeSetzen() {
+    const text = el.eingabe.value.trim();
+    const hatStift = striche.length > 0;
+    const hatInhalt = art === 'stift' ? hatStift : text.length > 0;
+
+    el.karte.setAttribute('data-zeigt', zeigt ? 'ja' : 'nein');
+    el.warte.hidden = zeigt;
+    el.antwort.hidden = !(zeigt && art === 'text');
+    el.brett.hidden = !(art === 'stift');
+    // Im Stiftmodus bleibt die Fläche zum Schreiben da, aber verdeckt gezeichnet.
+    el.brett.style.opacity = art === 'stift' && !zeigt ? '.18' : '1';
+
+    if (zeigt && art === 'text') {
+      el.antwort.textContent = text;
+      schriftEinpassen();
+    }
+
+    el.zeigen.textContent = zeigt ? 'Wieder verdecken' : 'Zeigen';
+    el.zeigen.disabled = !zeigt && !hatInhalt;
+    el.warte.querySelector('b').textContent = hatInhalt ? 'Noch verdeckt' : 'Noch keine Antwort';
+  }
+
+  el.zeigen.addEventListener('click', function () {
+    zeigt = !zeigt;
+    anzeigeSetzen();
+  });
+
+  el.leeren.addEventListener('click', function () {
+    el.eingabe.value = '';
+    striche = [];
+    zeigt = false;
+    brettZeichnen();
+    anzeigeSetzen();
+    if (art === 'text') el.eingabe.focus();
+  });
+
+  // Wer die Antwort ändert, verdeckt sie damit wieder: Sonst liest der Nachbar
+  // beim Überarbeiten mit, und die zweite Runde wäre verdorben.
+  el.eingabe.addEventListener('input', function () {
+    zeigt = false;
+    anzeigeSetzen();
+  });
+  el.eingabe.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); zeigt = true; anzeigeSetzen(); el.eingabe.blur(); }
+  });
+
+  // --- Zeichentasten -------------------------------------------------------
+
+  TASTEN.forEach(function (z) {
+    el.tasten.appendChild(WZ.el('button', {
+      class: 'ak-taste', type: 'button', text: z,
+      'aria-label': 'Zeichen ' + z + ' einfügen',
+      onClick: function () {
+        const feld = el.eingabe;
+        const start = feld.selectionStart === null ? feld.value.length : feld.selectionStart;
+        const ende = feld.selectionEnd === null ? feld.value.length : feld.selectionEnd;
+        feld.value = feld.value.slice(0, start) + z + feld.value.slice(ende);
+        feld.focus();
+        feld.setSelectionRange(start + z.length, start + z.length);
+        anzeigeSetzen();
+      }
+    }));
+  });
+
+  // --- Schreiben mit Stift oder Finger -------------------------------------
+
+  function brettGroesseSetzen() {
+    const dichte = window.devicePixelRatio || 1;
+    el.brett.width = Math.round(el.karte.clientWidth * dichte);
+    el.brett.height = Math.round(el.karte.clientHeight * dichte);
+    brettZeichnen();
+  }
+
+  function brettZeichnen() {
+    const ctx = el.brett.getContext('2d');
+    ctx.clearRect(0, 0, el.brett.width, el.brett.height);
+    ctx.strokeStyle = getComputedStyle(document.documentElement)
+      .getPropertyValue('--text').trim() || '#000';
+    ctx.lineWidth = Math.max(3, el.brett.width / 180);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    striche.forEach(function (strich) {
+      if (strich.length < 2) return;
+      ctx.beginPath();
+      // Die Punkte liegen in Anteilen vor, damit ein Drehen des iPads
+      // die Schrift nicht zerreißt.
+      ctx.moveTo(strich[0].x * el.brett.width, strich[0].y * el.brett.height);
+      strich.forEach(function (p) { ctx.lineTo(p.x * el.brett.width, p.y * el.brett.height); });
+      ctx.stroke();
+    });
+  }
+
+  function punktAus(e) {
+    const rahmen = el.brett.getBoundingClientRect();
+    return {
+      x: (e.clientX - rahmen.left) / rahmen.width,
+      y: (e.clientY - rahmen.top) / rahmen.height
+    };
+  }
+
+  el.brett.addEventListener('pointerdown', function (e) {
+    if (art !== 'stift') return;
+    e.preventDefault();
+    el.brett.setPointerCapture(e.pointerId);
+    laufend = [punktAus(e)];
+    striche.push(laufend);
+    zeigt = false;              // ein neuer Strich verdeckt wieder, wie beim Tippen
+    anzeigeSetzen();
+  });
+
+  el.brett.addEventListener('pointermove', function (e) {
+    if (!laufend) return;
+    e.preventDefault();
+    laufend.push(punktAus(e));
+    brettZeichnen();
+  });
+
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (name) {
+    el.brett.addEventListener(name, function () {
+      if (!laufend) return;
+      if (laufend.length < 2) striche.pop();   // ein bloßes Antippen ist kein Strich
+      laufend = null;
+      brettZeichnen();
+      anzeigeSetzen();
+    });
+  });
+
+  el.zurueck.addEventListener('click', function () {
+    striche.pop();
+    brettZeichnen();
+    anzeigeSetzen();
+  });
+
+  el['brett-leeren'].addEventListener('click', function () {
+    striche = [];
+    brettZeichnen();
+    anzeigeSetzen();
+  });
+
+  // --- Art umschalten ------------------------------------------------------
+
+  function artSetzen(neu) {
+    art = neu === 'stift' ? 'stift' : 'text';
+    WZ.schreib(SPEICHER_ART, art);
+    Array.prototype.forEach.call(el.art.querySelectorAll('button'), function (k) {
+      k.setAttribute('aria-pressed', k.dataset.art === art ? 'true' : 'false');
+    });
+    el.textbereich.hidden = art !== 'text';
+    el.stiftbereich.hidden = art !== 'stift';
+    zeigt = false;
+    brettGroesseSetzen();
+    anzeigeSetzen();
+  }
+
+  Array.prototype.forEach.call(el.art.querySelectorAll('button'), function (k) {
+    k.addEventListener('click', function () { artSetzen(k.dataset.art); });
+  });
+
+  window.addEventListener('resize', function () {
+    brettGroesseSetzen();
+    schriftEinpassen();
+  });
+
+  WZ.kopf({ titel: 'Antwortkarte' });
+  WZ.fuss(
+    'Die Antwort bleibt auf diesem Gerät. Nichts wird gespeichert, nichts gesendet.',
+    '<kbd>Enter</kbd> zeigt die Antwort · Vollbild über den Knopf oben'
+  );
+  artSetzen(art);
+})();
+</script>
+</body>
+</html>
