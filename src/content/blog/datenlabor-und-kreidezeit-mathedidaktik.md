@@ -31,11 +31,11 @@ Ein Kommentar von der Redaktion.
 
 ---
 
-### Der Blick in die Chefetage: Wie viel „Kreidezeit“ haben unsere Experten?
+## Der Blick in die Chefetage: Wie viel „Kreidezeit“ haben unsere Experten?
 
 Wenn Lehrkräfte an der Basis über realitätsferne Konzepte stöhnen, ernten sie oft den Vorwurf, sie seien lediglich „reformunwillig“. Doch die Skepsis hat einen tiefen, strukturellen Grund. Legt man ein strenges, aber faires Kriterium an – nämlich eine feste Anstellung im Schuldienst nach dem Referendariat mit einem substanziellen Deputat (mindestens 15 Stunden/Woche) –, zeigt sich bei der aktuellen Elite der deutschen Mathematikdidaktik ein erstaunliches Bild:
 
-#### Schulerfahrung im Vergleich: Die aktuelle „Elite“ vs. die Ahnherren
+### Schulerfahrung im Vergleich: Die aktuelle „Elite“ vs. die Ahnherren
 
 | Person | Funktion / Rolle | Schulerfahrung (>15h/Woche)* | Weg in die Wissenschaft |
 | :--- | :--- | :--- | :--- |
@@ -56,7 +56,7 @@ Das Ergebnis ist eindeutig: Während die „Ahnherren“ der Nachkriegszeit ihre
 
 ---
 
-### Der Systemfehler: Wie das deutsche Wissenschaftssystem Praktiker aussiebt
+## Der Systemfehler: Wie das deutsche Wissenschaftssystem Praktiker aussiebt
 
 Dass Spitzenforscher wie Susanne Prediger oder Stephan Hußmann keine Schulerfahrung vorweisen, ist kein persönliches Versagen. Es ist das Resultat eines strukturellen Fehlers im deutschen Hochschulsystem:
 
@@ -66,7 +66,7 @@ Dass Spitzenforscher wie Susanne Prediger oder Stephan Hußmann keine Schulerfah
 
 ---
 
-### Wo sich die Praxisferne im Alltag rächt
+## Wo sich die Praxisferne im Alltag rächt
 
 Die mangelnde „Kreidezeit“ der Entwickler führt dazu, dass Materialien für ein ideales Klassenzimmer konstruiert werden, das es an der Basis kaum noch gibt. Die fünf didaktischen Kernprinzipien von QuaMath reiben sich täglich schmerzhaft an der Realität:
 
@@ -77,7 +77,7 @@ Die mangelnde „Kreidezeit“ der Entwickler führt dazu, dass Materialien für
 
 ---
 
-### Der internationale Blick: Wie es die PISA-Spitzenreiter machen
+## Der internationale Blick: Wie es die PISA-Spitzenreiter machen
 
 Dass es auch anders geht, zeigen die Länder, die bei PISA regelmäßig die vorderen Plätze belegen. Dort ist die Trennung zwischen „Theorie“ und „Praxis“ organisatorisch aufgehoben:
 
@@ -87,7 +87,7 @@ Dass es auch anders geht, zeigen die Länder, die bei PISA regelmäßig die vord
 
 ---
 
-### Fazit: Wir brauchen den Mut zur Praxis
+## Fazit: Wir brauchen den Mut zur Praxis
 
 Die moderne Bildungsforschung legitimiert sich über Empirie und riesige Datenmengen. Das ist wertvoll. Aber Daten ersetzen kein Gespür für die Dynamik eines unruhigen Klassenzimmers am Freitagnachmittag in der 6. Stunde.
 

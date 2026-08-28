@@ -15,7 +15,7 @@ Am 20. August 2026 hat die niedersächsische Kultusministerin den üblichen Brie
 
 ---
 
-### Die Zählung
+## Die Zählung
 
 | Wort | Treffer |
 | :--- | ---: |
@@ -33,7 +33,7 @@ In einem Brief an die Lehrkräfte eines ganzen Bundeslandes, über die Arbeit an
 
 ---
 
-### Was stattdessen drinsteht
+## Was stattdessen drinsteht
 
 Es ist nicht so, dass der Brief nichts ankündigte. Er kündigt eine Menge an:
 
@@ -53,7 +53,7 @@ Nur: Jeder einzelne Punkt dieser Liste bedeutet an den Schulen zusätzliche Arbe
 
 ---
 
-### Belastung kommt vor. Als Kompliment.
+## Belastung kommt vor. Als Kompliment.
 
 Ganz fehlt das Thema nämlich nicht. Es kommt nur in einer bestimmten grammatischen Form vor. Die Umsetzung des Ganztags heißt „eine echte Mammutaufgabe“. Die Stellenschaffung war eine „Kraftanstrengung“. Es werde „sicher an einigen Stellen ruckeln“. Und viermal steht das Wort Dank.
 
@@ -61,7 +61,7 @@ Das ist alles nicht unaufrichtig. Es ist nur bemerkenswert, dass die Anstrengung
 
 ---
 
-### Warum das kein Versehen ist
+## Warum das kein Versehen ist
 
 Bildungspolitik wird in Ankündigungen gehandelt, und Ankündigungen brauchen etwas Neues. Eine Entlastung ist aber definitionsgemäß nichts Neues, sondern das Wegfallen von etwas Altem. Sie lässt sich schlecht ankündigen, weil man dabei zugeben müsste, dass das Weggefallene vorher nötig schien. Sie hat keinen Termin, kein Band zum Durchschneiden und kein Foto.
 
@@ -75,7 +75,7 @@ Eine monoton wachsende Funktion auf einem beschränkten Definitionsbereich — d
 
 ---
 
-### Was ich mir gewünscht hätte
+## Was ich mir gewünscht hätte
 
 Keine Beschwerde, sondern eine Zahl. Man könnte jede angekündigte Maßnahme mit einer Angabe versehen, wie viele Arbeitsstunden sie eine Lehrkraft im Jahr kostet: bei der Ganztagsumsetzung, beim Bildungsverlaufsregister, bei der Geräteausstattung. Diese Schätzung wäre grob, sie wäre umstritten, und sie wäre trotzdem unendlich viel besser als die gegenwärtige Angabe, die lautet: keine.
 

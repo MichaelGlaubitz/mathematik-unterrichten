@@ -203,6 +203,12 @@
         <p style="font-size:.8rem;color:var(--text-schwach);margin:.7rem 0 0">
           Die richtige Antwort steuert nur die Auswertung und wird erst beim Aufdecken sichtbar.
         </p>
+        <button class="wz-knopf wz-abstand" id="ab-beispiel" type="button">Beispielfrage laden</button>
+        <p style="font-size:.8rem;color:var(--text-schwach);margin:.5rem 0 0">
+          Zum Ausprobieren – oder als Muster dafür, wie brauchbare Distraktoren aussehen.
+          Fertige Fragensätze stehen bei jedem
+          <a href="/quizzes">diagnostischen Quiz</a> bereit.
+        </p>
       </div>
 
       <div class="wz-karte">
@@ -696,6 +702,24 @@
   document.getElementById('ab-zurueck-frage').addEventListener('click', function () { frageWechseln(-1); });
   document.getElementById('ab-naechste-frage').addEventListener('click', function () { frageWechseln(1); });
   document.getElementById('ab-satz-verlassen').addEventListener('click', satzVerlassen);
+
+  // Eine echte diagnostische Frage: Jeder Distraktor steht für einen Denkweg.
+  // 2/7 addiert Zähler und Nenner, 2/12 addiert nur die Zähler nach dem
+  // Gleichnamigmachen, 1/12 verwechselt Addition mit Multiplikation.
+  document.getElementById('ab-beispiel').addEventListener('click', function () {
+    zustand.frage = 'Was ist 1/3 + 1/4?';
+    zustand.optionen = ['2/7', '7/12', '2/12', '1/12'];
+    zustand.anzahlOptionen = 4;
+    zustand.richtig = 1;
+    zustand.folge = [];
+    zustand.aufgedeckt = false;
+    document.getElementById('ab-eingabe').value = zustand.frage;
+    document.getElementById('ab-frage').textContent = zustand.frage;
+    document.getElementById('ab-anzahl-optionen').value = '4';
+    richtigAuswahlBauen();
+    speichern();
+    rasterZeichnen();
+  });
 
   document.getElementById('ab-aufdecken').addEventListener('click', aufdeckenUmschalten);
   document.getElementById('ab-zurueck').addEventListener('click', letzteZurueck);
