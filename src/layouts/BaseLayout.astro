@@ -13,6 +13,14 @@ export interface Props {
    * Optional: andere Quelle als die Page-Datei (z. B. `src/content/blog/…md` statt `[slug].astro`).
    */
   githubEditPath?: string;
+  /** `article` erzeugt zusätzlich ein Article-JSON-LD (Blog, Aufgaben). */
+  seitentyp?: 'website' | 'article';
+  /** Veröffentlichungsdatum für Article-JSON-LD. */
+  datum?: Date;
+  /** Datum der letzten Änderung für Article-JSON-LD. */
+  aktualisiert?: Date;
+  /** Zusätzliche Schlagwörter für Article-JSON-LD. */
+  schlagwoerter?: string[];
 }
 
 const {
@@ -21,6 +29,10 @@ const {
   ogBild = '/og-default.png',
   sourceFile,
   githubEditPath: githubEditPathProp,
+  seitentyp = 'website',
+  datum,
+  aktualisiert,
+  schlagwoerter = [],
 } = Astro.props;
 
 const explicitPath = githubEditPathProp?.trim();
@@ -28,6 +40,67 @@ const githubEditPath = explicitPath || sourceFile?.trim();
 
 const seitentitel = title === 'mathematik-unterrichten' ? title : `${title} – mathematik-unterrichten`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// --- Strukturierte Daten (JSON-LD) ---------------------------------------
+// Eine Person, eine Website, optional ein Artikel. Google versteht daraus,
+// wer hier schreibt (E-E-A-T) und wie die interne Suche funktioniert.
+const autorLD = {
+  '@type': 'Person',
+  '@id': 'https://mathematik-unterrichten.de/#person',
+  name: 'Dr. Michael Glaubitz',
+  jobTitle: 'Studiendirektor, Mathematik- und Physikdidaktiker',
+  url: 'https://mathematik-unterrichten.de/ueber',
+  image: 'https://mathematik-unterrichten.de/michael-glaubitz.jpg',
+  knowsAbout: [
+    'Mathematikdidaktik',
+    'Diagnostische Fragen',
+    'Formatives Assessment',
+    'Variation Theory',
+    'Lehrerausbildung',
+  ],
+};
+
+const websiteLD = {
+  '@type': 'WebSite',
+  '@id': 'https://mathematik-unterrichten.de/#website',
+  url: 'https://mathematik-unterrichten.de/',
+  name: 'mathematik-unterrichten.de',
+  inLanguage: 'de-DE',
+  description:
+    'Fachdidaktisches Portal für Mathematiklehrkräfte im deutschsprachigen Raum: Diagnose, Aufgabenkultur, Methoden und sofort einsetzbare Unterrichtswerkzeuge.',
+  publisher: { '@id': 'https://mathematik-unterrichten.de/#person' },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://mathematik-unterrichten.de/suche?q={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const artikelLD =
+  seitentyp === 'article'
+    ? {
+        '@type': 'Article',
+        headline: title,
+        description: beschreibung,
+        image: new URL(ogBild, Astro.site).toString(),
+        author: { '@id': 'https://mathematik-unterrichten.de/#person' },
+        publisher: { '@id': 'https://mathematik-unterrichten.de/#person' },
+        isPartOf: { '@id': 'https://mathematik-unterrichten.de/#website' },
+        mainEntityOfPage: canonicalURL.toString(),
+        inLanguage: 'de-DE',
+        ...(datum ? { datePublished: datum.toISOString().slice(0, 10) } : {}),
+        ...(aktualisiert ? { dateModified: aktualisiert.toISOString().slice(0, 10) } : {}),
+        ...(schlagwoerter.length > 0 ? { keywords: schlagwoerter.join(', ') } : {}),
+      }
+    : null;
+
+const strukturierteDaten = {
+  '@context': 'https://schema.org',
+  '@graph': [autorLD, websiteLD, ...(artikelLD ? [artikelLD] : [])],
+};
 /** Öffentliches Repo für „Auf GitHub bearbeiten“ (Strg+Shift+E). Forks: `PUBLIC_GITHUB_REPO` setzen. */
 const githubRepo =
   (import.meta.env.PUBLIC_GITHUB_REPO as string | undefined)?.trim() ||
@@ -69,7 +142,8 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
     <meta name="description" content={beschreibung} />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={seitentyp} />
+    <meta property="og:site_name" content="mathematik-unterrichten.de" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={seitentitel} />
     <meta property="og:description" content={beschreibung} />
@@ -80,6 +154,12 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={seitentitel} />
     <meta name="twitter:description" content={beschreibung} />
+    <meta name="twitter:image" content={new URL(ogBild, Astro.site)} />
+    <meta name="author" content="Dr. Michael Glaubitz" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="alternate" type="application/rss+xml" title="mathematik-unterrichten.de – Blog" href="/rss.xml" />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(strukturierteDaten)} />
 
     {githubEditPath && githubEditPath.length > 0 && (
       <meta name="mu-github-source-path" content={githubEditPath} />

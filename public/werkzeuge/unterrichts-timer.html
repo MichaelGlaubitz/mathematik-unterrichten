@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unterrichts-Timer · mathematik-unterrichten.de</title>
+<meta name="description" content="Sichtbarer Phasen-Timer für den Beamer: Denkzeit, Partnerphase, Sicherung. Mit Vorlagen für Think-Pair-Share und die KLAR-Stunde. Läuft offline im Browser.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .tm-buehne { position: relative; padding: 2rem 1.5rem 2.5rem; }
+  .tm-phasenname {
+    font-family: var(--schrift-serif);
+    font-size: clamp(1.4rem, 4vw, 2.6rem);
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .1em;
+  }
+  .tm-hinweis { color: var(--text-leise); font-size: clamp(.9rem, 1.6vw, 1.15rem); margin-bottom: 1rem; min-height: 1.5em; }
+  .tm-ring { display: block; width: min(58vh, 100%, 520px); height: auto; margin: 0 auto; }
+  .tm-zeit {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    font-family: var(--schrift-serif);
+    font-weight: 600;
+    fill: var(--text);
+  }
+  .tm-teil { fill: var(--text-schwach); font-size: 13px; font-family: var(--schrift); }
+  .tm-spur { stroke: var(--linie); }
+  .tm-bogen { transition: stroke-dashoffset 240ms linear, stroke 240ms ease; }
+  .tm-abgelaufen .tm-phasenname { color: var(--rot); }
+
+  .tm-kette { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-top: 1.2rem; }
+  .tm-glied {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .3rem .7rem; border-radius: 999px;
+    border: 1px solid var(--linie); background: var(--flaeche-2);
+    font-size: .85rem; color: var(--text-leise); cursor: pointer;
+  }
+  .tm-glied[aria-current="step"] { border-color: var(--akzent); background: var(--akzent-hell); color: var(--akzent-tief); font-weight: 600; }
+  html[data-thema="dunkel"] .tm-glied[aria-current="step"] { color: var(--text); }
+  .tm-glied.tm-fertig { opacity: .5; text-decoration: line-through; }
+  .tm-punkt { width: .6rem; height: .6rem; border-radius: 50%; flex: none; }
+
+  /* minmax(0,…) und min-width:0 sind hier nötig: Eingabefelder bringen eine
+     eigene Mindestbreite mit, an der eine reine 1fr-Spalte nicht vorbeikommt –
+     auf dem Handy schob die Zeile die ganze Seite nach rechts. */
+  .tm-editor-zeile { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) 4.5rem 2.4rem; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+  .tm-editor-zeile > * { min-width: 0; }
+  .tm-griff { color: var(--text-schwach); font-size: .85rem; text-align: center; cursor: grab; }
+  .tm-vorlagen { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+  @media (min-width: 900px) { .tm-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Unterrichts-Timer</h1>
+
+  <div class="tm-layout">
+    <section>
+      <div class="wz-buehne tm-buehne" id="tm-buehne">
+        <p class="tm-phasenname" id="tm-name">Bereit</p>
+        <p class="tm-hinweis" id="tm-hinweis">Vorlage wählen oder Phasen anlegen – dann <kbd>Leertaste</kbd>.</p>
+
+        <svg class="tm-ring" viewBox="0 0 240 240" role="img" aria-labelledby="tm-svg-titel">
+          <title id="tm-svg-titel">Verbleibende Zeit der aktuellen Phase</title>
+          <circle class="tm-spur" cx="120" cy="120" r="104" fill="none" stroke-width="12"></circle>
+          <circle id="tm-bogen" class="tm-bogen" cx="120" cy="120" r="104" fill="none" stroke-width="12"
+                  stroke-linecap="round" transform="rotate(-90 120 120)"
+                  stroke-dasharray="653.45" stroke-dashoffset="0"></circle>
+          <text id="tm-zeit" class="tm-zeit" x="120" y="122" text-anchor="middle" dominant-baseline="middle" font-size="54">0:00</text>
+          <text id="tm-teil" class="tm-teil" x="120" y="158" text-anchor="middle">Phase – von –</text>
+        </svg>
+
+        <div class="wz-reihe wz-abstand wz-nicht-drucken" style="justify-content:center">
+          <button class="wz-knopf wz-knopf-haupt wz-knopf-gross" id="tm-start" type="button">▶ Start</button>
+          <button class="wz-knopf wz-knopf-gross" id="tm-weiter" type="button">Nächste Phase ⏭</button>
+          <button class="wz-knopf" id="tm-zurueck" type="button" title="Alles auf Anfang">↺ Zurücksetzen</button>
+        </div>
+
+        <div class="tm-kette" id="tm-kette"></div>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        Die Klasse sieht, wie viel Zeit noch bleibt – das beendet die meisten Zwischenrufe von allein.
+        Ein Gong markiert jeden Phasenwechsel. <kbd>Leertaste</kbd> startet und pausiert,
+        <kbd>N</kbd> springt zur nächsten Phase, <kbd>B</kbd> schaltet den Beamer-Modus groß.
+      </p>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Vorlagen</h2>
+        <p style="font-size:.88rem;color:var(--text-leise);margin:.3rem 0 .8rem">Ein Klick ersetzt die Phasenkette.</p>
+        <div class="tm-vorlagen" id="tm-vorlagen"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Phasen</h2>
+        <div id="tm-editor" style="margin-top:.7rem"></div>
+        <div class="wz-reihe">
+          <button class="wz-knopf" id="tm-neu" type="button">+ Phase</button>
+          <label class="wz-label wz-label-quer" style="margin-left:auto">
+            <input type="checkbox" id="tm-ton" checked> Gong
+          </label>
+        </div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Danach</h2>
+        <label class="wz-label wz-label-quer" style="margin-top:.5rem">
+          <input type="checkbox" id="tm-auto" checked> Phasen automatisch verketten
+        </label>
+        <p class="wz-hinweis" style="margin-top:.8rem">
+          <strong>Aus</strong> heißt: Nach jeder Phase hält der Timer an, bis Sie weiterklicken –
+          nützlich, wenn die Klasse noch mitten im Gespräch ist.
+        </p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const SPEICHER = 'wz-timer-phasen';
+  const FARBEN = ['#2563eb', '#0d9488', '#7c3aed', '#b45309', '#be123c', '#15803d'];
+
+  const VORLAGEN = {
+    'Think–Pair–Share': [
+      { name: 'Allein denken', sek: 90, hinweis: 'Still. Jede und jeder für sich – noch nichts sagen.' },
+      { name: 'Zu zweit', sek: 180, hinweis: 'Vergleicht eure Wege. Wo unterscheidet ihr euch?' },
+      { name: 'Im Plenum', sek: 300, hinweis: 'Wir sammeln die Wege und ordnen sie.' }
+    ],
+    'KLAR-Stunde (45 min)': [
+      { name: 'K – Klären', sek: 480, hinweis: 'Quiz zum Vorwissen, Stolpersteine benennen.' },
+      { name: 'L – Lösen lassen', sek: 900, hinweis: 'Eigenständige Schülerphase. Ich gehe herum und beobachte.' },
+      { name: 'A – Abgleichen', sek: 900, hinweis: 'Ausgewählte Lösungen in bewusster Reihenfolge.' },
+      { name: 'R – Rückkoppeln', sek: 420, hinweis: 'Sicherung an der Tafel, dann Exit-Check.' }
+    ],
+    'Stille Übung': [
+      { name: 'Stillarbeit', sek: 900, hinweis: 'Jede und jeder arbeitet allein. Fragen per Handzeichen.' },
+      { name: 'Vergleichen', sek: 300, hinweis: 'Mit der Sitznachbarin vergleichen, Unterschiede markieren.' }
+    ],
+    'Einstein-Zeit': [
+      { name: 'Auftrag lesen', sek: 120, hinweis: 'Was ist die Aufgabe? Was ist das Produkt?' },
+      { name: 'Arbeitsphase', sek: 1800, hinweis: 'Eigenverantwortlich. Ich bin ansprechbar.' },
+      { name: 'Zwischenstand', sek: 300, hinweis: 'Wo stehst du? Was fehlt bis zum Ende?' }
+    ],
+    'Whiteboard-Runde': [
+      { name: 'Aufgabe 1', sek: 45, hinweis: 'Rechnen, dann Whiteboard hoch auf mein Zeichen.' },
+      { name: 'Aufgabe 2', sek: 45, hinweis: '' },
+      { name: 'Aufgabe 3', sek: 60, hinweis: '' }
+    ],
+    'Kurze Pause': [
+      { name: 'Pause', sek: 300, hinweis: 'Wir machen um Punkt weiter.' }
+    ]
+  };
+
+  let phasen = WZ.lies(SPEICHER, null) || VORLAGEN['Think–Pair–Share'].map(function (p) { return Object.assign({}, p); });
+  let index = 0;
+  let restMs = 0;
+  let laeuft = false;
+  let zeitgeber = null;
+  let letzterTick = 0;
+
+  const el = {
+    name: document.getElementById('tm-name'),
+    hinweis: document.getElementById('tm-hinweis'),
+    zeit: document.getElementById('tm-zeit'),
+    teil: document.getElementById('tm-teil'),
+    bogen: document.getElementById('tm-bogen'),
+    buehne: document.getElementById('tm-buehne'),
+    kette: document.getElementById('tm-kette'),
+    editor: document.getElementById('tm-editor'),
+    vorlagen: document.getElementById('tm-vorlagen'),
+    start: document.getElementById('tm-start'),
+    weiter: document.getElementById('tm-weiter'),
+    zurueck: document.getElementById('tm-zurueck'),
+    ton: document.getElementById('tm-ton'),
+    auto: document.getElementById('tm-auto'),
+    neu: document.getElementById('tm-neu')
+  };
+
+  const UMFANG = 2 * Math.PI * 104;
+
+  function farbe(i) { return FARBEN[i % FARBEN.length]; }
+
+  function aktuell() { return phasen[index] || null; }
+
+  function sichern() { WZ.schreib(SPEICHER, phasen); }
+
+  function phaseLaden(i) {
+    index = Math.max(0, Math.min(i, phasen.length - 1));
+    const p = aktuell();
+    restMs = p ? p.sek * 1000 : 0;
+    zeichnen();
+  }
+
+  function zeichnen() {
+    const p = aktuell();
+    const gesamt = p ? p.sek * 1000 : 1;
+    const anteil = p ? Math.max(0, Math.min(1, restMs / gesamt)) : 0;
+
+    el.name.textContent = p ? p.name : 'Fertig';
+    el.hinweis.textContent = p ? (p.hinweis || '') : 'Alle Phasen sind durch.';
+    el.zeit.textContent = WZ.uhrzeit(restMs / 1000);
+    el.teil.textContent = p ? 'Phase ' + (index + 1) + ' von ' + phasen.length : '';
+    el.bogen.setAttribute('stroke', p ? farbe(index) : 'var(--linie)');
+    el.bogen.setAttribute('stroke-dashoffset', String(UMFANG * (1 - anteil)));
+    el.buehne.classList.toggle('tm-abgelaufen', !!p && restMs <= 0);
+    el.start.textContent = laeuft ? '⏸ Pause' : '▶ Start';
+    el.start.setAttribute('aria-pressed', laeuft ? 'true' : 'false');
+
+    // Zeitgröße an die Ziffernzahl anpassen, damit 12:00 nicht überläuft
+    el.zeit.setAttribute('font-size', el.zeit.textContent.length > 4 ? '46' : '54');
+
+    ketteZeichnen();
+  }
+
+  function ketteZeichnen() {
+    el.kette.textContent = '';
+    phasen.forEach(function (p, i) {
+      const glied = WZ.el('button', {
+        class: 'tm-glied' + (i < index ? ' tm-fertig' : ''),
+        type: 'button',
+        title: 'Zu „' + p.name + '“ springen',
+        'aria-current': i === index ? 'step' : null,
+        onclick: function () { anhalten(); phaseLaden(i); }
+      }, [
+        WZ.el('span', { class: 'tm-punkt', style: 'background:' + farbe(i) }),
+        p.name + ' · ' + WZ.uhrzeit(p.sek)
+      ]);
+      el.kette.appendChild(glied);
+    });
+  }
+
+  function tick() {
+    const jetzt = performance.now();
+    const delta = jetzt - letzterTick;
+    letzterTick = jetzt;
+    restMs -= delta;
+
+    if (restMs <= 0) {
+      restMs = 0;
+      zeichnen();
+      if (el.ton.checked) WZ.gong();
+      if (el.auto.checked && index < phasen.length - 1) {
+        phaseLaden(index + 1);
+      } else {
+        anhalten();
+      }
+      return;
+    }
+    zeichnen();
+  }
+
+  function starten() {
+    if (!aktuell()) return;
+    if (restMs <= 0) restMs = aktuell().sek * 1000;
+    laeuft = true;
+    letzterTick = performance.now();
+    zeitgeber = setInterval(tick, 200);
+    // Ton-Kontext braucht eine Nutzeraktion, sonst bleibt der Gong stumm
+    if (el.ton.checked) WZ.ton(1, 1, 0.0001);
+    zeichnen();
+  }
+
+  function anhalten() {
+    laeuft = false;
+    if (zeitgeber) clearInterval(zeitgeber);
+    zeitgeber = null;
+    zeichnen();
+  }
+
+  function umschalten() { laeuft ? anhalten() : starten(); }
+
+  // --- Editor --------------------------------------------------------------
+
+  function editorZeichnen() {
+    el.editor.textContent = '';
+    phasen.forEach(function (p, i) {
+      const zeile = WZ.el('div', { class: 'tm-editor-zeile' }, [
+        WZ.el('span', { class: 'tm-punkt', style: 'background:' + farbe(i) + ';justify-self:center' }),
+        WZ.el('input', {
+          class: 'wz-feld', type: 'text', value: p.name, 'aria-label': 'Name der Phase ' + (i + 1),
+          oninput: function (e) { p.name = e.target.value; sichern(); zeichnen(); }
+        }),
+        WZ.el('input', {
+          class: 'wz-feld wz-zahl', type: 'number', min: '5', max: '5400', step: '5', value: String(p.sek),
+          'aria-label': 'Dauer der Phase ' + (i + 1) + ' in Sekunden',
+          oninput: function (e) {
+            const v = parseInt(e.target.value, 10);
+            p.sek = isFinite(v) && v > 0 ? v : 60;
+            sichern();
+            if (i === index && !laeuft) restMs = p.sek * 1000;
+            zeichnen();
+          }
+        }),
+        WZ.el('button', {
+          class: 'wz-knopf wz-icon-knopf', type: 'button', title: 'Phase entfernen',
+          onclick: function () {
+            if (phasen.length <= 1) return;
+            phasen.splice(i, 1);
+            if (index >= phasen.length) index = phasen.length - 1;
+            sichern();
+            anhalten();
+            phaseLaden(index);
+            editorZeichnen();
+          }
+        }, ['✕'])
+      ]);
+      el.editor.appendChild(zeile);
+    });
+
+    const hinweisZeile = WZ.el('label', { class: 'wz-label', style: 'margin-top:.6rem' }, [
+      WZ.el('span', { text: 'Hinweistext der aktuellen Phase' }),
+      WZ.el('input', {
+        class: 'wz-feld', type: 'text', value: (aktuell() && aktuell().hinweis) || '',
+        placeholder: 'z. B. „Still. Noch nichts sagen.“',
+        oninput: function (e) { if (aktuell()) { aktuell().hinweis = e.target.value; sichern(); zeichnen(); } }
+      })
+    ]);
+    el.editor.appendChild(hinweisZeile);
+  }
+
+  function vorlagenZeichnen() {
+    Object.keys(VORLAGEN).forEach(function (name) {
+      el.vorlagen.appendChild(WZ.el('button', {
+        class: 'wz-knopf', type: 'button',
+        onclick: function () {
+          phasen = VORLAGEN[name].map(function (p) { return Object.assign({}, p); });
+          sichern();
+          anhalten();
+          phaseLaden(0);
+          editorZeichnen();
+        }
+      }, [name]));
+    });
+  }
+
+  // --- Verdrahtung ---------------------------------------------------------
+
+  el.start.addEventListener('click', umschalten);
+  el.weiter.addEventListener('click', function () {
+    if (index < phasen.length - 1) {
+      const liefVorher = laeuft;
+      anhalten();
+      phaseLaden(index + 1);
+      if (liefVorher) starten();
+    } else {
+      anhalten();
+      restMs = 0;
+      zeichnen();
+    }
+  });
+  el.zurueck.addEventListener('click', function () { anhalten(); phaseLaden(0); });
+  el.neu.addEventListener('click', function () {
+    phasen.push({ name: 'Neue Phase', sek: 300, hinweis: '' });
+    sichern();
+    editorZeichnen();
+    zeichnen();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    const z = e.target;
+    if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA' || z.isContentEditable)) return;
+    if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); umschalten(); }
+    else if (e.key === 'n' || e.key === 'N') { el.weiter.click(); }
+    else if (e.key === 'r' || e.key === 'R') { el.zurueck.click(); }
+  });
+
+  WZ.kopf({ titel: 'Unterrichts-Timer' });
+  WZ.fuss('Phasen bleiben in diesem Browser gespeichert. Es werden keine Daten übertragen.');
+  vorlagenZeichnen();
+  editorZeichnen();
+  phaseLaden(0);
+})();
+</script>
+</body>
+</html>

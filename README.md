@@ -4,11 +4,47 @@ Statisch generierte Mathe-Didaktik-Seite für Lehrkräfte – inspiriert von [mr
 
 ## Was die Seite kann
 
+### Inhalte (Content-Collections)
+
 | Bereich | Inhaltstyp | Pfad |
 |---|---|---|
 | **Blog** | Markdown (.md/.mdx) – didaktische Artikel | `src/content/blog/` |
-| **Aufgabensammlung** | Markdown – Aufgaben mit Lösungen + Kommentar | `src/content/aufgaben/` |
-| **Diagnostische Fragen** | JSON – interaktive MC-Quizzes | `src/content/quizzes/` |
+| **Aufgabensammlung** | Markdown – Aufgabenfolgen mit Lösungen + Kommentar | `src/content/aufgaben/` |
+| **Diagnostische Fragen** | JSON – interaktive MC-Quizzes (genau 6 Fragen) | `src/content/quizzes/` |
+| **Themen** | JSON – Einordnung, Fehlvorstellungen, Whiteboard-Aufgaben | `src/content/themen/` |
+| **Stundenverläufe** | Markdown mit strukturiertem Frontmatter – fertige Stunden nach KLAR | `src/content/stunden/` |
+
+### Redaktionell gepflegte Datenmodule
+
+Diese Bereiche werden nicht über Content-Collections, sondern über typisierte
+TypeScript-Module gepflegt. Sie sind jeweils die einzige Quelle der Wahrheit –
+Seiten, Suchindex und Sitemap lesen alle dort.
+
+| Bereich | Modul | Seite |
+|---|---|---|
+| **Werkzeugkasten** | `src/lib/werkzeuge.ts` | `/werkzeuge` |
+| **Methodenkoffer** | `src/lib/methoden.ts` | `/methoden` |
+| **Gegenmittel zu Fehlvorstellungen** | `src/lib/gegenmittel.ts` | `/fehlvorstellungen` |
+| **KI-Prompts** | `src/lib/kiPrompts.ts` | `/ki` |
+| **Suchindex** | `src/lib/suchindex.ts` | `/suche`, `/suchindex.json` |
+
+### Eigenständige Werkzeuge
+
+Unter `public/werkzeuge/` liegt je Werkzeug **eine** HTML-Datei. Sie sind
+absichtlich ohne Framework, ohne CDN und ohne Server gebaut, damit sie am
+Beamer auch ohne Netz laufen. Gemeinsame Grundlage sind `werkzeug.css`
+(Design-Tokens, Beamer-Modus, Druckansicht) und `werkzeug.js` (Kopfleiste,
+Hell/Dunkel, Vollbild, `localStorage`, Zufall, Ton).
+
+Ein neues Werkzeug anlegen:
+
+1. `public/werkzeuge/<slug>.html` nach dem Muster der vorhandenen Dateien
+   (Kopf mit `werkzeug.css`/`werkzeug.js`, `WZ.kopf({titel})`, `WZ.fuss()`).
+2. Eintrag in `src/lib/werkzeuge.ts` ergänzen – damit erscheint es automatisch
+   auf `/werkzeuge`, im Suchindex und in der Sitemap.
+3. Konventionen einhalten: beschriftete Achsen mit Skalenticks und
+   Pfeilspitzen, maßstabsgetreue Bilder, Beamer-Modus lesbar, keine
+   Datenübertragung. Siehe `AGENTS.md`.
 
 ## Voraussetzungen
 
@@ -79,6 +115,63 @@ datum: 2026-05-10
 
 …
 ```
+
+### Stundenverlauf anlegen
+
+Lege eine `.md`-Datei unter `src/content/stunden/` an. Das Frontmatter trägt die
+Struktur, der Fließtext darunter Tafelbild und didaktischen Kommentar.
+
+```yaml
+---
+titel: "Bruchaddition: Warum 1/2 + 1/3 nicht 2/5 ist"
+thema: "Bruchrechnung"        # muss exakt dem `thema` in src/content/themen/ entsprechen
+klassenstufe: ["6"]
+dauer: 90                      # nur 45 oder 90
+stundenziel: "Ein Satz: Was können die Lernenden danach, was vorher nicht?"
+kurz: "Teaser für die Übersicht."
+voraussetzungen: ["…"]
+material: ["…"]
+einstiegsfrage:
+  frage: "Was ist 1/2 + 1/3?"
+  antworten:                   # zwei bis fünf; zu jeder eine Deutung
+    - text: "5/6"
+      korrekt: true
+      deutung: "Was denkt jemand, der das ankreuzt?"
+  quiz: "bruchaddition-typische-fehler"   # optional, Slug eines Quiz
+phasen:                        # mindestens vier; Minute ist die Startminute
+  - schritt: "K"               # K | L | A | R
+    minute: 0
+    dauer: 10
+    titel: "…"
+    ablauf: "Was in der Klasse passiert."
+    lehrkraft: "Was die Lehrkraft tut – und was nicht."
+    werkzeug: { text: "Whiteboard-Check", href: "/werkzeuge/whiteboard-check.html" }
+weichen:                       # was tun, wenn die Diagnose anders ausfällt
+  - wenn: "Über 80 % antworten richtig."
+    dann: "…"
+exitTicket: ["…", "…"]         # zwei oder drei Fragen
+differenzierung: { schneller: "…", langsamer: "…" }
+stolpersteine:
+  - fehlvorstellung: "…"
+    reaktion: "…"
+hausaufgabe: "…"               # optional
+tags: ["…"]
+datum: 2026-08-28
+---
+```
+
+Drei Regeln, die den Bereich zusammenhalten:
+
+1. **Die Phasen müssen lückenlos aneinander anschließen**, und die Summe der
+   Dauern muss `dauer` ergeben. Die Detailseite rechnet die Uhrzeiten daraus.
+2. **`thema` ist der Join-Schlüssel.** Stimmt er, erscheint der Verlauf
+   automatisch auf `/themen` unter der Themeneinführung.
+3. **Ohne `weichen` kein Stundenverlauf.** Eine diagnostische Einstiegsfrage,
+   die den Plan nicht ändern darf, ist Zierde. Mindestens die Fälle „läuft
+   besser als gedacht“ und „läuft schlechter als gedacht“ gehören hin.
+
+Hub-Seite und Detailseite (`src/pages/stunden/`) lesen alles aus dem
+Frontmatter; Suchindex und Sitemap ziehen den Eintrag automatisch nach.
 
 ### Diagnostische Fragen anlegen (Quiz-JSON)
 
@@ -153,6 +246,20 @@ $$\int_0^1 x^2\,dx = \tfrac{1}{3}$$
 
 Damit Astro die Formeln auch wirklich rendert, installiere zusätzlich `remark-math` und `rehype-katex` (siehe [Astro-Doku zu KaTeX](https://docs.astro.build/en/guides/markdown-content/#math)) und ergänze das in `astro.config.mjs`.
 
+## Suche und Sitemap
+
+Beides wird beim Build erzeugt und braucht keinen Dienst von außen:
+
+- `src/pages/suchindex.json.ts` schreibt den Volltextindex über alle Inhalte
+  nach `/suchindex.json`; `/suche` lädt ihn und sucht im Browser.
+- `src/pages/sitemap.xml.ts` erzeugt `/sitemap.xml` mit echten `lastmod`-Daten
+  aus den Content-Collections. `@astrojs/sitemap` wird bewusst **nicht**
+  verwendet: Ab Version 3.7 setzt es Astro 5 voraus, dieses Projekt läuft auf
+  Astro 4.
+
+Das OG-Standardbild `public/og-default.png` wird von `scripts/og-bild.py`
+erzeugt (`python3 scripts/og-bild.py`, benötigt Pillow).
+
 ## Deployment
 
 Die Seite ist eine reine statische Website (`npm run build` erzeugt `dist/`). Drei kostenlose Hosting-Optionen:
@@ -209,7 +316,7 @@ Die Website unterstützt Google Analytics 4 (GA4) im Hintergrund.
 - [ ] `src/pages/ueber.astro` – Selbstvorstellung gegengelesen
 - [ ] Web3Forms-Access-Key gesetzt (siehe oben)
 - [ ] Google Fonts ggf. lokal einbinden (DSGVO-strikt)
-- [ ] OG-Bild `public/og-default.png` hinzufügen (1200 × 630 px)
+- [x] OG-Bild `public/og-default.png` vorhanden (1200 × 630 px, `scripts/og-bild.py`)
 
 ## Projektstruktur
 

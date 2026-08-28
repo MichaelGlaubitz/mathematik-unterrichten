@@ -3,38 +3,173 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 
-const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf))
-  .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf());
+const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf)).sort((a, b) =>
+  a.data.titel.localeCompare(b.data.titel, 'de')
+);
+
+/** Klassenband aus der niedrigsten angegebenen Jahrgangsstufe ableiten. */
+function band(stufen: string[]): string {
+  const zahlen = stufen.map((s) => parseInt(s, 10)).filter((n) => Number.isFinite(n));
+  const min = zahlen.length > 0 ? Math.min(...zahlen) : 11;
+  if (min <= 6) return '5/6';
+  if (min <= 8) return '7/8';
+  if (min <= 10) return '9/10';
+  return 'Oberstufe';
+}
+
+const baender = ['5/6', '7/8', '9/10', 'Oberstufe'];
+const bandLabel: Record<string, string> = {
+  '5/6': 'Klasse 5–6',
+  '7/8': 'Klasse 7–8',
+  '9/10': 'Klasse 9–10',
+  Oberstufe: 'Oberstufe',
+};
+const vorhandene = baender.filter((b) => quizzes.some((q) => band(q.data.klassenstufe) === b));
 ---
 
-<BaseLayout sourceFile="src/pages/quizzes/index.astro" title="Diagnostische Fragen" beschreibung="Diagnostische Multiple-Choice-Fragen mit gezielten Distraktoren">
-  <section class="container-prose pt-12 pb-8">
-    <h1 class="font-serif text-4xl font-semibold text-ink-900 mb-3 dark:text-ink-50">Diagnostische Fragen</h1>
-    <p class="text-ink-700 text-lg leading-relaxed dark:text-ink-200">
-      Multiple-Choice-Fragen, bei denen jede falsche Antwort einem typischen
-      Denkfehler entspricht. Verteilung der gewählten Antworten verrät mehr über
-      das Verständnis als eine einzelne richtige Lösung.
+<BaseLayout
+  sourceFile="src/pages/quizzes/index.astro"
+  title="Diagnostische Fragen"
+  beschreibung={`${quizzes.length} diagnostische Multiple-Choice-Quizzes für den Mathematikunterricht – jede falsche Antwort entspricht einem typischen Denkfehler.`}
+>
+  <section class="container-wide pt-12 pb-6">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Diagnose</p>
+    <h1 class="mt-2 font-serif text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl dark:text-ink-50">
+      Diagnostische Fragen
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      {quizzes.length} Quizzes zu je sechs Fragen – jede falsche Antwort entspricht einem
+      bestimmten Denkfehler. Nicht die richtige Lösung ist der Ertrag, sondern die
+      <em>Verteilung</em>: Sie zeigt, welche Fehlvorstellung in Ihrer Klasse gerade präsent ist.
     </p>
+
+    <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <label class="flex-1">
+        <span class="sr-only">Quizzes durchsuchen</span>
+        <input
+          id="qz-suche"
+          type="search"
+          autocomplete="off"
+          placeholder="Suchen – z. B. Bruch, Steigung, Prozent …"
+          class="w-full rounded-lg border border-ink-300 bg-surface px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-white/15 dark:bg-slate-950/60 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+      </label>
+      <div class="flex flex-wrap gap-2" id="qz-filter" role="group" aria-label="Nach Klassenstufe filtern">
+        <button type="button" data-band="alle" aria-pressed="true" class="mu-chip">alle</button>
+        {vorhandene.map((b) => (
+          <button type="button" data-band={b} aria-pressed="false" class="mu-chip">{bandLabel[b]}</button>
+        ))}
+      </div>
+    </div>
+    <p id="qz-status" class="mt-3 text-sm text-ink-500 dark:text-ink-400" role="status" aria-live="polite"></p>
   </section>
 
   <section class="container-wide pb-16">
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="qz-liste">
       {quizzes.map((q) => (
-        <PostCard
-          href={`/quizzes/${q.id}`}
-          titel={q.data.titel}
-          teaser={q.data.didaktischerKontext}
-          badges={[q.data.thema, `Kl. ${q.data.klassenstufe.join('/')}`]}
-          datum={q.data.datum}
-        />
+        <div
+          class="qz-eintrag flex"
+          data-band={band(q.data.klassenstufe)}
+          data-text={`${q.data.titel} ${q.data.thema} ${q.data.didaktischerKontext}`}
+        >
+          <PostCard
+            stufe={2}
+            href={`/quizzes/${q.id}`}
+            titel={q.data.titel}
+            teaser={q.data.didaktischerKontext}
+            badges={[q.data.thema, `Kl. ${q.data.klassenstufe.join('/')}`]}
+            datum={q.data.datum}
+          />
+        </div>
       ))}
     </div>
 
     {quizzes.length === 0 && (
       <p class="text-ink-600 dark:text-ink-300">
         Noch keine Quizzes vorhanden. Lege ein neues Quiz unter
-        <code class="bg-ink-100 px-1.5 py-0.5 rounded text-sm dark:bg-slate-800/85 dark:text-ink-100">src/content/quizzes/</code> als JSON an.
+        <code class="rounded bg-ink-100 px-1.5 py-0.5 text-sm dark:bg-slate-800/85 dark:text-ink-100">src/content/quizzes/</code> als JSON an.
       </p>
     )}
   </section>
+
+  <section class="container-wide pb-20">
+    <div class="rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 shadow-sm sm:p-8 dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">So werden die Fragen wirksam</h2>
+      <p class="mt-3 max-w-3xl leading-relaxed text-ink-700 dark:text-ink-300">
+        Alle antworten gleichzeitig – über Mini-Whiteboards, Finger oder Abstimmkarten,
+        nicht per Melden. Danach entscheidet die Verteilung: über 80 % richtig weitergehen,
+        unter 50 % gemeinsam neu ansetzen, dazwischen eine zweite Runde mit einer leicht
+        veränderten Aufgabe.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <a href="/werkzeuge/abstimmung.html" class="link-arrow">Werkzeug: Abstimmung </a>
+        <a href="/methoden#diagnostische-fragen" class="link-arrow">Methode: Diagnostische Fragen </a>
+        <a href="/werkzeuge/whiteboard-check.html" class="link-arrow">Werkzeug: Whiteboard-Check </a>
+        <a href="/fehlvorstellungen" class="link-arrow">Fehlvorstellungs-Katalog </a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<style is:global>
+  .mu-chip {
+    @apply rounded-full border border-ink-200/90 bg-surface/80 px-3.5 py-1.5 text-sm font-medium text-ink-700 transition;
+  }
+  .mu-chip:hover {
+    @apply border-accent-300 text-accent-800;
+  }
+  .mu-chip[aria-pressed='true'] {
+    @apply border-accent-500 bg-accent-600 text-white;
+  }
+  .dark .mu-chip {
+    @apply border-white/10 bg-white/[0.04] text-ink-200;
+  }
+  .dark .mu-chip[aria-pressed='true'] {
+    @apply border-teal-400/60 bg-teal-500/80 text-teal-950;
+  }
+  .mu-aus {
+    display: none !important;
+  }
+</style>
+
+<script>
+  const feld = document.getElementById('qz-suche') as HTMLInputElement | null;
+  const filter = document.getElementById('qz-filter');
+  const status = document.getElementById('qz-status');
+  const eintraege = Array.from(document.querySelectorAll<HTMLElement>('.qz-eintrag'));
+  let band = 'alle';
+
+  const normalisieren = (s: string) =>
+    s.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+
+  function anwenden() {
+    const suche = normalisieren(feld?.value.trim() ?? '');
+    let sichtbar = 0;
+    for (const e of eintraege) {
+      const passtSuche = suche.length === 0 || normalisieren(e.dataset.text ?? '').includes(suche);
+      const passtBand = band === 'alle' || e.dataset.band === band;
+      const zeigen = passtSuche && passtBand;
+      e.classList.toggle('mu-aus', !zeigen);
+      if (zeigen) sichtbar++;
+    }
+    if (status) {
+      status.textContent =
+        suche.length === 0 && band === 'alle'
+          ? ''
+          : sichtbar === 0
+            ? 'Kein Quiz passt zu dieser Auswahl.'
+            : `${sichtbar} von ${eintraege.length} Quizzes`;
+    }
+  }
+
+  feld?.addEventListener('input', anwenden);
+  filter?.addEventListener('click', (e) => {
+    const knopf = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-band]');
+    if (!knopf) return;
+    band = knopf.dataset.band ?? 'alle';
+    filter
+      .querySelectorAll<HTMLButtonElement>('button[data-band]')
+      .forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    anwenden();
+  });
+</script>

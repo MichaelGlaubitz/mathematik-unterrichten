@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zufallsgruppen &amp; Aufrufen · mathematik-unterrichten.de</title>
+<meta name="description" content="Sichtbar zufällige Gruppen nach Liljedahl und faires Aufrufen ohne Meldefinger. Namen bleiben im Browser, es werden keine Daten übertragen.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .zg-buehne { min-height: 52vh; padding: 1.6rem 1.2rem; }
+  .zg-name {
+    font-family: var(--schrift-serif);
+    font-size: clamp(2.4rem, 11vw, 6rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    color: var(--akzent);
+    word-break: break-word;
+  }
+  .zg-name.zg-rollt { color: var(--text-schwach); opacity: .75; }
+  .zg-untertitel { color: var(--text-leise); font-size: 1rem; margin-top: .6rem; }
+
+  .zg-gruppen { display: grid; gap: .9rem; width: 100%; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .zg-gruppe {
+    border: 1px solid var(--linie); border-top-width: 5px; border-radius: var(--radius);
+    background: var(--flaeche-2); padding: .8rem .9rem; text-align: left;
+  }
+  .zg-gruppe h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-schwach); font-family: var(--schrift); margin-bottom: .35rem; }
+  .zg-gruppe ul { list-style: none; margin: 0; padding: 0; }
+  .zg-gruppe li { font-size: clamp(1rem, 1.7vw, 1.35rem); font-weight: 500; padding: .12rem 0; }
+
+  .zg-liste { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .7rem; }
+  .zg-chip {
+    font: inherit; font-size: .85rem; padding: .22rem .6rem; border-radius: 999px;
+    border: 1px solid var(--linie); background: var(--flaeche); color: var(--text-leise); cursor: pointer;
+  }
+  .zg-chip[data-zustand="dran"] { background: var(--gruen-hell); color: var(--gruen); border-color: var(--gruen); text-decoration: line-through; }
+  .zg-chip[data-zustand="fehlt"] { opacity: .45; text-decoration: line-through; border-style: dashed; }
+  .zg-fortschritt { height: 6px; border-radius: 3px; background: var(--linie); overflow: hidden; margin-top: .6rem; }
+  .zg-fortschritt span { display: block; height: 100%; background: var(--teal); transition: width 240ms ease; }
+
+  @media (min-width: 900px) { .zg-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Zufallsgruppen und Aufrufen</h1>
+
+  <div class="zg-layout">
+    <section>
+      <div class="wz-buehne zg-buehne" id="zg-buehne">
+        <div id="zg-anzeige" style="width:100%">
+          <p class="zg-name" id="zg-name">Bereit</p>
+          <p class="zg-untertitel" id="zg-unter">Klassenliste rechts einfügen, dann ziehen.</p>
+        </div>
+      </div>
+
+      <div class="wz-reihe wz-abstand wz-nicht-drucken">
+        <button class="wz-knopf wz-knopf-haupt wz-knopf-gross" id="zg-ziehen" type="button">Ziehen</button>
+        <div class="wz-schalter" role="group" aria-label="Betriebsart">
+          <button type="button" id="zg-modus-einzeln" aria-pressed="true">Einzeln aufrufen</button>
+          <button type="button" id="zg-modus-gruppen" aria-pressed="false">Gruppen bilden</button>
+        </div>
+        <label class="wz-label wz-label-quer" id="zg-groesse-feld">
+          Gruppengröße
+          <select class="wz-feld" id="zg-groesse">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+        <button class="wz-knopf" id="zg-runde-neu" type="button" title="Alle wieder in den Topf">↺ Neue Runde</button>
+      </div>
+
+      <div class="wz-karte wz-abstand wz-nicht-drucken">
+        <div class="wz-reihe" style="justify-content:space-between">
+          <h2 style="font-size:1rem">Wer war schon dran?</h2>
+          <span style="font-size:.85rem;color:var(--text-leise)" id="zg-stand">–</span>
+        </div>
+        <div class="zg-fortschritt"><span id="zg-balken" style="width:0%"></span></div>
+        <div class="zg-liste" id="zg-chips"></div>
+        <p style="font-size:.82rem;color:var(--text-schwach);margin:.7rem 0 0">
+          Klick auf einen Namen: einmal = <em>fehlt heute</em>, noch einmal = wieder dabei.
+        </p>
+      </div>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Klasse</h2>
+        <label class="wz-label" style="margin-top:.6rem">
+          <span>Gespeicherte Klassen</span>
+          <div class="wz-reihe">
+            <select class="wz-feld" id="zg-klassenwahl" style="flex:1"></select>
+            <button class="wz-knopf wz-icon-knopf" id="zg-klasse-loeschen" type="button" title="Diese Klasse löschen">✕</button>
+          </div>
+        </label>
+        <label class="wz-label" style="margin-top:.7rem">
+          <span>Name der Klasse</span>
+          <input class="wz-feld" id="zg-klassenname" type="text" placeholder="z. B. 7b">
+        </label>
+        <label class="wz-label" style="margin-top:.7rem">
+          <span>Namen – einer pro Zeile</span>
+          <textarea class="wz-feld" id="zg-namen" spellcheck="false" placeholder="Amina&#10;Ben&#10;Clara&#10;…"></textarea>
+        </label>
+        <div class="wz-reihe">
+          <button class="wz-knopf wz-knopf-haupt" id="zg-speichern" type="button">Übernehmen</button>
+          <button class="wz-knopf" id="zg-beispiel" type="button">Beispielklasse</button>
+        </div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Einstellungen</h2>
+        <label class="wz-label wz-label-quer" style="margin-top:.6rem">
+          <input type="checkbox" id="zg-trommel" checked> Ziehung sichtbar durchlaufen lassen
+        </label>
+        <label class="wz-label wz-label-quer" style="margin-top:.5rem">
+          <input type="checkbox" id="zg-ton"> Ton beim Treffer
+        </label>
+        <p class="wz-hinweis" style="margin-top:.9rem">
+          <strong>Sichtbar zufällig.</strong> Peter Liljedahl zeigt: Gruppen werden nur dann
+          akzeptiert, wenn die Klasse die Ziehung <em>sieht</em>. Deshalb läuft die Trommel
+          über den Beamer und nicht heimlich im Kopf der Lehrkraft.
+        </p>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Datenschutz</h2>
+        <p style="font-size:.88rem;color:var(--text-leise);margin:.5rem 0 0">
+          Die Namen bleiben ausschließlich in diesem Browser (localStorage) und werden
+          nirgendwohin gesendet. Auf einem geteilten Rechner: Klasse nach der Stunde löschen.
+        </p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const SPEICHER = 'wz-klassen';
+  const BEISPIEL = ['Amina', 'Ben', 'Clara', 'David', 'Elif', 'Finn', 'Greta', 'Hussein', 'Ida', 'Jonas',
+                    'Karla', 'Leon', 'Mia', 'Noah', 'Olivia', 'Paul', 'Quirin', 'Rosa', 'Samir', 'Tara',
+                    'Ulrike', 'Vincent', 'Wanda', 'Yannik'];
+  const FARBEN = ['#2563eb', '#0d9488', '#7c3aed', '#b45309', '#be123c', '#15803d', '#0369a1', '#9333ea'];
+
+  /** { name: {namen: [], fehlt: [], dran: []} } */
+  let klassen = WZ.lies(SPEICHER, {});
+  let aktiv = WZ.lies('wz-klasse-aktiv', null);
+  let modus = 'einzeln';
+  let laeuftTrommel = false;
+
+  const el = {};
+  ['buehne', 'anzeige', 'name', 'unter', 'ziehen', 'modus-einzeln', 'modus-gruppen', 'groesse',
+   'groesse-feld', 'runde-neu', 'stand', 'balken', 'chips', 'klassenwahl', 'klassenname', 'namen',
+   'speichern', 'beispiel', 'trommel', 'ton', 'klasse-loeschen'].forEach(function (id) {
+    el[id] = document.getElementById('zg-' + id);
+  });
+
+  function daten() {
+    if (!aktiv || !klassen[aktiv]) return null;
+    return klassen[aktiv];
+  }
+
+  function sichern() {
+    WZ.schreib(SPEICHER, klassen);
+    WZ.schreib('wz-klasse-aktiv', aktiv);
+  }
+
+  function anwesend() {
+    const d = daten();
+    if (!d) return [];
+    return d.namen.filter(function (n) { return d.fehlt.indexOf(n) === -1; });
+  }
+
+  function offen() {
+    const d = daten();
+    if (!d) return [];
+    return anwesend().filter(function (n) { return d.dran.indexOf(n) === -1; });
+  }
+
+  // --- Anzeige -------------------------------------------------------------
+
+  function klassenwahlZeichnen() {
+    el.klassenwahl.textContent = '';
+    const namen = Object.keys(klassen).sort();
+    if (namen.length === 0) {
+      el.klassenwahl.appendChild(WZ.el('option', { value: '' }, ['– keine gespeichert –']));
+    }
+    namen.forEach(function (n) {
+      el.klassenwahl.appendChild(WZ.el('option', { value: n, selected: n === aktiv }, [n]));
+    });
+  }
+
+  function chipsZeichnen() {
+    const d = daten();
+    el.chips.textContent = '';
+    if (!d) {
+      el.stand.textContent = '–';
+      el.balken.style.width = '0%';
+      return;
+    }
+    d.namen.forEach(function (n) {
+      const zustand = d.fehlt.indexOf(n) !== -1 ? 'fehlt' : (d.dran.indexOf(n) !== -1 ? 'dran' : 'offen');
+      el.chips.appendChild(WZ.el('button', {
+        class: 'zg-chip', type: 'button', 'data-zustand': zustand,
+        title: zustand === 'fehlt' ? 'Wieder dabei' : 'Als „fehlt heute“ markieren',
+        onclick: function () {
+          const i = d.fehlt.indexOf(n);
+          if (i === -1) d.fehlt.push(n); else d.fehlt.splice(i, 1);
+          sichern();
+          chipsZeichnen();
+        }
+      }, [n]));
+    });
+    const gesamt = anwesend().length;
+    const fertig = gesamt - offen().length;
+    el.stand.textContent = fertig + ' von ' + gesamt + ' dran' + (d.fehlt.length ? ' · ' + d.fehlt.length + ' fehlt' : '');
+    el.balken.style.width = (gesamt ? (fertig / gesamt) * 100 : 0) + '%';
+  }
+
+  function zeigeName(text, unter, rollend) {
+    el.anzeige.textContent = '';
+    el.anzeige.appendChild(WZ.el('p', { class: 'zg-name' + (rollend ? ' zg-rollt' : ''), text: text }));
+    if (unter) el.anzeige.appendChild(WZ.el('p', { class: 'zg-untertitel', text: unter }));
+  }
+
+  function zeigeGruppen(gruppen) {
+    el.anzeige.textContent = '';
+    const raster = WZ.el('div', { class: 'zg-gruppen' });
+    gruppen.forEach(function (g, i) {
+      raster.appendChild(WZ.el('div', {
+        class: 'zg-gruppe', style: 'border-top-color:' + FARBEN[i % FARBEN.length]
+      }, [
+        WZ.el('h3', { text: 'Gruppe ' + (i + 1) }),
+        WZ.el('ul', {}, g.map(function (n) { return WZ.el('li', { text: n }); }))
+      ]));
+    });
+    el.anzeige.appendChild(raster);
+  }
+
+  // --- Ziehen --------------------------------------------------------------
+
+  function einzelnZiehen() {
+    const d = daten();
+    if (!d) { zeigeName('Keine Klasse', 'Bitte rechts eine Klassenliste einfügen.'); return; }
+    let topf = offen();
+    if (topf.length === 0) {
+      if (anwesend().length === 0) { zeigeName('Niemand da', 'Alle sind als „fehlt“ markiert.'); return; }
+      d.dran = [];
+      sichern();
+      topf = offen();
+      zeigeName('Neue Runde', 'Alle waren dran – der Topf ist wieder voll.');
+      chipsZeichnen();
+      setTimeout(einzelnZiehen, 900);
+      return;
+    }
+    const treffer = WZ.zufallAus(topf);
+    trommeln(anwesend(), treffer, function () {
+      d.dran.push(treffer);
+      sichern();
+      const rest = offen().length;
+      zeigeName(treffer, rest === 0 ? 'Damit war die ganze Klasse dran.' : 'Noch ' + rest + ' im Topf');
+      chipsZeichnen();
+      if (el.ton.checked) WZ.ton(880, 200, 0.18);
+    });
+  }
+
+  function gruppenZiehen() {
+    const d = daten();
+    if (!d) { zeigeName('Keine Klasse', 'Bitte rechts eine Klassenliste einfügen.'); return; }
+    const leute = anwesend();
+    if (leute.length < 2) { zeigeName('Zu wenige', 'Mindestens zwei Anwesende nötig.'); return; }
+
+    const groesse = parseInt(el.groesse.value, 10);
+    const gemischt = WZ.mische(leute);
+    const anzahl = Math.max(1, Math.round(gemischt.length / groesse));
+    const gruppen = [];
+    for (let i = 0; i < anzahl; i++) gruppen.push([]);
+    // Reihum verteilen: erzeugt möglichst gleich große Gruppen statt eines Restes von 1
+    gemischt.forEach(function (n, i) { gruppen[i % anzahl].push(n); });
+
+    if (el.trommel.checked) {
+      zeigeName('…', 'Die Gruppen werden gezogen');
+      let schritt = 0;
+      const takt = setInterval(function () {
+        schritt++;
+        zeigeGruppen(gruppen.map(function (g) {
+          return g.map(function (n) { return schritt > 6 ? n : WZ.zufallAus(leute); });
+        }));
+        if (schritt > 6) {
+          clearInterval(takt);
+          zeigeGruppen(gruppen);
+          if (el.ton.checked) WZ.ton(660, 240, 0.18);
+        }
+      }, 110);
+    } else {
+      zeigeGruppen(gruppen);
+    }
+  }
+
+  function trommeln(topf, treffer, fertig) {
+    if (!el.trommel.checked || topf.length < 2) { fertig(); return; }
+    if (laeuftTrommel) return;
+    laeuftTrommel = true;
+    let schritt = 0;
+    const takt = setInterval(function () {
+      schritt++;
+      zeigeName(WZ.zufallAus(topf), 'Es läuft …', true);
+      if (schritt >= 12) {
+        clearInterval(takt);
+        laeuftTrommel = false;
+        fertig();
+      }
+    }, 80);
+  }
+
+  // --- Verdrahtung ---------------------------------------------------------
+
+  function modusSetzen(neu) {
+    modus = neu;
+    el['modus-einzeln'].setAttribute('aria-pressed', String(neu === 'einzeln'));
+    el['modus-gruppen'].setAttribute('aria-pressed', String(neu === 'gruppen'));
+    el['groesse-feld'].style.display = neu === 'gruppen' ? '' : 'none';
+    el.ziehen.textContent = neu === 'gruppen' ? 'Gruppen ziehen' : 'Ziehen';
+  }
+
+  function klasseLaden(name) {
+    aktiv = name;
+    const d = daten();
+    el.klassenname.value = name || '';
+    el.namen.value = d ? d.namen.join('\n') : '';
+    sichern();
+    klassenwahlZeichnen();
+    chipsZeichnen();
+    zeigeName('Bereit', d ? d.namen.length + ' Namen geladen · Klasse ' + name : 'Klassenliste einfügen und übernehmen.');
+  }
+
+  el.speichern.addEventListener('click', function () {
+    const name = (el.klassenname.value || '').trim() || 'Klasse';
+    const namen = el.namen.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (namen.length === 0) { alert('Bitte mindestens einen Namen eintragen.'); return; }
+    const vorher = klassen[name];
+    klassen[name] = {
+      namen: namen,
+      fehlt: vorher ? vorher.fehlt.filter(function (n) { return namen.indexOf(n) !== -1; }) : [],
+      dran: vorher ? vorher.dran.filter(function (n) { return namen.indexOf(n) !== -1; }) : []
+    };
+    klasseLaden(name);
+  });
+
+  el.beispiel.addEventListener('click', function () {
+    el.klassenname.value = el.klassenname.value || 'Beispielklasse';
+    el.namen.value = BEISPIEL.join('\n');
+  });
+
+  el.klassenwahl.addEventListener('change', function (e) {
+    if (e.target.value) klasseLaden(e.target.value);
+  });
+
+  el['klasse-loeschen'].addEventListener('click', function () {
+    if (!aktiv || !klassen[aktiv]) return;
+    if (!confirm('Klasse „' + aktiv + '“ mit allen Namen aus diesem Browser löschen?')) return;
+    delete klassen[aktiv];
+    aktiv = Object.keys(klassen)[0] || null;
+    sichern();
+    klassenwahlZeichnen();
+    if (aktiv) klasseLaden(aktiv);
+    else { el.namen.value = ''; el.klassenname.value = ''; chipsZeichnen(); zeigeName('Bereit', 'Klassenliste einfügen und übernehmen.'); }
+  });
+
+  el.ziehen.addEventListener('click', function () {
+    if (el.ton.checked) WZ.ton(1, 1, 0.0001);
+    modus === 'gruppen' ? gruppenZiehen() : einzelnZiehen();
+  });
+  el['modus-einzeln'].addEventListener('click', function () { modusSetzen('einzeln'); });
+  el['modus-gruppen'].addEventListener('click', function () { modusSetzen('gruppen'); });
+  el['runde-neu'].addEventListener('click', function () {
+    const d = daten();
+    if (!d) return;
+    d.dran = [];
+    sichern();
+    chipsZeichnen();
+    zeigeName('Neue Runde', 'Alle sind wieder im Topf.');
+  });
+
+  document.addEventListener('keydown', function (e) {
+    const z = e.target;
+    if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA' || z.isContentEditable)) return;
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); el.ziehen.click(); }
+  });
+
+  WZ.kopf({ titel: 'Zufallsgruppen & Aufrufen' });
+  WZ.fuss('Namen bleiben ausschließlich in diesem Browser gespeichert.');
+  modusSetzen('einzeln');
+  klassenwahlZeichnen();
+  if (aktiv && klassen[aktiv]) klasseLaden(aktiv);
+  else chipsZeichnen();
+})();
+</script>
+</body>
+</html>

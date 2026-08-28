@@ -2,111 +2,212 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import { werkzeuge, werkzeugPfad } from '../lib/werkzeuge';
+import { methoden } from '../lib/methoden';
+import { kiPrompts } from '../lib/kiPrompts';
 
 const blog = (await getCollection('blog', ({ data }) => !data.entwurf))
   .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf())
   .slice(0, 3);
 
-const aufgaben = (await getCollection('aufgaben', ({ data }) => !data.entwurf))
+const alleAufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
+const aufgaben = [...alleAufgaben]
   .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf())
   .slice(0, 3);
 
-const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf))
+const alleQuizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
+const quizzes = [...alleQuizzes]
   .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf())
   .slice(0, 3);
+
+const themen = await getCollection('themen', ({ data }) => !data.entwurf);
+const alleStunden = await getCollection('stunden', ({ data }) => !data.entwurf);
+const anzahlFehlvorstellungen = themen.reduce((s, t) => s + t.data.fehlvorstellungen.length, 0);
+
+// Drei Werkzeuge, die den Charakter des Kastens am besten zeigen
+const gezeigteWerkzeuge = ['unterrichts-timer', 'whiteboard-check', 'funktionenplotter']
+  .map((slug) => werkzeuge.find((w) => w.slug === slug))
+  .filter((w): w is (typeof werkzeuge)[number] => Boolean(w));
+
+const bereiche = [
+  {
+    titel: 'Stundenverläufe',
+    href: '/stunden',
+    kennzahl: `${alleStunden.length} Stunden`,
+    text: 'Vollständig geplante Stunden nach KLAR: diagnostische Einstiegsfrage, Minutenplan, Werkzeuge, Weichen und Exit-Ticket.',
+    farbe: 'from-sky-500 to-indigo-500',
+    ring: 'ring-sky-100/70 dark:ring-indigo-400/25',
+    flaeche: 'to-sky-50/45 dark:to-indigo-950/35',
+    symbol: '🗓️',
+  },
+  {
+    titel: 'Werkzeugkasten',
+    href: '/werkzeuge',
+    kennzahl: `${werkzeuge.length} Werkzeuge`,
+    text: 'Timer, Zufallsgruppen, Whiteboard-Check, Funktionenplotter, Papier-Werkstatt – je eine HTML-Datei, die offline läuft.',
+    farbe: 'from-accent-500 to-teal-500',
+    ring: 'ring-accent-100/70 dark:ring-sky-400/25',
+    flaeche: 'to-accent-50/40 dark:to-sky-950/35',
+    symbol: '🧰',
+  },
+  {
+    titel: 'Methodenkoffer',
+    href: '/methoden',
+    kennzahl: `${methoden.length} Methoden`,
+    text: 'Zu jeder Methode drei Schritte für morgen früh, der typische Stolperstein und die Belegstelle aus der Forschung.',
+    farbe: 'from-teal-500 to-emerald-500',
+    ring: 'ring-teal-100/70 dark:ring-teal-400/30',
+    flaeche: 'to-teal-50/50 dark:to-teal-950/40',
+    symbol: '🧭',
+  },
+  {
+    titel: 'Fehlvorstellungen',
+    href: '/fehlvorstellungen',
+    kennzahl: `${anzahlFehlvorstellungen} Einträge`,
+    text: 'Der Katalog der teuersten Denkfehler von Klasse 5 bis zur Oberstufe – mit Ursache und Gegenmittel in drei Schritten.',
+    farbe: 'from-rose-500 to-amber-500',
+    ring: 'ring-rose-100/70 dark:ring-rose-400/25',
+    flaeche: 'to-rose-50/40 dark:to-rose-950/30',
+    symbol: '🔍',
+  },
+  {
+    titel: 'Themen & Übungen',
+    href: '/themen',
+    kennzahl: `${themen.length} Themen`,
+    text: 'Didaktische Einordnung pro Thema, Mini-Whiteboard-Aufgaben und Generatoren für druckfertige Arbeitsblätter.',
+    farbe: 'from-amber-500 to-orange-500',
+    ring: 'ring-amber-100/70 dark:ring-amber-400/20',
+    flaeche: 'to-amber-50/50 dark:to-amber-950/35',
+    symbol: '📐',
+  },
+  {
+    titel: 'Diagnostische Fragen',
+    href: '/quizzes',
+    kennzahl: `${alleQuizzes.length} Quizzes`,
+    text: 'Multiple-Choice-Fragen, bei denen jede falsche Antwort einen bestimmten Denkfehler verrät.',
+    farbe: 'from-emerald-500 to-teal-500',
+    ring: 'ring-emerald-100/70 dark:ring-emerald-400/25',
+    flaeche: 'to-emerald-50/40 dark:to-emerald-950/30',
+    symbol: '🎯',
+  },
+  {
+    titel: 'Aufgabensammlung',
+    href: '/aufgaben',
+    kennzahl: `${alleAufgaben.length} Folgen`,
+    text: 'Aufgabenfolgen, in denen sich von Aufgabe zu Aufgabe genau eine Sache ändert – mit Lösungen und didaktischem Kommentar.',
+    farbe: 'from-orange-500 to-rose-500',
+    ring: 'ring-orange-100/70 dark:ring-orange-400/25',
+    flaeche: 'to-orange-50/45 dark:to-orange-950/30',
+    symbol: '📚',
+  },
+  {
+    titel: 'KI im Unterricht',
+    href: '/ki',
+    kennzahl: `${kiPrompts.length} Prompts`,
+    text: 'Erprobte Prompts zum Kopieren – und zu jedem der Hinweis, was Sie vor dem Einsatz nachprüfen müssen.',
+    farbe: 'from-violet-500 to-fuchsia-500',
+    ring: 'ring-violet-100/70 dark:ring-fuchsia-400/25',
+    flaeche: 'to-violet-50/45 dark:to-fuchsia-950/40',
+    symbol: '🤖',
+  },
+];
 ---
 
 <BaseLayout sourceFile="src/pages/index.astro" title="mathematik-unterrichten">
   <!-- Hero -->
-  <section class="container-wide relative overflow-hidden pt-16 pb-12 md:pt-24 md:pb-20">
+  <section class="container-wide relative overflow-hidden pt-14 pb-10 md:pt-20 md:pb-14">
     <div class="pointer-events-none absolute -right-16 -top-28 h-80 w-80 rounded-full bg-accent-300/45 blur-3xl dark:bg-sky-500/30" aria-hidden="true"></div>
     <div class="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-violet-300/40 blur-3xl dark:bg-fuchsia-600/25" aria-hidden="true"></div>
     <div class="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-teal-300/35 blur-3xl dark:bg-teal-400/22" aria-hidden="true"></div>
+
     <div class="relative max-w-3xl">
       <p class="inline-flex items-center gap-2 rounded-full border border-accent-200/80 bg-surface/65 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-accent-800 shadow-sm backdrop-blur-sm dark:border-teal-400/35 dark:bg-gradient-to-r dark:from-sky-950/40 dark:to-violet-950/35 dark:text-teal-100 dark:shadow-teal-900/30">
         <span class="h-2 w-2 rounded-full bg-gradient-to-r from-accent-500 to-teal-500 dark:from-sky-400 dark:to-teal-300" aria-hidden="true"></span>
-        Mathematik unterrichten · Didaktik · Diagnose
+        Didaktik · Diagnose · Werkzeuge
       </p>
-      <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.1] text-ink-900 mb-6 mt-5 dark:text-ink-50">
+      <h1 class="mb-6 mt-5 font-serif text-4xl font-semibold leading-[1.1] text-ink-900 md:text-5xl lg:text-6xl dark:text-ink-50">
         So geht <span class="bg-gradient-to-r from-accent-600 via-teal-600 to-violet-600 bg-clip-text text-transparent dark:from-sky-300 dark:via-teal-200 dark:to-fuchsia-300">Mathematikunterricht</span>.
       </h1>
-      <p class="text-lg md:text-xl text-ink-700 leading-relaxed mb-8 dark:text-ink-200">
+      <p class="mb-8 text-lg leading-relaxed text-ink-700 md:text-xl dark:text-ink-200">
         Was die Forschung über das Lernen von Mathematik weiß – und was Sie am
-        Montag damit anfangen können.
+        Montag damit anfangen können. Alles hier ist so gebaut, dass Sie es
+        <strong class="font-semibold text-ink-900 dark:text-ink-50">ohne Vorbereitung</strong> einsetzen können:
+        kein Konto, keine Installation, kein Abo.
       </p>
       <div class="flex flex-wrap gap-3">
-        <a href="/themen" class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-2.5 font-medium text-white shadow-md shadow-accent-600/25 transition hover:brightness-105 dark:from-sky-500 dark:via-accent-500 dark:to-teal-400 dark:shadow-[0_6px_28px_-4px_rgba(56,189,248,0.45)]">
-          Zu den Themen
+        <a href="/schnellstart" class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-2.5 font-medium text-white shadow-md shadow-accent-600/25 transition hover:brightness-105 dark:from-sky-500 dark:via-accent-500 dark:to-teal-400 dark:shadow-[0_6px_28px_-4px_rgba(56,189,248,0.45)]">
+          <span aria-hidden="true">⚡</span> Schnellstart
           <span aria-hidden="true">→</span>
         </a>
-        <a href="/blog" class="inline-flex items-center gap-2 rounded-md border border-violet-200/90 bg-surface/82 px-5 py-2.5 font-medium text-violet-900 shadow-sm backdrop-blur-sm transition hover:border-violet-300 hover:bg-violet-50 dark:border-fuchsia-400/40 dark:bg-fuchsia-950/25 dark:text-fuchsia-100 dark:shadow-fuchsia-950/25 dark:hover:border-teal-400/50 dark:hover:bg-teal-950/35">
-          Zum Blog
+        <a href="/werkzeuge" class="inline-flex items-center gap-2 rounded-md border border-teal-200/90 bg-surface/82 px-5 py-2.5 font-medium text-teal-900 shadow-sm backdrop-blur-sm transition hover:border-teal-300 hover:bg-teal-50 dark:border-teal-400/40 dark:bg-teal-950/25 dark:text-teal-100 dark:hover:bg-teal-950/45">
+          Zum Werkzeugkasten
+        </a>
+        <a href="/konzept" class="inline-flex items-center gap-2 rounded-md border border-violet-200/90 bg-surface/82 px-5 py-2.5 font-medium text-violet-900 shadow-sm backdrop-blur-sm transition hover:border-violet-300 hover:bg-violet-50 dark:border-fuchsia-400/40 dark:bg-fuchsia-950/25 dark:text-fuchsia-100 dark:hover:bg-fuchsia-950/45">
+          Das KLAR-Konzept
         </a>
       </div>
     </div>
   </section>
 
-  <!-- Vier Bereiche -->
+  <!-- Die Bereiche der Seite -->
   <section class="container-wide pb-16">
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-xl border border-ink-200/90 bg-gradient-to-br from-white to-amber-50/50 p-6 shadow-sm ring-1 ring-amber-100/70 dark:border-amber-400/25 dark:from-[rgb(26_22_35)/0.93] dark:to-amber-950/35 dark:ring-amber-400/20">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-amber-100/70 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-          </svg>
-        </span>
-        <h2 class="font-serif text-xl font-semibold text-ink-900 mt-3 mb-2 dark:text-ink-50">Themen</h2>
-        <p class="text-ink-700 text-sm leading-relaxed dark:text-ink-300">
-          Didaktische Einordnung pro Thema – mit Aufgabenfolgen, diagnostischen Fragen und Blog-Beiträgen, nach Jahrgangs-Clustern sortiert.
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {bereiche.map((b) => (
+        <a
+          href={b.href}
+          class={`group relative flex flex-col overflow-hidden rounded-xl border border-ink-200/90 bg-gradient-to-br from-white ${b.flaeche} p-5 shadow-sm ring-1 ${b.ring} transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/[0.08] dark:from-[rgb(26_22_35)]`}
+        >
+          <div class={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${b.farbe}`} aria-hidden="true"></div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-2xl" aria-hidden="true">{b.symbol}</span>
+            <span class="rounded-full bg-ink-100/70 px-2.5 py-0.5 text-xs font-semibold text-ink-600 dark:bg-white/[0.08] dark:text-ink-300">
+              {b.kennzahl}
+            </span>
+          </div>
+          <h2 class="mt-3 font-serif text-xl font-semibold text-ink-900 group-hover:text-accent-700 dark:text-ink-50 dark:group-hover:text-teal-200">
+            {b.titel}
+          </h2>
+          <p class="mt-1.5 flex-1 text-sm leading-relaxed text-ink-700 dark:text-ink-300">{b.text}</p>
+          <span class="link-arrow mt-3 text-sm">Ansehen </span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Werkzeuge zum Ausprobieren -->
+  <section class="container-wide pb-16">
+    <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 md:text-3xl dark:text-ink-50">Sofort ausprobieren</h2>
+        <p class="mt-1 text-ink-600 dark:text-ink-400">
+          Kein Login, keine Installation – jedes Werkzeug öffnet sich als fertige Seite.
         </p>
       </div>
-      <div class="rounded-xl border border-ink-200/90 bg-gradient-to-br from-white to-accent-50/40 p-6 shadow-sm ring-1 ring-accent-100/60 dark:border-sky-500/25 dark:from-[rgb(26_22_35)/0.93] dark:to-sky-950/35 dark:ring-sky-400/25">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-accent-100/70 text-accent-700 dark:bg-sky-400/10 dark:text-sky-300">
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path>
-            <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path>
-            <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path>
-          </svg>
-        </span>
-        <h2 class="font-serif text-xl font-semibold text-ink-900 mt-3 mb-2 dark:text-ink-50">Aufgabensammlung</h2>
-        <p class="text-ink-700 text-sm leading-relaxed dark:text-ink-300">
-          Variation-Theory-inspirierte Aufgabenfolgen mit Lösungswegen und didaktischem Kommentar.
-        </p>
-      </div>
-      <div class="rounded-xl border border-ink-200/90 bg-gradient-to-br from-white to-teal-50/50 p-6 shadow-sm ring-1 ring-teal-100/70 dark:border-teal-400/30 dark:from-[rgb(26_22_35)/0.93] dark:to-teal-950/40 dark:ring-teal-400/30">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-teal-100/70 text-teal-700 dark:bg-teal-400/10 dark:text-teal-300">
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="6"></circle>
-            <circle cx="12" cy="12" r="2"></circle>
-          </svg>
-        </span>
-        <h2 class="font-serif text-xl font-semibold text-ink-900 mt-3 mb-2 dark:text-ink-50">Diagnostische Fragen</h2>
-        <p class="text-ink-700 text-sm leading-relaxed dark:text-ink-300">
-          Multiple-Choice-Fragen mit gezielten Distraktoren – jeder Fehler hat einen Grund.
-        </p>
-      </div>
-      <div class="rounded-xl border border-ink-200/90 bg-gradient-to-br from-white to-violet-50/45 p-6 shadow-sm ring-1 ring-violet-100/70 dark:border-fuchsia-500/25 dark:from-[rgb(26_22_35)/0.93] dark:to-fuchsia-950/40 dark:ring-fuchsia-400/25">
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-violet-100/70 text-violet-700 dark:bg-fuchsia-400/10 dark:text-fuchsia-300">
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 20h9"></path>
-            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-          </svg>
-        </span>
-        <h2 class="font-serif text-xl font-semibold text-ink-900 mt-3 mb-2 dark:text-ink-50">Didaktik-Blog</h2>
-        <p class="text-ink-700 text-sm leading-relaxed dark:text-ink-300">
-          Kurze Reflexionen zu Forschung, Methodik und Praxis – aus dem Klassenzimmer für das Klassenzimmer.
-        </p>
-      </div>
+      <a href="/werkzeuge" class="link-arrow text-sm">Alle {werkzeuge.length} Werkzeuge </a>
+    </header>
+
+    <div class="grid gap-5 md:grid-cols-3">
+      {gezeigteWerkzeuge.map((w) => (
+        <a
+          href={werkzeugPfad(w)}
+          class="group flex flex-col rounded-xl border border-ink-200/90 bg-surface/85 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-md mu-dark-glass-panel dark:hover:border-teal-400/50"
+        >
+          <span class="badge-accent self-start">{w.einsatz}</span>
+          <h3 class="mt-3 font-serif text-lg font-semibold text-ink-900 group-hover:text-accent-700 dark:text-ink-50 dark:group-hover:text-teal-200">
+            {w.titel}
+          </h3>
+          <p class="mt-1.5 flex-1 text-sm leading-relaxed text-ink-700 dark:text-ink-300">{w.kurz}</p>
+          <span class="link-arrow mt-3 text-sm">Öffnen </span>
+        </a>
+      ))}
     </div>
   </section>
 
   <!-- Aktuelles aus dem Blog -->
   {blog.length > 0 && (
     <section class="container-wide pb-16">
-      <header class="flex items-end justify-between mb-6">
-        <h2 class="font-serif text-2xl md:text-3xl font-semibold text-ink-900 dark:text-ink-50">Aus dem Blog</h2>
+      <header class="mb-6 flex items-end justify-between">
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 md:text-3xl dark:text-ink-50">Aus dem Blog</h2>
         <a href="/blog" class="link-arrow text-sm">Alle Beiträge </a>
       </header>
       <div class="grid gap-6 md:grid-cols-3">
@@ -126,8 +227,8 @@ const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf))
   <!-- Neue Aufgaben -->
   {aufgaben.length > 0 && (
     <section class="container-wide pb-16">
-      <header class="flex items-end justify-between mb-6">
-        <h2 class="font-serif text-2xl md:text-3xl font-semibold text-ink-900 dark:text-ink-50">Aufgabensammlung</h2>
+      <header class="mb-6 flex items-end justify-between">
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 md:text-3xl dark:text-ink-50">Aufgabensammlung</h2>
         <a href="/aufgaben" class="link-arrow text-sm">Alle Aufgaben </a>
       </header>
       <div class="grid gap-6 md:grid-cols-3">
@@ -145,9 +246,9 @@ const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf))
 
   <!-- Diagnostische Fragen -->
   {quizzes.length > 0 && (
-    <section class="container-wide pb-20">
-      <header class="flex items-end justify-between mb-6">
-        <h2 class="font-serif text-2xl md:text-3xl font-semibold text-ink-900 dark:text-ink-50">Diagnostische Fragen</h2>
+    <section class="container-wide pb-16">
+      <header class="mb-6 flex items-end justify-between">
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 md:text-3xl dark:text-ink-50">Diagnostische Fragen</h2>
         <a href="/quizzes" class="link-arrow text-sm">Alle Quizzes </a>
       </header>
       <div class="grid gap-6 md:grid-cols-3">
@@ -162,6 +263,24 @@ const quizzes = (await getCollection('quizzes', ({ data }) => !data.entwurf))
       </div>
     </section>
   )}
+
+  <!-- Für Schulen und Seminare -->
+  <section class="container-wide pb-16">
+    <div class="grid gap-6 rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 shadow-sm sm:p-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <div>
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Für Fachschaften und Studienseminare</h2>
+        <p class="mt-3 max-w-2xl leading-relaxed text-ink-700 dark:text-ink-300">
+          Fortbildungen, in denen an Ihrem eigenen Material gearbeitet wird – Diagnose,
+          Aufgabenkultur, denkendes Klassenzimmer, KLAR-Konzept, KI im Fach.
+          Wer abends nichts Fertiges mitnimmt, hat einen schlechten Tag gehabt.
+        </p>
+      </div>
+      <a href="/fortbildung" class="inline-flex flex-none items-center gap-2 self-start rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-2.5 font-medium text-white shadow-sm transition hover:brightness-105 md:self-auto dark:from-sky-500 dark:to-teal-400">
+        Module ansehen <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
   <!-- Wer hier schreibt -->
   <section class="container-wide pb-20">
     <div class="flex flex-col items-start gap-5 rounded-xl border border-ink-200/90 bg-surface/70 p-6 shadow-sm sm:flex-row sm:items-center dark:border-slate-600/45 dark:bg-slate-950/45">

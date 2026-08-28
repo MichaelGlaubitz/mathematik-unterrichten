@@ -1,0 +1,369 @@
+/* ==========================================================================
+   Design-System der Unterrichtswerkzeuge — mathematik-unterrichten.de
+   --------------------------------------------------------------------------
+   Bewusst ohne Framework, ohne Webfont, ohne CDN: Die Werkzeuge müssen auf dem
+   Schulrechner am Beamer auch dann laufen, wenn das WLAN gerade wieder weg ist.
+   Farben und Typografie spiegeln das Design der Website (tailwind.config.mjs).
+
+   Drei Betriebsarten:
+     • normal        – Arbeiten am Rechner
+     • [data-beamer] – alles größer, für die Projektion (Taste B)
+     • @media print  – schwarz auf weiß, ohne Bedienelemente
+   ========================================================================== */
+
+:root {
+  --grund: #faf8f2;
+  --flaeche: #ffffff;
+  --flaeche-2: #f3efe6;
+  --linie: #dcd5c5;
+  --linie-stark: #bfb39c;
+  --text: #2a241d;
+  --text-leise: #564938;
+  --text-schwach: #857355;
+
+  --akzent: #2563eb;
+  --akzent-hell: #dbeafe;
+  --akzent-tief: #1e40af;
+  --teal: #0d9488;
+  --teal-hell: #ccfbf1;
+  --violett: #7c3aed;
+  --violett-hell: #ede9fe;
+  --gold: #b45309;
+  --gold-hell: #fef3c7;
+  --gruen: #15803d;
+  --gruen-hell: #dcfce7;
+  --rot: #be123c;
+  --rot-hell: #ffe4e6;
+
+  --radius: 12px;
+  --radius-klein: 8px;
+  --schatten: 0 1px 2px rgba(42, 36, 29, .06), 0 8px 24px -12px rgba(42, 36, 29, .18);
+  --schrift: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --schrift-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --schrift-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
+
+  --basis: 17px;
+  --tempo: 160ms;
+}
+
+html[data-thema="dunkel"] {
+  --grund: #1a1623;
+  --flaeche: #241f30;
+  --flaeche-2: #2e2840;
+  --linie: #423a56;
+  --linie-stark: #5b5175;
+  --text: #f3efe6;
+  --text-leise: #cfc7bb;
+  --text-schwach: #a79c8d;
+
+  --akzent: #60a5fa;
+  --akzent-hell: #1e3a8a;
+  --akzent-tief: #93c5fd;
+  --teal: #2dd4bf;
+  --teal-hell: #134e4a;
+  --violett: #a78bfa;
+  --violett-hell: #3b2a6b;
+  --gold: #fbbf24;
+  --gold-hell: #4a3208;
+  --gruen: #4ade80;
+  --gruen-hell: #14361f;
+  --rot: #fb7185;
+  --rot-hell: #4c1327;
+  --schatten: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -14px rgba(0, 0, 0, .8);
+}
+
+html[data-beamer="an"] { --basis: 23px; }
+
+* { box-sizing: border-box; }
+
+/* Viele Bausteine hier setzen display:flex — das gewinnt sonst gegen das
+   hidden-Attribut des Browsers, und ein "versteckter" Knopf bliebe sichtbar. */
+[hidden] { display: none !important; }
+
+html {
+  color-scheme: light;
+  font-size: var(--basis);
+  -webkit-text-size-adjust: 100%;
+}
+html[data-thema="dunkel"] { color-scheme: dark; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--schrift);
+  color: var(--text);
+  background: var(--grund);
+  line-height: 1.55;
+  transition: background-color var(--tempo) ease, color var(--tempo) ease;
+}
+
+h1, h2, h3 { font-family: var(--schrift-serif); font-weight: 600; line-height: 1.2; margin: 0; }
+h1 { font-size: 1.75rem; letter-spacing: -.01em; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0 0 .8em; }
+a { color: var(--akzent); }
+
+/* --- Kopfleiste ---------------------------------------------------------- */
+
+.wz-kopf {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--grund) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--linie);
+}
+.wz-kopf-innen {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: .65rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.wz-marke {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .45rem;
+  text-decoration: none;
+  color: var(--text-leise);
+  font-size: .82rem;
+  white-space: nowrap;
+}
+.wz-marke:hover { color: var(--akzent); }
+.wz-marke b { font-family: var(--schrift-serif); font-size: .95rem; color: var(--text); font-weight: 600; }
+.wz-titel { font-family: var(--schrift-serif); font-size: 1.02rem; font-weight: 600; margin: 0; }
+.wz-kopf-rechts { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
+.wz-streifen { height: 4px; background: linear-gradient(90deg, var(--akzent), var(--teal), var(--violett)); }
+
+/* --- Grundbausteine ------------------------------------------------------ */
+
+.wz-huelle { max-width: 1180px; margin: 0 auto; padding: 1.25rem 1rem 4rem; }
+.wz-schmal { max-width: 820px; }
+
+.wz-lead {
+  color: var(--text-leise);
+  font-size: 1.02rem;
+  max-width: 62ch;
+  margin: .35rem 0 1.2rem;
+}
+
+.wz-karte {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+  box-shadow: var(--schatten);
+}
+.wz-karte + .wz-karte { margin-top: 1rem; }
+
+.wz-raster { display: grid; gap: 1rem; }
+@media (min-width: 780px) {
+  .wz-raster-2 { grid-template-columns: 1fr 1fr; }
+  .wz-raster-seitlich { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+}
+
+.wz-reihe { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.wz-reihe-ende { justify-content: flex-end; }
+.wz-abstand { margin-top: 1rem; }
+
+/* --- Bedienelemente ------------------------------------------------------ */
+
+.wz-knopf {
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 500;
+  padding: .5rem .95rem;
+  border-radius: var(--radius-klein);
+  border: 1px solid var(--linie-stark);
+  background: var(--flaeche);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  transition: background-color var(--tempo) ease, border-color var(--tempo) ease, transform var(--tempo) ease;
+  min-height: 2.4rem;
+}
+.wz-knopf:hover { background: var(--flaeche-2); border-color: var(--akzent); }
+.wz-knopf:active { transform: translateY(1px); }
+.wz-knopf:focus-visible { outline: 3px solid var(--akzent); outline-offset: 2px; }
+.wz-knopf[disabled] { opacity: .45; cursor: not-allowed; }
+
+.wz-knopf-haupt {
+  background: var(--akzent);
+  border-color: var(--akzent);
+  color: #fff;
+  font-weight: 600;
+}
+html[data-thema="dunkel"] .wz-knopf-haupt { color: #10131c; }
+.wz-knopf-haupt:hover { background: var(--akzent-tief); border-color: var(--akzent-tief); }
+html[data-thema="dunkel"] .wz-knopf-haupt:hover { color: #10131c; }
+
+.wz-knopf-still { border-color: transparent; background: transparent; color: var(--text-leise); }
+.wz-knopf-still:hover { background: var(--flaeche-2); border-color: var(--linie); }
+
+.wz-knopf-gross { font-size: 1.15rem; padding: .7rem 1.4rem; min-height: 3rem; }
+
+.wz-icon-knopf {
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  justify-content: center;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-leise);
+  font-size: 1.05rem;
+}
+.wz-icon-knopf:hover { background: var(--flaeche-2); border-color: var(--linie); }
+
+.wz-feld {
+  font: inherit;
+  padding: .45rem .6rem;
+  border-radius: var(--radius-klein);
+  border: 1px solid var(--linie-stark);
+  background: var(--flaeche);
+  color: var(--text);
+  min-height: 2.4rem;
+}
+.wz-feld:focus-visible { outline: 3px solid var(--akzent); outline-offset: 1px; border-color: var(--akzent); }
+textarea.wz-feld { min-height: 8rem; width: 100%; resize: vertical; font-family: var(--schrift-mono); font-size: .9rem; line-height: 1.5; }
+select.wz-feld { cursor: pointer; }
+
+.wz-label {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  font-size: .85rem;
+  color: var(--text-leise);
+  font-weight: 500;
+}
+.wz-label-quer { flex-direction: row; align-items: center; gap: .5rem; }
+
+.wz-schieber { accent-color: var(--akzent); width: 100%; height: 1.6rem; cursor: pointer; }
+
+.wz-schalter {
+  display: inline-flex;
+  border: 1px solid var(--linie-stark);
+  border-radius: var(--radius-klein);
+  overflow: hidden;
+}
+.wz-schalter button {
+  font: inherit;
+  font-size: .9rem;
+  padding: .45rem .8rem;
+  border: 0;
+  background: var(--flaeche);
+  color: var(--text-leise);
+  cursor: pointer;
+  min-height: 2.4rem;
+}
+.wz-schalter button + button { border-left: 1px solid var(--linie); }
+.wz-schalter button[aria-pressed="true"] { background: var(--akzent); color: #fff; font-weight: 600; }
+html[data-thema="dunkel"] .wz-schalter button[aria-pressed="true"] { color: #10131c; }
+
+/* --- Kleinteile ---------------------------------------------------------- */
+
+.wz-marke-pill,
+.wz-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .15rem .6rem;
+  border-radius: 999px;
+  font-size: .76rem;
+  font-weight: 600;
+  background: var(--akzent-hell);
+  color: var(--akzent-tief);
+}
+html[data-thema="dunkel"] .wz-pill { color: var(--text); }
+.wz-pill-teal { background: var(--teal-hell); color: var(--teal); }
+.wz-pill-gold { background: var(--gold-hell); color: var(--gold); }
+.wz-pill-gruen { background: var(--gruen-hell); color: var(--gruen); }
+.wz-pill-rot { background: var(--rot-hell); color: var(--rot); }
+
+.wz-hinweis {
+  border-left: 4px solid var(--akzent);
+  background: var(--flaeche-2);
+  padding: .7rem .9rem;
+  border-radius: 0 var(--radius-klein) var(--radius-klein) 0;
+  font-size: .92rem;
+  color: var(--text-leise);
+}
+.wz-hinweis strong { color: var(--text); }
+
+.wz-fuss {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  border-top: 1px solid var(--linie);
+  font-size: .82rem;
+  color: var(--text-schwach);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.2rem;
+  align-items: baseline;
+}
+.wz-fuss a { color: var(--text-leise); }
+
+kbd {
+  font-family: var(--schrift-mono);
+  font-size: .78em;
+  padding: .1em .4em;
+  border: 1px solid var(--linie-stark);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--flaeche-2);
+  color: var(--text-leise);
+}
+
+.wz-tabelle { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.wz-tabelle th, .wz-tabelle td { padding: .45rem .6rem; text-align: left; border-bottom: 1px solid var(--linie); }
+.wz-tabelle th { font-weight: 600; color: var(--text-leise); font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; }
+.wz-tabelle tbody tr:hover { background: var(--flaeche-2); }
+
+.wz-zahl { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Bühne: der große Bereich, auf den die Klasse schaut */
+.wz-buehne {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 46vh;
+  text-align: center;
+  box-shadow: var(--schatten);
+}
+
+.wz-nur-lesbar { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* --- Vollbild ------------------------------------------------------------ */
+
+:fullscreen .wz-kopf,
+:fullscreen .wz-fuss { display: none; }
+:fullscreen .wz-huelle { max-width: none; padding: 1rem 2rem; }
+:fullscreen body { background: var(--grund); }
+
+/* --- Druck --------------------------------------------------------------- */
+
+@media print {
+  :root { --grund: #fff; --flaeche: #fff; --flaeche-2: #fff; --text: #000; --text-leise: #333; --linie: #999; --schatten: none; }
+  html { font-size: 11pt; }
+  body { background: #fff; }
+  .wz-kopf, .wz-fuss, .wz-nicht-drucken, .wz-streifen { display: none !important; }
+  .wz-huelle { max-width: none; padding: 0; }
+  .wz-karte { border: 1px solid #bbb; box-shadow: none; break-inside: avoid; }
+  a { color: #000; text-decoration: none; }
+  .wz-druckblatt { page-break-after: always; }
+  .wz-druckblatt:last-child { page-break-after: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+}

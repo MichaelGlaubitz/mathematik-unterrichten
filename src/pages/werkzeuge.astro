@@ -1,0 +1,158 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { werkzeuge, werkzeugKategorien, werkzeugPfad } from '../lib/werkzeuge';
+
+const nachKategorie = werkzeugKategorien
+  .map((kategorie) => ({
+    kategorie,
+    liste: werkzeuge.filter((w) => w.kategorie === kategorie),
+  }))
+  .filter((g) => g.liste.length > 0);
+
+const einsatzFarbe: Record<string, string> = {
+  Beamer:
+    'bg-accent-50/80 text-accent-800 ring-accent-200/80 dark:bg-sky-950/40 dark:text-sky-200 dark:ring-sky-400/30',
+  Schülergerät:
+    'bg-teal-50/80 text-teal-800 ring-teal-200/80 dark:bg-teal-950/40 dark:text-teal-200 dark:ring-teal-400/30',
+  Vorbereitung:
+    'bg-violet-50/80 text-violet-800 ring-violet-200/80 dark:bg-fuchsia-950/40 dark:text-fuchsia-200 dark:ring-fuchsia-400/30',
+  Papier:
+    'bg-amber-50/80 text-amber-800 ring-amber-200/80 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-400/30',
+};
+
+const kategorieText: Record<string, string> = {
+  Unterrichtsablauf: 'Was die Stunde strukturiert: Zeit, Gruppen, Aufrufen.',
+  Diagnose: 'Was die Klasse gerade kann – gemessen, nicht geschätzt.',
+  Darstellung: 'Mathematik sichtbar machen: Graphen, Streifen, Zahlenstrahl.',
+  Aufgabenkultur: 'Aufgaben, die ein Gespräch auslösen statt einer Rechnung.',
+  Üben: 'Kurzes, häufiges Training der Grundlagen.',
+  Material: 'Was man auf Papier braucht – passgenau erzeugt.',
+};
+---
+
+<BaseLayout
+  sourceFile="src/pages/werkzeuge.astro"
+  title="Werkzeugkasten"
+  beschreibung={`${werkzeuge.length} eigenständige Unterrichtswerkzeuge für den Mathematikunterricht: Timer, Zufallsgruppen, Whiteboard-Check, Funktionenplotter, Gleichungswaage, Prozentstreifen, Kopfrechen-Sprint und mehr. Ohne Login, ohne Installation, offline nutzbar.`}
+>
+  <!-- Kopf -->
+  <section class="container-wide pt-12 pb-6">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Werkzeugkasten</p>
+    <h1 class="mt-2 font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      {werkzeuge.length} Werkzeuge, die <span class="bg-gradient-to-r from-accent-600 via-teal-600 to-violet-600 bg-clip-text text-transparent dark:from-sky-300 dark:via-teal-200 dark:to-fuchsia-300">sofort</span> laufen
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      Jedes Werkzeug ist eine einzige HTML-Datei: kein Konto, keine Installation, keine
+      Datenübertragung. Einmal geöffnet, läuft es auch dann weiter, wenn das Schul-WLAN
+      wieder aussteigt. Anklicken, projizieren, benutzen.
+    </p>
+
+    <div class="mt-7 flex flex-wrap gap-3 text-sm">
+      <span class="inline-flex items-center gap-2 rounded-full bg-surface/80 px-3 py-1.5 text-ink-700 ring-1 ring-ink-200/80 dark:bg-white/[0.05] dark:text-ink-200 dark:ring-white/10">
+        <span class="text-base" aria-hidden="true">🔌</span> Läuft offline
+      </span>
+      <span class="inline-flex items-center gap-2 rounded-full bg-surface/80 px-3 py-1.5 text-ink-700 ring-1 ring-ink-200/80 dark:bg-white/[0.05] dark:text-ink-200 dark:ring-white/10">
+        <span class="text-base" aria-hidden="true">👤</span> Kein Login
+      </span>
+      <span class="inline-flex items-center gap-2 rounded-full bg-surface/80 px-3 py-1.5 text-ink-700 ring-1 ring-ink-200/80 dark:bg-white/[0.05] dark:text-ink-200 dark:ring-white/10">
+        <span class="text-base" aria-hidden="true">🔒</span> Keine Daten verlassen den Rechner
+      </span>
+      <span class="inline-flex items-center gap-2 rounded-full bg-surface/80 px-3 py-1.5 text-ink-700 ring-1 ring-ink-200/80 dark:bg-white/[0.05] dark:text-ink-200 dark:ring-white/10">
+        <span class="text-base" aria-hidden="true">📽️</span> Beamer-Modus mit <kbd class="rounded border border-ink-300 px-1 text-xs dark:border-white/20">B</kbd>
+      </span>
+    </div>
+  </section>
+
+  <!-- Werkzeuge nach Kategorie -->
+  {nachKategorie.map(({ kategorie, liste }) => (
+    <section class="container-wide pb-12" id={`kategorie-${kategorie.toLowerCase()}`}>
+      <header class="mb-5 border-b border-ink-200/80 pb-3 dark:border-white/10">
+        <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">{kategorie}</h2>
+        <p class="mt-1 text-ink-600 dark:text-ink-400">{kategorieText[kategorie]}</p>
+      </header>
+
+      <div class="grid gap-5 md:grid-cols-2">
+        {liste.map((w) => (
+          <article class="group relative flex flex-col rounded-xl border border-ink-200/90 bg-surface/85 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-md mu-dark-glass-panel dark:hover:border-teal-400/50">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${einsatzFarbe[w.einsatz]}`}>
+                {w.einsatz}
+              </span>
+              <span class="text-xs text-ink-500 dark:text-ink-400">{w.stufe}</span>
+            </div>
+
+            <h3 class="mt-3 font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">
+              <a href={werkzeugPfad(w)} class="after:absolute after:inset-0 hover:text-accent-700 dark:hover:text-teal-200">
+                {w.titel}
+              </a>
+            </h3>
+            <p class="mt-1.5 font-medium text-ink-800 dark:text-ink-200">{w.kurz}</p>
+            <p class="mt-2 flex-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">{w.beschreibung}</p>
+
+            <div class="relative z-10 mt-4 flex flex-wrap items-center gap-4 text-sm">
+              <a href={werkzeugPfad(w)} class="link-arrow font-medium">Werkzeug öffnen </a>
+              {w.hintergrund && (
+                <a href={w.hintergrund.href} class="text-ink-500 underline decoration-ink-300 underline-offset-2 hover:text-accent-700 dark:text-ink-400 dark:decoration-white/20 dark:hover:text-teal-200">
+                  {w.hintergrund.text}
+                </a>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <!-- Weitere Werkzeuge auf der Seite -->
+  <section class="container-wide pb-14">
+    <div class="rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 sm:p-8 shadow-sm dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Und die Aufgaben selbst?</h2>
+      <p class="mt-3 max-w-3xl leading-relaxed text-ink-700 dark:text-ink-300">
+        Für Übungsblätter und Mini-Whiteboard-Runden gibt es auf dieser Seite eigene Generatoren:
+        Sie erzeugen zu jedem Thema beliebig viele Aufgaben mit Lösungen – als Bildschirmübung
+        oder als druckfertiges Arbeitsblatt.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="/themen" class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-4 py-2 font-medium text-white shadow-sm transition hover:brightness-105 dark:from-sky-500 dark:to-teal-400">
+          Übungsgeneratoren nach Thema <span aria-hidden="true">→</span>
+        </a>
+        <a href="/quizzes" class="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-surface/80 px-4 py-2 font-medium text-ink-800 transition hover:border-accent-400 dark:border-white/15 dark:bg-white/[0.04] dark:text-ink-100">
+          Diagnostische Fragen
+        </a>
+        <a href="/ausb/" class="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-surface/80 px-4 py-2 font-medium text-ink-800 transition hover:border-accent-400 dark:border-white/15 dark:bg-white/[0.04] dark:text-ink-100">
+          Handreichungen für die Ausbildung
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technische Zusicherung -->
+  <section class="container-wide pb-20">
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="rounded-xl border border-ink-200/90 bg-surface/70 p-5 dark:border-white/[0.08] dark:bg-white/[0.02]">
+        <h3 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Auf dem Schulrechner</h3>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          Die Werkzeuge brauchen nur einen aktuellen Browser – kein Java, kein Flash, keine
+          Installationsrechte. Sie lassen sich mit <kbd class="rounded border border-ink-300 px-1 text-xs dark:border-white/20">Strg</kbd>+<kbd class="rounded border border-ink-300 px-1 text-xs dark:border-white/20">S</kbd>
+          als Datei speichern und dann vom Stick starten.
+        </p>
+      </div>
+      <div class="rounded-xl border border-ink-200/90 bg-surface/70 p-5 dark:border-white/[0.08] dark:bg-white/[0.02]">
+        <h3 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Datenschutz</h3>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          Klassenlisten und Auswertungen bleiben im <em>localStorage</em> des Browsers.
+          Es gibt keinen Server, der sie entgegennimmt. Auf geteilten Rechnern:
+          Klasse nach der Stunde im Werkzeug wieder löschen.
+        </p>
+      </div>
+      <div class="rounded-xl border border-ink-200/90 bg-surface/70 p-5 dark:border-white/[0.08] dark:bg-white/[0.02]">
+        <h3 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Weiterverwenden</h3>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+          Quelltext und Inhalte stehen unter CC BY-SA 4.0 beziehungsweise MIT.
+          Kopieren, anpassen und im eigenen Kollegium verteilen ist ausdrücklich erwünscht –
+          <a href="/kontakt" class="underline underline-offset-2 hover:text-accent-700 dark:hover:text-teal-200">Rückmeldungen</a> ebenso.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bruchstreifen · mathematik-unterrichten.de</title>
+<meta name="description" content="Brüche gleichzeitig als Streifen, Kreis und Punkt auf dem Zahlenstrahl: vergleichen, erweitern, kürzen, addieren. Für den Bruner-Dreischritt am Beamer.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .br-eingabe { display: flex; flex-wrap: wrap; gap: 1.4rem; align-items: flex-start; }
+  .br-bruch { display: flex; align-items: center; gap: .7rem; }
+  .br-stapel { display: flex; flex-direction: column; align-items: center; gap: .15rem; }
+  .br-stapel .br-wert {
+    font-family: var(--schrift-serif); font-size: 2rem; font-weight: 600; line-height: 1.05;
+    font-variant-numeric: tabular-nums; min-width: 2.2rem; text-align: center;
+  }
+  .br-strich { width: 2.6rem; height: 3px; background: var(--text); border-radius: 2px; }
+  .br-pfeile { display: flex; flex-direction: column; gap: .2rem; }
+  .br-pfeile button { width: 2rem; height: 1.6rem; min-height: 0; padding: 0; justify-content: center; font-size: .9rem; }
+  .br-etikett { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-schwach); font-weight: 600; }
+
+  .br-zeile { display: grid; gap: 1rem; align-items: center; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .br-zeile { grid-template-columns: 1fr 190px; } }
+  .br-flaeche { width: 100%; height: auto; display: block; }
+
+  .br-info { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; font-size: .95rem; color: var(--text-leise); margin-top: .5rem; }
+  .br-info b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .br-urteil { font-family: var(--schrift-serif); font-size: clamp(1.3rem, 3.4vw, 2rem); font-weight: 600; text-align: center; margin: .3rem 0 0; }
+  .br-satz { text-align: center; max-width: 62ch; margin: .6rem auto 0; color: var(--text-leise); font-size: .95rem; }
+  .br-satz b { color: var(--text); }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Bruchstreifen</h1>
+
+  <div class="wz-karte wz-nicht-drucken">
+    <div class="br-eingabe">
+      <div>
+        <p class="br-etikett" style="margin-bottom:.35rem">Bruch A</p>
+        <div class="br-bruch" id="br-a"></div>
+      </div>
+      <div id="br-b-huelle">
+        <p class="br-etikett" style="margin-bottom:.35rem">Bruch B</p>
+        <div class="br-bruch" id="br-b"></div>
+      </div>
+      <div style="margin-left:auto">
+        <p class="br-etikett" style="margin-bottom:.35rem">Was zeigen?</p>
+        <div class="wz-schalter" role="group" aria-label="Betriebsart">
+          <button type="button" data-modus="vergleichen" aria-pressed="true">Vergleichen</button>
+          <button type="button" data-modus="erweitern" aria-pressed="false">Erweitern</button>
+          <button type="button" data-modus="addieren" aria-pressed="false">Addieren</button>
+        </div>
+        <div class="wz-reihe" style="margin-top:.6rem">
+          <label class="wz-label wz-label-quer"><input type="checkbox" id="br-zahlen" checked> Zahlen einblenden</label>
+          <label class="wz-label wz-label-quer"><input type="checkbox" id="br-kreis" checked> Kreis</label>
+        </div>
+      </div>
+    </div>
+
+    <div id="br-erweitern-regler" class="wz-abstand" hidden>
+      <label class="wz-label">
+        <span>Erweiterungsfaktor <b id="br-faktor-anzeige">2</b> — Zähler <em>und</em> Nenner werden damit multipliziert</span>
+        <input class="wz-schieber" id="br-faktor" type="range" min="1" max="8" step="1" value="2">
+      </label>
+    </div>
+  </div>
+
+  <div class="wz-karte wz-abstand" id="br-buehne"></div>
+
+  <div class="wz-karte wz-abstand">
+    <h2>Zahlenstrahl</h2>
+    <svg id="br-strahl" viewBox="0 0 900 130" class="br-flaeche" role="img" aria-label="Zahlenstrahl von 0 bis 2 mit den eingetragenen Brüchen"></svg>
+  </div>
+
+  <p class="wz-lead wz-abstand">
+    Derselbe Bruch, drei Darstellungen nebeneinander – Streifen, Kreis, Zahlenstrahl.
+    Genau darin liegt der Bruner-Dreischritt: Erst wenn die Klasse zwischen den Darstellungen
+    hin- und herübersetzen kann, trägt der Begriff. Der Modus <strong>Erweitern</strong> zeigt,
+    dass beim Erweitern die Fläche gleich bleibt und nur feiner geteilt wird –
+    das ist die Antwort auf „Warum darf man das?“.
+  </p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const FARBE_A = '#2563eb';
+  const FARBE_B = '#be123c';
+  const FARBE_SUMME = '#7c3aed';
+  const NS = 'http://www.w3.org/2000/svg';
+
+  let a = { z: 2, n: 3 };
+  let b = { z: 3, n: 4 };
+  let modus = 'vergleichen';
+  let faktor = 2;
+
+  function neu(tag, attr, text) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    if (text !== undefined) k.textContent = text;
+    return k;
+  }
+
+  // --- Eingabe -------------------------------------------------------------
+
+  function stepper(bruch, feld, grenze, beiAenderung) {
+    const wert = WZ.el('span', { class: 'br-wert', text: String(bruch[feld]) });
+    const knoepfe = WZ.el('div', { class: 'br-pfeile' }, [
+      WZ.el('button', {
+        class: 'wz-knopf', type: 'button', 'aria-label': 'mehr',
+        onclick: function () {
+          if (bruch[feld] < grenze[1]) { bruch[feld]++; wert.textContent = bruch[feld]; beiAenderung(); }
+        }
+      }, ['▲']),
+      WZ.el('button', {
+        class: 'wz-knopf', type: 'button', 'aria-label': 'weniger',
+        onclick: function () {
+          if (bruch[feld] > grenze[0]) { bruch[feld]--; wert.textContent = bruch[feld]; beiAenderung(); }
+        }
+      }, ['▼'])
+    ]);
+    return { wert: wert, knoepfe: knoepfe };
+  }
+
+  function bruchEingabe(wurzel, bruch) {
+    wurzel.textContent = '';
+    const z = stepper(bruch, 'z', [0, 24], alles);
+    const n = stepper(bruch, 'n', [1, 16], function () {
+      if (bruch.z > bruch.n * 2) { bruch.z = bruch.n * 2; z.wert.textContent = bruch.z; }
+      alles();
+    });
+    wurzel.appendChild(WZ.el('div', { class: 'br-stapel' }, [
+      z.wert, WZ.el('span', { class: 'br-strich' }), n.wert
+    ]));
+    wurzel.appendChild(WZ.el('div', { style: 'display:flex;flex-direction:column;gap:.6rem' }, [z.knoepfe, n.knoepfe]));
+  }
+
+  // --- Darstellungen -------------------------------------------------------
+
+  /** Streifen: n gleich breite Felder, davon z gefüllt. */
+  function streifen(z, n, farbe, breite, hoehe, beschriften) {
+    const g = neu('g', {});
+    const feld = breite / n;
+    for (let i = 0; i < n; i++) {
+      g.appendChild(neu('rect', {
+        x: (i * feld).toFixed(2), y: 0, width: feld.toFixed(2), height: hoehe,
+        fill: i < z ? farbe : 'var(--flaeche-2)',
+        'fill-opacity': i < z ? 0.85 : 1,
+        stroke: 'var(--text)', 'stroke-width': 1.2
+      }));
+    }
+    // Feldbeschriftung nur, wenn sie ohne Überlappung hineinpasst
+    if (beschriften && feld >= 34) {
+      const schrift = Math.min(17, feld * 0.34);
+      for (let i = 0; i < n; i++) {
+        g.appendChild(neu('text', {
+          x: (i * feld + feld / 2).toFixed(2), y: hoehe / 2 + schrift * 0.36,
+          'text-anchor': 'middle', 'font-size': schrift.toFixed(1),
+          fill: i < z ? '#fff' : 'var(--text-schwach)', 'font-family': 'var(--schrift)'
+        }, '1/' + n));
+      }
+    }
+    return g;
+  }
+
+  /** Kreis: n Sektoren, davon z gefüllt. */
+  function kreis(z, n, farbe, r) {
+    const g = neu('g', {});
+    for (let i = 0; i < n; i++) {
+      const von = (i / n) * 2 * Math.PI - Math.PI / 2;
+      const bis = ((i + 1) / n) * 2 * Math.PI - Math.PI / 2;
+      const x1 = r + r * Math.cos(von), y1 = r + r * Math.sin(von);
+      const x2 = r + r * Math.cos(bis), y2 = r + r * Math.sin(bis);
+      const gross = (bis - von) > Math.PI ? 1 : 0;
+      const d = n === 1
+        ? 'M ' + r + ' ' + 0 + ' A ' + r + ' ' + r + ' 0 1 1 ' + (r - 0.01) + ' 0 Z'
+        : 'M ' + r + ' ' + r + ' L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+          ' A ' + r + ' ' + r + ' 0 ' + gross + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z';
+      g.appendChild(neu('path', {
+        d: d, fill: i < z ? farbe : 'var(--flaeche-2)',
+        'fill-opacity': i < z ? 0.85 : 1, stroke: 'var(--text)', 'stroke-width': 1.2
+      }));
+    }
+    return g;
+  }
+
+  function zeile(titel, z, n, farbe, zusatz) {
+    const zeigeZahlen = document.getElementById('br-zahlen').checked;
+    const zeigeKreis = document.getElementById('br-kreis').checked;
+    const ganze = Math.floor(z / n);
+    const rest = z % n;
+
+    const streifenSvg = neu('svg', { viewBox: '0 0 900 90', class: 'br-flaeche', role: 'img' });
+    streifenSvg.appendChild(neu('title', {}, titel + ': ' + z + ' von ' + n + ' Teilen'));
+    // Bei unechten Brüchen zwei Streifen nebeneinander (ein Ganzes plus Rest)
+    const anzahlStreifen = z > n ? 2 : 1;
+    const breite = anzahlStreifen === 2 ? 430 : 880;
+    for (let s = 0; s < anzahlStreifen; s++) {
+      const inStreifen = s === 0 ? Math.min(z, n) : Math.max(0, z - n);
+      const g = streifen(inStreifen, n, farbe, breite, 60, zeigeZahlen);
+      g.setAttribute('transform', 'translate(' + (10 + s * (breite + 20)) + ', 14)');
+      streifenSvg.appendChild(g);
+    }
+
+    const teile = [
+      WZ.el('div', {}, [streifenSvg])
+    ];
+
+    if (zeigeKreis) {
+      // Unechte Brüche brauchen mehrere Kreise, sonst zeigt ein voller Kreis
+      // faelschlich 12/12 statt 17/12.
+      const anzahlKreise = Math.max(1, Math.min(3, Math.ceil(z / n)));
+      const r = anzahlKreise === 1 ? 88 : 60;
+      const breiteSvg = anzahlKreise * (2 * r + 12);
+      const kreisSvg = neu('svg', {
+        viewBox: '0 0 ' + breiteSvg + ' ' + (2 * r + 12),
+        style: 'width:100%;max-width:' + (anzahlKreise === 1 ? 170 : 190) + 'px;height:auto;display:block;margin:0 auto',
+        role: 'img'
+      });
+      kreisSvg.appendChild(neu('title', {}, titel + ' als Kreisdiagramm'));
+      for (let k = 0; k < anzahlKreise; k++) {
+        const gefuellt = Math.max(0, Math.min(n, z - k * n));
+        const gk = kreis(gefuellt, n, farbe, r);
+        gk.setAttribute('transform', 'translate(' + (k * (2 * r + 12) + 6) + ', 6)');
+        kreisSvg.appendChild(gk);
+      }
+      teile.push(WZ.el('div', {}, [kreisSvg]));
+    }
+
+    const kopf = WZ.el('div', { class: 'wz-reihe', style: 'justify-content:space-between;margin-bottom:.3rem' }, [
+      WZ.el('p', { class: 'br-etikett', style: 'color:' + farbe, text: titel }),
+      WZ.el('p', {
+        style: 'font-family:var(--schrift-serif);font-size:1.25rem;font-weight:600',
+        html: '<span style="color:' + farbe + '">' + z + '/' + n + '</span>' +
+              (zeigeZahlen ? ' <span style="color:var(--text-leise);font-size:.85em">= ' + WZ.zahl(z / n, 4) +
+                ' = ' + WZ.zahl((z / n) * 100, 1) + ' %' +
+                (rest !== 0 && ganze > 0 ? ' = ' + ganze + ' ' + rest + '/' + n : '') + '</span>' : '')
+      })
+    ]);
+
+    const block = WZ.el('div', { style: 'margin-bottom:1.2rem' }, [kopf, WZ.el('div', { class: 'br-zeile' }, teile)]);
+    if (zusatz) block.appendChild(zusatz);
+    return block;
+  }
+
+  // --- Modi ----------------------------------------------------------------
+
+  function buehneZeichnen() {
+    const buehne = document.getElementById('br-buehne');
+    buehne.textContent = '';
+
+    if (modus === 'vergleichen') {
+      buehne.appendChild(zeile('Bruch A', a.z, a.n, FARBE_A));
+      buehne.appendChild(zeile('Bruch B', b.z, b.n, FARBE_B));
+      const wA = a.z / a.n, wB = b.z / b.n;
+      const zeichen = Math.abs(wA - wB) < 1e-12 ? '=' : (wA > wB ? '>' : '<');
+      buehne.appendChild(WZ.el('p', {
+        class: 'br-urteil',
+        html: '<span style="color:' + FARBE_A + '">' + a.z + '/' + a.n + '</span> ' + zeichen +
+              ' <span style="color:' + FARBE_B + '">' + b.z + '/' + b.n + '</span>'
+      }));
+      const kgv = (a.n * b.n) / WZ.ggt(a.n, b.n);
+      buehne.appendChild(WZ.el('p', {
+        class: 'br-info', style: 'justify-content:center',
+        html: 'Gemeinsamer Nenner: <b>' + kgv + '</b> &nbsp;·&nbsp; ' +
+              '<span style="color:' + FARBE_A + '">' + (a.z * (kgv / a.n)) + '/' + kgv + '</span> gegen ' +
+              '<span style="color:' + FARBE_B + '">' + (b.z * (kgv / b.n)) + '/' + kgv + '</span>'
+      }));
+      return;
+    }
+
+    if (modus === 'erweitern') {
+      const t = WZ.ggt(a.z, a.n);
+      buehne.appendChild(zeile('Ausgangsbruch', a.z, a.n, FARBE_A));
+      buehne.appendChild(zeile('mit ' + faktor + ' erweitert', a.z * faktor, a.n * faktor, FARBE_A));
+      buehne.appendChild(WZ.el('p', {
+        class: 'br-urteil',
+        html: a.z + '/' + a.n + ' = ' + (a.z * faktor) + '/' + (a.n * faktor) +
+              '<span style="font-size:.6em;color:var(--text-leise)"> — gleich viel, nur feiner geteilt</span>'
+      }));
+      if (t > 1) {
+        buehne.appendChild(WZ.el('p', {
+          class: 'br-info', style: 'justify-content:center',
+          html: 'Vollständig gekürzt: <b>' + (a.z / t) + '/' + (a.n / t) + '</b> (mit ' + t + ' gekürzt)'
+        }));
+      } else {
+        buehne.appendChild(WZ.el('p', {
+          class: 'br-info', style: 'justify-content:center',
+          html: '<b>' + a.z + '/' + a.n + '</b> ist bereits vollständig gekürzt.'
+        }));
+      }
+      return;
+    }
+
+    // Addieren
+    const kgv = (a.n * b.n) / WZ.ggt(a.n, b.n);
+    const az = a.z * (kgv / a.n);
+    const bz = b.z * (kgv / b.n);
+    const summe = az + bz;
+    buehne.appendChild(zeile('A = ' + a.z + '/' + a.n + ', gleichnamig ' + az + '/' + kgv, az, kgv, FARBE_A));
+    buehne.appendChild(zeile('B = ' + b.z + '/' + b.n + ', gleichnamig ' + bz + '/' + kgv, bz, kgv, FARBE_B));
+    buehne.appendChild(zeile('Summe', summe, kgv, FARBE_SUMME));
+    const t = WZ.ggt(summe, kgv);
+    buehne.appendChild(WZ.el('p', {
+      class: 'br-urteil',
+      html: a.z + '/' + a.n + ' + ' + b.z + '/' + b.n + ' = ' + az + '/' + kgv + ' + ' + bz + '/' + kgv +
+            ' = <span style="color:' + FARBE_SUMME + '">' + summe + '/' + kgv + '</span>' +
+            (t > 1 ? ' = ' + (summe / t) + '/' + (kgv / t) : '')
+    }));
+    buehne.appendChild(WZ.el('p', {
+      class: 'br-satz',
+      html: 'Beide Streifen haben jetzt <b>gleich breite Felder</b> – erst dann darf man die gefüllten Felder zusammenzählen. ' +
+            'Genau das ist der Grund, warum Nenner <em>nicht</em> addiert werden.'
+    }));
+  }
+
+  function strahlZeichnen() {
+    const svg = document.getElementById('br-strahl');
+    svg.textContent = '';
+    const links = 40, rechts = 860, y = 74;
+    const maxWert = Math.max(2, Math.ceil(Math.max(a.z / a.n, b.z / b.n, modus === 'addieren' ? a.z / a.n + b.z / b.n : 0)));
+    const zuPx = function (w) { return links + (w / maxWert) * (rechts - links); };
+
+    svg.appendChild(neu('line', { x1: links, y1: y, x2: rechts + 16, y2: y, stroke: 'var(--text)', 'stroke-width': 2 }));
+    svg.appendChild(neu('polygon', {
+      points: (rechts + 22) + ',' + y + ' ' + (rechts + 8) + ',' + (y - 5) + ' ' + (rechts + 8) + ',' + (y + 5),
+      fill: 'var(--text)'
+    }));
+
+    // Feine Teilung nach dem gemeinsamen Nenner – so wird sichtbar, dass beide
+    // Brüche auf demselben Raster liegen.
+    const kgv = Math.min(60, (a.n * b.n) / WZ.ggt(a.n, b.n));
+    for (let i = 0; i <= maxWert * kgv; i++) {
+      const w = i / kgv;
+      svg.appendChild(neu('line', {
+        x1: zuPx(w), y1: y - 5, x2: zuPx(w), y2: y + 5,
+        stroke: 'var(--linie-stark)', 'stroke-width': 1
+      }));
+    }
+    for (let i = 0; i <= maxWert; i++) {
+      svg.appendChild(neu('line', { x1: zuPx(i), y1: y - 12, x2: zuPx(i), y2: y + 12, stroke: 'var(--text)', 'stroke-width': 2 }));
+      svg.appendChild(neu('text', {
+        x: zuPx(i), y: y + 32, 'text-anchor': 'middle', 'font-size': 16,
+        fill: 'var(--text)', 'font-family': 'var(--schrift)'
+      }, String(i)));
+    }
+
+    function marke(wert, farbe, etikett, hoehe) {
+      const x = zuPx(wert);
+      svg.appendChild(neu('line', { x1: x, y1: y, x2: x, y2: y - hoehe, stroke: farbe, 'stroke-width': 3 }));
+      svg.appendChild(neu('circle', { cx: x, cy: y - hoehe, r: 6, fill: farbe }));
+      svg.appendChild(neu('text', {
+        x: x, y: y - hoehe - 12, 'text-anchor': 'middle', 'font-size': 17, fill: farbe,
+        'font-family': 'var(--schrift-serif)', 'font-weight': 600
+      }, etikett));
+    }
+
+    marke(a.z / a.n, FARBE_A, a.z + '/' + a.n, 34);
+    if (modus !== 'erweitern') marke(b.z / b.n, FARBE_B, b.z + '/' + b.n, 58);
+    if (modus === 'addieren') marke(a.z / a.n + b.z / b.n, FARBE_SUMME, 'Summe', 34);
+  }
+
+  function alles() {
+    buehneZeichnen();
+    strahlZeichnen();
+  }
+
+  // --- Verdrahtung ---------------------------------------------------------
+
+  document.querySelectorAll('[data-modus]').forEach(function (knopf) {
+    knopf.addEventListener('click', function () {
+      modus = knopf.dataset.modus;
+      document.querySelectorAll('[data-modus]').forEach(function (k) {
+        k.setAttribute('aria-pressed', String(k === knopf));
+      });
+      document.getElementById('br-erweitern-regler').hidden = modus !== 'erweitern';
+      document.getElementById('br-b-huelle').style.display = modus === 'erweitern' ? 'none' : '';
+      alles();
+    });
+  });
+
+  document.getElementById('br-faktor').addEventListener('input', function (e) {
+    faktor = parseInt(e.target.value, 10);
+    document.getElementById('br-faktor-anzeige').textContent = faktor;
+    alles();
+  });
+  document.getElementById('br-zahlen').addEventListener('change', alles);
+  document.getElementById('br-kreis').addEventListener('change', alles);
+
+  WZ.kopf({ titel: 'Bruchstreifen' });
+  WZ.fuss('Alle Darstellungen sind maßstabsgetreu: Die gefüllte Fläche entspricht genau dem Zahlenwert.');
+  bruchEingabe(document.getElementById('br-a'), a);
+  bruchEingabe(document.getElementById('br-b'), b);
+  alles();
+})();
+</script>
+</body>
+</html>

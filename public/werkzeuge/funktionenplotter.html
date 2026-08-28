@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funktionenplotter · mathematik-unterrichten.de</title>
+<meta name="description" content="Funktionsgraphen mit Parametern am Schieberegler: beschriftete Achsen, Skalenticks, stufenloser Zoom und eine Spur der letzten Kurven. Für die Frage „Was passiert, wenn …?“">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .fp-buehne { padding: .8rem; min-height: unset; }
+  #fp-svg { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; background: var(--flaeche); border-radius: var(--radius-klein); }
+  #fp-svg.fp-zieht { cursor: grabbing; }
+  .fp-gitter { stroke: var(--linie); stroke-width: .5; }
+  .fp-gitter-grob { stroke: var(--linie-stark); stroke-width: .8; opacity: .55; }
+  .fp-achse { stroke: var(--text); stroke-width: 1.6; }
+  .fp-tick { stroke: var(--text); stroke-width: 1.2; }
+  .fp-ticktext { fill: var(--text-leise); font-size: 11px; font-family: var(--schrift); }
+  .fp-achstext { fill: var(--text); font-size: 15px; font-style: italic; font-family: var(--schrift-serif); }
+  .fp-kurve { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fp-spur { fill: none; stroke-width: 1.6; opacity: .28; stroke-linecap: round; }
+
+  .fp-fn-zeile { display: grid; grid-template-columns: 1.1rem 1fr 2.2rem; gap: .5rem; align-items: center; margin-bottom: .45rem; }
+  .fp-strich { height: 4px; border-radius: 2px; }
+  .fp-fehler { color: var(--rot); font-size: .8rem; margin: .1rem 0 .5rem 1.6rem; }
+  .fp-param { display: grid; grid-template-columns: 1.5rem 1fr 3.2rem; gap: .5rem; align-items: center; margin-bottom: .45rem; }
+  .fp-param b { font-family: var(--schrift-serif); font-style: italic; font-size: 1.05rem; }
+  .fp-param output { font-variant-numeric: tabular-nums; text-align: right; font-size: .9rem; color: var(--text-leise); }
+  .fp-vorlagen { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .fp-vorlagen button { font-size: .85rem; padding: .3rem .65rem; min-height: 2rem; }
+  .fp-zoom { position: absolute; right: 1.2rem; top: 1.2rem; display: flex; flex-direction: column; gap: .3rem; }
+
+  @media (min-width: 1000px) { .fp-layout { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Funktionenplotter</h1>
+
+  <div class="fp-layout">
+    <section>
+      <div class="wz-karte fp-buehne" style="position:relative">
+        <svg id="fp-svg" viewBox="0 0 760 520" role="img" aria-labelledby="fp-titel">
+          <title id="fp-titel">Koordinatensystem mit den eingegebenen Funktionsgraphen</title>
+        </svg>
+        <div class="fp-zoom wz-nicht-drucken">
+          <button class="wz-knopf wz-icon-knopf" id="fp-plus" type="button" title="Vergrößern (+)" style="background:var(--flaeche);border-color:var(--linie)">＋</button>
+          <button class="wz-knopf wz-icon-knopf" id="fp-minus" type="button" title="Verkleinern (−)" style="background:var(--flaeche);border-color:var(--linie)">−</button>
+          <button class="wz-knopf wz-icon-knopf" id="fp-heim" type="button" title="Ausschnitt zurücksetzen" style="background:var(--flaeche);border-color:var(--linie)">⌂</button>
+        </div>
+      </div>
+
+      <div class="wz-reihe wz-abstand wz-nicht-drucken">
+        <button class="wz-knopf" id="fp-spur-an" type="button" aria-pressed="false" title="Beim Ziehen am Schieberegler bleiben die alten Kurven blass stehen">Spur zeigen</button>
+        <button class="wz-knopf wz-knopf-still" id="fp-spur-leeren" type="button">Spur löschen</button>
+        <button class="wz-knopf wz-knopf-still" id="fp-tabelle-an" type="button" aria-pressed="false">Wertetabelle</button>
+        <button class="wz-knopf wz-knopf-still" id="fp-drucken" type="button">Drucken</button>
+      </div>
+
+      <div class="wz-karte wz-abstand" id="fp-tabelle-karte" hidden>
+        <h2>Wertetabelle</h2>
+        <div style="overflow-x:auto;margin-top:.6rem">
+          <table class="wz-tabelle" id="fp-tabelle"></table>
+        </div>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        Ziehen Sie am Schieberegler und lassen Sie die Klasse <em>vorher</em> sagen, was passieren wird –
+        das ist der Kern von Variation Theory: eine Größe ändern, alles andere festhalten.
+        Ziehen im Bild verschiebt den Ausschnitt, <kbd>+</kbd> und <kbd>−</kbd> zoomen.
+      </p>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Vorlagen</h2>
+        <div class="fp-vorlagen wz-abstand" id="fp-vorlagen"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Funktionen</h2>
+        <div id="fp-funktionen" class="wz-abstand"></div>
+        <p style="font-size:.78rem;color:var(--text-schwach);margin:.6rem 0 0">
+          Erlaubt: <code>+ − * / ^</code>, Klammern, <code>a b c x</code>,
+          <code>sin cos tan sqrt abs exp ln log</code>, <code>pi e</code>.
+          Multiplikationszeichen darf zwischen Zahl und Variable entfallen (<code>2x</code>).
+        </p>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Parameter</h2>
+        <div id="fp-parameter" class="wz-abstand"></div>
+        <label class="wz-label wz-label-quer" style="margin-top:.7rem">
+          Schrittweite
+          <select class="wz-feld" id="fp-schritt">
+            <option value="1">1</option>
+            <option value="0.5">0,5</option>
+            <option value="0.1" selected>0,1</option>
+            <option value="0.01">0,01</option>
+          </select>
+        </label>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ======================================================================
+  // 1) Ausdrücke: Tokenizer, Shunting-Yard, Auswertung in umgekehrter
+  //    polnischer Notation. Bewusst kein eval() – der Parser kennt nur
+  //    Zahlen, Klammern, vier Grundrechenarten, Potenz und eine feste
+  //    Liste von Funktionen.
+  // ======================================================================
+
+  const FUNKTIONEN = {
+    sin: Math.sin, cos: Math.cos, tan: Math.tan,
+    sqrt: Math.sqrt, abs: Math.abs, exp: Math.exp,
+    ln: Math.log, log: function (x) { return Math.log(x) / Math.LN10; },
+    asin: Math.asin, acos: Math.acos, atan: Math.atan
+  };
+  const KONSTANTEN = { pi: Math.PI, e: Math.E };
+  const VARIABLEN = ['x', 'a', 'b', 'c'];
+  const RANG = { '+': 1, '-': 1, '*': 2, '/': 2, '^': 3 };
+
+  function zerlegen(quelle) {
+    const text = quelle.toLowerCase().replace(/\s+/g, '').replace(/,/g, '.');
+    const marken = [];
+    let i = 0;
+    while (i < text.length) {
+      const z = text[i];
+      if (/[0-9.]/.test(z)) {
+        let j = i;
+        while (j < text.length && /[0-9.]/.test(text[j])) j++;
+        const zahl = parseFloat(text.slice(i, j));
+        if (!isFinite(zahl)) throw new Error('Ungültige Zahl');
+        marken.push({ art: 'zahl', wert: zahl });
+        i = j;
+      } else if (/[a-z]/.test(z)) {
+        let j = i;
+        while (j < text.length && /[a-z]/.test(text[j])) j++;
+        let wort = text.slice(i, j);
+        // „2xsin(x)“ soll nicht als Bezeichner „xsin“ verstanden werden:
+        // längste passende Funktion/Konstante von links greifen, sonst Buchstabe für Buchstabe.
+        while (wort.length > 0) {
+          if (FUNKTIONEN[wort]) { marken.push({ art: 'funktion', wert: wort }); break; }
+          if (KONSTANTEN[wort] !== undefined) { marken.push({ art: 'zahl', wert: KONSTANTEN[wort] }); break; }
+          if (wort.length === 1 && VARIABLEN.indexOf(wort) !== -1) { marken.push({ art: 'variable', wert: wort }); break; }
+          wort = wort.slice(0, -1);
+          if (wort.length === 0) throw new Error('Unbekannter Name');
+        }
+        i += wort.length;
+      } else if ('+-*/^'.indexOf(z) !== -1) {
+        marken.push({ art: 'operator', wert: z });
+        i++;
+      } else if (z === '(' || z === ')') {
+        marken.push({ art: z === '(' ? 'auf' : 'zu' });
+        i++;
+      } else {
+        throw new Error('Unerlaubtes Zeichen „' + z + '“');
+      }
+    }
+
+    // Implizite Multiplikation: 2x, 3(x+1), )( , x sin(x), 2pi
+    const ergaenzt = [];
+    for (let k = 0; k < marken.length; k++) {
+      const vor = marken[k - 1];
+      const jetzt = marken[k];
+      if (vor) {
+        const vorEndet = vor.art === 'zahl' || vor.art === 'variable' || vor.art === 'zu';
+        const jetztBeginnt = jetzt.art === 'zahl' || jetzt.art === 'variable' || jetzt.art === 'auf' || jetzt.art === 'funktion';
+        if (vorEndet && jetztBeginnt) ergaenzt.push({ art: 'operator', wert: '*' });
+      }
+      ergaenzt.push(jetzt);
+    }
+
+    // Unäres Minus als 0 − … abbilden
+    const fertig = [];
+    for (let k = 0; k < ergaenzt.length; k++) {
+      const m = ergaenzt[k];
+      const vor = ergaenzt[k - 1];
+      const istUnaer = m.art === 'operator' && (m.wert === '-' || m.wert === '+') &&
+        (!vor || vor.art === 'operator' || vor.art === 'auf');
+      if (istUnaer) {
+        fertig.push({ art: 'zahl', wert: 0 });
+        fertig.push({ art: 'operator', wert: m.wert });
+      } else {
+        fertig.push(m);
+      }
+    }
+    return fertig;
+  }
+
+  function nachRPN(marken) {
+    const ausgabe = [];
+    const stapel = [];
+    marken.forEach(function (m) {
+      if (m.art === 'zahl' || m.art === 'variable') ausgabe.push(m);
+      else if (m.art === 'funktion') stapel.push(m);
+      else if (m.art === 'operator') {
+        while (stapel.length) {
+          const oben = stapel[stapel.length - 1];
+          const hoeher = oben.art === 'funktion' ||
+            (oben.art === 'operator' &&
+              (RANG[oben.wert] > RANG[m.wert] || (RANG[oben.wert] === RANG[m.wert] && m.wert !== '^')));
+          if (!hoeher) break;
+          ausgabe.push(stapel.pop());
+        }
+        stapel.push(m);
+      } else if (m.art === 'auf') stapel.push(m);
+      else if (m.art === 'zu') {
+        let gefunden = false;
+        while (stapel.length) {
+          const oben = stapel.pop();
+          if (oben.art === 'auf') { gefunden = true; break; }
+          ausgabe.push(oben);
+        }
+        if (!gefunden) throw new Error('Klammer schließt zu früh');
+        if (stapel.length && stapel[stapel.length - 1].art === 'funktion') ausgabe.push(stapel.pop());
+      }
+    });
+    while (stapel.length) {
+      const rest = stapel.pop();
+      if (rest.art === 'auf') throw new Error('Klammer nicht geschlossen');
+      ausgabe.push(rest);
+    }
+    return ausgabe;
+  }
+
+  /** Übersetzt einen Term in eine Funktion (x, a, b, c) -> Zahl. */
+  function uebersetze(quelle) {
+    const rpn = nachRPN(zerlegen(quelle));
+    if (rpn.length === 0) throw new Error('Leerer Term');
+    // Probelauf: fängt strukturelle Fehler sofort ab statt erst beim Zeichnen
+    auswerten(rpn, 1, 1, 1, 1);
+    return function (x, a, b, c) { return auswerten(rpn, x, a, b, c); };
+  }
+
+  function auswerten(rpn, x, a, b, c) {
+    const s = [];
+    for (let i = 0; i < rpn.length; i++) {
+      const m = rpn[i];
+      if (m.art === 'zahl') s.push(m.wert);
+      else if (m.art === 'variable') s.push(m.wert === 'x' ? x : m.wert === 'a' ? a : m.wert === 'b' ? b : c);
+      else if (m.art === 'funktion') {
+        if (s.length < 1) throw new Error('Funktion ohne Argument');
+        s.push(FUNKTIONEN[m.wert](s.pop()));
+      } else {
+        if (s.length < 2) throw new Error('Operator ohne genug Operanden');
+        const r = s.pop();
+        const l = s.pop();
+        s.push(m.wert === '+' ? l + r : m.wert === '-' ? l - r : m.wert === '*' ? l * r :
+               m.wert === '/' ? l / r : Math.pow(l, r));
+      }
+    }
+    if (s.length !== 1) throw new Error('Term unvollständig');
+    return s[0];
+  }
+
+  // ======================================================================
+  // 2) Zeichnen
+  // ======================================================================
+
+  const B = 760, H = 520, RAND = 34;
+  const FARBEN = ['#2563eb', '#be123c', '#0d9488'];
+
+  const VORLAGEN = {
+    'Lineare Funktion': [{ term: 'a*x + b', an: true }, { term: '', an: false }, { term: '', an: false }],
+    'Scheitelform': [{ term: 'a*(x - b)^2 + c', an: true }, { term: 'x^2', an: true }, { term: '', an: false }],
+    'Normalform': [{ term: 'x^2 + a*x + b', an: true }, { term: '', an: false }, { term: '', an: false }],
+    'Sinus': [{ term: 'a*sin(b*x) + c', an: true }, { term: 'sin(x)', an: true }, { term: '', an: false }],
+    'Exponential': [{ term: 'a*b^x', an: true }, { term: '', an: false }, { term: '', an: false }],
+    'Wurzel & Betrag': [{ term: 'sqrt(x)', an: true }, { term: 'abs(x)', an: true }, { term: '', an: false }],
+    'Hyperbel': [{ term: 'a/x', an: true }, { term: '', an: false }, { term: '', an: false }],
+    'Potenzen': [{ term: 'x^2', an: true }, { term: 'x^3', an: true }, { term: 'x^4', an: true }]
+  };
+
+  let fn = VORLAGEN['Scheitelform'].map(function (f) { return Object.assign({}, f); });
+  let kompiliert = [null, null, null];
+  let fehler = ['', '', ''];
+  // Startwerte so gewaehlt, dass die Vergleichsparabel x^2 sichtbar daneben liegt
+  const param = { a: 1, b: 2, c: -1 };
+  // Bildausschnitt: die positiven Achsen reichen immer mindestens bis +2,
+  // damit Pfeilspitze und Achsenbeschriftung nicht in den Ursprung rutschen.
+  let sicht = { xMin: -6, xMax: 6, yMin: -4, yMax: 4 };
+  let spurAn = false;
+  let spuren = [];
+
+  const svg = document.getElementById('fp-svg');
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function px(x) { return RAND + ((x - sicht.xMin) / (sicht.xMax - sicht.xMin)) * (B - 2 * RAND); }
+  function py(y) { return H - RAND - ((y - sicht.yMin) / (sicht.yMax - sicht.yMin)) * (H - 2 * RAND); }
+  function zuX(p) { return sicht.xMin + ((p - RAND) / (B - 2 * RAND)) * (sicht.xMax - sicht.xMin); }
+  function zuY(p) { return sicht.yMin + ((H - RAND - p) / (H - 2 * RAND)) * (sicht.yMax - sicht.yMin); }
+
+  function neu(tag, attr) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    return k;
+  }
+
+  /** Schrittweite der Skala: 1, 2, 5, 10 … je nach Zoomstufe. */
+  function schrittweite(spanne, ziel) {
+    const roh = spanne / ziel;
+    const groesse = Math.pow(10, Math.floor(Math.log10(roh)));
+    const rest = roh / groesse;
+    return (rest >= 5 ? 10 : rest >= 2 ? 5 : rest >= 1 ? 2 : 1) * groesse / 2;
+  }
+
+  function beschriftung(wert, schritt) {
+    const stellen = schritt >= 1 ? 0 : Math.min(4, Math.ceil(-Math.log10(schritt)));
+    return wert.toFixed(stellen).replace('.', ',').replace(/,?0+$/, function (m) {
+      return m.indexOf(',') === 0 ? '' : m;
+    });
+  }
+
+  function zeichnen() {
+    svg.textContent = '';
+    svg.appendChild(neu('title', {})).textContent = 'Koordinatensystem mit den eingegebenen Funktionsgraphen';
+
+    const sx = schrittweite(sicht.xMax - sicht.xMin, 12);
+    const sy = schrittweite(sicht.yMax - sicht.yMin, 8);
+
+    // --- Gitter ---
+    const gitter = neu('g', {});
+    for (let x = Math.ceil(sicht.xMin / sx) * sx; x <= sicht.xMax + 1e-9; x += sx) {
+      gitter.appendChild(neu('line', {
+        x1: px(x), y1: RAND, x2: px(x), y2: H - RAND,
+        class: Math.abs(x % (sx * 2)) < 1e-9 ? 'fp-gitter-grob' : 'fp-gitter'
+      }));
+    }
+    for (let y = Math.ceil(sicht.yMin / sy) * sy; y <= sicht.yMax + 1e-9; y += sy) {
+      gitter.appendChild(neu('line', {
+        x1: RAND, y1: py(y), x2: B - RAND, y2: py(y),
+        class: Math.abs(y % (sy * 2)) < 1e-9 ? 'fp-gitter-grob' : 'fp-gitter'
+      }));
+    }
+    svg.appendChild(gitter);
+
+    // --- Achsen mit Pfeilspitzen in positiver Richtung ---
+    const nullY = Math.max(RAND, Math.min(H - RAND, py(0)));
+    const nullX = Math.max(RAND, Math.min(B - RAND, px(0)));
+    const achsen = neu('g', {});
+    achsen.appendChild(neu('line', { x1: RAND, y1: nullY, x2: B - RAND, y2: nullY, class: 'fp-achse' }));
+    achsen.appendChild(neu('line', { x1: nullX, y1: H - RAND, x2: nullX, y2: RAND, class: 'fp-achse' }));
+    achsen.appendChild(neu('polygon', {
+      points: (B - RAND) + ',' + nullY + ' ' + (B - RAND - 11) + ',' + (nullY - 5) + ' ' + (B - RAND - 11) + ',' + (nullY + 5),
+      fill: 'currentColor', class: 'fp-achse', stroke: 'none'
+    }));
+    achsen.appendChild(neu('polygon', {
+      points: nullX + ',' + RAND + ' ' + (nullX - 5) + ',' + (RAND + 11) + ' ' + (nullX + 5) + ',' + (RAND + 11),
+      fill: 'currentColor', class: 'fp-achse', stroke: 'none'
+    }));
+    // Achsennamen oberhalb bzw. rechts der Pfeilspitze – nie über einer Tick-Zahl
+    const tx = neu('text', { x: B - RAND - 2, y: nullY - 12, class: 'fp-achstext', 'text-anchor': 'end' });
+    tx.textContent = 'x';
+    achsen.appendChild(tx);
+    const ty = neu('text', { x: nullX + 12, y: RAND + 8, class: 'fp-achstext' });
+    ty.textContent = 'y';
+    achsen.appendChild(ty);
+    svg.appendChild(achsen);
+
+    // --- Skalenticks mit Zahlen auf beiden Achsen ---
+    const ticks = neu('g', {});
+    for (let x = Math.ceil(sicht.xMin / sx) * sx; x <= sicht.xMax + 1e-9; x += sx) {
+      if (Math.abs(x) < 1e-9) continue;
+      ticks.appendChild(neu('line', { x1: px(x), y1: nullY - 4, x2: px(x), y2: nullY + 4, class: 'fp-tick' }));
+      // Zahl weglassen, wo sie unter der Pfeilspitze läge
+      if (px(x) > B - RAND - 14) continue;
+      const t = neu('text', { x: px(x), y: nullY + 17, class: 'fp-ticktext', 'text-anchor': 'middle' });
+      t.textContent = beschriftung(x, sx);
+      ticks.appendChild(t);
+    }
+    for (let y = Math.ceil(sicht.yMin / sy) * sy; y <= sicht.yMax + 1e-9; y += sy) {
+      if (Math.abs(y) < 1e-9) continue;
+      ticks.appendChild(neu('line', { x1: nullX - 4, y1: py(y), x2: nullX + 4, y2: py(y), class: 'fp-tick' }));
+      if (py(y) < RAND + 14) continue;
+      const t = neu('text', { x: nullX - 8, y: py(y) + 4, class: 'fp-ticktext', 'text-anchor': 'end' });
+      t.textContent = beschriftung(y, sy);
+      ticks.appendChild(t);
+    }
+    const null0 = neu('text', { x: nullX - 8, y: nullY + 16, class: 'fp-ticktext', 'text-anchor': 'end' });
+    null0.textContent = '0';
+    ticks.appendChild(null0);
+    svg.appendChild(ticks);
+
+    // --- Spuren (blasse frühere Kurven) ---
+    spuren.forEach(function (s) {
+      svg.appendChild(neu('path', { d: s.d, stroke: s.farbe, class: 'fp-spur' }));
+    });
+
+    // --- Kurven ---
+    fn.forEach(function (f, i) {
+      if (!f.an || !kompiliert[i]) return;
+      const d = pfad(kompiliert[i]);
+      if (!d) return;
+      svg.appendChild(neu('path', { d: d, stroke: FARBEN[i], class: 'fp-kurve' }));
+      if (spurAn) {
+        spuren.push({ d: d, farbe: FARBEN[i] });
+        if (spuren.length > 42) spuren.splice(0, spuren.length - 42);
+      }
+    });
+
+    if (!document.getElementById('fp-tabelle-karte').hidden) tabelleZeichnen();
+  }
+
+  /** Erzeugt den SVG-Pfad und bricht ihn an Polstellen und Definitionslücken auf. */
+  function pfad(f) {
+    const schritte = 900;
+    const dx = (sicht.xMax - sicht.xMin) / schritte;
+    const grenze = (sicht.yMax - sicht.yMin) * 4;   // Sprungerkennung
+    let d = '';
+    let letztes = null;
+    for (let i = 0; i <= schritte; i++) {
+      const x = sicht.xMin + i * dx;
+      let y;
+      try { y = f(x, param.a, param.b, param.c); } catch (e) { y = NaN; }
+      if (!isFinite(y)) { letztes = null; continue; }
+      const ausserhalb = y > sicht.yMax + grenze || y < sicht.yMin - grenze;
+      const sprung = letztes !== null && Math.abs(y - letztes) > grenze;
+      if (ausserhalb && letztes === null) { continue; }
+      if (letztes === null || sprung) d += ' M ' + px(x).toFixed(2) + ' ' + py(y).toFixed(2);
+      else d += ' L ' + px(x).toFixed(2) + ' ' + py(y).toFixed(2);
+      letztes = ausserhalb ? null : y;
+    }
+    return d.trim();
+  }
+
+  function tabelleZeichnen() {
+    const tab = document.getElementById('fp-tabelle');
+    tab.textContent = '';
+    const sx = schrittweite(sicht.xMax - sicht.xMin, 12) * 2;
+    const werte = [];
+    for (let x = Math.ceil(sicht.xMin / sx) * sx; x <= sicht.xMax + 1e-9 && werte.length < 14; x += sx) werte.push(x);
+
+    const kopf = WZ.el('tr', {}, [WZ.el('th', { text: 'x' })]);
+    werte.forEach(function (x) { kopf.appendChild(WZ.el('th', { style: 'text-align:right', text: WZ.zahl(x, 2) })); });
+    tab.appendChild(WZ.el('thead', {}, [kopf]));
+
+    const koerper = WZ.el('tbody');
+    fn.forEach(function (f, i) {
+      if (!f.an || !kompiliert[i]) return;
+      const zeile = WZ.el('tr', {}, [WZ.el('td', {
+        html: '<span style="color:' + FARBEN[i] + ';font-weight:600">f' + '<sub>' + (i + 1) + '</sub>(x)</span>'
+      })]);
+      werte.forEach(function (x) {
+        let y;
+        try { y = kompiliert[i](x, param.a, param.b, param.c); } catch (e) { y = NaN; }
+        zeile.appendChild(WZ.el('td', {
+          style: 'text-align:right;font-variant-numeric:tabular-nums',
+          text: isFinite(y) ? WZ.zahl(y, 2) : '—'
+        }));
+      });
+      koerper.appendChild(zeile);
+    });
+    tab.appendChild(koerper);
+  }
+
+  // ======================================================================
+  // 3) Bedienung
+  // ======================================================================
+
+  function kompilieren() {
+    fn.forEach(function (f, i) {
+      if (!f.term.trim()) { kompiliert[i] = null; fehler[i] = ''; return; }
+      try { kompiliert[i] = uebersetze(f.term); fehler[i] = ''; }
+      catch (e) { kompiliert[i] = null; fehler[i] = e.message; }
+    });
+  }
+
+  function funktionenZeichnen() {
+    const wurzel = document.getElementById('fp-funktionen');
+    wurzel.textContent = '';
+    fn.forEach(function (f, i) {
+      const feld = WZ.el('input', {
+        class: 'wz-feld', type: 'text', value: f.term, spellcheck: 'false',
+        placeholder: i === 0 ? 'z. B. a*(x-b)^2 + c' : 'weiterer Term (optional)',
+        'aria-label': 'Term der ' + (i + 1) + '. Funktion',
+        oninput: function (e) {
+          f.term = e.target.value;
+          f.an = !!f.term.trim();
+          kompilieren();
+          spuren = [];
+          zeichnen();
+          fehlerZeichnen();
+        }
+      });
+      wurzel.appendChild(WZ.el('div', { class: 'fp-fn-zeile' }, [
+        WZ.el('span', { class: 'fp-strich', style: 'background:' + FARBEN[i] }),
+        feld,
+        WZ.el('input', {
+          type: 'checkbox', checked: f.an, 'aria-label': 'Funktion ' + (i + 1) + ' anzeigen',
+          style: 'width:1.2rem;height:1.2rem;justify-self:center',
+          onchange: function (e) { f.an = e.target.checked; spuren = []; zeichnen(); }
+        })
+      ]));
+      wurzel.appendChild(WZ.el('p', { class: 'fp-fehler', id: 'fp-fehler-' + i, text: fehler[i] }));
+    });
+  }
+
+  function fehlerZeichnen() {
+    fn.forEach(function (f, i) {
+      const p = document.getElementById('fp-fehler-' + i);
+      if (p) p.textContent = fehler[i];
+    });
+  }
+
+  function parameterZeichnen() {
+    const wurzel = document.getElementById('fp-parameter');
+    wurzel.textContent = '';
+    ['a', 'b', 'c'].forEach(function (name) {
+      const anzeige = WZ.el('output', { text: WZ.zahl(param[name], 2) });
+      const regler = WZ.el('input', {
+        class: 'wz-schieber', type: 'range', min: '-5', max: '5',
+        step: document.getElementById('fp-schritt').value, value: String(param[name]),
+        'aria-label': 'Parameter ' + name,
+        oninput: function (e) {
+          param[name] = parseFloat(e.target.value);
+          anzeige.textContent = WZ.zahl(param[name], 2);
+          zeichnen();
+        }
+      });
+      wurzel.appendChild(WZ.el('div', { class: 'fp-param' }, [
+        WZ.el('b', { text: name }), regler, anzeige
+      ]));
+    });
+  }
+
+  function vorlagenZeichnen() {
+    const wurzel = document.getElementById('fp-vorlagen');
+    Object.keys(VORLAGEN).forEach(function (name) {
+      wurzel.appendChild(WZ.el('button', {
+        class: 'wz-knopf', type: 'button',
+        onclick: function () {
+          fn = VORLAGEN[name].map(function (f) { return Object.assign({}, f); });
+          if (name === 'Exponential') { param.a = 1; param.b = 2; param.c = 0; }
+          else if (name === 'Sinus') { param.a = 2; param.b = 1; param.c = 0; }
+          else if (name === 'Hyperbel') { param.a = 1; param.b = 0; param.c = 0; }
+          else if (name === 'Scheitelform') { param.a = 1; param.b = 2; param.c = -1; }
+          else if (name === 'Lineare Funktion') { param.a = 1; param.b = 1; param.c = 0; }
+          else if (name === 'Normalform') { param.a = -2; param.b = -3; param.c = 0; }
+          kompilieren();
+          spuren = [];
+          funktionenZeichnen();
+          parameterZeichnen();
+          zeichnen();
+        }
+      }, [name]));
+    });
+  }
+
+  function zoomen(faktor, mitteX, mitteY) {
+    const mx = mitteX === undefined ? (sicht.xMin + sicht.xMax) / 2 : mitteX;
+    const my = mitteY === undefined ? (sicht.yMin + sicht.yMax) / 2 : mitteY;
+    sicht = {
+      xMin: mx + (sicht.xMin - mx) * faktor,
+      xMax: mx + (sicht.xMax - mx) * faktor,
+      yMin: my + (sicht.yMin - my) * faktor,
+      yMax: my + (sicht.yMax - my) * faktor
+    };
+    // Pflicht aus der Diagramm-Konvention: positive Achsen mindestens bis +2
+    if (sicht.xMax < 2) { const d = 2 - sicht.xMax; sicht.xMax += d; sicht.xMin += d; }
+    if (sicht.yMax < 2) { const d = 2 - sicht.yMax; sicht.yMax += d; sicht.yMin += d; }
+    spuren = [];
+    zeichnen();
+  }
+
+  document.getElementById('fp-plus').addEventListener('click', function () { zoomen(1 / 1.25); });
+  document.getElementById('fp-minus').addEventListener('click', function () { zoomen(1.25); });
+  document.getElementById('fp-heim').addEventListener('click', function () {
+    sicht = { xMin: -6, xMax: 6, yMin: -4, yMax: 4 };
+    spuren = [];
+    zeichnen();
+  });
+
+  document.getElementById('fp-spur-an').addEventListener('click', function (e) {
+    spurAn = !spurAn;
+    e.currentTarget.setAttribute('aria-pressed', String(spurAn));
+    e.currentTarget.classList.toggle('wz-knopf-haupt', spurAn);
+    if (!spurAn) spuren = [];
+    zeichnen();
+  });
+  document.getElementById('fp-spur-leeren').addEventListener('click', function () { spuren = []; zeichnen(); });
+  document.getElementById('fp-tabelle-an').addEventListener('click', function (e) {
+    const karte = document.getElementById('fp-tabelle-karte');
+    karte.hidden = !karte.hidden;
+    e.currentTarget.setAttribute('aria-pressed', String(!karte.hidden));
+    if (!karte.hidden) tabelleZeichnen();
+  });
+  document.getElementById('fp-drucken').addEventListener('click', function () { window.print(); });
+  document.getElementById('fp-schritt').addEventListener('change', parameterZeichnen);
+
+  // Ziehen und Zoomen im Bild
+  let zieht = null;
+  svg.addEventListener('pointerdown', function (e) {
+    zieht = { x: e.clientX, y: e.clientY, sicht: Object.assign({}, sicht) };
+    svg.classList.add('fp-zieht');
+    svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', function (e) {
+    if (!zieht) return;
+    const rect = svg.getBoundingClientRect();
+    const dx = ((e.clientX - zieht.x) / rect.width) * (B / (B - 2 * RAND)) * (zieht.sicht.xMax - zieht.sicht.xMin);
+    const dy = ((e.clientY - zieht.y) / rect.height) * (H / (H - 2 * RAND)) * (zieht.sicht.yMax - zieht.sicht.yMin);
+    sicht = {
+      xMin: zieht.sicht.xMin - dx, xMax: zieht.sicht.xMax - dx,
+      yMin: zieht.sicht.yMin + dy, yMax: zieht.sicht.yMax + dy
+    };
+    zeichnen();
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (art) {
+    svg.addEventListener(art, function () { zieht = null; svg.classList.remove('fp-zieht'); });
+  });
+  svg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    const mx = zuX(((e.clientX - rect.left) / rect.width) * B);
+    const my = zuY(((e.clientY - rect.top) / rect.height) * H);
+    zoomen(e.deltaY > 0 ? 1.12 : 1 / 1.12, mx, my);
+  }, { passive: false });
+
+  document.addEventListener('keydown', function (e) {
+    const z = e.target;
+    if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA' || z.isContentEditable)) return;
+    if (e.key === '+') zoomen(1 / 1.25);
+    else if (e.key === '-') zoomen(1.25);
+  });
+
+  WZ.kopf({ titel: 'Funktionenplotter' });
+  WZ.fuss('Die Terme werden von einem eigenen Parser ausgewertet – kein eval, keine Server-Anfrage.');
+  kompilieren();
+  vorlagenZeichnen();
+  funktionenZeichnen();
+  parameterZeichnen();
+  zeichnen();
+})();
+</script>
+</body>
+</html>

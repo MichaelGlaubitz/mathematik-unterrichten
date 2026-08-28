@@ -3,35 +3,98 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 
-const aufgaben = (await getCollection('aufgaben', ({ data }) => !data.entwurf))
-  .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf());
+const aufgaben = (await getCollection('aufgaben', ({ data }) => !data.entwurf)).sort((a, b) =>
+  a.data.titel.localeCompare(b.data.titel, 'de')
+);
 
-const themen = Array.from(new Set(aufgaben.map((a) => a.data.thema))).sort();
+/** Klassenband aus der niedrigsten angegebenen Jahrgangsstufe ableiten. */
+function band(stufen: string[]): string {
+  const zahlen = stufen.map((s) => parseInt(s, 10)).filter((n) => Number.isFinite(n));
+  const min = zahlen.length > 0 ? Math.min(...zahlen) : 11;
+  if (min <= 6) return '5/6';
+  if (min <= 8) return '7/8';
+  if (min <= 10) return '9/10';
+  return 'Oberstufe';
+}
+
+const baender = ['5/6', '7/8', '9/10', 'Oberstufe'];
+const bandLabel: Record<string, string> = {
+  '5/6': 'Klasse 5–6',
+  '7/8': 'Klasse 7–8',
+  '9/10': 'Klasse 9–10',
+  Oberstufe: 'Oberstufe',
+};
+
+// Nach Klassenband gruppieren; innerhalb eines Bandes nach Thema sortieren.
+const gruppen = baender
+  .map((b) => ({
+    band: b,
+    label: bandLabel[b],
+    eintraege: aufgaben
+      .filter((a) => band(a.data.klassenstufe) === b)
+      .sort((x, y) => x.data.thema.localeCompare(y.data.thema, 'de')),
+  }))
+  .filter((g) => g.eintraege.length > 0);
 ---
 
-<BaseLayout sourceFile="src/pages/aufgaben/index.astro" title="Aufgabensammlung" beschreibung="Aufgaben und Aufgabenfolgen mit didaktischem Kommentar">
-  <section class="container-prose pt-12 pb-8">
-    <h1 class="font-serif text-4xl font-semibold text-ink-900 mb-3 dark:text-ink-50">Aufgabensammlung</h1>
-    <p class="text-ink-700 text-lg leading-relaxed dark:text-ink-200">
-      Aufgabenfolgen mit Lösungswegen und didaktischem Kommentar – orientiert an
-      <em>Variation Theory</em>: Aufgaben, in denen sich nur ein Aspekt nach dem
-      anderen ändert, damit Schüler das mathematische Muster aktiv erkennen.
+<BaseLayout
+  sourceFile="src/pages/aufgaben/index.astro"
+  title="Aufgabensammlung"
+  beschreibung={`${aufgaben.length} Aufgabenfolgen nach Variationsprinzip – mit Lösungen, didaktischem Kommentar und den typischen Fehlvorstellungen zu jedem Thema.`}
+>
+  <section class="container-wide pt-12 pb-6">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Aufgabenkultur</p>
+    <h1 class="mt-2 font-serif text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl dark:text-ink-50">
+      Aufgabensammlung
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      {aufgaben.length} Aufgabenfolgen, in denen sich von Aufgabe zu Aufgabe genau eine Sache
+      ändert – damit die Reihenfolge selbst etwas erklärt. Zu jeder Folge gehören Lösungen,
+      Reflexionsfragen und ein Kommentar, der benennt, <em>was</em> variiert und <em>warum</em>.
     </p>
+
+    <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <label class="flex-1">
+        <span class="sr-only">Aufgabenfolgen durchsuchen</span>
+        <input
+          id="ag-suche"
+          type="search"
+          autocomplete="off"
+          placeholder="Suchen – z. B. Bruch, Pythagoras, Vorzeichen …"
+          class="w-full rounded-lg border border-ink-300 bg-surface px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-white/15 dark:bg-slate-950/60 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+      </label>
+      <div class="flex flex-wrap gap-2" id="ag-filter" role="group" aria-label="Nach Schwierigkeit filtern">
+        <button type="button" data-stufe="alle" aria-pressed="true" class="mu-chip">alle</button>
+        <button type="button" data-stufe="einsteiger" aria-pressed="false" class="mu-chip">einsteiger</button>
+        <button type="button" data-stufe="mittel" aria-pressed="false" class="mu-chip">mittel</button>
+        <button type="button" data-stufe="vertieft" aria-pressed="false" class="mu-chip">vertieft</button>
+      </div>
+    </div>
+    <p id="ag-status" class="mt-3 text-sm text-ink-500 dark:text-ink-400" role="status" aria-live="polite"></p>
   </section>
 
   <section class="container-wide pb-16">
-    {themen.length > 0 ? (
-      themen.map((thema) => (
-        <div class="mb-10">
-          <h2 class="font-serif text-2xl font-semibold text-ink-900 mb-4 dark:text-ink-50">{thema}</h2>
+    {gruppen.length > 0 ? (
+      gruppen.map((g) => (
+        <div class="ag-gruppe mb-10">
+          <h2 class="mb-4 border-b border-ink-200/80 pb-2 font-serif text-2xl font-semibold text-ink-900 dark:border-white/10 dark:text-ink-50">
+            {g.label}
+          </h2>
           <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {aufgaben.filter((a) => a.data.thema === thema).map((a) => (
-              <PostCard
-                href={`/aufgaben/${a.slug}`}
-                titel={a.data.titel}
-                teaser={a.data.didaktischerHinweis}
-                badges={[`Kl. ${a.data.klassenstufe.join('/')}`, a.data.schwierigkeit]}
-              />
+            {g.eintraege.map((a) => (
+              <div
+                class="ag-eintrag flex"
+                data-stufe={a.data.schwierigkeit}
+                data-text={`${a.data.titel} ${a.data.thema} ${a.data.didaktischerHinweis} ${(a.data.tags ?? []).join(' ')}`}
+              >
+                <PostCard
+                  href={`/aufgaben/${a.slug}`}
+                  titel={a.data.titel}
+                  teaser={a.data.didaktischerHinweis}
+                  badges={[a.data.thema, `Kl. ${a.data.klassenstufe.join('/')}`, a.data.schwierigkeit]}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -39,8 +102,92 @@ const themen = Array.from(new Set(aufgaben.map((a) => a.data.thema))).sort();
     ) : (
       <p class="text-ink-600 dark:text-ink-300">
         Noch keine Aufgaben veröffentlicht. Lege eine neue Aufgabenseite unter
-        <code class="bg-ink-100 px-1.5 py-0.5 rounded text-sm dark:bg-slate-800/85 dark:text-ink-100">src/content/aufgaben/</code> an.
+        <code class="rounded bg-ink-100 px-1.5 py-0.5 text-sm dark:bg-slate-800/85 dark:text-ink-100">src/content/aufgaben/</code> an.
       </p>
     )}
   </section>
+
+  <section class="container-wide pb-20">
+    <div class="rounded-2xl border border-ink-200/90 bg-gradient-to-br from-white to-ink-50/60 p-6 shadow-sm sm:p-8 dark:border-white/[0.08] dark:from-[rgb(26_22_35)] dark:to-[rgb(22_19_30)]">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Mehr Aufgaben brauchen?</h2>
+      <p class="mt-3 max-w-3xl leading-relaxed text-ink-700 dark:text-ink-300">
+        Die Folgen hier sind zum Lesen und Besprechen gedacht. Für beliebig viele
+        Übungsaufgaben mit Lösungen – als Bildschirmübung oder druckfertiges Arbeitsblatt –
+        gibt es zu jedem Thema einen Generator.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <a href="/themen" class="link-arrow">Übungsgeneratoren nach Thema </a>
+        <a href="/werkzeuge/kopfrechen-sprint.html" class="link-arrow">Kopfrechen-Sprint </a>
+        <a href="/methoden#variation-theory" class="link-arrow">Methode: Intelligentes Üben </a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<style is:global>
+  .mu-chip {
+    @apply rounded-full border border-ink-200/90 bg-surface/80 px-3.5 py-1.5 text-sm font-medium text-ink-700 transition;
+  }
+  .mu-chip:hover {
+    @apply border-accent-300 text-accent-800;
+  }
+  .mu-chip[aria-pressed='true'] {
+    @apply border-accent-500 bg-accent-600 text-white;
+  }
+  .dark .mu-chip {
+    @apply border-white/10 bg-white/[0.04] text-ink-200;
+  }
+  .dark .mu-chip[aria-pressed='true'] {
+    @apply border-teal-400/60 bg-teal-500/80 text-teal-950;
+  }
+  .mu-aus {
+    display: none !important;
+  }
+</style>
+
+<script>
+  const feld = document.getElementById('ag-suche') as HTMLInputElement | null;
+  const filter = document.getElementById('ag-filter');
+  const status = document.getElementById('ag-status');
+  const eintraege = Array.from(document.querySelectorAll<HTMLElement>('.ag-eintrag'));
+  const gruppen = Array.from(document.querySelectorAll<HTMLElement>('.ag-gruppe'));
+  let stufe = 'alle';
+
+  const normalisieren = (s: string) =>
+    s.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+
+  function anwenden() {
+    const suche = normalisieren(feld?.value.trim() ?? '');
+    let sichtbar = 0;
+    for (const e of eintraege) {
+      const passtSuche = suche.length === 0 || normalisieren(e.dataset.text ?? '').includes(suche);
+      const passtStufe = stufe === 'alle' || e.dataset.stufe === stufe;
+      const zeigen = passtSuche && passtStufe;
+      e.classList.toggle('mu-aus', !zeigen);
+      if (zeigen) sichtbar++;
+    }
+    // Klassenbänder ohne sichtbare Karten ausblenden
+    for (const g of gruppen) {
+      g.classList.toggle('mu-aus', g.querySelector('.ag-eintrag:not(.mu-aus)') === null);
+    }
+    if (status) {
+      status.textContent =
+        suche.length === 0 && stufe === 'alle'
+          ? ''
+          : sichtbar === 0
+            ? 'Keine Aufgabenfolge passt zu dieser Auswahl.'
+            : `${sichtbar} von ${eintraege.length} Aufgabenfolgen`;
+    }
+  }
+
+  feld?.addEventListener('input', anwenden);
+  filter?.addEventListener('click', (e) => {
+    const knopf = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-stufe]');
+    if (!knopf) return;
+    stufe = knopf.dataset.stufe ?? 'alle';
+    filter
+      .querySelectorAll<HTMLButtonElement>('button[data-stufe]')
+      .forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    anwenden();
+  });
+</script>

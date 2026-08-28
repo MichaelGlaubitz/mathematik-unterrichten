@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const zeitfenster = [
+  {
+    zeit: '2 Minuten',
+    unterzeile: 'Die Stunde fängt gleich an',
+    farbe: 'from-rose-500 to-amber-500',
+    punkte: [
+      { text: 'Unterrichts-Timer öffnen und die Vorlage „Think–Pair–Share“ wählen', href: '/werkzeuge/unterrichts-timer.html' },
+      { text: 'Kopfrechen-Sprint erzeugen und projizieren – zwei Minuten Aufwärmen', href: '/werkzeuge/kopfrechen-sprint.html' },
+      { text: 'Ein WODB-Bild als Einstieg zeigen – funktioniert in jeder Klassenstufe', href: '/werkzeuge/wodb.html' },
+      { text: 'Zufallsgruppen ziehen, wenn gleich Gruppenarbeit ansteht', href: '/werkzeuge/zufalls-gruppen.html' },
+    ],
+  },
+  {
+    zeit: '20 Minuten',
+    unterzeile: 'Heute Abend für morgen',
+    farbe: 'from-accent-600 to-teal-500',
+    punkte: [
+      { text: 'Nachsehen, ob es zum morgigen Thema einen fertigen Stundenverlauf gibt – mit Minutenplan und Exit-Ticket', href: '/stunden' },
+      { text: 'Die vier Fehlvorstellungen zum morgigen Thema lesen – und eine davon zur Aufgabe machen', href: '/fehlvorstellungen' },
+      { text: 'Ein diagnostisches Quiz zum Thema auswählen und als Einstieg einplanen', href: '/quizzes' },
+      { text: 'Ein Arbeitsblatt zum Thema erzeugen und ausdrucken', href: '/themen' },
+      { text: 'Ein Exit-Ticket zum Stundenziel zusammenstellen und als Zettelbogen drucken', href: '/werkzeuge/exit-ticket.html' },
+    ],
+  },
+  {
+    zeit: 'Eine Freistunde',
+    unterzeile: 'Etwas grundsätzlich ändern',
+    farbe: 'from-violet-600 to-accent-600',
+    punkte: [
+      { text: 'Eine Methode aus dem Methodenkoffer auswählen – und nur diese eine vier Wochen lang üben', href: '/methoden' },
+      { text: 'Das KLAR-Konzept lesen und eine Stunde danach planen', href: '/konzept' },
+      { text: 'Eine Übungsseite aus dem Buch in eine Variationsfolge umbauen', href: '/methoden#variation-theory' },
+      { text: 'Die eigene Prompt-Sammlung anlegen – mit den erprobten Vorlagen als Grundlage', href: '/ki' },
+    ],
+  },
+];
+
+const situationen = [
+  {
+    frage: 'Ich soll morgen ein Thema unterrichten, das ich noch nie unterrichtet habe.',
+    antwort:
+      'Sehen Sie zuerst nach, ob es dazu einen fertigen Stundenverlauf gibt. Dort steht, mit welcher Frage die Stunde beginnt, was die Antworten der Klasse bedeuten, wie der Minutenplan aussieht – und was zu tun ist, wenn die Diagnose anders ausfällt als gedacht. Wenn nicht, führt der Weg über die Fehlvorstellungen zum Thema.',
+    links: [
+      { text: 'Stundenverläufe', href: '/stunden' },
+      { text: 'Fehlvorstellungs-Katalog', href: '/fehlvorstellungen' },
+      { text: 'Das KLAR-Konzept', href: '/konzept' },
+    ],
+  },
+  {
+    frage: 'Ich habe gleich eine Vertretungsstunde in Mathematik.',
+    antwort:
+      'Nehmen Sie einen Kopfrechen-Sprint als Einstieg (zwei Minuten, Selbstkontrolle), danach ein WODB-Bild als Gesprächsanlass und zum Schluss eine Open-Middle-Aufgabe. Zusammen füllt das eine Stunde, braucht keine Vorbereitung und ist trotzdem Mathematik.',
+    links: [
+      { text: 'Kopfrechen-Sprint', href: '/werkzeuge/kopfrechen-sprint.html' },
+      { text: 'WODB', href: '/werkzeuge/wodb.html' },
+      { text: 'Open Middle', href: '/werkzeuge/open-middle.html' },
+    ],
+  },
+  {
+    frage: 'Mir fehlt ein Einstieg zum Thema.',
+    antwort:
+      'Zwei Wege: Eine diagnostische Frage zum Vorwissen, die zeigt, wo die Klasse steht – oder ein Bild, das einen Widerspruch erzeugt. Beides dauert fünf Minuten und liefert Ihnen zusätzlich Information.',
+    links: [
+      { text: 'Diagnostische Fragen', href: '/quizzes' },
+      { text: 'WODB-Sets', href: '/werkzeuge/wodb.html' },
+      { text: 'Prompt: Drei Einstiege', href: '/ki#stundeneinstieg' },
+    ],
+  },
+  {
+    frage: 'Die Klasse hat es nicht verstanden – und ich weiß nicht, woran es liegt.',
+    antwort:
+      'Suchen Sie im Fehlvorstellungs-Katalog nach dem Thema. Zu jeder Fehlvorstellung steht dort, wie sie entsteht und was in drei Schritten dagegen hilft. Prüfen Sie danach mit einer Abstimmung, ob es gewirkt hat.',
+    links: [
+      { text: 'Fehlvorstellungs-Katalog', href: '/fehlvorstellungen' },
+      { text: 'Whiteboard-Check', href: '/werkzeuge/whiteboard-check.html' },
+    ],
+  },
+  {
+    frage: 'Ich brauche ein Übungsblatt für morgen.',
+    antwort:
+      'Die Übungsgeneratoren erzeugen zu jedem Thema beliebig viele Aufgaben mit Lösungen – als Bildschirmübung oder druckfertiges Arbeitsblatt. Für Grundlagentraining reicht der Kopfrechen-Sprint mit seiner Druckfassung.',
+    links: [
+      { text: 'Übungsgeneratoren', href: '/themen' },
+      { text: 'Kopfrechen-Sprint', href: '/werkzeuge/kopfrechen-sprint.html' },
+      { text: 'Papier-Werkstatt', href: '/werkzeuge/karopapier.html' },
+    ],
+  },
+  {
+    frage: 'In meiner Gruppenarbeit arbeitet immer nur einer.',
+    antwort:
+      'Drei Stellschrauben, alle sofort umsetzbar: sichtbar zufällige Gruppen statt selbst gewählter, senkrechte Flächen statt Tischplatte, ein Stift pro Gruppe statt einer pro Person.',
+    links: [
+      { text: 'Zufallsgruppen', href: '/werkzeuge/zufalls-gruppen.html' },
+      { text: 'Methode: Denkendes Klassenzimmer', href: '/methoden#denkendes-klassenzimmer' },
+    ],
+  },
+  {
+    frage: 'Ich habe morgen einen Unterrichtsbesuch.',
+    antwort:
+      'Die Handreichungen zu Lernzielen, Verlaufsplan und Prüfungsunterricht sind genau dafür geschrieben. Lassen Sie danach Ihren Verlaufsplan mit dem Kritik-Prompt gegenlesen – das findet die üblichen Lücken.',
+    links: [
+      { text: 'Handreichungen', href: '/ausb/' },
+      { text: 'Prompt: Entwurf kritisieren', href: '/ki#entwurf-kritisieren' },
+      { text: 'Das KLAR-Konzept', href: '/konzept' },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  sourceFile="src/pages/schnellstart.astro"
+  title="Schnellstart"
+  beschreibung="Was Sie brauchen, wenn die Stunde in zwanzig Minuten anfängt: sortiert nach verfügbarer Zeit und nach der Situation, in der Sie gerade stecken."
+>
+  <section class="container-wide pt-12 pb-8">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Schnellstart</p>
+    <h1 class="mt-2 font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      Wie viel Zeit haben Sie <span class="bg-gradient-to-r from-accent-600 via-teal-600 to-violet-600 bg-clip-text text-transparent dark:from-sky-300 dark:via-teal-200 dark:to-fuchsia-300">wirklich</span>?
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      Diese Seite versteht die Lage. Nichts hier verlangt, dass Sie erst eine Handreichung
+      lesen, ein Konto anlegen oder etwas installieren. Suchen Sie sich Ihr Zeitfenster
+      und klicken Sie los.
+    </p>
+  </section>
+
+  <section class="container-wide pb-12">
+    <div class="grid gap-5 lg:grid-cols-3">
+      {zeitfenster.map((z) => (
+        <article class="overflow-hidden rounded-2xl border border-ink-200/90 bg-surface/85 shadow-sm mu-dark-glass-panel">
+          <div class={`bg-gradient-to-r ${z.farbe} px-5 py-4 text-white`}>
+            <p class="font-serif text-2xl font-semibold">{z.zeit}</p>
+            <p class="text-sm text-white/85">{z.unterzeile}</p>
+          </div>
+          <ul class="divide-y divide-ink-200/70 dark:divide-white/[0.07]">
+            {z.punkte.map((p) => (
+              <li>
+                <a href={p.href} class="group flex items-start gap-3 px-5 py-3.5 transition hover:bg-accent-50/50 dark:hover:bg-white/[0.05]">
+                  <span class="mt-1 text-accent-600 transition-transform group-hover:translate-x-0.5 dark:text-teal-300" aria-hidden="true">→</span>
+                  <span class="text-ink-800 dark:text-ink-200">{p.text}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-wide pb-14">
+    <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Oder: Woran hängt es gerade?</h2>
+    <div class="mt-5 space-y-3">
+      {situationen.map((s) => (
+        <details class="group rounded-xl border border-ink-200/90 bg-surface/85 shadow-sm mu-dark-glass-panel">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:content-none">
+            <span class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">{s.frage}</span>
+            <span class="flex-none text-ink-400 transition-transform group-open:rotate-180 dark:text-ink-500" aria-hidden="true">▾</span>
+          </summary>
+          <div class="border-t border-ink-200/70 px-5 py-4 dark:border-white/10">
+            <p class="leading-relaxed text-ink-700 dark:text-ink-300">{s.antwort}</p>
+            <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              {s.links.map((l) => (
+                <a href={l.href} class="link-arrow">{l.text} </a>
+              ))}
+            </div>
+          </div>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-wide pb-20">
+    <div class="rounded-2xl border border-accent-200/70 bg-accent-50/40 p-6 sm:p-8 dark:border-teal-400/20 dark:bg-teal-950/20">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">Nichts Passendes dabei?</h2>
+      <p class="mt-2 max-w-2xl text-ink-700 dark:text-ink-200">
+        Die Volltextsuche geht über alles: Werkzeuge, Methoden, Themen, Fehlvorstellungen,
+        Aufgaben, diagnostische Fragen, Prompts und Beiträge. Von jeder Seite aus mit der
+        Taste <kbd class="rounded border border-ink-300 px-1 text-xs dark:border-white/20">/</kbd> erreichbar.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="/suche" class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-5 py-2.5 font-medium text-white shadow-sm transition hover:brightness-105 dark:from-sky-500 dark:to-teal-400">
+          Zur Suche <span aria-hidden="true">→</span>
+        </a>
+        <a href="/kontakt" class="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-surface/80 px-5 py-2.5 font-medium text-ink-800 transition hover:border-accent-400 dark:border-white/15 dark:bg-white/[0.04] dark:text-ink-100">
+          Fehlt etwas? Schreiben Sie mir
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

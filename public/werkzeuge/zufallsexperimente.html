@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zufallsexperimente · mathematik-unterrichten.de</title>
+<meta name="description" content="Würfel, Münze, Urne und Galtonbrett simulieren: absolute und relative Häufigkeiten, Vergleich mit der theoretischen Wahrscheinlichkeit, Gesetz der großen Zahlen live am Beamer.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .ze-svg { width: 100%; height: auto; display: block; }
+  .ze-zahl { font-family: var(--schrift-serif); font-size: clamp(1.6rem, 5vw, 2.6rem); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ze-kennzahl { display: flex; flex-wrap: wrap; gap: 1.6rem; }
+  .ze-kennzahl div p { margin: 0; }
+  .ze-kennzahl small { color: var(--text-schwach); font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+  .ze-urne { display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-end; }
+  .ze-urne label { display: flex; flex-direction: column; gap: .2rem; font-size: .8rem; color: var(--text-leise); }
+  .ze-urne input { width: 4.2rem; }
+  @media (min-width: 1000px) { .ze-layout { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Zufallsexperimente</h1>
+
+  <div class="ze-layout">
+    <section>
+      <div class="wz-karte">
+        <div class="wz-reihe" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2 id="ze-titel">–</h2>
+            <p id="ze-beschreibung" style="color:var(--text-leise);margin:.25rem 0 0;max-width:56ch"></p>
+          </div>
+          <div class="ze-kennzahl">
+            <div>
+              <small>Versuche</small>
+              <p class="ze-zahl" id="ze-anzahl">0</p>
+            </div>
+          </div>
+        </div>
+
+        <svg id="ze-diagramm" viewBox="0 0 880 380" class="ze-svg wz-abstand" role="img" aria-labelledby="ze-diagramm-titel">
+          <title id="ze-diagramm-titel">Häufigkeitsverteilung der Ergebnisse</title>
+        </svg>
+
+        <div class="wz-reihe wz-abstand wz-nicht-drucken">
+          <button class="wz-knopf wz-knopf-haupt" data-lauf="1" type="button">1 ×</button>
+          <button class="wz-knopf" data-lauf="10" type="button">10 ×</button>
+          <button class="wz-knopf" data-lauf="100" type="button">100 ×</button>
+          <button class="wz-knopf" data-lauf="1000" type="button">1 000 ×</button>
+          <button class="wz-knopf" data-lauf="10000" type="button">10 000 ×</button>
+          <button class="wz-knopf wz-knopf-still" id="ze-zuruecksetzen" type="button">↺ Zurücksetzen</button>
+          <label class="wz-label wz-label-quer" style="margin-left:auto">
+            <input type="checkbox" id="ze-theorie" checked> Theoretische Wahrscheinlichkeit einblenden
+          </label>
+        </div>
+      </div>
+
+      <div class="wz-karte wz-abstand">
+        <h2>Gesetz der großen Zahlen</h2>
+        <p style="color:var(--text-leise);font-size:.92rem;margin:.3rem 0 0">
+          Relative Häufigkeit von <span id="ze-ereignis-name" style="font-weight:600;color:var(--text)">–</span>
+          gegen die Anzahl der Versuche. Je weiter rechts, desto ruhiger wird die Kurve.
+        </p>
+        <svg id="ze-verlauf" viewBox="0 0 880 260" class="ze-svg wz-abstand" role="img" aria-label="Verlauf der relativen Häufigkeit"></svg>
+        <label class="wz-label wz-abstand" style="max-width:280px">
+          <span>Beobachtetes Ereignis</span>
+          <select class="wz-feld" id="ze-ereignis"></select>
+        </label>
+      </div>
+
+      <div class="wz-karte wz-abstand">
+        <h2>Zahlen im Detail</h2>
+        <div style="overflow-x:auto" class="wz-abstand">
+          <table class="wz-tabelle" id="ze-tabelle"></table>
+        </div>
+        <button class="wz-knopf wz-knopf-still wz-abstand wz-nicht-drucken" id="ze-csv" type="button">Als CSV speichern</button>
+      </div>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Experiment</h2>
+        <div class="wz-abstand" id="ze-auswahl" style="display:flex;flex-direction:column;gap:.35rem"></div>
+      </div>
+
+      <div class="wz-karte" id="ze-urne-karte" hidden>
+        <h2>Urne füllen</h2>
+        <p style="font-size:.85rem;color:var(--text-leise);margin:.4rem 0 .7rem">Wie viele Kugeln je Farbe?</p>
+        <div class="ze-urne" id="ze-urne"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>So einsetzen</h2>
+        <ol style="font-size:.9rem;color:var(--text-leise);padding-left:1.1rem;margin:.5rem 0 0;line-height:1.6">
+          <li>Klasse <strong>vorher schätzen</strong> lassen – schriftlich, damit niemand nachträglich recht hat.</li>
+          <li>10 Versuche: Die Klasse sieht, wie weit weg das noch ist.</li>
+          <li>100, dann 1 000: Die Balken nähern sich der theoretischen Linie.</li>
+          <li>Nachfragen: Wird die <em>absolute</em> Abweichung kleiner – oder nur die relative?</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function sv(tag, attr, text) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    if (text !== undefined) k.textContent = text;
+    return k;
+  }
+
+  /**
+   * Ein Experiment liefert:
+   *   ergebnisse() – Liste der möglichen Ausgänge (Beschriftungen)
+   *   theorie()    – zugehörige Wahrscheinlichkeiten (gleiche Reihenfolge)
+   *   ziehe()      – Index eines Ausgangs
+   */
+  let urneKugeln = [{ name: 'rot', anzahl: 3, farbe: '#be123c' },
+                    { name: 'blau', anzahl: 2, farbe: '#2563eb' },
+                    { name: 'grün', anzahl: 1, farbe: '#15803d' }];
+
+  const EXPERIMENTE = [
+    {
+      id: 'wuerfel', name: 'Ein Würfel',
+      beschreibung: 'Ein fairer sechsseitiger Würfel. Alle sechs Augenzahlen sind gleich wahrscheinlich – das glaubt die Klasse erst nach etwa 1 000 Würfen.',
+      ergebnisse: function () { return ['1', '2', '3', '4', '5', '6']; },
+      theorie: function () { return [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6]; },
+      ziehe: function () { return WZ.zufallGanz(0, 5); }
+    },
+    {
+      id: 'zwei-wuerfel', name: 'Zwei Würfel (Summe)',
+      beschreibung: 'Die Augensumme zweier Würfel. Nicht mehr gleich wahrscheinlich: Die 7 hat sechs Möglichkeiten, die 2 nur eine.',
+      ergebnisse: function () { return ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']; },
+      theorie: function () {
+        return [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1].map(function (n) { return n / 36; });
+      },
+      ziehe: function () { return WZ.zufallGanz(1, 6) + WZ.zufallGanz(1, 6) - 2; }
+    },
+    {
+      id: 'muenze', name: 'Münze',
+      beschreibung: 'Kopf oder Zahl. Nach einer Serie von fünfmal Kopf ist die Wahrscheinlichkeit für Kopf immer noch genau ein Halb – das ist der Punkt.',
+      ergebnisse: function () { return ['Kopf', 'Zahl']; },
+      theorie: function () { return [0.5, 0.5]; },
+      ziehe: function () { return WZ.zufallGanz(0, 1); }
+    },
+    {
+      id: 'drei-muenzen', name: 'Drei Münzen (Anzahl Kopf)',
+      beschreibung: 'Wie oft fällt Kopf bei drei Würfen? Der Einstieg in die Binomialverteilung – 1 : 3 : 3 : 1.',
+      ergebnisse: function () { return ['0 ×', '1 ×', '2 ×', '3 ×']; },
+      theorie: function () { return [1 / 8, 3 / 8, 3 / 8, 1 / 8]; },
+      ziehe: function () {
+        return WZ.zufallGanz(0, 1) + WZ.zufallGanz(0, 1) + WZ.zufallGanz(0, 1);
+      }
+    },
+    {
+      id: 'urne', name: 'Urne (mit Zurücklegen)',
+      beschreibung: 'Ziehen mit Zurücklegen aus einer selbst gefüllten Urne. Die Wahrscheinlichkeiten sind hier nicht gleich – umso sichtbarer wird die Annäherung.',
+      urne: true,
+      ergebnisse: function () { return urneKugeln.map(function (k) { return k.name; }); },
+      theorie: function () {
+        const gesamt = urneKugeln.reduce(function (s, k) { return s + k.anzahl; }, 0) || 1;
+        return urneKugeln.map(function (k) { return k.anzahl / gesamt; });
+      },
+      ziehe: function () {
+        const gesamt = urneKugeln.reduce(function (s, k) { return s + k.anzahl; }, 0);
+        if (gesamt === 0) return 0;
+        let z = Math.random() * gesamt;
+        for (let i = 0; i < urneKugeln.length; i++) {
+          z -= urneKugeln[i].anzahl;
+          if (z < 0) return i;
+        }
+        return urneKugeln.length - 1;
+      }
+    },
+    {
+      id: 'galton', name: 'Galtonbrett (8 Reihen)',
+      beschreibung: 'Acht Entscheidungen links/rechts. Das Ergebnis ist die klassische Glockenform – aus lauter Zufall entsteht Struktur.',
+      ergebnisse: function () { return ['0', '1', '2', '3', '4', '5', '6', '7', '8']; },
+      theorie: function () {
+        const binom = [1, 8, 28, 56, 70, 56, 28, 8, 1];
+        return binom.map(function (n) { return n / 256; });
+      },
+      ziehe: function () {
+        let rechts = 0;
+        for (let i = 0; i < 8; i++) rechts += WZ.zufallGanz(0, 1);
+        return rechts;
+      }
+    }
+  ];
+
+  let aktiv = EXPERIMENTE[0];
+  let zaehler = [];
+  let gesamt = 0;
+  let ereignisIndex = 0;
+  let verlauf = [];     // { n, anteil }
+
+  const el = {};
+  ['titel', 'beschreibung', 'anzahl', 'diagramm', 'verlauf', 'tabelle', 'auswahl', 'zuruecksetzen',
+   'theorie', 'ereignis', 'ereignis-name', 'urne', 'urne-karte', 'csv'].forEach(function (id) {
+    el[id] = document.getElementById('ze-' + id);
+  });
+
+  function zuruecksetzen() {
+    zaehler = new Array(aktiv.ergebnisse().length).fill(0);
+    gesamt = 0;
+    verlauf = [];
+    if (ereignisIndex >= zaehler.length) ereignisIndex = 0;
+    alles();
+  }
+
+  function laufen(n) {
+    // Am Anfang jeden einzelnen Versuch festhalten (dort passiert das Interessante),
+    // bei großen Läufen nur noch Stützstellen.
+    const schritt = Math.max(1, Math.floor(n / 120));
+    for (let i = 0; i < n; i++) {
+      zaehler[aktiv.ziehe()]++;
+      gesamt++;
+      if (gesamt <= 100 || gesamt % schritt === 0 || i === n - 1) {
+        verlauf.push({ n: gesamt, anteil: zaehler[ereignisIndex] / gesamt });
+      }
+    }
+    if (verlauf.length > 1200) {
+      // ausdünnen, damit die Kurve bei sehr vielen Versuchen zeichenbar bleibt
+      verlauf = verlauf.filter(function (_, i) { return i % 2 === 0; });
+    }
+    alles();
+  }
+
+  function diagrammZeichnen() {
+    const svg = el.diagramm;
+    svg.textContent = '';
+    svg.appendChild(sv('title', {}, 'Häufigkeitsverteilung der Ergebnisse'));
+
+    const namen = aktiv.ergebnisse();
+    const theorie = aktiv.theorie();
+    const links = 62, rechts = 862, oben = 24, unten = 316;
+    const maxAnteil = Math.max(
+      0.05,
+      Math.max.apply(null, zaehler.map(function (z) { return gesamt ? z / gesamt : 0; })),
+      el.theorie.checked ? Math.max.apply(null, theorie) : 0
+    ) * 1.18;
+
+    const py = function (a) { return unten - (a / maxAnteil) * (unten - oben); };
+
+    // y-Achse mit Prozentbeschriftung
+    svg.appendChild(sv('line', { x1: links, y1: oben - 8, x2: links, y2: unten, stroke: 'var(--text)', 'stroke-width': 2 }));
+    svg.appendChild(sv('polygon', { points: links + ',' + (oben - 16) + ' ' + (links - 5) + ',' + (oben - 5) + ' ' + (links + 5) + ',' + (oben - 5), fill: 'var(--text)' }));
+    const schritt = maxAnteil > 0.6 ? 0.2 : maxAnteil > 0.3 ? 0.1 : maxAnteil > 0.12 ? 0.05 : 0.02;
+    for (let a = 0; a <= maxAnteil; a += schritt) {
+      svg.appendChild(sv('line', { x1: links, y1: py(a).toFixed(1), x2: rechts, y2: py(a).toFixed(1), stroke: 'var(--linie)', 'stroke-width': 1 }));
+      svg.appendChild(sv('text', {
+        x: links - 10, y: (py(a) + 5).toFixed(1), 'text-anchor': 'end', 'font-size': 14,
+        fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+      }, Math.round(a * 100) + ' %'));
+    }
+    svg.appendChild(sv('text', {
+      x: 16, y: (oben + unten) / 2, 'font-size': 15, fill: 'var(--text)',
+      'font-family': 'var(--schrift)', 'text-anchor': 'middle',
+      transform: 'rotate(-90 16 ' + ((oben + unten) / 2) + ')'
+    }, 'relative Häufigkeit'));
+
+    // x-Achse
+    svg.appendChild(sv('line', { x1: links, y1: unten, x2: rechts, y2: unten, stroke: 'var(--text)', 'stroke-width': 2 }));
+
+    const breite = (rechts - links) / namen.length;
+    namen.forEach(function (name, i) {
+      const anteil = gesamt ? zaehler[i] / gesamt : 0;
+      const x = links + i * breite + breite * 0.16;
+      const w = breite * 0.68;
+      const y = py(anteil);
+      svg.appendChild(sv('rect', {
+        x: x.toFixed(1), y: y.toFixed(1), width: w.toFixed(1), height: Math.max(0, unten - y).toFixed(1),
+        fill: i === ereignisIndex ? '#7c3aed' : '#2563eb', 'fill-opacity': .85, rx: 3
+      }));
+      if (gesamt) {
+        svg.appendChild(sv('text', {
+          x: (x + w / 2).toFixed(1), y: (y - 7).toFixed(1), 'text-anchor': 'middle', 'font-size': 14,
+          fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+        }, zaehler[i] + (gesamt >= 20 ? ' · ' + Math.round(anteil * 100) + ' %' : '')));
+      }
+      svg.appendChild(sv('text', {
+        x: (x + w / 2).toFixed(1), y: unten + 24, 'text-anchor': 'middle', 'font-size': 16,
+        fill: 'var(--text)', 'font-family': 'var(--schrift)'
+      }, name));
+
+      if (el.theorie.checked) {
+        const yt = py(theorie[i]);
+        svg.appendChild(sv('line', {
+          x1: (x - breite * 0.06).toFixed(1), y1: yt.toFixed(1),
+          x2: (x + w + breite * 0.06).toFixed(1), y2: yt.toFixed(1),
+          stroke: '#be123c', 'stroke-width': 3, 'stroke-linecap': 'round'
+        }));
+      }
+    });
+
+    svg.appendChild(sv('text', {
+      x: (links + rechts) / 2, y: unten + 52, 'text-anchor': 'middle', 'font-size': 15,
+      fill: 'var(--text)', 'font-family': 'var(--schrift)'
+    }, 'Ergebnis'));
+
+    if (el.theorie.checked) {
+      svg.appendChild(sv('line', { x1: rechts - 258, y1: oben + 4, x2: rechts - 228, y2: oben + 4, stroke: '#be123c', 'stroke-width': 3 }));
+      svg.appendChild(sv('text', {
+        x: rechts - 220, y: oben + 9, 'font-size': 14, fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+      }, 'theoretische Wahrscheinlichkeit'));
+    }
+  }
+
+  function verlaufZeichnen() {
+    const svg = el.verlauf;
+    svg.textContent = '';
+    const links = 62, rechts = 862, oben = 20, unten = 210;
+    const theorie = aktiv.theorie()[ereignisIndex];
+
+    for (let a = 0; a <= 1.0001; a += 0.25) {
+      const y = unten - a * (unten - oben);
+      svg.appendChild(sv('line', { x1: links, y1: y, x2: rechts, y2: y, stroke: 'var(--linie)', 'stroke-width': 1 }));
+      svg.appendChild(sv('text', {
+        x: links - 10, y: y + 5, 'text-anchor': 'end', 'font-size': 13,
+        fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+      }, Math.round(a * 100) + ' %'));
+    }
+    svg.appendChild(sv('line', { x1: links, y1: oben - 6, x2: links, y2: unten, stroke: 'var(--text)', 'stroke-width': 2 }));
+    svg.appendChild(sv('line', { x1: links, y1: unten, x2: rechts + 10, y2: unten, stroke: 'var(--text)', 'stroke-width': 2 }));
+    svg.appendChild(sv('polygon', { points: (rechts + 18) + ',' + unten + ' ' + (rechts + 4) + ',' + (unten - 5) + ' ' + (rechts + 4) + ',' + (unten + 5), fill: 'var(--text)' }));
+    svg.appendChild(sv('text', {
+      x: (links + rechts) / 2, y: unten + 44, 'text-anchor': 'middle', 'font-size': 15,
+      fill: 'var(--text)', 'font-family': 'var(--schrift)'
+    }, 'Anzahl der Versuche (logarithmisch)'));
+
+    // theoretische Linie
+    const yT = unten - theorie * (unten - oben);
+    svg.appendChild(sv('line', { x1: links, y1: yT.toFixed(1), x2: rechts, y2: yT.toFixed(1), stroke: '#be123c', 'stroke-width': 2, 'stroke-dasharray': '6 5' }));
+    svg.appendChild(sv('text', {
+      x: rechts - 4, y: (yT - 8).toFixed(1), 'text-anchor': 'end', 'font-size': 13,
+      fill: '#be123c', 'font-family': 'var(--schrift)'
+    }, 'theoretisch ' + WZ.zahl(theorie * 100, 1) + ' %'));
+
+    if (verlauf.length < 2) {
+      svg.appendChild(sv('text', {
+        x: (links + rechts) / 2, y: (oben + unten) / 2, 'text-anchor': 'middle', 'font-size': 15,
+        fill: 'var(--text-schwach)', 'font-family': 'var(--schrift)'
+      }, 'Noch keine Versuche – links auf „10 ד klicken.'));
+      return;
+    }
+
+    const maxN = verlauf[verlauf.length - 1].n;
+    const logMax = Math.log10(Math.max(10, maxN));
+    const px = function (n) { return links + (Math.log10(Math.max(1, n)) / logMax) * (rechts - links); };
+
+    for (let e = 0; e <= logMax + 0.001; e++) {
+      const n = Math.pow(10, e);
+      svg.appendChild(sv('line', { x1: px(n).toFixed(1), y1: unten, x2: px(n).toFixed(1), y2: unten + 6, stroke: 'var(--text)', 'stroke-width': 1.5 }));
+      svg.appendChild(sv('text', {
+        x: px(n).toFixed(1), y: unten + 24, 'text-anchor': 'middle', 'font-size': 13,
+        fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+      }, n >= 1000 ? (n / 1000) + ' 000' : String(n)));
+    }
+
+    const d = verlauf.map(function (p, i) {
+      return (i === 0 ? 'M ' : 'L ') + px(p.n).toFixed(1) + ' ' + (unten - p.anteil * (unten - oben)).toFixed(1);
+    }).join(' ');
+    svg.appendChild(sv('path', { d: d, fill: 'none', stroke: '#2563eb', 'stroke-width': 2.5, 'stroke-linejoin': 'round' }));
+  }
+
+  function tabelleZeichnen() {
+    const namen = aktiv.ergebnisse();
+    const theorie = aktiv.theorie();
+    const tab = el.tabelle;
+    tab.textContent = '';
+    tab.appendChild(WZ.el('thead', {}, [WZ.el('tr', {}, [
+      WZ.el('th', { text: 'Ergebnis' }),
+      WZ.el('th', { style: 'text-align:right', text: 'absolut' }),
+      WZ.el('th', { style: 'text-align:right', text: 'relativ' }),
+      WZ.el('th', { style: 'text-align:right', text: 'theoretisch' }),
+      WZ.el('th', { style: 'text-align:right', text: 'Abweichung' })
+    ])]));
+    const koerper = WZ.el('tbody');
+    namen.forEach(function (name, i) {
+      const rel = gesamt ? zaehler[i] / gesamt : 0;
+      koerper.appendChild(WZ.el('tr', {}, [
+        WZ.el('td', { text: name }),
+        WZ.el('td', { style: 'text-align:right;font-variant-numeric:tabular-nums', text: String(zaehler[i]) }),
+        WZ.el('td', { style: 'text-align:right;font-variant-numeric:tabular-nums', text: gesamt ? WZ.zahl(rel * 100, 2) + ' %' : '–' }),
+        WZ.el('td', { style: 'text-align:right;font-variant-numeric:tabular-nums', text: WZ.zahl(theorie[i] * 100, 2) + ' %' }),
+        WZ.el('td', {
+          style: 'text-align:right;font-variant-numeric:tabular-nums;color:' +
+            (gesamt && Math.abs(rel - theorie[i]) > 0.05 ? 'var(--rot)' : 'var(--text-leise)'),
+          text: gesamt ? (rel - theorie[i] >= 0 ? '+' : '−') + WZ.zahl(Math.abs(rel - theorie[i]) * 100, 2) + ' PP' : '–'
+        })
+      ]));
+    });
+    tab.appendChild(koerper);
+  }
+
+  function ereignisAuswahl() {
+    const namen = aktiv.ergebnisse();
+    el.ereignis.textContent = '';
+    namen.forEach(function (n, i) {
+      el.ereignis.appendChild(WZ.el('option', { value: String(i), selected: i === ereignisIndex }, [n]));
+    });
+    el['ereignis-name'].textContent = namen[ereignisIndex] || '–';
+  }
+
+  function urneZeichnen() {
+    el['urne-karte'].hidden = !aktiv.urne;
+    if (!aktiv.urne) return;
+    el.urne.textContent = '';
+    urneKugeln.forEach(function (k) {
+      el.urne.appendChild(WZ.el('label', {}, [
+        WZ.el('span', { text: k.name, style: 'color:' + k.farbe + ';font-weight:600' }),
+        WZ.el('input', {
+          class: 'wz-feld', type: 'number', min: '0', max: '99', value: String(k.anzahl),
+          'aria-label': 'Anzahl ' + k.name,
+          oninput: function (e) {
+            const v = parseInt(e.target.value, 10);
+            k.anzahl = isFinite(v) && v >= 0 ? v : 0;
+            zuruecksetzen();
+          }
+        })
+      ]));
+    });
+  }
+
+  function alles() {
+    el.titel.textContent = aktiv.name;
+    el.beschreibung.textContent = aktiv.beschreibung;
+    el.anzahl.textContent = gesamt.toLocaleString('de-DE');
+    diagrammZeichnen();
+    verlaufZeichnen();
+    tabelleZeichnen();
+  }
+
+  EXPERIMENTE.forEach(function (e) {
+    el.auswahl.appendChild(WZ.el('button', {
+      class: 'wz-knopf', type: 'button', style: 'justify-content:flex-start',
+      onclick: function () {
+        aktiv = e;
+        ereignisIndex = 0;
+        Array.prototype.forEach.call(el.auswahl.children, function (k) {
+          k.classList.toggle('wz-knopf-haupt', k.textContent === e.name);
+        });
+        ereignisAuswahl();
+        urneZeichnen();
+        zuruecksetzen();
+      }
+    }, [e.name]));
+  });
+
+  document.querySelectorAll('[data-lauf]').forEach(function (k) {
+    k.addEventListener('click', function () { laufen(parseInt(k.dataset.lauf, 10)); });
+  });
+  el.zuruecksetzen.addEventListener('click', zuruecksetzen);
+  el.theorie.addEventListener('change', function () { diagrammZeichnen(); });
+  el.ereignis.addEventListener('change', function (e) {
+    ereignisIndex = parseInt(e.target.value, 10);
+    el['ereignis-name'].textContent = aktiv.ergebnisse()[ereignisIndex];
+    // Verlauf für das neue Ereignis kann nicht rückwirkend berechnet werden
+    verlauf = gesamt ? [{ n: gesamt, anteil: zaehler[ereignisIndex] / gesamt }] : [];
+    alles();
+  });
+  el.csv.addEventListener('click', function () {
+    const namen = aktiv.ergebnisse();
+    const theorie = aktiv.theorie();
+    const zeilen = ['Ergebnis;absolut;relativ;theoretisch'];
+    namen.forEach(function (n, i) {
+      zeilen.push([n, zaehler[i], gesamt ? (zaehler[i] / gesamt).toFixed(4).replace('.', ',') : '',
+                   theorie[i].toFixed(4).replace('.', ',')].join(';'));
+    });
+    WZ.herunterladen('zufallsexperiment.csv', zeilen.join('\n'));
+  });
+
+  WZ.kopf({ titel: 'Zufallsexperimente' });
+  WZ.fuss('Die Zufallszahlen kommen aus dem Browser – jeder Rechner erzeugt eine andere Stichprobe.');
+  el.auswahl.children[0].classList.add('wz-knopf-haupt');
+  ereignisAuswahl();
+  urneZeichnen();
+  zuruecksetzen();
+})();
+</script>
+</body>
+</html>

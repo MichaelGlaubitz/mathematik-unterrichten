@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which One Doesn’t Belong? · mathematik-unterrichten.de</title>
+<meta name="description" content="Vier Objekte, jede Antwort ist richtig – wenn die Begründung trägt. Fertige Sets von Klasse 5 bis zur Oberstufe plus Editor für eigene. Der Einstieg, bei dem auch schwache Klassen reden.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .wo-brett {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    background: var(--text); border: 4px solid var(--text); border-radius: var(--radius);
+    aspect-ratio: 3 / 2; max-height: 66vh; margin: 0 auto; width: 100%;
+  }
+  .wo-feld {
+    background: var(--flaeche); display: flex; align-items: center; justify-content: center;
+    position: relative; cursor: pointer; padding: .8rem; overflow: hidden;
+    border: 0; font: inherit; color: var(--text); text-align: center;
+  }
+  .wo-feld:hover { background: var(--flaeche-2); }
+  .wo-feld[data-markiert="ja"] { box-shadow: inset 0 0 0 6px var(--akzent); }
+  .wo-feld:focus-visible { outline: 3px solid var(--akzent); outline-offset: -6px; }
+  .wo-inhalt {
+    font-family: var(--schrift-serif); font-weight: 600; line-height: 1.15;
+    font-size: clamp(1.6rem, 6.5vw, 4rem);
+  }
+  .wo-feld svg { width: 100%; height: 100%; max-height: 26vh; }
+  .wo-ecke { position: absolute; top: .4rem; left: .6rem; color: var(--text-schwach); font-size: .8rem; font-weight: 600; }
+  .wo-grund {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--akzent); color: #fff; font-size: .82rem; padding: .45rem .6rem;
+    text-align: left; line-height: 1.35;
+  }
+
+  .wo-liste { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .wo-liste button { font-size: .85rem; padding: .3rem .65rem; min-height: 2rem; }
+  .wo-liste button[aria-pressed="true"] { background: var(--akzent); border-color: var(--akzent); color: #fff; font-weight: 600; }
+
+  @media (min-width: 1000px) { .wo-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Which One Doesn’t Belong?</h1>
+
+  <div class="wo-layout">
+    <section>
+      <div class="wz-karte">
+        <div class="wz-reihe" style="justify-content:space-between;margin-bottom:.7rem">
+          <div>
+            <p class="wz-pill" id="wo-stufe">–</p>
+            <h2 id="wo-titel" style="margin-top:.35rem">–</h2>
+          </div>
+          <div class="wz-reihe wz-nicht-drucken">
+            <button class="wz-knopf" id="wo-gruende" type="button" aria-pressed="false">Mögliche Begründungen</button>
+            <button class="wz-knopf wz-knopf-still" id="wo-weiter" type="button">Nächstes Set →</button>
+          </div>
+        </div>
+        <div class="wo-brett" id="wo-brett"></div>
+        <p class="wz-hinweis wz-abstand">
+          <strong>Welches passt nicht zu den anderen?</strong> Es gibt keine falsche Antwort –
+          es gibt nur schwache und starke Begründungen. Fragen Sie konsequent nach: <em>Woran erkennst du das?</em>
+        </p>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        WODB senkt die Einstiegshürde auf null: Jede und jeder kann etwas sagen, und trotzdem wird
+        über Eigenschaften, Klassifikation und Fachsprache gesprochen. Lassen Sie erst zwei Minuten
+        still denken, dann in Partnerarbeit begründen, erst dann ins Plenum – die
+        <a href="unterrichts-timer.html">Vorlage „Think–Pair–Share“ im Timer</a> passt genau dazu.
+      </p>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Fertige Sets</h2>
+        <div class="wo-liste wz-abstand" id="wo-sets"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Eigenes Set</h2>
+        <p style="font-size:.85rem;color:var(--text-leise);margin:.4rem 0 .7rem">
+          Vier Einträge – Zahlen, Terme oder kurze Wörter. Wird sofort angezeigt.
+        </p>
+        <div id="wo-eigene"></div>
+        <button class="wz-knopf wz-knopf-haupt wz-abstand" id="wo-eigene-zeigen" type="button">Anzeigen</button>
+      </div>
+
+      <div class="wz-karte">
+        <h2>So läuft es</h2>
+        <ol style="font-size:.9rem;color:var(--text-leise);padding-left:1.1rem;margin:.5rem 0 0;line-height:1.6">
+          <li>Bild zeigen, <strong>zwei Minuten still</strong> denken lassen.</li>
+          <li>Zu zweit: jede Person begründet <em>ein</em> Feld.</li>
+          <li>Im Plenum: Für jedes Feld mindestens eine Begründung sammeln.</li>
+          <li>Fachsprache nachschärfen: „Wie heißt das genau?“</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function svg(inhalt, breite, hoehe) {
+    return '<svg viewBox="0 0 ' + (breite || 200) + ' ' + (hoehe || 160) + '" xmlns="' + NS +
+      '" role="img" aria-hidden="true">' + inhalt + '</svg>';
+  }
+  const STRICH = 'fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"';
+  const FUELLUNG = 'fill="rgba(37,99,235,.14)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"';
+
+  /**
+   * Minigraph mit vollständigem Koordinatensystem: beide Achsen beschriftet,
+   * Pfeilspitzen in positiver Richtung, Ursprung im Bild. Die Kurve wird aus
+   * der Funktion selbst berechnet – kein von Hand gemaltes Ungefähr.
+   */
+  function graph(f, beschriftung) {
+    const xMin = -3, xMax = 3.4, yMin = -1.6, yMax = 4.2;
+    const px = function (x) { return 14 + ((x - xMin) / (xMax - xMin)) * 172; };
+    const py = function (y) { return 132 - ((y - yMin) / (yMax - yMin)) * 118; };
+    const punkte = [];
+    for (let i = 0; i <= 90; i++) {
+      const x = xMin + (i / 90) * (xMax - xMin);
+      const y = f(x);
+      if (!isFinite(y) || y < yMin - 1 || y > yMax + 1) continue;
+      punkte.push(px(x).toFixed(1) + ',' + py(y).toFixed(1));
+    }
+    const x0 = px(0), y0 = py(0);
+    return svg(
+      '<line x1="10" y1="' + y0 + '" x2="188" y2="' + y0 + '" stroke="currentColor" stroke-width="2"/>' +
+      '<polygon points="195,' + y0 + ' 184,' + (y0 - 5) + ' 184,' + (y0 + 5) + '" fill="currentColor"/>' +
+      '<line x1="' + x0 + '" y1="140" x2="' + x0 + '" y2="16" stroke="currentColor" stroke-width="2"/>' +
+      '<polygon points="' + x0 + ',8 ' + (x0 - 5) + ',19 ' + (x0 + 5) + ',19" fill="currentColor"/>' +
+      '<line x1="' + px(1) + '" y1="' + (y0 - 4) + '" x2="' + px(1) + '" y2="' + (y0 + 4) + '" stroke="currentColor" stroke-width="2"/>' +
+      '<line x1="' + (x0 - 4) + '" y1="' + py(1) + '" x2="' + (x0 + 4) + '" y2="' + py(1) + '" stroke="currentColor" stroke-width="2"/>' +
+      '<text x="' + (x0 + 8) + '" y="24" font-size="13" font-style="italic" fill="currentColor">y</text>' +
+      '<text x="182" y="' + (y0 + 18) + '" font-size="13" font-style="italic" fill="currentColor">x</text>' +
+      '<polyline points="' + punkte.join(' ') + '" fill="none" stroke="#2563eb" stroke-width="4" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<text x="100" y="156" font-size="15" text-anchor="middle" fill="currentColor">' + beschriftung + '</text>',
+      200, 162);
+  }
+
+  const SETS = [
+    {
+      titel: 'Zahlen bis 50', stufe: 'Klasse 5–6',
+      felder: [
+        { text: '9', grund: 'ungerade · Quadratzahl · einstellig · Quersumme 9' },
+        { text: '16', grund: 'Quadratzahl · gerade · Zweierpotenz' },
+        { text: '25', grund: 'Quadratzahl · ungerade · Vielfaches von 5' },
+        { text: '43', grund: 'keine Quadratzahl · Primzahl · ungerade' }
+      ]
+    },
+    {
+      titel: 'Ein Wert, vier Kleider', stufe: 'Klasse 6–7',
+      felder: [
+        { text: '1/2', grund: 'als Bruch geschrieben · gekürzt' },
+        { text: '0,5', grund: 'als Dezimalzahl geschrieben' },
+        { text: '50 %', grund: 'als Prozentsatz geschrieben' },
+        { text: '2/4', grund: 'als Bruch, aber nicht gekürzt – der einzige nicht vollständig gekürzte Eintrag' }
+      ]
+    },
+    {
+      titel: 'Terme mit x', stufe: 'Klasse 7–8',
+      felder: [
+        { text: 'x²', grund: 'quadratisch · Potenzschreibweise' },
+        { text: '2x', grund: 'linear · Produkt aus Zahl und Variable' },
+        { text: 'x + x', grund: 'Summe · nicht zusammengefasst · gleich 2x' },
+        { text: 'x · x', grund: 'Produkt · gleich x² · quadratisch' }
+      ]
+    },
+    {
+      titel: 'Brüche und Dezimalzahlen', stufe: 'Klasse 6–7',
+      felder: [
+        { text: '3/4', grund: 'gekürzt · Bruch · gleich 0,75' },
+        { text: '6/8', grund: 'nicht gekürzt · gleicher Wert wie 3/4' },
+        { text: '1/4', grund: 'einziger Wert unter 1/2 · Stammbruch' },
+        { text: '0,75', grund: 'einzige Dezimalschreibweise' }
+      ]
+    },
+    {
+      titel: 'Vierecke', stufe: 'Klasse 6–8',
+      felder: [
+        { inhalt: svg('<rect x="55" y="35" width="90" height="90" ' + FUELLUNG + '/>'), grund: 'Quadrat: vier gleiche Seiten und vier rechte Winkel' },
+        { inhalt: svg('<rect x="30" y="50" width="140" height="60" ' + FUELLUNG + '/>'), grund: 'Rechteck: rechte Winkel, aber keine vier gleichen Seiten' },
+        { inhalt: svg('<polygon points="100,25 165,80 100,135 35,80" ' + FUELLUNG + '/>'), grund: 'Raute: vier gleiche Seiten, aber keine rechten Winkel' },
+        { inhalt: svg('<polygon points="45,120 85,40 175,40 135,120" ' + FUELLUNG + '/>'), grund: 'Parallelogramm: nur je zwei Seiten gleich, keine rechten Winkel' }
+      ]
+    },
+    {
+      titel: 'Dreiecke', stufe: 'Klasse 7–9',
+      felder: [
+        { inhalt: svg('<polygon points="40,130 160,130 40,40" ' + FUELLUNG + '/><path d="M40 118 L52 118 L52 130" ' + STRICH + '/>'), grund: 'rechtwinklig – und zugleich das einzige mit einem markierten rechten Winkel' },
+        { inhalt: svg('<polygon points="40,130 160,130 100,35" ' + FUELLUNG + '/>'), grund: 'gleichschenklig, spitzwinklig' },
+        { inhalt: svg('<polygon points="45,130 155,130 100,35" ' + FUELLUNG + '/>'), grund: 'nahezu gleichseitig – alle Seiten gleich lang' },
+        { inhalt: svg('<polygon points="25,120 175,120 145,55" ' + FUELLUNG + '/>'), grund: 'stumpfwinklig – ein Winkel ist größer als 90°' }
+      ]
+    },
+    {
+      titel: 'Vier Funktionen', stufe: 'Klasse 9 – Oberstufe',
+      felder: [
+        { inhalt: graph(function (x) { return 2 * x; }, 'y = 2x'), grund: 'linear · Ursprungsgerade · konstante Änderungsrate' },
+        { inhalt: graph(function (x) { return x * x; }, 'y = x²'), grund: 'quadratisch · achsensymmetrisch · Scheitel im Ursprung' },
+        { inhalt: graph(function (x) { return Math.pow(2, x); }, 'y = 2ˣ'), grund: 'exponentiell · nie null · wächst über jede Grenze' },
+        { inhalt: graph(function () { return 2; }, 'y = 2'), grund: 'konstant · waagerechte Gerade · Steigung null' }
+      ]
+    },
+    {
+      titel: 'Um die Zahl π herum', stufe: 'Klasse 9 – Oberstufe',
+      felder: [
+        { text: 'π', grund: 'irrational · transzendent · exakt' },
+        { text: '√2', grund: 'irrational, aber algebraisch · kleiner als die anderen' },
+        { text: '22/7', grund: 'rational · Bruch · Näherung für π' },
+        { text: '3,14', grund: 'rational · endliche Dezimalzahl · Näherung für π' }
+      ]
+    },
+    {
+      titel: 'Vier Gleichungen', stufe: 'Klasse 9–10',
+      felder: [
+        { text: 'x² = 9', grund: 'zwei Lösungen: 3 und −3' },
+        { text: 'x² = 0', grund: 'genau eine Lösung' },
+        { text: 'x² = −9', grund: 'keine reelle Lösung' },
+        { text: 'x² = 2', grund: 'zwei irrationale Lösungen' }
+      ]
+    },
+    {
+      titel: 'Vier Rechnungen', stufe: 'Klasse 7–8',
+      felder: [
+        { text: '25 % von 80', grund: 'Prozentschreibweise · Ergebnis 20' },
+        { text: '20 % von 100', grund: 'Ergebnis 20 · einziger Grundwert 100' },
+        { text: '1/4 von 80', grund: 'Bruchschreibweise · Ergebnis 20' },
+        { text: '0,25 · 80', grund: 'Dezimalschreibweise als Produkt · Ergebnis 20' }
+      ]
+    }
+  ];
+
+  let index = 0;
+  let markiert = [false, false, false, false];
+  let gruendeAn = false;
+  let eigenes = null;
+
+  function aktuell() { return eigenes || SETS[index]; }
+
+  function brettZeichnen() {
+    const brett = document.getElementById('wo-brett');
+    const satz = aktuell();
+    brett.textContent = '';
+    document.getElementById('wo-titel').textContent = satz.titel;
+    document.getElementById('wo-stufe').textContent = satz.stufe;
+
+    satz.felder.forEach(function (f, i) {
+      const kinder = [
+        WZ.el('span', { class: 'wo-ecke', text: String.fromCharCode(65 + i) }),
+        f.inhalt
+          ? WZ.el('span', { html: f.inhalt, style: 'display:block;width:100%' })
+          : WZ.el('span', { class: 'wo-inhalt', text: f.text })
+      ];
+      if (gruendeAn && f.grund) kinder.push(WZ.el('span', { class: 'wo-grund', text: f.grund }));
+      brett.appendChild(WZ.el('button', {
+        class: 'wo-feld', type: 'button', 'data-markiert': markiert[i] ? 'ja' : 'nein',
+        'aria-pressed': markiert[i] ? 'true' : 'false',
+        'aria-label': 'Feld ' + String.fromCharCode(65 + i) + ' markieren',
+        onclick: function () { markiert[i] = !markiert[i]; brettZeichnen(); }
+      }, kinder));
+    });
+  }
+
+  function setlisteZeichnen() {
+    const wurzel = document.getElementById('wo-sets');
+    wurzel.textContent = '';
+    SETS.forEach(function (s, i) {
+      wurzel.appendChild(WZ.el('button', {
+        class: 'wz-knopf', type: 'button', 'aria-pressed': String(!eigenes && i === index),
+        onclick: function () {
+          index = i;
+          eigenes = null;
+          markiert = [false, false, false, false];
+          gruendeAn = false;
+          document.getElementById('wo-gruende').setAttribute('aria-pressed', 'false');
+          setlisteZeichnen();
+          brettZeichnen();
+        }
+      }, [s.titel]));
+    });
+  }
+
+  const eigeneFelder = [];
+  (function eigeneEingabe() {
+    const wurzel = document.getElementById('wo-eigene');
+    ['9', '16', '25', '43'].forEach(function (vorgabe, i) {
+      const feld = WZ.el('input', {
+        class: 'wz-feld', type: 'text', value: '', placeholder: 'Feld ' + String.fromCharCode(65 + i),
+        'aria-label': 'Eigenes Feld ' + String.fromCharCode(65 + i),
+        style: 'width:100%;margin-bottom:.4rem'
+      });
+      eigeneFelder.push(feld);
+      wurzel.appendChild(feld);
+    });
+  })();
+
+  document.getElementById('wo-eigene-zeigen').addEventListener('click', function () {
+    const werte = eigeneFelder.map(function (f) { return f.value.trim(); });
+    if (werte.filter(Boolean).length < 2) { alert('Bitte mindestens zwei Felder ausfüllen.'); return; }
+    eigenes = {
+      titel: 'Eigenes Set', stufe: 'selbst gebaut',
+      felder: werte.map(function (t) { return { text: t || '?', grund: '' }; })
+    };
+    markiert = [false, false, false, false];
+    setlisteZeichnen();
+    brettZeichnen();
+  });
+
+  document.getElementById('wo-gruende').addEventListener('click', function (e) {
+    gruendeAn = !gruendeAn;
+    e.currentTarget.setAttribute('aria-pressed', String(gruendeAn));
+    e.currentTarget.classList.toggle('wz-knopf-haupt', gruendeAn);
+    brettZeichnen();
+  });
+
+  document.getElementById('wo-weiter').addEventListener('click', function () {
+    eigenes = null;
+    index = (index + 1) % SETS.length;
+    markiert = [false, false, false, false];
+    gruendeAn = false;
+    document.getElementById('wo-gruende').setAttribute('aria-pressed', 'false');
+    document.getElementById('wo-gruende').classList.remove('wz-knopf-haupt');
+    setlisteZeichnen();
+    brettZeichnen();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    const z = e.target;
+    if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA')) return;
+    if (e.key === 'ArrowRight' || e.key === 'n') document.getElementById('wo-weiter').click();
+    else if (e.key === 'g') document.getElementById('wo-gruende').click();
+  });
+
+  WZ.kopf({ titel: 'Which One Doesn’t Belong?' });
+  WZ.fuss('Die Begründungen sind Vorschläge für die Lehrkraft – die Klasse findet regelmäßig bessere.');
+  setlisteZeichnen();
+  brettZeichnen();
+})();
+</script>
+</body>
+</html>

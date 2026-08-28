@@ -21,6 +21,8 @@ export interface TopicBlockProps {
   generatorUebungLabel?: string;
   /** Optional: Unterthemen in Clustern (Kurzüberblick zur inhaltlichen Spanne). */
   unterthemenBloecke?: { titel: string; beschreibung?: string; punkte: string[] }[];
+  /** Optional: fertiger Stundenverlauf zu diesem Thema. */
+  stunde?: { slug: string; titel: string; dauer: number; kurz: string };
 }
 
 const {
@@ -37,6 +39,7 @@ const {
   generatorUebungHref,
   generatorUebungLabel = 'Zufallsaufgaben (Whiteboard)',
   unterthemenBloecke,
+  stunde,
 } = Astro.props;
 
 const wbBdpKarten = false;
@@ -84,6 +87,25 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
     <p class="prose-mathe text-ink-700 leading-relaxed mb-6 max-w-3xl dark:text-ink-200">
       {einfuehrung}
     </p>
+
+    {stunde && (
+      <a
+        href={`/stunden/${stunde.slug}`}
+        class="mb-6 flex flex-wrap items-start gap-x-3 gap-y-1 rounded-lg border border-accent-200/90 bg-accent-50/50 p-4 transition hover:border-accent-400 dark:border-sky-400/25 dark:bg-sky-400/[0.07] dark:hover:border-sky-400/50"
+      >
+        <span aria-hidden="true" class="text-lg leading-none">🗓️</span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-xs font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">
+            Fertige Stunde · {stunde.dauer} Minuten
+          </span>
+          <span class="mt-0.5 block font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
+            {stunde.titel}
+          </span>
+          <span class="mt-1 block text-sm leading-relaxed text-ink-700 dark:text-ink-300">{stunde.kurz}</span>
+        </span>
+        <span class="link-arrow whitespace-nowrap text-sm">Zum Verlauf </span>
+      </a>
+    )}
 
     {(wbBdpKarten || (unterthemenBloecke && unterthemenBloecke.length > 0)) && (
       wbThemaMitAkku ? (
@@ -302,6 +324,7 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
             slug={slug}
             generatorUebungHref={generatorUebungHref}
             unterthemenBloecke={unterthemenBloecke}
+            stufe={5}
           />
         </section>
       )
