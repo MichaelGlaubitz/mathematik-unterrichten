@@ -18,6 +18,9 @@
   .ze-urne label { display: flex; flex-direction: column; gap: .2rem; font-size: .8rem; color: var(--text-leise); }
   .ze-urne input { width: 4.2rem; }
   @media (min-width: 1000px) { .ze-layout { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 1.25rem; align-items: start; } }
+  /* Achsen- und Säulenbeschriftungen liegen in SVG-Nutzereinheiten und wachsen
+     nicht mit --basis. Im Beamer-Modus eigens angehoben. */
+  html[data-beamer="an"] .ze-marke { font-size: 23px; }
 </style>
 </head>
 <body>
@@ -242,7 +245,7 @@
 
     const namen = aktiv.ergebnisse();
     const theorie = aktiv.theorie();
-    const links = 62, rechts = 862, oben = 24, unten = 316;
+    const links = 104, rechts = 862, oben = 24, unten = 316;
     const maxAnteil = Math.max(
       0.05,
       Math.max.apply(null, zaehler.map(function (z) { return gesamt ? z / gesamt : 0; })),
@@ -258,14 +261,14 @@
     for (let a = 0; a <= maxAnteil; a += schritt) {
       svg.appendChild(sv('line', { x1: links, y1: py(a).toFixed(1), x2: rechts, y2: py(a).toFixed(1), stroke: 'var(--linie)', 'stroke-width': 1 }));
       svg.appendChild(sv('text', {
-        x: links - 10, y: (py(a) + 5).toFixed(1), 'text-anchor': 'end', 'font-size': 14,
+        x: links - 10, y: (py(a) + 5).toFixed(1), 'text-anchor': 'end', class: 'ze-marke', 'font-size': 14,
         fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
       }, Math.round(a * 100) + ' %'));
     }
     svg.appendChild(sv('text', {
-      x: 16, y: (oben + unten) / 2, 'font-size': 15, fill: 'var(--text)',
+      x: 26, y: (oben + unten) / 2, class: 'ze-marke', 'font-size': 15, fill: 'var(--text)',
       'font-family': 'var(--schrift)', 'text-anchor': 'middle',
-      transform: 'rotate(-90 16 ' + ((oben + unten) / 2) + ')'
+      transform: 'rotate(-90 26 ' + ((oben + unten) / 2) + ')'
     }, 'relative Häufigkeit'));
 
     // x-Achse
@@ -283,12 +286,12 @@
       }));
       if (gesamt) {
         svg.appendChild(sv('text', {
-          x: (x + w / 2).toFixed(1), y: (y - 7).toFixed(1), 'text-anchor': 'middle', 'font-size': 14,
+          x: (x + w / 2).toFixed(1), y: (y - 7).toFixed(1), 'text-anchor': 'middle', class: 'ze-marke', 'font-size': 14,
           fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
         }, zaehler[i] + (gesamt >= 20 ? ' · ' + Math.round(anteil * 100) + ' %' : '')));
       }
       svg.appendChild(sv('text', {
-        x: (x + w / 2).toFixed(1), y: unten + 24, 'text-anchor': 'middle', 'font-size': 16,
+        x: (x + w / 2).toFixed(1), y: unten + 24, 'text-anchor': 'middle', class: 'ze-marke', 'font-size': 16,
         fill: 'var(--text)', 'font-family': 'var(--schrift)'
       }, name));
 
@@ -303,29 +306,39 @@
     });
 
     svg.appendChild(sv('text', {
-      x: (links + rechts) / 2, y: unten + 52, 'text-anchor': 'middle', 'font-size': 15,
+      x: (links + rechts) / 2, y: unten + 52, 'text-anchor': 'middle', class: 'ze-marke', 'font-size': 15,
       fill: 'var(--text)', 'font-family': 'var(--schrift)'
     }, 'Ergebnis'));
 
     if (el.theorie.checked) {
-      svg.appendChild(sv('line', { x1: rechts - 258, y1: oben + 4, x2: rechts - 228, y2: oben + 4, stroke: '#be123c', 'stroke-width': 3 }));
-      svg.appendChild(sv('text', {
-        x: rechts - 220, y: oben + 9, 'font-size': 14, fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
-      }, 'theoretische Wahrscheinlichkeit'));
+      // Rechtsbündig ansetzen und die Markierungslinie erst nach der gemessenen
+      // Textbreite setzen: Auf feste Breite gerechnet lief die Legende im
+      // Beamer-Modus über den rechten Rand hinaus.
+      const legende = sv('text', {
+        x: rechts, y: oben + 9, 'text-anchor': 'end', class: 'ze-marke', 'font-size': 14,
+        fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+      }, 'theoretische Wahrscheinlichkeit');
+      svg.appendChild(legende);
+      const breiteText = legende.getComputedTextLength ? legende.getComputedTextLength() : 220;
+      svg.appendChild(sv('line', {
+        x1: (rechts - breiteText - 38).toFixed(1), y1: oben + 4,
+        x2: (rechts - breiteText - 8).toFixed(1), y2: oben + 4,
+        stroke: '#be123c', 'stroke-width': 3
+      }));
     }
   }
 
   function verlaufZeichnen() {
     const svg = el.verlauf;
     svg.textContent = '';
-    const links = 62, rechts = 862, oben = 20, unten = 210;
+    const links = 104, rechts = 862, oben = 20, unten = 210;
     const theorie = aktiv.theorie()[ereignisIndex];
 
     for (let a = 0; a <= 1.0001; a += 0.25) {
       const y = unten - a * (unten - oben);
       svg.appendChild(sv('line', { x1: links, y1: y, x2: rechts, y2: y, stroke: 'var(--linie)', 'stroke-width': 1 }));
       svg.appendChild(sv('text', {
-        x: links - 10, y: y + 5, 'text-anchor': 'end', 'font-size': 13,
+        x: links - 10, y: y + 5, 'text-anchor': 'end', class: 'ze-marke', 'font-size': 13,
         fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
       }, Math.round(a * 100) + ' %'));
     }
@@ -333,7 +346,7 @@
     svg.appendChild(sv('line', { x1: links, y1: unten, x2: rechts + 10, y2: unten, stroke: 'var(--text)', 'stroke-width': 2 }));
     svg.appendChild(sv('polygon', { points: (rechts + 18) + ',' + unten + ' ' + (rechts + 4) + ',' + (unten - 5) + ' ' + (rechts + 4) + ',' + (unten + 5), fill: 'var(--text)' }));
     svg.appendChild(sv('text', {
-      x: (links + rechts) / 2, y: unten + 44, 'text-anchor': 'middle', 'font-size': 15,
+      x: (links + rechts) / 2, y: unten + 44, 'text-anchor': 'middle', class: 'ze-marke', 'font-size': 15,
       fill: 'var(--text)', 'font-family': 'var(--schrift)'
     }, 'Anzahl der Versuche (logarithmisch)'));
 
@@ -341,13 +354,13 @@
     const yT = unten - theorie * (unten - oben);
     svg.appendChild(sv('line', { x1: links, y1: yT.toFixed(1), x2: rechts, y2: yT.toFixed(1), stroke: '#be123c', 'stroke-width': 2, 'stroke-dasharray': '6 5' }));
     svg.appendChild(sv('text', {
-      x: rechts - 4, y: (yT - 8).toFixed(1), 'text-anchor': 'end', 'font-size': 13,
+      x: rechts - 4, y: (yT - 8).toFixed(1), 'text-anchor': 'end', class: 'ze-marke', 'font-size': 13,
       fill: '#be123c', 'font-family': 'var(--schrift)'
     }, 'theoretisch ' + WZ.zahl(theorie * 100, 1) + ' %'));
 
     if (verlauf.length < 2) {
       svg.appendChild(sv('text', {
-        x: (links + rechts) / 2, y: (oben + unten) / 2, 'text-anchor': 'middle', 'font-size': 15,
+        x: (links + rechts) / 2, y: (oben + unten) / 2, 'text-anchor': 'middle', class: 'ze-marke', 'font-size': 15,
         fill: 'var(--text-schwach)', 'font-family': 'var(--schrift)'
       }, 'Noch keine Versuche – links auf „10 ד klicken.'));
       return;
@@ -361,7 +374,7 @@
       const n = Math.pow(10, e);
       svg.appendChild(sv('line', { x1: px(n).toFixed(1), y1: unten, x2: px(n).toFixed(1), y2: unten + 6, stroke: 'var(--text)', 'stroke-width': 1.5 }));
       svg.appendChild(sv('text', {
-        x: px(n).toFixed(1), y: unten + 24, 'text-anchor': 'middle', 'font-size': 13,
+        x: px(n).toFixed(1), y: unten + 24, 'text-anchor': 'middle', class: 'ze-marke', 'font-size': 13,
         fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
       }, n >= 1000 ? (n / 1000) + ' 000' : String(n)));
     }

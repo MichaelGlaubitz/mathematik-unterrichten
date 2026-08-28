@@ -42,6 +42,9 @@
   .ps-loesung[data-offen="ja"] { display: block; }
 
   @media (min-width: 1000px) { .ps-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+  /* Skalenbeschriftungen liegen in SVG-Nutzereinheiten und wachsen nicht mit
+     --basis. Im Beamer-Modus eigens angehoben. */
+  html[data-beamer="an"] .ps-marke { font-size: 22px; }
 </style>
 </head>
 <body>
@@ -175,7 +178,7 @@
     svg.appendChild(sv('rect', { x: links, y: y, width: breite, height: 30, rx: 6, fill: farbe }));
     svg.appendChild(sv('text', {
       x: links + breite / 2, y: y + 21, 'text-anchor': 'middle',
-      fill: 'var(--grund)', 'font-size': 17, 'font-weight': 700
+      fill: 'var(--grund)', class: 'ps-marke', 'font-size': 17, 'font-weight': 700
     }, text));
   }
 
@@ -206,8 +209,8 @@
     svg.appendChild(sv('line', {
       x1: X0, y1: ACHSE_UNTEN, x2: X1, y2: ACHSE_UNTEN, stroke: 'var(--text-schwach)', 'stroke-width': 1.5
     }));
-    svg.appendChild(sv('text', { x: X0, y: KOPF_Y, fill: 'var(--text-leise)', 'font-size': 15 }, 'Größe'));
-    svg.appendChild(sv('text', { x: X0, y: FUSS_Y, fill: 'var(--text-leise)', 'font-size': 15 }, 'Prozente'));
+    svg.appendChild(sv('text', { x: X0, y: KOPF_Y, fill: 'var(--text-leise)', class: 'ps-marke', 'font-size': 15 }, 'Größe'));
+    svg.appendChild(sv('text', { x: X0, y: FUSS_Y, fill: 'var(--text-leise)', class: 'ps-marke', 'font-size': 15 }, 'Prozente'));
 
     // Skalenstriche; beschriftet wird jeder fünfte
     const schritt = skalaMax > 100 ? 20 : 10;
@@ -225,10 +228,10 @@
       // Zahlen dicht an der Marke weglassen, damit nichts überschrieben wird
       if (gross && Math.abs(x - xMarke) > 40) {
         svg.appendChild(sv('text', {
-          x: x, y: LABEL_OBEN, 'text-anchor': 'middle', fill: 'var(--text-leise)', 'font-size': 14
+          x: x, y: LABEL_OBEN, 'text-anchor': 'middle', fill: 'var(--text-leise)', class: 'ps-marke', 'font-size': 14
         }, fmt((G * q) / 100)));
         svg.appendChild(sv('text', {
-          x: x, y: LABEL_UNTEN, 'text-anchor': 'middle', fill: 'var(--text-leise)', 'font-size': 14
+          x: x, y: LABEL_UNTEN, 'text-anchor': 'middle', fill: 'var(--text-leise)', class: 'ps-marke', 'font-size': 14
         }, WZ.zahl(q, 0) + ' %'));
       }
     }
@@ -242,7 +245,7 @@
       }));
       svg.appendChild(sv('text', {
         x: x100, y: BALKEN_Y - 16, 'text-anchor': 'middle',
-        fill: 'var(--gold)', 'font-size': 14, 'font-weight': 700
+        fill: 'var(--gold)', class: 'ps-marke', 'font-size': 14, 'font-weight': 700
       }, 'das Ganze'));
     }
 

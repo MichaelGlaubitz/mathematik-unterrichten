@@ -30,6 +30,9 @@
     font-size: .95rem;
   }
   @media (min-width: 1000px) { .gw-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+  /* Die Beschriftungen der Waage tragen ihre Größe in SVG-Nutzereinheiten und
+     wachsen deshalb nicht mit --basis. Im Beamer-Modus eigens angehoben. */
+  html[data-beamer="an"] .gw-marke { font-size: 23px; }
 </style>
 </head>
 <body>
@@ -191,14 +194,14 @@
         const gy = schaleY + 24 + reihenX * 44 + Math.floor(i / 8) * 26;
         svg.appendChild(sv('circle', { cx: gx, cy: gy, r: 11, fill: gewichte > 0 ? '#b45309' : '#be123c' }));
         svg.appendChild(sv('text', {
-          x: gx, y: gy + 5, 'text-anchor': 'middle', 'font-size': 13,
+          x: gx, y: gy + 5, 'text-anchor': 'middle', class: 'gw-marke', 'font-size': 13,
           fill: '#fff', 'font-family': 'var(--schrift)'
         }, gewichte > 0 ? '1' : '−1'));
       }
 
       // Beschriftung der Seite
       svg.appendChild(sv('text', {
-        x: ax, y: schaleY + 172, 'text-anchor': 'middle', 'font-size': 17,
+        x: ax, y: schaleY + 172, 'text-anchor': 'middle', class: 'gw-marke', 'font-size': 17,
         fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
       }, (vorzeichen < 0 ? 'linke' : 'rechte') + ' Seite'));
     });
