@@ -5,13 +5,13 @@ autor: "Dr. Michael Glaubitz"
 datum: 2026-08-28
 tags: ["iqb", "bildungsstandards", "mindeststandards", "diagnose", "basiskompetenzen", "grundvorstellungen"]
 kategorie: "Meinung"
-teaser: "34 Prozent der Neuntklässlerinnen und Neuntklässler verfehlen in Mathematik den Mindeststandard für den Mittleren Schulabschluss – 2018 waren es 24 Prozent. Über die Ursachen ist viel geschrieben worden. Über das, was eine einzelne Lehrkraft am Montag tun kann, deutlich weniger."
+teaser: "34 Prozent der Neuntklässlerinnen und Neuntklässler verfehlen in Mathematik den Mindeststandard für den Mittleren Schulabschluss – rund zehn Prozentpunkte mehr als 2018. Über die Ursachen ist viel geschrieben worden. Über das, was eine einzelne Lehrkraft am Montag tun kann, deutlich weniger."
 entwurf: false
 ---
 
 Die Zahlen des IQB-Bildungstrends 2024 sind seit ihrer Veröffentlichung im Herbst 2025 oft zitiert worden, meist mit demselben Tonfall. Ich schreibe sie trotzdem noch einmal hin, weil eine davon in der Debatte fast immer untergeht.
 
-In Mathematik liegt der bundesweite Mittelwert der neunten Klassen bei **474 Punkten**, rund **24 Punkte unter dem Wert von 2018**. Da im verwendeten Modell etwa 50 Punkte einem Schuljahr Lernzuwachs entsprechen, ist das rechnerisch ein halbes Schuljahr. **34 Prozent** verfehlen den Mindeststandard für den Mittleren Schulabschluss; 2018 waren es 24 Prozent. Und die Zahl, die seltener genannt wird: Rund **9 Prozent** verfehlen sogar den Mindeststandard für den Ersten Schulabschluss.
+In Mathematik liegt der bundesweite Mittelwert der neunten Klassen bei **474 Punkten**, rund **24 Punkte unter dem Wert von 2018**. Da im verwendeten Modell etwa 50 Punkte einem Schuljahr Lernzuwachs entsprechen, ist das rechnerisch ein halbes Schuljahr. **34 Prozent** verfehlen den Mindeststandard für den Mittleren Schulabschluss – rund zehn Prozentpunkte mehr als 2018. Und die Zahl, die seltener genannt wird: Rund **9 Prozent** verfehlen sogar den Mindeststandard für den Ersten Schulabschluss.
 
 Das Wort, auf das es ankommt, ist *Mindeststandard*. Nicht Regelstandard, nicht Optimalstandard. Es geht nicht darum, dass ein Drittel der Jugendlichen die Kurvendiskussion nicht beherrscht. Es geht darum, dass ein Drittel das nicht sicher kann, was für den Abschluss als unterste Grenze definiert wurde.
 
@@ -33,7 +33,7 @@ Ich habe keine Antwort auf die bildungspolitische Frage. Auf die unterrichtliche
 
 **3. Grundvorstellungen vor Verfahren.** Wer weiß, *warum* beim Addieren von Brüchen die Nenner gleich sein müssen, braucht die Regel nicht auswendig. Wer es nicht weiß, wird sie vergessen – zuverlässig, und zwar bis Klasse 9. Zwei Minuten am [Bruchstreifen](/werkzeuge/bruchstreifen.html) ersparen zwei Jahre Nachkorrektur.
 
-**4. Die schwächsten Lernenden namentlich kennen.** Nicht im Gefühl, sondern in Daten: Wer hat bei den letzten drei Whiteboard-Runden zweimal danebengelegen? Diese Liste ist kürzer, als man denkt, und sie ist der Ansatzpunkt. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) führt sie im Namensmodus nebenbei mit — für die schnelle Runde zwischendurch bleibt der anonyme Modus voreingestellt.
+**4. Wissen, wie viele es wirklich sind.** Nicht im Gefühl, sondern in Zahlen: Wie viele lagen bei den letzten drei Whiteboard-Runden daneben? Der Unterschied zwischen „ein paar" und „ein Drittel" entscheidet, ob eine Übungsphase reicht oder die Stunde neu ansetzen muss. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) zählt das in Sekunden mit — anonym; wer im Einzelnen Förderung braucht, zeigt sich ohnehin im Gespräch am Tisch, nicht in einer gespeicherten Liste.
 
 ## Was ich nicht schreibe
 
@@ -43,4 +43,4 @@ Aber es gibt einen Unterschied zwischen „nicht schuld" und „nichts zu tun". 
 
 ---
 
-**Quellen:** IQB-Bildungstrend 2024, veröffentlicht im Oktober 2025 durch das Institut zur Qualitätsentwicklung im Bildungswesen (Humboldt-Universität zu Berlin); getestet wurden Neuntklässlerinnen und Neuntklässler in Mathematik und den Naturwissenschaften. Die Zuordnung „50 Punkte ≈ ein Schuljahr" ist eine gängige Faustregel zur Interpretation der Skala und keine exakte Umrechnung.
+**Quellen:** IQB-Bildungstrend 2024, veröffentlicht im Oktober 2025 durch das Institut zur Qualitätsentwicklung im Bildungswesen (Humboldt-Universität zu Berlin); getestet wurden Neuntklässlerinnen und Neuntklässler in Mathematik und den Naturwissenschaften. Die Zuordnung „50 Punkte ≈ ein Schuljahr" ist eine gängige Faustregel zur Interpretation der Skala und keine exakte Umrechnung. Für den Vergleichswert von 2018 nennt die Berichterstattung uneinheitlich 22 oder 24 Prozent; deshalb steht oben nur die Größenordnung der Veränderung. Wer die Zahl exakt braucht, nimmt sie aus dem Originalbericht.
