@@ -63,6 +63,27 @@ export const werkzeuge: Werkzeug[] = [
     hintergrund: { text: 'Denkendes Klassenzimmer', href: '/ausb/handreichung-denkende-klassenzimmer.html' },
   },
   {
+    slug: 'abstimmung',
+    titel: 'Abstimmung',
+    kurz: 'Die Stimmen einer diagnostischen Frage zählen und die Verteilung groß zeigen.',
+    beschreibung:
+      'Die Klasse antwortet gleichzeitig – mit Karten, Fingern oder Mini-Whiteboards –, Sie tippen auf die Balken und zählen mit. Die Verteilung steht sofort projizierbar da, dazu die Entscheidung, die daraus folgt: über 80 % weitergehen, unter 50 % neu ansetzen, dazwischen eine zweite Runde. Benannt wird außerdem die häufigste falsche Antwort – sie ist der eigentliche Ertrag einer diagnostischen Frage. Nichts wird übertragen; die Zahlen bleiben auf dem Gerät der Lehrkraft.',
+    kategorie: 'Diagnose',
+    stufe: 'alle',
+    einsatz: 'Beamer',
+    schlagwoerter: [
+      'abstimmung',
+      'verteilung',
+      'diagnostische fragen',
+      'stimmen zählen',
+      'abstimmkarten',
+      'hinge question',
+      'distraktoren',
+      'formatives assessment',
+    ],
+    hintergrund: { text: 'Methode: Diagnostische Fragen', href: '/methoden#diagnostische-fragen' },
+  },
+  {
     slug: 'whiteboard-check',
     titel: 'Whiteboard-Check',
     kurz: 'Die Mini-Whiteboard-Runde in Sekunden auswerten – mit Klassenbild und Verlauf.',
