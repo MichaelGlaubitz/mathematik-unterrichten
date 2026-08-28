@@ -89,6 +89,40 @@
     padding: .05em .35em; background: var(--flaeche);
   }
 
+  /* Fragensatz aus einem Quiz */
+  .ab-satzleiste {
+    display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    margin-bottom: .7rem; padding-bottom: .7rem;
+    border-bottom: 1px solid var(--linie);
+  }
+  .ab-satzzahl { font-family: var(--schrift-mono); font-size: .95rem; color: var(--text-leise); }
+  .ab-satztitel {
+    font-size: .95rem; color: var(--text-leise); flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* Der Optionstext steht über der Füllung – die Klasse muss ihn lesen können,
+     verdeckt wird nur die Verteilung, nie die Antwortmöglichkeit. */
+  .ab-optiontext {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; height: 100%;
+    padding: 0 .8rem; font-size: clamp(.95rem, 1.6vw, 1.25rem);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ab-satzliste { list-style: none; padding: 0; margin: .6rem 0 0; display: grid; gap: .3rem; }
+  .ab-satzliste button {
+    font: inherit; text-align: left; width: 100%; cursor: pointer;
+    display: grid; grid-template-columns: 1.6rem minmax(0,1fr) auto; gap: .5rem; align-items: baseline;
+    padding: .4rem .5rem; border-radius: var(--radius-klein);
+    border: 1px solid transparent; background: transparent; color: var(--text-leise);
+    font-size: .85rem;
+  }
+  .ab-satzliste button:hover { background: var(--flaeche-2); }
+  .ab-satzliste button[aria-current="true"] {
+    border-color: var(--akzent); background: var(--flaeche-2); color: var(--text); font-weight: 600;
+  }
+  .ab-satzliste .ab-satzfrage { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ab-satzliste .ab-satzstand { font-family: var(--schrift-mono); font-size: .78rem; }
+
   @media (min-width: 1000px) { .ab-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 1.25rem; align-items: start; } }
 </style>
 </head>
@@ -100,6 +134,12 @@
   <div class="ab-layout">
     <section>
       <div class="wz-karte">
+        <div class="ab-satzleiste wz-nicht-drucken" id="ab-satzleiste" hidden>
+          <button class="wz-knopf" id="ab-zurueck-frage" type="button" aria-label="Vorige Frage">‹</button>
+          <span class="ab-satzzahl" id="ab-satzzahl">Frage 1 von 1</span>
+          <button class="wz-knopf" id="ab-naechste-frage" type="button" aria-label="Nächste Frage">›</button>
+          <span class="ab-satztitel" id="ab-satztitel"></span>
+        </div>
         <p class="ab-frage" id="ab-frage">Frage eintippen oder einfügen …</p>
         <div class="ab-kopfzeile wz-abstand">
           <span class="ab-summe" id="ab-zaehler">Noch keine Stimme</span>
@@ -134,7 +174,17 @@
     </section>
 
     <aside class="wz-nicht-drucken">
-      <div class="wz-karte">
+      <div class="wz-karte" id="ab-satz-karte" hidden>
+        <h2 id="ab-satz-ueberschrift">Fragensatz</h2>
+        <p style="font-size:.82rem;color:var(--text-schwach);margin:.4rem 0 0">
+          Aus einem Quiz geladen. Jede Frage zählt für sich; mit ‹ und › wechseln Sie,
+          ohne eine Zählung zu verlieren.
+        </p>
+        <ol class="ab-satzliste" id="ab-satzliste"></ol>
+        <button class="wz-knopf wz-abstand" id="ab-satz-verlassen" type="button">Eigene Frage stellen</button>
+      </div>
+
+      <div class="wz-karte" id="ab-frage-karte">
         <h2>Frage</h2>
         <label class="wz-label wz-abstand">Fragetext
           <textarea class="wz-feld" id="ab-eingabe" rows="3" placeholder="Welche Zahl ist am größten?"></textarea>
@@ -198,9 +248,11 @@
     frage: '',
     anzahlOptionen: 4,
     richtig: -1,          // -1 = noch offen
+    optionen: [],         // Beschriftungen der Balken; leer = nur die Buchstaben
     folge: [],            // Reihenfolge der Eingaben, als Indizes – die Quelle der Wahrheit
     aufgedeckt: false,
-    runden: []
+    runden: [],
+    satz: null,           // {kennung, titel, fragen:[{f,o,r}], index, staende:[…]}
   };
 
   function speichern() { WZ.schreib(SCHLUESSEL, zustand); }
@@ -228,14 +280,18 @@
       const anzahlEl = WZ.el('span', { class: 'ab-anzahl' });
       const anteilEl = WZ.el('span', { class: 'ab-anteil' });
 
+      const beschriftung = zustand.optionen[i] || '';
       const balken = WZ.el('div', {
         class: 'ab-balken', role: 'button', tabindex: '0',
-        'aria-label': 'Eine Stimme für ' + BUCHSTABEN[i] + ' zählen',
+        title: beschriftung,
+        'aria-label': beschriftung
+          ? 'Eine Stimme für ' + BUCHSTABEN[i] + ': ' + beschriftung
+          : 'Eine Stimme für ' + BUCHSTABEN[i] + ' zählen',
         onClick: function () { stimmeDazu(i); },
         onKeydown: function (e) {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stimmeDazu(i); }
         }
-      }, [fuellung]);
+      }, [fuellung, WZ.el('span', { class: 'ab-optiontext', text: beschriftung })]);
 
       const minus = WZ.el('button', {
         class: 'ab-minus', type: 'button', text: '−',
@@ -416,6 +472,13 @@
       letzteZurueck();
       return;
     }
+    // Im Fragensatz blättern die Pfeiltasten – eine Hand am Rechner reicht.
+    if (zustand.satz && (taste === 'ArrowLeft' || taste === 'ArrowRight')) {
+      e.preventDefault();
+      e.stopPropagation();
+      frageWechseln(taste === 'ArrowRight' ? 1 : -1);
+      return;
+    }
     // Leertaste ist der Hauptweg – die trifft man, ohne hinzusehen. Das
     // preventDefault verhindert zugleich das Scrollen der Seite.
     if (taste === ' ' || taste === 'Spacebar' || taste === 'Enter') {
@@ -439,6 +502,160 @@
     zustand.aufgedeckt = !zustand.aufgedeckt;
     speichern();
     anzeigeAktualisieren();
+  }
+
+  // --- Fragensatz aus einem Quiz -------------------------------------------
+
+  /**
+   * Liest den Fragensatz aus dem URL-Fragment. Das Fragment verlässt den
+   * Browser nie – es steht in keiner Anfrage und in keinem Server-Log.
+   */
+  function satzAusAdresse() {
+    const roh = String(location.hash || '');
+    if (roh.indexOf('#q=') !== 0) return null;
+    const nutzlast = roh.slice(3);
+    try {
+      const b64 = nutzlast.replace(/-/g, '+').replace(/_/g, '/');
+      const binaer = atob(b64 + '==='.slice((b64.length + 3) % 4));
+      const bytes = Uint8Array.from(binaer, function (c) { return c.charCodeAt(0); });
+      const daten = JSON.parse(new TextDecoder().decode(bytes));
+      if (!daten || !Array.isArray(daten.q) || daten.q.length === 0) return null;
+      const fragen = daten.q
+        .filter(function (f) { return f && typeof f.f === 'string' && Array.isArray(f.o); })
+        .map(function (f) {
+          const optionen = f.o.slice(0, 5).map(String);
+          const richtig = Number(f.r);
+          return {
+            f: String(f.f),
+            o: optionen,
+            r: isFinite(richtig) && richtig >= 0 && richtig < optionen.length ? richtig : -1
+          };
+        })
+        .filter(function (f) { return f.o.length >= 2; });
+      if (fragen.length === 0) return null;
+      return {
+        kennung: nutzlast.slice(0, 32),
+        titel: String(daten.t || ''),
+        fragen: fragen,
+        index: 0,
+        staende: fragen.map(function () { return { folge: [], aufgedeckt: false }; })
+      };
+    } catch (e) {
+      return null;                      // kaputtes Fragment: einfach ignorieren
+    }
+  }
+
+  /** Laufende Zählung in den Satz zurückschreiben. */
+  function standSichern() {
+    if (!zustand.satz) return;
+    zustand.satz.staende[zustand.satz.index] = {
+      folge: zustand.folge.slice(),
+      aufgedeckt: zustand.aufgedeckt
+    };
+  }
+
+  /** Eine Frage des Satzes in die Zählfläche holen. */
+  function frageLaden(i) {
+    const satz = zustand.satz;
+    if (!satz || i < 0 || i >= satz.fragen.length) return;
+    satz.index = i;
+    const frage = satz.fragen[i];
+    const stand = satz.staende[i] || { folge: [], aufgedeckt: false };
+
+    zustand.frage = frage.f;
+    zustand.optionen = frage.o.slice();
+    zustand.anzahlOptionen = frage.o.length;
+    zustand.richtig = frage.r;
+    zustand.folge = stand.folge.slice();
+    zustand.aufgedeckt = stand.aufgedeckt;
+
+    document.getElementById('ab-frage').textContent = frage.f;
+    document.getElementById('ab-eingabe').value = frage.f;
+    document.getElementById('ab-anzahl-optionen').value = String(zustand.anzahlOptionen);
+    richtigAuswahlBauen();
+    speichern();
+    rasterZeichnen();
+    satzAnzeigen();
+  }
+
+  function frageWechseln(schritt) {
+    if (!zustand.satz) return;
+    const ziel = zustand.satz.index + schritt;
+    if (ziel < 0 || ziel >= zustand.satz.fragen.length) return;
+    standSichern();
+    frageLaden(ziel);
+  }
+
+  /** Leiste, Liste und Sichtbarkeit der Karten an den Satz anpassen. */
+  function satzAnzeigen() {
+    const satz = zustand.satz;
+    const leiste = document.getElementById('ab-satzleiste');
+    const karte = document.getElementById('ab-satz-karte');
+    const frageKarte = document.getElementById('ab-frage-karte');
+
+    leiste.hidden = !satz;
+    karte.hidden = !satz;
+    frageKarte.hidden = !!satz;
+    if (!satz) return;
+
+    document.getElementById('ab-satzzahl').textContent =
+      'Frage ' + (satz.index + 1) + ' von ' + satz.fragen.length;
+    document.getElementById('ab-satztitel').textContent = satz.titel;
+    document.getElementById('ab-satz-ueberschrift').textContent = satz.titel || 'Fragensatz';
+    document.getElementById('ab-zurueck-frage').disabled = satz.index === 0;
+    document.getElementById('ab-naechste-frage').disabled = satz.index === satz.fragen.length - 1;
+
+    const liste = document.getElementById('ab-satzliste');
+    liste.textContent = '';
+    satz.fragen.forEach(function (frage, i) {
+      const stand = i === satz.index
+        ? { folge: zustand.folge }
+        : (satz.staende[i] || { folge: [] });
+      const gezaehlt = stand.folge.length;
+      liste.appendChild(WZ.el('li', {}, [
+        WZ.el('button', {
+          type: 'button',
+          'aria-current': i === satz.index ? 'true' : 'false',
+          onClick: function () { standSichern(); frageLaden(i); }
+        }, [
+          WZ.el('span', { text: String(i + 1) + '.' }),
+          WZ.el('span', { class: 'ab-satzfrage', text: frage.f }),
+          WZ.el('span', {
+            class: 'ab-satzstand',
+            text: gezaehlt === 0 ? '' : gezaehlt + '×'
+          })
+        ])
+      ]));
+    });
+  }
+
+  /**
+   * Ein Wechsel des Fragments lädt die Seite nicht neu – der Browser bleibt im
+   * selben Dokument. Ohne diesen Hörer bliebe beim Sprung von einem Quiz zum
+   * nächsten die alte Frage stehen.
+   */
+  function adresseGeaendert() {
+    const neu = satzAusAdresse();
+    if (neu) {
+      if (zustand.satz && zustand.satz.kennung === neu.kennung) return;   // derselbe Satz
+      standSichern();
+      zustand.satz = neu;
+      frageLaden(0);
+      return;
+    }
+    if (zustand.satz) satzVerlassen();
+  }
+  window.addEventListener('hashchange', adresseGeaendert);
+
+  function satzVerlassen() {
+    zustand.satz = null;
+    zustand.optionen = [];
+    zustand.folge = [];
+    zustand.aufgedeckt = false;
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    speichern();
+    rasterZeichnen();
+    satzAnzeigen();
   }
 
   // --- Verdrahten ----------------------------------------------------------
@@ -476,6 +693,10 @@
     anzeigeAktualisieren();
   });
 
+  document.getElementById('ab-zurueck-frage').addEventListener('click', function () { frageWechseln(-1); });
+  document.getElementById('ab-naechste-frage').addEventListener('click', function () { frageWechseln(1); });
+  document.getElementById('ab-satz-verlassen').addEventListener('click', satzVerlassen);
+
   document.getElementById('ab-aufdecken').addEventListener('click', aufdeckenUmschalten);
   document.getElementById('ab-zurueck').addEventListener('click', letzteZurueck);
 
@@ -489,8 +710,10 @@
     });
     zustand.folge = [];
     zustand.aufgedeckt = false;   // die nächste Runde beginnt wieder verdeckt
+    standSichern();
     speichern();
     anzeigeAktualisieren();
+    satzAnzeigen();
     verlaufZeichnen();
   });
 
@@ -498,8 +721,10 @@
     if (zustand.folge.length > 0 && !window.confirm('Die laufende Zählung verwerfen?')) return;
     zustand.folge = [];
     zustand.aufgedeckt = false;
+    standSichern();
     speichern();
     anzeigeAktualisieren();
+    satzAnzeigen();
   });
 
   document.addEventListener('keydown', tastatur, true);
@@ -522,13 +747,49 @@
       });
     }
     zustand.aufgedeckt = false;   // nach dem Laden nie offen anzeigen
+    if (!Array.isArray(zustand.optionen)) zustand.optionen = [];
   }
+
+  // Ein Fragensatz in der Adresse gewinnt gegen den gespeicherten Stand –
+  // aber nur, wenn es ein anderer ist. Beim Neuladen derselben Adresse
+  // bleiben die schon gezählten Stimmen erhalten.
+  const ausAdresse = satzAusAdresse();
+  if (ausAdresse) {
+    const alterSatz = gespeichert && gespeichert.satz;
+    if (alterSatz && alterSatz.kennung === ausAdresse.kennung &&
+        Array.isArray(alterSatz.staende) &&
+        alterSatz.staende.length === ausAdresse.fragen.length) {
+      ausAdresse.index = Math.min(Math.max(0, alterSatz.index | 0), ausAdresse.fragen.length - 1);
+      ausAdresse.staende = alterSatz.staende.map(function (st) {
+        return {
+          folge: Array.isArray(st && st.folge) ? st.folge.slice() : [],
+          aufgedeckt: false        // nach dem Laden nie offen anzeigen
+        };
+      });
+    }
+    zustand.satz = ausAdresse;
+  } else if (zustand.satz) {
+    // Ohne Fragment gilt der gespeicherte Satz weiter, aber verdeckt.
+    if (!Array.isArray(zustand.satz.staende) ||
+        zustand.satz.staende.length !== (zustand.satz.fragen || []).length) {
+      zustand.satz = null;
+    } else {
+      zustand.satz.staende.forEach(function (st) { st.aufgedeckt = false; });
+    }
+  }
+
   document.getElementById('ab-eingabe').value = zustand.frage;
   document.getElementById('ab-frage').textContent =
     zustand.frage.trim() || 'Frage eintippen oder einfügen …';
   document.getElementById('ab-anzahl-optionen').value = String(zustand.anzahlOptionen);
   richtigAuswahlBauen();
-  rasterZeichnen();
+
+  if (zustand.satz) {
+    frageLaden(zustand.satz.index);
+  } else {
+    rasterZeichnen();
+    satzAnzeigen();
+  }
   verlaufZeichnen();
 })();
 </script>

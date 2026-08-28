@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DiagnosticQuiz from '../../components/DiagnosticQuiz.astro';
+import { abstimmungsLink } from '../../lib/abstimmung';
 
 export async function getStaticPaths() {
   const quizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
@@ -12,6 +13,8 @@ export async function getStaticPaths() {
 }
 
 const { quiz } = Astro.props;
+const abstimmung = abstimmungsLink(quiz.data.titel, quiz.data.fragen);
+const anzahl = quiz.data.fragen.length;
 ---
 
 <BaseLayout sourceFile="src/pages/quizzes/[id].astro"
@@ -34,7 +37,7 @@ const { quiz } = Astro.props;
       </aside>
     </header>
 
-    <DiagnosticQuiz fragen={quiz.data.fragen} id={quiz.id} />
+    <DiagnosticQuiz fragen={quiz.data.fragen} id={quiz.id} titel={quiz.data.titel} />
 
     <section class="mt-10 prose prose-ink max-w-none dark:prose-invert">
       <h2>Hinweise zum Einsatz im Unterricht</h2>
@@ -53,6 +56,26 @@ const { quiz } = Astro.props;
         ein und kann deshalb auch keine Klassenverteilung anzeigen.
       </p>
     </section>
+
+    <aside class="mt-8 rounded-xl border border-accent-300/70 bg-accent-50/50 p-5 dark:border-accent-400/25 dark:bg-accent-700/10">
+      <h2 class="font-serif text-xl font-semibold text-ink-900 m-0 dark:text-ink-50">
+        Diese {anzahl} Fragen in der Abstimmung
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-ink-700 dark:text-ink-200">
+        Frage und Antwortmöglichkeiten sind schon eingetragen – Sie tippen nur noch die
+        Stimmen mit (<kbd class="rounded border border-ink-300 px-1 text-xs dark:border-slate-600">A</kbd>
+        bis <kbd class="rounded border border-ink-300 px-1 text-xs dark:border-slate-600">D</kbd>),
+        blättern mit den Pfeiltasten weiter und decken die Verteilung mit der Leertaste auf.
+        Nichts wird übertragen: Der Fragensatz steht im Adressteil hinter dem <code>#</code> und
+        bleibt im Browser.
+      </p>
+      <a
+        href={abstimmung}
+        class="mt-4 inline-flex items-center gap-2 rounded-md bg-accent-700 px-4 py-2 font-medium text-white transition hover:bg-accent-800 dark:bg-accent-600 dark:hover:bg-accent-500"
+      >
+        Abstimmung mit diesen Fragen öffnen
+      </a>
+    </aside>
 
     <footer class="mt-10 pt-6 border-t border-ink-200 flex justify-between text-sm dark:border-violet-500/20">
       <a href="/quizzes" class="link-arrow">Alle diagnostischen Fragen</a>
