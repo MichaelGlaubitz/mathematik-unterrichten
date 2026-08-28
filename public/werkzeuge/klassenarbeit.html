@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klassenarbeits-Baukasten · mathematik-unterrichten.de</title>
+<meta name="description" content="Eine Klassenarbeit zusammenstellen: Anforderungsbereiche im Blick, Punktesumme automatisch, Notenschlüssel einstellbar, Angabenblatt und Erwartungshorizont druckfertig – ohne Konto und ohne Datenübertragung.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  .ka-aufgabe {
+    border: 1px solid var(--linie); border-radius: var(--radius-klein);
+    padding: .7rem .8rem; background: var(--flaeche-2); margin-bottom: .6rem;
+  }
+  .ka-aufgabe[data-offen="nein"] .ka-details { display: none; }
+  .ka-kopfzeile { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+  .ka-nummer {
+    flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%;
+    background: var(--akzent); color: var(--grund);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .95rem;
+  }
+  .ka-titel { flex: 1 1 12rem; min-width: 0; }
+  .ka-details { margin-top: .7rem; display: grid; gap: .6rem; }
+  .ka-zeile { display: flex; gap: .6rem; flex-wrap: wrap; align-items: flex-end; }
+  .ka-zeile > label { flex: 1 1 8rem; }
+
+  .ka-afb { display: inline-flex; border: 1px solid var(--linie-stark); border-radius: var(--radius-klein); overflow: hidden; }
+  .ka-afb button {
+    font: inherit; border: 0; padding: .35rem .7rem; cursor: pointer;
+    background: var(--flaeche); color: var(--text-leise);
+  }
+  .ka-afb button + button { border-left: 1px solid var(--linie); }
+  .ka-afb button[aria-pressed="true"] { background: var(--akzent); color: var(--grund); font-weight: 700; }
+
+  .ka-balken { display: flex; height: 1.6rem; border-radius: var(--radius-klein); overflow: hidden; border: 1px solid var(--linie-stark); }
+  .ka-balken span {
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700; color: #fff; min-width: 0; overflow: hidden; white-space: nowrap;
+  }
+  .ka-afb1 { background: #15803d; }
+  .ka-afb2 { background: #2563eb; }
+  .ka-afb3 { background: #7c3aed; }
+  .ka-leer { background: var(--flaeche-2); }
+
+  .ka-tabelle { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  .ka-tabelle th, .ka-tabelle td { padding: .4rem .5rem; border-bottom: 1px solid var(--linie); text-align: left; vertical-align: top; }
+  .ka-tabelle th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text-schwach); }
+  .ka-tabelle td.ka-rechts, .ka-tabelle th.ka-rechts { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .ka-scroll { overflow-x: auto; }
+
+  .ka-warnung { border-left: 4px solid var(--gold); background: var(--gold-hell); color: var(--gold); padding: .6rem .8rem; border-radius: 0 var(--radius-klein) var(--radius-klein) 0; font-size: .92rem; }
+  .ka-gut { border-left: 4px solid var(--gruen); background: var(--gruen-hell); color: var(--gruen); padding: .6rem .8rem; border-radius: 0 var(--radius-klein) var(--radius-klein) 0; font-size: .92rem; }
+
+  .ka-druck { display: none; }
+  .ka-linien div { border-bottom: 1px solid #999; height: 1.15rem; }
+
+  @media print {
+    .ka-druck { display: block; }
+    .ka-arbeit { display: none; }
+    .ka-blatt { page-break-after: always; }
+    .ka-blatt:last-child { page-break-after: auto; }
+    .ka-kopf-druck { border-bottom: 2px solid #000; padding-bottom: .5rem; margin-bottom: 1rem; }
+    .ka-aufgabe-druck { break-inside: avoid; margin-bottom: 1.1rem; }
+  }
+  @media (min-width: 1050px) { .ka-layout { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Klassenarbeits-Baukasten</h1>
+
+  <!-- ===================== Bildschirm ===================== -->
+  <div class="ka-arbeit">
+    <div class="ka-layout">
+      <section>
+        <div class="wz-karte">
+          <h2>Kopfdaten</h2>
+          <div class="ka-zeile wz-abstand">
+            <label class="wz-label">Fach und Thema
+              <input class="wz-feld" id="ka-thema" type="text" placeholder="Mathematik – Lineare Funktionen">
+            </label>
+            <label class="wz-label">Klasse
+              <input class="wz-feld" id="ka-klasse" type="text" placeholder="8b">
+            </label>
+          </div>
+          <div class="ka-zeile wz-abstand">
+            <label class="wz-label">Datum
+              <input class="wz-feld" id="ka-datum" type="text" placeholder="12. März">
+            </label>
+            <label class="wz-label">Bearbeitungszeit
+              <input class="wz-feld" id="ka-zeit" type="text" placeholder="45 Minuten">
+            </label>
+            <label class="wz-label">Hilfsmittel
+              <input class="wz-feld" id="ka-hilfsmittel" type="text" placeholder="Taschenrechner, Formelsammlung">
+            </label>
+          </div>
+        </div>
+
+        <div class="wz-karte wz-abstand">
+          <div class="wz-reihe" style="justify-content:space-between;align-items:center">
+            <h2>Aufgaben</h2>
+            <button class="wz-knopf wz-knopf-haupt" id="ka-neu" type="button">+ Aufgabe</button>
+          </div>
+          <div id="ka-liste" class="wz-abstand"></div>
+          <p class="wz-hinweis wz-abstand">
+            Der Anforderungsbereich ist keine Schwierigkeitsangabe, sondern eine Angabe über die
+            Art der Tätigkeit: <strong>I</strong> Reproduzieren, <strong>II</strong> Zusammenhänge
+            herstellen, <strong>III</strong> Verallgemeinern und Reflektieren. Eine Arbeit, die
+            nur aus AFB I besteht, misst nicht, was der Unterricht wollte.
+          </p>
+        </div>
+      </section>
+
+      <aside class="wz-nicht-drucken">
+        <div class="wz-karte">
+          <h2>Verteilung</h2>
+          <p style="font-size:.85rem;color:var(--text-leise);margin:.5rem 0 .4rem" id="ka-summe">–</p>
+          <div class="ka-balken" id="ka-balken" role="img" aria-label="Punkteverteilung auf die Anforderungsbereiche"></div>
+          <div class="ka-scroll wz-abstand"><table class="ka-tabelle"><tbody id="ka-verteilung"></tbody></table></div>
+          <p style="font-size:.78rem;color:var(--text-schwach);margin:.5rem 0 0">
+            In Klammern der übliche Richtwert für eine Klassenarbeit.
+          </p>
+          <div id="ka-urteil" class="wz-abstand"></div>
+        </div>
+
+        <div class="wz-karte">
+          <h2>Notenschlüssel</h2>
+          <label class="wz-label wz-abstand">Schlüssel
+            <select class="wz-feld" id="ka-schluessel">
+              <option value="linear">linear (Note 1 ab 87 %, Note 5 unter 30 %)</option>
+              <option value="ihk">IHK-nah (Note 1 ab 92 %, Note 5 unter 30 %)</option>
+              <option value="mild">milder (Note 1 ab 85 %, Note 5 unter 25 %)</option>
+            </select>
+          </label>
+          <div class="ka-scroll wz-abstand">
+            <table class="ka-tabelle">
+              <thead><tr><th>Note</th><th class="ka-rechts">ab Prozent</th><th class="ka-rechts">ab Punkten</th></tr></thead>
+              <tbody id="ka-noten"></tbody>
+            </table>
+          </div>
+          <p style="font-size:.8rem;color:var(--text-schwach);margin:.7rem 0 0">
+            Die Punktgrenzen sind aufgerundet: Wer die angegebene Punktzahl erreicht, hat die Note.
+          </p>
+        </div>
+
+        <div class="wz-karte">
+          <h2>Ausgeben</h2>
+          <div class="wz-reihe wz-abstand" style="flex-wrap:wrap;gap:.45rem">
+            <button class="wz-knopf wz-knopf-haupt" type="button" onclick="window.print()">Drucken</button>
+            <button class="wz-knopf" id="ka-beispiel" type="button">Beispiel laden</button>
+            <button class="wz-knopf" id="ka-leeren" type="button">Alles leeren</button>
+          </div>
+          <p style="font-size:.8rem;color:var(--text-schwach);margin:.8rem 0 0">
+            Gedruckt werden drei Blätter: Angabenblatt, Erwartungshorizont und Punkteliste für
+            die Korrektur. Alles bleibt im Browser gespeichert – nichts wird übertragen.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <p class="wz-lead wz-abstand">
+      Eine Klassenarbeit misst nicht, was schwer war, sondern was gelernt werden sollte. Die
+      Verteilung auf die Anforderungsbereiche macht sichtbar, ob das gelingt – und der
+      Erwartungshorizont zwingt dazu, vor der Korrektur zu entscheiden, wofür es Punkte gibt.
+    </p>
+  </div>
+
+  <!-- ===================== Druck ===================== -->
+  <div class="ka-druck">
+    <div class="ka-blatt">
+      <div class="ka-kopf-druck">
+        <div style="display:flex;justify-content:space-between;gap:1rem">
+          <strong id="kd-thema">–</strong>
+          <span id="kd-klasse">–</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:1rem;margin-top:.3rem;font-size:.9em">
+          <span id="kd-zeit">–</span>
+          <span id="kd-hilfsmittel">–</span>
+        </div>
+        <div style="margin-top:.8rem">Name: ________________________________&nbsp;&nbsp;&nbsp;Punkte: ______ / <span id="kd-max">–</span></div>
+      </div>
+      <div id="kd-aufgaben"></div>
+    </div>
+
+    <div class="ka-blatt">
+      <div class="ka-kopf-druck"><strong>Erwartungshorizont</strong> – <span id="kd-thema2">–</span></div>
+      <table class="ka-tabelle">
+        <thead><tr><th>Nr.</th><th>Erwartete Leistung</th><th class="ka-rechts">AFB</th><th class="ka-rechts">P.</th></tr></thead>
+        <tbody id="kd-horizont"></tbody>
+      </table>
+      <table class="ka-tabelle" style="margin-top:1.2rem">
+        <thead><tr><th>Note</th><th class="ka-rechts">ab Prozent</th><th class="ka-rechts">ab Punkten</th></tr></thead>
+        <tbody id="kd-noten"></tbody>
+      </table>
+    </div>
+
+    <div class="ka-blatt">
+      <div class="ka-kopf-druck"><strong>Punkteliste</strong> – <span id="kd-thema3">–</span></div>
+      <table class="ka-tabelle">
+        <thead><tr id="kd-liste-kopf"></tr></thead>
+        <tbody id="kd-liste"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const SCHLUESSEL_SPEICHER = 'klassenarbeit';
+
+  // Notenschlüssel: untere Prozentgrenze je Note (1 bis 6)
+  const SCHLUESSEL = {
+    linear: { name: 'linear', grenzen: [87, 73, 59, 45, 30, 0] },
+    ihk: { name: 'IHK-nah', grenzen: [92, 81, 67, 50, 30, 0] },
+    mild: { name: 'milder', grenzen: [85, 70, 55, 40, 25, 0] }
+  };
+
+  let zustand = {
+    thema: '', klasse: '', datum: '', zeit: '', hilfsmittel: '',
+    schluessel: 'linear',
+    aufgaben: []
+  };
+
+  function neueAufgabe() {
+    return { titel: '', text: '', erwartung: '', afb: 2, punkte: 4, offen: true };
+  }
+
+  function speichern() {
+    WZ.schreib(SCHLUESSEL_SPEICHER, zustand);
+  }
+
+  // --- Auswertung ----------------------------------------------------------
+
+  function summe() {
+    return zustand.aufgaben.reduce(function (s, a) { return s + (Number(a.punkte) || 0); }, 0);
+  }
+
+  function proAfb() {
+    const werte = [0, 0, 0];
+    zustand.aufgaben.forEach(function (a) {
+      const i = Math.min(3, Math.max(1, Number(a.afb) || 2)) - 1;
+      werte[i] += Number(a.punkte) || 0;
+    });
+    return werte;
+  }
+
+  /**
+   * Punktgrenze zu einer Prozentgrenze. Aufgerundet auf den nächsten halben
+   * Punkt: Punkte werden in halben Schritten vergeben, und eine Grenze wie
+   * 21,75 wäre in der Korrektur nicht ablesbar.
+   */
+  function punktGrenze(prozent, gesamt) {
+    return Math.ceil((prozent / 100) * gesamt * 2) / 2;
+  }
+
+  // --- Bildschirm ----------------------------------------------------------
+
+  function listeZeichnen() {
+    const wurzel = document.getElementById('ka-liste');
+    wurzel.textContent = '';
+
+    if (zustand.aufgaben.length === 0) {
+      wurzel.appendChild(WZ.el('p', {
+        style: 'color:var(--text-schwach);font-size:.92rem;margin:0',
+        text: 'Noch keine Aufgabe. „+ Aufgabe“ legt die erste an – oder laden Sie das Beispiel.'
+      }));
+      return;
+    }
+
+    zustand.aufgaben.forEach(function (a, i) {
+      const kasten = WZ.el('div', { class: 'ka-aufgabe', 'data-offen': a.offen ? 'ja' : 'nein' });
+
+      const kopf = WZ.el('div', { class: 'ka-kopfzeile' }, [
+        WZ.el('span', { class: 'ka-nummer', text: String(i + 1) }),
+        WZ.el('input', {
+          class: 'wz-feld ka-titel', type: 'text', value: a.titel,
+          placeholder: 'Kurztitel, z. B. „Steigung aus zwei Punkten“',
+          'aria-label': 'Titel der Aufgabe ' + (i + 1),
+          onInput: function () { a.titel = this.value; speichern(); druckZeichnen(); }
+        }),
+        WZ.el('span', {
+          style: 'font-family:var(--schrift-mono);font-size:.9rem;color:var(--text-leise);white-space:nowrap',
+          text: 'AFB ' + ['I', 'II', 'III'][(Number(a.afb) || 2) - 1] + ' · ' + WZ.zahl(a.punkte, 1) + ' P.'
+        }),
+        WZ.el('button', {
+          class: 'wz-knopf', type: 'button', text: a.offen ? '▲' : '▼',
+          'aria-label': a.offen ? 'Aufgabe zuklappen' : 'Aufgabe aufklappen',
+          onClick: function () { a.offen = !a.offen; speichern(); listeZeichnen(); }
+        })
+      ]);
+      kasten.appendChild(kopf);
+
+      const afbKnoepfe = WZ.el('span', { class: 'ka-afb', role: 'group', 'aria-label': 'Anforderungsbereich' },
+        [1, 2, 3].map(function (n) {
+          return WZ.el('button', {
+            type: 'button', text: ['I', 'II', 'III'][n - 1],
+            'aria-pressed': Number(a.afb) === n ? 'true' : 'false',
+            title: ['Reproduzieren', 'Zusammenhänge herstellen', 'Verallgemeinern und Reflektieren'][n - 1],
+            onClick: function () { a.afb = n; speichern(); listeZeichnen(); auswertungZeichnen(); druckZeichnen(); }
+          });
+        })
+      );
+
+      kasten.appendChild(WZ.el('div', { class: 'ka-details' }, [
+        WZ.el('label', { class: 'wz-label' }, [
+          document.createTextNode('Aufgabentext'),
+          WZ.el('textarea', {
+            class: 'wz-feld', rows: '3', placeholder: 'Was die Lernenden lesen …',
+            onInput: function () { a.text = this.value; speichern(); druckZeichnen(); }
+          })
+        ]),
+        WZ.el('label', { class: 'wz-label' }, [
+          document.createTextNode('Erwartete Leistung (Erwartungshorizont)'),
+          WZ.el('textarea', {
+            class: 'wz-feld', rows: '2', placeholder: 'Wofür es Punkte gibt – vor der Korrektur festlegen',
+            onInput: function () { a.erwartung = this.value; speichern(); druckZeichnen(); }
+          })
+        ]),
+        WZ.el('div', { class: 'ka-zeile' }, [
+          WZ.el('label', { class: 'wz-label', style: 'flex:0 0 auto' }, [
+            document.createTextNode('Anforderungsbereich'),
+            afbKnoepfe
+          ]),
+          WZ.el('label', { class: 'wz-label', style: 'flex:0 0 7rem' }, [
+            document.createTextNode('Punkte'),
+            WZ.el('input', {
+              class: 'wz-feld', type: 'number', min: '0', step: '0.5', value: String(a.punkte),
+              onInput: function () {
+                a.punkte = Math.max(0, Number(this.value) || 0);
+                speichern(); auswertungZeichnen(); druckZeichnen();
+                kopf.children[2].textContent =
+                  'AFB ' + ['I', 'II', 'III'][(Number(a.afb) || 2) - 1] + ' · ' + WZ.zahl(a.punkte, 1) + ' P.';
+              }
+            })
+          ]),
+          WZ.el('span', { style: 'flex:1 1 auto' }),
+          WZ.el('button', {
+            class: 'wz-knopf', type: 'button', text: '↑', 'aria-label': 'nach oben',
+            onClick: function () { verschieben(i, -1); }
+          }),
+          WZ.el('button', {
+            class: 'wz-knopf', type: 'button', text: '↓', 'aria-label': 'nach unten',
+            onClick: function () { verschieben(i, 1); }
+          }),
+          WZ.el('button', {
+            class: 'wz-knopf', type: 'button', text: 'löschen',
+            onClick: function () {
+              zustand.aufgaben.splice(i, 1);
+              speichern(); listeZeichnen(); auswertungZeichnen(); druckZeichnen();
+            }
+          })
+        ])
+      ]));
+
+      // Werte in die Textfelder setzen (value-Attribut wirkt bei textarea nicht)
+      const felder = kasten.querySelectorAll('textarea');
+      felder[0].value = a.text;
+      felder[1].value = a.erwartung;
+
+      wurzel.appendChild(kasten);
+    });
+  }
+
+  function verschieben(i, richtung) {
+    const j = i + richtung;
+    if (j < 0 || j >= zustand.aufgaben.length) return;
+    const merk = zustand.aufgaben[i];
+    zustand.aufgaben[i] = zustand.aufgaben[j];
+    zustand.aufgaben[j] = merk;
+    speichern();
+    listeZeichnen();
+    druckZeichnen();
+  }
+
+  function auswertungZeichnen() {
+    const gesamt = summe();
+    const werte = proAfb();
+
+    document.getElementById('ka-summe').textContent =
+      gesamt === 0
+        ? 'Noch keine Punkte vergeben.'
+        : WZ.zahl(gesamt, 1) + ' Punkte auf ' + zustand.aufgaben.length +
+          (zustand.aufgaben.length === 1 ? ' Aufgabe' : ' Aufgaben');
+
+    // Balken
+    const balken = document.getElementById('ka-balken');
+    balken.textContent = '';
+    if (gesamt === 0) {
+      balken.appendChild(WZ.el('span', { class: 'ka-leer', style: 'flex:1' }));
+    } else {
+      werte.forEach(function (w, i) {
+        if (w === 0) return;
+        const anteil = (w / gesamt) * 100;
+        balken.appendChild(WZ.el('span', {
+          class: 'ka-afb' + (i + 1),
+          style: 'flex:' + w,
+          text: anteil >= 12 ? Math.round(anteil) + ' %' : ''
+        }));
+      });
+    }
+
+    // Tabelle
+    const koerper = document.getElementById('ka-verteilung');
+    koerper.textContent = '';
+    const richtwerte = [30, 50, 20];
+    ['I – Reproduzieren', 'II – Zusammenhänge', 'III – Verallgemeinern'].forEach(function (name, i) {
+      const anteil = gesamt === 0 ? 0 : (werte[i] / gesamt) * 100;
+      koerper.appendChild(WZ.el('tr', {}, [
+        WZ.el('td', { text: name }),
+        WZ.el('td', { class: 'ka-rechts', text: WZ.zahl(werte[i], 1) + ' P.' }),
+        WZ.el('td', { class: 'ka-rechts', title: 'Richtwert ' + richtwerte[i] + ' %' }, [
+          document.createTextNode(Math.round(anteil) + ' % '),
+          WZ.el('span', { style: 'color:var(--text-schwach)', text: '(' + richtwerte[i] + ')' })
+        ])
+      ]));
+    });
+
+    // Urteil zur Verteilung
+    const urteil = document.getElementById('ka-urteil');
+    urteil.textContent = '';
+    if (gesamt === 0) return;
+    const anteile = werte.map(function (w) { return (w / gesamt) * 100; });
+    const hinweise = [];
+    if (anteile[0] > 50) hinweise.push('Mehr als die Hälfte der Punkte liegt in AFB I. Die Arbeit misst vor allem Wiedergabe.');
+    if (anteile[2] === 0) hinweise.push('Kein AFB III. Ohne eine Aufgabe zum Begründen oder Verallgemeinern fehlt die Spitze.');
+    if (anteile[2] > 35) hinweise.push('Über ein Drittel in AFB III – für eine reguläre Klassenarbeit meist zu viel.');
+    if (anteile[1] < 25) hinweise.push('Wenig AFB II. Genau dort entscheidet sich, ob Zusammenhänge verstanden wurden.');
+    if (zustand.aufgaben.some(function (a) { return !a.erwartung.trim(); })) {
+      hinweise.push('Zu mindestens einer Aufgabe fehlt die erwartete Leistung. Der Erwartungshorizont bleibt dort leer.');
+    }
+
+    if (hinweise.length === 0) {
+      urteil.appendChild(WZ.el('p', {
+        class: 'ka-gut', style: 'margin:0',
+        text: 'Die Verteilung liegt im üblichen Rahmen, und zu jeder Aufgabe ist die erwartete Leistung notiert.'
+      }));
+    } else {
+      hinweise.forEach(function (h) {
+        urteil.appendChild(WZ.el('p', { class: 'ka-warnung', style: 'margin:0 0 .5rem', text: h }));
+      });
+    }
+  }
+
+  function notenZeichnen() {
+    const gesamt = summe();
+    const s = SCHLUESSEL[zustand.schluessel] || SCHLUESSEL.linear;
+    [document.getElementById('ka-noten'), document.getElementById('kd-noten')].forEach(function (koerper) {
+      koerper.textContent = '';
+      s.grenzen.forEach(function (p, i) {
+        koerper.appendChild(WZ.el('tr', {}, [
+          WZ.el('td', { text: String(i + 1) }),
+          WZ.el('td', { class: 'ka-rechts', text: i === 5 ? 'darunter' : p + ' %' }),
+          WZ.el('td', {
+            class: 'ka-rechts',
+            text: gesamt === 0 ? '–' : (i === 5 ? 'darunter' : WZ.zahl(punktGrenze(p, gesamt), 1))
+          })
+        ]));
+      });
+    });
+  }
+
+  // --- Druck ---------------------------------------------------------------
+
+  function druckZeichnen() {
+    const gesamt = summe();
+    const thema = zustand.thema || 'Klassenarbeit';
+    document.getElementById('kd-thema').textContent = thema;
+    document.getElementById('kd-thema2').textContent = thema;
+    document.getElementById('kd-thema3').textContent = thema;
+    document.getElementById('kd-klasse').textContent =
+      [zustand.klasse, zustand.datum].filter(Boolean).join(' · ');
+    document.getElementById('kd-zeit').textContent =
+      zustand.zeit ? 'Bearbeitungszeit: ' + zustand.zeit : '';
+    document.getElementById('kd-hilfsmittel').textContent =
+      zustand.hilfsmittel ? 'Hilfsmittel: ' + zustand.hilfsmittel : '';
+    document.getElementById('kd-max').textContent = WZ.zahl(gesamt, 1);
+
+    // Angabenblatt
+    const aufgaben = document.getElementById('kd-aufgaben');
+    aufgaben.textContent = '';
+    zustand.aufgaben.forEach(function (a, i) {
+      const kasten = WZ.el('div', { class: 'ka-aufgabe-druck' }, [
+        WZ.el('div', { style: 'display:flex;justify-content:space-between;gap:1rem;font-weight:700' }, [
+          WZ.el('span', { text: (i + 1) + '. ' + (a.titel || '') }),
+          WZ.el('span', { style: 'white-space:nowrap', text: '(' + WZ.zahl(a.punkte, 1) + ' P.)' })
+        ]),
+        WZ.el('div', { style: 'margin-top:.25rem;white-space:pre-wrap', text: a.text || '' })
+      ]);
+      // Schreiblinien: eine Zeile je halbem Punkt, mindestens drei
+      const zeilen = Math.max(3, Math.round((Number(a.punkte) || 0) * 2));
+      const linien = WZ.el('div', { class: 'ka-linien', style: 'margin-top:.5rem' });
+      for (let z = 0; z < zeilen; z++) linien.appendChild(WZ.el('div'));
+      kasten.appendChild(linien);
+      aufgaben.appendChild(kasten);
+    });
+
+    // Erwartungshorizont
+    const horizont = document.getElementById('kd-horizont');
+    horizont.textContent = '';
+    zustand.aufgaben.forEach(function (a, i) {
+      horizont.appendChild(WZ.el('tr', {}, [
+        WZ.el('td', { text: String(i + 1) }),
+        WZ.el('td', { text: a.erwartung || '—' }),
+        WZ.el('td', { class: 'ka-rechts', text: ['I', 'II', 'III'][(Number(a.afb) || 2) - 1] }),
+        WZ.el('td', { class: 'ka-rechts', text: WZ.zahl(a.punkte, 1) })
+      ]));
+    });
+    horizont.appendChild(WZ.el('tr', {}, [
+      WZ.el('td', { text: '' }),
+      WZ.el('td', { style: 'font-weight:700', text: 'Summe' }),
+      WZ.el('td', { text: '' }),
+      WZ.el('td', { class: 'ka-rechts', style: 'font-weight:700', text: WZ.zahl(gesamt, 1) })
+    ]));
+
+    // Punkteliste für die Korrektur
+    const kopf = document.getElementById('kd-liste-kopf');
+    kopf.textContent = '';
+    kopf.appendChild(WZ.el('th', { text: 'Name' }));
+    zustand.aufgaben.forEach(function (a, i) {
+      kopf.appendChild(WZ.el('th', { class: 'ka-rechts', text: String(i + 1) }));
+    });
+    kopf.appendChild(WZ.el('th', { class: 'ka-rechts', text: 'Σ' }));
+    kopf.appendChild(WZ.el('th', { class: 'ka-rechts', text: 'Note' }));
+
+    const liste = document.getElementById('kd-liste');
+    liste.textContent = '';
+    for (let z = 0; z < 30; z++) {
+      const zeile = WZ.el('tr', {}, [WZ.el('td', { style: 'height:1.5rem' })]);
+      for (let k = 0; k < zustand.aufgaben.length + 2; k++) zeile.appendChild(WZ.el('td'));
+      liste.appendChild(zeile);
+    }
+  }
+
+  // --- Beispiel ------------------------------------------------------------
+
+  function beispiel() {
+    zustand = {
+      thema: 'Mathematik – Lineare Funktionen',
+      klasse: 'Klasse 8',
+      datum: '',
+      zeit: '45 Minuten',
+      hilfsmittel: 'Taschenrechner, Geodreieck',
+      schluessel: 'linear',
+      aufgaben: [
+        {
+          titel: 'Steigung und Achsenabschnitt benennen',
+          text: 'Gegeben ist f(x) = 3x − 4. Gib die Steigung und den y-Achsenabschnitt an und nenne den Schnittpunkt des Graphen mit der y-Achse.',
+          erwartung: 'Steigung 3 (1 P.); y-Achsenabschnitt −4 (1 P.); Schnittpunkt (0|−4) angegeben (1 P.).',
+          afb: 1, punkte: 3, offen: false
+        },
+        {
+          titel: 'Wertetabelle und Graph',
+          text: 'Gegeben ist f(x) = −0,5x + 3. Lege eine Wertetabelle für x von −2 bis 4 an und zeichne den Graphen.',
+          erwartung: 'Mindestens vier korrekte Wertepaare (2 P.), Achsen beschriftet und skaliert (1 P.), Gerade korrekt gezeichnet (1 P.).',
+          afb: 1, punkte: 4, offen: false
+        },
+        {
+          titel: 'Gleichung aus zwei Punkten',
+          text: 'Eine Gerade verläuft durch die Punkte P(1|2) und Q(5|10). Bestimme die Funktionsgleichung.',
+          erwartung: 'Steigung als Quotient berechnet, m = 2 (2 P.); y-Achsenabschnitt bestimmt, b = 0 (1 P.); Gleichung angegeben (1 P.).',
+          afb: 2, punkte: 4, offen: false
+        },
+        {
+          titel: 'Sachkontext Handytarif',
+          text: 'Ein Tarif kostet 5 € Grundgebühr und 0,10 € je Minute. Stelle die Kostenfunktion auf und bestimme, nach wie vielen Minuten die Kosten 14 € betragen.',
+          erwartung: 'Ansatz K(x) = 0,1x + 5 (2 P.); Gleichung 0,1x + 5 = 14 aufgestellt und gelöst, x = 90 (2 P.); Antwortsatz mit Einheit (1 P.).',
+          afb: 2, punkte: 5, offen: false
+        },
+        {
+          titel: 'Zwei Tarife vergleichen',
+          text: 'Ein zweiter Tarif kostet 11 € Grundgebühr und 0,05 € je Minute. Ab wann lohnt er sich? Begründe deine Antwort.',
+          erwartung: 'Gleichsetzungsansatz (1 P.); Schnittstelle x = 120 korrekt bestimmt (2 P.); Begründung, dass der zweite Tarif ab 120 Minuten günstiger ist, mit Bezug auf die kleinere Steigung (2 P.).',
+          afb: 2, punkte: 5, offen: false
+        },
+        {
+          titel: 'Aussage prüfen',
+          text: 'Jemand sagt: „Wenn die Steigung größer ist, ist die Gerade auch weiter oben.“ Stimmt das? Begründe mit einem Beispiel.',
+          erwartung: 'Aussage als falsch erkannt (1 P.); Gegenbeispiel mit zwei konkreten Geraden angegeben (2 P.); Begründung, dass Steigung und y-Achsenabschnitt unabhängig sind (1 P.).',
+          afb: 3, punkte: 4, offen: false
+        }
+      ]
+    };
+    speichern();
+    allesZeichnen();
+    felderFuellen();
+  }
+
+  // --- Verdrahten ----------------------------------------------------------
+
+  function felderFuellen() {
+    ['thema', 'klasse', 'datum', 'zeit', 'hilfsmittel'].forEach(function (name) {
+      document.getElementById('ka-' + name).value = zustand[name] || '';
+    });
+    document.getElementById('ka-schluessel').value = zustand.schluessel;
+  }
+
+  function allesZeichnen() {
+    listeZeichnen();
+    auswertungZeichnen();
+    notenZeichnen();
+    druckZeichnen();
+  }
+
+  ['thema', 'klasse', 'datum', 'zeit', 'hilfsmittel'].forEach(function (name) {
+    document.getElementById('ka-' + name).addEventListener('input', function () {
+      zustand[name] = this.value;
+      speichern();
+      druckZeichnen();
+    });
+  });
+
+  document.getElementById('ka-schluessel').addEventListener('change', function () {
+    zustand.schluessel = this.value;
+    speichern();
+    notenZeichnen();
+  });
+
+  document.getElementById('ka-neu').addEventListener('click', function () {
+    zustand.aufgaben.push(neueAufgabe());
+    speichern();
+    allesZeichnen();
+  });
+
+  document.getElementById('ka-beispiel').addEventListener('click', beispiel);
+
+  document.getElementById('ka-leeren').addEventListener('click', function () {
+    if (zustand.aufgaben.length > 0 && !window.confirm('Alle Aufgaben und Kopfdaten löschen?')) return;
+    zustand = { thema: '', klasse: '', datum: '', zeit: '', hilfsmittel: '', schluessel: 'linear', aufgaben: [] };
+    speichern();
+    felderFuellen();
+    allesZeichnen();
+  });
+
+  WZ.kopf({ titel: 'Klassenarbeits-Baukasten' });
+  WZ.fuss('Anforderungsbereiche: I Reproduzieren · II Zusammenhänge herstellen · III Verallgemeinern und Reflektieren.');
+
+  const gespeichert = WZ.lies(SCHLUESSEL_SPEICHER, null);
+  if (gespeichert && Array.isArray(gespeichert.aufgaben)) {
+    zustand = Object.assign(zustand, gespeichert);
+  }
+  felderFuellen();
+  allesZeichnen();
+})();
+</script>
+</body>
+</html>

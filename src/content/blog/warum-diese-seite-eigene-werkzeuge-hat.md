@@ -11,7 +11,7 @@ entwurf: false
 
 Die Szene kennt jede Lehrkraft. Man hat sich abends etwas Gutes überlegt, öffnet morgens am Schulrechner die Seite – und dann kommt der Login. Oder das Update. Oder die Meldung, dass die Testphase abgelaufen ist. Oder das WLAN ist weg. Es sind noch vier Minuten bis zum Gong, und man greift zu dem, was sicher funktioniert: dem Buch.
 
-Aus dieser Beobachtung ist der [Werkzeugkasten](/werkzeuge) entstanden: die Dinge, die ich im Unterricht regelmäßig brauche, jeweils als **eine einzelne HTML-Datei**. Ein Phasen-Timer, Zufallsgruppen, eine Whiteboard-Auswertung, ein Funktionenplotter, Bruchstreifen, ein zoombarer Zahlenstrahl, eine Gleichungswaage, ein Prozentstreifen, ein Kopfrechen-Sprint, WODB-Bilder, Open-Middle-Aufgaben, Zufallsexperimente, druckbares Papier und ein Exit-Ticket.
+Aus dieser Beobachtung ist der [Werkzeugkasten](/werkzeuge) entstanden: die Dinge, die ich im Unterricht regelmäßig brauche, jeweils als **eine einzelne HTML-Datei**. Ein Phasen-Timer, Zufallsgruppen, eine Whiteboard-Auswertung, ein Funktionenplotter, Bruchstreifen, ein zoombarer Zahlenstrahl, eine Gleichungswaage, ein Prozentstreifen, ein Kopfrechen-Sprint, WODB-Bilder, Open-Middle-Aufgaben, Zufallsexperimente, druckbares Papier, ein Klassenarbeits-Baukasten und ein Exit-Ticket.
 
 ## Die vier Entscheidungen dahinter
 
