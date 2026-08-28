@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prozentstreifen · mathematik-unterrichten.de</title>
+<meta name="description" content="Doppelte Skala für die Prozentrechnung: oben die Größe, unten die Prozente. Grundwert, Prozentsatz und Prozentwert hängen sichtbar zusammen – mit Dreisatz, Faktor und Aufgabengenerator.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  #ps-svg { width: 100%; height: auto; display: block; touch-action: none; cursor: ew-resize; }
+
+  .ps-satz {
+    font-family: var(--schrift-serif); font-weight: 600;
+    font-size: clamp(1.1rem, 3.2vw, 1.7rem); text-align: center; margin: .4rem 0 0;
+    font-variant-numeric: tabular-nums; line-height: 1.45;
+  }
+  .ps-satz b { color: var(--akzent); font-weight: 700; }
+
+  .ps-felder { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+  .ps-feld { border: 1px solid var(--linie); border-radius: var(--radius-klein); padding: .55rem .65rem; background: var(--flaeche-2); }
+  .ps-feld[data-gesucht="ja"] { border-color: var(--akzent); background: var(--akzent-hell); }
+  .ps-feld label { display: block; font-size: .78rem; color: var(--text-schwach); margin-bottom: .25rem; }
+  .ps-feld[data-gesucht="ja"] label { color: var(--akzent-tief); font-weight: 700; }
+  .ps-feld input { width: 100%; }
+  .ps-feld output {
+    display: block; font-family: var(--schrift-mono); font-size: 1.15rem; font-weight: 700;
+    color: var(--akzent-tief); padding: .35rem 0 .25rem;
+  }
+  .ps-feld [hidden] { display: none !important; }
+
+  .ps-dreisatz { width: 100%; border-collapse: collapse; font-family: var(--schrift-mono); font-size: .95rem; }
+  .ps-dreisatz td { padding: .35rem .4rem; border-bottom: 1px solid var(--linie); }
+  .ps-dreisatz td:nth-child(2) { text-align: center; color: var(--text-schwach); }
+  .ps-dreisatz td:nth-child(3) { text-align: right; }
+  .ps-dreisatz tr:last-child td { border-bottom: 0; font-weight: 700; color: var(--akzent-tief); }
+  .ps-dreisatz .ps-rand { font-size: .78rem; color: var(--text-schwach); text-align: right; font-family: var(--schrift); white-space: nowrap; }
+
+  .ps-aufgabe { font-size: 1.02rem; line-height: 1.6; }
+  .ps-loesung { display: none; }
+  .ps-loesung[data-offen="ja"] { display: block; }
+
+  @media (min-width: 1000px) { .ps-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Prozentstreifen</h1>
+
+  <div class="ps-layout">
+    <section>
+      <div class="wz-karte">
+        <svg id="ps-svg" viewBox="0 0 900 330" role="img" aria-labelledby="ps-titel">
+          <title id="ps-titel">Streifen mit zwei Skalen: oben die Größe, unten die Prozente</title>
+        </svg>
+        <p class="ps-satz" id="ps-satz">–</p>
+        <p id="ps-faktor" style="text-align:center;color:var(--text-leise);margin-top:.5rem;font-size:.95rem">–</p>
+      </div>
+
+      <div class="wz-karte wz-abstand wz-nicht-drucken">
+        <div class="wz-reihe" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem">
+          <h2>Werte</h2>
+          <div class="wz-reihe" id="ps-modus" role="group" aria-label="Was ist gesucht?"></div>
+        </div>
+
+        <div class="ps-felder wz-abstand" id="ps-felder"></div>
+
+        <div class="wz-reihe wz-abstand" style="flex-wrap:wrap;gap:.9rem">
+          <label class="wz-label wz-label-quer">
+            <input type="checkbox" id="ps-ueber100"> Skala bis 200 % (Zunahme zeigen)
+          </label>
+          <label class="wz-label wz-label-quer">
+            <input type="checkbox" id="ps-raster" checked> auf ganze Prozent einrasten
+          </label>
+        </div>
+
+        <p class="wz-hinweis wz-abstand">
+          Ziehen Sie die Marke im Streifen – oder tippen Sie Werte ein. Beide Skalen bleiben
+          gekoppelt: Wer unten 25 % liest, liest oben ein Viertel des Grundwerts.
+        </p>
+      </div>
+
+      <div class="wz-karte wz-abstand">
+        <div class="wz-reihe" style="justify-content:space-between;align-items:center">
+          <h2>Übungsaufgabe</h2>
+          <button class="wz-knopf wz-nicht-drucken" id="ps-neu-aufgabe" type="button">Neue Aufgabe</button>
+        </div>
+        <p class="ps-aufgabe wz-abstand" id="ps-aufgabe">–</p>
+        <div class="wz-reihe wz-abstand wz-nicht-drucken">
+          <button class="wz-knopf" id="ps-zeigen" type="button">Lösung zeigen</button>
+          <button class="wz-knopf" id="ps-uebernehmen" type="button">Aufgabe in den Streifen legen</button>
+        </div>
+        <div class="ps-loesung wz-abstand" id="ps-loesung"></div>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        Prozentrechnung scheitert selten am Rechnen und fast immer an der Frage, welche Zahl
+        der Grundwert ist. Der Streifen erzwingt diese Entscheidung, bevor gerechnet wird:
+        Die untere Skala geht immer von 0 % bis 100 % – und 100 % steht immer beim Ganzen.
+      </p>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Dreisatz</h2>
+        <table class="ps-dreisatz wz-abstand"><tbody id="ps-dreisatz"></tbody></table>
+        <p style="font-size:.82rem;color:var(--text-schwach);margin:.8rem 0 0" id="ps-dreisatz-hinweis"></p>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Schnell einstellen</h2>
+        <div class="wz-reihe wz-abstand" style="flex-wrap:wrap;gap:.4rem" id="ps-schnell"></div>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Im Unterricht</h2>
+        <ol style="font-size:.9rem;color:var(--text-leise);padding-left:1.1rem;margin:.5rem 0 0;line-height:1.6">
+          <li>Zuerst nur ziehen lassen und schätzen: <strong>Wie viel sind das ungefähr?</strong></li>
+          <li>Dann den Grundwert ändern, den Prozentsatz festhalten – was passiert oben?</li>
+          <li>Umgekehrt: Prozentwert festhalten, Grundwert verdoppeln – der Prozentsatz halbiert sich.</li>
+          <li>Erst danach den Dreisatz danebenlegen. Er beschreibt, was vorher zu sehen war.</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const X0 = 70, X1 = 850, BREITE = X1 - X0;
+  // Senkrechter Aufbau von oben nach unten
+  const KOPF_Y = 24;        // Beschriftung "Größe"
+  const FAHNE_OBEN = 40;    // Oberkante der Wertfahne (Höhe 30)
+  const LABEL_OBEN = 96;    // Grundlinie der oberen Skalenzahlen
+  const ACHSE_OBEN = 106;
+  const BALKEN_Y = 116, BALKEN_H = 66;
+  const ACHSE_UNTEN = 198;
+  const LABEL_UNTEN = 222;  // Grundlinie der Prozentzahlen
+  const FAHNE_UNTEN = 236;  // Oberkante der Prozentfahne
+  const FUSS_Y = 300;       // Beschriftung "Prozente"
+
+  let G = 400;          // Grundwert (100 %)
+  let p = 25;           // Prozentsatz
+  let gesucht = 'W';    // 'W' | 'p' | 'G'
+  let skalaMax = 100;   // 100 oder 200
+  let rasten = true;
+  let aufgabe = null;
+
+  function W() { return (G * p) / 100; }
+
+  function sv(tag, attr, text) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    if (text !== undefined) k.textContent = text;
+    return k;
+  }
+
+  function xVon(prozent) { return X0 + (BREITE * prozent) / skalaMax; }
+
+  /** Ganze Zahlen bleiben ganz, sonst höchstens zwei Nachkommastellen. */
+  function fmt(wert) {
+    if (!isFinite(wert)) return '—';
+    return Math.abs(wert - Math.round(wert)) < 1e-9 ? WZ.zahl(wert, 0) : WZ.zahl(wert, 2);
+  }
+
+  /** Fahne mittig über x, aber innerhalb der Zeichenfläche gehalten. */
+  function fahne(svg, x, y, text, farbe) {
+    const breite = Math.max(56, text.length * 11 + 22);
+    const links = Math.max(4, Math.min(896 - breite, x - breite / 2));
+    svg.appendChild(sv('rect', { x: links, y: y, width: breite, height: 30, rx: 6, fill: farbe }));
+    svg.appendChild(sv('text', {
+      x: links + breite / 2, y: y + 21, 'text-anchor': 'middle',
+      fill: 'var(--grund)', 'font-size': 17, 'font-weight': 700
+    }, text));
+  }
+
+  // --- Zeichnen ------------------------------------------------------------
+
+  function zeichnen() {
+    const svg = document.getElementById('ps-svg');
+    svg.textContent = '';
+    svg.appendChild(sv('title', {}, 'Streifen mit zwei Skalen: oben die Größe, unten die Prozente'));
+
+    const pSichtbar = Math.max(0, Math.min(skalaMax, p));
+    const xMarke = xVon(pSichtbar);
+
+    // Streifen
+    svg.appendChild(sv('rect', {
+      x: X0, y: BALKEN_Y, width: BREITE, height: BALKEN_H, rx: 6,
+      fill: 'var(--flaeche-2)', stroke: 'var(--linie-stark)', 'stroke-width': 1.5
+    }));
+    svg.appendChild(sv('rect', {
+      x: X0, y: BALKEN_Y, width: Math.max(0, xMarke - X0), height: BALKEN_H, rx: 6,
+      fill: 'var(--akzent)', opacity: 0.8
+    }));
+
+    // Achsen
+    svg.appendChild(sv('line', {
+      x1: X0, y1: ACHSE_OBEN, x2: X1, y2: ACHSE_OBEN, stroke: 'var(--text-schwach)', 'stroke-width': 1.5
+    }));
+    svg.appendChild(sv('line', {
+      x1: X0, y1: ACHSE_UNTEN, x2: X1, y2: ACHSE_UNTEN, stroke: 'var(--text-schwach)', 'stroke-width': 1.5
+    }));
+    svg.appendChild(sv('text', { x: X0, y: KOPF_Y, fill: 'var(--text-leise)', 'font-size': 15 }, 'Größe'));
+    svg.appendChild(sv('text', { x: X0, y: FUSS_Y, fill: 'var(--text-leise)', 'font-size': 15 }, 'Prozente'));
+
+    // Skalenstriche; beschriftet wird jeder fünfte
+    const schritt = skalaMax > 100 ? 20 : 10;
+    for (let q = 0; q <= skalaMax + 0.5; q += schritt) {
+      const x = xVon(q);
+      const gross = q % (schritt * 5) === 0;
+      svg.appendChild(sv('line', {
+        x1: x, y1: ACHSE_OBEN - 6, x2: x, y2: ACHSE_OBEN + 6,
+        stroke: 'var(--text-schwach)', 'stroke-width': gross ? 2 : 1
+      }));
+      svg.appendChild(sv('line', {
+        x1: x, y1: ACHSE_UNTEN - 6, x2: x, y2: ACHSE_UNTEN + 6,
+        stroke: 'var(--text-schwach)', 'stroke-width': gross ? 2 : 1
+      }));
+      // Zahlen dicht an der Marke weglassen, damit nichts überschrieben wird
+      if (gross && Math.abs(x - xMarke) > 40) {
+        svg.appendChild(sv('text', {
+          x: x, y: LABEL_OBEN, 'text-anchor': 'middle', fill: 'var(--text-leise)', 'font-size': 14
+        }, fmt((G * q) / 100)));
+        svg.appendChild(sv('text', {
+          x: x, y: LABEL_UNTEN, 'text-anchor': 'middle', fill: 'var(--text-leise)', 'font-size': 14
+        }, WZ.zahl(q, 0) + ' %'));
+      }
+    }
+
+    // 100-%-Grenze markieren, sobald der Streifen darüber hinausgeht
+    if (skalaMax > 100) {
+      const x100 = xVon(100);
+      svg.appendChild(sv('line', {
+        x1: x100, y1: BALKEN_Y - 10, x2: x100, y2: BALKEN_Y + BALKEN_H + 10,
+        stroke: 'var(--gold)', 'stroke-width': 3
+      }));
+      svg.appendChild(sv('text', {
+        x: x100, y: BALKEN_Y - 16, 'text-anchor': 'middle',
+        fill: 'var(--gold)', 'font-size': 14, 'font-weight': 700
+      }, 'das Ganze'));
+    }
+
+    // Marke mit den beiden Fahnen
+    svg.appendChild(sv('line', {
+      x1: xMarke, y1: FAHNE_OBEN + 30, x2: xMarke, y2: FAHNE_UNTEN,
+      stroke: 'var(--rot)', 'stroke-width': 2.5
+    }));
+    fahne(svg, xMarke, FAHNE_OBEN, fmt(W()), 'var(--rot)');
+    fahne(svg, xMarke, FAHNE_UNTEN, fmt(p) + ' %', 'var(--rot)');
+    svg.appendChild(sv('circle', {
+      cx: xMarke, cy: BALKEN_Y + BALKEN_H / 2, r: 15,
+      fill: 'var(--flaeche)', stroke: 'var(--rot)', 'stroke-width': 4
+    }));
+  }
+
+  // --- Texte ---------------------------------------------------------------
+
+  function textAktualisieren() {
+    document.getElementById('ps-satz').innerHTML =
+      '<b>' + WZ.esc(fmt(p)) + ' %</b> von <b>' + WZ.esc(fmt(G)) + '</b> sind <b>' + WZ.esc(fmt(W())) + '</b>';
+
+    const faktorEl = document.getElementById('ps-faktor');
+    if (p > 100) {
+      faktorEl.textContent =
+        'Als Zunahme gelesen: Faktor ' + fmt(p / 100) + ' – das Ganze wächst um ' + fmt(p - 100) +
+        ' % auf ' + fmt(W()) + '.';
+    } else if (p < 100) {
+      faktorEl.textContent =
+        'Als Abnahme gelesen: Faktor ' + fmt(p / 100) + ' – von ' + fmt(G) + ' bleiben ' +
+        fmt(W()) + ', also ' + fmt(100 - p) + ' % weniger.';
+    } else {
+      faktorEl.textContent = 'Die Marke steht auf 100 %: Prozentwert und Grundwert sind gleich.';
+    }
+  }
+
+  function dreisatzAktualisieren() {
+    const koerper = document.getElementById('ps-dreisatz');
+    koerper.textContent = '';
+    let zeilen, text;
+
+    if (gesucht === 'G') {
+      zeilen = [
+        [fmt(p) + ' %', '≙', fmt(W()), ''],
+        ['1 %', '≙', fmt(p === 0 ? NaN : W() / p), ': ' + fmt(p)],
+        ['100 %', '≙', fmt(G), '· 100']
+      ];
+      text = 'Vom bekannten Anteil über 1 % zurück auf das Ganze.';
+    } else if (gesucht === 'p') {
+      zeilen = [
+        [fmt(G), '≙', '100 %', ''],
+        ['1', '≙', fmt(G === 0 ? NaN : 100 / G) + ' %', ': ' + fmt(G)],
+        [fmt(W()), '≙', fmt(p) + ' %', '· ' + fmt(W())]
+      ];
+      text = 'Von der Größe her gedacht: Wie viel Prozent ist eine Einheit wert?';
+    } else {
+      zeilen = [
+        ['100 %', '≙', fmt(G), ''],
+        ['1 %', '≙', fmt(G / 100), ': 100'],
+        [fmt(p) + ' %', '≙', fmt(W()), '· ' + fmt(p)]
+      ];
+      text = 'Vom Ganzen über 1 % zum gesuchten Anteil.';
+    }
+
+    zeilen.forEach(function (zeile) {
+      koerper.appendChild(WZ.el('tr', {}, [
+        WZ.el('td', { text: zeile[0] }),
+        WZ.el('td', { text: zeile[1] }),
+        WZ.el('td', { text: zeile[2] }),
+        WZ.el('td', { class: 'ps-rand', text: zeile[3] })
+      ]));
+    });
+    document.getElementById('ps-dreisatz-hinweis').textContent = text;
+  }
+
+  function felderAktualisieren() {
+    ['G', 'p', 'W'].forEach(function (name) {
+      const feld = document.getElementById('ps-feld-' + name);
+      feld.setAttribute('data-gesucht', gesucht === name ? 'ja' : 'nein');
+      const eingabe = feld.querySelector('input');
+      const ausgabe = feld.querySelector('output');
+      const wert = name === 'G' ? G : name === 'p' ? p : W();
+      if (gesucht === name) {
+        eingabe.hidden = true;
+        ausgabe.hidden = false;
+        ausgabe.textContent = fmt(wert) + (name === 'p' ? ' %' : '');
+      } else {
+        eingabe.hidden = false;
+        ausgabe.hidden = true;
+        if (document.activeElement !== eingabe) eingabe.value = fmt(wert);
+      }
+    });
+  }
+
+  function alles() {
+    zeichnen();
+    textAktualisieren();
+    dreisatzAktualisieren();
+    felderAktualisieren();
+  }
+
+  // --- Eingabe -------------------------------------------------------------
+
+  /** Text mit deutschem Komma in eine Zahl verwandeln; ungültig → null. */
+  function zahlAus(text) {
+    const bereinigt = String(text).replace(/\s/g, '').replace('%', '').replace(',', '.');
+    if (bereinigt === '') return null;
+    const n = Number(bereinigt);
+    return isFinite(n) ? n : null;
+  }
+
+  function felderBauen() {
+    const wurzel = document.getElementById('ps-felder');
+    wurzel.textContent = '';
+    const beschriftung = {
+      G: ['G – Grundwert (100 %)', 'z. B. 400'],
+      p: ['p – Prozentsatz', 'z. B. 25'],
+      W: ['W – Prozentwert', 'z. B. 100']
+    };
+    ['G', 'p', 'W'].forEach(function (name) {
+      wurzel.appendChild(WZ.el('div', { class: 'ps-feld', id: 'ps-feld-' + name }, [
+        WZ.el('label', { for: 'ps-eingabe-' + name, text: beschriftung[name][0] }),
+        WZ.el('input', {
+          type: 'text', inputmode: 'decimal', class: 'wz-feld',
+          id: 'ps-eingabe-' + name, placeholder: beschriftung[name][1],
+          onInput: function () { uebernehmen(name, this.value); }
+        }),
+        WZ.el('output', {})
+      ]));
+    });
+  }
+
+  /**
+   * Ein Feld wurde getippt. Die gesuchte Größe rechnet sich neu; die dritte,
+   * ebenfalls eingegebene Größe bleibt stehen.
+   */
+  function uebernehmen(name, text) {
+    const wert = zahlAus(text);
+    if (wert === null || wert < 0) return;
+    if (name === 'G') {
+      if (wert === 0) return;
+      if (gesucht === 'p') { const behalten = W(); G = wert; p = (behalten / wert) * 100; }
+      else { G = wert; }
+    } else if (name === 'p') {
+      if (gesucht === 'G') { if (wert === 0) return; const behalten = W(); p = wert; G = (behalten * 100) / wert; }
+      else { p = wert; }
+    } else {
+      if (gesucht === 'G') { if (p === 0) return; G = (wert * 100) / p; }
+      else { if (G === 0) return; p = (wert * 100) / G; }
+    }
+    if (p > 100 && skalaMax === 100) {
+      skalaMax = 200;
+      document.getElementById('ps-ueber100').checked = true;
+    }
+    alles();
+  }
+
+  function modusBauen() {
+    const wurzel = document.getElementById('ps-modus');
+    wurzel.textContent = '';
+    [['W', 'Prozentwert gesucht'], ['p', 'Prozentsatz gesucht'], ['G', 'Grundwert gesucht']]
+      .forEach(function (m) {
+        wurzel.appendChild(WZ.el('button', {
+          type: 'button', class: 'wz-knopf' + (gesucht === m[0] ? ' wz-knopf-haupt' : ''),
+          'aria-pressed': gesucht === m[0] ? 'true' : 'false',
+          text: m[1],
+          onClick: function () { gesucht = m[0]; modusBauen(); alles(); }
+        }));
+      });
+  }
+
+  // --- Ziehen --------------------------------------------------------------
+
+  function prozentAusZeiger(ereignis) {
+    const svg = document.getElementById('ps-svg');
+    const kasten = svg.getBoundingClientRect();
+    const svgX = ((ereignis.clientX - kasten.left) / kasten.width) * 900;
+    let wert = ((svgX - X0) / BREITE) * skalaMax;
+    wert = Math.max(0, Math.min(skalaMax, wert));
+    return rasten ? Math.round(wert) : Math.round(wert * 10) / 10;
+  }
+
+  function ziehen(ereignis) {
+    const neu = prozentAusZeiger(ereignis);
+    if (gesucht === 'G') {
+      // Der Prozentwert steht fest; das Ganze wächst, wenn die Marke nach links wandert
+      const behalten = W();
+      p = Math.max(1, neu);
+      G = (behalten * 100) / p;
+    } else {
+      p = neu;
+    }
+    alles();
+  }
+
+  function ziehenStarten(ereignis) {
+    ereignis.preventDefault();
+    const svg = document.getElementById('ps-svg');
+    try { svg.setPointerCapture(ereignis.pointerId); } catch (fehler) { /* ohne Capture geht es auch */ }
+    ziehen(ereignis);
+    function bewegen(e) { ziehen(e); }
+    function ende(e) {
+      svg.removeEventListener('pointermove', bewegen);
+      svg.removeEventListener('pointerup', ende);
+      svg.removeEventListener('pointercancel', ende);
+      try { svg.releasePointerCapture(e.pointerId); } catch (fehler) { /* Zeiger schon weg */ }
+    }
+    svg.addEventListener('pointermove', bewegen);
+    svg.addEventListener('pointerup', ende);
+    svg.addEventListener('pointercancel', ende);
+  }
+
+  // --- Aufgabengenerator ---------------------------------------------------
+
+  // Zu jedem Kontext drei ausformulierte Fragen – je nachdem, welche Größe fehlt.
+  const KONTEXTE = [
+    {
+      frageW: 'Eine Schule hat {G} Kinder. {p} % von ihnen kommen mit dem Rad. Wie viele Kinder sind das?',
+      frageP: 'Von {G} Kindern einer Schule kommen {W} mit dem Rad. Wie viel Prozent sind das?',
+      frageG: '{W} Kinder einer Schule kommen mit dem Rad, das sind {p} % aller Kinder. Wie viele Kinder hat die Schule?',
+      einheit: '', ziel: [150, 600]
+    },
+    {
+      frageW: 'Ein Fahrrad kostet {G} €. Der Rabatt beträgt {p} %. Wie viel Euro sind das?',
+      frageP: 'Ein Fahrrad kostet {G} €, der Rabatt beträgt {W} €. Wie viel Prozent sind das?',
+      frageG: 'Ein Rabatt von {W} € entspricht {p} % des Preises. Wie viel kostet das Fahrrad ohne Rabatt?',
+      einheit: ' €', ziel: [200, 900]
+    },
+    {
+      frageW: 'In einem Waldstück stehen {G} Bäume. {p} % davon sind Buchen. Wie viele Buchen sind das?',
+      frageP: 'Von {G} Bäumen eines Waldstücks sind {W} Buchen. Wie viel Prozent sind das?',
+      frageG: 'In einem Waldstück stehen {W} Buchen, das sind {p} % aller Bäume. Wie viele Bäume stehen dort?',
+      einheit: '', ziel: [200, 800]
+    },
+    {
+      frageW: 'Eine Flasche enthält {G} ml. {p} % davon sind reiner Saft. Wie viel Milliliter sind das?',
+      frageP: 'Eine Flasche enthält {G} ml, davon {W} ml reinen Saft. Wie viel Prozent sind das?',
+      frageG: 'Eine Flasche enthält {W} ml reinen Saft, das sind {p} % des Inhalts. Wie viel Milliliter fasst sie?',
+      einheit: ' ml', ziel: [200, 1000]
+    },
+    {
+      frageW: 'Bei einer Abstimmung wurden {G} Stimmen abgegeben. {p} % entfielen auf Vorschlag A. Wie viele Stimmen sind das?',
+      frageP: 'Von {G} abgegebenen Stimmen entfielen {W} auf Vorschlag A. Wie viel Prozent sind das?',
+      frageG: 'Vorschlag A bekam {W} Stimmen, das sind {p} % aller Stimmen. Wie viele Stimmen wurden abgegeben?',
+      einheit: '', ziel: [200, 900]
+    },
+    {
+      frageW: 'Ein Grundstück ist {G} m² groß. {p} % davon sind bebaut. Wie viele Quadratmeter sind das?',
+      frageP: 'Von {G} m² eines Grundstücks sind {W} m² bebaut. Wie viel Prozent sind das?',
+      frageG: 'Von einem Grundstück sind {W} m² bebaut, das sind {p} % der Fläche. Wie groß ist das Grundstück?',
+      einheit: ' m²', ziel: [300, 1200]
+    }
+  ];
+
+  /** Baut eine Aufgabe, deren drei Zahlen exakt zueinander passen. */
+  function aufgabeBauen() {
+    const prozente = [5, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 80];
+    const art = WZ.zufallAus(['W', 'p', 'G']);
+    const kontext = WZ.zufallAus(KONTEXTE);
+    const pw = WZ.zufallAus(prozente);
+    // Grundwert als Vielfaches wählen, damit der Prozentwert glatt aufgeht,
+    // dabei aber in der Größenordnung bleiben, die zum Sachkontext passt
+    const vielfaches = 100 / WZ.ggt(pw, 100);
+    const ziel = WZ.zufallGanz(kontext.ziel[0], kontext.ziel[1]);
+    const gw = vielfaches * Math.max(2, Math.round(ziel / vielfaches));
+    const ww = (gw * pw) / 100;
+    const e = kontext.einheit;
+
+    const schluessel = { W: 'frageW', p: 'frageP', G: 'frageG' }[art];
+    const frage = kontext[schluessel]
+      .replace('{G}', fmt(gw))
+      .replace('{p}', fmt(pw))
+      .replace('{W}', fmt(ww));
+
+    const loesung = art === 'W'
+      ? fmt(gw) + ' · ' + fmt(pw) + ' : 100 = ' + fmt(ww) + e
+      : art === 'p'
+        ? fmt(ww) + ' : ' + fmt(gw) + ' = ' + WZ.zahl(ww / gw, 4) + ' = ' + fmt(pw) + ' %'
+        : fmt(ww) + ' : ' + fmt(pw) + ' · 100 = ' + fmt(gw) + e;
+
+    return { art: art, G: gw, p: pw, W: ww, frage: frage, loesung: loesung };
+  }
+
+  function aufgabeZeigen() {
+    aufgabe = aufgabeBauen();
+    document.getElementById('ps-aufgabe').textContent = aufgabe.frage;
+    const loesung = document.getElementById('ps-loesung');
+    loesung.setAttribute('data-offen', 'nein');
+    loesung.textContent = '';
+    loesung.appendChild(WZ.el('p', {
+      style: 'font-family:var(--schrift-mono);font-size:1.05rem;color:var(--gruen);margin:0',
+      text: aufgabe.loesung
+    }));
+    loesung.appendChild(WZ.el('p', {
+      style: 'font-size:.9rem;color:var(--text-leise);margin:.5rem 0 0',
+      text: 'Grundwert ' + fmt(aufgabe.G) + ', Prozentsatz ' + fmt(aufgabe.p) +
+        ' %, Prozentwert ' + fmt(aufgabe.W) + '.'
+    }));
+    document.getElementById('ps-zeigen').textContent = 'Lösung zeigen';
+  }
+
+  function schnellBauen() {
+    const wurzel = document.getElementById('ps-schnell');
+    wurzel.textContent = '';
+    [
+      ['½ = 50 %', 100, 50],
+      ['¼ = 25 %', 100, 25],
+      ['⅕ = 20 %', 100, 20],
+      ['⅓ ≈ 33 %', 300, 100 / 3],
+      ['19 % MwSt.', 100, 119],
+      ['30 % Rabatt', 80, 70]
+    ].forEach(function (v) {
+      wurzel.appendChild(WZ.el('button', {
+        type: 'button', class: 'wz-knopf', text: v[0],
+        onClick: function () {
+          G = v[1];
+          p = v[2];
+          skalaMax = p > 100 ? 200 : 100;
+          document.getElementById('ps-ueber100').checked = skalaMax === 200;
+          alles();
+        }
+      }));
+    });
+  }
+
+  // --- Verdrahten ----------------------------------------------------------
+
+  document.getElementById('ps-svg').addEventListener('pointerdown', ziehenStarten);
+  document.getElementById('ps-ueber100').addEventListener('change', function () {
+    skalaMax = this.checked ? 200 : 100;
+    if (p > skalaMax) p = skalaMax;
+    alles();
+  });
+  document.getElementById('ps-raster').addEventListener('change', function () { rasten = this.checked; });
+  document.getElementById('ps-neu-aufgabe').addEventListener('click', aufgabeZeigen);
+  document.getElementById('ps-zeigen').addEventListener('click', function () {
+    const loesung = document.getElementById('ps-loesung');
+    const offen = loesung.getAttribute('data-offen') === 'ja';
+    loesung.setAttribute('data-offen', offen ? 'nein' : 'ja');
+    this.textContent = offen ? 'Lösung zeigen' : 'Lösung verbergen';
+  });
+  document.getElementById('ps-uebernehmen').addEventListener('click', function () {
+    if (!aufgabe) return;
+    G = aufgabe.G;
+    p = aufgabe.p;
+    gesucht = aufgabe.art;
+    skalaMax = 100;
+    document.getElementById('ps-ueber100').checked = false;
+    modusBauen();
+    alles();
+  });
+
+  WZ.kopf({ titel: 'Prozentstreifen' });
+  WZ.fuss('Die untere Skala geht immer von 0 % bis 100 % – und 100 % steht immer beim Grundwert.');
+  felderBauen();
+  modusBauen();
+  schnellBauen();
+  aufgabeZeigen();
+  alles();
+})();
+</script>
+</body>
+</html>

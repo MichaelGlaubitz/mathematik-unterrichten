@@ -1,17 +1,17 @@
 ---
-title: "Zwölf Dateien, die im Klassenzimmer funktionieren"
+title: "Eine Datei, kein Konto, offline"
 untertitel: "Warum diese Seite eigene Software hat – und warum sie so schlicht gebaut ist"
 autor: "Dr. Michael Glaubitz"
 datum: 2026-08-28
 tags: ["werkzeuge", "digitalisierung", "datenschutz", "unterrichtspraxis", "beamer"]
 kategorie: "Werkzeug"
-teaser: "Es gibt für alles eine App. Nur funktioniert sie im entscheidenden Moment nicht: kein Login, kein WLAN, keine Installationsrechte, keine Zeit. Deshalb gibt es hier jetzt einen Werkzeugkasten, der aus zwölf einzelnen HTML-Dateien besteht."
+teaser: "Es gibt für alles eine App. Nur funktioniert sie im entscheidenden Moment nicht: kein Login, kein WLAN, keine Installationsrechte, keine Zeit. Deshalb gibt es hier jetzt einen Werkzeugkasten, in dem jedes Werkzeug aus genau einer HTML-Datei besteht."
 entwurf: false
 ---
 
 Die Szene kennt jede Lehrkraft. Man hat sich abends etwas Gutes überlegt, öffnet morgens am Schulrechner die Seite – und dann kommt der Login. Oder das Update. Oder die Meldung, dass die Testphase abgelaufen ist. Oder das WLAN ist weg. Es sind noch vier Minuten bis zum Gong, und man greift zu dem, was sicher funktioniert: dem Buch.
 
-Aus dieser Beobachtung ist der [Werkzeugkasten](/werkzeuge) entstanden. Zwölf Dinge, die ich im Unterricht regelmäßig brauche, jeweils als **eine einzelne HTML-Datei**: ein Phasen-Timer, Zufallsgruppen, eine Whiteboard-Auswertung, ein Funktionenplotter, Bruchstreifen, ein zoombarer Zahlenstrahl, ein Kopfrechen-Sprint, WODB-Bilder, Open-Middle-Aufgaben, Zufallsexperimente, druckbares Papier und ein Exit-Ticket.
+Aus dieser Beobachtung ist der [Werkzeugkasten](/werkzeuge) entstanden: die Dinge, die ich im Unterricht regelmäßig brauche, jeweils als **eine einzelne HTML-Datei**. Ein Phasen-Timer, Zufallsgruppen, eine Whiteboard-Auswertung, ein Funktionenplotter, Bruchstreifen, ein zoombarer Zahlenstrahl, eine Gleichungswaage, ein Prozentstreifen, ein Kopfrechen-Sprint, WODB-Bilder, Open-Middle-Aufgaben, Zufallsexperimente, druckbares Papier und ein Exit-Ticket.
 
 ## Die vier Entscheidungen dahinter
 
@@ -43,4 +43,4 @@ Vieles. Es gibt keine Geometrie-Konstruktion, keine Tabellenkalkulation, keine M
 
 Wenn Ihnen etwas fehlt, das in diese Bauweise passt – eine Datei, kein Konto, offline lauffähig –, [schreiben Sie mir](/kontakt). Die Liste ist aus meinem eigenen Unterricht entstanden und deshalb zwangsläufig nach meinem Fachbedarf verzerrt.
 
-**Zum Werkzeugkasten:** [alle zwölf Werkzeuge](/werkzeuge)
+**Zum Werkzeugkasten:** [alle Werkzeuge in der Übersicht](/werkzeuge)

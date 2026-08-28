@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gleichungswaage · mathematik-unterrichten.de</title>
+<meta name="description" content="Äquivalenzumformungen als Waage: Was auf einer Seite geschieht, muss auch auf der anderen geschehen – sonst kippt sie sichtbar. Mit Rechenprotokoll und absichtlich erlaubtem Fehler.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  #gw-svg { width: 100%; height: auto; display: block; }
+  .gw-gleichung {
+    font-family: var(--schrift-serif); font-weight: 600;
+    font-size: clamp(1.4rem, 4.5vw, 2.6rem); text-align: center; margin: .3rem 0 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .gw-loesung { color: var(--gruen); }
+  .gw-kaputt { color: var(--rot); }
+
+  .gw-protokoll { font-family: var(--schrift-mono); font-size: .92rem; line-height: 1.9; }
+  .gw-protokoll li { list-style: none; display: flex; gap: .8rem; align-items: baseline; }
+  .gw-protokoll .gw-op { color: var(--akzent); font-weight: 700; margin-left: auto; white-space: nowrap; }
+  .gw-protokoll .gw-op-falsch { color: var(--rot); }
+
+  .gw-knopfgruppe { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .gw-warnung {
+    border-left: 4px solid var(--rot); background: var(--rot-hell); color: var(--rot);
+    padding: .7rem .9rem; border-radius: 0 var(--radius-klein) var(--radius-klein) 0;
+    font-size: .95rem;
+  }
+  @media (min-width: 1000px) { .gw-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Gleichungswaage</h1>
+
+  <div class="gw-layout">
+    <section>
+      <div class="wz-karte">
+        <svg id="gw-svg" viewBox="0 0 900 500" role="img" aria-labelledby="gw-titel">
+          <title id="gw-titel">Waage mit den beiden Seiten der Gleichung</title>
+        </svg>
+        <p class="gw-gleichung" id="gw-gleichung">–</p>
+        <p id="gw-status" style="text-align:center;color:var(--text-leise);margin-top:.4rem">–</p>
+      </div>
+
+      <div class="wz-karte wz-abstand wz-nicht-drucken">
+        <div class="wz-reihe" style="justify-content:space-between;align-items:center">
+          <h2>Umformen</h2>
+          <label class="wz-label wz-label-quer" title="Zeigt, was passiert, wenn man nur eine Seite verändert">
+            <input type="checkbox" id="gw-nur-links"> nur die linke Seite (Fehler vorführen)
+          </label>
+        </div>
+        <div class="gw-knopfgruppe wz-abstand" id="gw-aktionen"></div>
+        <p class="wz-hinweis wz-abstand">
+          Eine Umformung ist erlaubt, wenn sie auf <strong>beiden</strong> Seiten dasselbe tut.
+          Der Schalter oben erlaubt bewusst den Fehler – die Waage kippt dann, und die Klasse
+          sieht, warum die Lösung danach nicht mehr stimmt.
+        </p>
+      </div>
+
+      <p class="wz-lead wz-abstand">
+        Das Gleichheitszeichen ist keine Aufforderung („hier kommt das Ergebnis"), sondern eine
+        Aussage: Beide Seiten sind gleich groß. Solange das nicht sitzt, bleibt jede
+        Umformungsregel eine Setzung. Auf der Waage ist sie eine Beobachtung.
+      </p>
+    </section>
+
+    <aside class="wz-nicht-drucken">
+      <div class="wz-karte">
+        <h2>Gleichung</h2>
+        <div class="wz-abstand" id="gw-eingabe"></div>
+        <div class="wz-reihe wz-abstand">
+          <button class="wz-knopf wz-knopf-haupt" id="gw-neu" type="button">Neue Aufgabe</button>
+          <button class="wz-knopf" id="gw-zurueck" type="button">↺ Zurück auf Anfang</button>
+        </div>
+        <p style="font-size:.82rem;color:var(--text-schwach);margin:.8rem 0 0">
+          Die Aufgabe wird so gebaut, dass die Lösung eine ganze Zahl ist – auf der Waage
+          liegen sonst keine ganzen Gewichte.
+        </p>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Rechenprotokoll</h2>
+        <ol class="gw-protokoll wz-abstand" id="gw-protokoll"></ol>
+      </div>
+
+      <div class="wz-karte">
+        <h2>Im Unterricht</h2>
+        <ol style="font-size:.9rem;color:var(--text-leise);padding-left:1.1rem;margin:.5rem 0 0;line-height:1.6">
+          <li>Vor jeder Umformung fragen: <strong>Was schlagt ihr vor?</strong></li>
+          <li>Nach jeder Umformung: Steht die Waage noch?</li>
+          <li>Einmal bewusst nur links umformen – und die Klasse erklären lassen, was schiefgeht.</li>
+          <li>Am Ende das Protokoll mit dem Heftaufschrieb vergleichen.</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // Zustand: a·x + b = c·x + d  (a,b,c,d ganzzahlig, b und d dürfen negativ sein)
+  let start = { a: 3, b: 2, c: 1, d: 8 };
+  let z = Object.assign({}, start);
+  let loesung = 3;          // die Zahl, für die die Ausgangsgleichung stimmt
+  let protokoll = [];
+  let kaputt = false;       // wurde einseitig umgeformt?
+
+  function sv(tag, attr, text) {
+    const k = document.createElementNS(NS, tag);
+    Object.keys(attr || {}).forEach(function (n) { k.setAttribute(n, attr[n]); });
+    if (text !== undefined) k.textContent = text;
+    return k;
+  }
+
+  function links() { return z.a * loesung + z.b; }
+  function rechts() { return z.c * loesung + z.d; }
+
+  // --- Zeichnen ------------------------------------------------------------
+
+  function waageZeichnen() {
+    const svg = document.getElementById('gw-svg');
+    svg.textContent = '';
+    svg.appendChild(sv('title', {}, 'Waage mit den beiden Seiten der Gleichung'));
+
+    const differenz = links() - rechts();
+    const neigung = Math.max(-11, Math.min(11, differenz * 2.5));   // Grad
+    const mitteX = 450, balkenY = 110, halbe = 300;
+    const bogen = (neigung * Math.PI) / 180;
+
+    // Ständer und Fuß
+    svg.appendChild(sv('polygon', {
+      points: '415,440 485,440 468,' + (balkenY + 8) + ' 432,' + (balkenY + 8),
+      fill: 'var(--linie-stark)'
+    }));
+    svg.appendChild(sv('rect', { x: 370, y: 440, width: 160, height: 12, rx: 6, fill: 'var(--text-leise)' }));
+
+    // Waagerechte Hilfslinie: zeigt die Abweichung vom Gleichgewicht
+    svg.appendChild(sv('line', {
+      x1: 40, y1: balkenY, x2: 860, y2: balkenY,
+      stroke: 'var(--linie)', 'stroke-width': 1, 'stroke-dasharray': '5 6'
+    }));
+
+    // Balken (gedreht)
+    const balken = sv('g', { transform: 'rotate(' + neigung.toFixed(2) + ' ' + mitteX + ' ' + balkenY + ')' });
+    balken.appendChild(sv('rect', {
+      x: mitteX - halbe, y: balkenY - 6, width: halbe * 2, height: 12, rx: 6, fill: 'var(--text-leise)'
+    }));
+    balken.appendChild(sv('circle', { cx: mitteX, cy: balkenY, r: 11, fill: 'var(--linie-stark)' }));
+    svg.appendChild(balken);
+
+    // Je Seite: Aufhängung senkrecht (die Schale bleibt waagerecht) und Inhalt
+    [[-1, z.a, z.b], [1, z.c, z.d]].forEach(function (seite) {
+      const vorzeichen = seite[0], anzahlX = seite[1], gewichte = seite[2];
+      // Angriffspunkt am gedrehten Balken
+      const ax = mitteX + vorzeichen * halbe * Math.cos(bogen);
+      const ay = balkenY + vorzeichen * halbe * Math.sin(bogen);
+      const schaleY = ay + 42;
+
+      svg.appendChild(sv('line', { x1: ax, y1: ay, x2: ax, y2: schaleY, stroke: 'var(--linie-stark)', 'stroke-width': 3 }));
+
+      // Schale als oben offener Behälter
+      svg.appendChild(sv('path', {
+        d: 'M ' + (ax - 118) + ' ' + schaleY + ' v 132 q 0 16 16 16 h 204 q 16 0 16 -16 v -132',
+        fill: 'var(--flaeche-2)', stroke: 'var(--linie-stark)', 'stroke-width': 2.5, 'stroke-linejoin': 'round'
+      }));
+      svg.appendChild(sv('line', {
+        x1: ax - 118, y1: schaleY, x2: ax + 118, y2: schaleY,
+        stroke: 'var(--linie-stark)', 'stroke-width': 2.5
+      }));
+
+      // x-Kästchen: bis zu vier je Reihe
+      for (let i = 0; i < Math.abs(anzahlX); i++) {
+        const bx = ax - 104 + (i % 4) * 52;
+        const by = schaleY + 12 + Math.floor(i / 4) * 44;
+        gruppeKasten(svg, bx, by, anzahlX > 0);
+      }
+      const reihenX = Math.ceil(Math.abs(anzahlX) / 4);
+
+      // Einer-Gewichte unter den Kästchen
+      for (let i = 0; i < Math.abs(gewichte); i++) {
+        const gx = ax - 100 + (i % 8) * 26;
+        const gy = schaleY + 24 + reihenX * 44 + Math.floor(i / 8) * 26;
+        svg.appendChild(sv('circle', { cx: gx, cy: gy, r: 11, fill: gewichte > 0 ? '#b45309' : '#be123c' }));
+        svg.appendChild(sv('text', {
+          x: gx, y: gy + 5, 'text-anchor': 'middle', 'font-size': 13,
+          fill: '#fff', 'font-family': 'var(--schrift)'
+        }, gewichte > 0 ? '1' : '−1'));
+      }
+
+      // Beschriftung der Seite
+      svg.appendChild(sv('text', {
+        x: ax, y: schaleY + 172, 'text-anchor': 'middle', 'font-size': 17,
+        fill: 'var(--text-leise)', 'font-family': 'var(--schrift)'
+      }, (vorzeichen < 0 ? 'linke' : 'rechte') + ' Seite'));
+    });
+  }
+
+  /** Ein x-Kästchen mit Beschriftung. */
+  function gruppeKasten(svg, x, y, positiv) {
+    svg.appendChild(sv('rect', {
+      x: x, y: y, width: 44, height: 36, rx: 6,
+      fill: positiv ? '#2563eb' : '#be123c'
+    }));
+    svg.appendChild(sv('text', {
+      x: x + 22, y: y + 25, 'text-anchor': 'middle', 'font-size': 21,
+      fill: '#fff', 'font-family': 'var(--schrift-serif)', 'font-style': 'italic'
+    }, positiv ? 'x' : '−x'));
+  }
+
+  function termText(anzahlX, gewichte) {
+    const teile = [];
+    if (anzahlX !== 0) teile.push((anzahlX === 1 ? '' : anzahlX === -1 ? '−' : anzahlX) + 'x');
+    if (gewichte !== 0 || anzahlX === 0) {
+      if (teile.length === 0) teile.push(String(gewichte));
+      else teile.push((gewichte > 0 ? '+ ' : '− ') + Math.abs(gewichte));
+    }
+    return teile.join(' ');
+  }
+
+  function anzeigen() {
+    waageZeichnen();
+    document.getElementById('gw-gleichung').textContent =
+      termText(z.a, z.b) + ' = ' + termText(z.c, z.d);
+
+    const status = document.getElementById('gw-status');
+    const differenz = links() - rechts();
+    if (kaputt) {
+      status.className = 'gw-kaputt';
+      status.textContent = differenz === 0
+        ? 'Die Waage steht zufällig wieder – die Gleichung ist trotzdem eine andere als am Anfang.'
+        : 'Die Waage kippt: Die beiden Seiten sind nicht mehr gleich (' + links() + ' gegen ' + rechts() + ').';
+    } else if (z.a === 1 && z.c === 0 && z.b === 0) {
+      status.className = 'gw-loesung';
+      status.textContent = 'Gelöst: x = ' + z.d + '.';
+    } else if (z.c === 1 && z.a === 0 && z.d === 0) {
+      status.className = 'gw-loesung';
+      status.textContent = 'Gelöst: x = ' + z.b + '.';
+    } else {
+      status.className = '';
+      status.textContent = 'Die Waage steht im Gleichgewicht. Lösung ist weiterhin x = ' + loesung + '.';
+    }
+
+    protokollZeichnen();
+    aktionenZeichnen();
+  }
+
+  function protokollZeichnen() {
+    const liste = document.getElementById('gw-protokoll');
+    liste.textContent = '';
+    protokoll.forEach(function (zeile) {
+      liste.appendChild(WZ.el('li', {}, [
+        WZ.el('span', { text: zeile.gleichung }),
+        zeile.op ? WZ.el('span', { class: 'gw-op' + (zeile.falsch ? ' gw-op-falsch' : ''), text: zeile.op }) : null
+      ]));
+    });
+  }
+
+  // --- Umformungen ---------------------------------------------------------
+
+  function notiere(op, falsch) {
+    if (protokoll.length > 0) {
+      protokoll[protokoll.length - 1].op = op;
+      protokoll[protokoll.length - 1].falsch = !!falsch;
+    }
+    protokoll.push({ gleichung: termText(z.a, z.b) + ' = ' + termText(z.c, z.d), op: '' });
+  }
+
+  function umformen(name, op, wirkung) {
+    const nurLinks = document.getElementById('gw-nur-links').checked;
+    wirkung(nurLinks);
+    if (nurLinks) kaputt = true;
+    notiere(op + (nurLinks ? '  (nur links!)' : ''), nurLinks);
+    anzeigen();
+  }
+
+  function aktionenZeichnen() {
+    const wurzel = document.getElementById('gw-aktionen');
+    wurzel.textContent = '';
+
+    const aktionen = [];
+
+    // Einer wegnehmen bzw. dazulegen
+    if (z.b !== 0 || z.d !== 0) {
+      const menge = z.b !== 0 ? Math.sign(z.b) * Math.min(Math.abs(z.b), Math.abs(z.d) || Math.abs(z.b)) : 0;
+      const wert = z.b !== 0 ? z.b : z.d;
+      aktionen.push({
+        name: (wert > 0 ? '− ' : '+ ') + Math.abs(wert) + ' auf beiden Seiten',
+        op: '| ' + (wert > 0 ? '−' : '+') + ' ' + Math.abs(wert),
+        wirkung: function (nurLinks) {
+          z.b -= wert;
+          if (!nurLinks) z.d -= wert;
+        }
+      });
+    }
+
+    // x-Kästchen wegnehmen
+    const wenigerX = Math.abs(z.a) <= Math.abs(z.c) ? z.a : z.c;
+    if (wenigerX !== 0 && z.a !== 0 && z.c !== 0) {
+      aktionen.push({
+        name: (wenigerX > 0 ? '− ' : '+ ') + (Math.abs(wenigerX) === 1 ? 'x' : Math.abs(wenigerX) + 'x') + ' auf beiden Seiten',
+        op: '| ' + (wenigerX > 0 ? '−' : '+') + ' ' + (Math.abs(wenigerX) === 1 ? 'x' : Math.abs(wenigerX) + 'x'),
+        wirkung: function (nurLinks) {
+          z.a -= wenigerX;
+          if (!nurLinks) z.c -= wenigerX;
+        }
+      });
+    }
+
+    // Durch den Vorfaktor teilen, wenn alles aufgeht
+    const faktor = z.a !== 0 && z.c === 0 ? z.a : (z.c !== 0 && z.a === 0 ? z.c : 0);
+    if (Math.abs(faktor) > 1 && z.b % faktor === 0 && z.d % faktor === 0) {
+      aktionen.push({
+        name: ': ' + faktor + ' auf beiden Seiten',
+        op: '| : ' + faktor,
+        wirkung: function (nurLinks) {
+          z.a /= faktor;
+          z.b /= faktor;
+          if (!nurLinks) { z.c /= faktor; z.d /= faktor; }
+        }
+      });
+    }
+
+    // Seiten tauschen – zeigt, dass das Gleichheitszeichen symmetrisch ist
+    aktionen.push({
+      name: 'Seiten tauschen',
+      op: '| Seiten tauschen',
+      wirkung: function () {
+        const ha = z.a, hb = z.b;
+        z.a = z.c; z.b = z.d; z.c = ha; z.d = hb;
+      }
+    });
+
+    aktionen.forEach(function (a) {
+      wurzel.appendChild(WZ.el('button', {
+        class: 'wz-knopf', type: 'button',
+        onclick: function () { umformen(a.name, a.op, a.wirkung); }
+      }, [a.name]));
+    });
+
+    if (aktionen.length <= 1) {
+      wurzel.appendChild(WZ.el('p', {
+        style: 'color:var(--text-leise);font-size:.9rem;margin:0',
+        text: 'Keine weiteren Umformungen nötig – die Gleichung ist gelöst.'
+      }));
+    }
+  }
+
+  // --- Aufgabe erzeugen ----------------------------------------------------
+
+  function neueAufgabe(vorgabe) {
+    if (vorgabe) {
+      loesung = vorgabe.x;
+      // d ergibt sich aus der Forderung, dass die Waage am Anfang im
+      // Gleichgewicht steht: a·x + b = c·x + d
+      const d = vorgabe.d !== undefined
+        ? vorgabe.d
+        : vorgabe.a * vorgabe.x + vorgabe.b - vorgabe.c * vorgabe.x;
+      start = { a: vorgabe.a, b: vorgabe.b, c: vorgabe.c, d: d };
+    } else {
+      // a·x + b = c·x + d mit ganzzahliger Lösung und ohne negative Startwerte
+      const x = WZ.zufallGanz(2, 8);
+      const a = WZ.zufallGanz(2, 5);
+      const c = WZ.zufallGanz(0, a - 1);
+      const b = WZ.zufallGanz(1, 6);
+      const d = a * x + b - c * x;
+      start = { a: a, b: b, c: c, d: d };
+      loesung = x;
+    }
+    zuruecksetzen();
+    eingabeZeichnen();
+  }
+
+  function zuruecksetzen() {
+    z = { a: start.a, b: start.b, c: start.c, d: start.d };
+    kaputt = false;
+    protokoll = [{ gleichung: termText(z.a, z.b) + ' = ' + termText(z.c, z.d), op: '' }];
+    anzeigen();
+  }
+
+  function eingabeZeichnen() {
+    const wurzel = document.getElementById('gw-eingabe');
+    wurzel.textContent = '';
+    const felder = [
+      { schluessel: 'a', beschriftung: 'x-Kästchen links', min: 1, max: 6 },
+      { schluessel: 'b', beschriftung: 'Gewichte links', min: 0, max: 12 },
+      { schluessel: 'c', beschriftung: 'x-Kästchen rechts', min: 0, max: 5 },
+      { schluessel: 'x', beschriftung: 'gewünschte Lösung x', min: 1, max: 9 }
+    ];
+    felder.forEach(function (f) {
+      const wert = f.schluessel === 'x' ? loesung : start[f.schluessel];
+      wurzel.appendChild(WZ.el('label', { class: 'wz-label wz-label-quer', style: 'justify-content:space-between;margin-bottom:.4rem' }, [
+        WZ.el('span', { text: f.beschriftung }),
+        WZ.el('input', {
+          class: 'wz-feld wz-zahl', type: 'number', min: String(f.min), max: String(f.max),
+          value: String(wert), style: 'width:5rem',
+          onchange: function (e) {
+            const v = parseInt(e.target.value, 10);
+            if (!isFinite(v)) return;
+            const geklemmt = Math.max(f.min, Math.min(f.max, v));
+            const neu = { a: start.a, b: start.b, c: start.c, x: loesung };
+            neu[f.schluessel] = geklemmt;
+            if (neu.c >= neu.a) neu.c = neu.a - 1;         // sonst keine eindeutige Lösung
+            neu.d = neu.a * neu.x + neu.b - neu.c * neu.x;
+            neueAufgabe(neu);
+          }
+        })
+      ]));
+    });
+    wurzel.appendChild(WZ.el('p', {
+      style: 'font-size:.85rem;color:var(--text-leise);margin:.6rem 0 0',
+      text: 'Die Gewichte rechts ergeben sich daraus – sie sorgen dafür, dass die Waage am Anfang im Gleichgewicht steht.'
+    }));
+  }
+
+  document.getElementById('gw-neu').addEventListener('click', function () { neueAufgabe(null); });
+  document.getElementById('gw-zurueck').addEventListener('click', zuruecksetzen);
+
+  WZ.kopf({ titel: 'Gleichungswaage' });
+  WZ.fuss('Blaue Kästchen sind x, braune Scheiben sind Einer. Die Waage rechnet mit der tatsächlichen Lösung.');
+  neueAufgabe({ a: 3, b: 2, c: 1, x: 3 });
+})();
+</script>
+</body>
+</html>

@@ -6,6 +6,8 @@
  * wäre nicht mehr lesbar. Deshalb vier Gruppen mit Klappmenü, dazu die
  * direkten Einstiege „Schnellstart“ und „Suche“.
  */
+import { werkzeuge } from '../lib/werkzeuge';
+
 type Punkt = { href: string; label: string; hinweis?: string };
 type Gruppe = { label: string; punkte: Punkt[] };
 
@@ -31,7 +33,7 @@ const gruppen: Gruppe[] = [
   {
     label: 'Werkzeuge',
     punkte: [
-      { href: '/werkzeuge', label: 'Werkzeugkasten', hinweis: '12 Werkzeuge, sofort einsetzbar' },
+      { href: '/werkzeuge', label: 'Werkzeugkasten', hinweis: `${werkzeuge.length} Werkzeuge, sofort einsetzbar` },
       { href: '/werkzeuge/unterrichts-timer.html', label: 'Unterrichts-Timer', hinweis: 'Phasen groß projizieren' },
       { href: '/werkzeuge/zufalls-gruppen.html', label: 'Zufallsgruppen', hinweis: 'Gruppen ziehen und aufrufen' },
       { href: '/ki', label: 'KI-Prompts', hinweis: 'Erprobt und zum Kopieren' },

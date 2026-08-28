@@ -68,10 +68,10 @@ export const gegenmittel: Gegenmittel[] = [
       'Prozentangaben werden als absolute Zahlen behandelt. Dass 20 % je nach Grundwert etwas völlig anderes sind, ist die eigentliche Hürde – nicht der Dreisatz.',
     schritte: [
       'Zwei Aufgaben nebeneinander: 20 % von 50 € und 20 % von 500 €. Gleicher Prozentsatz, ganz andere Zahl.',
-      'Immer zuerst nach dem Grundwert fragen: „100 % – wovon?“ Diese Frage vor jede Rechnung setzen, auch wenn sie trivial wirkt.',
+      'Immer zuerst nach dem Grundwert fragen: „100 % – wovon?“ Am Prozentstreifen ist das keine Regel, sondern eine Ablesung: Die untere Skala endet immer bei 100 %.',
       'Bei Zu- und Abnahme konsequent mit dem Vermehrungsfaktor arbeiten (1,20 statt „+20 %“) – dann bricht auch die zweite große Fehlvorstellung weg, dass +20 % und −20 % sich aufheben.',
     ],
-    werkzeug: { text: 'Kopfrechen-Sprint (Prozentrechnung)', href: '/werkzeuge/kopfrechen-sprint.html' },
+    werkzeug: { text: 'Prozentstreifen', href: '/werkzeuge/prozentstreifen.html' },
   },
   {
     thema: 'Pythagoras',
@@ -162,11 +162,11 @@ export const gegenmittel: Gegenmittel[] = [
     ursache:
       'Das Gleichheitszeichen wird als „hier kommt das Ergebnis“ gelesen, wie auf dem Taschenrechner – nicht als Aussage über zwei gleich große Werte.',
     schritte: [
-      'Waage zeichnen und dieselbe Gleichung als Gleichgewicht darstellen. Was links wegkommt, muss rechts auch weg.',
+      'Die Gleichung als Waage darstellen und einmal absichtlich nur links umformen – die Waage kippt sichtbar, die Lösung stimmt nicht mehr.',
       'Absichtlich eine Gleichung mit dem x rechts stellen (12 = 3x). Wer das Gleichheitszeichen richtig liest, hat kein Problem damit.',
       'Bei jeder Umformung den Schritt an den Rand schreiben (| −3) und laut sprechen: „auf beiden Seiten“.',
     ],
-    werkzeug: { text: 'Lineare Gleichungen üben', href: '/uebung/lineare-gleichungen' },
+    werkzeug: { text: 'Gleichungswaage', href: '/werkzeuge/gleichungswaage.html' },
   },
   {
     thema: 'Trigonometrie',
