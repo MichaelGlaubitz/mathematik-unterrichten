@@ -12,6 +12,7 @@ Statisch generierte Mathe-Didaktik-Seite für Lehrkräfte – inspiriert von [mr
 | **Aufgabensammlung** | Markdown – Aufgabenfolgen mit Lösungen + Kommentar | `src/content/aufgaben/` |
 | **Diagnostische Fragen** | JSON – interaktive MC-Quizzes (genau 6 Fragen) | `src/content/quizzes/` |
 | **Themen** | JSON – Einordnung, Fehlvorstellungen, Whiteboard-Aufgaben | `src/content/themen/` |
+| **Stundenverläufe** | Markdown mit strukturiertem Frontmatter – fertige Stunden nach KLAR | `src/content/stunden/` |
 
 ### Redaktionell gepflegte Datenmodule
 
@@ -114,6 +115,63 @@ datum: 2026-05-10
 
 …
 ```
+
+### Stundenverlauf anlegen
+
+Lege eine `.md`-Datei unter `src/content/stunden/` an. Das Frontmatter trägt die
+Struktur, der Fließtext darunter Tafelbild und didaktischen Kommentar.
+
+```yaml
+---
+titel: "Bruchaddition: Warum 1/2 + 1/3 nicht 2/5 ist"
+thema: "Bruchrechnung"        # muss exakt dem `thema` in src/content/themen/ entsprechen
+klassenstufe: ["6"]
+dauer: 90                      # nur 45 oder 90
+stundenziel: "Ein Satz: Was können die Lernenden danach, was vorher nicht?"
+kurz: "Teaser für die Übersicht."
+voraussetzungen: ["…"]
+material: ["…"]
+einstiegsfrage:
+  frage: "Was ist 1/2 + 1/3?"
+  antworten:                   # zwei bis fünf; zu jeder eine Deutung
+    - text: "5/6"
+      korrekt: true
+      deutung: "Was denkt jemand, der das ankreuzt?"
+  quiz: "bruchaddition-typische-fehler"   # optional, Slug eines Quiz
+phasen:                        # mindestens vier; Minute ist die Startminute
+  - schritt: "K"               # K | L | A | R
+    minute: 0
+    dauer: 10
+    titel: "…"
+    ablauf: "Was in der Klasse passiert."
+    lehrkraft: "Was die Lehrkraft tut – und was nicht."
+    werkzeug: { text: "Whiteboard-Check", href: "/werkzeuge/whiteboard-check.html" }
+weichen:                       # was tun, wenn die Diagnose anders ausfällt
+  - wenn: "Über 80 % antworten richtig."
+    dann: "…"
+exitTicket: ["…", "…"]         # zwei oder drei Fragen
+differenzierung: { schneller: "…", langsamer: "…" }
+stolpersteine:
+  - fehlvorstellung: "…"
+    reaktion: "…"
+hausaufgabe: "…"               # optional
+tags: ["…"]
+datum: 2026-08-28
+---
+```
+
+Drei Regeln, die den Bereich zusammenhalten:
+
+1. **Die Phasen müssen lückenlos aneinander anschließen**, und die Summe der
+   Dauern muss `dauer` ergeben. Die Detailseite rechnet die Uhrzeiten daraus.
+2. **`thema` ist der Join-Schlüssel.** Stimmt er, erscheint der Verlauf
+   automatisch auf `/themen` unter der Themeneinführung.
+3. **Ohne `weichen` kein Stundenverlauf.** Eine diagnostische Einstiegsfrage,
+   die den Plan nicht ändern darf, ist Zierde. Mindestens die Fälle „läuft
+   besser als gedacht“ und „läuft schlechter als gedacht“ gehören hin.
+
+Hub-Seite und Detailseite (`src/pages/stunden/`) lesen alles aus dem
+Frontmatter; Suchindex und Sitemap ziehen den Eintrag automatisch nach.
 
 ### Diagnostische Fragen anlegen (Quiz-JSON)
 
