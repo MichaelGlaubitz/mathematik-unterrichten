@@ -84,11 +84,23 @@ export const werkzeuge: Werkzeug[] = [
     hintergrund: { text: 'Methode: Diagnostische Fragen', href: '/methoden#diagnostische-fragen' },
   },
   {
+    slug: 'antwortkarte',
+    titel: 'Antwortkarte',
+    kurz: 'Die kurze Antwort auf dem eigenen Gerät groß anzeigen und hochhalten – wie ein Mini-Whiteboard, nur lesbar.',
+    beschreibung:
+      'Die Klasse öffnet mathematik-unterrichten.de/karte, trägt eine kurze Antwort ein – getippt oder mit dem Stift geschrieben – und hält auf Ihr Zeichen hoch. Bis dahin bleibt die Karte verdeckt, der Nachbar sieht nichts. Die Schrift wird automatisch so groß gesetzt, wie sie auf den Bildschirm passt, damit Sie sie aus der ersten Reihe lesen können; Zeichen wie √, ², π und der Bruchstrich liegen als Tasten bereit. Gezählt wird wie bei Mini-Whiteboards mit dem Whiteboard-Check. Nichts wird gespeichert und nichts gesendet: keine Namen, kein Konto, keine Übertragung – die Karte läuft auch ohne Netz.',
+    kategorie: 'Diagnose',
+    stufe: 'alle',
+    einsatz: 'Schülergerät',
+    schlagwoerter: ['mini-whiteboard', 'full response', 'ipad', 'tablet', 'kurzantwort', 'diagnose', 'anonym', 'datenschutz', 'bring your own device'],
+    hintergrund: { text: 'Methode: Mini-Whiteboards', href: '/methoden#mini-whiteboards' },
+  },
+  {
     slug: 'whiteboard-check',
     titel: 'Whiteboard-Check',
     kurz: 'Die Mini-Whiteboard-Runde in Sekunden auswerten – anonym, über die Tastatur mitgezählt.',
     beschreibung:
-      'Die Klasse hält die Whiteboards hoch, Sie zählen die Reihen durch und tippen dabei einfach mit: R richtig, H halb, F falsch, N nichts. Die Trefferquote steht sofort da, und die Ampel sagt, ob Sie weitergehen oder noch eine Runde brauchen – Full-Response statt Stichprobe. Die Erfassung ist bewusst anonym: Es wird gezählt, nie zugeordnet. Über mehrere Runden entsteht ein Klassenbild, das zeigt, welche Frage gehakt hat – ohne dass dafür je ein Name gespeichert werden müsste.',
+      'Die Klasse hält die Whiteboards hoch, Sie zählen die Reihen durch und tippen dabei einfach mit: R richtig, H halb, F falsch, N nichts. Die Trefferquote steht sofort da, und die Ampel sagt, ob Sie weitergehen oder noch eine Runde brauchen – Full-Response statt Stichprobe. Die Erfassung ist bewusst anonym: Es wird gezählt, nie zugeordnet. Über mehrere Runden entsteht ein Klassenbild, das zeigt, welche Frage gehakt hat – ohne dass dafür je ein Name gespeichert werden müsste. Wer keine Whiteboards hat, lässt die Klasse die Antwortkarte auf dem Tablet hochhalten und zählt genauso durch.',
     kategorie: 'Diagnose',
     stufe: 'alle',
     einsatz: 'Schülergerät',
