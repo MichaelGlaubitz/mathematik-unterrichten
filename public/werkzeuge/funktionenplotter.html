@@ -18,6 +18,12 @@
   .fp-tick { stroke: var(--text); stroke-width: 1.2; }
   .fp-ticktext { fill: var(--text-leise); font-size: 11px; font-family: var(--schrift); }
   .fp-achstext { fill: var(--text); font-size: 15px; font-style: italic; font-family: var(--schrift-serif); }
+  /* Achsenbeschriftungen tragen ihre Größe in SVG-Nutzereinheiten und wachsen
+     deshalb nicht mit --basis mit. Im Beamer-Modus deshalb eigens angehoben;
+     der Faktor ist so gewählt, dass sie gerendert etwa 20 px erreichen. */
+  html[data-beamer="an"] .fp-ticktext { font-size: 17px; }
+  html[data-beamer="an"] .fp-achstext { font-size: 21px; }
+
   .fp-kurve { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
   .fp-spur { fill: none; stroke-width: 1.6; opacity: .28; stroke-linecap: round; }
 

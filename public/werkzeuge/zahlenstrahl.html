@@ -28,6 +28,11 @@
   .zs-sprung button { font-size: .85rem; padding: .3rem .65rem; min-height: 2rem; }
 
   @media (min-width: 1000px) { .zs-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.25rem; align-items: start; } }
+  /* Skalenbeschriftungen liegen in SVG-Nutzereinheiten und wachsen nicht mit
+     --basis. Im Beamer-Modus eigens angehoben. */
+  /* 22px ist hier die Obergrenze: Bei 24 stoßen die eng stehenden
+     Marken des Zahlenstrahls aneinander. */
+  html[data-beamer="an"] .zs-marke { font-size: 22px; }
 </style>
 </head>
 <body>
@@ -186,7 +191,7 @@
       const wert = Math.round(w / gross) * gross;
       svg.appendChild(neu('line', { x1: px(wert).toFixed(2), y1: Y - 13, x2: px(wert).toFixed(2), y2: Y + 13, stroke: 'var(--text)', 'stroke-width': 2 }));
       svg.appendChild(neu('text', {
-        x: px(wert).toFixed(2), y: Y + 36, 'text-anchor': 'middle', 'font-size': 17,
+        x: px(wert).toFixed(2), y: Y + 36, 'text-anchor': 'middle', class: 'zs-marke', 'font-size': 17,
         fill: 'var(--text)', 'font-family': 'var(--schrift)'
       }, wert.toFixed(stellen).replace('.', ',')));
     }
@@ -210,7 +215,7 @@
       svg.appendChild(neu('line', { x1: x.toFixed(2), y1: Y, x2: x.toFixed(2), y2: Y - hoehe, stroke: farbe, 'stroke-width': 3 }));
       svg.appendChild(neu('circle', { cx: x.toFixed(2), cy: Y, r: 6, fill: farbe }));
       const etikett = neu('text', {
-        x: x.toFixed(2), y: Y - hoehe - 9, 'text-anchor': 'middle', 'font-size': 20,
+        x: x.toFixed(2), y: Y - hoehe - 9, 'text-anchor': 'middle', class: 'zs-marke', 'font-size': 20,
         fill: farbe, 'font-family': 'var(--schrift-serif)', 'font-weight': 600, style: 'cursor:pointer'
       }, m.text);
       etikett.addEventListener('click', function () { waehlen(eintrag.i); });
@@ -221,7 +226,7 @@
     const drausen = marken.filter(function (m) { return m.wert < sicht.von || m.wert > sicht.bis; });
     if (drausen.length) {
       svg.appendChild(neu('text', {
-        x: B / 2, y: H - 12, 'text-anchor': 'middle', 'font-size': 14,
+        x: B / 2, y: H - 12, 'text-anchor': 'middle', class: 'zs-marke', 'font-size': 14,
         fill: 'var(--text-schwach)', 'font-family': 'var(--schrift)'
       }, drausen.length + ' Zahl' + (drausen.length > 1 ? 'en liegen' : ' liegt') + ' außerhalb des Ausschnitts'));
     }
