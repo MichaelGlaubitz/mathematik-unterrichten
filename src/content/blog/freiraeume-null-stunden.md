@@ -17,7 +17,7 @@ Am 23. Juni 2026 ist die Novelle des Niedersächsischen Schulgesetzes in Kraft g
 
 ---
 
-### Was neu ist
+## Was neu ist
 
 Ein Auszug, ohne Häme, einfach der Inhalt: Grundschulen dürfen die Jahrgänge 1 bis 4 künftig als pädagogische Einheit führen. Oberschulen bekommen mehr Spielraum für jahrgangsübergreifenden Unterricht. Klassenräte werden verbindlich, ebenso Schülervertretungen an Grundschulen und Förderschulen. Die gymnasiale Oberstufe verliert ab 2027/28 ihre vorgegebenen Schwerpunkte zugunsten individueller Profilbildung. „Werte und Normen“ wird im Primarbereich verbindliches Fach. Distanzunterricht wird als gesetzliche Option verankert. Schulen tauschen künftig Daten mit den Jugendberufsagenturen aus, damit „kein Kind mehr durch das Netz fällt“. Schüler mit Lese-Rechtschreibstörung oder Dyskalkulie erhalten Anspruch auf Nachteilsausgleich und Notenschutz. Kleine Schulen werden bei Schulvorstandsaufgaben entlastet. Private Schulen bekommen ab dem 1. August 2026 pauschale Zuschüsse für den Ganztagsausbau.
 
@@ -25,7 +25,7 @@ Das ist, für sich genommen, eine ordentliche Liste. Manches davon ist überfäl
 
 ---
 
-### Eine Übersetzungstabelle
+## Eine Übersetzungstabelle
 
 Ein Freiraum ist, formal betrachtet, etwas, das man ausfüllen darf. Ob er sich wie ein Geschenk oder wie eine zusätzliche Aufgabe anfühlt, hängt an einer einzigen Variablen, die im Gesetzestext an keiner Stelle vorkommt: der Zeit, die für das Ausfüllen zur Verfügung steht.
 
@@ -42,7 +42,7 @@ Jede Zeile links steht im Gesetz. Jede Zeile rechts steht nirgends — sie ergib
 
 ---
 
-### Was nicht drinsteht
+## Was nicht drinsteht
 
 Die GEW Niedersachsen hat die Novelle in ihrer Stellungnahme als „Licht und Schatten“ bezeichnet; der Bezirksverband Weser-Ems war deutlicher und sprach von „wenig Mut für Veränderungen“. Konkret fehlt: eine gesetzliche Verankerung von Schulsozialarbeit als fester Bestandteil von Schule. Eine Ausweitung der Kompetenzen der Gesamtkonferenz — die Chance, „wieder Demokratie in der Schule zu leben“, sei vertan worden. Eine Überarbeitung von § 51, der Fortbildungszeit regelt und weiterhin nicht sicherstellt, dass Fortbildung in der Unterrichtszeit stattfinden kann. Förderschulen verlieren ihren Status als Förderzentren; die GEW warnt, betroffene Kolleginnen und Kollegen blieben ohne „fachspezifische Heimat“.
 
@@ -52,7 +52,7 @@ Beteiligung fand also statt. Was aus ihr wurde, ist eine andere Frage.
 
 ---
 
-### Fazit
+## Fazit
 
 Nichts an dieser Novelle ist unehrlich formuliert. Freiraum steht für Freiraum, Wahlmöglichkeit für Wahlmöglichkeit, gelebte Demokratie für gelebte Demokratie — jedes Wort stimmt für sich. Nur die Größe, die daneben stehen müsste, damit man den Preis kennt, steht wieder nirgends: wie viele Stunden ein Kollegium für einen Klassenrat, ein neues Kurssystem, ein neues Fach eingeplant bekommt. Die Antwort ist dieselbe wie im [Anfangsbrief](/blog/entlastung-null): keine.
 
