@@ -9,9 +9,17 @@ interface Props {
   slug: string;
   generatorUebungHref?: string;
   unterthemenBloecke: UnterthemenBlock[];
+  /**
+   * Überschriftenstufe der Blocktitel. Voreinstellung 4 – das Raster steht
+   * dann direkt unter der Themenüberschrift (h3). Steht darüber bereits eine
+   * eigene h4, muss 5 gesetzt werden, sonst liegen zwei gleiche Stufen
+   * ineinander.
+   */
+  stufe?: 4 | 5;
 }
 
-const { slug, generatorUebungHref, unterthemenBloecke } = Astro.props;
+const { slug, generatorUebungHref, unterthemenBloecke, stufe = 4 } = Astro.props;
+const Titel = `h${stufe}` as 'h4' | 'h5';
 const isWbThemaKw =
   (slug === 'bruchrechnung' ||
     slug === 'negative-zahlen' ||
@@ -37,7 +45,7 @@ const isWbThemaKw =
           isWbThemaKw && 'mu-wb-kw-cluster',
         ]}
       >
-        <h5 class="font-serif text-lg font-semibold text-accent-700 dark:text-accent-100 mb-1">{b.titel}</h5>
+        <Titel class="font-serif text-lg font-semibold text-accent-700 dark:text-accent-100 mb-1">{b.titel}</Titel>
         {b.beschreibung && (
           <p class="text-xs text-ink-500 dark:text-ink-400 mb-3 leading-snug">{b.beschreibung}</p>
         )}
