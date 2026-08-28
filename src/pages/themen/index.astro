@@ -10,6 +10,7 @@ const themen = (await getCollection('themen', ({ data }) => !data.entwurf)).sort
 const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
 const quizzes = await getCollection('quizzes', ({ data }) => !data.entwurf);
 const blog = await getCollection('blog', ({ data }) => !data.entwurf);
+const stunden = await getCollection('stunden', ({ data }) => !data.entwurf);
 
 // --- Slug-Helfer ----------------------------------------------------------
 function slugify(s) {
@@ -51,6 +52,13 @@ function quizzesZu(thema) {
     .filter((q) => q.data.thema === thema)
     .sort((a, b) => a.data.titel.localeCompare(b.data.titel, 'de'));
 }
+/** Der fertige Stundenverlauf zu einem Thema – höchstens einer je Thema. */
+function stundeZu(thema) {
+  const s = stunden.find((e) => e.data.thema === thema);
+  return s
+    ? { slug: s.slug, titel: s.data.titel, dauer: s.data.dauer, kurz: s.data.kurz }
+    : undefined;
+}
 function blogZu(thema, blogTags) {
   const aufgabenTags = aufgabenZu(thema).flatMap((a) => a.data.tags ?? []);
   const pool = new Set(
@@ -83,6 +91,7 @@ const themenProBand = clusterReihenfolge
         quizzes: quizzesZu(t.data.thema),
         blog: blogZu(t.data.thema, t.data.blogTags),
         unterthemenBloecke: t.data.unterthemenBloecke,
+        stunde: stundeZu(t.data.thema),
       })),
   }))
   .filter((g) => g.themen.length > 0);
@@ -179,6 +188,7 @@ const themenProBand = clusterReihenfolge
               klassenstufenAnzeige={tv.klassenstufenAnzeige}
               einfuehrung={tv.einfuehrung}
               unterthemenBloecke={tv.unterthemenBloecke}
+              stunde={tv.stunde}
               fehlvorstellungen={tv.fehlvorstellungen}
               whiteboard={tv.whiteboard}
               aufgaben={tv.aufgaben}

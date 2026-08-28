@@ -1,6 +1,6 @@
 ---
 titel: "Drei Kleider, eine Zahl: Bruch, Dezimalzahl, Prozent"
-thema: "Bruch, Dezimalzahl, Prozent"
+thema: "Bruch Dezimal Prozent"
 klassenstufe: ["7"]
 dauer: 45
 stundenziel: "Die Lernenden wandeln zwischen Bruch, Dezimalzahl und Prozentangabe um und begründen an der Zahlengeraden, dass es sich um dieselbe Zahl in drei Schreibweisen handelt."
