@@ -22,9 +22,13 @@ export interface Frage {
 export interface Props {
   fragen: Frage[];
   id?: string;
+  titel?: string;
 }
 
-const { fragen, id = 'quiz' } = Astro.props;
+import { abstimmungsLink } from '../lib/abstimmung';
+
+const { fragen, id = 'quiz', titel = '' } = Astro.props;
+const abstimmung = abstimmungsLink(titel, fragen);
 const headingId = `diagnostische-fragen-${id}`;
 ---
 
@@ -143,7 +147,8 @@ const headingId = `diagnostische-fragen-${id}`;
       Diagnostische Fragen sind nicht zum „Punkten" da – welcher Distraktor gewählt wurde,
       verrät mehr über das Verständnis als die richtige Lösung. Diese Auswertung gilt nur für
       dieses Gerät; für die Verteilung in der Klasse zählen Sie die Stimmen mit der
-      <a class="underline decoration-dotted underline-offset-2" href="/werkzeuge/abstimmung.html">Abstimmung</a> mit.
+      <a class="underline decoration-dotted underline-offset-2" href={abstimmung}>Abstimmung</a> mit –
+      diese Fragen sind dort schon eingetragen.
     </p>
     <button
       type="button"
