@@ -141,3 +141,43 @@ export const SCHRITTE = [
     ],
   },
 ] as const;
+
+/**
+ * Die Partnerphase nach der Einzelarbeit.
+ *
+ * Craig Barton lässt zuerst allein arbeiten und stellt danach diese Impulse
+ * für die Partnerarbeit bereit. Wichtig ist die Überschrift: Es wird *eine*
+ * Frage ausgesucht, nicht die Liste abgearbeitet. Wer alle zwölf durchgeht,
+ * hat aus dem Gespräch ein Formular gemacht.
+ */
+export const PARTNER_UEBERSCHRIFT = 'Sucht euch eine Frage aus, die ihr zu zweit besprecht';
+
+export const SCHRITTE_PARTNER = [
+  {
+    marke: 'Reflect',
+    punkte: ['Ist euch beiden dasselbe aufgefallen, was sich geändert hat?'],
+  },
+  {
+    marke: 'Expect',
+    punkte: [
+      'Sind eure Erwartungen gleich?',
+      'Versteht ihr den Gedankengang des anderen?',
+      'Könnt ihr zu zweit auf mehr als eine Art erklären, wie ihr zu eurer Erwartung gekommen seid? Mit einer Skizze? Mit einer Rechnung?',
+    ],
+  },
+  {
+    marke: 'Check',
+    punkte: [
+      'Habt ihr auf demselben Weg geprüft?',
+      'Hat einer von euch sich vertan?',
+    ],
+  },
+  {
+    marke: 'Explain',
+    punkte: [
+      'Wenn einer von euch den Zusammenhang noch nicht sieht: Kann der andere helfen?',
+      'Wenn ihr ihn beide seht: Könnt ihr vorhersagen, welche Erwartungen eure Mitschüler bilden werden?',
+      'Könnt ihr eure Erklärung an einem selbst gewählten Beispiel prüfen?',
+    ],
+  },
+] as const;

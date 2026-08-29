@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { leseVariationsfolgen, SCHRITTE } from './variationsfolgen';
+import { leseVariationsfolgen, SCHRITTE, SCHRITTE_PARTNER, PARTNER_UEBERSCHRIFT } from './variationsfolgen';
 
 const ORDNER = path.join(process.cwd(), 'src/content/aufgaben');
 const dateien = fs.readdirSync(ORDNER).filter((f) => f.endsWith('.md'));
@@ -132,5 +132,43 @@ describe('Die Folie im Auftritt', () => {
   it('was nicht projizierbar ist, wird benannt statt verschwiegen', () => {
     expect(folie).toContain('uebersprungen.length > 0');
     expect(folie).toContain('nicht entscheidbar');
+  });
+});
+
+describe('Partnerphase nach der Einzelarbeit', () => {
+  const lies = (p: string) => fs.readFileSync(path.join(process.cwd(), p), 'utf8');
+  const folie = lies('src/pages/aufgaben/[slug]/folge.astro');
+
+  it('es wird eine Frage ausgesucht, nicht die Liste abgearbeitet', () => {
+    // „Choose a question to discuss with your partner" – wer alle neun
+    // durchgeht, macht aus dem Gespräch ein Formular.
+    expect(PARTNER_UEBERSCHRIFT).toMatch(/sucht euch eine Frage aus/i);
+    expect(folie).toContain('Eine genügt');
+  });
+
+  it('dieselben vier Schritte, jetzt zu zweit', () => {
+    expect(SCHRITTE_PARTNER.map((s) => s.marke)).toEqual(['Reflect', 'Expect', 'Check', 'Explain']);
+    for (const s of SCHRITTE_PARTNER) {
+      expect(s.punkte.length, s.marke).toBeGreaterThan(0);
+    }
+  });
+
+  it('die Impulse fragen nach dem anderen, nicht nach der Aufgabe', () => {
+    // Das ist der Unterschied zur Einzelarbeit: verglichen werden die beiden
+    // Bearbeitungen, nicht noch einmal die Aufgabe.
+    const text = SCHRITTE_PARTNER.flatMap((s) => s.punkte).join(' ');
+    expect(text).toMatch(/euch beiden|des anderen|der andere|ihr beide|zu zweit/);
+    expect(text).toMatch(/Hat einer von euch sich vertan/);
+    expect(text).toMatch(/Mitschüler/);
+  });
+
+  it('sie kommt erst nach Explain und verschwindet mit der nächsten Aufgabe', () => {
+    expect(folie).toContain('const PARTNER = 4');
+    expect(folie).toContain('partnerkarte.hidden = !imPartner');
+    expect(folie).toContain('if (s > PARTNER)');
+  });
+
+  it('in der Partnerphase steht kein Einzelschritt mehr im Vordergrund', () => {
+    expect(folie).toContain("'mu-folge-schritt--jetzt', !imPartner && i === schritt");
   });
 });

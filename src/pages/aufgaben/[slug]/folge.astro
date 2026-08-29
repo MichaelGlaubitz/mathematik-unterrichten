@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { leseVariationsfolgen, SCHRITTE } from '../../../lib/variationsfolgen';
+import { leseVariationsfolgen, SCHRITTE, SCHRITTE_PARTNER, PARTNER_UEBERSCHRIFT } from '../../../lib/variationsfolgen';
 
 export async function getStaticPaths() {
   const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
@@ -47,7 +47,8 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         <span class="text-xs font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Regie · zum Projizieren</span>
         <span>
           {folgen.length} {folgen.length === 1 ? 'Folge' : 'Folgen'} mit {gesamt} Aufgaben.
-          Die vorherige Aufgabe bleibt mit ihrer Lösung stehen – sonst lässt sich nicht vergleichen.
+          Erst allein, dann zu zweit. Die vorherige Aufgabe bleibt mit ihrer Lösung stehen –
+          sonst lässt sich nicht vergleichen.
         </span>
       </p>
 
@@ -107,6 +108,29 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         ))}
       </ol>
 
+      <section
+        id="mu-folge-partner"
+        class="mu-folge-partner mt-6 rounded-xl border-2 border-violet-400/70 bg-violet-50/50 p-5 dark:border-violet-400/40 dark:bg-violet-500/10"
+        hidden
+      >
+        <p class="text-sm font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
+          {PARTNER_UEBERSCHRIFT}
+        </p>
+        <p class="mt-1 text-sm text-ink-600 dark:text-ink-300">
+          Eine genügt – wer alle durchgeht, macht aus dem Gespräch ein Formular.
+        </p>
+        <ol class="mt-4 grid gap-3 md:grid-cols-2">
+          {SCHRITTE_PARTNER.map((s) => (
+            <li class="rounded-lg border border-violet-300/70 bg-surface/70 p-3 dark:border-violet-400/30 dark:bg-slate-900/40">
+              <p class="text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">{s.marke}</p>
+              <ul class="mt-1.5 space-y-0.5 text-sm text-ink-800 dark:text-ink-200">
+                {s.punkte.map((p) => <li>– {p}</li>)}
+              </ul>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <div class="mt-6 flex flex-wrap items-center gap-2 mu-folge-steuerung">
         <button id="mu-folge-zurueck" type="button" class="rounded-md border border-ink-300 px-3 py-1.5 text-sm dark:border-ink-500 dark:text-ink-100">← Zurück</button>
         <button id="mu-folge-weiter" type="button" class="rounded-md bg-accent-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-accent-700 dark:bg-accent-500">Weiter (Leertaste)</button>
@@ -144,7 +168,10 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
 
     let folge = 0;
     let nr = 0;      // welche Aufgabe
-    let schritt = 0; // 0..3 = Reflect, Expect, Check, Explain
+    // 0..3 = Reflect, Expect, Check, Explain (allein), 4 = Partnerphase
+    let schritt = 0;
+    const PARTNER = 4;
+    const partnerkarte = document.getElementById('mu-folge-partner');
 
     function zeichne() {
       const f = folgen[folge];
@@ -163,19 +190,25 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         vorherLoesung.textContent = davor.loesung;
       }
 
+      // In der Partnerphase steht keiner der vier Einzelschritte im Vordergrund:
+      // Das Paar sucht sich selbst aus, worüber es spricht.
+      const imPartner = schritt === PARTNER;
+      partnerkarte.hidden = !imPartner;
       schritte.forEach((el, i) => {
-        el.classList.toggle('mu-folge-schritt--jetzt', i === schritt);
-        el.classList.toggle('mu-folge-schritt--vorbei', i < schritt);
+        el.classList.toggle('mu-folge-schritt--jetzt', !imPartner && i === schritt);
+        el.classList.toggle('mu-folge-schritt--vorbei', imPartner || i < schritt);
       });
-      stand.textContent = `${['Reflect', 'Expect', 'Check', 'Explain'][schritt]} · Aufgabe ${nr + 1}/${f.aufgaben.length}`;
+      stand.textContent = imPartner
+        ? `Zu zweit · Aufgabe ${nr + 1}/${f.aufgaben.length}`
+        : `Allein: ${['Reflect', 'Expect', 'Check', 'Explain'][schritt]} · Aufgabe ${nr + 1}/${f.aufgaben.length}`;
     }
 
     function weiter(richtung) {
       const f = folgen[folge];
       let s = schritt + richtung;
       let n = nr;
-      if (s > 3) { s = 0; n = Math.min(n + 1, f.aufgaben.length - 1); }
-      if (s < 0) { s = 3; n = Math.max(n - 1, 0); }
+      if (s > PARTNER) { s = 0; n = Math.min(n + 1, f.aufgaben.length - 1); }
+      if (s < 0) { s = PARTNER; n = Math.max(n - 1, 0); }
       // Die erste Aufgabe hat nichts, womit sie sich vergleichen ließe:
       // dort beginnt der Takt bei Expect.
       if (n === 0 && s === 0 && richtung > 0) s = 1;
@@ -221,6 +254,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
   /* Ein <select> wird so breit wie seine längste Option. Ohne Begrenzung
      schiebt der Folgentitel die ganze Seite zur Seite. */
   .mu-folge-wahl { max-width: 100%; }
+  #mu-folge-partner[hidden] { display: none; }
   #mu-folge-vorher[hidden] { display: none; }
   #mu-folge-loesung[hidden] { display: none; }
 
