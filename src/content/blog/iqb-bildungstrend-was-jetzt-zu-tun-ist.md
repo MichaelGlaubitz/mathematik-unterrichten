@@ -35,11 +35,11 @@ Ich habe keine Antwort auf die bildungspolitische Frage. Auf die unterrichtliche
 
 **4. Wissen, wie viele es wirklich sind.** Nicht im Gefühl, sondern in Zahlen: Wie viele lagen bei den letzten drei Whiteboard-Runden daneben? Der Unterschied zwischen „ein paar" und „ein Drittel" entscheidet, ob eine Übungsphase reicht oder die Stunde neu ansetzen muss. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) zählt das in Sekunden mit — anonym; wer im Einzelnen Förderung braucht, zeigt sich ohnehin im Gespräch am Tisch, nicht in einer gespeicherten Liste.
 
-## Was ich nicht schreibe
+## Die Ursachen
 
-Ich schreibe nicht, dass Lehrkräfte schuld sind. Die Studie selbst nennt strukturelle Faktoren: gewachsene Heterogenität, Sprachhürden, Unterrichtsausfall, die Nachwirkungen der Pandemiejahre. Nichts davon lässt sich im eigenen Klassenraum lösen.
+Die Studie selbst nennt strukturelle Faktoren: gewachsene Heterogenität, Sprachhürden, Unterrichtsausfall, die Nachwirkungen der Pandemiejahre. Nichts davon lässt sich im eigenen Klassenraum lösen.
 
-Aber es gibt einen Unterschied zwischen „nicht schuld" und „nichts zu tun". Die vier Punkte oben verändern die Rahmenbedingungen nicht. Sie verändern, was innerhalb dieser Rahmenbedingungen ankommt. Das ist wenig – und es ist das Einzige, was am Montag um acht Uhr tatsächlich in unserer Hand liegt.
+Aber es gibt einen Unterschied zwischen „nicht lösbar" und „nichts zu tun". Die vier Punkte oben verändern die Rahmenbedingungen nicht. Sie verändern, was innerhalb dieser Rahmenbedingungen ankommt. Das ist wenig – und es ist das Einzige, was am Montag um acht Uhr tatsächlich in unserer Hand liegt.
 
 ---
 
