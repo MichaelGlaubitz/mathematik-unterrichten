@@ -3985,8 +3985,13 @@ document.getElementById("k-teilen").addEventListener("click", async () => {
     LEHRER_MAIL + "</b> und hängt die Datei <b>" + dateiname() + ".html</b> an.");
 });
 document.getElementById("k-adresse").addEventListener("click", () => {
-  kopieren(LEHRER_MAIL);
-  hinweis("Adresse <b>" + LEHRER_MAIL + "</b> kopiert – im Mailprogramm ins Feld „An“ einfügen.");
+  /* Die Adresse steht in jedem Fall da - auch wenn das Kopieren scheitert,
+     kann man sie dann abschreiben und haengt nicht fest. */
+  kopieren(LEHRER_MAIL).then(function (ok) {
+    hinweis((ok ? "Adresse kopiert" : "<b style='color:#c62828'>Kopieren hat nicht geklappt</b> – bitte abschreiben")
+      + ":<br><b style=\"font-size:1.15em;user-select:all\">" + LEHRER_MAIL + "</b>"
+      + "<br>im Mailprogramm ins Feld „An“ eintragen.");
+  });
 });
 document.getElementById("k-mail").addEventListener("click", () => {
   if (nameFehlt()) return;
@@ -3995,7 +4000,9 @@ document.getElementById("k-mail").addEventListener("click", () => {
   const url = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(koerper);
   protokolliere("abgabe", "mailto", "Textmail geöffnet (ohne Zeichnungen)");
   if (url.length > 1900) {
-    kopieren(koerper);
+    kopieren(koerper).then(function (ok) {
+      if (!ok) hinweis("<b style='color:#c62828'>Kopieren hat nicht geklappt.</b> Nimm Schritt 1 und 2: „Protokoll speichern“ und dann „Senden / Teilen“.");
+    });
     hinweis("Der Text ist lang und wurde <b>kopiert</b>. Mailprogramm öffnet sich – Text mit Einfügen ergänzen. <b>Achtung:</b> Zeichnungen sind in dieser Textmail nicht enthalten, dafür Schritt 1 und 2 benutzen.");
     window.location.href = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff());
     return;
@@ -4004,23 +4011,55 @@ document.getElementById("k-mail").addEventListener("click", () => {
   hinweis("<b>Achtung:</b> Diese Textmail enthält <b>keine Zeichnungen</b>. Wenn ihr bei A1 gezeichnet habt, benutzt zusätzlich Schritt 1 und 2.");
 });
 document.getElementById("k-kopieren").addEventListener("click", () => {
-  erfassenAlle(); kopieren(textFassung());
-  hinweis("<b>Text kopiert.</b> In eine Mail an <b>" + LEHRER_MAIL + "</b> einfügen. Zeichnungen fehlen darin – dafür Schritt 1 und 2.");
+  erfassenAlle();
+  kopieren(textFassung()).then(function (ok) {
+    hinweis(ok
+      ? "<b>Text kopiert.</b> In eine Mail an <b>" + LEHRER_MAIL + "</b> einfügen. Zeichnungen fehlen darin – dafür Schritt 1 und 2."
+      : "<b style='color:#c62828'>Kopieren hat nicht geklappt.</b> Nimm Schritt 1 und 2: „Protokoll speichern“ und dann „Senden / Teilen“ – das geht auf jedem Gerät.");
+  });
 });
 function erfassenAlle() {
   document.querySelectorAll("textarea, input[type=text], td input").forEach(el => { if (el.id) erfassen(el); });
 }
+/* Meldet zurueck, OB kopiert wurde. Vorher lief das ins Leere und die Seite
+   behauptete trotzdem "kopiert" - eine Zusage, die nicht stimmte. */
 function kopieren(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).catch(() => notfallKopie(text));
-  } else notfallKopie(text);
+    return navigator.clipboard.writeText(text)
+      .then(() => true, () => notfallKopie(text));
+  }
+  return Promise.resolve(notfallKopie(text));
 }
+/* Notfallweg fuer Geraete ohne Zwischenablage-Schnittstelle - auf dem iPad
+   ist das der Regelfall, sobald die Seite nicht ueber https laeuft.
+   Drei Dinge muessen stimmen, sonst passiert nichts und niemand merkt es:
+   das Feld muss IM Bildschirm liegen (iOS waehlt nichts ausserhalb aus),
+   es muss beschreibbar sein, und die Auswahl braucht setSelectionRange -
+   select() allein genuegt dort nicht. Zurueck kommt, ob es geklappt hat. */
 function notfallKopie(text) {
   const ta = document.createElement("textarea");
-  ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand("copy"); } catch (e) { }
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;top:50%;left:50%;width:1px;height:1px;" +
+    "opacity:0;padding:0;border:0;font-size:16px";   // 16px: sonst zoomt iOS
+  document.body.appendChild(ta);
+  const auswahl = window.getSelection();
+  const vorher = auswahl && auswahl.rangeCount ? auswahl.getRangeAt(0) : null;
+  let ok = false;
+  try {
+    ta.contentEditable = "true";
+    ta.readOnly = false;
+    const bereich = document.createRange();
+    bereich.selectNodeContents(ta);
+    if (auswahl) { auswahl.removeAllRanges(); auswahl.addRange(bereich); }
+    ta.setSelectionRange(0, text.length);
+    ok = document.execCommand("copy");
+  } catch (e) { ok = false; }
   document.body.removeChild(ta);
+  /* Die vorherige Auswahl zurueckgeben: Sonst verliert man mitten im
+     Schreiben die Stelle, an der der Cursor stand. */
+  if (vorher && auswahl) { auswahl.removeAllRanges(); auswahl.addRange(vorher); }
+  return ok;
 }
 
 document.getElementById("k-zusammenfassung").addEventListener("click", () => {

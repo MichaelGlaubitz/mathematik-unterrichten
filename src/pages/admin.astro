@@ -1,0 +1,227 @@
+---
+/**
+ * Redaktion — Texte der Seite direkt im Browser bearbeiten und veröffentlichen.
+ *
+ * Die Dateiliste entsteht zur Bauzeit aus den Content-Collections und den
+ * Astro-Seiten; sie kostet zur Laufzeit keine einzige Anfrage. Gelesen und
+ * geschrieben wird über die GitHub-Contents-API mit einem persönlichen Token,
+ * der ausschließlich im `localStorage` des Geräts liegt. Ein Speichern ist ein
+ * Commit auf den Deploy-Branch — GitHub Actions baut daraufhin neu.
+ *
+ * Die Seite trägt bewusst kein Layout und kein Tailwind: sie soll auch dann
+ * noch benutzbar sein, wenn am Rest der Seite gerade etwas kaputt ist.
+ * Der Stil liegt als eigene Datei unter `public/admin/`, die Bedienung in
+ * `src/lib/redaktionUi.ts`; die reine Textlogik steckt in
+ * `src/lib/redaktionText.ts` und ist dort mit Tests abgesichert.
+ */
+import { getCollection } from 'astro:content';
+
+const repo =
+  (import.meta.env.PUBLIC_GITHUB_REPO as string | undefined)?.trim() ||
+  'MichaelGlaubitz/mathematik-unterrichten';
+const branch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined)?.trim() || 'main';
+
+type Eintrag = {
+  gruppe: string;
+  pfad: string;
+  datei: string;
+  titel: string;
+  url: string | null;
+  art: 'markdown' | 'json' | 'astro';
+};
+
+/** Dateinamen ohne Endung — der gemeinsame Nenner von Content- und Data-Collections. */
+const stamm = (s: string) => s.replace(/\.(md|mdx|json)$/i, '');
+
+/** Titel-Landkarte einer Collection: Dateistamm → { titel, url }. */
+async function landkarte(
+  name: 'blog' | 'aufgaben' | 'stunden' | 'themen' | 'quizzes',
+  titelVon: (data: any) => string,
+  urlVon: (eintrag: any) => string | null
+) {
+  const eintraege = (await getCollection(name as any)) as any[];
+  const map = new Map<string, { titel: string; url: string | null }>();
+  for (const e of eintraege) {
+    map.set(stamm(e.id), { titel: titelVon(e.data) || stamm(e.id), url: urlVon(e) });
+  }
+  return map;
+}
+
+const [blogMap, aufgabenMap, stundenMap, themenMap, quizMap] = await Promise.all([
+  landkarte('blog', (d) => d.title, (e) => `/blog/${e.slug}`),
+  landkarte('aufgaben', (d) => d.titel, (e) => `/aufgaben/${e.slug}`),
+  landkarte('stunden', (d) => d.titel, (e) => `/stunden/${e.slug}`),
+  landkarte('themen', (d) => d.titel, () => '/themen'),
+  landkarte('quizzes', (d) => d.titel, (e) => `/quizzes/${e.id}`),
+]);
+
+/** Dateinamen kommen aus `import.meta.glob` — das ist die Wahrheit auf der Platte. */
+const globs = {
+  blog: import.meta.glob('../content/blog/*.{md,mdx}'),
+  aufgaben: import.meta.glob('../content/aufgaben/*.{md,mdx}'),
+  stunden: import.meta.glob('../content/stunden/*.{md,mdx}'),
+  themen: import.meta.glob('../content/themen/*.json'),
+  quizzes: import.meta.glob('../content/quizzes/*.json'),
+  seiten: import.meta.glob('./*.astro'),
+  /** Übersichtsseiten wie `/blog` oder `/themen` — sie tragen eigenen Einleitungstext. */
+  uebersichten: import.meta.glob('./*/index.astro'),
+};
+
+function sammle(
+  gruppe: string,
+  glob: Record<string, unknown>,
+  verzeichnis: string,
+  map: Map<string, { titel: string; url: string | null }>,
+  art: 'markdown' | 'json'
+): Eintrag[] {
+  return Object.keys(glob)
+    .map((k) => k.split('/').pop() as string)
+    .map((datei) => {
+      const treffer = map.get(stamm(datei));
+      return {
+        gruppe,
+        pfad: `${verzeichnis}/${datei}`,
+        datei,
+        titel: treffer?.titel ?? stamm(datei),
+        url: treffer?.url ?? null,
+        art,
+      };
+    })
+    .sort((a, b) => a.titel.localeCompare(b.titel, 'de'));
+}
+
+const einzelseiten: Eintrag[] = Object.keys(globs.seiten)
+  .map((k) => k.split('/').pop() as string)
+  .filter((datei) => datei !== 'admin.astro')
+  .map((datei) => {
+    const name = datei.replace(/\.astro$/, '');
+    return {
+      gruppe: 'Feste Seiten',
+      pfad: `src/pages/${datei}`,
+      datei,
+      titel: name === 'index' ? 'Startseite' : name,
+      url: name === 'index' ? '/' : `/${name}`,
+      art: 'astro' as const,
+    };
+  });
+
+const uebersichtsseiten: Eintrag[] = Object.keys(globs.uebersichten)
+  .map((k) => k.replace(/^\.\//, '').replace(/\/index\.astro$/, ''))
+  .map((ordner) => ({
+    gruppe: 'Feste Seiten',
+    pfad: `src/pages/${ordner}/index.astro`,
+    datei: `${ordner}/index.astro`,
+    titel: `Übersicht ${ordner}`,
+    url: `/${ordner}`,
+    art: 'astro' as const,
+  }));
+
+const seiten: Eintrag[] = [...einzelseiten, ...uebersichtsseiten].sort((a, b) =>
+  a.titel.localeCompare(b.titel, 'de')
+);
+
+const dateien: Eintrag[] = [
+  ...sammle('Blog', globs.blog, 'src/content/blog', blogMap, 'markdown'),
+  ...sammle('Aufgaben', globs.aufgaben, 'src/content/aufgaben', aufgabenMap, 'markdown'),
+  ...sammle('Stunden', globs.stunden, 'src/content/stunden', stundenMap, 'markdown'),
+  ...sammle('Themen', globs.themen, 'src/content/themen', themenMap, 'json'),
+  ...sammle('Quizze', globs.quizzes, 'src/content/quizzes', quizMap, 'json'),
+  ...seiten,
+];
+
+const gruppen = ['Blog', 'Aufgaben', 'Stunden', 'Themen', 'Quizze', 'Feste Seiten'];
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Redaktion – mathematik-unterrichten</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/admin/redaktion.css" />
+    <meta name="mu-repo" content={repo} />
+    <meta name="mu-branch" content={branch} />
+    <script type="application/json" id="mu-dateien" set:html={JSON.stringify(dateien)}></script>
+    <script type="application/json" id="mu-gruppen" set:html={JSON.stringify(gruppen)}></script>
+  </head>
+
+  <body>
+    <!-- ===================== Anmeldung ===================== -->
+    <section class="tor" id="tor">
+      <h2>Redaktion</h2>
+      <p>
+        Hier lassen sich die Texte von mathematik-unterrichten.de bearbeiten und veröffentlichen.
+        Dafür wird einmalig ein GitHub-Token gebraucht. Er bleibt auf diesem Gerät und geht an
+        niemanden außer GitHub.
+      </p>
+      <ol>
+        <li>
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">
+            Fein abgestuften Token anlegen
+          </a>
+        </li>
+        <li>Bei <em>Repository access</em>: nur <code>{repo}</code> auswählen.</li>
+        <li>
+          Bei <em>Permissions → Repository permissions</em>: <em>Contents</em> auf
+          <em>Read and write</em>. Sonst nichts.
+        </li>
+        <li>Token kopieren und hier einsetzen.</li>
+      </ol>
+      <div class="feld">
+        <label for="token-eingabe">Token</label>
+        <input
+          id="token-eingabe"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="github_pat_…"
+        />
+      </div>
+      <p>
+        <button class="knopf haupt" id="anmelden">Anmelden</button>
+        <span class="zustand" id="tor-zustand"></span>
+      </p>
+    </section>
+
+    <!-- ===================== Kopfleiste ===================== -->
+    <header class="kopf verborgen" id="kopf">
+      <h1>Redaktion</h1>
+      <span class="pfad" id="kopf-pfad">Keine Datei geöffnet</span>
+      <span class="zustand" id="kopf-zustand"></span>
+      <span class="schub"></span>
+      <a class="knopf" id="ansehen" target="_blank" rel="noopener" hidden>Seite ansehen</a>
+      <button class="knopf" id="verwerfen" disabled>Verwerfen</button>
+      <button class="knopf haupt" id="speichern" disabled>Veröffentlichen</button>
+      <button class="knopf" id="abmelden" title="Token von diesem Gerät löschen">Abmelden</button>
+    </header>
+
+    <!-- ===================== Arbeitsfläche ===================== -->
+    <div class="raster verborgen" id="raster">
+      <nav class="liste">
+        <div class="suche">
+          <input id="filter" type="search" placeholder="Filtern…" autocomplete="off" />
+        </div>
+        <div class="rollen" id="dateiliste"></div>
+      </nav>
+
+      <main class="flaeche">
+        <div class="zwei einspaltig" id="zwei">
+          <div class="spalte" id="editor">
+            <p class="platzhalter">Links eine Datei wählen.</p>
+          </div>
+          <div class="spalte verborgen" id="vorschau-spalte">
+            <p class="abschnitt-titel">Vorschau</p>
+            <div class="vorschau" id="vorschau"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      import { starteRedaktion } from '../lib/redaktionUi';
+      starteRedaktion();
+    </script>
+  </body>
+</html>

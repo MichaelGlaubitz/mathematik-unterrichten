@@ -46,6 +46,84 @@ Ein neues Werkzeug anlegen:
    Pfeilspitzen, maßstabsgetreue Bilder, Beamer-Modus lesbar, keine
    Datenübertragung. Siehe `AGENTS.md`.
 
+## Texte bearbeiten: die Redaktion unter `/admin`
+
+Bestehende Texte lassen sich ohne Editor, Terminal und Git direkt im Browser
+ändern – auch vom iPad aus.
+
+1. Auf einer beliebigen Seite **Strg+Shift+E** drücken (auf dem Mac
+   Cmd+Shift+E). Das öffnet `/admin` mit genau der Quelldatei dieser Seite.
+   Ohne Tastenkürzel geht auch [mathematik-unterrichten.de/admin](https://mathematik-unterrichten.de/admin).
+2. Beim ersten Mal einen GitHub-Token einsetzen. Er wird im `localStorage`
+   dieses Geräts gespeichert und geht an niemanden außer GitHub.
+3. Ändern und auf **Veröffentlichen** (oder Strg+S) drücken. Das erzeugt einen
+   Commit auf `main`; GitHub Actions baut, die Änderung ist nach etwa zwei
+   Minuten live.
+
+Der Token muss ein *fine-grained personal access token* sein, unter
+*Repository access* auf dieses eine Repository beschränkt und mit genau einer
+Berechtigung: *Contents: Read and write*. Zurückziehen lässt er sich jederzeit
+unter [github.com/settings/tokens](https://github.com/settings/tokens);
+„Abmelden“ löscht ihn nur vom Gerät.
+
+Was die Redaktion führt:
+
+| Art | Bearbeitung |
+|---|---|
+| Blog, Aufgaben, Stunden (`.md`) | Formularfelder für die Angaben, Textfeld mit Live-Vorschau |
+| Themen, Quizze (`.json`) | Formular mit Hinzufügen, Sortieren und Löschen von Einträgen; dazu Rohansicht |
+| Feste Seiten (`.astro`) | Ein Feld je Absatz, in dem fett auch fett aussieht: Formatierung über Knöpfe, keine Tags im Feld. Das Seitengerüst bleibt unsichtbar und unangetastet; darunter eine Rohansicht |
+
+Grenzen, die bewusst so sind:
+
+- **Keine neuen Dateien.** Neue Blogbeiträge, Aufgaben oder Stunden entstehen
+  weiter über eine neue Datei im Repository (siehe unten). Innerhalb einer
+  festen Seite lassen sich Absätze anlegen, innerhalb eines Quiz Fragen.
+- **Verschachteltes Frontmatter** (z. B. `einstiegsfrage` in Stunden) bekommt
+  keine Formularfelder, sondern bleibt im Rohtextfeld. Der Editor schreibt nur
+  Zeilen zurück, die er sicher versteht – siehe `src/lib/redaktionText.ts`,
+  abgesichert durch `src/lib/redaktionText.test.ts`.
+- **Die Vorschau ist eine Näherung.** Formeln werden hervorgehoben, aber nicht
+  wie auf der Seite mit KaTeX gesetzt.
+- **Seiten mit überwiegend Programmtext** (die Übungsgeneratoren unter
+  `src/pages/uebung/`) führt die Redaktion nicht; sie verweist dafür auf den
+  GitHub-Editor.
+- **Feste Seiten zeigen ihre Absätze als Text.** Jedes `<p>`, `<li>` oder
+  `<h2>` wird als ein Feld angeboten, in dem Formatierung so aussieht, wie sie
+  später auf der Seite aussieht. Fett, kursiv und Links setzt man über die
+  Knopfleiste (auch `Strg+B`, `Strg+I`, `Strg+K`); Auszeichnung wird nie
+  getippt. Was in die Datei geschrieben wird, entsteht aus dem Feldinhalt und
+  besteht nur aus einer knappen Liste erlaubter Elemente mit erlaubten
+  Attributen – daher kann hier keine kaputte Auszeichnung entstehen.
+  Eingefügter Text aus der Zwischenablage verliert seine Formatierung.
+  Klassen, Astro-Ausdrücke, Stil- und Skriptblöcke bleiben unberührt.
+- **Neue Absätze legt der Knopf rechts in der Leiste an** – „+ Absatz
+  darunter“, bei einem Listenpunkt „+ Listenpunkt darunter“. Der neue Absatz
+  übernimmt die Auszeichnung seines Vorgängers (ein `class="text-lg"` gilt
+  dann auch für ihn), nur eine `id` wird nicht ein zweites Mal vergeben. Er
+  erscheint mit markiertem Platzhaltertext, sodass man gleich lostippen kann.
+  Löschen und Umsortieren von Absätzen gehen weiterhin nur über die
+  Rohansicht.
+- **Nicht jeder Absatz wird als Ganzes angeboten.** Steckt ein Astro-Ausdruck,
+  ein `<img>`, ein weiterer Absatz oder ein funktionales Attribut wie
+  `data-kat` darin, fällt die Redaktion auf die einzelnen Textstücke zurück –
+  sie stehen dann sichtbar in einem Kasten zusammen. Das ist Absicht: An einem
+  `data-kat` hängt die Kategorienfilterung, und sie soll nicht lautlos
+  verschwinden können. Siehe `src/lib/astroText.ts`, abgesichert durch
+  `src/lib/astroText.test.ts` – dort prüfen Tests für jede echte Seite, dass
+  Extraktion und Rückschrieb sie zeichengenau überstehen und dass jeder
+  angebotene Absatz die eigene Prüfung auch besteht.
+- **Ein bearbeiteter Absatz wird zu einer Quelltextzeile.** Im Quelltext ist er
+  über mehrere eingerückte Zeilen umbrochen; bearbeitet man ihn, schreibt die
+  Redaktion ihn als eine Zeile zurück. Für die gebaute Seite ist das
+  gleichgültig – HTML fasst solchen Leerraum ohnehin zusammen.
+- Ein fehlerhafter `.astro`-Text lässt den Bau scheitern. Die zuletzt gebaute
+  Fassung der Seite bleibt dann online – öffentlich geht nichts kaputt.
+
+Für die Arbeit am Rechner gibt es zusätzlich `npm run dev` mit
+`/__admin-editor` (Rohtextfelder, Token aus `ADMIN_EDIT_TOKEN` in `.env`).
+Der schreibt nur lokale Dateien; Veröffentlichen bleibt dort Sache von Git.
+
 ## Voraussetzungen
 
 - [Node.js](https://nodejs.org) ≥ 18
