@@ -3434,7 +3434,7 @@ document.getElementById("k-zusammenfassung").addEventListener("click", () => {
   Object.keys(zeichnungen).forEach(zid => {
     const d = zeichnungBild(zid);
     if (d) html += '<p style="margin:.7rem 0 0"><b>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
-      ':</b><br><img src="' + d + '" style="max-width:100%;border:1px solid #d3dae0;border-radius:6px"></p>';
+      ':</b><br><img src="' + d + '" alt="Zeichnung: ' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) + '" style="max-width:100%;border:1px solid #d3dae0;border-radius:6px"></p>';
   });
   html += "</div>";
   const box = document.getElementById("ausgabe");
@@ -3570,7 +3570,21 @@ zeige(0);
      enthaelt. Das entscheidet der Inhalt, nicht die Tafelzahl. */
   var HAT_PLAN_B = !!(document.querySelector('[data-plan="A"]') &&
                       document.querySelector('[data-plan="B"]'));
-  var PLAN_KEY = "plan-" + (document.title || "stunde");
+  /* Die Schluessel haengen am festen Speichernamen der Stunde, nicht am Titel.
+     Wird der Titel in der Redaktion geaendert, waere sonst jedes Geraet mitten
+     in der Stunde wieder abgemeldet und der gewaehlte Plan verloren. Was unter
+     dem alten, titelabhaengigen Schluessel liegt, wird einmal uebernommen. */
+  var PLAN_KEY = SPEICHER + "-plan";
+  var PLAN_KEY_ALT = "plan-" + (document.title || "stunde");
+  function gemerkt(neu, alt){
+    try {
+      var w = localStorage.getItem(neu);
+      if (w !== null) return w;
+      w = localStorage.getItem(alt);
+      if (w !== null) localStorage.setItem(neu, w);
+      return w;
+    } catch(e){ return null; }
+  }
   function pille(){
     var p = document.getElementById("planPille");
     if (p || !HAT_PLAN_B) return p;
@@ -3633,16 +3647,17 @@ zeige(0);
   }
 
   /* ---- Anmeldung ---------------------------------------------------- */
-  var ANGEMELDET = "angemeldet-" + (document.title || "stunde");
+  var ANGEMELDET = SPEICHER + "-angemeldet";
+  var ANGEMELDET_ALT = "angemeldet-" + (document.title || "stunde");
   var schirm = document.getElementById("anmeldeschirm");
   if (schirm) {
     var feld = document.getElementById("i-code");
     var rueck = document.getElementById("anmelde-rueck");
     var schon = false;
-    try { schon = localStorage.getItem(ANGEMELDET) === "ja"; } catch(e){}
+    schon = gemerkt(ANGEMELDET, ANGEMELDET_ALT) === "ja";
     if (schon) {
       var p = "A";
-      try { p = localStorage.getItem(PLAN_KEY) || "A"; } catch(e){}
+      p = gemerkt(PLAN_KEY, PLAN_KEY_ALT) || "A";
       setzePlan(p, false);
       oeffnen(true);
     }
@@ -3672,10 +3687,18 @@ zeige(0);
       rueck.textContent = "Das ist nicht die Zahl von der Tafel. Schau noch einmal hin.";
       feld.value = "";
     }
-    document.getElementById("k-anmelden").addEventListener("click", pruefen);
-    feld.addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); pruefen(); } });
-    feld.addEventListener("input", function(){ feld.value = feld.value.replace(/\D/g, "").slice(0, 2); });
-    document.getElementById("k-ohne-zahl").addEventListener("click", function(){
+    /* Ist der Schirm schon weg - weil das Geraet angemeldet war -, gibt es
+       nichts zu verdrahten. Ohne diese Pruefung warf getElementById(...) hier
+       null.addEventListener, und die Ausnahme brach den Rest des Skripts ab:
+       Ein zurueckkehrendes iPad bekam die Stunde ohne Einstiegsquiz. */
+    var knopfAnmelden = document.getElementById("k-anmelden");
+    var knopfOhneZahl = document.getElementById("k-ohne-zahl");
+    if (knopfAnmelden) knopfAnmelden.addEventListener("click", pruefen);
+    if (feld) {
+      feld.addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); pruefen(); } });
+      feld.addEventListener("input", function(){ feld.value = feld.value.replace(/\D/g, "").slice(0, 2); });
+    }
+    if (knopfOhneZahl) knopfOhneZahl.addEventListener("click", function(){
       /* Kein Riegel: Wer das Material Wochen spaeter noch einmal durchgeht,
          hat die Zahl laengst vergessen. Ohne Material ist Plan B der richtige Weg. */
       setzePlan("B", true);
