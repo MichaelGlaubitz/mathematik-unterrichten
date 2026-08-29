@@ -258,7 +258,7 @@ Ausgabe:
     titel: 'WODB-Set erzeugen',
     feld: 'Aufgaben erzeugen',
     zweck: 'Vier Objekte, bei denen sich für jedes begründen lässt, warum es das andere ist.',
-    prompt: `Entwirf ein „Which One Doesn't Belong?"-Set zu [INHALT], Klassenstufe [KLASSE].
+    prompt: `Entwirf ein „Which One Doesn't Belong?“-Set zu [INHALT], Klassenstufe [KLASSE].
 
 Randbedingungen:
 - Vier Objekte (Zahlen, Terme, Gleichungen oder Figuren).

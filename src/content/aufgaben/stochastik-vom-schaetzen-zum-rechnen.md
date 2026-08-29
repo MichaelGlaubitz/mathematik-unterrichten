@@ -4,6 +4,13 @@ thema: "Stochastik"
 klassenstufe: ["7", "8"]
 schwierigkeit: einsteiger
 didaktischerHinweis: "Stochastik ist das einzige Gebiet, in dem die Intuition systematisch in die Irre führt – und zwar auch bei Erwachsenen. Diese Folge nutzt das: Jede Aufgabe wird zuerst geschätzt, dann gerechnet, dann simuliert. Folge D ist bewusst gegen die Intuition gebaut (Gedächtnis der Münze, gleich wahrscheinliche Ergebnisse bei zwei Würfeln). Die Simulation gehört zum Unterrichtsgang dazu, nicht als Zugabe."
+ziel: 'Die Schüler schätzen zuerst, rechnen dann – und sehen, wo die Intuition systematisch danebenliegt.'
+variation: 'Folge A vergrößert das Ereignis schrittweise, Folge B geht zur Augensumme über, Folge C ändert den Grundwert, Folge D stellt sich gegen die Intuition.'
+stolperstelle: 'Der Zufall wird als ausgleichend gedacht: „Nach fünfmal Kopf ist Zahl fällig.“'
+regie:
+  - 'Schätze zuerst – schriftlich. Erst dann wird gerechnet.'
+  - 'Wird die Wahrscheinlichkeit größer oder kleiner als eben?'
+  - 'Wer erklärt, warum die Münze kein Gedächtnis hat?'
 tags: ["stochastik", "wahrscheinlichkeit", "laplace", "relative-haeufigkeit", "grundvorstellungen"]
 datum: 2026-08-28
 entwurf: false
@@ -13,12 +20,12 @@ entwurf: false
 
 Zwei Begriffe, die man auseinanderhalten muss:
 
-- Die **Wahrscheinlichkeit** ist eine berechnete Zahl. Bei einem fairen Würfel ist die Wahrscheinlichkeit für eine Sechs `1/6` – unabhängig davon, was vorher passiert ist.
+- Die **Wahrscheinlichkeit** ist eine berechnete Zahl. Bei einem fairen Würfel ist die Wahrscheinlichkeit für eine Sechs $\frac{1}{6}$ – unabhängig davon, was vorher passiert ist.
 - Die **relative Häufigkeit** ist ein Messergebnis: Wie oft ist das Ereignis in *meinen* Versuchen tatsächlich eingetreten, geteilt durch die Anzahl der Versuche.
 
-Beide nähern sich einander an, wenn man oft genug wirft. Aber sie sind nicht dasselbe – und die relative Häufigkeit „holt nichts nach".
+Beide nähern sich einander an, wenn man oft genug wirft. Aber sie sind nicht dasselbe – und die relative Häufigkeit „holt nichts nach“.
 
-**Arbeitsauftrag für alle Folgen:** Schätzen Sie zuerst schriftlich, bevor Sie rechnen. Ohne die eigene Schätzung ist das Ergebnis nur eine Zahl.
+**Arbeitsauftrag für alle Folgen:** Schätze zuerst schriftlich, bevor du rechnest. Ohne die eigene Schätzung ist das Ergebnis nur eine Zahl.
 
 ## Folge A: Ein Würfel – Ereignisse werden größer
 
@@ -26,14 +33,14 @@ Fairer sechsseitiger Würfel. Wie wahrscheinlich ist das Ereignis?
 
 | Nr. | Ereignis | Wahrscheinlichkeit |
 |----:|:---------|:-------------------|
-| 1 | eine Sechs | 1/6 ≈ 16,7 % |
-| 2 | eine gerade Zahl | 3/6 = 50 % |
-| 3 | eine Zahl größer als 4 | 2/6 ≈ 33,3 % |
-| 4 | eine Zahl kleiner als 7 | 6/6 = 100 % |
-| 5 | eine Sieben | 0 |
-| 6 | keine Sechs | 5/6 ≈ 83,3 % |
+| 1 | eine Sechs | $\frac{1}{6} \approx  16{,}7 \,\%$ |
+| 2 | eine gerade Zahl | $\frac{3}{6} = 50 \,\%$ |
+| 3 | eine Zahl größer als 4 | $\frac{2}{6} \approx  33{,}3 \,\%$ |
+| 4 | eine Zahl kleiner als 7 | $\frac{6}{6} = 100 \,\%$ |
+| 5 | eine Sieben | $0$ |
+| 6 | keine Sechs | $\frac{5}{6} \approx  83{,}3 \,\%$ |
 
-*Frage nach Nr. 6:* Vergleichen Sie Nr. 1 und Nr. 6. Wie hängen die beiden Zahlen zusammen? Formulieren Sie eine Regel.
+*Frage nach Nr. 6:* Vergleiche Nr. 1 und Nr. 6. Wie hängen die beiden Zahlen zusammen? Formuliere eine Regel.
 
 ## Folge B: Zwei Würfel – die Augensumme
 
@@ -41,14 +48,14 @@ Zwei faire Würfel werden geworfen und die Augen addiert. Es gibt 36 gleich wahr
 
 | Nr. | Augensumme | Anzahl der Möglichkeiten | Wahrscheinlichkeit |
 |----:|:-----------|:-------------------------|:-------------------|
-| 7 | 2 | 1 | 1/36 ≈ 2,8 % |
-| 8 | 3 | 2 | 2/36 ≈ 5,6 % |
-| 9 | 4 | 3 | 3/36 ≈ 8,3 % |
-| 10 | 7 | 6 | 6/36 ≈ 16,7 % |
-| 11 | 11 | 2 | 2/36 ≈ 5,6 % |
-| 12 | 12 | 1 | 1/36 ≈ 2,8 % |
+| 7 | $2$ | $1$ | $\frac{1}{36} \approx  2{,}8 \,\%$ |
+| 8 | $3$ | $2$ | $\frac{2}{36} \approx  5{,}6 \,\%$ |
+| 9 | $4$ | $3$ | $\frac{3}{36} \approx  8{,}3 \,\%$ |
+| 10 | $7$ | $6$ | $\frac{6}{36} \approx  16{,}7 \,\%$ |
+| 11 | $11$ | $2$ | $\frac{2}{36} \approx  5{,}6 \,\%$ |
+| 12 | $12$ | $1$ | $\frac{1}{36} \approx  2{,}8 \,\%$ |
 
-*Frage nach Nr. 12:* Warum ist die 7 sechsmal so wahrscheinlich wie die 2? Zählen Sie die Paare für beide auf.
+*Frage nach Nr. 12:* Warum ist die 7 sechsmal so wahrscheinlich wie die 2? Zähle die Paare für beide auf.
 
 ## Folge C: Urne – der Grundwert ändert sich
 
@@ -56,12 +63,12 @@ In einer Urne liegen rote und blaue Kugeln. Es wird eine gezogen.
 
 | Nr. | Inhalt | P(rot) |
 |----:|:-------|:-------|
-| 13 | 1 rot, 1 blau | 1/2 = 50 % |
-| 14 | 2 rot, 2 blau | 1/2 = 50 % |
-| 15 | 3 rot, 1 blau | 3/4 = 75 % |
-| 16 | 1 rot, 3 blau | 1/4 = 25 % |
-| 17 | 3 rot, 2 blau | 3/5 = 60 % |
-| 18 | 30 rot, 20 blau | 3/5 = 60 % |
+| 13 | 1 rot, 1 blau | $\frac{1}{2} = 50 \,\%$ |
+| 14 | 2 rot, 2 blau | $\frac{1}{2} = 50 \,\%$ |
+| 15 | 3 rot, 1 blau | $\frac{3}{4} = 75 \,\%$ |
+| 16 | 1 rot, 3 blau | $\frac{1}{4} = 25 \,\%$ |
+| 17 | 3 rot, 2 blau | $\frac{3}{5} = 60 \,\%$ |
+| 18 | 30 rot, 20 blau | $\frac{3}{5} = 60 \,\%$ |
 
 *Frage nach Nr. 18:* Nr. 17 und Nr. 18 haben dieselbe Wahrscheinlichkeit, aber ganz verschiedene Kugelzahlen. Was zählt also – die Anzahl oder das Verhältnis?
 
@@ -76,9 +83,9 @@ Diese sechs Fragen zuerst abstimmen lassen, dann besprechen.
 | 21 | Bei zwei Würfeln: Ist (3,4) wahrscheinlicher als (3,3)? | Ja – (3,4) und (4,3) sind zwei Paare, (3,3) nur eines. |
 | 22 | Beim Lotto: Ist 1-2-3-4-5-6 unwahrscheinlicher als 4-11-19-27-33-41? | Nein, beide gleich unwahrscheinlich. |
 | 23 | Eine Zahl ist bei 100 Würfen nur 9-mal gefallen statt 16-mal. Kommt das wieder ins Lot? | Der *Anteil* nähert sich an, der *Rückstand* wird nicht ausgeglichen. |
-| 24 | Wie viele Menschen braucht es, damit zwei am selben Tag Geburtstag haben – mit über 50 % Wahrscheinlichkeit? | 23. |
+| 24 | Wie viele Menschen braucht es, damit zwei am selben Tag Geburtstag haben – mit über 50 % Wahrscheinlichkeit? | $23.$ |
 
-*Hinweis zu Nr. 23:* Genau hier lohnt die Simulation. Lassen Sie 10 000 Würfe laufen und zeigen Sie die relative Häufigkeit gegen die Versuchszahl: Sie nähert sich `1/6`, ohne dass eine Zahl „aufholt".
+*Hinweis zu Nr. 23:* Genau hier lohnt die Simulation. Lass 10 000 Würfe laufen und zeige die relative Häufigkeit gegen die Versuchszahl: Sie nähert sich $\frac{1}{6}$, ohne dass eine Zahl „aufholt“.
 
 ## Folge E: Vom Versuch zur Wahrscheinlichkeit
 
@@ -86,22 +93,22 @@ Ein Würfel wird geworfen; die Sechs wird gezählt.
 
 | Nr. | Würfe | Sechsen | relative Häufigkeit | Abstand zu 1/6 |
 |----:|:------|:--------|:--------------------|:---------------|
-| 25 | 10 | 3 | 30 % | 13,3 Prozentpunkte |
-| 26 | 60 | 13 | ≈ 21,7 % | 5,0 Prozentpunkte |
-| 27 | 100 | 20 | 20 % | 3,3 Prozentpunkte |
-| 28 | 600 | 111 | ≈ 18,5 % | 1,8 Prozentpunkte |
-| 29 | 6000 | 1032 | ≈ 17,2 % | 0,5 Prozentpunkte |
-| 30 | 60 000 | 10 143 | ≈ 16,9 % | 0,2 Prozentpunkte |
+| 25 | $10$ | $3$ | $30 \,\%$ | 13,3 Prozentpunkte |
+| 26 | $60$ | $13$ | $\approx  21{,}7 \,\%$ | 5,0 Prozentpunkte |
+| 27 | $100$ | $20$ | $20 \,\%$ | 3,3 Prozentpunkte |
+| 28 | $600$ | $111$ | $\approx  18{,}5 \,\%$ | 1,8 Prozentpunkte |
+| 29 | $6000$ | $1032$ | $\approx  17{,}2 \,\%$ | 0,5 Prozentpunkte |
+| 30 | $60 000$ | $10 143$ | $\approx  16{,}9 \,\%$ | 0,2 Prozentpunkte |
 
-*Frage nach Nr. 30:* Der Abstand in Prozentpunkten wird kleiner. Wie verhält sich dagegen der Abstand in **absoluten Zahlen** (erwartete minus tatsächliche Anzahl)? Rechnen Sie nach.
+*Frage nach Nr. 30:* Der Abstand in Prozentpunkten wird kleiner. Wie verhält sich dagegen der Abstand in **absoluten Zahlen** (erwartete minus tatsächliche Anzahl)? Rechne nach.
 
 ## Reflexionsfragen
 
-1. Warum ist `P(kein Ereignis) = 1 − P(Ereignis)`? Begründen Sie am Würfel.
+1. Warum ist $P(kein Ereignis) = 1 - P(Ereignis)$? Begründe am Würfel.
 2. In Folge B ist die 7 die häufigste Augensumme. Wäre das auch so, wenn die Würfel unterscheidbar wären – etwa einer rot, einer blau?
-3. Erklären Sie einer Mitschülerin, warum die Münze „kein Gedächtnis" hat.
-4. In Folge E nähert sich die relative Häufigkeit dem Wert `1/6`. Wird sie ihn irgendwann genau erreichen?
-5. Nennen Sie eine Situation aus dem Alltag, in der Menschen relative Häufigkeit und Wahrscheinlichkeit verwechseln.
+3. Erkläre einer Mitschülerin, warum die Münze „kein Gedächtnis“ hat.
+4. In Folge E nähert sich die relative Häufigkeit dem Wert $\frac{1}{6}$. Wird sie ihn irgendwann genau erreichen?
+5. Nenne eine Situation aus dem Alltag, in der Menschen relative Häufigkeit und Wahrscheinlichkeit verwechseln.
 
 ## Didaktischer Kommentar
 
@@ -119,10 +126,10 @@ Ein Würfel wird geworfen; die Sechs wird gezählt.
 
 **Häufige Fehlvorstellungen**
 
-- *„Nach fünfmal Kopf ist Zahl fällig."* Nr. 19 und Nr. 23. Gegenmittel: simulieren und die Kurve zeigen.
-- *„Auffällige Muster sind unwahrscheinlicher."* Nr. 20 und Nr. 22. Gegenmittel: alle Folgen einer festen Länge sind gleich wahrscheinlich; auffällig ist nur, dass wir sie als Muster wahrnehmen.
-- *„Bei zwei Würfeln sind alle Augensummen gleich wahrscheinlich."* Folge B. Gegenmittel: die 36 Paare tatsächlich in eine Tabelle schreiben.
-- *„Wahrscheinlichkeit ist dasselbe wie relative Häufigkeit."* Folge E. Gegenmittel: konsequent unterschiedliche Wörter benutzen und beide Zahlen nebeneinander schreiben.
+- *„Nach fünfmal Kopf ist Zahl fällig.“* Nr. 19 und Nr. 23. Gegenmittel: simulieren und die Kurve zeigen.
+- *„Auffällige Muster sind unwahrscheinlicher.“* Nr. 20 und Nr. 22. Gegenmittel: alle Folgen einer festen Länge sind gleich wahrscheinlich; auffällig ist nur, dass wir sie als Muster wahrnehmen.
+- *„Bei zwei Würfeln sind alle Augensummen gleich wahrscheinlich.“* Folge B. Gegenmittel: die 36 Paare tatsächlich in eine Tabelle schreiben.
+- *„Wahrscheinlichkeit ist dasselbe wie relative Häufigkeit.“* Folge E. Gegenmittel: konsequent unterschiedliche Wörter benutzen und beide Zahlen nebeneinander schreiben.
 
 **Zum Weiterarbeiten**
 

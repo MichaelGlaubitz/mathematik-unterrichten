@@ -15,9 +15,9 @@ In Mathematik liegt der bundesweite Mittelwert der neunten Klassen bei **474 Pun
 
 Das Wort, auf das es ankommt, ist *Mindeststandard*. Nicht Regelstandard, nicht Optimalstandard. Es geht nicht darum, dass ein Drittel der Jugendlichen die Kurvendiskussion nicht beherrscht. Es geht darum, dass ein Drittel das nicht sicher kann, was für den Abschluss als unterste Grenze definiert wurde.
 
-## Warum das eine andere Aufgabe ist als „mehr üben"
+## Warum das eine andere Aufgabe ist als „mehr üben“
 
-Wer unter dem Mindeststandard liegt, hat in aller Regel kein Übungsdefizit, sondern ein Vorstellungsdefizit. Diese Jugendlichen scheitern nicht an der dritten binomischen Formel, sondern daran, dass ein Bruch für sie zwei Zahlen übereinander sind. Dass 0,7 kleiner sei als 0,25. Dass Prozente absolute Größen wären. Dass das Gleichheitszeichen bedeutet: „hier kommt das Ergebnis".
+Wer unter dem Mindeststandard liegt, hat in aller Regel kein Übungsdefizit, sondern ein Vorstellungsdefizit. Diese Jugendlichen scheitern nicht an der dritten binomischen Formel, sondern daran, dass ein Bruch für sie zwei Zahlen übereinander sind. Dass 0,7 kleiner sei als 0,25. Dass Prozente absolute Größen wären. Dass das Gleichheitszeichen bedeutet: „hier kommt das Ergebnis“.
 
 Solche Vorstellungen verschwinden nicht durch dreißig weitere Aufgaben desselben Typs. Sie verschwinden nur, wenn sie zuerst **sichtbar** und dann **widerlegt** werden – am besten von den Lernenden selbst, weil eigene Erfahrung stärker wirkt als jede Korrektur von außen.
 
@@ -33,14 +33,14 @@ Ich habe keine Antwort auf die bildungspolitische Frage. Auf die unterrichtliche
 
 **3. Grundvorstellungen vor Verfahren.** Wer weiß, *warum* beim Addieren von Brüchen die Nenner gleich sein müssen, braucht die Regel nicht auswendig. Wer es nicht weiß, wird sie vergessen – zuverlässig, und zwar bis Klasse 9. Zwei Minuten am [Bruchstreifen](/werkzeuge/bruchstreifen.html) ersparen zwei Jahre Nachkorrektur.
 
-**4. Wissen, wie viele es wirklich sind.** Nicht im Gefühl, sondern in Zahlen: Wie viele lagen bei den letzten drei Whiteboard-Runden daneben? Der Unterschied zwischen „ein paar" und „ein Drittel" entscheidet, ob eine Übungsphase reicht oder die Stunde neu ansetzen muss. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) zählt das in Sekunden mit — anonym; wer im Einzelnen Förderung braucht, zeigt sich ohnehin im Gespräch am Tisch, nicht in einer gespeicherten Liste.
+**4. Wissen, wie viele es wirklich sind.** Nicht im Gefühl, sondern in Zahlen: Wie viele lagen bei den letzten drei Whiteboard-Runden daneben? Der Unterschied zwischen „ein paar“ und „ein Drittel“ entscheidet, ob eine Übungsphase reicht oder die Stunde neu ansetzen muss. Der [Whiteboard-Check](/werkzeuge/whiteboard-check.html) zählt das in Sekunden mit — anonym; wer im Einzelnen Förderung braucht, zeigt sich ohnehin im Gespräch am Tisch, nicht in einer gespeicherten Liste.
 
 ## Die Ursachen
 
 Die Studie selbst nennt strukturelle Faktoren: gewachsene Heterogenität, Sprachhürden, Unterrichtsausfall, die Nachwirkungen der Pandemiejahre. Nichts davon lässt sich im eigenen Klassenraum lösen.
 
-Aber es gibt einen Unterschied zwischen „nicht lösbar" und „nichts zu tun". Die vier Punkte oben verändern die Rahmenbedingungen nicht. Sie verändern, was innerhalb dieser Rahmenbedingungen ankommt. Das ist wenig – und es ist das Einzige, was am Montag um acht Uhr tatsächlich in unserer Hand liegt.
+Aber es gibt einen Unterschied zwischen „nicht lösbar“ und „nichts zu tun“. Die vier Punkte oben verändern die Rahmenbedingungen nicht. Sie verändern, was innerhalb dieser Rahmenbedingungen ankommt. Das ist wenig – und es ist das Einzige, was am Montag um acht Uhr tatsächlich in unserer Hand liegt.
 
 ---
 
-**Quellen:** IQB-Bildungstrend 2024, veröffentlicht im Oktober 2025 durch das Institut zur Qualitätsentwicklung im Bildungswesen (Humboldt-Universität zu Berlin); getestet wurden Neuntklässlerinnen und Neuntklässler in Mathematik und den Naturwissenschaften. Die Zuordnung „50 Punkte ≈ ein Schuljahr" ist eine gängige Faustregel zur Interpretation der Skala und keine exakte Umrechnung. Für den Vergleichswert von 2018 nennt die Berichterstattung uneinheitlich 22 oder 24 Prozent; deshalb steht oben nur die Größenordnung der Veränderung. Wer die Zahl exakt braucht, nimmt sie aus dem Originalbericht.
+**Quellen:** IQB-Bildungstrend 2024, veröffentlicht im Oktober 2025 durch das Institut zur Qualitätsentwicklung im Bildungswesen (Humboldt-Universität zu Berlin); getestet wurden Neuntklässlerinnen und Neuntklässler in Mathematik und den Naturwissenschaften. Die Zuordnung „50 Punkte ≈ ein Schuljahr“ ist eine gängige Faustregel zur Interpretation der Skala und keine exakte Umrechnung. Für den Vergleichswert von 2018 nennt die Berichterstattung uneinheitlich 22 oder 24 Prozent; deshalb steht oben nur die Größenordnung der Veränderung. Wer die Zahl exakt braucht, nimmt sie aus dem Originalbericht.

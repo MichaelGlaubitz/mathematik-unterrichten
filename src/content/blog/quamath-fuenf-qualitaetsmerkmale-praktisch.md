@@ -9,7 +9,7 @@ teaser: "Fünf Qualitätsmerkmale, zehn Jahre Programm, über zehntausend Schule
 entwurf: false
 ---
 
-Die Kultusministerkonferenz hat Ende 2021 ein Zehnjahresprogramm beschlossen, das seither unter dem Namen **QuaMath** läuft: „Unterrichts- und Fortbildungsqualität in Mathematik entwickeln", entwickelt vom Deutschen Zentrum für Lehrkräftebildung Mathematik (DZLM) am Leibniz-Institut IPN, wissenschaftlich geleitet unter anderem von Susanne Prediger und Christoph Selter. Ziel sind mehr als zehntausend Schulen von der Grundschule bis zum Abitur.
+Die Kultusministerkonferenz hat Ende 2021 ein Zehnjahresprogramm beschlossen, das seither unter dem Namen **QuaMath** läuft: „Unterrichts- und Fortbildungsqualität in Mathematik entwickeln“, entwickelt vom Deutschen Zentrum für Lehrkräftebildung Mathematik (DZLM) am Leibniz-Institut IPN, wissenschaftlich geleitet unter anderem von Susanne Prediger und Christoph Selter. Ziel sind mehr als zehntausend Schulen von der Grundschule bis zum Abitur.
 
 Im Kern stehen **fünf Unterrichtsqualitätsmerkmale**. Sie sind empirisch gut gestützt und sprachlich so allgemein, dass man sie unterschreiben kann, ohne den Unterricht zu ändern. Genau das ist das Risiko jedes Qualitätsrahmens. Deshalb hier der Versuch, jedes Merkmal in einen Satz zu übersetzen, den man am nächsten Morgen umsetzen kann.
 
@@ -17,7 +17,7 @@ Im Kern stehen **fünf Unterrichtsqualitätsmerkmale**. Sie sind empirisch gut g
 
 **Was gemeint ist:** Lernende sollen an mathematischen Zusammenhängen denken, nicht Verfahren abarbeiten.
 
-**Was das am Montag heißt:** Stellen Sie in jeder Stunde mindestens eine Frage, die man nicht durch Rechnen beantworten kann. „Was passiert mit dem Ergebnis, wenn ich hier eine 5 statt einer 3 einsetze – und warum?" ist eine solche Frage. „Berechne" ist keine.
+**Was das am Montag heißt:** Stellen Sie in jeder Stunde mindestens eine Frage, die man nicht durch Rechnen beantworten kann. „Was passiert mit dem Ergebnis, wenn ich hier eine 5 statt einer 3 einsetze – und warum?“ ist eine solche Frage. „Berechne“ ist keine.
 
 Ein einfacher Test für den eigenen Unterricht: Zählen Sie in einer Stunde, wie viele Minuten die Klasse mit Aufgaben verbringt, deren Ergebnis sie nicht vorhersagen kann. Bei den meisten von uns ist die Zahl beim ersten Zählen ernüchternd.
 
@@ -27,7 +27,7 @@ Ein einfacher Test für den eigenen Unterricht: Zählen Sie in einer Stunde, wie
 
 **Was das am Montag heißt:** Vor jeder Regel kommt das Bild. Erst der [Bruchstreifen](/werkzeuge/bruchstreifen.html), dann der Hauptnenner. Erst das Steigungsdreieck, dann $m = \frac{\Delta y}{\Delta x}$. Die Reihenfolge ist der ganze Unterschied – und sie kostet in der Einführungsstunde zehn Minuten, die man in den folgenden fünf Stunden zurückbekommt.
 
-Der Prüfstein: Kann die Klasse begründen, warum das Verfahren funktioniert? Wenn die Antwort „Das ist halt so" lautet, war es keine Verstehensorientierung, sondern eine gut illustrierte Regel.
+Der Prüfstein: Kann die Klasse begründen, warum das Verfahren funktioniert? Wenn die Antwort „Das ist halt so“ lautet, war es keine Verstehensorientierung, sondern eine gut illustrierte Regel.
 
 ## 3. Durchgängigkeit
 
@@ -49,7 +49,7 @@ Wer misst und dann trotzdem weitermacht wie geplant, hat Diagnose betrieben, abe
 
 **Was gemeint ist:** Lernende sprechen über Mathematik – miteinander, in Fachsprache, mit Begründungen.
 
-**Was das am Montag heißt:** Nicht „mehr reden lassen", sondern Anlässe schaffen, bei denen Reden nötig ist. [Which One Doesn't Belong](/werkzeuge/wodb.html) erzeugt in zwei Minuten mehr echte mathematische Äußerungen als eine halbe Stunde Unterrichtsgespräch, weil es keine falsche Antwort gibt und trotzdem begründet werden muss. Danach schärfen Sie die Sprache nach: „Wie heißt das genau?"
+**Was das am Montag heißt:** Nicht „mehr reden lassen“, sondern Anlässe schaffen, bei denen Reden nötig ist. [Which One Doesn't Belong](/werkzeuge/wodb.html) erzeugt in zwei Minuten mehr echte mathematische Äußerungen als eine halbe Stunde Unterrichtsgespräch, weil es keine falsche Antwort gibt und trotzdem begründet werden muss. Danach schärfen Sie die Sprache nach: „Wie heißt das genau?“
 
 Und die unbequeme Ergänzung: Kommunikationsförderung scheitert fast immer am Meldeverhalten. Solange dieselben fünf Personen antworten, spricht die Klasse nicht – fünf Personen sprechen. [Kaltes Aufrufen mit Denkzeit](/methoden#kaltes-aufrufen) ändert das schneller als jede Gesprächsregel.
 

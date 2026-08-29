@@ -9,7 +9,7 @@ teaser: "Wir glauben intuitiv, dass massiertes Üben am besten wirkt: ein Thema,
 entwurf: false
 ---
 
-In meiner ersten Stelle hatte ich einen Kollegen, der seine Klassen mit der Methode trainiert hat, die er „Lokomotive" nannte: drei Wochen Bruchrechnung, dann drei Wochen Prozentrechnung, dann drei Wochen Geometrie. „Damit es sitzt", sagte er. Ich habe ihn dafür bewundert; seine Schüler schienen tatsächlich besser zu sein als meine.
+In meiner ersten Stelle hatte ich einen Kollegen, der seine Klassen mit der Methode trainiert hat, die er „Lokomotive“ nannte: drei Wochen Bruchrechnung, dann drei Wochen Prozentrechnung, dann drei Wochen Geometrie. „Damit es sitzt“, sagte er. Ich habe ihn dafür bewundert; seine Schüler schienen tatsächlich besser zu sein als meine.
 
 Nach einem halben Jahr habe ich gemerkt: Sie waren nur in Klassenarbeiten besser, die *direkt nach* dem Block geschrieben wurden. Sechs Wochen später, in einer kumulativen Diagnose, fielen sie zurück – stärker als meine Schüler, die mit demselben Stoff verteilter umgegangen waren.
 
@@ -29,7 +29,7 @@ Beide Effekte beruhen auf einem kontraintuitiven Prinzip: *Lernen wird durch lei
 
 Beim massierten Üben wird eine Aufgabe nach der anderen vom selben Typ bearbeitet. Der Schüler muss nicht mehr *erkennen*, welche Methode anzuwenden ist – er weiß: dieselbe wie bei den letzten zehn Aufgaben. Das fühlt sich glatt an. Der Schüler hat ein Erfolgserlebnis. Aber: Die Methode wird nicht *abgerufen*, sondern nur *fortgeführt*. Das ist ein schwacher Trainingsreiz.
 
-Beim verteilten und gemischten Üben muss der Schüler *jedes Mal neu* entscheiden: „Welche Methode passt hier?" Das ist anstrengender und fühlt sich oft schwächer an. Aber es trainiert genau die Fähigkeit, die in der nächsten Klassenarbeit gebraucht wird – nämlich, die richtige Methode bei einer Aufgabe zu *wählen*, statt sie nur auszuführen.
+Beim verteilten und gemischten Üben muss der Schüler *jedes Mal neu* entscheiden: „Welche Methode passt hier?“ Das ist anstrengender und fühlt sich oft schwächer an. Aber es trainiert genau die Fähigkeit, die in der nächsten Klassenarbeit gebraucht wird – nämlich, die richtige Methode bei einer Aufgabe zu *wählen*, statt sie nur auszuführen.
 
 ## Die Forschungsbefunde – kurz und konkret
 
@@ -41,13 +41,13 @@ Ergebnis: Die *gemischte* Gruppe schnitt mehr als doppelt so gut ab. Beim Üben 
 
 ## Was das praktisch bedeutet – drei Konsequenzen
 
-**Erstens: Hausaufgaben sollten gemischt sein.** Die typische Hausaufgabe „heute Stunde war Bruchrechnung, also 10 Bruchaufgaben für morgen" ist ineffektiv. Besser: 5 Bruchaufgaben (Stoff von heute) plus 3 Termaufgaben (Stoff aus letzter Woche) plus 2 Sachaufgaben (Stoff aus dem letzten Monat). Die Schüler schimpfen am Anfang. Sie lernen mehr.
+**Erstens: Hausaufgaben sollten gemischt sein.** Die typische Hausaufgabe „heute Stunde war Bruchrechnung, also 10 Bruchaufgaben für morgen“ ist ineffektiv. Besser: 5 Bruchaufgaben (Stoff von heute) plus 3 Termaufgaben (Stoff aus letzter Woche) plus 2 Sachaufgaben (Stoff aus dem letzten Monat). Die Schüler schimpfen am Anfang. Sie lernen mehr.
 
-**Zweitens: Klassenarbeiten sollten kumulativ sein.** Wenn eine Klassenarbeit nur den Stoff der letzten zwei Wochen umfasst, signalisieren Sie der Klasse: „Was du vor zwei Monaten gelernt hast, brauchst du jetzt nicht mehr." Wenn 30 % der Punkte aus früheren Themen kommen, signalisieren Sie: „Mathematik ist kumulativ. Du musst dranbleiben."
+**Zweitens: Klassenarbeiten sollten kumulativ sein.** Wenn eine Klassenarbeit nur den Stoff der letzten zwei Wochen umfasst, signalisieren Sie der Klasse: „Was du vor zwei Monaten gelernt hast, brauchst du jetzt nicht mehr.“ Wenn 30 % der Punkte aus früheren Themen kommen, signalisieren Sie: „Mathematik ist kumulativ. Du musst dranbleiben.“
 
-**Drittens: Das Curriculum lässt sich nicht ändern, aber das *Üben* schon.** Das deutsche Schulbuch ist meist als „Lokomotive" gebaut – Kapitel A, dann B, dann C. Das ist vielleicht nicht zu ändern. Aber wenn Sie am Montag das neue Thema einführen, können Sie am Mittwoch und Freitag in den Aufwärmphasen *alte* Themen wiederholen. Fünf Minuten, drei Aufgaben, schnell besprochen. Über das Schuljahr ergibt das Hunderte verteilte Wiederholungen.
+**Drittens: Das Curriculum lässt sich nicht ändern, aber das *Üben* schon.** Das deutsche Schulbuch ist meist als „Lokomotive“ gebaut – Kapitel A, dann B, dann C. Das ist vielleicht nicht zu ändern. Aber wenn Sie am Montag das neue Thema einführen, können Sie am Mittwoch und Freitag in den Aufwärmphasen *alte* Themen wiederholen. Fünf Minuten, drei Aufgaben, schnell besprochen. Über das Schuljahr ergibt das Hunderte verteilte Wiederholungen.
 
-## Eine konkrete Routine: das „Aufwärm-Quiz" zu Beginn jeder Stunde
+## Eine konkrete Routine: das „Aufwärm-Quiz“ zu Beginn jeder Stunde
 
 Ich habe seit zehn Jahren in jeder Klasse die Routine, dass die ersten 5–8 Minuten einer Stunde aus drei Aufgaben bestehen, die *nicht* zum aktuellen Thema gehören. Eine aus der letzten Woche, eine aus dem letzten Monat, eine aus dem letzten Halbjahr. Vorbereitung: minimal (eine Folie). Wirkung: erheblich.
 
@@ -56,7 +56,7 @@ Was passiert in einer typischen Klasse 8 mit dieser Routine?
 - Schüler erinnern sich an Methoden, die sie schon abgehakt hatten.
 - Sie merken, wo Fehler sich eingeschlichen haben (typische Fehlvorstellungen, die in der ursprünglichen Lernphase übersehen wurden).
 - Die Lehrkraft bekommt Diagnose-Information aus erster Hand, *bevor* die nächste Klassenarbeit kommt.
-- Schwächere Schüler bekommen häufige, kurze Begegnungen mit Stoff, den sie sonst „verlernt" hätten.
+- Schwächere Schüler bekommen häufige, kurze Begegnungen mit Stoff, den sie sonst „verlernt“ hätten.
 
 Drei Aufgaben pro Stunde. Wenn man dafür auch nur 50 % der Stunden im Schuljahr nutzt, sind das ungefähr 200 zusätzliche, verteilte Wiederholungsaufgaben pro Schüler – ohne dass eine einzige reguläre Übungseinheit verlängert werden müsste.
 
@@ -68,7 +68,7 @@ Das heißt für die Praxis: Sie müssen der Klasse erklären, *warum* Sie gemisc
 
 ## Was Sie diese Woche tun können
 
-Eine kleine, harmlose Veränderung: In der nächsten Hausaufgabe ersetzen Sie drei Aufgaben aus dem aktuellen Thema durch drei Aufgaben aus dem letzten Monat. Sagen Sie der Klasse, warum Sie das tun. Beobachten Sie in zwei Wochen, ob die Diagnose-Aufgaben zu „alten" Themen besser laufen.
+Eine kleine, harmlose Veränderung: In der nächsten Hausaufgabe ersetzen Sie drei Aufgaben aus dem aktuellen Thema durch drei Aufgaben aus dem letzten Monat. Sagen Sie der Klasse, warum Sie das tun. Beobachten Sie in zwei Wochen, ob die Diagnose-Aufgaben zu „alten“ Themen besser laufen.
 
 Wenn ja – mach weiter.
 

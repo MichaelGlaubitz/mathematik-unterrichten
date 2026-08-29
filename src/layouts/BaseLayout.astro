@@ -166,12 +166,10 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
     )}
 
     <!-- KaTeX für mathematische Formeln (optional, lädt nur wenn benutzt) -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
-      crossorigin="anonymous"
-    />
+    <!-- KaTeX-Stylesheet aus dem eigenen Verzeichnis: In Schulnetzen ist
+         jsdelivr oft gesperrt. Fiel es aus, stand auf jeder Seite x2 statt
+         x hoch 2 - der Formelsatz braucht das CSS, nicht nur das Skript. -->
+    <link rel="stylesheet" href="/katex/katex.min.css" />
 
     {/* Google Analytics (nur aktiv, wenn PUBLIC_GA_ID konfiguriert ist) */}
     {import.meta.env.PUBLIC_GA_ID && (
@@ -234,15 +232,11 @@ const githubBranch = (import.meta.env.PUBLIC_GITHUB_BRANCH as string | undefined
     {/* KaTeX Auto-Render: rendert $...$ und $$...$$ im fertigen DOM (auch in dynamisch eingefuegtem Quiz-Inhalt). */}
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
-      integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
-      crossorigin="anonymous"
+      src="/katex/katex.min.js"
     ></script>
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
-      integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
-      crossorigin="anonymous"
+      src="/katex/auto-render.min.js"
       onload="renderMathInElement(document.body, {
         delimiters: [
           {left: '$$', right: '$$', display: true},

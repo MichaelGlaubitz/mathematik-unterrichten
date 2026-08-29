@@ -9,7 +9,7 @@ teaser: "Schüler glauben, dass sie etwas gelernt haben, wenn sie es noch einmal
 entwurf: false
 ---
 
-In meinen ersten Korrekturphasen war ich oft überrascht: Schüler kamen aus der Vorbereitung mit dem Gefühl, „das Thema zu beherrschen", in die Klassenarbeit – und scheiterten an Aufgaben, die sie zwei Tage vorher angeblich gekonnt hatten. Beim Nachfragen kamen Antworten wie: „Ich hab's mir alles noch einmal durchgelesen." Oder: „Ich hab die Lösungen alle noch mal angesehen."
+In meinen ersten Korrekturphasen war ich oft überrascht: Schüler kamen aus der Vorbereitung mit dem Gefühl, „das Thema zu beherrschen“, in die Klassenarbeit – und scheiterten an Aufgaben, die sie zwei Tage vorher angeblich gekonnt hatten. Beim Nachfragen kamen Antworten wie: „Ich hab's mir alles noch einmal durchgelesen.“ Oder: „Ich hab die Lösungen alle noch mal angesehen.“
 
 Was die Schüler nicht wussten – und was ich auch erst spät verstanden habe – ist, dass *Wiedererkennen* und *Abrufen* zwei völlig verschiedene Operationen sind. Wer den Lösungsweg vor Augen hat und ihm folgen kann, hat ihn nicht im Kopf. Er kann ihn lesen.
 
@@ -28,7 +28,7 @@ Dieser Effekt – manchmal *Testing Effect* oder *Testing-Enhanced Learning* gen
 
 ## Warum funktioniert es?
 
-Die Hypothese, die heute am ehesten als Konsens gilt: Beim *Abrufen* aus dem Gedächtnis wird die Information nicht nur „nachgeschlagen", sondern *neu rekonstruiert*. Diese Rekonstruktion stärkt die Spuren, die das Gedächtnis benutzt, um die Information zu finden – ähnlich, wie das Begehen eines Pfads im Wald ihn ausprägt.
+Die Hypothese, die heute am ehesten als Konsens gilt: Beim *Abrufen* aus dem Gedächtnis wird die Information nicht nur „nachgeschlagen“, sondern *neu rekonstruiert*. Diese Rekonstruktion stärkt die Spuren, die das Gedächtnis benutzt, um die Information zu finden – ähnlich, wie das Begehen eines Pfads im Wald ihn ausprägt.
 
 Das Wiederlesen aktiviert keine solche Rekonstruktion. Der Schüler liest – die Information steht ihm zur Verfügung – das Gehirn arbeitet auf der niedrigsten Abrufstufe. Ergebnis: das Gefühl von Vertrautheit, aber keine echte Festigung.
 
@@ -36,23 +36,23 @@ Bjork hat das mit einem Begriff ausgedrückt, der auch für Spacing wichtig war:
 
 ## Was das praktisch heißt: vier konkrete Routinen
 
-**Erstens: Aufwärm-Quizze ohne Hilfsmittel.** Wenn ich am Anfang einer Stunde zwei Fragen aus dem Stoff der letzten Wochen stelle, gilt: Bücher zu, Hefte zu, ein Zettel pro Schüler. Drei Minuten. Niemand korrigiert noch nicht. Erst danach besprechen wir die Lösungen. Schüler erleben den Unterschied zwischen „ich glaubte, das zu wissen" und „ich kann es ohne Vorlage abrufen".
+**Erstens: Aufwärm-Quizze ohne Hilfsmittel.** Wenn ich am Anfang einer Stunde zwei Fragen aus dem Stoff der letzten Wochen stelle, gilt: Bücher zu, Hefte zu, ein Zettel pro Schüler. Drei Minuten. Niemand korrigiert noch nicht. Erst danach besprechen wir die Lösungen. Schüler erleben den Unterschied zwischen „ich glaubte, das zu wissen“ und „ich kann es ohne Vorlage abrufen“.
 
-**Zweitens: Aufgabe statt Lösungsblatt zur Hausaufgabe-Prüfung.** Statt zu fragen „Habt ihr die Hausaufgaben?" gebe ich am Anfang der Stunde eine *neue Aufgabe* desselben Typs. Wer die Hausaufgaben gemacht hat, schafft sie. Wer sie nicht gemacht hat (oder nur abgeschrieben hat), scheitert. Das ist faires Feedback und gleichzeitig Übung.
+**Zweitens: Aufgabe statt Lösungsblatt zur Hausaufgabe-Prüfung.** Statt zu fragen „Habt ihr die Hausaufgaben?“ gebe ich am Anfang der Stunde eine *neue Aufgabe* desselben Typs. Wer die Hausaufgaben gemacht hat, schafft sie. Wer sie nicht gemacht hat (oder nur abgeschrieben hat), scheitert. Das ist faires Feedback und gleichzeitig Übung.
 
-**Drittens: Geschlossene Klassenarbeit-Vorbereitung.** Vor einer Klassenarbeit empfehle ich Schülern explizit *nicht*, „den Stoff durchzulesen", sondern: „Setz dich an deinen Tisch, lege das Buch zur Seite, und schreib auf, was du zu Thema X weißt – aus dem Kopf. Erst nach 10 Minuten schaust du nach, was du vergessen hast." Das ist erst unangenehm, weil das eigene Vergessen sichtbar wird. Genau deshalb ist es effektiv.
+**Drittens: Geschlossene Klassenarbeit-Vorbereitung.** Vor einer Klassenarbeit empfehle ich Schülern explizit *nicht*, „den Stoff durchzulesen“, sondern: „Setz dich an deinen Tisch, lege das Buch zur Seite, und schreib auf, was du zu Thema X weißt – aus dem Kopf. Erst nach 10 Minuten schaust du nach, was du vergessen hast." Das ist erst unangenehm, weil das eigene Vergessen sichtbar wird. Genau deshalb ist es effektiv.
 
 **Vierter: Niedrig-bewertete Mini-Tests.** Eine Routine, die ich seit Jahren nutze: Alle zwei Wochen ein 10-Minuten-Test mit drei Aufgaben. Die werden bewertet, aber mit minimalem Gewicht (ca. 5 % der Gesamtnote). Effekt: Schüler bereiten sich darauf vor, weil sie *etwas* gilt – und durch die Vorbereitung wenden sie schon Retrieval Practice an.
 
 ## Was die Schüler dabei lernen
 
-Die wichtigste Nebenwirkung: Schüler entwickeln ein realistischeres Bild ihres eigenen Wissensstands. Wer nur wieder liest, hat das Gefühl von Beherrschung – ohne sie zu haben. Wer abruft, sieht direkt, *wo* die Lücken sind. Diese metakognitive Genauigkeit – „ich weiß, was ich weiß und was ich nicht weiß" – ist eine der wertvollsten Kompetenzen, die wir Schülern mitgeben können. Sie ist die Grundlage, auf der gezieltes Üben aufbaut.
+Die wichtigste Nebenwirkung: Schüler entwickeln ein realistischeres Bild ihres eigenen Wissensstands. Wer nur wieder liest, hat das Gefühl von Beherrschung – ohne sie zu haben. Wer abruft, sieht direkt, *wo* die Lücken sind. Diese metakognitive Genauigkeit – „ich weiß, was ich weiß und was ich nicht weiß“ – ist eine der wertvollsten Kompetenzen, die wir Schülern mitgeben können. Sie ist die Grundlage, auf der gezieltes Üben aufbaut.
 
 ## Eine wichtige Unterscheidung: Retrieval Practice ≠ Klassenarbeit
 
-Im deutschen Schulkontext heißt „Test" oft „benotete Klassenarbeit". Das ist nicht das, was die Forschung untersucht. *Retrieval Practice* ist das *Abrufen* selbst – ob mit oder ohne Note, ob unter Druck oder gelassen, ob Selbsttest oder Lehrer-Test. Was zählt, ist das *aktive Heraufholen aus dem Gedächtnis*.
+Im deutschen Schulkontext heißt „Test“ oft „benotete Klassenarbeit“. Das ist nicht das, was die Forschung untersucht. *Retrieval Practice* ist das *Abrufen* selbst – ob mit oder ohne Note, ob unter Druck oder gelassen, ob Selbsttest oder Lehrer-Test. Was zählt, ist das *aktive Heraufholen aus dem Gedächtnis*.
 
-Das heißt: Auch wenn die Klasse keine bewerteten Tests bekommen soll, kann Retrieval Practice eingesetzt werden. Ein „Schreib drei Sachen auf, an die du dich aus letzter Stunde erinnerst" am Stundenanfang ist Retrieval Practice. Ein Mini-Whiteboard-Quiz ist Retrieval Practice. Eine Hausaufgabe, die Schüler bei *zugeklapptem Heft* bearbeiten müssen, ist Retrieval Practice.
+Das heißt: Auch wenn die Klasse keine bewerteten Tests bekommen soll, kann Retrieval Practice eingesetzt werden. Ein „Schreib drei Sachen auf, an die du dich aus letzter Stunde erinnerst“ am Stundenanfang ist Retrieval Practice. Ein Mini-Whiteboard-Quiz ist Retrieval Practice. Eine Hausaufgabe, die Schüler bei *zugeklapptem Heft* bearbeiten müssen, ist Retrieval Practice.
 
 ## Die Verbindung zu Spacing
 
@@ -62,7 +62,7 @@ Praktisch: Die Aufwärm-Quiz-Routine, die ich im Spacing-Artikel beschrieben hab
 
 ## Was Sie diese Woche tun können
 
-Eine kleine Veränderung, die in jeder Stunde funktioniert: Beim nächsten Mal, wenn Sie eine Wiederholungsphase einläuten, sagen Sie *nicht* „Schaut auf Seite 47 nach". Sagen Sie stattdessen: „Schreibt aus dem Kopf auf, was die binomischen Formeln sind. Drei Minuten, kein Buch."
+Eine kleine Veränderung, die in jeder Stunde funktioniert: Beim nächsten Mal, wenn Sie eine Wiederholungsphase einläuten, sagen Sie *nicht* „Schaut auf Seite 47 nach“. Sagen Sie stattdessen: „Schreibt aus dem Kopf auf, was die binomischen Formeln sind. Drei Minuten, kein Buch.“
 
 Beobachte:
 

@@ -242,3 +242,33 @@ html.dark .mu-wb-unterthemen-root button.mu-wb-thema-kw.mu-wb-thema-kw--an:hover
   margin-top: 0;
   margin-bottom: 0;
 }
+
+/* KaTeX legt neben die sichtbare Formel eine MathML-Fassung für Vorlese-
+   programme. Verborgen wird sie normalerweise vom Stylesheet des CDN – fällt
+   das aus, steht jede Formel doppelt da. Die Regel gehört deshalb ins eigene
+   Stylesheet, nicht in fremde Hände. */
+.katex .katex-mathml {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+
+/* Eine gesetzte Formel kann breiter sein als das Telefon. Sie darf dann in
+   sich rollen – aber nicht die ganze Seite zur Seite schieben. */
+.katex {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Der Rollrahmen um eine Tabelle wirkt nur, wenn er selbst schmal bleiben darf.
+   In einem Flex- oder Grid-Kasten wächst er sonst mit seinem Inhalt. */
+.mu-tabelle-scroll { min-width: 0; }
+
+/* Eine Antwortzeile im Quiz enthält seit dem lokalen Formelsatz echte Formeln.
+   Ohne min-width darf der Text nicht schrumpfen und schiebt die Seite. */
+.quiz-option-text { min-width: 0; }

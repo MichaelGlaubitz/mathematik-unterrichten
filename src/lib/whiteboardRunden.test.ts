@@ -6,7 +6,7 @@ import path from 'node:path';
  * Eine Mini-Whiteboard-Runde ist keine Aufgabensammlung, sondern eine Diagnose:
  * Sie fragt die Fehlvorstellungen ab, die das Thema mitbringt. Zwanzig der 23
  * Themen waren schon so gebaut – eine Aufgabe je Fehlvorstellung. Drei nicht:
- * „Graphen" hatte zwei Aufgaben bei vier Fehlvorstellungen, „Dezimalzahlen"
+ * „Graphen“ hatte zwei Aufgaben bei vier Fehlvorstellungen, „Dezimalzahlen“
  * siebenundzwanzig, was der Übungsgenerator auf Zuruf in jeder Menge liefert.
  *
  * Die Obergrenze ist die Unterrichtsphase: Was in zehn Minuten an der Tafel
@@ -40,7 +40,7 @@ describe('Mini-Whiteboard-Runden', () => {
       const fragen = t.daten.whiteboardAufgaben.map((w: { frage: string }) => w.frage);
       for (const w of t.daten.whiteboardAufgaben as { frage: string; loesung: string }[]) {
         expect(w.frage?.trim(), t.slug).toBeTruthy();
-        expect(w.loesung?.trim(), `${t.slug}: „${w.frage}" ohne Lösung`).toBeTruthy();
+        expect(w.loesung?.trim(), `${t.slug}: „${w.frage}“ ohne Lösung`).toBeTruthy();
       }
       expect(new Set(fragen).size, `${t.slug} fragt etwas doppelt`).toBe(fragen.length);
     }
@@ -51,7 +51,7 @@ describe('Mini-Whiteboard-Runden', () => {
       for (const w of t.daten.whiteboardAufgaben as { frage: string; loesung: string }[]) {
         for (const text of [w.frage, w.loesung]) {
           const anzahl = (text.match(/(?<!\\)\$/g) ?? []).length;
-          expect(anzahl % 2, `${t.slug}: ungerade Anzahl $ in „${text}"`).toBe(0);
+          expect(anzahl % 2, `${t.slug}: ungerade Anzahl $ in „${text}“`).toBe(0);
         }
       }
     }
