@@ -337,6 +337,78 @@ a {
   margin-bottom: 0.6rem;
 }
 
+/* ---------- Absatzfeld: sichtbarer Text statt Auszeichnung ---------- */
+
+.absatzfeld {
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  overflow: hidden;
+}
+
+.absatzfeld:focus-within {
+  border-color: var(--akzent);
+}
+
+.absatzfeld__leiste {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid var(--rand);
+  background: var(--bg);
+  flex-wrap: wrap;
+}
+
+.absatzfeld__knopf {
+  border: 1px solid transparent;
+  background: none;
+  border-radius: 5px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--leise);
+  cursor: pointer;
+  min-height: 1.9rem;
+}
+
+.absatzfeld__knopf:hover {
+  border-color: var(--rand);
+  color: var(--akzent);
+  background: var(--flaeche);
+}
+
+.absatzfeld__knopf.ist-fett {
+  font-weight: 700;
+}
+
+.absatzfeld__knopf.ist-kursiv {
+  font-style: italic;
+}
+
+.absatzfeld__text {
+  padding: 0.6rem 0.75rem;
+  min-height: 3rem;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  outline: none;
+  color: var(--text);
+}
+
+/* Im Feld sieht Auszeichnung so aus, wie sie später auf der Seite aussieht. */
+.absatzfeld__text a {
+  color: var(--akzent);
+  text-decoration: underline;
+}
+
+.absatzfeld__text code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--bg);
+  border: 1px solid var(--rand);
+  border-radius: 4px;
+  padding: 0.05em 0.25em;
+}
+
 /* Eingabe, die die Prüfung nicht besteht — sie sperrt das Veröffentlichen. */
 .feld input.ungueltig,
 .feld textarea.ungueltig {

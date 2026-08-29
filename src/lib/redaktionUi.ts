@@ -5,8 +5,8 @@
  * für die Vorschau — liegt in `redaktionText.ts` und ist dort getestet.
  * Hier steht nur, was ohne Browser keinen Sinn ergibt.
  */
+import { bereinigeMarkup, domZuMarkup, linkZielGueltig } from './absatzEditor';
 import {
-  absatzZurDatei,
   alsZeile,
   findeTextstellen,
   pruefeAbsatz,
@@ -442,6 +442,112 @@ export function starteRedaktion(): void {
   };
 
   /**
+   * Ein Absatzfeld: sichtbarer Text mit einer kleinen Knopfleiste. Der Inhalt
+   * wird nie als Auszeichnung getippt, sondern aus dem Bearbeitungsfeld
+   * serialisiert — dadurch kann hier keine kaputte Auszeichnung entstehen.
+   *
+   * `document.execCommand` gilt als veraltet, ist aber in allen heutigen
+   * Browsern die knappste Art, Fett und Kursiv auf eine Auswahl anzuwenden —
+   * auch in Safari auf dem iPad. Was dabei herauskommt, bringt `domZuMarkup`
+   * ohnehin auf die Hausform.
+   */
+  function baueAbsatzfeld(roh: string, beiAenderung: (markup: string) => void): HTMLElement {
+    const rahmen = document.createElement('div');
+    rahmen.className = 'absatzfeld';
+
+    const leiste = document.createElement('div');
+    leiste.className = 'absatzfeld__leiste';
+
+    const feld = document.createElement('div');
+    feld.className = 'absatzfeld__text';
+    feld.contentEditable = 'true';
+    feld.spellcheck = true;
+    feld.innerHTML = bereinigeMarkup(roh, document);
+
+    const melden = () => beiAenderung(domZuMarkup(feld));
+
+    const befehl = (name: string, wert?: string) => {
+      feld.focus();
+      document.execCommand(name, false, wert);
+      melden();
+    };
+
+    const werkzeug = (beschriftung: string, titel: string, tun: () => void, klasse = '') => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'absatzfeld__knopf ' + klasse;
+      b.title = titel;
+      b.textContent = beschriftung;
+      // Der Mausdruck darf die Auswahl im Text nicht verlieren.
+      b.addEventListener('mousedown', (e) => e.preventDefault());
+      b.addEventListener('click', tun);
+      return b;
+    };
+
+    const linkSetzen = () => {
+      const auswahl = document.getSelection();
+      if (!auswahl || auswahl.isCollapsed || !feld.contains(auswahl.anchorNode)) {
+        alert('Zuerst den Text markieren, der zum Link werden soll.');
+        return;
+      }
+      const vorhanden =
+        (auswahl.anchorNode?.parentElement?.closest('a') as HTMLAnchorElement | null)?.getAttribute(
+          'href'
+        ) ?? '';
+      const ziel = prompt(
+        'Wohin soll der Link führen?\nBeispiele: /konzept · #abschnitt · https://… · mailto:…',
+        vorhanden
+      );
+      if (ziel === null) return;
+      if (!linkZielGueltig(ziel)) {
+        alert('Das ist kein brauchbares Ziel. Erlaubt sind /pfad, #abschnitt, https://… und mailto:…');
+        return;
+      }
+      befehl('createLink', ziel.trim());
+    };
+
+    leiste.append(
+      werkzeug('F', 'Fett (Strg+B)', () => befehl('bold'), 'ist-fett'),
+      werkzeug('K', 'Kursiv (Strg+I)', () => befehl('italic'), 'ist-kursiv'),
+      werkzeug('Link', 'Markierten Text verlinken', linkSetzen),
+      werkzeug('Link weg', 'Link am Cursor entfernen', () => befehl('unlink')),
+      werkzeug('Ohne Format', 'Auszeichnung aus der Markierung entfernen', () =>
+        befehl('removeFormat')
+      )
+    );
+
+    feld.addEventListener('input', melden);
+
+    feld.addEventListener('keydown', (e) => {
+      // Ein Feld ist ein Absatz — kein Platz für neue Absätze.
+      if (e.key === 'Enter') e.preventDefault();
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const taste = e.key.toLowerCase();
+      if (taste === 'b') {
+        e.preventDefault();
+        befehl('bold');
+      } else if (taste === 'i') {
+        e.preventDefault();
+        befehl('italic');
+      } else if (taste === 'k') {
+        e.preventDefault();
+        linkSetzen();
+      }
+    });
+
+    // Aus der Zwischenablage kommt nur Text — keine fremde Formatierung.
+    feld.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = e.clipboardData?.getData('text/plain') ?? '';
+      document.execCommand('insertText', false, text.replace(/\s*\r?\n\s*/g, ' '));
+      melden();
+    });
+
+    rahmen.append(leiste, feld);
+    return rahmen;
+  }
+
+  /**
    * Feste Seiten bestehen fast nur aus Auszeichnung. Die Redaktion zeigt
    * deshalb die Textstellen als Felder; das Gerüst bleibt unsichtbar und
    * unangetastet. Was die Erkennung nicht sicher greift, bleibt über die
@@ -524,37 +630,32 @@ export function starteRedaktion(): void {
           eingabe.value = anzeige;
           eingabe.spellcheck = true;
 
-          // Ein Absatzfeld darf Auszeichnung enthalten und wird deshalb geprüft.
+          // Letzte Sicherung: Was der Serialisierer erzeugt, sollte immer
+          // durchgehen. Täte es das nicht, wird lieber nicht veröffentlicht.
           const meldung = document.createElement('div');
           meldung.className = 'zustand fehler';
           meldung.hidden = true;
 
-          eingabe.addEventListener('input', () => {
-            const wert = eingabe.value;
-            // Unverändert heißt: das Original zeichengenau übernehmen. Nur
-            // wirklich Geändertes wird neu kodiert.
-            if (wert === anzeige) {
-              werte[i] = null;
-              fehler.delete(i);
-            } else if (stelle.art === 'absatz') {
-              const problem = pruefeAbsatz(wert);
-              if (problem) {
-                fehler.set(i, problem);
-                // Den letzten gültigen Stand stehen lassen, bis es wieder passt.
-                werte[i] = null;
-              } else {
-                fehler.delete(i);
-                werte[i] = absatzZurDatei(wert);
-              }
-            } else {
-              fehler.delete(i);
-              werte[i] = zurDatei(wert, stelle.art);
-            }
+          // Ein Absatz wird als sichtbarer Text bearbeitet, nicht als
+          // Auszeichnung: Fett sieht fett aus, ein Link wie ein Link.
+          if (stelle.art === 'absatz') {
+            const urzustand = alsZeile(stelle.roh);
+            const feld = baueAbsatzfeld(urzustand, (markup) => {
+              werte[i] = markup === urzustand ? null : markup;
+              const problem = pruefeAbsatz(markup);
+              if (problem) fehler.set(i, problem);
+              else fehler.delete(i);
+              meldung.hidden = !problem;
+              meldung.textContent = problem ?? '';
+              uebernehmen();
+            });
+            huelle.append(marke, feld, meldung);
+            if (mehrteilig) kasten.append(huelle);
+            continue;
+          }
 
-            const problem = fehler.get(i);
-            meldung.hidden = !problem;
-            meldung.textContent = problem ?? '';
-            eingabe.classList.toggle('ungueltig', Boolean(problem));
+          eingabe.addEventListener('input', () => {
+            werte[i] = eingabe.value === anzeige ? null : zurDatei(eingabe.value, stelle.art);
             uebernehmen();
           });
 

@@ -72,7 +72,7 @@ Was die Redaktion führt:
 |---|---|
 | Blog, Aufgaben, Stunden (`.md`) | Formularfelder für die Angaben, Textfeld mit Live-Vorschau |
 | Themen, Quizze (`.json`) | Formular mit Hinzufügen, Sortieren und Löschen von Einträgen; dazu Rohansicht |
-| Feste Seiten (`.astro`) | Ein Feld je Absatz, mit erlaubter Auszeichnung – das Seitengerüst bleibt unsichtbar und unangetastet; darunter eine Rohansicht |
+| Feste Seiten (`.astro`) | Ein Feld je Absatz, in dem fett auch fett aussieht: Formatierung über Knöpfe, keine Tags im Feld. Das Seitengerüst bleibt unsichtbar und unangetastet; darunter eine Rohansicht |
 
 Grenzen, die bewusst so sind:
 
@@ -87,15 +87,17 @@ Grenzen, die bewusst so sind:
 - **Seiten mit überwiegend Programmtext** (die Übungsgeneratoren unter
   `src/pages/uebung/`) führt die Redaktion nicht; sie verweist dafür auf den
   GitHub-Editor.
-- **Feste Seiten zeigen ihre Absätze.** Jedes `<p>`, `<li>` oder `<h2>` wird
-  als ein Feld angeboten, samt seinen `<em>`- und Link-Tags; Klassen,
-  Astro-Ausdrücke, Stil- und Skriptblöcke bleiben unberührt. Im Feld sind nur
-  harmlose Auszeichnungen erlaubt (`em`, `strong`, `a`, `code`, `br`, `q` und
-  ähnliche) mit einer knappen Liste von Attributen. Alles andere wird zu
-  gewöhnlichem Text – wer `für a < b` schreibt, bekommt genau das auf die
-  Seite und kein kaputtes Element. Was die Prüfung nicht besteht, sperrt das
-  Veröffentlichen, bis es behoben ist. Neue Absätze und Listenpunkte legt man
-  weiter im Quelltext an; dafür gibt es unter den Feldern die Rohansicht.
+- **Feste Seiten zeigen ihre Absätze als Text.** Jedes `<p>`, `<li>` oder
+  `<h2>` wird als ein Feld angeboten, in dem Formatierung so aussieht, wie sie
+  später auf der Seite aussieht. Fett, kursiv und Links setzt man über die
+  Knopfleiste (auch `Strg+B`, `Strg+I`, `Strg+K`); Auszeichnung wird nie
+  getippt. Was in die Datei geschrieben wird, entsteht aus dem Feldinhalt und
+  besteht nur aus einer knappen Liste erlaubter Elemente mit erlaubten
+  Attributen – daher kann hier keine kaputte Auszeichnung entstehen.
+  Eingefügter Text aus der Zwischenablage verliert seine Formatierung.
+  Klassen, Astro-Ausdrücke, Stil- und Skriptblöcke bleiben unberührt. Neue
+  Absätze und Listenpunkte legt man weiter im Quelltext an; dafür gibt es
+  unter den Feldern die Rohansicht.
 - **Nicht jeder Absatz wird als Ganzes angeboten.** Steckt ein Astro-Ausdruck,
   ein `<img>`, ein weiterer Absatz oder ein funktionales Attribut wie
   `data-kat` darin, fällt die Redaktion auf die einzelnen Textstücke zurück –
