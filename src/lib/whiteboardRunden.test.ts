@@ -93,3 +93,55 @@ describe('Zeichnungen im Protokoll', () => {
     }
   });
 });
+
+describe('Anmeldung der Stundenseiten', () => {
+  const stunden = fs
+    .readdirSync(path.join(process.cwd(), 'public'))
+    .filter((d) => /^(7b|10b|10c|11a)$/.test(d))
+    .flatMap((d) =>
+      fs
+        .readdirSync(path.join(process.cwd(), 'public', d))
+        .filter((f) => /^\d+-stunde\.html$/.test(f))
+        .map((f) => path.join('public', d, f))
+    );
+
+  it('nichts wird an einen Schirm verdrahtet, der schon weg ist', () => {
+    // Auf einem angemeldeten Gerät entfernt oeffnen() den Anmeldeschirm sofort.
+    // Ein ungeprüftes getElementById(...).addEventListener warf danach, und die
+    // Ausnahme brach den Rest des Skripts ab – die Stunde kam ohne Einstiegsquiz.
+    const ungeschuetzt: string[] = [];
+    for (const p of stunden) {
+      const t = fs.readFileSync(path.join(process.cwd(), p), 'utf8');
+      for (const knopf of ['k-anmelden', 'k-ohne-zahl']) {
+        if (t.includes(`document.getElementById("${knopf}").addEventListener`)) {
+          ungeschuetzt.push(`${p}: ${knopf}`);
+        }
+      }
+    }
+    expect(ungeschuetzt).toEqual([]);
+  });
+
+  it('der Anmeldeschlüssel hängt am Speichernamen, nicht am Seitentitel', () => {
+    // Am Titel hängend hätte eine Umbenennung in der Redaktion jedes Gerät
+    // mitten in der Stunde abgemeldet und den gewählten Plan verworfen.
+    const amTitel: string[] = [];
+    for (const p of stunden) {
+      const t = fs.readFileSync(path.join(process.cwd(), p), 'utf8');
+      for (const zeile of t.split('\n')) {
+        if (/var (ANGEMELDET|PLAN_KEY) =/.test(zeile) && zeile.includes('document.title')) {
+          amTitel.push(`${p}: ${zeile.trim()}`);
+        }
+      }
+    }
+    expect(amTitel).toEqual([]);
+  });
+
+  it('was unter dem alten Schlüssel liegt, wird übernommen', () => {
+    for (const p of stunden.filter((x) => x.includes('10c/01') || x.includes('10c/02'))) {
+      const t = fs.readFileSync(path.join(process.cwd(), p), 'utf8');
+      expect(t, p).toContain('ANGEMELDET_ALT');
+      expect(t, p).toContain('PLAN_KEY_ALT');
+      expect(t, p).toContain('function gemerkt(');
+    }
+  });
+});
