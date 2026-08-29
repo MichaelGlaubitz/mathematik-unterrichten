@@ -329,7 +329,7 @@ export async function baueSuchindex(): Promise<Sucheintrag[]> {
       u: werkzeugPfad(w),
       b: 'Werkzeug',
       s: w.kurz,
-      k: [w.kategorie, w.einsatz, w.stufe, ...w.schlagwoerter].join(' '),
+      k: [w.kategorie, w.rolle, w.medium, w.stufe, ...w.schlagwoerter].join(' '),
     });
   }
 
