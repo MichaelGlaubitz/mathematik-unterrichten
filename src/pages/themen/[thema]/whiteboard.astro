@@ -68,6 +68,10 @@ const themaSlug = slugify(thema.data.thema);
         <h1 class="font-serif text-3xl md:text-4xl font-semibold text-ink-900 mt-1 dark:text-ink-50">
           {thema.data.titel}
         </h1>
+        <p class="mu-wb-rolle mt-3 inline-flex items-center gap-2 rounded-md border border-ink-300/90 bg-ink-50/60 px-3 py-1.5 text-sm text-ink-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-ink-200">
+          <span class="text-xs font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Regie · zum Projizieren</span>
+          <span>Sie steuern, die Klasse schaut zu: Jede Aufgabe erscheint einzeln, die Lösung erst auf Ihren Klick.</span>
+        </p>
       </div>
       <div class="text-sm text-ink-500 dark:text-ink-400">
         <span class="wb-zaehler" data-total={total}>0 / {total}</span>
@@ -242,6 +246,16 @@ const themaSlug = slugify(thema.data.thema);
   }
   #wb-overlay-backdrop[hidden] {
     display: none !important;
+  }
+  /* Die Rollenmarke ist Orientierung für die Lehrkraft, bevor projiziert wird.
+     Sobald die Runde im Präsentationsmodus läuft, hat sie an der Wand nichts zu suchen. */
+  html.mu-themen-wb-overlay-open .mu-wb-rolle {
+    display: none;
+  }
+  @media print {
+    .mu-wb-rolle {
+      display: none;
+    }
   }
 </style>
 

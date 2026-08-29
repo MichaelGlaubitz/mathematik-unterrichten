@@ -112,6 +112,42 @@ describe('Übungsgeneratoren: Rolle ist wählbar', () => {
   });
 });
 
+describe('Jedes Werkzeug sagt beim Öffnen, wem es gehört', () => {
+  it('die Laufzeit zeichnet eine Rollenmarke', () => {
+    expect(laufzeit).toContain('wz-rolle');
+    for (const text of ['Regie · Lehrkraft', 'Für die Klasse', 'Vorbereitung']) {
+      expect(laufzeit, text).toContain(text);
+    }
+  });
+
+  it('die Marke fällt im Beamer-Modus weg – projiziert wird der Inhalt, nicht die Zuständigkeit', () => {
+    const stil = lies('public/werkzeuge/werkzeug.css');
+    expect(stil).toMatch(/html\[data-beamer="an"\] \.wz-rolle\s*\{\s*display:\s*none/);
+  });
+
+  it('die Rolle im Werkzeug stimmt mit der Registry überein', () => {
+    for (const w of werkzeuge) {
+      const quelle = lies(`public/werkzeuge/${w.slug}.html`);
+      const treffer = quelle.match(/WZ\.kopf\(\{([^}]*)\}/);
+      expect(treffer, `${w.slug}: kein WZ.kopf-Aufruf`).not.toBeNull();
+      const rolle = treffer![1].match(/rolle:\s*'([^']+)'/)?.[1];
+      expect(rolle, `${w.slug} nennt seine Rolle nicht`).toBe(w.rolle);
+    }
+  });
+});
+
+describe('Whiteboard-Runden nennen ihren Adressaten', () => {
+  const seite = lies('src/pages/themen/[thema]/whiteboard.astro');
+
+  it('die Seite sagt, wer sie bedient und wohin sie gehört', () => {
+    expect(seite).toContain('Regie · zum Projizieren');
+  });
+
+  it('die Marke verschwindet, sobald wirklich projiziert wird', () => {
+    expect(seite).toMatch(/mu-themen-wb-overlay-open \.mu-wb-rolle\s*\{\s*display:\s*none/);
+  });
+});
+
 describe('Aufgabenfolgen: beide Zonen benannt', () => {
   const seite = lies('src/pages/aufgaben/[slug].astro');
 

@@ -136,6 +136,24 @@ a { color: var(--akzent); }
 .wz-marke b { font-family: var(--schrift-serif); font-size: .95rem; color: var(--text); font-weight: 600; }
 .wz-titel { font-family: var(--schrift-serif); font-size: 1.02rem; font-weight: 600; margin: 0; }
 .wz-kopf-rechts { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
+
+/* Rollenmarke: sagt beim Öffnen, wem das Werkzeug gehört.
+   Im Beamer-Modus fällt sie weg – dort zählt nur, was die Klasse sehen soll. */
+.wz-rolle {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  padding: .12rem .5rem .16rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.wz-rolle[data-rolle="Regie"]        { color: var(--akzent); }
+.wz-rolle[data-rolle="Schülergerät"] { color: var(--gruen, #0d9488); }
+.wz-rolle[data-rolle="Vorbereitung"] { color: var(--text-leise); }
+html[data-beamer="an"] .wz-rolle { display: none; }
+@media (max-width: 34rem) { .wz-rolle { display: none; } }
+
 .wz-streifen { height: 4px; background: linear-gradient(90deg, var(--akzent), var(--teal), var(--violett)); }
 
 /* --- Grundbausteine ------------------------------------------------------ */

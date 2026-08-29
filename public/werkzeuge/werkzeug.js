@@ -108,6 +108,18 @@
     const zurueck = opt.zurueck || '/werkzeuge';
     istSchuelergeraet = opt.rolle === 'Schülergerät';
 
+    // Wem das Werkzeug gehört – sichtbar auf dem Werkzeug, nicht nur auf der
+    // Karte im Werkzeugkasten. Wer über ein Lesezeichen oder aus einer Stunde
+    // hierherkommt, sieht die Karte nie.
+    const ROLLENTEXT = {
+      'Regie': 'Regie · Lehrkraft',
+      'Schülergerät': 'Für die Klasse',
+      'Vorbereitung': 'Vorbereitung',
+    };
+    const rollenMarke = ROLLENTEXT[opt.rolle]
+      ? '<span class="wz-rolle" data-rolle="' + esc(opt.rolle) + '">' + esc(ROLLENTEXT[opt.rolle]) + '</span>'
+      : '';
+
     const marke = istSchuelergeraet
       ? '<span class="wz-marke"><b>mathematik-unterrichten.de</b></span>'
       : '<a class="wz-marke" href="' + zurueck + '">← <b>mathematik-unterrichten.de</b></a>';
@@ -119,6 +131,7 @@
       marke +
       '<span aria-hidden="true" style="color:var(--text-schwach)">·</span>' +
       '<p class="wz-titel">' + esc(titel) + '</p>' +
+      rollenMarke +
       '<div class="wz-kopf-rechts">' +
       '<button class="wz-knopf wz-icon-knopf" id="wz-beamer-knopf" type="button" aria-pressed="false" title="Beamer-Modus (B)">⛶</button>' +
       '<button class="wz-knopf wz-icon-knopf" id="wz-vollbild-knopf" type="button" title="Vollbild (F)">⤢</button>' +
