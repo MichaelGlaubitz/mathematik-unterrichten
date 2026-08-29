@@ -4,6 +4,13 @@ thema: "Dezimalzahlen"
 klassenstufe: ["5", "6"]
 schwierigkeit: einsteiger
 didaktischerHinweis: "Vier Folgen gegen die hartnäckigste Fehlvorstellung des Zahlbereichs: Dezimalzahlen als zwei aneinandergehängte natürliche Zahlen. Folge A vergleicht Zahlen mit gleicher Ziffernfolge, aber verschiedener Länge. Folge C zeigt am Kommaverschieben, dass die Stellenwerte wandern und nicht die Ziffern. Alle Aufgaben lassen sich ohne Taschenrechner lösen – das ist Absicht."
+ziel: 'Die Schüler lesen Dezimalzahlen über den Stellenwert – nicht als zwei aneinandergehängte natürliche Zahlen.'
+variation: 'Folge A vergleicht Zahlen mit gleicher Ziffernfolge, aber verschiedener Länge. Folge C verschiebt das Komma mit Zehnerpotenzen, Folge E teilt durch Zahlen unter 1.'
+stolperstelle: '„Mehr Ziffern heißt größer" – deshalb steht $0{,}45$ gegen $0{,}5$ ganz am Anfang.'
+regie:
+  - 'Welche Stelle entscheidet hier – und warum nicht die Anzahl der Ziffern?'
+  - 'Bevor du rechnest: Wird das Ergebnis größer oder kleiner als die Ausgangszahl?'
+  - 'Wer erklärt, warum Teilen durch $0{,}5$ das Ergebnis verdoppelt?'
 tags: ["dezimalzahlen", "stellenwert", "zahlenstrahl", "groessenvergleich", "variation-theory"]
 datum: 2026-08-28
 entwurf: false
@@ -11,22 +18,22 @@ entwurf: false
 
 ## Vorbemerkung für die Schüler
 
-Eine Dezimalzahl ist **eine** Zahl, nicht zwei. In `3,47` steht die 3 für drei Ganze, die 4 für vier Zehntel und die 7 für sieben Hundertstel.
+Eine Dezimalzahl ist **eine** Zahl, nicht zwei. In $3{,}47$ steht die 3 für drei Ganze, die 4 für vier Zehntel und die 7 für sieben Hundertstel.
 
 Der entscheidende Punkt: **Ein Zehntel ist zehnmal so groß wie ein Hundertstel.** Deshalb entscheidet beim Vergleichen immer die vorderste Stelle nach dem Komma zuerst – nicht die Anzahl der Ziffern.
 
 ## Folge A: Gleiche Ziffern, andere Länge
 
-Ordne jedes Paar. Schreibe `<`, `>` oder `=`.
+Ordne jedes Paar. Schreibe $<$, $>$ oder $=$.
 
 | Nr. | Vergleich | Lösung |
 |----:|:----------|:-------|
-| 1 | 0,5 □ 0,50 | 0,5 = 0,50 |
-| 2 | 0,5 □ 0,05 | 0,5 > 0,05 |
-| 3 | 0,5 □ 0,45 | 0,5 > 0,45 |
-| 4 | 0,5 □ 0,55 | 0,5 < 0,55 |
-| 5 | 0,5 □ 0,499 | 0,5 > 0,499 |
-| 6 | 0,5 □ 0,501 | 0,5 < 0,501 |
+| 1 | $0{,}5 □ 0{,}50$ | $0{,}5 = 0{,}50$ |
+| 2 | $0{,}5 □ 0{,}05$ | $0{,}5 > 0{,}05$ |
+| 3 | $0{,}5 □ 0{,}45$ | $0{,}5 > 0{,}45$ |
+| 4 | $0{,}5 □ 0{,}55$ | $0{,}5 < 0{,}55$ |
+| 5 | $0{,}5 □ 0{,}499$ | $0{,}5 > 0{,}499$ |
+| 6 | $0{,}5 □ 0{,}501$ | $0{,}5 < 0{,}501$ |
 
 *Frage nach Nr. 6:* In allen sechs Aufgaben steht links dieselbe Zahl. Was entscheidet den Vergleich – die Länge der rechten Zahl oder etwas anderes?
 
@@ -36,12 +43,12 @@ Ordne jede Gruppe von der kleinsten zur größten Zahl.
 
 | Nr. | Zahlen | Lösung |
 |----:|:-------|:-------|
-| 7 | 0,7 · 0,25 · 0,45 | 0,25 < 0,45 < 0,7 |
-| 8 | 1,2 · 1,15 · 1,08 | 1,08 < 1,15 < 1,2 |
-| 9 | 0,3 · 0,03 · 0,303 | 0,03 < 0,3 < 0,303 |
-| 10 | 2,5 · 2,50 · 2,05 | 2,05 < 2,5 = 2,50 |
-| 11 | 0,9 · 0,89 · 0,899 | 0,89 < 0,899 < 0,9 |
-| 12 | 4,06 · 4,6 · 4,006 | 4,006 < 4,06 < 4,6 |
+| 7 | $0{,}7 \cdot  0{,}25 \cdot  0{,}45$ | $0{,}25 < 0{,}45 < 0{,}7$ |
+| 8 | $1{,}2 \cdot  1{,}15 \cdot  1{,}08$ | $1{,}08 < 1{,}15 < 1{,}2$ |
+| 9 | $0{,}3 \cdot  0{,}03 \cdot  0{,}303$ | $0{,}03 < 0{,}3 < 0{,}303$ |
+| 10 | $2{,}5 \cdot  2{,}50 \cdot  2{,}05$ | $2{,}05 < 2{,}5 = 2{,}50$ |
+| 11 | $0{,}9 \cdot  0{,}89 \cdot  0{,}899$ | $0{,}89 < 0{,}899 < 0{,}9$ |
+| 12 | $4{,}06 \cdot  4{,}6 \cdot  4{,}006$ | $4{,}006 < 4{,}06 < 4{,}6$ |
 
 *Frage nach Nr. 12:* Trage die Zahlen aus Nr. 11 auf einem Zahlenstrahl zwischen 0,88 und 0,91 ein. Wie weit liegen sie auseinander?
 
@@ -51,12 +58,12 @@ Nur der Faktor ändert sich. Achte darauf, was mit dem Komma passiert – und wa
 
 | Nr. | Aufgabe | Ergebnis |
 |----:|:--------|:---------|
-| 13 | 3,47 · 1 | 3,47 |
-| 14 | 3,47 · 10 | 34,7 |
-| 15 | 3,47 · 100 | 347 |
-| 16 | 3,47 · 1000 | 3470 |
-| 17 | 3,47 · 0,1 | 0,347 |
-| 18 | 3,47 · 0,01 | 0,0347 |
+| 13 | $3{,}47 \cdot  1$ | $3{,}47$ |
+| 14 | $3{,}47 \cdot  10$ | $34{,}7$ |
+| 15 | $3{,}47 \cdot  100$ | $347$ |
+| 16 | $3{,}47 \cdot  1000$ | $3470$ |
+| 17 | $3{,}47 \cdot  0{,}1$ | $0{,}347$ |
+| 18 | $3{,}47 \cdot  0{,}01$ | $0{,}0347$ |
 
 *Frage nach Nr. 18:* Die Ziffernfolge 347 bleibt in allen sechs Aufgaben dieselbe. Was ändert sich stattdessen?
 
@@ -66,32 +73,32 @@ Rechne ohne Taschenrechner. Schreibe die Zahlen so untereinander, dass die Komma
 
 | Nr. | Aufgabe | Ergebnis |
 |----:|:--------|:---------|
-| 19 | 3,4 + 0,25 | 3,65 |
-| 20 | 3,4 + 0,6 | 4 |
-| 21 | 5 − 0,25 | 4,75 |
-| 22 | 1,05 + 0,95 | 2 |
-| 23 | 2,3 − 1,45 | 0,85 |
-| 24 | 0,07 + 0,7 + 7 | 7,77 |
+| 19 | $3{,}4 + 0{,}25$ | $3{,}65$ |
+| 20 | $3{,}4 + 0{,}6$ | $4$ |
+| 21 | $5 - 0{,}25$ | $4{,}75$ |
+| 22 | $1{,}05 + 0{,}95$ | $2$ |
+| 23 | $2{,}3 - 1{,}45$ | $0{,}85$ |
+| 24 | $0{,}07 + 0{,}7 + 7$ | $7{,}77$ |
 
-*Hinweis zu Nr. 21:* Schreiben Sie `5` als `5,00` – dann stehen die Stellenwerte richtig untereinander.
+*Hinweis zu Nr. 21:* Schreibe $5$ als $5{,}00$ – dann stehen die Stellenwerte richtig untereinander.
 
 ## Folge E: Dividieren durch Zahlen unter 1
 
 | Nr. | Aufgabe | Ergebnis |
 |----:|:--------|:---------|
-| 25 | 6 : 2 | 3 |
-| 26 | 6 : 1 | 6 |
-| 27 | 6 : 0,5 | 12 |
-| 28 | 6 : 0,25 | 24 |
-| 29 | 6 : 0,1 | 60 |
-| 30 | 6 : 0,01 | 600 |
+| 25 | $6 : 2$ | $3$ |
+| 26 | $6 : 1$ | $6$ |
+| 27 | $6 : 0{,}5$ | $12$ |
+| 28 | $6 : 0{,}25$ | $24$ |
+| 29 | $6 : 0{,}1$ | $60$ |
+| 30 | $6 : 0{,}01$ | $600$ |
 
 *Frage nach Nr. 30:* Der Divisor wird von Zeile zu Zeile kleiner. Was macht das Ergebnis? Stimmt die Regel „Teilen macht kleiner" hier noch?
 
 ## Reflexionsfragen
 
-1. Warum ist `0,5` genauso groß wie `0,50`, aber nicht genauso groß wie `0,05`?
-2. Erkläre einer Mitschülerin in einem Satz, warum `0,7` größer ist als `0,45`.
+1. Warum ist $0{,}5$ genauso groß wie $0{,}50$, aber nicht genauso groß wie $0{,}05$?
+2. Erkläre einer Mitschülerin in einem Satz, warum $0{,}7$ größer ist als $0{,}45$.
 3. Was passiert beim Multiplizieren mit 10 wirklich – wandert das Komma oder wandern die Ziffern? Begründe mit der Stellenwerttafel.
 4. In Folge E wird das Ergebnis größer, obwohl geteilt wird. Wie kann das sein? Beschreibe es mit der Frage „Wie oft passt … in …?"
 5. Zwischen 0,89 und 0,9 liegt noch eine Zahl – nenne drei.

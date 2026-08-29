@@ -4,6 +4,13 @@ thema: "Lineare Gleichungen"
 klassenstufe: ["7", "8"]
 schwierigkeit: einsteiger
 didaktischerHinweis: "Eine Variation-Theory-Folge: Jede Aufgabe ändert nur einen Aspekt gegenüber der vorigen. Schüler entdecken, was die Lösung beeinflusst – und was nicht."
+ziel: 'Die Schüler erkennen, welche Änderung an der Gleichung die Lösung beeinflusst – und welche nicht.'
+variation: 'Jede Aufgabe ändert genau einen Aspekt gegenüber der vorigen: eine Zahl, ein Vorzeichen, eine Seite.'
+stolperstelle: 'Beim Umstellen wird nur auf einer Seite gerechnet.'
+regie:
+  - 'Was ist gegenüber der Zeile davor anders?'
+  - 'Bevor du rechnest: Wird $x$ größer oder kleiner als eben?'
+  - 'Wer erklärt, warum sich die Lösung hier nicht ändert?'
 tags: ["variation-theory", "gleichungen", "algebra"]
 datum: 2026-05-09
 entwurf: false
@@ -15,18 +22,18 @@ Bearbeite die Aufgaben **in dieser Reihenfolge**. Notiere bei jeder Lösung, was
 
 | Nr. | Aufgabe | Lösung |
 |----:|:--------|:-------|
-| 1 | 2x + 3 = 11 | x = 4 |
-| 2 | 2x + 3 = 13 | x = 5 |
-| 3 | 2x + 3 = 15 | x = 6 |
-| 4 | 2x + 5 = 15 | x = 5 |
-| 5 | 2x − 5 = 15 | x = 10 |
-| 6 | 2x − 5 = 25 | x = 15 |
-| 7 | 4x − 5 = 15 | x = 5 |
-| 8 | 4x − 5 = 0 | x = 1{,}25 |
-| 9 | 4x − 5 = −5 | x = 0 |
-| 10 | 4x + 5 = −5 | x = −2{,}5 |
-| 11 | −4x + 5 = −5 | x = 2{,}5 |
-| 12 | −4(x − 1) + 5 = −5 | x = 3{,}5 |
+| 1 | $2x + 3 = 11$ | $x = 4$ |
+| 2 | $2x + 3 = 13$ | $x = 5$ |
+| 3 | $2x + 3 = 15$ | $x = 6$ |
+| 4 | $2x + 5 = 15$ | $x = 5$ |
+| 5 | $2x - 5 = 15$ | $x = 10$ |
+| 6 | $2x - 5 = 25$ | $x = 15$ |
+| 7 | $4x - 5 = 15$ | $x = 5$ |
+| 8 | $4x - 5 = 0$ | $x = 1{,}25$ |
+| 9 | $4x - 5 = -5$ | $x = 0$ |
+| 10 | $4x + 5 = -5$ | $x = -2{,}5$ |
+| 11 | $-4x + 5 = -5$ | $x = 2{,}5$ |
+| 12 | $-4(x - 1) + 5 = -5$ | $x = 3{,}5$ |
 
 ## Reflexionsfragen für die Schüler
 

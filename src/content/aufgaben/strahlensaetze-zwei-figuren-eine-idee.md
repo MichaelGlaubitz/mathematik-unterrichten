@@ -4,6 +4,13 @@ thema: "Strahlensätze"
 klassenstufe: ["9", "10"]
 schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die die zwei Standardfiguren der Strahlensätze (V-Figur und X-Figur) parallel übt – und dabei beide gleichzeitig als Anwendungen *eines* Prinzips sichtbar macht: Wenn Parallelen zwei Strahlen schneiden, sind die Streckenverhältnisse identisch. Schüler lernen, Figuren *als Strahlensatz-Konfiguration zu erkennen* – das ist die eigentliche Hürde, nicht das Auflösen einer Verhältnisgleichung."
+ziel: 'Die Schüler erkennen V- und X-Figur als denselben Sachverhalt – und prüfen zuerst, ob überhaupt Parallelen vorliegen.'
+variation: 'Folge A übt nur die V-Figur, Folge B nur die X-Figur, Folge C mischt beide, Folge D bringt Fälle, in denen der Satz nicht gilt.'
+stolperstelle: 'Der Strahlensatz wird angewendet, ohne dass die Geraden parallel sind.'
+regie:
+  - 'Welche Figur liegt hier vor – und woran erkennst du das?'
+  - 'Bevor du rechnest: Sind die Geraden überhaupt parallel?'
+  - 'Wer erklärt, warum ohne Parallelen nichts geht?'
 tags: ["strahlensaetze", "geometrie", "verhaeltnis", "variation-theory", "parallele"]
 datum: 2026-06-05
 entwurf: false
@@ -20,13 +27,13 @@ Es gibt zwei Standardfiguren:
 
 In beiden Fällen gilt der erste Strahlensatz:
 
-`ZA / ZA' = ZB / ZB'`
+$ZA / ZA' = ZB / ZB'$
 
 (also: die Strecken auf einem Strahl verhalten sich wie die entsprechenden Strecken auf dem anderen.)
 
 Und der zweite Strahlensatz – über die Strecken *auf den Parallelen*:
 
-`AB / A'B' = ZA / ZA' = ZB / ZB'`
+$AB / A'B' = ZA / ZA' = ZB / ZB'$
 
 Die zentrale Operation: Erkenne die Figur, identifiziere die zusammengehörigen Strecken, schreibe das Verhältnis auf, löse die Gleichung.
 
@@ -36,12 +43,12 @@ Der Schnittpunkt Z liegt außen, beide Parallelen schneiden beide Strahlen auf d
 
 | Nr. | Gegeben | Gesucht | Lösung |
 |----:|:--------|:--------|:-------|
-| 1 | ZA = 4, ZA' = 12, ZB = 5 | ZB' | ZB' = 15 (denn 4/12 = 5/15) |
-| 2 | ZA = 3, ZA' = 9, ZB = 4 | ZB' | ZB' = 12 |
-| 3 | ZA = 6, ZA' = 10, ZB = 9 | ZB' | ZB' = 15 |
-| 4 | ZA = 5, ZA' = 12, ZB = 10 | ZB' | ZB' = 24 |
-| 5 | ZA = 4, ZA' = 14, ZB = 6 | ZB' | ZB' = 21 |
-| 6 | ZA = 7, ZA' = 21, AB = 4 | A'B' | A'B' = 12 (zweiter Strahlensatz) |
+| 1 | $ZA = 4, ZA' = 12, ZB = 5$ | ZB' | ZB' = 15 (denn 4/12 = 5/15) |
+| 2 | $ZA = 3, ZA' = 9, ZB = 4$ | ZB' | $ZB' = 12$ |
+| 3 | $ZA = 6, ZA' = 10, ZB = 9$ | ZB' | $ZB' = 15$ |
+| 4 | $ZA = 5, ZA' = 12, ZB = 10$ | ZB' | $ZB' = 24$ |
+| 5 | $ZA = 4, ZA' = 14, ZB = 6$ | ZB' | $ZB' = 21$ |
+| 6 | $ZA = 7, ZA' = 21, AB = 4$ | A'B' | A'B' = 12 (zweiter Strahlensatz) |
 
 ## Folge B: X-Figur, Streckenlänge bestimmen
 
@@ -49,11 +56,11 @@ Hier liegt der Schnittpunkt Z *zwischen* den beiden Parallelen. Die Figur sieht 
 
 | Nr. | Gegeben | Gesucht | Lösung |
 |----:|:--------|:--------|:-------|
-| 7 | ZA = 4, ZA' = 6, ZB = 8 | ZB' | ZB' = 12 |
-| 8 | ZA = 3, ZA' = 9, ZB = 5 | ZB' | ZB' = 15 |
-| 9 | ZA = 6, ZA' = 10, AB = 9 | A'B' | A'B' = 15 |
-| 10 | ZA = 5, ZB = 8, ZA' = 15 | ZB' | ZB' = 24 |
-| 11 | ZA = 4, AB = 6, ZA' = 12 | A'B' | A'B' = 18 |
+| 7 | $ZA = 4, ZA' = 6, ZB = 8$ | ZB' | $ZB' = 12$ |
+| 8 | $ZA = 3, ZA' = 9, ZB = 5$ | ZB' | $ZB' = 15$ |
+| 9 | $ZA = 6, ZA' = 10, AB = 9$ | A'B' | $A'B' = 15$ |
+| 10 | $ZA = 5, ZB = 8, ZA' = 15$ | ZB' | $ZB' = 24$ |
+| 11 | $ZA = 4, AB = 6, ZA' = 12$ | A'B' | $A'B' = 18$ |
 
 ## Folge C: Welche Figur ist es? (Erkennen vor dem Rechnen)
 
@@ -64,7 +71,7 @@ In jeder Aufgabe wird eine Skizze beschrieben. Entscheide zuerst: V- oder X-Figu
 | 12 | Zwei Geraden schneiden sich in Z. Ein Lichtstrahl (Parallele 1) trifft beide Strahlen 4 cm bzw. 6 cm weit von Z entfernt. Eine zweite Parallele schneidet den ersten Strahl 12 cm hinter Z. | V (beide Parallelen auf derselben Seite, je weiter weg) | Zweite Parallele schneidet den zweiten Strahl bei 12·(6/4) = 18 cm. |
 | 13 | Zwei Geraden kreuzen sich. Auf einer Seite liegt eine Parallele, die beide Strahlen bei 5 cm und 7 cm von Z trifft. Auf der *anderen* Seite trifft eine zweite Parallele den ersten Strahl bei 10 cm. | X | Zweite Parallele trifft den zweiten Strahl bei 10·(7/5) = 14 cm. |
 | 14 | Ein Wanderer steht im Punkt Z. Er sieht auf 100 m Entfernung einen Baum, dessen Schatten zwei Stäben gleicher Höhe entspricht. Die Stäbe sind 1 m bzw. 4 m vom Wanderer entfernt. | V | Stäbe haben 1 m und 4 m. Der Höhen-Stab am Baum: 100·(Höhe / 4) — Verhältnis bleibt. |
-| 15 | Zwei sich kreuzende Geraden, der Schnittpunkt liegt zwischen zwei parallelen Wegen. Die Wegabstände sind 12 m und 18 m. Wie lang ist der zweite Weg, wenn der erste 24 m misst? | X | 24·(18/12) = 36 m. |
+| 15 | Zwei sich kreuzende Geraden, der Schnittpunkt liegt zwischen zwei parallelen Wegen. Die Wegabstände sind 12 m und 18 m. Wie lang ist der zweite Weg, wenn der erste 24 m misst? | X | $24\cdot (\frac{18}{12}) = 36 m.$ |
 
 ## Folge D: Strahlensatz oder *nicht*?
 
@@ -72,9 +79,9 @@ Diagnostische Variation. In manchen Aufgaben *gilt* der Strahlensatz, in anderen
 
 | Nr. | Aufgabe | Gilt Strahlensatz? | Begründung |
 |----:|:--------|:-------------------|:-----------|
-| 16 | Zwei Geraden, die sich in Z schneiden, mit zwei Parallelen. | Ja | Standardvoraussetzung erfüllt. |
+| 16 | Zwei Geraden, die sich in Z schneiden, mit zwei Parallelen. | $Ja$ | Standardvoraussetzung erfüllt. |
 | 17 | Zwei Geraden, zwei *nicht*-parallele Schnittlinien. | Nein | Ohne Parallelität gilt der Satz nicht. Das Verhältnis ist nicht garantiert. |
-| 18 | Ein gleichschenkliges Dreieck mit zwei Parallelen zu der Basis. | Ja | Die zwei Schenkel sind die Strahlen, die Spitze ist Z, die Basis-Parallelen sind die Schnittgeraden. |
+| 18 | Ein gleichschenkliges Dreieck mit zwei Parallelen zu der Basis. | $Ja$ | Die zwei Schenkel sind die Strahlen, die Spitze ist Z, die Basis-Parallelen sind die Schnittgeraden. |
 | 19 | Drei Geraden, die durch *einen Punkt Z* gehen, mit einer Parallele, die alle drei schneidet. | Variante des Strahlensatzes | Erweiterung: Verhältnisse zwischen *allen drei* Strahlen bleiben erhalten. |
 | 20 | Zwei *parallele* Geraden, die durch eine dritte schräg geschnitten werden. | Nein im klassischen Sinne | Es gibt keinen Schnittpunkt Z. Hier wirkt nicht der Strahlensatz, sondern Stufen-/Wechselwinkel oder ähnliches. |
 

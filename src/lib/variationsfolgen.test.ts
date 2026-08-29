@@ -177,8 +177,9 @@ describe('Partnerphase nach der Einzelarbeit', () => {
   });
 
   it('in der Partnerphase steht kein Einzelschritt mehr im Vordergrund', () => {
-    // Sobald die Einzelarbeit vorbei ist, tritt die Schrittleiste zurück.
-    expect(folie).toContain("'mu-folge-schritt--jetzt', allein && i === schritt");
+    // Sobald die Einzelarbeit vorbei ist, verschwindet das Schrittband ganz.
+    // An der Wand steht dann die Karte für die Phase, die gerade läuft.
+    expect(folie).toContain('schrittband.hidden = !allein');
     expect(folie).toContain('const allein = schritt < PARTNER');
   });
 });

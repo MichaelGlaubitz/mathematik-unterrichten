@@ -43,6 +43,12 @@ const aufgaben = defineCollection({
     klassenstufe: z.array(z.string()), // z.B. ["7", "8"]
     schwierigkeit: z.enum(['einsteiger', 'mittel', 'vertieft']),
     didaktischerHinweis: z.string(),
+    // Der Kopf für die Lehrkraft: Wer die Folge zum ersten Mal öffnet, muss in
+    // drei Sätzen wissen, worauf sie hinausläuft und was er sagt.
+    ziel: z.string().optional(),
+    variation: z.string().optional(),
+    regie: z.array(z.string()).default([]),
+    stolperstelle: z.string().optional(),
     tags: z.array(z.string()).default([]),
     datum: z.coerce.date(),
     aktualisiert: z.coerce.date().optional(),

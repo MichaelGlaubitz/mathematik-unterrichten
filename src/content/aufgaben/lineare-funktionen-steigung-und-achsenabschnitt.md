@@ -4,6 +4,13 @@ thema: "Lineare Funktionen"
 klassenstufe: ["8"]
 schwierigkeit: einsteiger
 didaktischerHinweis: "Eine Aufgabenfolge, die die Parameter $m$ und $b$ in $y = m \\cdot x + b$ systematisch variiert, damit Schüler erleben, *was* der jeweilige Parameter bewirkt. Erst Steigung allein, dann y-Achsenabschnitt allein, dann beide gemeinsam, dann Umkehr (aus Graph oder zwei Punkten die Gleichung bilden). Die häufigsten Lernlücken: 'Steigung als Strecke statt Verhältnis' und 'y-Achsenabschnitt mit x-Wert verwechseln'."
+ziel: 'Die Schüler wissen, was $m$ und was $b$ bewirken – weil sie beide getrennt variiert gesehen haben.'
+variation: 'Folge A hält die Steigung fest und verschiebt nur $b$; Folge B hält $b$ fest und ändert nur die Steigung.'
+stolperstelle: 'Steigung wird als reiner Höhenzuwachs gelesen statt als Verhältnis $\tfrac{\Delta y}{\Delta x}$.'
+regie:
+  - 'Was ändert sich am Bild – die Lage oder die Neigung?'
+  - 'Bevor du zeichnest: Wo schneidet der Graph die $y$-Achse?'
+  - 'Wer erklärt, warum die Steigung ein Verhältnis ist und keine Zahl von Kästchen?'
 tags: ["lineare-funktionen", "steigung", "y-achsenabschnitt", "variation-theory"]
 datum: 2026-06-15
 entwurf: false

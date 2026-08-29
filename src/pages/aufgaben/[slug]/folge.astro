@@ -2,7 +2,9 @@
 import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
+import katex from 'katex';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { zelleAlsLatex } from '../../../lib/mathe';
 import {
   leseVariationsfolgen,
   SCHRITTE,
@@ -32,6 +34,38 @@ export async function getStaticPaths() {
 }
 
 const { eintrag, folgen, uebersprungen } = Astro.props;
+
+/* Formelsatz entsteht zur Bauzeit: An der Wand darf kein Dollarzeichen stehen
+   und nichts nachladen. Der Bestand liefert die Mathematik in $…$; eine Zelle
+   kann daneben gewöhnlichen Text enthalten. */
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function gesetzt(zelle: string): string {
+  const roh = zelleAlsLatex(zelle);
+  if (!roh.includes('$')) {
+    // Kein Formelteil: alter Bestand ohne Auszeichnung oder reiner Text.
+    return /[\\^_{}]/.test(roh) ? katex.renderToString(roh, { throwOnError: false }) : escapeHtml(roh);
+  }
+  return roh
+    .split(/(\$[^$]+\$)/)
+    .map((teil) =>
+      teil.startsWith('$') && teil.endsWith('$') && teil.length > 2
+        ? katex.renderToString(teil.slice(1, -1), { throwOnError: false })
+        : escapeHtml(teil)
+    )
+    .join('');
+}
+
+const folgenGesetzt = folgen.map((f) => ({
+  ...f,
+  aufgaben: f.aufgaben.map((a) => ({
+    ...a,
+    frageHtml: gesetzt(a.frage),
+    loesungHtml: gesetzt(a.loesung),
+  })),
+}));
 const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
 ---
 
@@ -81,40 +115,42 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       </div>
     </header>
 
-    <div id="mu-folge-buehne" class="mu-folge-buehne rounded-xl border border-ink-200 bg-surface p-6 md:p-8 dark:border-slate-600/45 dark:bg-slate-950/30">
-      <p id="mu-folge-abschnitt" class="text-xs font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100"></p>
+    <div id="mu-folge-buehne" class="mu-folge-buehne rounded-xl border border-ink-200 bg-surface p-6 md:p-10 dark:border-slate-600/45 dark:bg-slate-950/40">
+      <div class="mu-folge-kopfzeile flex flex-wrap items-baseline justify-between gap-3">
+        <p id="mu-folge-abschnitt" class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100"></p>
+        <p id="mu-folge-stand" class="text-sm font-semibold text-ink-700 dark:text-ink-200"></p>
+      </div>
 
-      <!-- Reflect braucht das Vorherige. Ohne diesen Block ist die Frage
+      <!-- Reflect braucht das Vorherige: ohne die Aufgabe davor ist
            „Was hat sich geändert?" nicht beantwortbar. -->
-      <div id="mu-folge-vorher" class="mt-4 rounded-lg border border-ink-200/80 bg-ink-50/60 px-4 py-3 dark:border-slate-600/50 dark:bg-slate-900/50">
-        <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Aufgabe davor</p>
-        <p class="mu-folge-vorher-frage mt-1 font-mono text-lg text-ink-800 dark:text-ink-100"></p>
-        <p class="mu-folge-vorher-loesung mt-0.5 font-mono text-lg font-semibold text-accent-700 dark:text-accent-100"></p>
+      <div id="mu-folge-vorher" class="mu-folge-vorher mt-5 rounded-lg border border-ink-300 bg-ink-50 px-5 py-4 dark:border-slate-500 dark:bg-slate-900">
+        <p class="mu-folge-etikett text-ink-700 dark:text-ink-200">Aufgabe davor</p>
+        <p class="mu-folge-vorher-frage mt-1 text-ink-900 dark:text-ink-50"></p>
+        <p class="mu-folge-vorher-loesung mt-1 font-semibold text-accent-800 dark:text-accent-100"></p>
       </div>
 
-      <div class="mt-6">
-        <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
-          Diese Aufgabe <span id="mu-folge-zaehler" class="ml-1 font-normal normal-case tracking-normal"></span>
+      <div class="mt-8">
+        <p class="mu-folge-etikett text-ink-700 dark:text-ink-200">
+          Diese Aufgabe <span id="mu-folge-zaehler"></span>
         </p>
-        <p id="mu-folge-frage" class="mt-1 font-mono text-3xl md:text-4xl font-semibold text-ink-900 dark:text-ink-50"></p>
-        <p id="mu-folge-loesung" class="mt-3 font-mono text-2xl md:text-3xl font-semibold text-accent-700 dark:text-accent-100" hidden></p>
+        <p id="mu-folge-frage" class="mu-folge-frage mt-2 text-ink-900 dark:text-ink-50"></p>
+        <p id="mu-folge-loesung" class="mu-folge-loesung mt-4 font-semibold text-accent-800 dark:text-accent-100" hidden></p>
       </div>
 
-      <ol id="mu-folge-schritte" class="mt-8 grid gap-3 md:grid-cols-4">
-        {SCHRITTE.map((s, i) => (
-          <li
-            class="mu-folge-schritt rounded-lg border border-ink-200 p-3 dark:border-slate-600/45"
-            data-schritt={i}
-          >
-            <p class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">{s.marke}</p>
-            <p class="mt-1 text-sm font-semibold text-ink-900 dark:text-ink-50">{s.titel}</p>
-            {s.punkte.length > 0 && (
-              <ul class="mt-1.5 space-y-0.5 text-sm text-ink-700 dark:text-ink-300">
-                {s.punkte.map((p) => <li>– {p}</li>)}
-              </ul>
-            )}
-          </li>
+      <!-- An der Wand steht immer nur der Schritt, der gerade dran ist.
+           Vier Textkarten nebeneinander sind eine Liste, keine Regie. -->
+      <section id="mu-folge-schritt" class="mu-folge-schrittband mt-8 rounded-xl border-l-8 border-accent-600 bg-accent-50 px-6 py-5 dark:border-accent-400 dark:bg-accent-500/15">
+        <p id="mu-folge-marke" class="mu-folge-marke text-accent-800 dark:text-accent-100"></p>
+        <p id="mu-folge-auftrag" class="mu-folge-auftrag mt-1 text-ink-900 dark:text-ink-50"></p>
+        <ul id="mu-folge-punkte" class="mu-folge-punkte mt-3 space-y-1 text-ink-900 dark:text-ink-100"></ul>
+      </section>
+
+      <ol id="mu-folge-leiste" class="mu-folge-leiste mt-6 flex flex-wrap gap-2" aria-hidden="true">
+        {SCHRITTE.map((s) => (
+          <li class="mu-folge-punkt rounded-md border border-ink-400 px-3 py-1 text-sm font-semibold text-ink-700 dark:border-ink-400 dark:text-ink-200">{s.marke}</li>
         ))}
+        <li class="mu-folge-punkt mu-folge-punkt--paar rounded-md border border-violet-500 px-3 py-1 text-sm font-semibold text-violet-800 dark:text-violet-200">zu zweit</li>
+        <li class="mu-folge-punkt mu-folge-punkt--plenum rounded-md border border-teal-600 px-3 py-1 text-sm font-semibold text-teal-800 dark:text-teal-200">Plenum</li>
       </ol>
 
       <section
@@ -200,7 +236,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
   </div>
 </BaseLayout>
 
-<script is:inline define:vars={{ folgen }}>
+<script is:inline define:vars={{ folgen: folgenGesetzt, SCHRITTE }}>
   (function () {
     const wahl = document.getElementById('mu-folge-wahl');
     const buehne = document.getElementById('mu-folge-buehne');
@@ -214,62 +250,72 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     const loesung = document.getElementById('mu-folge-loesung');
     const zaehler = document.getElementById('mu-folge-zaehler');
     const stand = document.getElementById('mu-folge-stand');
-    const schritte = [...document.querySelectorAll('.mu-folge-schritt')];
-
-    let folge = 0;
-    let nr = 0;      // welche Aufgabe
-    // 0..3 = Reflect, Expect, Check, Explain (allein)
-    // 4 = zu zweit, 5 = Plenum, 6 = tiefer bohren (nur nach der letzten Aufgabe)
-    let schritt = 0;
-    const PARTNER = 4, PLENUM = 5, TIEFER_S = 6;
+    const marke = document.getElementById('mu-folge-marke');
+    const auftrag = document.getElementById('mu-folge-auftrag');
+    const punkte = document.getElementById('mu-folge-punkte');
+    const schrittband = document.getElementById('mu-folge-schritt');
+    const leiste = [...document.querySelectorAll('.mu-folge-punkt')];
     const partnerkarte = document.getElementById('mu-folge-partner');
     const plenumkarte = document.getElementById('mu-folge-plenum');
     const tieferkarte = document.getElementById('mu-folge-tiefer');
 
+    // 0..3 = Reflect, Expect, Check, Explain (allein)
+    // 4 = zu zweit, 5 = Plenum, 6 = tiefer bohren (nur nach der letzten Aufgabe)
+    const PARTNER = 4, PLENUM = 5, TIEFER_S = 6;
+    let folge = 0, nr = 0, schritt = 1;
+
     function zeichne() {
       const f = folgen[folge];
       const a = f.aufgaben[nr];
-      abschnitt.textContent = f.titel;
-      frage.textContent = a.frage;
-      loesung.textContent = a.loesung;
-      // Die Lösung erscheint erst beim Check – vorher wäre die Erwartung wertlos.
-      loesung.hidden = schritt < 2;
-      zaehler.textContent = `(${nr + 1} von ${f.aufgaben.length})`;
-
-      const davor = nr > 0 ? f.aufgaben[nr - 1] : null;
-      vorher.hidden = !davor;
-      if (davor) {
-        vorherFrage.textContent = davor.frage;
-        vorherLoesung.textContent = davor.loesung;
-      }
-
-      // Ab der Partnerphase steht keiner der vier Einzelschritte mehr im
-      // Vordergrund: Erst sucht das Paar aus, dann führt die Lehrkraft.
       const imPartner = schritt === PARTNER;
       const imPlenum = schritt === PLENUM;
       const imTiefer = schritt === TIEFER_S;
       const allein = schritt < PARTNER;
+
+      abschnitt.textContent = f.titel;
+      frage.innerHTML = a.frageHtml;
+      loesung.innerHTML = a.loesungHtml;
+      // Die Lösung erscheint erst beim Check – vorher wäre die Erwartung wertlos.
+      loesung.hidden = schritt < 2;
+      zaehler.textContent = `${nr + 1} von ${f.aufgaben.length}`;
+
+      const davor = nr > 0 ? f.aufgaben[nr - 1] : null;
+      vorher.hidden = !davor;
+      if (davor) {
+        vorherFrage.innerHTML = davor.frageHtml;
+        vorherLoesung.innerHTML = davor.loesungHtml;
+      }
+
+      // An der Wand steht nur der Schritt, der gerade dran ist.
+      schrittband.hidden = !allein;
+      if (allein) {
+        const s = SCHRITTE[schritt];
+        marke.textContent = s.marke;
+        auftrag.textContent = s.titel;
+        punkte.innerHTML = '';
+        for (const p of s.punkte) {
+          const li = document.createElement('li');
+          li.textContent = p;
+          punkte.appendChild(li);
+        }
+      }
       partnerkarte.hidden = !imPartner;
       plenumkarte.hidden = !imPlenum;
       tieferkarte.hidden = !imTiefer;
-      schritte.forEach((el, i) => {
-        el.classList.toggle('mu-folge-schritt--jetzt', allein && i === schritt);
-        el.classList.toggle('mu-folge-schritt--vorbei', !allein || i < schritt);
-      });
+
+      leiste.forEach((el, i) => el.classList.toggle('mu-folge-punkt--jetzt', i === schritt));
       stand.textContent = imTiefer
-        ? `Zum Schluss · ganze Folge (${f.aufgaben.length} Aufgaben)`
-        : imPlenum
-          ? `Im Plenum · Aufgabe ${nr + 1}/${f.aufgaben.length}`
-          : imPartner
-            ? `Zu zweit · Aufgabe ${nr + 1}/${f.aufgaben.length}`
-            : `Allein: ${['Reflect', 'Expect', 'Check', 'Explain'][schritt]} · Aufgabe ${nr + 1}/${f.aufgaben.length}`;
+        ? `Zum Schluss · ganze Folge`
+        : imPlenum ? `Im Plenum · ${nr + 1}/${f.aufgaben.length}`
+        : imPartner ? `Zu zweit · ${nr + 1}/${f.aufgaben.length}`
+        : `Allein · ${nr + 1}/${f.aufgaben.length}`;
     }
 
     function weiter(richtung) {
       const f = folgen[folge];
+      const letzte = nr === f.aufgaben.length - 1;
       let s = schritt + richtung;
       let n = nr;
-      const letzte = nr === f.aufgaben.length - 1;
       // „Tiefer bohren" fragt nach der ganzen Folge – das geht erst, wenn sie
       // durchlaufen ist. Vorher führt der Weg zur nächsten Aufgabe.
       if (s > PLENUM && !letzte) { s = 0; n = n + 1; }
@@ -287,7 +333,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     document.getElementById('mu-folge-zurueck').addEventListener('click', () => weiter(-1));
     wahl.addEventListener('change', () => { folge = Number(wahl.value); nr = 0; schritt = 1; zeichne(); });
     document.getElementById('mu-folge-start').addEventListener('click', () => {
-      buehne.scrollIntoView({ behavior: 'smooth' });
+      if (!document.fullscreenElement) buehne.requestFullscreen?.();
     });
     document.getElementById('mu-folge-vollbild').addEventListener('click', () => {
       if (document.fullscreenElement) document.exitFullscreen();
@@ -299,46 +345,72 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       if (e.key === 'ArrowLeft') { e.preventDefault(); weiter(-1); }
     });
 
-    schritt = 1; // erste Aufgabe: Expect
     zeichne();
   })();
 </script>
 
 <style is:global>
-  .mu-folge-schritt {
-    opacity: 0.45;
-    transition: opacity 0.15s ease, border-color 0.15s ease;
+  /* Projektion heißt: Es liest jemand aus der letzten Reihe, auf einem Bild,
+     das oft zu hell und zu flau ist. Deshalb große Grade, volle Deckkraft,
+     keine Grautöne für Text, der gelesen werden soll. */
+  .mu-folge-etikett {
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
-  .mu-folge-schritt--vorbei { opacity: 0.7; }
-  .mu-folge-schritt--jetzt {
-    opacity: 1;
-    border-color: theme('colors.accent.500');
-    background: theme('colors.accent.50 / 45%');
+  .mu-folge-frage {
+    font-size: clamp(1.8rem, 5.6vw, 5.5rem);
+    line-height: 1.15;
+    font-weight: 600;
   }
-  html.dark .mu-folge-schritt--jetzt {
-    background: theme('colors.accent.700 / 20%');
+  .mu-folge-loesung { font-size: clamp(1.5rem, 4vw, 4rem); line-height: 1.2; }
+  .mu-folge-vorher-frage { font-size: clamp(1.25rem, 2.3vw, 2.2rem); line-height: 1.3; }
+  .mu-folge-vorher-loesung { font-size: clamp(1.25rem, 2.3vw, 2.2rem); line-height: 1.3; }
+  .mu-folge-marke {
+    font-size: clamp(1rem, 1.5vw, 1.5rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
+  .mu-folge-auftrag { font-size: clamp(1.35rem, 2.6vw, 2.6rem); font-weight: 600; line-height: 1.25; }
+  .mu-folge-punkte { font-size: clamp(1.05rem, 1.9vw, 1.9rem); line-height: 1.4; }
+  .mu-folge-punkte li::before { content: '– '; }
+  .mu-folge-punkt--jetzt {
+    background: theme('colors.accent.600');
+    border-color: theme('colors.accent.600');
+    color: #fff;
+  }
+  #mu-folge-partner li, #mu-folge-plenum li, #mu-folge-tiefer li {
+    font-size: clamp(1rem, 1.7vw, 1.7rem);
+    line-height: 1.4;
+  }
+  #mu-folge-partner p, #mu-folge-plenum p, #mu-folge-tiefer p {
+    font-size: clamp(1rem, 1.6vw, 1.6rem);
+  }
+
+  #mu-folge-partner[hidden], #mu-folge-plenum[hidden], #mu-folge-tiefer[hidden],
+  #mu-folge-schritt[hidden], #mu-folge-vorher[hidden], #mu-folge-loesung[hidden] {
+    display: none !important;
+  }
+
   /* Ein <select> wird so breit wie seine längste Option. Ohne Begrenzung
      schiebt der Folgentitel die ganze Seite zur Seite. */
   .mu-folge-wahl { max-width: 100%; }
-  #mu-folge-partner[hidden], #mu-folge-plenum[hidden], #mu-folge-tiefer[hidden] { display: none; }
-  #mu-folge-vorher[hidden] { display: none; }
-  #mu-folge-loesung[hidden] { display: none; }
 
   /* Im Vollbild zählt nur, was die Klasse sehen soll. */
   #mu-folge-buehne:fullscreen {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 4vh 5vw;
-    background: theme('colors.white');
+    padding: 3vh 4vw;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
   }
   html.dark #mu-folge-buehne:fullscreen { background: rgb(15 23 42); }
-  #mu-folge-buehne:fullscreen #mu-folge-frage { font-size: clamp(2.5rem, 7vw, 6rem); }
-  #mu-folge-buehne:fullscreen #mu-folge-loesung { font-size: clamp(2rem, 5vw, 4.5rem); }
-  #mu-folge-buehne:fullscreen .mu-folge-vorher-frage,
-  #mu-folge-buehne:fullscreen .mu-folge-vorher-loesung { font-size: clamp(1.1rem, 2.2vw, 2rem); }
-  #mu-folge-buehne:fullscreen .mu-folge-steuerung { opacity: 0.35; }
+  #mu-folge-buehne:fullscreen .mu-folge-steuerung,
+  #mu-folge-buehne:fullscreen .mu-folge-leiste { opacity: 0.55; }
 
   @media print {
     .mu-folge-rolle, .mu-folge-steuerung, .mu-folge-hinweis { display: none; }
