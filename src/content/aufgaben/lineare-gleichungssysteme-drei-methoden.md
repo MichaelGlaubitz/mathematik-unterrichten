@@ -4,7 +4,7 @@ thema: "Lineare Gleichungssysteme"
 klassenstufe: ["8", "9"]
 schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die die drei Standardmethoden (Gleichsetzen, Einsetzen, Addieren) parallel an *demselben* Aufgabenkorpus übt. Schüler lernen, dass nicht eine Methode 'die richtige' ist, sondern dass die Methode zur Form der Gleichung passt – und dass alle drei dieselbe Lösung produzieren. Das ist die Kern-Einsicht, die später beim Gauß-Verfahren in der Oberstufe trägt."
-ziel: 'Die Schüler wählen die Methode nach der Form des Systems – statt eine Methode für „die richtige" zu halten.'
+ziel: 'Die Schüler wählen die Methode nach der Form des Systems – statt eine Methode für „die richtige“ zu halten.'
 variation: 'Dieselbe Sorte Systeme läuft durch drei Verfahren; Folge E lässt die Schüler selbst wählen.'
 stolperstelle: 'Das Additionsverfahren wird angesetzt, obwohl eine Variable längst isoliert dasteht.'
 regie:
@@ -108,23 +108,23 @@ In jeder Zeile *eine* Aufgabe, die in unterschiedlicher Form präsentiert ist. W
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Das deutsche Schulbuch behandelt die drei Methoden meist als drei voneinander unabhängige „Verfahren", die nacheinander erlernt und dann in Aufgaben angewandt werden – oft mit dem Ergebnis, dass Schüler die *eine* Methode benutzen, an die sie sich am ehesten erinnern, ohne zu sehen, wann sie ungeeignet ist. Diese Aufgabenfolge will das Gegenteil: Die Methoden werden *parallel* gegen denselben Aufgabenkorpus geübt, sodass die Schüler den Zusammenhang sehen.
+**Der Kern.** Das deutsche Schulbuch behandelt die drei Methoden meist als drei voneinander unabhängige „Verfahren“, die nacheinander erlernt und dann in Aufgaben angewandt werden – oft mit dem Ergebnis, dass Schüler die *eine* Methode benutzen, an die sie sich am ehesten erinnern, ohne zu sehen, wann sie ungeeignet ist. Diese Aufgabenfolge will das Gegenteil: Die Methoden werden *parallel* gegen denselben Aufgabenkorpus geübt, sodass die Schüler den Zusammenhang sehen.
 
 **Was variiert in Folge A bis C?**
 Die Methode wechselt, nicht der mathematische Kern. Ein System wie 2x + y = 7 / x − y = 2 (Folge C) hat dieselbe Lösung, egal welche Methode man anwendet. Der Punkt: Die *Präsentationsform* der Gleichungen entscheidet, welche Methode am wenigsten Aufwand bedeutet. Schüler entwickeln so eine Methodenflexibilität, die das pure Auswendiglernen einer einzigen Vorgehensweise nicht ermöglicht.
 
 **Was variiert in Folge D?**
-Hier kommt das Additionsverfahren mit Multiplikation ins Spiel – die häufigste Standardform in Klassenarbeiten. Schüler erleben, dass sie *zuerst* das System „passend machen" müssen. Das ist die Brücke zum Gauß-Verfahren der Oberstufe.
+Hier kommt das Additionsverfahren mit Multiplikation ins Spiel – die häufigste Standardform in Klassenarbeiten. Schüler erleben, dass sie *zuerst* das System „passend machen“ müssen. Das ist die Brücke zum Gauß-Verfahren der Oberstufe.
 
 **Was variiert in Folge E?**
 Hier wird die Methodenwahl selbst zur Aufgabe. Schüler müssen *vor* dem Lösen entscheiden, welcher Weg am effizientesten ist. Das ist die kognitiv anspruchsvolle Operation – und die, die in der Klassenarbeit den Unterschied macht.
 
 **Häufige Fehlvorstellungen**
 
-- *„Beim Einsetzen muss ich nach $y$ auflösen."* Nein, $x$ geht genauso. Aufgabe 8 zeigt das.
-- *„Beim Addieren muss ich *immer* multiplizieren."* Nein – Aufgabe 13 ist direkt addierbar, ohne Vorbereitung. Multiplikation ist erst nötig, wenn die Koeffizienten nicht „passen".
-- *„Ein System ohne Lösung erkenne ich, wenn ich x = 0 herausbekomme."* Nein – x = 0 ist eine *Lösung*. Ohne Lösung ist das System, wenn beim Lösen ein *Widerspruch* herauskommt (z. B. 0 = 5).
-- *„Wenn beide Gleichungen gleich sind, gibt es eine Lösung."* Nein – dann gibt es *unendlich viele* (jede Lösung der einen ist auch Lösung der anderen).
+- *„Beim Einsetzen muss ich nach $y$ auflösen.“* Nein, $x$ geht genauso. Aufgabe 8 zeigt das.
+- *„Beim Addieren muss ich *immer* multiplizieren.“* Nein – Aufgabe 13 ist direkt addierbar, ohne Vorbereitung. Multiplikation ist erst nötig, wenn die Koeffizienten nicht „passen“.
+- *„Ein System ohne Lösung erkenne ich, wenn ich x = 0 herausbekomme.“* Nein – x = 0 ist eine *Lösung*. Ohne Lösung ist das System, wenn beim Lösen ein *Widerspruch* herauskommt (z. B. 0 = 5).
+- *„Wenn beide Gleichungen gleich sind, gibt es eine Lösung.“* Nein – dann gibt es *unendlich viele* (jede Lösung der einen ist auch Lösung der anderen).
 
 **Möglicher Anschluss**
 

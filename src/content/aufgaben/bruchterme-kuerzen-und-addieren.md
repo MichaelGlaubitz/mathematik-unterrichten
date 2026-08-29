@@ -3,7 +3,7 @@ titel: "Bruchterme – kürzen, erweitern, addieren"
 thema: "Termumformungen"
 klassenstufe: ["9", "10"]
 schwierigkeit: mittel
-didaktischerHinweis: "„Aus Differenzen kürzen die Dummen" ist ein Merkspruch, den alle kennen und trotzdem verletzen. Der Grund: Kürzen wird als Streichen gleicher Zeichen gelernt, nicht als Wegkürzen gemeinsamer Faktoren. Folge A trennt deshalb zuerst systematisch, was ein Faktor ist und was ein Summand. Erst danach wird gekürzt. Folge E bringt den Definitionsbereich – er ist bei Bruchtermen kein Formalismus, sondern Teil der Aufgabe."
+didaktischerHinweis: "„Aus Differenzen kürzen die Dummen“ ist ein Merkspruch, den alle kennen und trotzdem verletzen. Der Grund: Kürzen wird als Streichen gleicher Zeichen gelernt, nicht als Wegkürzen gemeinsamer Faktoren. Folge A trennt deshalb zuerst systematisch, was ein Faktor ist und was ein Summand. Erst danach wird gekürzt. Folge E bringt den Definitionsbereich – er ist bei Bruchtermen kein Formalismus, sondern Teil der Aufgabe."
 ziel: 'Die Schüler kürzen gemeinsame Faktoren – und erkennen, dass Summanden sich nicht kürzen lassen, auch wenn sie gleich aussehen.'
 variation: 'Folge A fragt nur: Faktor oder Summand? Erst Folge B kürzt, Folge C verlangt die Begründung, warum nicht gekürzt werden darf.'
 stolperstelle: 'Kürzen wird als Streichen gleicher Zeichen gelernt. $\tfrac{2+3}{2+5}$ ist deshalb der Prüfstein.'
@@ -119,9 +119,9 @@ Für welche Werte ist der Term nicht definiert?
 
 **Häufige Fehlvorstellungen**
 
-- *„Aus Differenzen kürzen die Dummen" – und trotzdem gekürzt.* Der Spruch ist bekannt, die Erkennung nicht. Gegenmittel: Folge A, ohne Rechnen.
+- *„Aus Differenzen kürzen die Dummen“ – und trotzdem gekürzt.* Der Spruch ist bekannt, die Erkennung nicht. Gegenmittel: Folge A, ohne Rechnen.
 - *Definitionsbereich als Formalismus.* Gegenmittel: Nr. 28 und die Grafik zur Definitionslücke – dort wird sichtbar, dass etwas fehlt.
-- *Bruchterme wie Bruchgleichungen behandelt.* „Über Kreuz multiplizieren" ist eine Umformung von **Gleichungen**. Ein Term wird nicht umgeformt, indem man ihn mit etwas multipliziert.
+- *Bruchterme wie Bruchgleichungen behandelt.* „Über Kreuz multiplizieren“ ist eine Umformung von **Gleichungen**. Ein Term wird nicht umgeformt, indem man ihn mit etwas multipliziert.
 - *Beim Addieren keinen gemeinsamen Nenner gebildet.* Derselbe Fehler wie in Klasse 6, nur mit Buchstaben. Gegenmittel: einmal den Zahlenfall daneben rechnen.
 
 **Zum Weiterarbeiten**

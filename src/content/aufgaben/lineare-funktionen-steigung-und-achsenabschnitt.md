@@ -25,7 +25,7 @@ $$y = m \cdot x + b$$
 - $m$ ist die *Steigung*: wie stark der Graph pro x-Schritt steigt oder fällt.
 - $b$ ist der *y-Achsenabschnitt*: der y-Wert an der Stelle $x = 0$ (also der Schnittpunkt mit der y-Achse).
 
-Die Steigung wird oft als „Steigungsdreieck" gelesen: $m = \frac{\Delta y}{\Delta x}$ – wie viel der y-Wert *pro* x-Einheit zunimmt. Wenn $m > 0$, geht der Graph nach rechts oben; wenn $m < 0$, nach rechts unten; wenn $m = 0$, ist der Graph waagerecht.
+Die Steigung wird oft als „Steigungsdreieck“ gelesen: $m = \frac{\Delta y}{\Delta x}$ – wie viel der y-Wert *pro* x-Einheit zunimmt. Wenn $m > 0$, geht der Graph nach rechts oben; wenn $m < 0$, nach rechts unten; wenn $m = 0$, ist der Graph waagerecht.
 
 ## Folge A: y-Achsenabschnitt variieren, Steigung bleibt gleich
 
@@ -113,7 +113,7 @@ Schüler übersetzen Sachverhalte in lineare Funktionen.
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Lineare Funktionen sind ein Schlüsselthema in Klasse 8 – nicht nur als eigenständiger Stoff, sondern als Grundlage für *jede spätere Funktionsbetrachtung*. Wer die Parameter $m$ und $b$ als bedeutungstragende Größen versteht (und nicht nur als „Buchstaben in der Formel"), hat die richtige Vorstellung für quadratische Funktionen ($y = a \cdot x^2 + b \cdot x + c$), Exponentialfunktionen ($y = a \cdot q^x$) und alles, was später kommt.
+**Der Kern.** Lineare Funktionen sind ein Schlüsselthema in Klasse 8 – nicht nur als eigenständiger Stoff, sondern als Grundlage für *jede spätere Funktionsbetrachtung*. Wer die Parameter $m$ und $b$ als bedeutungstragende Größen versteht (und nicht nur als „Buchstaben in der Formel“), hat die richtige Vorstellung für quadratische Funktionen ($y = a \cdot x^2 + b \cdot x + c$), Exponentialfunktionen ($y = a \cdot q^x$) und alles, was später kommt.
 
 **Was variiert in Folge A?**
 Nur der y-Achsenabschnitt. Die Steigung ist konstant. Schüler erleben *isoliert*, was $b$ bewirkt – nämlich eine vertikale Verschiebung. Das ist Variation Theory in Reinkultur.
@@ -135,11 +135,11 @@ Sachkontext-Übersetzung. Schüler müssen erkennen: Was ist im Text der konstan
 
 **Häufige Fehlvorstellungen**
 
-- *„Die Steigung ist die Höhe des Steigungsdreiecks."* Falsch. Die Steigung ist das *Verhältnis* $\frac{\text{Höhe}}{\text{Breite}}$. Wer das verwechselt, kann eine Bruchsteigung wie $\frac{1}{2}$ nicht von einer ganzzahligen Steigung wie $2$ unterscheiden.
-- *„Der y-Achsenabschnitt ist der x-Wert, an dem die Gerade die x-Achse schneidet."* Klassische Verwechslung von x- und y-Achse. Der y-Achsenabschnitt ist der y-Wert *an der Stelle $x = 0$*.
-- *„Wenn die Steigung null ist, gibt es keine Funktion."* Doch. Eine konstante Funktion $y = b$ ist eine lineare Funktion mit Steigung null. Ihr Graph ist eine waagerechte Gerade.
-- *„Eine senkrechte Gerade hat unendliche Steigung."* Sie ist *keine Funktion*, weil ein x-Wert mehrere y-Werte zugeordnet bekäme. Das ist der Punkt, an dem der Funktionsbegriff schärfer wird.
-- *„$m$ und $b$ kann man aus jeder Gleichungsform direkt ablesen."* Nur aus der *expliziten Form* $y = m \cdot x + b$. Steht die Gleichung etwa als $2x + 3y = 6$, muss sie erst umgeformt werden.
+- *„Die Steigung ist die Höhe des Steigungsdreiecks.“* Falsch. Die Steigung ist das *Verhältnis* $\frac{\text{Höhe}}{\text{Breite}}$. Wer das verwechselt, kann eine Bruchsteigung wie $\frac{1}{2}$ nicht von einer ganzzahligen Steigung wie $2$ unterscheiden.
+- *„Der y-Achsenabschnitt ist der x-Wert, an dem die Gerade die x-Achse schneidet.“* Klassische Verwechslung von x- und y-Achse. Der y-Achsenabschnitt ist der y-Wert *an der Stelle $x = 0$*.
+- *„Wenn die Steigung null ist, gibt es keine Funktion.“* Doch. Eine konstante Funktion $y = b$ ist eine lineare Funktion mit Steigung null. Ihr Graph ist eine waagerechte Gerade.
+- *„Eine senkrechte Gerade hat unendliche Steigung.“* Sie ist *keine Funktion*, weil ein x-Wert mehrere y-Werte zugeordnet bekäme. Das ist der Punkt, an dem der Funktionsbegriff schärfer wird.
+- *„$m$ und $b$ kann man aus jeder Gleichungsform direkt ablesen.“* Nur aus der *expliziten Form* $y = m \cdot x + b$. Steht die Gleichung etwa als $2x + 3y = 6$, muss sie erst umgeformt werden.
 
 **Möglicher Anschluss**
 

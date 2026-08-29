@@ -24,7 +24,7 @@ describe('Schreibweise der Aufgabenfolgen nach LaTeX', () => {
       try {
         katex.renderToString(alsLatex(roh), { throwOnError: true });
       } catch (e) {
-        kaputt.push(`${datei}: „${roh}" → ${alsLatex(roh)} — ${String(e).slice(0, 80)}`);
+        kaputt.push(`${datei}: „${roh}“ → ${alsLatex(roh)} — ${String(e).slice(0, 80)}`);
       }
     }
     expect(kaputt.slice(0, 8)).toEqual([]);
@@ -34,9 +34,9 @@ describe('Schreibweise der Aufgabenfolgen nach LaTeX', () => {
     const reste: string[] = [];
     for (const { datei, roh } of ausdruecke) {
       const l = alsLatex(roh);
-      if (/[²³⁴⁵⁶]/.test(l)) reste.push(`${datei}: ² blieb stehen in „${l}"`);
-      if (/\d\/\d/.test(l)) reste.push(`${datei}: Schrägstrich-Bruch blieb stehen in „${l}"`);
-      if (/√/.test(l)) reste.push(`${datei}: Wurzelzeichen blieb stehen in „${l}"`);
+      if (/[²³⁴⁵⁶]/.test(l)) reste.push(`${datei}: ² blieb stehen in „${l}“`);
+      if (/\d\/\d/.test(l)) reste.push(`${datei}: Schrägstrich-Bruch blieb stehen in „${l}“`);
+      if (/√/.test(l)) reste.push(`${datei}: Wurzelzeichen blieb stehen in „${l}“`);
     }
     expect(reste.slice(0, 8)).toEqual([]);
   });

@@ -39,7 +39,7 @@ Sie haben die binomischen Formeln eingeführt. Bevor Sie Übungsaufgaben verteil
 > D) `(x + 3)² = 2x + 6`
 
 Wenn 90 % der Klasse C wählen: weitermachen.
-Wenn 50 % A wählen: zurücktreten – die Klasse hat die Quadrierung als „verteilt sich auf jeden Summand" verstanden, ein klassischer Fehler.
+Wenn 50 % A wählen: zurücktreten – die Klasse hat die Quadrierung als „verteilt sich auf jeden Summand“ verstanden, ein klassischer Fehler.
 Wenn 30 % B wählen: zurücktreten – die Klasse hat *einen* Mittel-Term, aber den falschen Faktor.
 Wenn 20 % D wählen: zurücktreten – die Klasse hat die binomische Formel mit einer Linearform vermischt.
 
@@ -53,7 +53,7 @@ Eine Hinge Question zu bauen ist nicht trivial. Drei Regeln, die ich für mich g
 
 **Zweitens: Keine Option soll durch Ausschlussverfahren erkennbar sein.** Wenn eine Option offensichtlich Quatsch ist, lenkt sie nicht. Schüler, die unsicher sind, wählen dann eine der übrigen drei – verraten aber nichts.
 
-**Dritte: Die richtige Antwort darf keine offensichtliche „Form" haben.** Wenn die richtige Antwort in jeder Hinge Question der ganzen Stunde immer C ist, lernen Schüler das Muster und kreuzen ohne nachzudenken.
+**Dritte: Die richtige Antwort darf keine offensichtliche „Form“ haben.** Wenn die richtige Antwort in jeder Hinge Question der ganzen Stunde immer C ist, lernen Schüler das Muster und kreuzen ohne nachzudenken.
 
 ## Wie man sie in der Stunde einsetzt
 
@@ -76,10 +76,10 @@ In meiner Praxis haben sie sich vor allem an drei Stellen bewährt:
 
 ## Typische Fehler beim Einsetzen
 
-- **Frage ist zu klein.** „Was ist 2 + 3?" testet nichts Konzeptionelles. Hinge Questions sollen *Konzepte* prüfen, nicht Routinen.
+- **Frage ist zu klein.** „Was ist 2 + 3?“ testet nichts Konzeptionelles. Hinge Questions sollen *Konzepte* prüfen, nicht Routinen.
 - **Frage hat nur eine offensichtliche richtige Antwort und drei Quatsch-Antworten.** Diagnosewert: null.
 - **Lehrkraft ignoriert das Ergebnis.** Ich habe das selbst gemacht: Hinge Question gestellt, 60 % falsch, trotzdem weitergemacht, weil mein Stundenplan das so vorsah. Das ist eine Verschwendung der Methode. Wenn ich die Verteilung ignoriere, kann ich auf die Frage auch verzichten.
-- **Lehrkraft bittet einen Schüler, „die richtige Antwort zu erklären".** Damit ist der Diagnose-Effekt weg – die anderen Schüler korrigieren sich nur scheinbar. Besser: Die Lehrkraft erklärt selbst und macht dabei explizit, *was an den falschen Antworten falsch ist*.
+- **Lehrkraft bittet einen Schüler, „die richtige Antwort zu erklären“.** Damit ist der Diagnose-Effekt weg – die anderen Schüler korrigieren sich nur scheinbar. Besser: Die Lehrkraft erklärt selbst und macht dabei explizit, *was an den falschen Antworten falsch ist*.
 
 ## Wo Sie die Fragen finden
 

@@ -5,12 +5,12 @@
  * Hintergrund: Reflect–Expect–Check–Explain lebt vom Vergleich mit der
  * *vorherigen* Aufgabe. Das setzt eine Folge voraus, in der sich von Zeile zu
  * Zeile möglichst wenig ändert – genau so sind die Aufgabenfolgen geschrieben
- * („Sieh genau hin: Was variiert von Zeile zu Zeile, was nicht?").
+ * („Sieh genau hin: Was variiert von Zeile zu Zeile, was nicht?“).
  *
  * Genommen wird nur, was eindeutig ist: eine Tabelle mit genau drei Spalten,
  * deren erste eine laufende Nummer trägt. Tabellen mit Zwischenspalten
- * („Lösungsidee", „Hauptnenner") oder mehreren Darstellungen nebeneinander
- * („Bruch | Dezimalzahl | Prozent") bleiben außen vor: Dort ließe sich nur
+ * („Lösungsidee“, „Hauptnenner“) oder mehreren Darstellungen nebeneinander
+ * („Bruch | Dezimalzahl | Prozent“) bleiben außen vor: Dort ließe sich nur
  * raten, was an die Wand gehört und was die Lösung ist. `uebersprungen` sagt,
  * welche das sind – geraten wird nicht.
  */
@@ -23,7 +23,7 @@ export interface Variationsaufgabe {
 }
 
 export interface Variationsfolge {
-  /** Überschrift des Abschnitts, z. B. „Folge A: Ausmultiplizieren". */
+  /** Überschrift des Abschnitts, z. B. „Folge A: Ausmultiplizieren“. */
   titel: string;
   /** Der Absatz zwischen Überschrift und Tabelle, falls vorhanden. */
   hinweis: string;

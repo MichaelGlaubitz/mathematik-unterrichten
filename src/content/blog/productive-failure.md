@@ -34,14 +34,14 @@ Wenn Schüler an einer Aufgabe scheitern, *aktivieren* sie alles, was sie aus fr
 
 Wenn die Lehrkraft *danach* das Verfahren erklärt, hat das Erklären eine ganz andere Qualität. Die Schüler haben einen *Aufnahme-Slot* vorbereitet: eine Frage, die das Verfahren beantwortet, statt einer Antwort ohne Frage. Was vorher abstrakt geklungen hätte, wird jetzt konkret und passend.
 
-Genau das, was Cognitive-Load-Theoretiker als „germane load" bezeichnen, wird durch das vorausgehende Scheitern erzeugt. Es ist also kein Widerspruch zur direkten Instruktion – sondern eine Vorbereitung darauf.
+Genau das, was Cognitive-Load-Theoretiker als „germane load“ bezeichnen, wird durch das vorausgehende Scheitern erzeugt. Es ist also kein Widerspruch zur direkten Instruktion – sondern eine Vorbereitung darauf.
 
 ## Wann funktioniert Productive Failure – und wann nicht?
 
 Hier ist der Haken: Es funktioniert nicht überall. Kapur und Bielaczyc haben in einer 2012er-Studie die Bedingungen herausgearbeitet:
 
 - **Das Vorwissen muss ausreichen, um *einen Versuch* zu machen.** Bei reinem Anfänger-Stoff ohne jegliche Anknüpfungspunkte produziert Productive Failure nur Frustration und kein Lernen.
-- **Die Aufgabe muss „contrastive cases" enthalten.** Heißt: Sie muss so gebaut sein, dass die Schüler beim Probieren die *Unterschiede* zwischen verschiedenen Strategien sehen. Genau das macht das spätere Erklären effektiv.
+- **Die Aufgabe muss „contrastive cases“ enthalten.** Heißt: Sie muss so gebaut sein, dass die Schüler beim Probieren die *Unterschiede* zwischen verschiedenen Strategien sehen. Genau das macht das spätere Erklären effektiv.
 - **Die Lehrkraft muss kompetent zusammenführen können.** Wer im Anschluss nicht klar erklärt – und zwar genau an den von den Schülern produzierten Lösungsansätzen – verschwendet das Scheitern.
 - **Die Klasse muss die Phase ertragen können.** Wenn das *Scheitern* selbst als demütigend erlebt wird, lernt niemand etwas. Es braucht eine Klassenkultur, in der Fehler als Werkzeug akzeptiert sind.
 
@@ -58,7 +58,7 @@ Klasse A: 70, 72, 74, 76, 78
 Klasse B: 50, 60, 70, 80, 90
 ```
 
-Beide haben den Mittelwert 74 (B hat 70). Beide haben „dasselbe Mittel". Ich frage: „Welche der zwei Klassen ist *einheitlicher*? Welcher Wert kann das messen? Erfindet eine Methode."
+Beide haben den Mittelwert 74 (B hat 70). Beide haben „dasselbe Mittel“. Ich frage: „Welche der zwei Klassen ist *einheitlicher*? Welcher Wert kann das messen? Erfindet eine Methode.“
 
 Die Schüler arbeiten in Vierergruppen. Sie probieren: Differenz zwischen größtem und kleinstem Wert (das funktioniert, ist aber instabil bei Ausreißern). Mittelwert der Differenzen vom Mittel (klingt logisch, ist aber immer null wegen der Vorzeichen). Mittelwert der absoluten Differenzen (besser – das ist die *mittlere absolute Abweichung*, ein echtes Konzept). Manche Gruppen kommen zu Quadraten und ziehen die Wurzel – ohne den Begriff Standardabweichung zu kennen.
 
@@ -76,7 +76,7 @@ Wo ich in der Vergangenheit Productive Failure schlecht eingesetzt habe:
 
 - Bei Themen ohne ausreichendes Vorwissen. *Dann* ist Worked Examples besser.
 - Mit zu kurzer Phase 1 (5 Minuten). Wenn die Schüler keine Zeit haben, *richtig* zu scheitern, scheitern sie nicht produktiv – sie geben einfach auf.
-- Ohne Phase 2 (Diskussion). Wenn ich direkt zu Phase 3 springe, ist die Klasse frustriert: „Warum mussten wir uns das antun?"
+- Ohne Phase 2 (Diskussion). Wenn ich direkt zu Phase 3 springe, ist die Klasse frustriert: „Warum mussten wir uns das antun?“
 - Bei Klassen, die *jede* Form von Schwierigkeit als Versagen interpretieren. Hier muss erst eine Kultur aufgebaut werden, bevor man die Methode einsetzen kann.
 
 ## Productive Failure und Worked Examples – kein Entweder-Oder

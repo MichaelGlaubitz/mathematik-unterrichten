@@ -274,7 +274,7 @@ export function findeTextstellen(quelle: string): Textstelle[] {
       return;
     }
     // Steht ein Astro-Ausdruck im Text, bleibt er unantastbar — aber der Text
-    // daneben soll trotzdem bearbeitbar sein („Anteil: {prozent} Prozent").
+    // daneben soll trotzdem bearbeitbar sein („Anteil: {prozent} Prozent“).
     //
     // Das gilt nur für vollständige Klammerpaare in dieser Stelle. Bleibt nach
     // dem Herausrechnen eine einzelne Klammer übrig, gehört sie zu einem
@@ -475,7 +475,7 @@ function tagAb(text: string, i: number): RegExpExecArray | null {
  * Was die Redaktion aus einem Absatzfeld in die Datei schreibt.
  *
  * Erlaubte Auszeichnung bleibt stehen. Alles andere wird zu Text: ein `<`, das
- * kein erlaubtes Tag einleitet (jemand schreibt „für a < b"), ein `&`, das
+ * kein erlaubtes Tag einleitet (jemand schreibt „für a < b“), ein `&`, das
  * keine Entität ist, und geschweifte Klammern, die sonst zu einem
  * Astro-Ausdruck würden.
  */

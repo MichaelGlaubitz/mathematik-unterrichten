@@ -309,7 +309,7 @@ describe('alsZeile', () => {
 });
 
 describe('gegen die echten Seiten der Redaktion', () => {
-  // Genau die Dateien, die `/admin` als „Feste Seiten" führt.
+  // Genau die Dateien, die `/admin` als „Feste Seiten“ führt.
   const seiten = Object.keys({
     ...import.meta.glob('../pages/*.astro'),
     ...import.meta.glob('../pages/*/index.astro'),

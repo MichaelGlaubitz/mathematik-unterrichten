@@ -6,7 +6,7 @@ schwierigkeit: einsteiger
 didaktischerHinweis: "Das Minuszeichen hat drei Rollen – Vorzeichen, Rechenzeichen und Gegenzahl-Operator –, die alle gleich aussehen. Diese Folge trennt sie systematisch: Erst wird nur eine Rolle variiert, dann kommen sie kontrolliert zusammen. Folge B ist der Kern: Dieselbe Rechnung wandert schrittweise über die Null, ohne dass eine Regel genannt wird. Die Klasse setzt fort und formuliert die Regel selbst."
 ziel: 'Die Schüler unterscheiden die drei Rollen des Minuszeichens: Vorzeichen, Rechenzeichen, Gegenzahl.'
 variation: 'Folge A variiert nur eine Rolle, Folge B bringt zwei Minus zusammen, Folge D lässt die Vorzeichenregel entdecken.'
-stolperstelle: '„Minus mal Minus ist Plus" wird als Spruch gelernt und dann auch beim Addieren angewendet.'
+stolperstelle: '„Minus mal Minus ist Plus“ wird als Spruch gelernt und dann auch beim Addieren angewendet.'
 regie:
   - 'Welche Rolle hat dieses Minuszeichen – Vorzeichen oder Rechenzeichen?'
   - 'Bevor du rechnest: Liegt das Ergebnis links oder rechts von der Null?'
@@ -18,11 +18,11 @@ entwurf: false
 
 ## Vorbemerkung für die Schüler
 
-Das Zeichen „−" bedeutet in der Mathematik drei verschiedene Dinge, und sie sehen alle gleich aus:
+Das Zeichen „−“ bedeutet in der Mathematik drei verschiedene Dinge, und sie sehen alle gleich aus:
 
 1. **Vorzeichen:** $-5$ ist eine Zahl, nämlich fünf unter null.
 2. **Rechenzeichen:** $8 - 5$ ist eine Aufgabe: von 8 gehe ich 5 nach unten.
-3. **Gegenzahl:** $-(-5)$ heißt „die Gegenzahl von −5", also $+5$.
+3. **Gegenzahl:** $-(-5)$ heißt „die Gegenzahl von −5“, also $+5$.
 
 Wer diese drei Bedeutungen auseinanderhalten kann, braucht fast keine Regeln mehr. Wer sie nicht auseinanderhält, braucht immer neue.
 
@@ -118,7 +118,7 @@ Hier treten alle drei Bedeutungen des Minuszeichens in einer Aufgabe auf.
 2. Erkläre mit dem Zahlenstrahl, warum $6 - (-3)$ dasselbe ist wie $6 + 3$.
 3. In Folge D wird in beiden Tabellen der zweite Faktor um 1 kleiner. In der ersten Tabelle sinkt das Ergebnis um 3, in der zweiten steigt es um 3. Woran liegt das?
 4. Aufgabe 36 enthält ein Minuszeichen vor einer Klammer. Welche der drei Bedeutungen hat es hier?
-5. Nenne eine Alltagssituation, in der „minus minus" tatsächlich „plus" bedeutet.
+5. Nenne eine Alltagssituation, in der „minus minus“ tatsächlich „plus“ bedeutet.
 
 ## Didaktischer Kommentar
 
@@ -128,18 +128,18 @@ Hier treten alle drei Bedeutungen des Minuszeichens in einer Aufgabe auf.
 
 **Was variiert in Folge B?** Der Subtrahend nimmt gleichmäßig ab – 3, 2, 1, 0 und dann weiter ins Negative. Genau hier entsteht die Einsicht: Wenn der Subtrahend kleiner wird, wird das Ergebnis größer. Also *muss* $6 - (-1)$ größer als 6 sein. Das ist keine Regel, die man glauben muss, sondern eine Fortsetzung, der man nicht ausweichen kann. Erfahrungsgemäß ist das der Moment, in dem die Klasse still wird.
 
-**Was variiert in Folge D?** Dieselbe Bewegung noch einmal, jetzt multiplikativ. Die erste Tabelle zeigt „positiv mal negativ", die zweite „negativ mal negativ". Der Vergleich der beiden Tabellen – gleiche Bewegung, entgegengesetzte Richtung – trägt die Vorzeichenregel. Wichtig: **beide Tabellen nebeneinander** an die Tafel, nicht nacheinander.
+**Was variiert in Folge D?** Dieselbe Bewegung noch einmal, jetzt multiplikativ. Die erste Tabelle zeigt „positiv mal negativ“, die zweite „negativ mal negativ“. Der Vergleich der beiden Tabellen – gleiche Bewegung, entgegengesetzte Richtung – trägt die Vorzeichenregel. Wichtig: **beide Tabellen nebeneinander** an die Tafel, nicht nacheinander.
 
 **Was variiert in Folge E?** Nichts Systematisches mehr; hier geht es um das Zusammenspiel und um Punkt vor Strich. Diese Folge ist bewusst kurz – sie ist Kontrolle, nicht Erarbeitung.
 
 **Häufige Fehlvorstellungen**
 
-- *„Minus und Minus gibt immer Plus."* Diese Merkregel wird von der Multiplikation auf die Addition übertragen: $(-4) + (-2)$ wird zu $+6$. Aufgabe 17 und 18 sind genau dafür gebaut. Gegenmittel: Die Regel gilt für Multiplikation und Division – bei der Addition entscheidet der Zahlenstrahl.
-- *„Negative Zahlen sind kleiner, also ist −10 größer als −2, weil 10 größer als 2 ist."* Hier wird der Betrag mit der Zahl verwechselt. Gegenmittel: konsequent am Zahlenstrahl arbeiten, links ist immer kleiner.
-- *„Vor der Klammer verschwindet das Minus."* $-(3 - 7)$ wird zu $-3 - 7$. Aufgabe 36 deckt es auf. Gegenmittel: Das Minus als $(-1) \cdot$ schreiben und ausmultiplizieren – aus einer Vorzeichenregel wird das Distributivgesetz.
+- *„Minus und Minus gibt immer Plus.“* Diese Merkregel wird von der Multiplikation auf die Addition übertragen: $(-4) + (-2)$ wird zu $+6$. Aufgabe 17 und 18 sind genau dafür gebaut. Gegenmittel: Die Regel gilt für Multiplikation und Division – bei der Addition entscheidet der Zahlenstrahl.
+- *„Negative Zahlen sind kleiner, also ist −10 größer als −2, weil 10 größer als 2 ist.“* Hier wird der Betrag mit der Zahl verwechselt. Gegenmittel: konsequent am Zahlenstrahl arbeiten, links ist immer kleiner.
+- *„Vor der Klammer verschwindet das Minus.“* $-(3 - 7)$ wird zu $-3 - 7$. Aufgabe 36 deckt es auf. Gegenmittel: Das Minus als $(-1) \cdot$ schreiben und ausmultiplizieren – aus einer Vorzeichenregel wird das Distributivgesetz.
 
 **Zum Weiterarbeiten**
 
 - [Zahlenstrahl-Werkzeug](/werkzeuge/zahlenstrahl.html) – negative Zahlen eintragen und ordnen lassen.
-- [Kopfrechen-Sprint, Bereich „Negative Zahlen"](/werkzeuge/kopfrechen-sprint.html) – zur Automatisierung nach der Erarbeitung.
+- [Kopfrechen-Sprint, Bereich „Negative Zahlen“](/werkzeuge/kopfrechen-sprint.html) – zur Automatisierung nach der Erarbeitung.
 - [Diagnostische Fragen zu Vorzeichen](/quizzes) – vor der Erarbeitung als Standortbestimmung.

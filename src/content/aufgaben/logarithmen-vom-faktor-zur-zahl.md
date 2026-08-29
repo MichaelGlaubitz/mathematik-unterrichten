@@ -4,7 +4,7 @@ thema: "Logarithmen"
 klassenstufe: ["10"]
 schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die den Logarithmus von Grund auf als *Umkehrung* der Exponentialfunktion einführt. Schüler erleben den Logarithmus nicht als 'neue Operation', sondern als Antwort auf die Frage 'mit welcher Hochzahl?'. Daraus ergeben sich die Logarithmusgesetze als Spiegelbilder der Potenzgesetze. Zentral: Wann man mit log10, ln oder log_q rechnet – und warum die Basis am Ende egal ist."
-ziel: 'Die Schüler lesen den Logarithmus als Antwort auf die Frage „mit welchem Exponenten?" – nicht als neue Rechenart.'
+ziel: 'Die Schüler lesen den Logarithmus als Antwort auf die Frage „mit welchem Exponenten?“ – nicht als neue Rechenart.'
 variation: 'Folge A liest direkt ab, Folge B rechnet ohne Taschenrechner, Folge C wendet die Gesetze an, Folge D löst Gleichungen.'
 stolperstelle: '$\log(a+b)$ wird wie $\log a + \log b$ behandelt.'
 regie:
@@ -18,7 +18,7 @@ entwurf: false
 
 ## Vorbemerkung für die Schüler
 
-Der **Logarithmus** ist die Umkehrung der Exponentialfunktion. Anders gesagt: Er beantwortet die Frage „Mit welcher Hochzahl muss ich $a$ potenzieren, damit ich $b$ bekomme?"
+Der **Logarithmus** ist die Umkehrung der Exponentialfunktion. Anders gesagt: Er beantwortet die Frage „Mit welcher Hochzahl muss ich $a$ potenzieren, damit ich $b$ bekomme?“
 
 Formal: $log_a(b) = c$ ⟺ $a^c = b$.
 
@@ -51,7 +51,7 @@ Schreib für jede Gleichung die zugehörige Logarithmus-Form auf.
 
 ## Folge B: Logarithmen ohne Taschenrechner
 
-Berechne den Wert direkt im Kopf. (Frage: „mit welcher Hochzahl?")
+Berechne den Wert direkt im Kopf. (Frage: „mit welcher Hochzahl?“)
 
 | Nr. | Aufgabe | Antwort |
 |----:|:--------|:--------|
@@ -110,7 +110,7 @@ In dieser Folge wird klar, dass die Basis nur bequemes Mittel ist – die *Antwo
 
 1. Aufgabe 3 zeigt: $\log(1) = 0$. Warum gilt das für *jede* Basis (also auch $log_2(1) = 0$, $log_5(1) = 0$, ...)?
 2. Vergleiche Aufgabe 26 ($t = 6$ exakt) und Aufgabe 27 ($t \approx  9{,}966$). Warum ist die eine exakt und die andere nur näherungsweise?
-3. In Folge D, Aufgabe 29, geht es um die *Verdopplungszeit* bei 5 % Wachstum. Die Antwort ist ≈ 14,21 Jahre. Wie nahe ist das an der Faustregel „72/p"?
+3. In Folge D, Aufgabe 29, geht es um die *Verdopplungszeit* bei 5 % Wachstum. Die Antwort ist ≈ 14,21 Jahre. Wie nahe ist das an der Faustregel „72/p“?
 4. Aufgabe 37 und 38: Warum ist der Logarithmus für $0$ und negative Werte nicht definiert? Wie hängt das mit der Exponentialfunktion zusammen?
 5. Aufgaben 33–36 zeigen: Der Wert von $log_a(b)$ ist unabhängig davon, *welche* Basis man bei der Umrechnung verwendet. Warum?
 
@@ -135,10 +135,10 @@ Tiefere Reflexion: Basiswechsel und Grenzen des Logarithmus. Schüler erleben, d
 
 **Häufige Fehlvorstellungen**
 
-- *„$\log(x + y) = \log(x) + \log(y)$."* Falsch. Die Gesetze gelten für *Multiplikation*, nicht für Addition. Probe mit Zahlen: $\log(10 + 100) = \log(110) \neq  \log(10) + \log(100) = 3$.
-- *„$\log(x) \cdot  \log(y) = \log(xy)$."* Falsch. Richtig ist $\log(x) + \log(y) = \log(xy)$. Wer hier multipliziert, kombiniert die Operationen falsch.
-- *„$\log(x)$ für negative x ist eine negative Zahl."* Falsch. $\log(x)$ für $x < 0$ ist *nicht definiert*. ($\log(x) = c$ würde $10^c = x < 0$ bedeuten, aber $10^c$ ist immer positiv.)
-- *„Der Logarithmus ist nur eine seltsame Tasten-Funktion am Taschenrechner."* Diese funktionale Sicht verfehlt den Kern. Der Logarithmus ist eine *Frage*: „Welche Hochzahl?" Wer das einmal verstanden hat, braucht den Knopf nur noch für die numerische Antwort.
+- *„$\log(x + y) = \log(x) + \log(y)$.“* Falsch. Die Gesetze gelten für *Multiplikation*, nicht für Addition. Probe mit Zahlen: $\log(10 + 100) = \log(110) \neq  \log(10) + \log(100) = 3$.
+- *„$\log(x) \cdot  \log(y) = \log(xy)$.“* Falsch. Richtig ist $\log(x) + \log(y) = \log(xy)$. Wer hier multipliziert, kombiniert die Operationen falsch.
+- *„$\log(x)$ für negative x ist eine negative Zahl.“* Falsch. $\log(x)$ für $x < 0$ ist *nicht definiert*. ($\log(x) = c$ würde $10^c = x < 0$ bedeuten, aber $10^c$ ist immer positiv.)
+- *„Der Logarithmus ist nur eine seltsame Tasten-Funktion am Taschenrechner.“* Diese funktionale Sicht verfehlt den Kern. Der Logarithmus ist eine *Frage*: „Welche Hochzahl?“ Wer das einmal verstanden hat, braucht den Knopf nur noch für die numerische Antwort.
 
 **Möglicher Anschluss**
 

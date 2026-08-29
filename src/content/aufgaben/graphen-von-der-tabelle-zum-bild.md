@@ -22,7 +22,7 @@ Ein Punkt wird immer in der Reihenfolge $(x | y)$ angegeben: **erst gehen, dann 
 
 Die **Steigung** einer Geraden ist kein Aussehen, sondern eine Zahl:
 
-$m = Δy : Δx$ – also „wie viel nach oben je Schritt nach rechts".
+$m = Δy : Δx$ – also „wie viel nach oben je Schritt nach rechts“.
 
 Und der **y-Achsenabschnitt** $b$ ist der Funktionswert an der Stelle $x = 0$ – der Punkt, an dem der Graph die y-Achse trifft.
 
@@ -69,7 +69,7 @@ Zeichne sechsmal den Graphen von $y = 2x$ – jedes Mal mit anderer Skalierung.
 | 17 | $1 cm ≙ 1$ | $1 cm ≙ 0{,}5$ | sehr steil |
 | 18 | $1 cm ≙ 0{,}5$ | $1 cm ≙ 1$ | flacher als in Nr. 13 |
 
-*Frage nach Nr. 18:* Alle sechs Bilder zeigen dieselbe Funktion. Welche Zahl ändert sich dabei nie – und was folgt daraus für die Frage „Welcher Graph ist steiler?"
+*Frage nach Nr. 18:* Alle sechs Bilder zeigen dieselbe Funktion. Welche Zahl ändert sich dabei nie – und was folgt daraus für die Frage „Welcher Graph ist steiler?“
 
 ## Folge D: Vom Graphen zum Term
 
@@ -104,14 +104,14 @@ Ein Graph beschreibt eine Autofahrt: waagerechte Achse Zeit in Minuten, senkrech
 ## Reflexionsfragen
 
 1. Warum ist $P(2 | 5)$ nicht derselbe Punkt wie $Q(5 | 2)$?
-2. In Folge C ändert sich das Bild sechsmal, die Funktion nie. Was heißt das für Aussagen wie „Der linke Graph steigt schneller"?
+2. In Folge C ändert sich das Bild sechsmal, die Funktion nie. Was heißt das für Aussagen wie „Der linke Graph steigt schneller“?
 3. Warum genügen bei einer Geraden zwei Punkte, um den Term zu bestimmen – bei einer Parabel aber nicht?
 4. In Folge B ist Nr. 11 eine waagerechte Gerade. Welche Steigung hat sie, und warum?
 5. Kann ein Graph zwei y-Achsenabschnitte haben? Begründe.
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Ein Graph ist kein Bild, sondern eine Darstellung mit Maßstab. Solange die Achsenskalierung nicht als Teil der Information gelesen wird, ist „steiler" eine Wahrnehmung statt einer Aussage – und Lernende ziehen aus zwei Diagrammen zuverlässig falsche Schlüsse. Genau darauf zielt Folge C, und deshalb steht sie in der Mitte der Reihe und nicht am Rand.
+**Der Kern.** Ein Graph ist kein Bild, sondern eine Darstellung mit Maßstab. Solange die Achsenskalierung nicht als Teil der Information gelesen wird, ist „steiler“ eine Wahrnehmung statt einer Aussage – und Lernende ziehen aus zwei Diagrammen zuverlässig falsche Schlüsse. Genau darauf zielt Folge C, und deshalb steht sie in der Mitte der Reihe und nicht am Rand.
 
 **Was variiert in Folge A?** Die Reihenfolge und die Vorzeichen der Koordinaten. Nr. 1 und Nr. 2 sind dasselbe Zahlenpaar in vertauschter Reihenfolge – gemeinsam eingezeichnet ist die Frage nach der Konvention beantwortet, ohne dass man sie erklären muss.
 
@@ -125,9 +125,9 @@ Ein Graph beschreibt eine Autofahrt: waagerechte Achse Zeit in Minuten, senkrech
 
 **Häufige Fehlvorstellungen**
 
-- *Koordinaten vertauscht.* Folge A. Gegenmittel: die Reihenfolge als Bewegung einführen („erst gehen, dann steigen") und mit dem Finger nachfahren.
+- *Koordinaten vertauscht.* Folge A. Gegenmittel: die Reihenfolge als Bewegung einführen („erst gehen, dann steigen“) und mit dem Finger nachfahren.
 - *Steigung als Höhenzuwachs statt als Verhältnis.* Folge D. Gegenmittel: Steigungsdreieck immer mit beiden beschrifteten Katheten zeichnen.
-- *„Der steilere Graph hat die größere Steigung."* Folge C. Gegenmittel: dieselbe Funktion zweimal unterschiedlich skaliert nebeneinanderlegen.
+- *„Der steilere Graph hat die größere Steigung.“* Folge C. Gegenmittel: dieselbe Funktion zweimal unterschiedlich skaliert nebeneinanderlegen.
 - *Parabeln mit dem Lineal als Linienzug gezeichnet.* Nr. 12. Gegenmittel: mehr Stützstellen berechnen lassen und die Krümmung zwischen den Punkten ausdrücklich thematisieren.
 
 **Zum Weiterarbeiten**

@@ -111,10 +111,10 @@ Hier werden mehrere Fragen *gleichzeitig* an dieselbe Funktion gestellt – Sche
 
 **Häufige Fehlvorstellungen**
 
-- *„$(x + 3)^{2}$ heißt Scheitelpunkt bei +3."* Klassisch. Der Trick: In $(x - d)^{2}$ ist d der Scheitelpunkt-x-Wert. $(x + 3) = (x - (-3))$, also d = −3.
-- *„Bei $2(x - 3)^{2} + 1$ ist der Scheitelpunkt bei (3, 2 · 1) = (3, 2)."* Nein – der Faktor 2 wirkt auf $(x - 3)^{2}$, nicht auf den Scheitelpunkt-y-Wert. Scheitelpunkt bleibt (3, 1).
-- *„Wenn ich quadratisch ergänze, muss ich nur quadrieren, nicht halbieren."* Genaues Hinsehen ist hier wichtig. Bei $x^{2} + 6x$ halbieren wir zuerst die 6 zu 3, dann quadrieren wir: 9 wird ergänzt und subtrahiert.
-- *„Eine Parabel ohne reele Nullstellen kann ich nicht zeichnen."* Doch – ihr Scheitelpunkt liegt nur auf einer Seite der x-Achse, sodass sie diese nicht schneidet. Die Parabel existiert weiter, sie hat nur keine Nullstellen.
+- *„$(x + 3)^{2}$ heißt Scheitelpunkt bei +3.“* Klassisch. Der Trick: In $(x - d)^{2}$ ist d der Scheitelpunkt-x-Wert. $(x + 3) = (x - (-3))$, also d = −3.
+- *„Bei $2(x - 3)^{2} + 1$ ist der Scheitelpunkt bei (3, 2 · 1) = (3, 2).“* Nein – der Faktor 2 wirkt auf $(x - 3)^{2}$, nicht auf den Scheitelpunkt-y-Wert. Scheitelpunkt bleibt (3, 1).
+- *„Wenn ich quadratisch ergänze, muss ich nur quadrieren, nicht halbieren.“* Genaues Hinsehen ist hier wichtig. Bei $x^{2} + 6x$ halbieren wir zuerst die 6 zu 3, dann quadrieren wir: 9 wird ergänzt und subtrahiert.
+- *„Eine Parabel ohne reele Nullstellen kann ich nicht zeichnen.“* Doch – ihr Scheitelpunkt liegt nur auf einer Seite der x-Achse, sodass sie diese nicht schneidet. Die Parabel existiert weiter, sie hat nur keine Nullstellen.
 
 **Möglicher Anschluss**
 

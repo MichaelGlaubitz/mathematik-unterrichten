@@ -40,7 +40,7 @@ Prüfe jede Zeile durch Einsetzen. Stimmen die beiden Seiten überein?
 | 5 |  $\sqrt{36:9} = \sqrt{36} : \sqrt{9}$  |  $\sqrt{4} = 2$  und  $6:3 = 2$  | $ja$ |
 | 6 |  $\sqrt{36-9} = \sqrt{36} - \sqrt{9}$  |  $\sqrt{27} \approx  5{,}20$  und  $6-3 = 3$  | nein |
 
-*Frage nach Nr. 6:* Bei welchen Rechenzeichen darf die Wurzel „hineingezogen" werden, bei welchen nicht? Formuliere die Regel in einem Satz.
+*Frage nach Nr. 6:* Bei welchen Rechenzeichen darf die Wurzel „hineingezogen“ werden, bei welchen nicht? Formuliere die Regel in einem Satz.
 
 ## Folge B: Teilweises Wurzelziehen
 
@@ -106,7 +106,7 @@ Zerlege die Zahl unter der Wurzel in ein Produkt aus einer Quadratzahl und einem
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Es geht in diesem Thema fast ausschließlich um eine einzige Unterscheidung: Die Wurzel ist mit Multiplikation und Division verträglich, mit Addition und Subtraktion nicht. Alles andere folgt daraus. Die Schwierigkeit ist, dass die verbotene Variante genauso plausibel aussieht wie die erlaubte – dieselbe Struktur, die den „Freshman's Dream" bei den binomischen Formeln erzeugt.
+**Der Kern.** Es geht in diesem Thema fast ausschließlich um eine einzige Unterscheidung: Die Wurzel ist mit Multiplikation und Division verträglich, mit Addition und Subtraktion nicht. Alles andere folgt daraus. Die Schwierigkeit ist, dass die verbotene Variante genauso plausibel aussieht wie die erlaubte – dieselbe Struktur, die den „Freshman's Dream“ bei den binomischen Formeln erzeugt.
 
 **Was variiert in Folge A?** Nur das Rechenzeichen unter der Wurzel; die Zahlen sind bewusst so gewählt, dass beide Seiten leicht ausrechenbar sind. Die Zeilenpaare 1/2, 3/4 und 5/6 stehen direkt untereinander. Wichtig ist die Reihenfolge im Unterricht: **erst rechnen lassen, dann reden**. Wer das Gegenbeispiel selbst ausgerechnet hat, glaubt der Regel danach.
 

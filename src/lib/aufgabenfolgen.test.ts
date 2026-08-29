@@ -44,7 +44,7 @@ describe('Formelsatz', () => {
         try {
           katex.renderToString(m[1], { throwOnError: true });
         } catch (e) {
-          kaputt.push(`${f}: „${m[1].slice(0, 40)}" — ${String(e).slice(0, 60)}`);
+          kaputt.push(`${f}: „${m[1].slice(0, 40)}“ — ${String(e).slice(0, 60)}`);
         }
       }
     }
@@ -62,8 +62,8 @@ describe('Formelsatz', () => {
 
 describe('Anrede', () => {
   it('der Schülerteil duzt – kein Höflichkeits-Sie', () => {
-    // Ein grosses „Sie" nach einem Verb ist Anrede. Das Pronomen der
-    // 3. Person Plural („Sie sehen nur verschieden aus" – die Zahlen) steht
+    // Ein grosses „Sie“ nach einem Verb ist Anrede. Das Pronomen der
+    // 3. Person Plural („Sie sehen nur verschieden aus“ – die Zahlen) steht
     // vor seinem Verb und bleibt erlaubt.
     const siezt: string[] = [];
     for (const f of dateien) {
@@ -77,7 +77,7 @@ describe('Anrede', () => {
   });
 
   it('der Lehrerkommentar bleibt beim Sie', () => {
-    // Er spricht die Lehrkraft an – dort wäre ein „du" falsch.
+    // Er spricht die Lehrkraft an – dort wäre ein „du“ falsch.
     const geduzt: string[] = [];
     for (const f of dateien) {
       const { lehrkraft } = teile(fs.readFileSync(path.join(ORDNER, f), 'utf8'));

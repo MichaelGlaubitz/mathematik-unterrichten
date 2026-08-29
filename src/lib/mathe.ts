@@ -51,7 +51,7 @@ const UNICODE_BRUCH: Record<string, string> = {
 export function alsLatex(quelle: string): string {
   let s = quelle;
 
-  // Lücken zum Ausfüllen: „1/2 + ___ = 3/4". Unterstriche sind in LaTeX
+  // Lücken zum Ausfüllen: „1/2 + ___ = 3/4“. Unterstriche sind in LaTeX
   // Indizes und zerbrechen den Ausdruck – hier soll eine Linie stehen.
   s = s.replace(/_{2,}/g, '\\underline{\\phantom{XX}}');
 
@@ -115,7 +115,7 @@ export function alsLatex(quelle: string): string {
   s = s.replace(/(\d),(\d)/g, '$1{,}$2');
 
   // Text in Anführungszeichen bleibt Text
-  s = s.replace(/„([^"]*)"/g, '\\text{„$1"}');
+  s = s.replace(/„([^“]*)"/g, '\\text{„$1“}');
 
   return s.trim();
 }

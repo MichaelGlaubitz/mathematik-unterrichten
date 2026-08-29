@@ -65,7 +65,7 @@ Noch nicht lösen. Welche Werte sind ausgeschlossen?
 | 17 |  $\frac{1}{x-2} = \frac{3}{x+2}$  | $x \neq  2, x \neq  -2$ | $x = 4$ |
 | 18 |  $\frac{4}{x} - \frac{1}{x} = 3$  | $x \neq  0$ | $x = 1$ |
 
-*Hinweis:* Bei Nr. 13, 14, 15 und 17 führt „über Kreuz multiplizieren" schnell zum Ziel – das ist erlaubt, weil beide Seiten aus genau einem Bruch bestehen.
+*Hinweis:* Bei Nr. 13, 14, 15 und 17 führt „über Kreuz multiplizieren“ schnell zum Ziel – das ist erlaubt, weil beide Seiten aus genau einem Bruch bestehen.
 
 ## Folge D: Scheinlösungen
 
@@ -97,13 +97,13 @@ Diese sechs Gleichungen liefern beim Rechnen einen Wert, der nicht zum Definitio
 
 1. Warum ist das Multiplizieren mit dem Hauptnenner keine Äquivalenzumformung, solange der Nenner null werden kann?
 2. In Nr. 20 gibt es keine Lösung. Begründe das ohne Rechnung.
-3. Warum genügt es bei Scheinlösungen nicht, am Ende „x = 2" hinzuschreiben und den Definitionsbereich zu vergessen?
+3. Warum genügt es bei Scheinlösungen nicht, am Ende „x = 2“ hinzuschreiben und den Definitionsbereich zu vergessen?
 4. In Nr. 23 sind fast alle Zahlen Lösung. Wie schreibt man eine solche Lösungsmenge korrekt auf?
 5. Aufgabe 26 und 29 haben dieselbe Struktur. Formuliere den gemeinsamen Ansatz in einem Satz.
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Bruchgleichungen sind die erste Stelle im Lehrgang, an der eine formal korrekt durchgeführte Umformung zu einem falschen Ergebnis führen kann. Das ist mathematisch bedeutsam – und es ist für Lernende irritierend, weil bis hierhin galt: Wer richtig umformt, bekommt die richtige Lösung. Deshalb sollte dieser Bruch mit der bisherigen Erfahrung ausdrücklich benannt werden, statt ihn hinter der Vorschrift „Probe machen" zu verstecken.
+**Der Kern.** Bruchgleichungen sind die erste Stelle im Lehrgang, an der eine formal korrekt durchgeführte Umformung zu einem falschen Ergebnis führen kann. Das ist mathematisch bedeutsam – und es ist für Lernende irritierend, weil bis hierhin galt: Wer richtig umformt, bekommt die richtige Lösung. Deshalb sollte dieser Bruch mit der bisherigen Erfahrung ausdrücklich benannt werden, statt ihn hinter der Vorschrift „Probe machen“ zu verstecken.
 
 **Was variiert in Folge A?** Ausschließlich die Nennerstruktur; gerechnet wird nichts. Diese Trennung ist wichtig: Solange der Definitionsbereich als lästiger Zusatz am Ende erscheint, wird er vergessen. Wenn er die erste Handlung ist, wird er zur Gewohnheit.
 
@@ -111,15 +111,15 @@ Diese sechs Gleichungen liefern beim Rechnen einen Wert, der nicht zum Definitio
 
 **Was variiert in Folge C?** Die Anzahl und Lage der Brüche. Der Hinweis auf das Kreuzmultiplizieren ist bewusst mit der Einschränkung versehen: Es funktioniert nur, wenn auf beiden Seiten genau ein Bruch steht. Nr. 16 und 18 sind Gegenbeispiele, bei denen zuerst zusammengefasst werden muss.
 
-**Was variiert in Folge D?** Der Grund, warum die Rechnung in die Irre führt. Nr. 19, 21 und 22 liefern Scheinlösungen; Nr. 20 hat gar keine Lösung; Nr. 23 hat fast alle Zahlen als Lösung; Nr. 24 ist die Kontrollaufgabe, bei der alles glatt geht. Diese Mischung ist Absicht: Wer erwartet, dass in dieser Folge immer „keine Lösung" herauskommt, prüft nicht mehr – und liegt bei Nr. 24 daneben.
+**Was variiert in Folge D?** Der Grund, warum die Rechnung in die Irre führt. Nr. 19, 21 und 22 liefern Scheinlösungen; Nr. 20 hat gar keine Lösung; Nr. 23 hat fast alle Zahlen als Lösung; Nr. 24 ist die Kontrollaufgabe, bei der alles glatt geht. Diese Mischung ist Absicht: Wer erwartet, dass in dieser Folge immer „keine Lösung“ herauskommt, prüft nicht mehr – und liegt bei Nr. 24 daneben.
 
-**Was variiert in Folge E?** Der Kontext bei gleichbleibender Struktur. Nr. 26 und Nr. 29 sind dieselbe Aufgabe mit anderen Zahlen; das gemeinsame Muster („Leistungen addieren sich, Zeiten nicht") ist der eigentliche Lerngegenstand.
+**Was variiert in Folge E?** Der Kontext bei gleichbleibender Struktur. Nr. 26 und Nr. 29 sind dieselbe Aufgabe mit anderen Zahlen; das gemeinsame Muster („Leistungen addieren sich, Zeiten nicht“) ist der eigentliche Lerngegenstand.
 
 **Häufige Fehlvorstellungen**
 
 - *Definitionsbereich als Formsache.* Folge D. Gegenmittel: Nr. 19 rechnen lassen und dann einsetzen – der Nenner wird null, die Gleichung ist gar nicht definiert.
 - *Probe weggelassen.* Gegenmittel: In Folge D ist die Probe der einzige Weg, die Aufgaben zu unterscheiden.
-- *„Über Kreuz multiplizieren" überall.* Nr. 16 und 18. Gegenmittel: Die Regel gilt für die Form $\frac{a}{b} = \frac{c}{d}$ – erst prüfen, ob sie vorliegt.
+- *„Über Kreuz multiplizieren“ überall.* Nr. 16 und 18. Gegenmittel: Die Regel gilt für die Form $\frac{a}{b} = \frac{c}{d}$ – erst prüfen, ob sie vorliegt.
 - *Beim Hauptnenner einen Faktor vergessen.* Gegenmittel: Hauptnenner als Produkt aller verschiedenen Nennerfaktoren aufschreiben, bevor multipliziert wird.
 
 **Zum Weiterarbeiten**

@@ -126,7 +126,7 @@ Jetzt ist das Ergebnis gegeben, gesucht ist die Länge.
 
 **Was variiert in Folge A und B?** Jeweils nur eine der beiden Längen, in beiden Folgen mit denselben Ergebnissen rechts. Die Zeilen 1 bis 6 und 7 bis 12 gehören paarweise zusammen. Legt man beide Tabellen nebeneinander, entsteht die Einsicht: Es sind nicht zwei Formeln, es ist eine – zweimal aufgeschrieben.
 
-**Was variiert in Folge C?** Nur der Radius, aber die Ergebnisse wachsen quadratisch. Die Klasse soll den Faktor 4 bei Verdopplung selbst finden. Das ist der Übergang von „Formel anwenden" zu „Wachstumsverhalten verstehen" und bereitet die Ähnlichkeitslehre vor.
+**Was variiert in Folge C?** Nur der Radius, aber die Ergebnisse wachsen quadratisch. Die Klasse soll den Faktor 4 bei Verdopplung selbst finden. Das ist der Übergang von „Formel anwenden“ zu „Wachstumsverhalten verstehen“ und bereitet die Ähnlichkeitslehre vor.
 
 **Was variiert in Folge D?** Nur der Winkel; der Radius bleibt bewusst bei 4 cm. Damit ist die Sektorfläche direkt proportional zum Winkel, und Nr. 24 lässt sich aus Nr. 21 durch Verdreifachen gewinnen. Wer das sieht, hat den Anteil $α : 360^{\circ}$ verstanden – wer jedes Mal neu einsetzt, noch nicht.
 

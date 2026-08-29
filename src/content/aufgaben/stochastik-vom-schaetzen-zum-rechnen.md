@@ -6,7 +6,7 @@ schwierigkeit: einsteiger
 didaktischerHinweis: "Stochastik ist das einzige Gebiet, in dem die Intuition systematisch in die Irre führt – und zwar auch bei Erwachsenen. Diese Folge nutzt das: Jede Aufgabe wird zuerst geschätzt, dann gerechnet, dann simuliert. Folge D ist bewusst gegen die Intuition gebaut (Gedächtnis der Münze, gleich wahrscheinliche Ergebnisse bei zwei Würfeln). Die Simulation gehört zum Unterrichtsgang dazu, nicht als Zugabe."
 ziel: 'Die Schüler schätzen zuerst, rechnen dann – und sehen, wo die Intuition systematisch danebenliegt.'
 variation: 'Folge A vergrößert das Ereignis schrittweise, Folge B geht zur Augensumme über, Folge C ändert den Grundwert, Folge D stellt sich gegen die Intuition.'
-stolperstelle: 'Der Zufall wird als ausgleichend gedacht: „Nach fünfmal Kopf ist Zahl fällig."'
+stolperstelle: 'Der Zufall wird als ausgleichend gedacht: „Nach fünfmal Kopf ist Zahl fällig.“'
 regie:
   - 'Schätze zuerst – schriftlich. Erst dann wird gerechnet.'
   - 'Wird die Wahrscheinlichkeit größer oder kleiner als eben?'
@@ -23,7 +23,7 @@ Zwei Begriffe, die man auseinanderhalten muss:
 - Die **Wahrscheinlichkeit** ist eine berechnete Zahl. Bei einem fairen Würfel ist die Wahrscheinlichkeit für eine Sechs $\frac{1}{6}$ – unabhängig davon, was vorher passiert ist.
 - Die **relative Häufigkeit** ist ein Messergebnis: Wie oft ist das Ereignis in *meinen* Versuchen tatsächlich eingetreten, geteilt durch die Anzahl der Versuche.
 
-Beide nähern sich einander an, wenn man oft genug wirft. Aber sie sind nicht dasselbe – und die relative Häufigkeit „holt nichts nach".
+Beide nähern sich einander an, wenn man oft genug wirft. Aber sie sind nicht dasselbe – und die relative Häufigkeit „holt nichts nach“.
 
 **Arbeitsauftrag für alle Folgen:** Schätze zuerst schriftlich, bevor du rechnest. Ohne die eigene Schätzung ist das Ergebnis nur eine Zahl.
 
@@ -85,7 +85,7 @@ Diese sechs Fragen zuerst abstimmen lassen, dann besprechen.
 | 23 | Eine Zahl ist bei 100 Würfen nur 9-mal gefallen statt 16-mal. Kommt das wieder ins Lot? | Der *Anteil* nähert sich an, der *Rückstand* wird nicht ausgeglichen. |
 | 24 | Wie viele Menschen braucht es, damit zwei am selben Tag Geburtstag haben – mit über 50 % Wahrscheinlichkeit? | $23.$ |
 
-*Hinweis zu Nr. 23:* Genau hier lohnt die Simulation. Lass 10 000 Würfe laufen und zeige die relative Häufigkeit gegen die Versuchszahl: Sie nähert sich $\frac{1}{6}$, ohne dass eine Zahl „aufholt".
+*Hinweis zu Nr. 23:* Genau hier lohnt die Simulation. Lass 10 000 Würfe laufen und zeige die relative Häufigkeit gegen die Versuchszahl: Sie nähert sich $\frac{1}{6}$, ohne dass eine Zahl „aufholt“.
 
 ## Folge E: Vom Versuch zur Wahrscheinlichkeit
 
@@ -106,7 +106,7 @@ Ein Würfel wird geworfen; die Sechs wird gezählt.
 
 1. Warum ist $P(kein Ereignis) = 1 - P(Ereignis)$? Begründe am Würfel.
 2. In Folge B ist die 7 die häufigste Augensumme. Wäre das auch so, wenn die Würfel unterscheidbar wären – etwa einer rot, einer blau?
-3. Erkläre einer Mitschülerin, warum die Münze „kein Gedächtnis" hat.
+3. Erkläre einer Mitschülerin, warum die Münze „kein Gedächtnis“ hat.
 4. In Folge E nähert sich die relative Häufigkeit dem Wert $\frac{1}{6}$. Wird sie ihn irgendwann genau erreichen?
 5. Nenne eine Situation aus dem Alltag, in der Menschen relative Häufigkeit und Wahrscheinlichkeit verwechseln.
 
@@ -126,10 +126,10 @@ Ein Würfel wird geworfen; die Sechs wird gezählt.
 
 **Häufige Fehlvorstellungen**
 
-- *„Nach fünfmal Kopf ist Zahl fällig."* Nr. 19 und Nr. 23. Gegenmittel: simulieren und die Kurve zeigen.
-- *„Auffällige Muster sind unwahrscheinlicher."* Nr. 20 und Nr. 22. Gegenmittel: alle Folgen einer festen Länge sind gleich wahrscheinlich; auffällig ist nur, dass wir sie als Muster wahrnehmen.
-- *„Bei zwei Würfeln sind alle Augensummen gleich wahrscheinlich."* Folge B. Gegenmittel: die 36 Paare tatsächlich in eine Tabelle schreiben.
-- *„Wahrscheinlichkeit ist dasselbe wie relative Häufigkeit."* Folge E. Gegenmittel: konsequent unterschiedliche Wörter benutzen und beide Zahlen nebeneinander schreiben.
+- *„Nach fünfmal Kopf ist Zahl fällig.“* Nr. 19 und Nr. 23. Gegenmittel: simulieren und die Kurve zeigen.
+- *„Auffällige Muster sind unwahrscheinlicher.“* Nr. 20 und Nr. 22. Gegenmittel: alle Folgen einer festen Länge sind gleich wahrscheinlich; auffällig ist nur, dass wir sie als Muster wahrnehmen.
+- *„Bei zwei Würfeln sind alle Augensummen gleich wahrscheinlich.“* Folge B. Gegenmittel: die 36 Paare tatsächlich in eine Tabelle schreiben.
+- *„Wahrscheinlichkeit ist dasselbe wie relative Häufigkeit.“* Folge E. Gegenmittel: konsequent unterschiedliche Wörter benutzen und beide Zahlen nebeneinander schreiben.
 
 **Zum Weiterarbeiten**
 

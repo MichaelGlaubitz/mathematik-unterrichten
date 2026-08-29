@@ -13,9 +13,9 @@ In meiner zweiten Berufsstation hatte ich eine Schülerin, die in einem Test die
 
 > Wie viele natürliche Zahlen `n` mit `1 ≤ n ≤ 10` erfüllen `n` ist gerade *oder* `n` ist Vielfaches von 3?
 
-Ihre Antwort: 5 (sie nannte 6, weil 6 gerade *und* Vielfaches von 3 sei – also „doppelt zählend").
+Ihre Antwort: 5 (sie nannte 6, weil 6 gerade *und* Vielfaches von 3 sei – also „doppelt zählend“).
 
-Ich habe ihr lange erklärt, warum das mathematische *oder* einschließend ist (also „2 oder 3 oder 4 oder 6 oder 8 oder 9 oder 10" – sieben Zahlen). Sie verstand es nicht. Erst nach dem dritten Versuch ging ihr ein Licht auf: „Das ist also nicht das *oder* von draußen?"
+Ich habe ihr lange erklärt, warum das mathematische *oder* einschließend ist (also „2 oder 3 oder 4 oder 6 oder 8 oder 9 oder 10“ – sieben Zahlen). Sie verstand es nicht. Erst nach dem dritten Versuch ging ihr ein Licht auf: „Das ist also nicht das *oder* von draußen?“
 
 Genau. Das ist es nicht. Und das ist nicht nur eine kuriose Einzelbeobachtung – es ist ein Muster, das in jeder Klasse, in jeder Stunde wirkt.
 
@@ -23,30 +23,30 @@ Genau. Das ist es nicht. Und das ist nicht nur eine kuriose Einzelbeobachtung �
 
 Mathematische Begriffe haben eine *präzise* Bedeutung, die nicht immer mit der alltäglichen übereinstimmt. Das schafft drei systematische Probleme im Unterricht:
 
-**Erstens: Falsche Synonyme.** Das mathematische *oder* schließt das *und* ein – das alltägliche meist nicht. *Mindestens* heißt mathematisch „≥", umgangssprachlich oft „ungefähr". *Ähnlich* heißt in der Geometrie „gleiche Form, eventuell unterschiedliche Größe" – im Alltag „so ungefähr gleich". Wenn ein Schüler die Aufgabe „Sind diese Dreiecke ähnlich?" liest und „so ungefähr gleich aussehen" antwortet, antwortet er die *Alltagsfrage*, nicht die mathematische.
+**Erstens: Falsche Synonyme.** Das mathematische *oder* schließt das *und* ein – das alltägliche meist nicht. *Mindestens* heißt mathematisch „≥“, umgangssprachlich oft „ungefähr“. *Ähnlich* heißt in der Geometrie „gleiche Form, eventuell unterschiedliche Größe“ – im Alltag „so ungefähr gleich“. Wenn ein Schüler die Aufgabe „Sind diese Dreiecke ähnlich?“ liest und „so ungefähr gleich aussehen“ antwortet, antwortet er die *Alltagsfrage*, nicht die mathematische.
 
-**Zweitens: Begriffe, die im Alltag fehlen.** *Funktion*, *Gleichung*, *Term*, *Gleichungssystem* – diese Wörter haben im Alltag keine direkte Entsprechung oder eine ganz andere („eine Funktion erfüllen" hat mit der mathematischen Funktion nichts zu tun). Wenn Schüler in der Klasse 7 „Gleichung" hören, hören manche „Gleichberechtigung" oder „Gleichheit" – beides hat nichts mit dem Begriff zu tun.
+**Zweitens: Begriffe, die im Alltag fehlen.** *Funktion*, *Gleichung*, *Term*, *Gleichungssystem* – diese Wörter haben im Alltag keine direkte Entsprechung oder eine ganz andere („eine Funktion erfüllen“ hat mit der mathematischen Funktion nichts zu tun). Wenn Schüler in der Klasse 7 „Gleichung“ hören, hören manche „Gleichberechtigung“ oder „Gleichheit“ – beides hat nichts mit dem Begriff zu tun.
 
-**Drittens: Begriffe, die *innerhalb* der Mathematik mehrdeutig sind.** *Wurzel* kann ein Term sein („die Wurzel der Gleichung") oder eine Operation („Wurzel ziehen"). *Lösung* kann ein Wert sein oder ein Lösungsweg. *Gleich* kann „identisch" heißen oder „im Wert übereinstimmend" (wie bei `2/4 = 1/2`).
+**Drittens: Begriffe, die *innerhalb* der Mathematik mehrdeutig sind.** *Wurzel* kann ein Term sein („die Wurzel der Gleichung“) oder eine Operation („Wurzel ziehen“). *Lösung* kann ein Wert sein oder ein Lösungsweg. *Gleich* kann „identisch“ heißen oder „im Wert übereinstimmend“ (wie bei `2/4 = 1/2`).
 
 ## Die Forschung dahinter
 
-Constance Kamii und David Pimm haben in den 1980er und 1990er Jahren ausführlich beschrieben, wie sehr Schüler an *Sprache* scheitern, nicht an Mathematik. Pimm hat in *Speaking Mathematically* (1987) gezeigt, dass mathematische Begriffe nicht „Wörter mit Definition" sind, sondern *neue mentale Konzepte*, die durch wiederholte Verwendung gefestigt werden müssen. Wer den Begriff nur einmal definiert und dann verwendet, baut keine stabile Vorstellung auf.
+Constance Kamii und David Pimm haben in den 1980er und 1990er Jahren ausführlich beschrieben, wie sehr Schüler an *Sprache* scheitern, nicht an Mathematik. Pimm hat in *Speaking Mathematically* (1987) gezeigt, dass mathematische Begriffe nicht „Wörter mit Definition“ sind, sondern *neue mentale Konzepte*, die durch wiederholte Verwendung gefestigt werden müssen. Wer den Begriff nur einmal definiert und dann verwendet, baut keine stabile Vorstellung auf.
 
-Eine wichtige Folgerung: *Die Definition allein hilft nicht.* Der Schüler braucht *Beispiele und Gegenbeispiele*. Er muss erleben, dass „4 ist eine Wurzel von `x² − 16 = 0`" wahr ist, „4 ist eine Wurzel von `x² − 8 = 0`" aber falsch. Erst durch dieses *Aussortieren* baut sich die Bedeutung auf.
+Eine wichtige Folgerung: *Die Definition allein hilft nicht.* Der Schüler braucht *Beispiele und Gegenbeispiele*. Er muss erleben, dass „4 ist eine Wurzel von `x² − 16 = 0`“ wahr ist, „4 ist eine Wurzel von `x² − 8 = 0`“ aber falsch. Erst durch dieses *Aussortieren* baut sich die Bedeutung auf.
 
 ## Drei typische Anlässe für Begriffsverwirrung im Mathematikunterricht
 
 **Anlass 1: Lineare Funktionen, Gleichungen, Geraden.**
-Klasse 8 begegnet `y = 2x + 3` als „lineare Funktion", als „Geradengleichung" und als „Funktionsgleichung einer Geraden". Drei Begriffe, ein Gegenstand – aber jeder mit anderem Akzent. Wer nur einen verwendet, entzieht den Schülern die Möglichkeit, *zwischen* den Sichtweisen zu wechseln. Wer sie alle gleichberechtigt verwendet, ohne den Zusammenhang explizit zu machen, verwirrt.
+Klasse 8 begegnet `y = 2x + 3` als „lineare Funktion“, als „Geradengleichung“ und als „Funktionsgleichung einer Geraden“. Drei Begriffe, ein Gegenstand – aber jeder mit anderem Akzent. Wer nur einen verwendet, entzieht den Schülern die Möglichkeit, *zwischen* den Sichtweisen zu wechseln. Wer sie alle gleichberechtigt verwendet, ohne den Zusammenhang explizit zu machen, verwirrt.
 
 Das, was hilft: Die Begriffe *aktiv unterscheiden*. „Eine lineare Funktion *ist* der mathematische Gegenstand. Eine Geradengleichung *ist die Schreibweise* dieser Funktion. Eine Gerade *ist das Bild* dieser Funktion im Koordinatensystem." Drei Sätze, einmal gesagt. Dann konsistent verwendet.
 
 **Anlass 2: Rationale Zahlen vs. Brüche.**
-„Bruch" ist eine *Schreibweise*, „rationale Zahl" ist eine *Zahl*. Eine rationale Zahl kann durch viele verschiedene Brüche geschrieben werden (`1/2 = 2/4 = 3/6`). Schüler, die das nicht trennen, verwechseln das *Vereinfachen* eines Bruchs mit dem *Verändern* einer Zahl. Wenn man `2/4` zu `1/2` kürzt, ändert sich *die Zahl nicht*. Nur die Schreibweise.
+„Bruch“ ist eine *Schreibweise*, „rationale Zahl“ ist eine *Zahl*. Eine rationale Zahl kann durch viele verschiedene Brüche geschrieben werden (`1/2 = 2/4 = 3/6`). Schüler, die das nicht trennen, verwechseln das *Vereinfachen* eines Bruchs mit dem *Verändern* einer Zahl. Wenn man `2/4` zu `1/2` kürzt, ändert sich *die Zahl nicht*. Nur die Schreibweise.
 
 **Anlass 3: Mathematische Implikation und Folgerung.**
-*„Wenn p, dann q"* heißt mathematisch: *jedes Mal, wenn p wahr ist, ist auch q wahr*. Es heißt *nicht*: „p hat etwas mit q zu tun" oder „aus p folgt automatisch q in jedem Sinne". Schüler in der Oberstufe – vor allem in der Analysis – scheitern oft an logischen Schlüssen, weil sie die Implikation als „lockeren Zusammenhang" verstehen statt als strikte Wenn-dann-Beziehung.
+*„Wenn p, dann q“* heißt mathematisch: *jedes Mal, wenn p wahr ist, ist auch q wahr*. Es heißt *nicht*: „p hat etwas mit q zu tun“ oder „aus p folgt automatisch q in jedem Sinne“. Schüler in der Oberstufe – vor allem in der Analysis – scheitern oft an logischen Schlüssen, weil sie die Implikation als „lockeren Zusammenhang“ verstehen statt als strikte Wenn-dann-Beziehung.
 
 ## Eine Routine: das Begriffe-Quiz
 
@@ -60,13 +60,13 @@ Das Verfahren ist diagnostisch außergewöhnlich gut: Eine falsche oder schwache
 
 ## Was Sie diese Woche tun können
 
-Suchen Sie sich einen Begriff aus Ihrer aktuellen Stunde – „Funktion", „Term", „Lösung", „äquivalent", „ähnlich" – und stellen Sie der Klasse die Frage: *„Welcher Unterschied ist zwischen X und ungefähr X?"* Beispiel: „Welcher Unterschied ist zwischen *eine Lösung haben* und *eine Antwort haben*?" Drei Minuten Zeit zum Aufschreiben.
+Suchen Sie sich einen Begriff aus Ihrer aktuellen Stunde – „Funktion“, „Term“, „Lösung“, „äquivalent“, „ähnlich“ – und stellen Sie der Klasse die Frage: *„Welcher Unterschied ist zwischen X und ungefähr X?“* Beispiel: „Welcher Unterschied ist zwischen *eine Lösung haben* und *eine Antwort haben*?“ Drei Minuten Zeit zum Aufschreiben.
 
 Sie werden überrascht sein, wie gut Ihre Klasse darüber Bescheid zu wissen glaubte – und wie viele Schüler beim Aufschreiben merken, dass sie es eigentlich nicht klar machen können.
 
 ## Eine letzte Geschichte
 
-Vor ein paar Jahren ließ ich eine 7. Klasse die Aufgabe rechnen: „Es gibt unendlich viele rationale Zahlen zwischen 0 und 1. Wie viele Brüche gibt es zwischen 0 und 1?" Eine Schülerin schrieb: „Auch unendlich viele, aber andere unendlich viele."
+Vor ein paar Jahren ließ ich eine 7. Klasse die Aufgabe rechnen: „Es gibt unendlich viele rationale Zahlen zwischen 0 und 1. Wie viele Brüche gibt es zwischen 0 und 1?“ Eine Schülerin schrieb: „Auch unendlich viele, aber andere unendlich viele.“
 
 Das war wissenschaftlich nicht ganz richtig – aber didaktisch *brillant*. Sie hatte verstanden, dass *rationale Zahl* und *Bruch* nicht dasselbe sind, dass die Mengen sich überschneiden, aber nicht identisch sind. Sie hatte den Begriff verstanden – nicht die Definition.
 

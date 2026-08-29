@@ -6,7 +6,7 @@ schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die die binomischen Formeln in beide Richtungen trainiert: Ausmultiplizieren (vorwärts) und Faktorisieren (rückwärts). Gegen die typische 'Formelliste-auswendig-Lernen'-Sicht wird das gemeinsame Muster sichtbar gemacht – alle drei Formeln sind das gleiche Prinzip mit unterschiedlichen Vorzeichen."
 ziel: 'Am Ende sehen die Schüler die drei Formeln als einen Fall: systematisches Ausmultiplizieren. Wer das kann, muss keine Formelliste auswendig können.'
 variation: 'Folge A hält die Zahl fest und wechselt nur das Vorzeichen; Folge B setzt Koeffizienten davor; Folge C dreht die Richtung um – aus dem Ergebnis wird die Klammer gesucht.'
-stolperstelle: '$(x-3)^2 = x^2-9$: Der mittlere Term fällt weg, weil die Klammer als „jeder mit sich selbst" gelesen wird.'
+stolperstelle: '$(x-3)^2 = x^2-9$: Der mittlere Term fällt weg, weil die Klammer als „jeder mit sich selbst“ gelesen wird.'
 regie:
   - 'Schau auf die Zeile davor. Was hat sich geändert – und nur das?'
   - 'Bevor du rechnest: Steht in der Mitte wieder ein Plus?'
@@ -81,7 +81,7 @@ Die Aufgabe sieht zuerst nicht nach binomischer Formel aus. Schau genau hin.
 | Nr. | Aufgabe | Erste Umformung | Lösung |
 |----:|:--------|:----------------|:-------|
 | 26 |  $(x + 2)^{2} - (x - 2)^{2}$  | binomische Formeln einsetzen |  $8x$  |
-| 27 |  $25 - (x - 3)^{2}$  | 3. Formel mit „a = 5" und „b = (x − 3)" |  $(5 - x + 3)(5 + x - 3) = (8 - x)(2 + x)$  |
+| 27 |  $25 - (x - 3)^{2}$  | 3. Formel mit „a = 5“ und „b = (x − 3)“ |  $(5 - x + 3)(5 + x - 3) = (8 - x)(2 + x)$  |
 | 28 |  $x^{2} - 6x + 9 - y^{2}$  | erste drei Terme als Quadrat |  $(x - 3 - y)(x - 3 + y)$  |
 | 29 |  $4x^{2} + 12xy + 9y^{2} - 16$  | erste drei Terme als Quadrat |  $(2x + 3y - 4)(2x + 3y + 4)$  |
 | 30 |  $x^{4} - 1$  | zweimal die 3. Formel |  $(x - 1)(x + 1)(x^{2} + 1)$  |
@@ -108,14 +108,14 @@ Jetzt kommen Koeffizienten und mehrere Variablen ins Spiel. Schüler erleben: Da
 Hier wird die Richtung gedreht: Vom Ergebnis zur Faktorform. Das ist die Operation, die später beim Lösen quadratischer Gleichungen, beim Faktorisieren von Termen und in der Bruchrechnung mit Variablen gebraucht wird. Aufgabe 25 ist diagnostisch wichtig – die Reihenfolge ist anders ($100 - x^{2}$ statt $x^{2} - 100$), aber die Formel funktioniert gleich.
 
 **Was variiert in Folge D?**
-Hier wird das Erkennen unter „Tarnung" geübt. Aufgabe 28 ist ein Lieblings-Beispiel von mir: Drei Terme bilden ein Quadrat, der vierte Term lädt zur 3. Formel ein. Wer das einmal gesehen hat, hat ein Werkzeug, das in der Oberstufe immer wieder hilft – etwa beim Vereinfachen von Brüchen oder beim Polynomdivision-vermeiden.
+Hier wird das Erkennen unter „Tarnung“ geübt. Aufgabe 28 ist ein Lieblings-Beispiel von mir: Drei Terme bilden ein Quadrat, der vierte Term lädt zur 3. Formel ein. Wer das einmal gesehen hat, hat ein Werkzeug, das in der Oberstufe immer wieder hilft – etwa beim Vereinfachen von Brüchen oder beim Polynomdivision-vermeiden.
 
 **Häufige Fehlvorstellungen**
 
-- *„$(a + b)^{2} = a^{2} + b^{2}$."* Klassisch. Hier wird das Quadrieren als „Sich-an-jeden-Summanden-verteilen" missverstanden. Hilft: Mit Zahlen prüfen. $(3 + 4)^{2} = 49$, aber $9 + 16 = 25$. Wenn die Schüler einmal sehen, dass es *nicht* gleich ist, fragen sie selbst: „Warum?"
-- *„$(a - b)^{2} = a^{2} - b^{2}$."* Selbe Verwechslung mit Vorzeichen. Hilft: Ausdrücklich $(a - b) \cdot  (a - b)$ ausmultiplizieren lassen, Schritt für Schritt.
-- *„Die 3. Formel funktioniert nur, wenn das Pluszeichen zuerst kommt."* Reihenfolge ist egal: $(a - b)(a + b) = (a + b)(a - b) = a^{2} - b^{2}$. Das Distributivgesetz ist kommutativ.
-- *„Bei $100 - x^{2}$ lässt sich die 3. Formel nicht anwenden."* Doch: $100 - x^{2} = 10^{2} - x^{2} = (10 - x)(10 + x)$. Die binomische Formel ist *symmetrisch* gegenüber dem Tausch der beiden Quadrate.
+- *„$(a + b)^{2} = a^{2} + b^{2}$.“* Klassisch. Hier wird das Quadrieren als „Sich-an-jeden-Summanden-verteilen“ missverstanden. Hilft: Mit Zahlen prüfen. $(3 + 4)^{2} = 49$, aber $9 + 16 = 25$. Wenn die Schüler einmal sehen, dass es *nicht* gleich ist, fragen sie selbst: „Warum?“
+- *„$(a - b)^{2} = a^{2} - b^{2}$.“* Selbe Verwechslung mit Vorzeichen. Hilft: Ausdrücklich $(a - b) \cdot  (a - b)$ ausmultiplizieren lassen, Schritt für Schritt.
+- *„Die 3. Formel funktioniert nur, wenn das Pluszeichen zuerst kommt.“* Reihenfolge ist egal: $(a - b)(a + b) = (a + b)(a - b) = a^{2} - b^{2}$. Das Distributivgesetz ist kommutativ.
+- *„Bei $100 - x^{2}$ lässt sich die 3. Formel nicht anwenden.“* Doch: $100 - x^{2} = 10^{2} - x^{2} = (10 - x)(10 + x)$. Die binomische Formel ist *symmetrisch* gegenüber dem Tausch der beiden Quadrate.
 
 **Möglicher Anschluss**
 

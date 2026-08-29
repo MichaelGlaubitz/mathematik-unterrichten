@@ -52,7 +52,7 @@ Hypotenuse und eine Kathete sind gegeben. Die andere Kathete wird gesucht. Stell
 | 11 | $a = 9, c = 15$ | $b$ | $b = 12$ |
 | 12 | $a = 1, c = \sqrt{2}$ | $b$ | $b = 1$ |
 
-## Folge C: Kein „schönes" Ergebnis
+## Folge C: Kein „schönes“ Ergebnis
 
 Hier sind die Werte so gewählt, dass das Ergebnis nicht ganzzahlig ist. Du musst die Wurzel exakt stehen lassen oder dezimal runden.
 
@@ -104,10 +104,10 @@ Drei Seitenlängen sind gegeben. Prüfe, ob das Dreieck rechtwinklig ist (Umkehr
 **Der Kern.** Der Satz des Pythagoras ist mathematisch trivial – die schwierige Operation ist nicht das Anwenden der Formel, sondern das *Erkennen* eines rechtwinkligen Dreiecks in einer Figur, in der es nicht offensichtlich ist. Diese Aufgabenfolge geht den Weg von der reinen Berechnung (A, B, C) zum diagnostisch-geometrischen Sehen (D, E).
 
 **Was variiert in Folge A?**
-Das Berechnungsverfahren bleibt identisch; nur die Zahlen ändern sich. Schüler sehen die Familie der pythagoreischen Tripel und entwickeln ein Gefühl dafür, dass „schöne" Antworten oft systematisch sind (Vielfache von (3,4,5), (5,12,13), (8,15,17)).
+Das Berechnungsverfahren bleibt identisch; nur die Zahlen ändern sich. Schüler sehen die Familie der pythagoreischen Tripel und entwickeln ein Gefühl dafür, dass „schöne“ Antworten oft systematisch sind (Vielfache von (3,4,5), (5,12,13), (8,15,17)).
 
 **Was variiert in Folge B?**
-Hier wird die Formel umgestellt. Wer nur a² + b² = c² als „Mantra" gelernt hat, scheitert hier. Die Operation ist algebraisch trivial, aber die Verschiebung der Variablen-Rolle (statt c gesucht, jetzt b) ist für viele eine Hürde. Aufgabe 12 ist bewusst mit Wurzeln gebaut: Schüler sehen, dass die Rollen unabhängig vom Zahlentyp sind.
+Hier wird die Formel umgestellt. Wer nur a² + b² = c² als „Mantra“ gelernt hat, scheitert hier. Die Operation ist algebraisch trivial, aber die Verschiebung der Variablen-Rolle (statt c gesucht, jetzt b) ist für viele eine Hürde. Aufgabe 12 ist bewusst mit Wurzeln gebaut: Schüler sehen, dass die Rollen unabhängig vom Zahlentyp sind.
 
 **Was variiert in Folge C?**
 Die Forderung nach exakter und gerundeter Ergebnisangabe. Die meisten Schüler in Klasse 9 sind in Folge A glücklich, weil das Ergebnis ganzzahlig herauskommt. Folge C zwingt sie, zwischen exakten und genäherten Antworten zu unterscheiden – eine Kompetenz, die in der Oberstufe fortlaufend wichtig wird.
@@ -116,14 +116,14 @@ Die Forderung nach exakter und gerundeter Ergebnisangabe. Die meisten Schüler i
 Hier wird das *Übersetzen* von einem Sachkontext oder einer Figur in das rechtwinklige Dreieck geübt. Aufgabe 22 ist diagnostisch wertvoll: Schüler, die das gleichseitige Dreieck in der Mitte halbieren und damit ein rechtwinkliges erzeugen, haben den Pythagoras *als Werkzeug* internalisiert. Wer die Halbierung nicht von selbst sieht, braucht Hilfsfragen.
 
 **Was variiert in Folge E?**
-Die Umkehrung. Schüler erleben, dass die Beziehung $a^{2} + b^{2} = c^{2}$ *charakteristisch* für rechtwinklige Dreiecke ist, nicht nur eine Folgerung daraus. Das ist eine subtilere Aussage und der erste Schritt in Richtung „äquivalent" und „notwendig & hinreichend".
+Die Umkehrung. Schüler erleben, dass die Beziehung $a^{2} + b^{2} = c^{2}$ *charakteristisch* für rechtwinklige Dreiecke ist, nicht nur eine Folgerung daraus. Das ist eine subtilere Aussage und der erste Schritt in Richtung „äquivalent“ und „notwendig & hinreichend“.
 
 **Häufige Fehlvorstellungen**
 
-- *„a² + b² = c² gilt immer."* Klassisch übergangenes „rechtwinklig". Hilft: Aufgabe 26 ausführlich besprechen, mit Skizze.
-- *„Hypotenuse = die längste Seite, also rechne ich immer a² + b² = c²."* Aufgabe in Folge B bricht das auf – wenn die Hypotenuse gegeben ist, muss die Formel umgestellt werden.
-- *„Kathete und Hypotenuse sind dasselbe wie Ankathete/Gegenkathete."* Begriffsverwechslung mit der Trigonometrie. Pythagoras kennt nur Katheten und Hypotenuse; die trigonometrischen Bezeichnungen kommen erst, wenn ein bestimmter Winkel im Spiel ist.
-- *„Der Pythagoras hilft mir bei *jedem* Dreieck."* Nein – nur beim rechtwinkligen. Bei beliebigen Dreiecken braucht man Sinus- oder Kosinussatz (Klasse 10/11).
+- *„a² + b² = c² gilt immer.“* Klassisch übergangenes „rechtwinklig“. Hilft: Aufgabe 26 ausführlich besprechen, mit Skizze.
+- *„Hypotenuse = die längste Seite, also rechne ich immer a² + b² = c².“* Aufgabe in Folge B bricht das auf – wenn die Hypotenuse gegeben ist, muss die Formel umgestellt werden.
+- *„Kathete und Hypotenuse sind dasselbe wie Ankathete/Gegenkathete.“* Begriffsverwechslung mit der Trigonometrie. Pythagoras kennt nur Katheten und Hypotenuse; die trigonometrischen Bezeichnungen kommen erst, wenn ein bestimmter Winkel im Spiel ist.
+- *„Der Pythagoras hilft mir bei *jedem* Dreieck.“* Nein – nur beim rechtwinkligen. Bei beliebigen Dreiecken braucht man Sinus- oder Kosinussatz (Klasse 10/11).
 
 **Möglicher Anschluss**
 

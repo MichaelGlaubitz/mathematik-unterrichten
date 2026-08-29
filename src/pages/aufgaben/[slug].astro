@@ -22,15 +22,23 @@ export async function getStaticPaths() {
       const zeilen = quelle.slice(start, ende).split('\n').filter((z) => /^\|\s*\d+\s*\|/.test(z));
       return { titel: m[1], anzahl: zeilen.length };
     });
+    const fund = leseVariationsfolgen(quelle);
     return {
       params: { slug: a.slug },
-      props: { aufgabe: a, folgen: leseVariationsfolgen(quelle).folgen, abschnitte },
+      props: { aufgabe: a, folgen: fund.folgen, uebersprungen: fund.uebersprungen, abschnitte },
     };
   });
 }
 
-const { aufgabe, folgen, abschnitte } = Astro.props;
+const { aufgabe, folgen, uebersprungen, abschnitte } = Astro.props;
 const hatFolge = folgen.length > 0;
+
+/* Die Projektion nimmt nur Tabellen, bei denen Aufgabe und Lösung eindeutig
+   sind. Wo Folgen fehlen, muss das hier stehen – sonst klickt jemand im
+   Unterricht auf „projizieren“ und die Hälfte des Ablaufs fehlt kommentarlos. */
+const kurz = (t: string) => t.replace(/:.*$/, '');
+const projiziert = folgen.map((f) => kurz(f.titel)).join(', ');
+const nichtProjiziert = uebersprungen.map((u) => kurz(u.titel)).join(', ');
 
 /* Der Kopf steht im Frontmatter und geht deshalb an rehype-katex vorbei.
    Die Formeln darin werden hier zur Bauzeit gesetzt. */
@@ -88,13 +96,19 @@ const { Content } = await aufgabe.render();
             <p class="text-sm font-semibold text-ink-900 dark:text-ink-50">Ablauf</p>
             <ol class="mt-1.5 space-y-1 text-sm text-ink-800 dark:text-ink-100">
               <li><strong>1.</strong> Vorbemerkung austeilen oder projizieren – zwei Minuten lesen lassen.</li>
-              {abschnitte.map((f, i) => (
-                <li>
-                  <strong>{i + 2}.</strong> {f.titel} – {f.anzahl} Aufgaben.
-                  Je Aufgabe: allein Reflect – Expect – Check – Explain, dann zu zweit, dann im Plenum.
-                </li>
-              ))}
-              <li><strong>{abschnitte.length + 2}.</strong> Reflexionsfragen – schriftlich oder im Gespräch.</li>
+              <li>
+                <strong>2.</strong> Die Folgen der Reihe nach.
+                <span class="text-ink-700 dark:text-ink-200">
+                  Bei jeder einzelnen Aufgabe derselbe Takt: erst allein Reflect – Expect – Check – Explain,
+                  dann eine Frage zu zweit, dann der Zusammenhang im Plenum. Drei bis fünf Minuten pro Aufgabe.
+                </span>
+                <ul class="mt-1 ml-1 space-y-0.5">
+                  {abschnitte.map((f) => (
+                    <li>· {f.titel} – {f.anzahl} Aufgaben</li>
+                  ))}
+                </ul>
+              </li>
+              <li><strong>3.</strong> Reflexionsfragen – schriftlich oder im Gespräch.</li>
             </ol>
           </div>
         )}
@@ -104,7 +118,7 @@ const { Content } = await aufgabe.render();
           <div class="mt-4">
             <p class="text-sm font-semibold text-ink-900 dark:text-ink-50">Was Sie sagen können</p>
             <ul class="mt-1.5 space-y-1 text-sm text-ink-800 dark:text-ink-100">
-              {aufgabe.data.regie.map((r) => <li>„<Fragment set:html={mitFormeln(r)} />"</li>)}
+              {aufgabe.data.regie.map((r) => <li>„<Fragment set:html={mitFormeln(r)} />“</li>)}
             </ul>
           </div>
         )}
@@ -132,6 +146,10 @@ const { Content } = await aufgabe.render();
           <span class="mt-0.5 block text-sm leading-relaxed text-ink-700 dark:text-ink-300">
             Aufgabe für Aufgabe an die Wand, im Takt Reflect – Expect – Check – Explain.
             Die vorherige Aufgabe bleibt mit ihrer Lösung stehen.
+          </span>
+          <span class="mt-1.5 block text-sm leading-relaxed text-ink-700 dark:text-ink-200">
+            <strong>Auf der Folie:</strong> {projiziert}.
+            {nichtProjiziert && ` Nicht auf der Folie: ${nichtProjiziert} – dort stehen mehrere Darstellungen nebeneinander, die sich nicht als eine Frage an die Wand werfen lassen. Diese Folgen laufen über die Seite oder das ausgedruckte Blatt.`}
           </span>
         </span>
         <span class="link-arrow whitespace-nowrap text-sm">Folge projizieren </span>

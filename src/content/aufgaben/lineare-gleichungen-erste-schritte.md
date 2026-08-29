@@ -39,7 +39,7 @@ Bearbeite die Aufgaben **in dieser Reihenfolge**. Notiere bei jeder Lösung, was
 
 1. Vergleiche Aufgabe 1, 2 und 3. Was bleibt gleich, was ändert sich? Was passiert mit der Lösung?
 2. Sieh dir 3 → 4 an. Was hat sich geändert? Warum *sinkt* die Lösung, obwohl die rechte Seite gleich blieb?
-3. In Aufgabe 9 ist die Lösung x = 0. Wieso ist das *nicht* dasselbe wie „keine Lösung"?
+3. In Aufgabe 9 ist die Lösung x = 0. Wieso ist das *nicht* dasselbe wie „keine Lösung“?
 4. Welche Aufgabe in der Liste war für dich am schwierigsten? Warum?
 
 ## Didaktischer Kommentar (für die Lehrkraft)
@@ -56,7 +56,7 @@ Bearbeite die Aufgaben **in dieser Reihenfolge**. Notiere bei jeder Lösung, was
 
 **Mögliche Stolpersteine.**
 
-- Aufgabe 9 verwirrt Schüler oft („0 ist doch keine Zahl?"). Aktiv ansprechen.
+- Aufgabe 9 verwirrt Schüler oft („0 ist doch keine Zahl?“). Aktiv ansprechen.
 - In Aufgabe 11 vertauschen Schüler häufig die Vorzeichen. Vorgreifen, indem Sie das *Wegrechnen* vom *Multiplizieren mit −1* unterscheiden.
 
 **Möglicher Anschluss.** Eine zweite Folge mit Variablen auf beiden Seiten (z. B. 2x + 3 = x + 7), oder passende [Diagnostische Fragen](/quizzes) zu typischen Vorzeichenfehlern.

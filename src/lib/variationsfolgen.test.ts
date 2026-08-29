@@ -19,7 +19,7 @@ const alle = dateien.map((f) => ({
 
 describe('Variationsfolgen aus den Aufgabenfolgen lesen', () => {
   it('bis auf eine liefert jede Aufgabenfolge projizierbare Folgen', () => {
-    // „Lineare Funktionen" ist durchgehend fünfspaltig aufgebaut
+    // „Lineare Funktionen“ ist durchgehend fünfspaltig aufgebaut
     // (Funktion | y-Achsenabschnitt | Punkt für x=0 | Punkt für x=1). Dort
     // ließe sich nicht entscheiden, was an die Wand gehört, ohne zu raten.
     // Der Test hält die Lücke fest, statt sie zu verstecken.
@@ -30,7 +30,7 @@ describe('Variationsfolgen aus den Aufgabenfolgen lesen', () => {
   it('eine Folge hat mindestens zwei Aufgaben – sonst gibt es nichts zu vergleichen', () => {
     for (const { datei, fund } of alle) {
       for (const f of fund.folgen) {
-        expect(f.aufgaben.length, `${datei}: „${f.titel}"`).toBeGreaterThanOrEqual(2);
+        expect(f.aufgaben.length, `${datei}: „${f.titel}“`).toBeGreaterThanOrEqual(2);
       }
     }
   });
@@ -51,13 +51,13 @@ describe('Variationsfolgen aus den Aufgabenfolgen lesen', () => {
     for (const { datei, fund } of alle) {
       for (const f of fund.folgen) {
         const nummern = f.aufgaben.map((a) => a.nummer);
-        expect(nummern, `${datei}: „${f.titel}"`).toEqual([...nummern].sort((x, y) => x - y));
+        expect(nummern, `${datei}: „${f.titel}“`).toEqual([...nummern].sort((x, y) => x - y));
       }
     }
   });
 
-  it('nichts wird geraten: mehrspaltige Tabellen landen in „übersprungen"', () => {
-    // Wo Zwischenspalten stehen („Lösungsidee", „Hauptnenner") oder mehrere
+  it('nichts wird geraten: mehrspaltige Tabellen landen in „übersprungen“', () => {
+    // Wo Zwischenspalten stehen („Lösungsidee“, „Hauptnenner“) oder mehrere
     // Darstellungen nebeneinander, ist nicht entscheidbar, was an die Wand
     // gehört. Diese Tabellen werden gemeldet, nicht interpretiert.
     const gesamt = alle.reduce((n, a) => n + a.fund.uebersprungen.length, 0);
@@ -92,7 +92,7 @@ describe('Die vier Schritte', () => {
   });
 
   it('Expect nimmt niemanden in die Pflicht', () => {
-    // „If you can't form an expectation, don't worry" – der Satz gehört dazu,
+    // „If you can't form an expectation, don't worry“ – der Satz gehört dazu,
     // sonst wird aus der Vermutung eine Leistungsabfrage.
     expect(SCHRITTE[1].punkte.join(' ')).toMatch(/Keine Erwartung/);
   });
@@ -147,7 +147,7 @@ describe('Partnerphase nach der Einzelarbeit', () => {
   const folie = lies('src/pages/aufgaben/[slug]/folge.astro');
 
   it('es wird eine Frage ausgesucht, nicht die Liste abgearbeitet', () => {
-    // „Choose a question to discuss with your partner" – wer alle neun
+    // „Choose a question to discuss with your partner“ – wer alle neun
     // durchgeht, macht aus dem Gespräch ein Formular.
     expect(PARTNER_UEBERSCHRIFT).toMatch(/sucht euch eine Frage aus/i);
     expect(folie).toContain('Eine genügt');
@@ -200,7 +200,7 @@ describe('Plenum und Abschluss', () => {
     expect(reflect).toMatch(/Warum wirkt sich diese Änderung/);
   });
 
-  it('„Tiefer bohren" fragt nach der ganzen Folge, nicht nach einer Aufgabe', () => {
+  it('„Tiefer bohren“ fragt nach der ganzen Folge, nicht nach einer Aufgabe', () => {
     expect(TIEFER).toHaveLength(5);
     expect(TIEFER.join(' ')).toMatch(/dieser Folge/);
     expect(TIEFER.join(' ')).toMatch(/Setzt die Folge .* fort/);

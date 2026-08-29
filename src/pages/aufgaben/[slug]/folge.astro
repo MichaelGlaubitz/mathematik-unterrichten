@@ -72,7 +72,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
 <BaseLayout
   sourceFile="src/pages/aufgaben/[slug]/folge.astro"
   title={`Folge projizieren · ${eintrag.data.titel}`}
-  beschreibung={`Die Aufgabenfolge „${eintrag.data.titel}" Aufgabe für Aufgabe an der Wand – mit Reflect, Expect, Check, Explain.`}
+  beschreibung={`Die Aufgabenfolge „${eintrag.data.titel}“ Aufgabe für Aufgabe an der Wand – mit Reflect, Expect, Check, Explain.`}
   githubEditPath={`src/content/aufgaben/${eintrag.id}`}
 >
   <div class="container-wide pt-8 pb-16">
@@ -122,7 +122,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       </div>
 
       <!-- Reflect braucht das Vorherige: ohne die Aufgabe davor ist
-           „Was hat sich geändert?" nicht beantwortbar. -->
+           „Was hat sich geändert?“ nicht beantwortbar. -->
       <div id="mu-folge-vorher" class="mu-folge-vorher mt-5 rounded-lg border border-ink-300 bg-ink-50 px-5 py-4 dark:border-slate-500 dark:bg-slate-900">
         <p class="mu-folge-etikett text-ink-700 dark:text-ink-200">Aufgabe davor</p>
         <p class="mu-folge-vorher-frage mt-1 text-ink-900 dark:text-ink-50"></p>
@@ -316,7 +316,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       const letzte = nr === f.aufgaben.length - 1;
       let s = schritt + richtung;
       let n = nr;
-      // „Tiefer bohren" fragt nach der ganzen Folge – das geht erst, wenn sie
+      // „Tiefer bohren“ fragt nach der ganzen Folge – das geht erst, wenn sie
       // durchlaufen ist. Vorher führt der Weg zur nächsten Aufgabe.
       if (s > PLENUM && !letzte) { s = 0; n = n + 1; }
       else if (s > TIEFER_S) { s = TIEFER_S; }

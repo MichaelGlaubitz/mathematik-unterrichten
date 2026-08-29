@@ -109,7 +109,7 @@ entwurf: false
 
 | links | Mitte | rechts |
 |:--|:--|:--|
-| Die Waage mit 3x + 2 auf der linken und x + 8 auf der rechten Schale. Daneben dieselbe Waage nach `| −x` und nach `| −2`. | **Das Gleichheitszeichen sagt: Beide Seiten sind gleich groß. Deshalb muss jede Änderung auf beiden Seiten geschehen.** | 3x + 2 = x + 8  \| −x<br>2x + 2 = 8  \| −2<br>2x = 6  \| : 2<br>x = 3 |
+| Die Waage mit 3x + 2 auf der linken und x + 8 auf der rechten Schale. Daneben dieselbe Waage nach $\mid -x$ und nach $\mid -2$. | **Das Gleichheitszeichen sagt: Beide Seiten sind gleich groß. Deshalb muss jede Änderung auf beiden Seiten geschehen.** | 3x + 2 = x + 8  \| −x<br>2x + 2 = 8  \| −2<br>2x = 6  \| : 2<br>x = 3 |
 
 Das Protokoll rechts wird nicht diktiert, sondern von der Klasse formuliert, während links die Waage die zugehörigen Zustände zeigt.
 

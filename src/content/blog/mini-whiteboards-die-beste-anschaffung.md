@@ -27,7 +27,7 @@ Ich schreibe das so ausdrücklich, weil ich diese Diskussion oft in Fachkonferen
 
 **Zweitens: kurze Antworten.** Eine Zahl, ein Term, eine Skizze, ein Vorzeichen. Was länger als eine Zeile braucht, gehört ins Heft. Whiteboards sind ein Messinstrument, kein Arbeitsmittel.
 
-**Drittens: laut lesen, was zu sehen ist.** Nicht nur nicken. „Vier von euch haben hier den Nenner mitaddiert – schauen wir uns das gemeinsam an." Dieser Satz macht aus einer Abfrage eine Diagnose. Und er nimmt dem Fehler die Peinlichkeit, weil er ihn zu einer Sache der Klasse macht statt zu einer Sache einer Person.
+**Drittens: laut lesen, was zu sehen ist.** Nicht nur nicken. „Vier von euch haben hier den Nenner mitaddiert – schauen wir uns das gemeinsam an.“ Dieser Satz macht aus einer Abfrage eine Diagnose. Und er nimmt dem Fehler die Peinlichkeit, weil er ihn zu einer Sache der Klasse macht statt zu einer Sache einer Person.
 
 ## Was mit den Daten passieren muss
 

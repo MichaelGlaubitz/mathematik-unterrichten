@@ -106,10 +106,10 @@ Klassische Anwendungen: Wie hoch ist ein Baum? Wie breit ein Fluss? Hier wird de
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Der Strahlensatz ist mathematisch nichts Neues über die Ähnlichkeit von Dreiecken hinaus – die V- und X-Figur sind beide Spezialfälle ähnlicher Dreiecke. Was den Strahlensatz didaktisch wertvoll macht, ist seine *figürliche* Klarheit: Schüler sehen den Satz, bevor sie ihn berechnen. Die Schwierigkeit ist nicht der Bruchstrich, sondern das *Erkennen der Figur* – „welche Strecken sind die zusammengehörigen?"
+**Der Kern.** Der Strahlensatz ist mathematisch nichts Neues über die Ähnlichkeit von Dreiecken hinaus – die V- und X-Figur sind beide Spezialfälle ähnlicher Dreiecke. Was den Strahlensatz didaktisch wertvoll macht, ist seine *figürliche* Klarheit: Schüler sehen den Satz, bevor sie ihn berechnen. Die Schwierigkeit ist nicht der Bruchstrich, sondern das *Erkennen der Figur* – „welche Strecken sind die zusammengehörigen?“
 
 **Was variiert in Folge A?**
-Die Werte ändern sich, die Konfiguration bleibt: V-Figur, immer mit der Frage „die Streckenlänge auf dem zweiten Strahl". Schüler entwickeln durch Wiederholung ein Gefühl für das Verhältnis-Setup.
+Die Werte ändern sich, die Konfiguration bleibt: V-Figur, immer mit der Frage „die Streckenlänge auf dem zweiten Strahl“. Schüler entwickeln durch Wiederholung ein Gefühl für das Verhältnis-Setup.
 
 **Was variiert in Folge B?**
 Die Figur wechselt zur X-Form. Schüler sehen: Die Formel bleibt strukturell *identisch*. Das ist die Pointe – nicht zwei verschiedene Sätze, sondern ein Satz mit zwei Anwendungsformen.
@@ -125,10 +125,10 @@ Anwendungsmodellierung. Aus dem Sachkontext (Schatten, Spiegel, Sichtlinie) muss
 
 **Häufige Fehlvorstellungen**
 
-- *„Beim Strahlensatz dividiere ich immer ZA / ZB."* Nein – die Verhältnisse setzen *gleichliegende* Strecken auf den *zwei verschiedenen Strahlen* in Beziehung. Innerhalb desselben Strahls werden Strecken nicht ins Verhältnis gesetzt.
-- *„Bei einer V-Figur wird addiert, bei einer X-Figur subtrahiert."* Nein. Die Verhältnisformel ist in beiden Fällen identisch. Was sich unterscheidet, ist allein, *wie die Strecken vom Schnittpunkt aus liegen*.
-- *„Ohne Parallelität gilt der Strahlensatz auch."* Falsch. Die Parallelität ist die *zentrale* Voraussetzung. Ohne sie gibt es keine Garantie für gleiche Verhältnisse.
-- *„Der Strahlensatz funktioniert nur in Skizzen, nicht im echten Raum."* Der Strahlensatz funktioniert überall, wo die Voraussetzungen erfüllt sind – auch beim Schatten, beim Spiegel, beim Theodolit.
+- *„Beim Strahlensatz dividiere ich immer ZA / ZB.“* Nein – die Verhältnisse setzen *gleichliegende* Strecken auf den *zwei verschiedenen Strahlen* in Beziehung. Innerhalb desselben Strahls werden Strecken nicht ins Verhältnis gesetzt.
+- *„Bei einer V-Figur wird addiert, bei einer X-Figur subtrahiert.“* Nein. Die Verhältnisformel ist in beiden Fällen identisch. Was sich unterscheidet, ist allein, *wie die Strecken vom Schnittpunkt aus liegen*.
+- *„Ohne Parallelität gilt der Strahlensatz auch.“* Falsch. Die Parallelität ist die *zentrale* Voraussetzung. Ohne sie gibt es keine Garantie für gleiche Verhältnisse.
+- *„Der Strahlensatz funktioniert nur in Skizzen, nicht im echten Raum.“* Der Strahlensatz funktioniert überall, wo die Voraussetzungen erfüllt sind – auch beim Schatten, beim Spiegel, beim Theodolit.
 
 **Möglicher Anschluss**
 

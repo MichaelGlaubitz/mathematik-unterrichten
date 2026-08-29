@@ -6,7 +6,7 @@ schwierigkeit: mittel
 didaktischerHinweis: "Eine Aufgabenfolge, die exponentielle Modelle systematisch von der konkreten Vermehrungsfaktor-Rechnung zur Funktionsschreibweise f(t) = a · q^t führt. Schüler erleben, dass exponentielles Wachstum und Zerfall *dasselbe* sind – nur mit einem Faktor q > 1 bzw. q < 1. Der häufigste Lernverlust an dieser Stelle: prozentuale und multiplikative Sicht werden nicht verbunden."
 ziel: 'Die Schüler erkennen Wachstum und Zerfall als denselben Vorgang – unterschieden nur durch den Faktor über oder unter 1.'
 variation: 'Folge A bildet nur den Vermehrungsfaktor, Folge B wendet ihn mehrfach an, Folge C sucht ihn aus Beobachtungen, Folge E lässt einordnen.'
-stolperstelle: 'Prozentuale Änderung wird addiert statt multipliziert: „plus 10 % dreimal" wird zu „plus 30 %".'
+stolperstelle: 'Prozentuale Änderung wird addiert statt multipliziert: „plus 10 % dreimal“ wird zu „plus 30 %“.'
 regie:
   - 'Womit wird hier multipliziert – und wie oft?'
   - 'Bevor du rechnest: Ist das Wachstum oder Zerfall?'
@@ -100,7 +100,7 @@ In jedem Aufgabentext muss zuerst entschieden werden: Wachstum oder Zerfall? Wel
 
 ## Reflexionsfragen
 
-1. In Folge A: Was ist der Vermehrungsfaktor bei „doppelt so groß"? Was bei „auf die Hälfte"?
+1. In Folge A: Was ist der Vermehrungsfaktor bei „doppelt so groß“? Was bei „auf die Hälfte“?
 2. Vergleiche Aufgabe 32 und Aufgabe 29. Beide beschreiben Zuwachs. Warum ist der eine *exponentiell* und der andere *linear*?
 3. In Aufgabe 22 ist die Verdopplung bei 5 % Wachstum etwa 14 Jahre, bei 10 % etwa 7 Jahre. Was ist die *Faustregel*, die viele Anleger kennen? (Tipp: 70/p oder 72/p.)
 4. Aufgabe 31 mischt Zugewinn und Verlust. Warum funktioniert die einfache Subtraktion (20 % − 5 % = 15 %) hier *nicht* korrekt? Wenn nicht – wie geht es richtig?
@@ -108,7 +108,7 @@ In jedem Aufgabentext muss zuerst entschieden werden: Wachstum oder Zerfall? Wel
 
 ## Didaktischer Kommentar
 
-**Der Kern.** Exponentielles Wachstum und Zerfall sind dieselbe Klasse von Vorgängen mit derselben Funktion $f(t) = a \cdot  q^t$. Was im Schulunterricht oft auseinanderfällt – „Wachstum" als ein Thema, „Zerfall" als anderes – ist mathematisch ein einziger Sachverhalt: Konstante prozentuale Veränderung pro Zeitschritt. Diese Einheit muss Schülern explizit gezeigt werden, sonst denken sie in zwei getrennten Schemata.
+**Der Kern.** Exponentielles Wachstum und Zerfall sind dieselbe Klasse von Vorgängen mit derselben Funktion $f(t) = a \cdot  q^t$. Was im Schulunterricht oft auseinanderfällt – „Wachstum“ als ein Thema, „Zerfall“ als anderes – ist mathematisch ein einziger Sachverhalt: Konstante prozentuale Veränderung pro Zeitschritt. Diese Einheit muss Schülern explizit gezeigt werden, sonst denken sie in zwei getrennten Schemata.
 
 **Was variiert in Folge A?**
 Der Übergang zwischen prozentualer und multiplikativer Sprache. Schüler trainieren das Hin-und-Her-Übersetzen, ohne das die spätere Funktionsform unverständlich bleibt.
@@ -127,10 +127,10 @@ Sachkontext-Übersetzung. Aufgabe 32 ist der diagnostische Höhepunkt: Lineares 
 
 **Häufige Fehlvorstellungen**
 
-- *„5 % Wachstum heißt q = 5."* Klassisch. Hilft: Mit Beispielen rechnen. Ein 100-Euro-Anlagebetrag mit 5 % wird nach einem Jahr 105 Euro – nicht 500.
-- *„Zerfall um 5 % heißt q = −5."* Falsch in zwei Richtungen. Erstens: Q ist nie negativ in diesem Kontext. Zweitens: −5 würde keine sinnvolle Operation bedeuten. Richtig: q = 1 − 0,05 = 0,95.
-- *„Wenn ein Bestand fünfmal um 10 % wächst, ist er um 50 % größer."* Falsch. Das wäre lineare Sicht. Tatsächlich: 1,1^5 ≈ 1,61, also etwa 61 % Wachstum – mehr als die naive Addition vermuten lässt.
-- *„Exponentieller Zerfall geht irgendwann auf null."* Mathematisch nein – $f(t) = a \cdot  q^t$ mit q < 1 nähert sich asymptotisch null, erreicht es aber nie. Praktisch in der Anwendung kann man ab gewisser Genauigkeit „null" annähern.
+- *„5 % Wachstum heißt q = 5.“* Klassisch. Hilft: Mit Beispielen rechnen. Ein 100-Euro-Anlagebetrag mit 5 % wird nach einem Jahr 105 Euro – nicht 500.
+- *„Zerfall um 5 % heißt q = −5.“* Falsch in zwei Richtungen. Erstens: Q ist nie negativ in diesem Kontext. Zweitens: −5 würde keine sinnvolle Operation bedeuten. Richtig: q = 1 − 0,05 = 0,95.
+- *„Wenn ein Bestand fünfmal um 10 % wächst, ist er um 50 % größer.“* Falsch. Das wäre lineare Sicht. Tatsächlich: 1,1^5 ≈ 1,61, also etwa 61 % Wachstum – mehr als die naive Addition vermuten lässt.
+- *„Exponentieller Zerfall geht irgendwann auf null.“* Mathematisch nein – $f(t) = a \cdot  q^t$ mit q < 1 nähert sich asymptotisch null, erreicht es aber nie. Praktisch in der Anwendung kann man ab gewisser Genauigkeit „null“ annähern.
 
 **Möglicher Anschluss**
 

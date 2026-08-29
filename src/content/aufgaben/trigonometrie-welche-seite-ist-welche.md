@@ -103,7 +103,7 @@ Jetzt sind zwei Seiten gegeben, gesucht ist der Winkel. Runde auf ganze Grad.
 
 ## Reflexionsfragen
 
-1. Warum ist es sinnlos zu fragen: „Ist $a$ die Ankathete?" – ohne einen Winkel zu nennen?
+1. Warum ist es sinnlos zu fragen: „Ist $a$ die Ankathete?“ – ohne einen Winkel zu nennen?
 2. In Folge C gilt $\sin α = \cos β$. Begründe das mit der Figur, nicht mit der Formel.
 3. Warum kann der Sinus eines Winkels im rechtwinkligen Dreieck nie größer als 1 werden? Der Tangens aber schon?
 4. In Aufgabe 27 wird eine Steigung von 12 % beschrieben. Warum ist der Winkel nicht 12°?
@@ -115,7 +115,7 @@ Jetzt sind zwei Seiten gegeben, gesucht ist der Winkel. Runde auf ganze Grad.
 
 **Was variiert in Folge A?** Nur der Bezugswinkel; die Figur bleibt gleich. Es wird ausdrücklich nicht gerechnet. Diese Trennung ist wichtig: Solange die Benennung unsicher ist, produziert jedes Rechnen zusätzliche Verwirrung. Zehn Minuten reines Benennen sparen zwei Stunden Fehlersuche.
 
-**Was variiert in Folge B?** Die gesuchte Größe und damit die Rechenrichtung. In 7 bis 10 steht die Unbekannte im Zähler (multiplizieren), in 11 und 12 im Nenner (dividieren). Die dazugehörige Frage – „Woran erkennt man das vorher?" – ist der eigentliche Lerngegenstand der Folge.
+**Was variiert in Folge B?** Die gesuchte Größe und damit die Rechenrichtung. In 7 bis 10 steht die Unbekannte im Zähler (multiplizieren), in 11 und 12 im Nenner (dividieren). Die dazugehörige Frage – „Woran erkennt man das vorher?“ – ist der eigentliche Lerngegenstand der Folge.
 
 **Was variiert in Folge C?** Der Winkel innerhalb desselben Dreiecks. Die Ergebnisse tauschen paarweise die Plätze, und daraus entsteht die Beziehung $\sin α = \cos β$ für komplementäre Winkel. Sie fällt hier als Beobachtung ab, statt als weitere Formel eingeführt zu werden.
 
@@ -123,7 +123,7 @@ Jetzt sind zwei Seiten gegeben, gesucht ist der Winkel. Runde auf ganze Grad.
 
 **Häufige Fehlvorstellungen**
 
-- *Ankathete und Gegenkathete fest an Seiten geknüpft.* Folge A und C sind genau dagegen gebaut. Gegenmittel: konsequent fragen „Liegt die Seite dem Winkel gegenüber oder an ihm an?"
+- *Ankathete und Gegenkathete fest an Seiten geknüpft.* Folge A und C sind genau dagegen gebaut. Gegenmittel: konsequent fragen „Liegt die Seite dem Winkel gegenüber oder an ihm an?“
 - *Immer multiplizieren.* Wer nur $Gegenkathete = c \cdot  \sin α$ kennt, scheitert an Nr. 11. Gegenmittel: die Verhältnisgleichung hinschreiben und dann umstellen, statt eine Formel zu erinnern.
 - *Trigonometrie ohne rechten Winkel anwenden.* Sinus- und Kosinussatz kommen später; im rechtwinkligen Dreieck gilt das Obige nur mit rechtem Winkel.
 - *Steigung in Prozent mit dem Winkel gleichgesetzt.* Aufgabe 27. Gegenmittel: 100 % Steigung entspricht 45°, nicht 100°.

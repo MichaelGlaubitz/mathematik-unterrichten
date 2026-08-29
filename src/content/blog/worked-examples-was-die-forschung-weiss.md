@@ -9,7 +9,7 @@ teaser: "Selbstständiges Entdecken klingt nach Fortschritt – aber für Anfän
 entwurf: false
 ---
 
-Wenn ich frühere Versionen meines Unterrichts ansehe, fällt mir ein Muster auf: Bei einem neuen Thema habe ich oft mit einer „interessanten Aufgabe" begonnen und die Klasse selbst herausfinden lassen, wie man sie löst. Der reformpädagogische Reflex – der mir in der Lehrerausbildung beigebracht wurde – sagte: *Aktivität schlägt Passivität*. Wer selber denkt, lernt mehr.
+Wenn ich frühere Versionen meines Unterrichts ansehe, fällt mir ein Muster auf: Bei einem neuen Thema habe ich oft mit einer „interessanten Aufgabe“ begonnen und die Klasse selbst herausfinden lassen, wie man sie löst. Der reformpädagogische Reflex – der mir in der Lehrerausbildung beigebracht wurde – sagte: *Aktivität schlägt Passivität*. Wer selber denkt, lernt mehr.
 
 Die Forschung sagt etwas anderes. Genauer: Sie sagt, dass selbstständiges Entdecken bei Anfängern systematisch zu schlechteren Lernergebnissen führt als das Studium gut gestalteter Lösungswege. Dieser Befund hat einen Namen: der **Worked-Example-Effekt**, beschrieben seit den 1980er Jahren in der Cognitive-Load-Forschung um John Sweller.
 
@@ -56,19 +56,19 @@ Wenn ich heute ein neues Verfahren einführe – sagen wir, das Lösen quadratis
 3. **Zweites Worked Example (5 Minuten):** Eine zweite Aufgabe wird im Detail durchgegangen. Diesmal lasse ich nach jedem Schritt 30 Sekunden Bedenkzeit – Schüler überlegen, *was als Nächstes kommt*, bevor ich auflöse.
 4. **Completion Problem (10 Minuten):** Eine teilweise gelöste Aufgabe an der Tafel. Schüler ergänzen die fehlenden Schritte. Ich kontrolliere durch *cold call*: zufällige Schüler erklären den nächsten Schritt.
 5. **Eigenständige Aufgaben (15 Minuten):** Erst jetzt arbeiten Schüler an Aufgaben allein. Ich gehe herum und sehe, wo es hakt.
-6. **Reflexion (5 Minuten):** Ein Schüler erklärt das Verfahren ohne Schritte zu nennen, sondern als *Methode*: „Bei einer Gleichung der Form `x² + px + q = 0` rechne ich erst..."
+6. **Reflexion (5 Minuten):** Ein Schüler erklärt das Verfahren ohne Schritte zu nennen, sondern als *Methode*: „Bei einer Gleichung der Form `x² + px + q = 0` rechne ich erst...“
 
-Diese 45 Minuten sind weniger „spannend" als eine Stunde, in der Schüler die p-q-Formel selbst entdecken. Aber sie funktionieren – jedenfalls für die Schüler, die das Verfahren nach dieser Stunde tatsächlich anwenden können sollen.
+Diese 45 Minuten sind weniger „spannend“ als eine Stunde, in der Schüler die p-q-Formel selbst entdecken. Aber sie funktionieren – jedenfalls für die Schüler, die das Verfahren nach dieser Stunde tatsächlich anwenden können sollen.
 
-## Die Mär vom „selbstgesteuerten Lernen"
+## Die Mär vom „selbstgesteuerten Lernen“
 
-Ein Wort zur deutschen Reformpädagogik, die seit drei Jahrzehnten gegen das „lehrerzentrierte" Vermitteln anpredigt. Die empirische Evidenz ist hier eindeutig: Bei Anfängern in einem fachlichen Bereich ist *direkte Instruktion* mit Worked Examples *deutlich* effektiver als entdeckendes oder problemorientiertes Lernen. Kirschner, Sweller und Clark haben das 2006 in einem Meta-Aufsatz so klar formuliert, dass er bis heute zitiert wird: „Why Minimal Guidance During Instruction Does Not Work."
+Ein Wort zur deutschen Reformpädagogik, die seit drei Jahrzehnten gegen das „lehrerzentrierte“ Vermitteln anpredigt. Die empirische Evidenz ist hier eindeutig: Bei Anfängern in einem fachlichen Bereich ist *direkte Instruktion* mit Worked Examples *deutlich* effektiver als entdeckendes oder problemorientiertes Lernen. Kirschner, Sweller und Clark haben das 2006 in einem Meta-Aufsatz so klar formuliert, dass er bis heute zitiert wird: „Why Minimal Guidance During Instruction Does Not Work.“
 
 Das heißt nicht, dass entdeckendes Lernen niemals funktioniert. Es heißt: Es funktioniert *für Fortgeschrittene*, in *strukturell offenen* Problemen, *nach* dem Aufbau eines Schemas. Wer es als Standardform für Anfänger einsetzt, baut systematisch Lernverluste auf.
 
 ## Was Sie diese Woche ausprobieren können
 
-Suchen Sie sich eine Stunde dieser Woche, in der Sie ein neues Verfahren einführen. Ersetzen Sie die übliche „Wir entdecken das gemeinsam"-Phase durch zwei explizite Worked Examples. Beobachten Sie am Ende der Stunde:
+Suchen Sie sich eine Stunde dieser Woche, in der Sie ein neues Verfahren einführen. Ersetzen Sie die übliche „Wir entdecken das gemeinsam“-Phase durch zwei explizite Worked Examples. Beobachten Sie am Ende der Stunde:
 
 - Wie viele Schüler können das Verfahren *selbständig* anwenden?
 - Wie viele Fragen, die normalerweise mitten in der Übungsphase kommen, kommen *gar nicht erst*?
