@@ -569,13 +569,10 @@ export function starteRedaktion(): void {
     const hinweis = document.createElement('div');
     hinweis.className = 'hinweis';
     hinweis.innerHTML =
-      '<strong>Feste Seite.</strong> Unten stehen die Texte dieser Seite, Absatz für Absatz. ' +
-      'Das Seitengerüst drumherum wird nicht angezeigt und bleibt unverändert. ' +
-      'Auszeichnung im Feld ist erlaubt — <code>&lt;em&gt;kursiv&lt;/em&gt;</code>, ' +
-      '<code>&lt;strong&gt;fett&lt;/strong&gt;</code>, ' +
-      '<code>&lt;a href="/pfad"&gt;Link&lt;/a&gt;</code>. ' +
-      'Alles andere wird zu gewöhnlichem Text; stimmt etwas nicht, sagt es die Redaktion ' +
-      'und lässt nicht veröffentlichen.';
+      '<strong>Feste Seite.</strong> Unten stehen die Texte dieser Seite, Absatz für Absatz — ' +
+      'so, wie sie später aussehen. Fett, kursiv und Links setzt du über die Knöpfe über dem ' +
+      'jeweiligen Feld (oder mit Strg+B, Strg+I, Strg+K); Auszeichnung tippt man nicht. ' +
+      'Das Seitengerüst drumherum wird nicht angezeigt und bleibt unverändert.';
 
     const titel = document.createElement('p');
     titel.className = 'abschnitt-titel';
