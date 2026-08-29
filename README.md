@@ -46,6 +46,54 @@ Ein neues Werkzeug anlegen:
    Pfeilspitzen, maßstabsgetreue Bilder, Beamer-Modus lesbar, keine
    Datenübertragung. Siehe `AGENTS.md`.
 
+## Texte bearbeiten: die Redaktion unter `/admin`
+
+Bestehende Texte lassen sich ohne Editor, Terminal und Git direkt im Browser
+ändern – auch vom iPad aus.
+
+1. Auf einer beliebigen Seite **Strg+Shift+E** drücken (auf dem Mac
+   Cmd+Shift+E). Das öffnet `/admin` mit genau der Quelldatei dieser Seite.
+   Ohne Tastenkürzel geht auch [mathematik-unterrichten.de/admin](https://mathematik-unterrichten.de/admin).
+2. Beim ersten Mal einen GitHub-Token einsetzen. Er wird im `localStorage`
+   dieses Geräts gespeichert und geht an niemanden außer GitHub.
+3. Ändern und auf **Veröffentlichen** (oder Strg+S) drücken. Das erzeugt einen
+   Commit auf `main`; GitHub Actions baut, die Änderung ist nach etwa zwei
+   Minuten live.
+
+Der Token muss ein *fine-grained personal access token* sein, unter
+*Repository access* auf dieses eine Repository beschränkt und mit genau einer
+Berechtigung: *Contents: Read and write*. Zurückziehen lässt er sich jederzeit
+unter [github.com/settings/tokens](https://github.com/settings/tokens);
+„Abmelden“ löscht ihn nur vom Gerät.
+
+Was die Redaktion führt:
+
+| Art | Bearbeitung |
+|---|---|
+| Blog, Aufgaben, Stunden (`.md`) | Formularfelder für die Angaben, Textfeld mit Live-Vorschau |
+| Themen, Quizze (`.json`) | Formular mit Hinzufügen, Sortieren und Löschen von Einträgen; dazu Rohansicht |
+| Feste Seiten (`.astro`) | Rohtext, für Textänderungen zwischen der Auszeichnung |
+
+Grenzen, die bewusst so sind:
+
+- **Nur Ändern, nicht Anlegen oder Löschen.** Neue Beiträge entstehen weiter
+  über eine neue Datei im Repository (siehe unten).
+- **Verschachteltes Frontmatter** (z. B. `einstiegsfrage` in Stunden) bekommt
+  keine Formularfelder, sondern bleibt im Rohtextfeld. Der Editor schreibt nur
+  Zeilen zurück, die er sicher versteht – siehe `src/lib/redaktionText.ts`,
+  abgesichert durch `src/lib/redaktionText.test.ts`.
+- **Die Vorschau ist eine Näherung.** Formeln werden hervorgehoben, aber nicht
+  wie auf der Seite mit KaTeX gesetzt.
+- **Seiten mit überwiegend Programmtext** (die Übungsgeneratoren unter
+  `src/pages/uebung/`) führt die Redaktion nicht; sie verweist dafür auf den
+  GitHub-Editor.
+- Ein fehlerhafter `.astro`-Text lässt den Bau scheitern. Die zuletzt gebaute
+  Fassung der Seite bleibt dann online – öffentlich geht nichts kaputt.
+
+Für die Arbeit am Rechner gibt es zusätzlich `npm run dev` mit
+`/__admin-editor` (Rohtextfelder, Token aus `ADMIN_EDIT_TOKEN` in `.env`).
+Der schreibt nur lokale Dateien; Veröffentlichen bleibt dort Sache von Git.
+
 ## Voraussetzungen
 
 - [Node.js](https://nodejs.org) ≥ 18
