@@ -6,6 +6,13 @@
  * Hier steht nur, was ohne Browser keinen Sinn ergibt.
  */
 import {
+  alsZeile,
+  findeTextstellen,
+  setzeTextstellen,
+  zurAnzeige,
+  zurDatei,
+} from './astroText';
+import {
   b64ZuText,
   escapeHtml,
   fuegeZusammen,
@@ -394,25 +401,146 @@ export function starteRedaktion(): void {
     editor.append(roh);
   }
 
+  /** Deutsche Beschriftung für das umgebende Element einer Textstelle. */
+  const ELEMENTNAME: Record<string, string> = {
+    h1: 'Überschrift 1',
+    h2: 'Überschrift 2',
+    h3: 'Überschrift 3',
+    h4: 'Überschrift 4',
+    p: 'Absatz',
+    li: 'Listenpunkt',
+    strong: 'Hervorhebung',
+    em: 'Betonung',
+    a: 'Link',
+    span: 'Textstück',
+    div: 'Textstück',
+    button: 'Knopf',
+    summary: 'Aufklapp-Titel',
+    figcaption: 'Bildunterschrift',
+    th: 'Tabellenkopf',
+    td: 'Tabellenzelle',
+    dt: 'Begriff',
+    dd: 'Erläuterung',
+    label: 'Feldbeschriftung',
+    title: 'Seitentitel',
+    beschreibung: 'Seitenbeschreibung (für Suchmaschinen)',
+    alt: 'Bildbeschreibung',
+    'aria-label': 'Beschriftung für Screenreader',
+    placeholder: 'Platzhalter im Eingabefeld',
+  };
+
+  /**
+   * Feste Seiten bestehen fast nur aus Auszeichnung. Die Redaktion zeigt
+   * deshalb die Textstellen als Felder; das Gerüst bleibt unsichtbar und
+   * unangetastet. Was die Erkennung nicht sicher greift, bleibt über die
+   * Rohansicht darunter erreichbar.
+   */
   function baueAstroEditor(editor: HTMLElement): void {
-    const warnung = document.createElement('div');
-    warnung.className = 'hinweis';
-    warnung.innerHTML =
-      '<strong>Seitengerüst.</strong> Hier steht Text zwischen Auszeichnung. ' +
-      'Ändere den Fließtext und lass spitze wie geschweifte Klammern stehen. ' +
-      'Geht dabei etwas kaputt, schlägt der Bau fehl und die bisherige Fassung ' +
-      'der Seite bleibt online — öffentlich kaputt geht nichts.';
-    const feld = document.createElement('div');
-    feld.className = 'rumpf-feld';
+    let basis = zustand.rumpf;
+    let stellen = findeTextstellen(basis);
+    let werte: Array<string | null> = stellen.map(() => null);
+
+    const uebernehmen = () => {
+      zustand.rumpf = setzeTextstellen(basis, stellen, werte);
+      zustandAuffrischen();
+    };
+
+    const hinweis = document.createElement('div');
+    hinweis.className = 'hinweis';
+    hinweis.innerHTML =
+      '<strong>Feste Seite.</strong> Unten stehen die Texte dieser Seite, jeder für sich. ' +
+      'Das Seitengerüst drumherum wird nicht angezeigt und bleibt unverändert — ' +
+      'du kannst hier nichts am Aufbau zerbrechen. ' +
+      'Wer doch ans Gerüst muss, klappt unten die Rohansicht auf.';
+
+    const titel = document.createElement('p');
+    titel.className = 'abschnitt-titel';
+    const felder = document.createElement('div');
+    editor.append(hinweis, titel, felder);
+
+    const beschriften2 = (stelle: (typeof stellen)[number]) =>
+      ELEMENTNAME[stelle.herkunft] ??
+      (stelle.art === 'attribut' ? `${stelle.herkunft}=` : stelle.herkunft);
+
+    const zeichneFelder = () => {
+      felder.innerHTML = '';
+
+      // Stücke desselben Absatzes stehen zusammen. Ein Satz mit <em> zerfällt
+      // in mehrere Stellen; getrennt gezeigt wäre er nicht wiederzuerkennen.
+      const gruppen: Array<{ schluessel: string; element: string; posten: number[] }> = [];
+      stellen.forEach((stelle, i) => {
+        const letzte = gruppen[gruppen.length - 1];
+        if (letzte && letzte.schluessel === stelle.gruppe) letzte.posten.push(i);
+        else gruppen.push({ schluessel: stelle.gruppe, element: stelle.gruppenElement, posten: [i] });
+      });
+
+      titel.textContent = `Texte dieser Seite (${gruppen.length})`;
+
+      for (const gruppe of gruppen) {
+        const mehrteilig = gruppe.posten.length > 1;
+        const kasten = document.createElement(mehrteilig ? 'fieldset' : 'div');
+        kasten.className = mehrteilig ? 'textgruppe' : 'feld';
+
+        if (mehrteilig) {
+          const marke = document.createElement('legend');
+          marke.textContent =
+            (ELEMENTNAME[gruppe.element] ?? gruppe.element) + ` · ${gruppe.posten.length} Teile`;
+          kasten.append(marke);
+        }
+
+        for (const i of gruppe.posten) {
+          const stelle = stellen[i];
+          const anzeige = zurAnzeige(alsZeile(stelle.roh));
+
+          const huelle = mehrteilig ? document.createElement('div') : kasten;
+          if (mehrteilig) huelle.className = 'feld';
+
+          const marke = document.createElement('label');
+          marke.textContent = beschriften2(stelle);
+          const lang = anzeige.length > 70;
+          const eingabe = document.createElement(lang ? 'textarea' : 'input') as
+            | HTMLInputElement
+            | HTMLTextAreaElement;
+          if (eingabe instanceof HTMLInputElement) eingabe.type = 'text';
+          else eingabe.rows = Math.min(10, Math.ceil(anzeige.length / 90) + 1);
+          eingabe.value = anzeige;
+          eingabe.spellcheck = true;
+          eingabe.addEventListener('input', () => {
+            // Unverändert heißt: das Original zeichengenau übernehmen. Nur
+            // wirklich Geändertes wird neu kodiert.
+            werte[i] = eingabe.value === anzeige ? null : zurDatei(eingabe.value, stelle.art);
+            uebernehmen();
+          });
+
+          huelle.append(marke, eingabe);
+          if (mehrteilig) kasten.append(huelle);
+        }
+
+        felder.append(kasten);
+      }
+    };
+
+    zeichneFelder();
+
+    const roh = document.createElement('details');
+    roh.className = 'roh';
+    roh.innerHTML = '<summary>Rohansicht mit Seitengerüst</summary>';
     const flaeche = document.createElement('textarea');
     flaeche.spellcheck = false;
     flaeche.value = zustand.rumpf;
-    flaeche.addEventListener('input', () => {
+    flaeche.addEventListener('change', () => {
       zustand.rumpf = flaeche.value;
+      basis = flaeche.value;
+      stellen = findeTextstellen(basis);
+      werte = stellen.map(() => null);
+      zeichneFelder();
       zustandAuffrischen();
     });
-    feld.append(flaeche);
-    editor.append(warnung, feld);
+    roh.addEventListener('toggle', () => {
+      if (roh.open) flaeche.value = zustand.rumpf;
+    });
+    roh.append(flaeche);
+    editor.append(roh);
   }
 
   function baueMarkdownEditor(editor: HTMLElement): void {

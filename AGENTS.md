@@ -107,7 +107,7 @@ No lint script is configured in this project.
 - The dev server binds to port **4321** by default.
 - Content is in `src/content/` (Markdown/MDX for blog+aufgaben, JSON for quizzes+themen). Content collection schemas live in `src/content/config.ts`.
 - The admin editor at `/__admin-editor` requires an `ADMIN_EDIT_TOKEN` env var (see `.env.example`); it is optional for normal development.
-- The published editor lives at `/admin` (`src/pages/admin.astro`). It writes to GitHub with the visitor's own fine-grained token from `localStorage` — there is no server and no shared secret. The file list is built at build time from the content collections; the pure text logic sits in `src/lib/redaktionText.ts` and must stay covered by `src/lib/redaktionText.test.ts`. Never re-serialise a whole frontmatter block there: only replace lines the parser fully understands.
+- The published editor lives at `/admin` (`src/pages/admin.astro`). It writes to GitHub with the visitor's own fine-grained token from `localStorage` — there is no server and no shared secret. The file list is built at build time from the content collections; the pure text logic sits in `src/lib/redaktionText.ts` and must stay covered by `src/lib/redaktionText.test.ts`. Never re-serialise a whole frontmatter block there: only replace lines the parser fully understands. The same rule governs `.astro` pages: `src/lib/astroText.ts` records the character offsets of each text run and splices only those back in, so markup, Astro expressions, style and script blocks are preserved byte for byte. Its test asserts that every real page in `src/pages` survives extraction and write-back unchanged — keep that guarantee if you touch the parser.
 
 ## Best Practices & Lektionen für Arbeitsblätter (Slots & PDF)
 

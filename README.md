@@ -72,7 +72,7 @@ Was die Redaktion führt:
 |---|---|
 | Blog, Aufgaben, Stunden (`.md`) | Formularfelder für die Angaben, Textfeld mit Live-Vorschau |
 | Themen, Quizze (`.json`) | Formular mit Hinzufügen, Sortieren und Löschen von Einträgen; dazu Rohansicht |
-| Feste Seiten (`.astro`) | Rohtext, für Textänderungen zwischen der Auszeichnung |
+| Feste Seiten (`.astro`) | Nur die Textstellen als Felder – das Seitengerüst bleibt unsichtbar und unangetastet; darunter eine Rohansicht |
 
 Grenzen, die bewusst so sind:
 
@@ -87,6 +87,18 @@ Grenzen, die bewusst so sind:
 - **Seiten mit überwiegend Programmtext** (die Übungsgeneratoren unter
   `src/pages/uebung/`) führt die Redaktion nicht; sie verweist dafür auf den
   GitHub-Editor.
+- **Feste Seiten zeigen nur ihre Textstellen.** Was zwischen der Auszeichnung
+  steht, wird als Feld angeboten; Klassen, Astro-Ausdrücke, Stil- und
+  Skriptblöcke bleiben unberührt. Ein Satz mit `<em>` zerfällt dabei in
+  mehrere Felder – sie stehen sichtbar in einem Kasten zusammen. Neue
+  Absätze, Links oder Listenpunkte legt man weiter im Quelltext an; dafür
+  gibt es unter den Feldern die Rohansicht. Siehe `src/lib/astroText.ts`,
+  abgesichert durch `src/lib/astroText.test.ts` – dort prüft ein Test, dass
+  jede echte Seite Extraktion und Rückschrieb zeichengenau übersteht.
+- **Ein bearbeiteter Absatz wird zu einer Quelltextzeile.** Im Quelltext ist er
+  über mehrere eingerückte Zeilen umbrochen; bearbeitet man ihn, schreibt die
+  Redaktion ihn als eine Zeile zurück. Für die gebaute Seite ist das
+  gleichgültig – HTML fasst solchen Leerraum ohnehin zusammen.
 - Ein fehlerhafter `.astro`-Text lässt den Bau scheitern. Die zuletzt gebaute
   Fassung der Seite bleibt dann online – öffentlich geht nichts kaputt.
 
