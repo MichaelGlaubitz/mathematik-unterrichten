@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 import { werkzeuge, werkzeugPfad } from './werkzeuge';
 import { methoden } from './methoden';
 import { kiPrompts } from './kiPrompts';
+import { uebungsgeneratoren, uebungPfad } from './uebungsgeneratoren';
 
 /**
  * Baut den Suchindex für die Volltextsuche.
@@ -22,6 +23,8 @@ export type Bereich =
   | 'Methode'
   | 'KI-Prompt'
   | 'Handreichung'
+  | 'Übungsgenerator'
+  | 'Whiteboard-Runde'
   | 'Seite';
 
 export interface Sucheintrag {
@@ -158,17 +161,17 @@ const handreichungen: Sucheintrag[] = [
   },
   {
     t: 'Handreichung: Produktive Unterrichtsgespräche',
-    u: '/ausb/handreichung-pu.html',
+    u: '/ausb/Produktive-Unterrichtsgespraeche.html',
     b: 'Handreichung',
     s: 'Die 5 Praktiken nach Smith & Stein: anticipate, monitor, select, sequence, connect.',
     k: '5 praktiken gesprächsführung sicherung plenum smith stein',
   },
   {
     t: 'Handreichung: Prüfungsunterricht',
-    u: '/ausb/handreichung-pruefungsunterricht.html',
+    u: '/ausb/handreichung-pu.html',
     b: 'Handreichung',
     s: 'Struktur des idealen Mathematik-Prüfungsunterrichts für Lehrproben.',
-    k: 'lehrprobe prüfungsstunde examen unterrichtsbesuch',
+    k: 'lehrprobe prüfungsstunde examen unterrichtsbesuch prüfungsunterricht',
   },
   {
     t: 'Handreichung: Open Middle Math',
@@ -277,6 +280,47 @@ export async function baueSuchindex(): Promise<Sucheintrag[]> {
         k: e.data.thema,
       });
     }
+  }
+
+  // Übungsgeneratoren und Whiteboard-Runden. Beide standen bisher in der
+  // Sitemap, aber nicht im Suchindex: Google fand sie, die Suche auf der
+  // eigenen Seite nicht. Der Slug eines Generators ist zugleich der Themen-Slug.
+  const themaNachSlug = new Map(themen.map((t) => [slugify(t.data.thema), t]));
+
+  for (const u of uebungsgeneratoren) {
+    const t = themaNachSlug.get(u.slug);
+    eintraege.push({
+      t: u.titel,
+      u: uebungPfad(u),
+      b: 'Übungsgenerator',
+      s: kuerzen(u.beschreibung),
+      k: [
+        'üben übung arbeitsblatt whiteboard generator zufallsaufgaben drucken',
+        t?.data.thema ?? '',
+        t?.data.titel ?? '',
+        t?.data.klassenstufenAnzeige ?? '',
+        ...(t?.data.unterthemenBloecke ?? []).flatMap((b) => [b.titel, ...b.punkte]),
+      ].join(' '),
+    });
+  }
+
+  for (const t of themen) {
+    const aufgaben = t.data.whiteboardAufgaben ?? [];
+    if (aufgaben.length === 0) continue;
+    const slug = slugify(t.data.thema);
+    eintraege.push({
+      t: `Whiteboard-Runde: ${t.data.titel}`,
+      u: `/themen/${slug}/whiteboard`,
+      b: 'Whiteboard-Runde',
+      s: `${aufgaben.length} Aufgaben zum Projizieren – Klick für Klick: Aufgabe, Lösung, nächste Aufgabe.`,
+      // Die Fragen mitindizieren: So findet man die Runde auch über eine Aufgabe darin.
+      k: [
+        'mini-whiteboard runde projizieren beamer',
+        t.data.thema,
+        t.data.klassenstufenAnzeige,
+        ...aufgaben.map((a) => klartext(a.frage)),
+      ].join(' '),
+    });
   }
 
   for (const w of werkzeuge) {

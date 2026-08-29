@@ -812,3 +812,30 @@ describe('Prozentrechnung-Generatoren', () => {
 });
 
 
+
+describe('Aufrufform: losgelöst vom Objekt', () => {
+  // Die Seite holt den Generator einzeln aus der Map und ruft ihn ohne
+  // Empfänger auf: `const gen = GEN[t]; gen();`. Damit ist `this` undefined.
+  // Die übrigen Tests hier rufen `GEN[id]()` auf – als Methodenaufruf, bei dem
+  // `this` gebunden ist. Genau deshalb blieb unbemerkt, dass drei
+  // Capstone-Generatoren `this[t]()` benutzten und bei jedem Zug einen
+  // TypeError warfen.
+  it('jeder Generator liefert auch ohne Empfänger Frage und Lösung', () => {
+    const GEN = createPracticeGenerators(Math.random);
+    for (const id of PRACTICE_GENERATOR_IDS) {
+      const gen = GEN[id];
+      const a = gen();
+      expect(a.frage.length, id).toBeGreaterThan(3);
+      expect(a.loesung.length, id).toBeGreaterThan(0);
+    }
+  });
+
+  it('Capstones treffen über viele Ziehungen jeden Zweig, ohne zu werfen', () => {
+    for (const id of ['alg_expand_einfach_capstone', 'alg_expand_capstone'] as const) {
+      for (let seed = 0; seed < 60; seed++) {
+        const gen = createPracticeGenerators(makeLcg(seed * 7919 + 13))[id];
+        expect(() => gen(), `${id} (Seed ${seed})`).not.toThrow();
+      }
+    }
+  });
+});

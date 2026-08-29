@@ -1,17 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('bruch-dezimal-prozent');
 ---
 
-<BaseLayout
-  sourceFile="src/pages/uebung/bruch-dezimal-prozent.astro"
+<BaseLayout sourceFile="src/pages/uebung/bruch-dezimal-prozent.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Bruch · Dezimal · Prozent"
-  beschreibung="Umwandlung zwischen Brüchen, Dezimalzahlen und Prozentangaben – Auswahl wie auf der Themenseite, Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="bruch-dezimal-prozent"
     backHref="/themen#thema-bruch-dezimal-prozent"
-    h1="WB Bruch · Dezimal · Prozent"
+    h1={generator.titel}
   />
 </BaseLayout>

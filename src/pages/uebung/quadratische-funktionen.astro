@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('quadratische-funktionen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/quadratische-funktionen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Quadratische Funktionen"
-  beschreibung="Zufallsgenerierte Aufgaben zu Parabeln (Scheitel, Nullstellen, Symmetrieachse) – Anzahl wählbar, Whiteboard- oder Arbeitsblatt-Modus."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="quadratische-funktionen"
     backHref="/themen#thema-quadratische-funktionen"
-    h1="WB Quadratische Funktionen"
+    h1={generator.titel}
   />
 </BaseLayout>

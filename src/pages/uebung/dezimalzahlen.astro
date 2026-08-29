@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('dezimalzahlen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/dezimalzahlen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Dezimalzahlen"
-  beschreibung="Zufallsgenerierte Aufgaben zu Dezimalzahlen (Addition, Subtraktion, Multiplikation, Division) mit Stichwort-Auswahl von der Themenseite – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="dezimalzahlen"
     backHref="/themen#thema-dezimalzahlen"
-    h1="WB Dezimalzahlen"
+    h1={generator.titel}
   />
 </BaseLayout>

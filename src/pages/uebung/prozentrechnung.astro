@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('prozentrechnung');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/prozentrechnung.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Prozentrechnung"
-  beschreibung="Zufallsgenerierte Aufgaben zur Prozentrechnung (Grundwert, Prozentwert, Prozentsatz, Vermehrungsfaktor, Vorwärts- und Rückwärtsrechnen) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="prozentrechnung"
     backHref="/themen#thema-prozentrechnung"
-    h1="WB Prozentrechnung"
+    h1={generator.titel}
   />
 </BaseLayout>

@@ -759,7 +759,14 @@ export async function erzeugeBruchArbeitsblattPdf(opts: {
   });
 }
 
-export async function erzeugeNegativeZahlenArbeitsblattPdf(opts: {
+/**
+ * Arbeitsblatt-PDF fuer alle Uebungsgeneratoren ausser der Bruchrechnung.
+ *
+ * Es gab hier einmal sieben Funktionen mit Themennamen – bis auf den
+ * Diagramm-Renderer waren sie identisch. Nur die Bruchrechnung braucht ihren
+ * eigenen (Streifen und Raster), alles andere den Standard-Renderer.
+ */
+export async function erzeugeStandardArbeitsblattPdf(opts: {
   aufgaben: readonly PracticeAufgabe[];
   meta: BruchAbPdfMeta;
   mitLoesungen: boolean;
@@ -771,69 +778,9 @@ export async function erzeugeNegativeZahlenArbeitsblattPdf(opts: {
   });
 }
 
-/** WB Algebra: gleiche Slot-PDF-Pipeline wie Negative Zahlen (Standard-Diagramm → PDF). */
-export async function erzeugeAlgebraArbeitsblattPdf(opts: {
-  aufgaben: readonly PracticeAufgabe[];
-  meta: BruchAbPdfMeta;
-  mitLoesungen: boolean;
-  diagramUiScale: (taskIndex: number) => number;
-}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  return erzeugeWbSlotArbeitsblattPdf({
-    ...opts,
-    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
-  });
-}
 
-/** WB Dezimalzahlen: rein algebraische Aufgaben, gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
-export async function erzeugeDezimalzahlenArbeitsblattPdf(opts: {
-  aufgaben: readonly PracticeAufgabe[];
-  meta: BruchAbPdfMeta;
-  mitLoesungen: boolean;
-  diagramUiScale: (taskIndex: number) => number;
-}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  return erzeugeWbSlotArbeitsblattPdf({
-    ...opts,
-    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
-  });
-}
 
-/** WB Lineare Gleichungen: gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
-export async function erzeugeLineareGleichungenArbeitsblattPdf(opts: {
-  aufgaben: readonly PracticeAufgabe[];
-  meta: BruchAbPdfMeta;
-  mitLoesungen: boolean;
-  diagramUiScale: (taskIndex: number) => number;
-}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  return erzeugeWbSlotArbeitsblattPdf({
-    ...opts,
-    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
-  });
-}
 
-/** WB Prozentrechnung: gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
-export async function erzeugeProzentrechnungArbeitsblattPdf(opts: {
-  aufgaben: readonly PracticeAufgabe[];
-  meta: BruchAbPdfMeta;
-  mitLoesungen: boolean;
-  diagramUiScale: (taskIndex: number) => number;
-}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  return erzeugeWbSlotArbeitsblattPdf({
-    ...opts,
-    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
-  });
-}
 
-/** WB Graphen: gleiche Slot-PDF-Pipeline wie Algebra/NZ. */
-export async function erzeugeGraphenArbeitsblattPdf(opts: {
-  aufgaben: readonly PracticeAufgabe[];
-  meta: BruchAbPdfMeta;
-  mitLoesungen: boolean;
-  diagramUiScale: (taskIndex: number) => number;
-}): Promise<{ ok: true; pdf: Uint8Array } | { ok: false; message: string; log?: string }> {
-  return erzeugeWbSlotArbeitsblattPdf({
-    ...opts,
-    diagramSvgFuerAufgabe: standardPracticeDiagramSvgFuerPdf,
-  });
-}
 
 

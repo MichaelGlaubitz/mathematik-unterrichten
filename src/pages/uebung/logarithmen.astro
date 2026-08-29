@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('logarithmen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/logarithmen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Logarithmen"
-  beschreibung="Zufallsgenerierte Aufgaben zu Logarithmen (Umkehrung, Regeln, Basiswechsel, einfache Logarithmusgleichungen) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="logarithmen"
     backHref="/themen#thema-logarithmen"
-    h1="WB Logarithmen"
+    h1={generator.titel}
   />
 </BaseLayout>

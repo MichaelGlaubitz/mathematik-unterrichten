@@ -99,7 +99,7 @@ export const methoden: Methode[] = [
       'Wartezeit („wait time“) von mehr als drei Sekunden verändert Antwortlänge, Beteiligung und Qualität der Begründungen messbar – ein Befund, der seit den Arbeiten von Mary Budd Rowe immer wieder repliziert wurde.',
     links: [
       { text: 'Werkzeug: Unterrichts-Timer', href: '/werkzeuge/unterrichts-timer.html' },
-      { text: 'Handreichung: Produktive Unterrichtsgespräche', href: '/ausb/handreichung-pu.html' },
+      { text: 'Handreichung: Produktive Unterrichtsgespräche', href: '/ausb/Produktive-Unterrichtsgespraeche.html' },
     ],
   },
   {
@@ -142,7 +142,7 @@ export const methoden: Methode[] = [
     forschung:
       'Margaret Smith und Mary Kay Stein: „5 Practices for Orchestrating Productive Mathematics Discussions“ – das methodische Rückgrat problemorientierter Mathematikstunden.',
     links: [
-      { text: 'Handreichung: Produktive Unterrichtsgespräche', href: '/ausb/handreichung-pu.html' },
+      { text: 'Handreichung: Produktive Unterrichtsgespräche', href: '/ausb/Produktive-Unterrichtsgespraeche.html' },
       { text: 'Das KLAR-Konzept', href: '/konzept' },
     ],
   },

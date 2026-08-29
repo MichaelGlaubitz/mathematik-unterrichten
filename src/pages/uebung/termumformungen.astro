@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('termumformungen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/termumformungen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Termumformungen"
-  beschreibung="Zufallsgenerierte Aufgaben zu Termumformungen bei Bruchtermen (kürzen, Definitionsmenge, Hauptnenner, Addition, Multiplikation) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="termumformungen"
     backHref="/themen#thema-termumformungen"
-    h1="WB Termumformungen"
+    h1={generator.titel}
   />
 </BaseLayout>
