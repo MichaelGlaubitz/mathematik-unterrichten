@@ -37,6 +37,18 @@ export interface Werkzeug {
   hintergrund?: { text: string; href: string };
 }
 
+/**
+ * Werkzeuge, die die Stundenvorlage auf *jeder* Stundenseite anbietet – die
+ * Einstiegsfrage wandert per Link in die Abstimmung, beantwortet wird sie auf
+ * Antwortkarten. Das steht in `src/pages/stunden/[slug].astro`, nicht im Text
+ * der einzelnen Stunde, und wäre über die Fließtext-Suche unsichtbar.
+ *
+ * `src/lib/werkzeugFundstellen.test.ts` prüft, dass die Vorlage die beiden
+ * wirklich verlinkt – die Liste hier darf nichts behaupten, was die Seite nicht
+ * hält.
+ */
+export const AUF_JEDER_STUNDENSEITE = ['abstimmung', 'antwortkarte'] as const;
+
 export const werkzeuge: Werkzeug[] = [
   {
     slug: 'unterrichts-timer',

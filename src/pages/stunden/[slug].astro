@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { abstimmungsLink } from '../../lib/abstimmung';
 
 export async function getStaticPaths() {
   const stunden = await getCollection('stunden', ({ data }) => !data.entwurf);
@@ -10,6 +11,14 @@ export async function getStaticPaths() {
 const { stunde } = Astro.props;
 const { Content } = await stunde.render();
 const d = stunde.data;
+
+// Die Einstiegsfrage hat dasselbe Format wie eine Quizfrage – Frage plus
+// gedeutete Antworten. Sie kann deshalb direkt in die Abstimmung wandern,
+// statt an der Tafel abgeschrieben zu werden. Der Fragensatz steht im
+// URL-Fragment und verlässt den Browser nicht.
+const abstimmung = abstimmungsLink(d.titel, [
+  { frage: d.einstiegsfrage.frage, optionen: d.einstiegsfrage.antworten },
+]);
 
 // Die vier KLAR-Schritte tragen die Farben der Konzeptseite.
 const schrittName: Record<string, string> = {
@@ -100,11 +109,22 @@ const gesamt = d.phasen.reduce((summe, p) => summe + p.dauer, 0);
             </li>
           ))}
         </ul>
-        {d.einstiegsfrage.quiz && (
-          <p class="mt-4 text-sm">
+        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-ink-200/80 pt-4 text-sm dark:border-white/10">
+          <a
+            class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-3 py-2 font-medium text-white shadow-sm transition hover:brightness-105 dark:from-sky-500 dark:to-teal-400"
+            href={abstimmung}
+          >
+            Frage in der Abstimmung öffnen
+          </a>
+          {d.einstiegsfrage.quiz && (
             <a class="link-arrow" href={`/quizzes/${d.einstiegsfrage.quiz}`}>Längere Diagnose: das ganze Quiz </a>
-          </p>
-        )}
+          )}
+        </div>
+        <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">
+          Die Frage steht dort schon da; die Klasse antwortet auf
+          <a class="underline decoration-dotted underline-offset-2" href="/werkzeuge/antwortkarte.html"> Antwortkarten</a>,
+          Mini-Whiteboards oder per Handzeichen, und Sie zählen die Verteilung mit.
+        </p>
       </div>
     </section>
 

@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { werkzeuge, werkzeugKategorien, werkzeugPfad } from '../lib/werkzeuge';
+import { baueWerkzeugFundstellen, fundstellenZeile } from '../lib/werkzeugFundstellen';
+
+// Wo das Werkzeug im Material dieser Seite vorkommt – beim Build aus den
+// Inhalten gelesen, damit die Karte nicht nur „Werkzeug öffnen“ anbietet.
+const fundstellen = await baueWerkzeugFundstellen();
 
 const nachKategorie = werkzeugKategorien
   .map((kategorie) => ({
@@ -88,6 +93,30 @@ const kategorieText: Record<string, string> = {
             </h3>
             <p class="mt-1.5 font-medium text-ink-800 dark:text-ink-200">{w.kurz}</p>
             <p class="mt-2 flex-1 text-sm leading-relaxed text-ink-600 dark:text-ink-400">{w.beschreibung}</p>
+
+            {(() => {
+              const f = fundstellen.get(w.slug);
+              const zeile = f ? fundstellenZeile(f) : null;
+              if (!f || !zeile) return null;
+              // Höchstens drei benannte Ziele, damit die Karte nicht zur Liste wird.
+              const beispiele = [...f.stunden, ...f.aufgaben, ...f.methoden, ...f.blog].slice(0, 3);
+              return (
+                <div class="relative z-10 mt-4 rounded-lg border border-ink-200/70 bg-ink-50/50 px-3 py-2.5 text-sm dark:border-white/[0.08] dark:bg-white/[0.03]">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
+                    Im Material: {zeile}
+                  </p>
+                  <ul class="mt-1.5 space-y-0.5">
+                    {beispiele.map((b) => (
+                      <li>
+                        <a href={b.href} class="text-ink-700 underline decoration-ink-300 underline-offset-2 hover:text-accent-700 dark:text-ink-300 dark:decoration-white/20 dark:hover:text-teal-200">
+                          {b.titel}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
 
             <div class="relative z-10 mt-4 flex flex-wrap items-center gap-4 text-sm">
               <a href={werkzeugPfad(w)} class="link-arrow font-medium">Werkzeug öffnen </a>
