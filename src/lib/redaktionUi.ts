@@ -6,8 +6,10 @@
  * Hier steht nur, was ohne Browser keinen Sinn ergibt.
  */
 import {
+  absatzZurDatei,
   alsZeile,
   findeTextstellen,
+  pruefeAbsatz,
   setzeTextstellen,
   zurAnzeige,
   zurDatei,
@@ -47,6 +49,8 @@ type Zustand = Zerlegt & {
   /** Dateiinhalt beim Öffnen; Vergleichsgrundlage für „geändert“. */
   original: string;
   json: unknown;
+  /** Meldung, solange eine Eingabe nicht gespeichert werden darf. */
+  ungueltig: string | null;
 };
 
 type GhFehler = Error & { status?: number };
@@ -73,6 +77,7 @@ export function starteRedaktion(): void {
     kopfEnde: '',
     rumpf: '',
     json: null,
+    ungueltig: null,
   };
 
   // =========================================================================
@@ -125,9 +130,16 @@ export function starteRedaktion(): void {
 
   function zustandAuffrischen(): void {
     const dreckig = geaendert();
-    el<HTMLButtonElement>('speichern').disabled = !dreckig;
+    // Solange eine Eingabe die Prüfung nicht besteht, wird nicht veröffentlicht.
+    el<HTMLButtonElement>('speichern').disabled = !dreckig || Boolean(zustand.ungueltig);
     el<HTMLButtonElement>('verwerfen').disabled = !dreckig;
     const anzeige = el('kopf-zustand');
+
+    if (zustand.ungueltig) {
+      anzeige.className = 'zustand fehler';
+      anzeige.textContent = '● ' + zustand.ungueltig;
+      return;
+    }
     anzeige.className = 'zustand';
     anzeige.textContent = zustand.eintrag
       ? dreckig
@@ -439,19 +451,25 @@ export function starteRedaktion(): void {
     let basis = zustand.rumpf;
     let stellen = findeTextstellen(basis);
     let werte: Array<string | null> = stellen.map(() => null);
+    /** Felder, deren Eingabe die Prüfung nicht besteht — sie sperren das Speichern. */
+    const fehler = new Map<number, string>();
 
     const uebernehmen = () => {
       zustand.rumpf = setzeTextstellen(basis, stellen, werte);
+      zustand.ungueltig = fehler.size ? [...fehler.values()][0] : null;
       zustandAuffrischen();
     };
 
     const hinweis = document.createElement('div');
     hinweis.className = 'hinweis';
     hinweis.innerHTML =
-      '<strong>Feste Seite.</strong> Unten stehen die Texte dieser Seite, jeder für sich. ' +
-      'Das Seitengerüst drumherum wird nicht angezeigt und bleibt unverändert — ' +
-      'du kannst hier nichts am Aufbau zerbrechen. ' +
-      'Wer doch ans Gerüst muss, klappt unten die Rohansicht auf.';
+      '<strong>Feste Seite.</strong> Unten stehen die Texte dieser Seite, Absatz für Absatz. ' +
+      'Das Seitengerüst drumherum wird nicht angezeigt und bleibt unverändert. ' +
+      'Auszeichnung im Feld ist erlaubt — <code>&lt;em&gt;kursiv&lt;/em&gt;</code>, ' +
+      '<code>&lt;strong&gt;fett&lt;/strong&gt;</code>, ' +
+      '<code>&lt;a href="/pfad"&gt;Link&lt;/a&gt;</code>. ' +
+      'Alles andere wird zu gewöhnlichem Text; stimmt etwas nicht, sagt es die Redaktion ' +
+      'und lässt nicht veröffentlichen.';
 
     const titel = document.createElement('p');
     titel.className = 'abschnitt-titel';
@@ -505,14 +523,42 @@ export function starteRedaktion(): void {
           else eingabe.rows = Math.min(10, Math.ceil(anzeige.length / 90) + 1);
           eingabe.value = anzeige;
           eingabe.spellcheck = true;
+
+          // Ein Absatzfeld darf Auszeichnung enthalten und wird deshalb geprüft.
+          const meldung = document.createElement('div');
+          meldung.className = 'zustand fehler';
+          meldung.hidden = true;
+
           eingabe.addEventListener('input', () => {
+            const wert = eingabe.value;
             // Unverändert heißt: das Original zeichengenau übernehmen. Nur
             // wirklich Geändertes wird neu kodiert.
-            werte[i] = eingabe.value === anzeige ? null : zurDatei(eingabe.value, stelle.art);
+            if (wert === anzeige) {
+              werte[i] = null;
+              fehler.delete(i);
+            } else if (stelle.art === 'absatz') {
+              const problem = pruefeAbsatz(wert);
+              if (problem) {
+                fehler.set(i, problem);
+                // Den letzten gültigen Stand stehen lassen, bis es wieder passt.
+                werte[i] = null;
+              } else {
+                fehler.delete(i);
+                werte[i] = absatzZurDatei(wert);
+              }
+            } else {
+              fehler.delete(i);
+              werte[i] = zurDatei(wert, stelle.art);
+            }
+
+            const problem = fehler.get(i);
+            meldung.hidden = !problem;
+            meldung.textContent = problem ?? '';
+            eingabe.classList.toggle('ungueltig', Boolean(problem));
             uebernehmen();
           });
 
-          huelle.append(marke, eingabe);
+          huelle.append(marke, eingabe, meldung);
           if (mehrteilig) kasten.append(huelle);
         }
 
@@ -533,6 +579,8 @@ export function starteRedaktion(): void {
       basis = flaeche.value;
       stellen = findeTextstellen(basis);
       werte = stellen.map(() => null);
+      fehler.clear();
+      zustand.ungueltig = null;
       zeichneFelder();
       zustandAuffrischen();
     });
@@ -672,6 +720,8 @@ export function starteRedaktion(): void {
   function baueEditor(): void {
     const editor = el('editor');
     editor.innerHTML = '';
+    // Eine offene Beanstandung gehört zur alten Ansicht und endet mit ihr.
+    zustand.ungueltig = null;
     const art = zustand.eintrag?.art;
     const mitVorschau = art === 'markdown';
 

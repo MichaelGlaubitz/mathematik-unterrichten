@@ -7,11 +7,16 @@
  * Textbearbeiten. Dieses Modul zieht die lesbaren Stellen heraus, damit die
  * Redaktion nur sie anzeigt.
  *
- * Es ist derselbe Grundsatz wie beim Frontmatter in `redaktionText.ts`: Nichts
- * wird neu erzeugt. Jede Fundstelle merkt sich ihre Zeichenposition im
+ * Bevorzugt wird dabei der ganze Absatz: Ein `<p>`, `<li>` oder `<h2>`, das
+ * nur Text und harmlose Auszeichnung enthält, wird als *eine* Stelle
+ * angeboten — mitsamt seinen `<em>`- und Link-Tags. Erst wo das nicht sicher
+ * geht (Astro-Ausdrücke, verschachtelte Absätze, unbekannte Elemente), fällt
+ * das Modul auf die einzelnen Textstücke zurück.
+ *
+ * Der Grundsatz ist derselbe wie beim Frontmatter in `redaktionText.ts`:
+ * Nichts wird neu erzeugt. Jede Fundstelle merkt sich ihre Zeichenposition im
  * Original; beim Speichern wird ausschließlich dieser Ausschnitt ersetzt und
- * alles dazwischen zeichengenau übernommen. Was das Modul nicht sicher als
- * Text erkennt, fasst es nicht an — dafür bleibt die Rohansicht.
+ * alles dazwischen zeichengenau übernommen.
  */
 
 export type Textstelle = {
@@ -19,24 +24,36 @@ export type Textstelle = {
   start: number;
   /** Position hinter dem letzten Zeichen. */
   ende: number;
-  /** Der Text so, wie er in der Datei steht (mit Entitäten). */
+  /** Der Inhalt so, wie er in der Datei steht. */
   roh: string;
   /** Das unmittelbar umgebende Element bzw. der Attributname. */
   herkunft: string;
   /**
-   * Kennung des umgebenden Absatzes. Ein Satz mit `<em>` zerfällt in mehrere
-   * Stellen; alle tragen dieselbe Kennung und gehören in der Anzeige zusammen.
+   * Kennung des umgebenden Absatzes. Wo auf Textstücke zurückgefallen wird,
+   * tragen alle Stücke eines Satzes dieselbe Kennung und gehören in der
+   * Anzeige zusammen.
    */
   gruppe: string;
   /** Das Element, das die Gruppe bildet — etwa `p` oder `li`. */
   gruppenElement: string;
-  art: 'inhalt' | 'attribut';
+  /**
+   * `absatz` — ganzer Absatzinhalt samt Auszeichnung, in einem Feld.
+   * `inhalt` — einzelnes Textstück (Rückfall).
+   * `attribut` — Text in einem Attribut.
+   */
+  art: 'absatz' | 'inhalt' | 'attribut';
 };
 
-/** Elemente, die einen eigenen Absatz aufmachen. */
-const BLOCK = new Set([
+/** Elemente, die einen Absatz aufmachen und als Ganzes bearbeitbar sind. */
+const ABSATZ = new Set([
   'p', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'th', 'dt', 'dd',
-  'figcaption', 'summary', 'blockquote', 'caption', 'label', 'button', 'a',
+  'figcaption', 'summary', 'blockquote', 'caption', 'button', 'label', 'legend',
+]);
+
+/** Auszeichnung, die innerhalb eines Absatzfelds erlaubt ist. */
+export const ERLAUBTE_TAGS = new Set([
+  'a', 'em', 'strong', 'b', 'i', 'code', 'abbr', 'q', 'cite', 'span', 'small',
+  'mark', 's', 'u', 'sub', 'sup', 'time', 'kbd', 'var', 'del', 'ins', 'br', 'wbr',
 ]);
 
 /** Elemente ohne Inhalt — sie dürfen die Verschachtelung nicht vertiefen. */
@@ -44,6 +61,12 @@ const LEER = new Set([
   'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
   'param', 'source', 'track', 'wbr', 'path', 'circle', 'rect', 'line', 'polygon',
   'polyline', 'ellipse', 'use', 'stop',
+]);
+
+/** Attribute, die in einem Absatzfeld stehen dürfen. */
+export const ERLAUBTE_ATTRIBUTE = new Set([
+  'href', 'title', 'lang', 'rel', 'target', 'class', 'id', 'datetime', 'cite',
+  'aria-label', 'aria-hidden',
 ]);
 
 /** Attribute, die sichtbaren Text tragen. Alles andere bleibt unangetastet. */
@@ -56,10 +79,7 @@ function gesperrteBereiche(quelle: string): Array<[number, number]> {
   const fm = /^---[ \t]*\r?\n[\s\S]*?\r?\n---[ \t]*(\r?\n|$)/.exec(quelle);
   if (fm) bereiche.push([0, fm[0].length]);
 
-  const muster = [
-    /<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gi,
-    /<!--[\s\S]*?-->/g,
-  ];
+  const muster = [/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gi, /<!--[\s\S]*?-->/g];
   for (const m of muster) {
     for (const treffer of quelle.matchAll(m)) {
       bereiche.push([treffer.index, treffer.index + treffer[0].length]);
@@ -74,44 +94,139 @@ const liegtDrin = (bereiche: Array<[number, number]>, start: number, ende: numbe
 /** Mindestens ein Buchstabe — reine Satzzeichen und Zahlen sind kein Text zum Pflegen. */
 const hatBuchstaben = (s: string) => /\p{L}/u.test(s);
 
-/** Ein Element mit Attributen, in einem Zug erkannt. */
 const TAG = /<(\/?)([A-Za-z][A-Za-z0-9.-]*)((?:"[^"]*"|'[^']*'|[^>])*?)(\/?)>/g;
 
+type RohTag = {
+  start: number;
+  ende: number;
+  name: string;
+  klein: string;
+  schliessend: boolean;
+  selbst: boolean;
+  attribute: string;
+  attrStart: number;
+};
+
+function findeTags(quelle: string): RohTag[] {
+  const aus: RohTag[] = [];
+  TAG.lastIndex = 0;
+  for (const t of quelle.matchAll(TAG)) {
+    const [ganz, schraeg, name, attribute, selbst] = t;
+    const start = t.index;
+    aus.push({
+      start,
+      ende: start + ganz.length,
+      name,
+      klein: name.toLowerCase(),
+      schliessend: schraeg === '/',
+      selbst: selbst === '/',
+      attribute,
+      attrStart: start + 1 + (schraeg ? 1 : 0) + name.length,
+    });
+  }
+  return aus;
+}
+
+/** Grenzen des Inhalts, ohne die umgebenden Leerzeichen. */
+function beschnitten(quelle: string, von: number, bis: number) {
+  const roh = quelle.slice(von, bis);
+  const vorne = roh.length - roh.trimStart().length;
+  const text = roh.trim();
+  return { start: von + vorne, ende: von + vorne + text.length, text };
+}
+
 /**
- * Findet alle bearbeitbaren Textstellen, aufsteigend nach Position und
+ * Findet alle bearbeitbaren Stellen, aufsteigend nach Position und
  * überschneidungsfrei.
  *
  * Ein einziger Durchlauf über die Elemente führt einen Stapel der offenen
- * Verschachtelung mit. Nur daraus lässt sich richtig sagen, wozu ein Textstück
- * gehört: Das Stück hinter `</em>` steht wieder im Absatz, nicht in der
- * Betonung.
+ * Verschachtelung mit. Nur daraus lässt sich sagen, wozu ein Textstück gehört
+ * und welcher Absatz sich als Ganzes anbieten lässt.
  */
 export function findeTextstellen(quelle: string): Textstelle[] {
   const gesperrt = gesperrteBereiche(quelle);
+  const tags = findeTags(quelle);
+
+  // --- Absätze bestimmen, die sich als Ganzes anbieten lassen ----------------
+  type Kandidat = { name: string; von: number; bis: number; tagVon: number; tagBis: number };
+  const kandidaten: Kandidat[] = [];
+  const offen: Array<{ name: string; klein: string; ende: number; i: number }> = [];
+
+  tags.forEach((tag, i) => {
+    if (tag.schliessend) {
+      for (let k = offen.length - 1; k >= 0; k--) {
+        if (offen[k].klein !== tag.klein) continue;
+        const auf = offen[k];
+        offen.length = k;
+        if (ABSATZ.has(auf.klein)) {
+          kandidaten.push({ name: auf.klein, von: auf.ende, bis: tag.start, tagVon: auf.i, tagBis: i });
+        }
+        break;
+      }
+    } else if (!tag.selbst && !LEER.has(tag.klein)) {
+      offen.push({ name: tag.name, klein: tag.klein, ende: tag.ende, i });
+    }
+  });
+
+  const geeignet = kandidaten.filter((k) => {
+    const inhalt = quelle.slice(k.von, k.bis);
+    // Astro-Ausdrücke werden nie angefasst.
+    if (inhalt.includes('{') || inhalt.includes('}')) return false;
+    if (liegtDrin(gesperrt, k.von, k.bis)) return false;
+    if (!hatBuchstaben(inhalt)) return false;
+    // Nur harmlose Auszeichnung darin — sonst lieber die einzelnen Stücke.
+    for (let i = k.tagVon + 1; i < k.tagBis; i++) {
+      if (!ERLAUBTE_TAGS.has(tags[i].klein)) return false;
+      // Trägt ein Element darin ein Attribut, das die Prüfung später nicht
+      // durchließe, wird der Absatz gar nicht erst als Ganzes angeboten.
+      // Sonst könnte hier ein `data-kat` verschwinden, an dem die
+      // Kategorienfilterung hängt — der Bau liefe durch, die Seite wäre kaputt.
+      for (const attr of tags[i].attribute.matchAll(/([A-Za-z][A-Za-z0-9-]*)\s*=/g)) {
+        if (!ERLAUBTE_ATTRIBUTE.has(attr[1].toLowerCase())) return false;
+      }
+    }
+    return true;
+  });
+
+  // Innerste gewinnen: Ein Absatz, der einen anderen enthält, wird nicht angeboten.
+  const absaetze = geeignet.filter(
+    (k) => !geeignet.some((a) => a !== k && a.von >= k.von && a.bis <= k.bis)
+  );
+
+  const imAbsatz = (start: number, ende: number) =>
+    absaetze.some((a) => start >= a.von && ende <= a.bis);
+
+  // --- Stellen einsammeln ---------------------------------------------------
   const stellen: Textstelle[] = [];
+
+  for (const absatz of absaetze) {
+    const { start, ende, text } = beschnitten(quelle, absatz.von, absatz.bis);
+    stellen.push({
+      start,
+      ende,
+      roh: text,
+      herkunft: absatz.name,
+      gruppe: `absatz@${start}`,
+      gruppenElement: absatz.name,
+      art: 'absatz',
+    });
+  }
+
+  // Textstücke und Attribute überall dort, wo kein ganzer Absatz greift.
   const stapel: Array<{ name: string; start: number }> = [];
   const attrMuster = new RegExp(`\\b(${TEXT_ATTRIBUTE.join('|')})="([^"{}]*)"`, 'g');
 
-  /** Der nächste umschließende Absatz — er bildet die Gruppe. */
   const gruppeVon = () => {
     for (let i = stapel.length - 1; i >= 0; i--) {
-      if (BLOCK.has(stapel[i].name)) return stapel[i];
+      if (ABSATZ.has(stapel[i].name.toLowerCase())) return stapel[i];
     }
     return null;
   };
 
-  const nimmInhalt = (von: number, bis: number) => {
-    const roh = quelle.slice(von, bis);
-    // Geschweifte Klammern sind in Astro Ausdrücke — davon Finger weg.
-    if (roh.includes('{') || roh.includes('}')) return;
-
-    const vorne = roh.length - roh.trimStart().length;
-    const text = roh.trim();
+  const nimmStueck = (von: number, bis: number) => {
+    const { start, ende, text } = beschnitten(quelle, von, bis);
     if (!text || !hatBuchstaben(text)) return;
-
-    const start = von + vorne;
-    const ende = start + text.length;
-    if (liegtDrin(gesperrt, start, ende)) return;
+    if (liegtDrin(gesperrt, start, ende) || imAbsatz(start, ende)) return;
 
     const block = gruppeVon();
     stellen.push({
@@ -125,24 +240,40 @@ export function findeTextstellen(quelle: string): Textstelle[] {
     });
   };
 
+  const nimmInhalt = (von: number, bis: number) => {
+    const roh = quelle.slice(von, bis);
+    if (!roh.includes('{') && !roh.includes('}')) {
+      nimmStueck(von, bis);
+      return;
+    }
+    // Steht ein Astro-Ausdruck im Text, bleibt er unantastbar — aber der Text
+    // daneben soll trotzdem bearbeitbar sein („Anteil: {prozent} Prozent").
+    //
+    // Das gilt nur für vollständige Klammerpaare in dieser Stelle. Bleibt nach
+    // dem Herausrechnen eine einzelne Klammer übrig, gehört sie zu einem
+    // mehrzeiligen Ausdruck wie `{zeigePortrait && (` — dann bleibt die ganze
+    // Stelle außen vor.
+    if (/[{}]/.test(roh.replace(/\{[^{}]*\}/g, ''))) return;
+    let pos = von;
+    for (const ausdruck of roh.matchAll(/\{[^{}]*\}/g)) {
+      nimmStueck(pos, von + ausdruck.index);
+      pos = von + ausdruck.index + ausdruck[0].length;
+    }
+    nimmStueck(pos, bis);
+  };
+
   let pos = 0;
-  TAG.lastIndex = 0;
-  for (const treffer of quelle.matchAll(TAG)) {
-    const [ganz, schraeg, name, attribute, selbstschliessend] = treffer;
-    const index = treffer.index;
+  for (const tag of tags) {
+    nimmInhalt(pos, tag.start);
+    pos = tag.ende;
 
-    nimmInhalt(pos, index);
-    pos = index + ganz.length;
-
-    // Text in Attributen — die Position im Original mitrechnen.
-    if (!schraeg) {
-      const attrStart = index + 1 + name.length;
-      for (const attr of attribute.matchAll(attrMuster)) {
+    if (!tag.schliessend) {
+      for (const attr of tag.attribute.matchAll(attrMuster)) {
         const wert = attr[2];
         if (!wert || !hatBuchstaben(wert)) continue;
-        const start = attrStart + attr.index + attr[1].length + 2;
+        const start = tag.attrStart + attr.index + attr[1].length + 2;
         const ende = start + wert.length;
-        if (liegtDrin(gesperrt, start, ende)) continue;
+        if (liegtDrin(gesperrt, start, ende) || imAbsatz(start, ende)) continue;
         stellen.push({
           start,
           ende,
@@ -155,16 +286,15 @@ export function findeTextstellen(quelle: string): Textstelle[] {
       }
     }
 
-    // Verschachtelung nachführen
-    if (schraeg) {
+    if (tag.schliessend) {
       for (let i = stapel.length - 1; i >= 0; i--) {
-        if (stapel[i].name === name) {
+        if (stapel[i].name.toLowerCase() === tag.klein) {
           stapel.length = i;
           break;
         }
       }
-    } else if (!selbstschliessend && !LEER.has(name.toLowerCase())) {
-      stapel.push({ name, start: index });
+    } else if (!tag.selbst && !LEER.has(tag.klein)) {
+      stapel.push({ name: tag.name, start: tag.start });
     }
   }
   nimmInhalt(pos, quelle.length);
@@ -221,6 +351,8 @@ export function zurAnzeige(roh: string): string {
  * Zurück in die Datei: alles maskieren, was sonst die Seite zerlegen würde.
  * Spitze Klammern würden zu Elementen, geschweifte zu Astro-Ausdrücken, und in
  * einem Attribut beendet ein Anführungszeichen den Wert.
+ *
+ * Gilt für Felder ohne Auszeichnung. Absatzfelder gehen durch `absatzZurDatei`.
  */
 export function zurDatei(anzeige: string, art: 'inhalt' | 'attribut'): string {
   const grund = anzeige
@@ -230,4 +362,120 @@ export function zurDatei(anzeige: string, art: 'inhalt' | 'attribut'): string {
     .replace(/\{/g, '&#123;')
     .replace(/\}/g, '&#125;');
   return art === 'attribut' ? grund.replace(/"/g, '&quot;') : grund;
+}
+
+// ===========================================================================
+// Absatzfelder: Auszeichnung erlaubt, aber geprüft
+// ===========================================================================
+
+/** Ein `&`, das keine Entität einleitet, ist gemeint als Zeichen. */
+const ENTITAET = /^&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});/;
+
+/** Beginnt hier ein Tag, das im Absatz erlaubt ist? */
+function tagAb(text: string, i: number): RegExpExecArray | null {
+  const rest = text.slice(i);
+  const treffer = /^<(\/?)([A-Za-z][A-Za-z0-9.-]*)((?:"[^"]*"|'[^']*'|[^>])*?)(\/?)>/.exec(rest);
+  if (!treffer) return null;
+  return ERLAUBTE_TAGS.has(treffer[2].toLowerCase()) ? treffer : null;
+}
+
+/**
+ * Was die Redaktion aus einem Absatzfeld in die Datei schreibt.
+ *
+ * Erlaubte Auszeichnung bleibt stehen. Alles andere wird zu Text: ein `<`, das
+ * kein erlaubtes Tag einleitet (jemand schreibt „für a < b"), ein `&`, das
+ * keine Entität ist, und geschweifte Klammern, die sonst zu einem
+ * Astro-Ausdruck würden.
+ */
+export function absatzZurDatei(anzeige: string): string {
+  let aus = '';
+  let i = 0;
+  while (i < anzeige.length) {
+    const z = anzeige[i];
+
+    if (z === '<') {
+      const tag = tagAb(anzeige, i);
+      if (tag) {
+        aus += tag[0];
+        i += tag[0].length;
+        continue;
+      }
+      aus += '&lt;';
+      i++;
+      continue;
+    }
+
+    if (z === '&') {
+      if (ENTITAET.test(anzeige.slice(i))) {
+        const bis = anzeige.indexOf(';', i) + 1;
+        aus += anzeige.slice(i, bis);
+        i = bis;
+        continue;
+      }
+      aus += '&amp;';
+      i++;
+      continue;
+    }
+
+    if (z === '{') {
+      aus += '&#123;';
+      i++;
+      continue;
+    }
+    if (z === '}') {
+      aus += '&#125;';
+      i++;
+      continue;
+    }
+
+    aus += z;
+    i++;
+  }
+  return aus;
+}
+
+/**
+ * Prüft ein Absatzfeld, bevor es gespeichert wird. Gibt eine Meldung in
+ * verständlichem Deutsch zurück oder `null`, wenn alles in Ordnung ist.
+ *
+ * Geprüft wird der Text, wie er in die Datei ginge — also nach `absatzZurDatei`.
+ * Was dort schon zu Text entschärft wurde, kann hier nichts mehr auslösen.
+ */
+export function pruefeAbsatz(anzeige: string): string | null {
+  const text = absatzZurDatei(anzeige);
+  const stapel: string[] = [];
+
+  TAG.lastIndex = 0;
+  for (const treffer of text.matchAll(TAG)) {
+    const name = treffer[2].toLowerCase();
+    const schliessend = treffer[1] === '/';
+    const selbst = treffer[4] === '/';
+
+    if (!ERLAUBTE_TAGS.has(name)) {
+      return `<${name}> ist hier nicht erlaubt. Möglich sind: ${[...ERLAUBTE_TAGS].join(', ')}.`;
+    }
+
+    for (const attr of treffer[3].matchAll(/([A-Za-z][A-Za-z0-9-]*)\s*=\s*("[^"]*"|'[^']*')/g)) {
+      const attrName = attr[1].toLowerCase();
+      if (!ERLAUBTE_ATTRIBUTE.has(attrName)) {
+        return `Das Attribut ${attrName} ist hier nicht erlaubt (in <${name}>).`;
+      }
+      if ((attrName === 'href' || attrName === 'cite') && /^\s*["']?\s*javascript:/i.test(attr[2])) {
+        return 'Ein Link darf kein javascript: enthalten.';
+      }
+    }
+
+    if (LEER.has(name) || selbst) continue;
+
+    if (schliessend) {
+      if (stapel.pop() !== name) return `</${name}> passt zu keinem offenen <${name}>.`;
+    } else {
+      stapel.push(name);
+    }
+  }
+
+  if (stapel.length) {
+    return `<${stapel[stapel.length - 1]}> wurde nicht geschlossen.`;
+  }
+  return null;
 }

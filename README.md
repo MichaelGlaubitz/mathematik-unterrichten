@@ -72,7 +72,7 @@ Was die Redaktion führt:
 |---|---|
 | Blog, Aufgaben, Stunden (`.md`) | Formularfelder für die Angaben, Textfeld mit Live-Vorschau |
 | Themen, Quizze (`.json`) | Formular mit Hinzufügen, Sortieren und Löschen von Einträgen; dazu Rohansicht |
-| Feste Seiten (`.astro`) | Nur die Textstellen als Felder – das Seitengerüst bleibt unsichtbar und unangetastet; darunter eine Rohansicht |
+| Feste Seiten (`.astro`) | Ein Feld je Absatz, mit erlaubter Auszeichnung – das Seitengerüst bleibt unsichtbar und unangetastet; darunter eine Rohansicht |
 
 Grenzen, die bewusst so sind:
 
@@ -87,14 +87,24 @@ Grenzen, die bewusst so sind:
 - **Seiten mit überwiegend Programmtext** (die Übungsgeneratoren unter
   `src/pages/uebung/`) führt die Redaktion nicht; sie verweist dafür auf den
   GitHub-Editor.
-- **Feste Seiten zeigen nur ihre Textstellen.** Was zwischen der Auszeichnung
-  steht, wird als Feld angeboten; Klassen, Astro-Ausdrücke, Stil- und
-  Skriptblöcke bleiben unberührt. Ein Satz mit `<em>` zerfällt dabei in
-  mehrere Felder – sie stehen sichtbar in einem Kasten zusammen. Neue
-  Absätze, Links oder Listenpunkte legt man weiter im Quelltext an; dafür
-  gibt es unter den Feldern die Rohansicht. Siehe `src/lib/astroText.ts`,
-  abgesichert durch `src/lib/astroText.test.ts` – dort prüft ein Test, dass
-  jede echte Seite Extraktion und Rückschrieb zeichengenau übersteht.
+- **Feste Seiten zeigen ihre Absätze.** Jedes `<p>`, `<li>` oder `<h2>` wird
+  als ein Feld angeboten, samt seinen `<em>`- und Link-Tags; Klassen,
+  Astro-Ausdrücke, Stil- und Skriptblöcke bleiben unberührt. Im Feld sind nur
+  harmlose Auszeichnungen erlaubt (`em`, `strong`, `a`, `code`, `br`, `q` und
+  ähnliche) mit einer knappen Liste von Attributen. Alles andere wird zu
+  gewöhnlichem Text – wer `für a < b` schreibt, bekommt genau das auf die
+  Seite und kein kaputtes Element. Was die Prüfung nicht besteht, sperrt das
+  Veröffentlichen, bis es behoben ist. Neue Absätze und Listenpunkte legt man
+  weiter im Quelltext an; dafür gibt es unter den Feldern die Rohansicht.
+- **Nicht jeder Absatz wird als Ganzes angeboten.** Steckt ein Astro-Ausdruck,
+  ein `<img>`, ein weiterer Absatz oder ein funktionales Attribut wie
+  `data-kat` darin, fällt die Redaktion auf die einzelnen Textstücke zurück –
+  sie stehen dann sichtbar in einem Kasten zusammen. Das ist Absicht: An einem
+  `data-kat` hängt die Kategorienfilterung, und sie soll nicht lautlos
+  verschwinden können. Siehe `src/lib/astroText.ts`, abgesichert durch
+  `src/lib/astroText.test.ts` – dort prüfen Tests für jede echte Seite, dass
+  Extraktion und Rückschrieb sie zeichengenau überstehen und dass jeder
+  angebotene Absatz die eigene Prüfung auch besteht.
 - **Ein bearbeiteter Absatz wird zu einer Quelltextzeile.** Im Quelltext ist er
   über mehrere eingerückte Zeilen umbrochen; bearbeitet man ihn, schreibt die
   Redaktion ihn als eine Zeile zurück. Für die gebaute Seite ist das
