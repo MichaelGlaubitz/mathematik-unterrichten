@@ -5,6 +5,10 @@ import {
   leseVariationsfolgen,
   SCHRITTE,
   LOESUNG_AB,
+  PLENUM,
+  TIEFER_BEAT,
+  taktSchritte,
+  PAAR_ZU_SCHRITT,
   SCHRITTE_PARTNER,
   PARTNER_UEBERSCHRIFT,
   SCHRITTE_PLENUM,
@@ -117,9 +121,8 @@ describe('Die Folie im Auftritt', () => {
     expect(folie).toContain('Aufgabe davor');
   });
 
-  it('die erste Aufgabe beginnt bei Expect, nicht bei Reflect', () => {
-    // Es gibt nichts, womit sie sich vergleichen ließe.
-    expect(folie).toMatch(/n === 0 && s === 0 && richtung > 0/);
+  it('die Aufgabe davor steht nur da, wenn es sie gibt', () => {
+    expect(folie).toContain('vorher.hidden = !davor');
   });
 
   it('die Folie nennt ihren Adressaten und verliert ihn im Druck', () => {
@@ -143,10 +146,11 @@ describe('Partnerphase nach der Einzelarbeit', () => {
   const folie = lies('src/pages/aufgaben/[slug]/folge.astro');
 
   it('es wird eine Frage ausgesucht, nicht die Liste abgearbeitet', () => {
-    // „Choose a question to discuss with your partner“ – wer alle neun
-    // durchgeht, macht aus dem Gespräch ein Formular.
+    // „Choose a question to discuss with your partner“ – wer alle durchgeht,
+    // macht aus dem Gespräch ein Formular. Deshalb steht an der Wand immer nur
+    // die Gruppe des laufenden Schritts, höchstens drei Fragen.
     expect(PARTNER_UEBERSCHRIFT).toMatch(/sucht euch eine Frage aus/i);
-    expect(folie).toContain('Eine genügt');
+    for (const gruppe of PAAR_ZU_SCHRITT) expect(gruppe.length).toBeLessThanOrEqual(3);
   });
 
   it('dieselben vier Schritte, jetzt zu zweit', () => {
@@ -165,18 +169,37 @@ describe('Partnerphase nach der Einzelarbeit', () => {
     expect(text).toMatch(/Mitschüler/);
   });
 
-  it('sie kommt erst nach Explain und verschwindet mit der nächsten Aufgabe', () => {
-    expect(folie).toContain('const PARTNER = 4, PLENUM = 5, TIEFER_S = 6;');
-    expect(folie).toContain('partnerkarte.hidden = !imPartner');
-    // Nach der Partnerphase geht es ins Plenum, erst danach zur nächsten Aufgabe.
-    expect(folie).toContain('if (s > PLENUM && !letzte)');
+  it('jeder Schritt trägt seine eigenen Impulse', () => {
+    // Keine eigene Phase am Ende mehr: Der Impuls steht bei dem Schritt, zu
+    // dem er gehört. Sonst stünden zwölf Fragen auf einmal an der Wand.
+    expect(PAAR_ZU_SCHRITT).toHaveLength(SCHRITTE.length);
+    SCHRITTE.forEach((s, i) => {
+      const erwartet = SCHRITTE_PARTNER.find((x) => x.marke === s.marke)?.punkte ?? [];
+      expect(PAAR_ZU_SCHRITT[i], s.marke).toEqual(erwartet);
+    });
   });
 
-  it('in der Partnerphase steht kein Einzelschritt mehr im Vordergrund', () => {
-    // Sobald die Einzelarbeit vorbei ist, verschwindet das Schrittband ganz.
-    // An der Wand steht dann die Karte für die Phase, die gerade läuft.
-    expect(folie).toContain('schrittband.hidden = !allein');
-    expect(folie).toContain('const allein = schritt < PARTNER');
+  it('die Folie zeigt nur die Impulse des laufenden Schritts', () => {
+    expect(folie).toContain('const paar = PAAR_ZU_SCHRITT[schritt] ?? []');
+    // Und keine Sammelkarte mehr, in der alle vier Gruppen nebeneinander stehen.
+    expect(folie).not.toContain('mu-folge-partner');
+  });
+
+  it('der Impuls kommt zeitversetzt und der Ton ist abschaltbar', () => {
+    // Erst denkt jede und jeder allein. Der Ton ist Beiwerk – und aus,
+    // solange ihn niemand einschaltet.
+    expect(folie).toContain('function paarPlanen(impulse)');
+    expect(folie).toMatch(/uhr = setTimeout\(/);
+    expect(folie).toContain('if (tonWahl.checked) klingeln();');
+    expect(folie).toMatch(/<input id="mu-folge-ton" type="checkbox"(?![^>]*checked)/);
+    // Der Ton wird gerechnet, nicht geladen: kein Netz, keine Datei.
+    expect(folie).toContain('window.AudioContext');
+    expect(folie).not.toMatch(/new Audio\(/);
+  });
+
+  it('die Einstellungen bleiben auf dem Gerät', () => {
+    expect(folie).toContain('localStorage.setItem(SPEICHER');
+    expect(folie).not.toMatch(/fetch\(|XMLHttpRequest|navigator\.sendBeacon/);
   });
 });
 
@@ -204,16 +227,17 @@ describe('Plenum und Abschluss', () => {
   });
 
   it('deshalb steht es erst am Ende der Folge', () => {
-    expect(folie).toContain('if (s > PLENUM && !letzte)');
-    expect(folie).toContain('const letzte = nr === f.aufgaben.length - 1');
+    expect(taktSchritte(4, 6)).not.toContain(TIEFER_BEAT);
+    expect(taktSchritte(5, 6).at(-1)).toBe(TIEFER_BEAT);
   });
 
   it('und bleibt dort stehen, statt weiterzulaufen', () => {
-    expect(folie).toContain('else if (s > TIEFER_S) { s = TIEFER_S; }');
+    // Hinter dem letzten Beat der letzten Aufgabe gibt es kein Weiter mehr.
+    expect(folie).toContain('else i = takte[folge][n].length - 1;');
   });
 
   it('immer nur eine Karte zugleich', () => {
-    for (const karte of ['partnerkarte.hidden = !imPartner', 'plenumkarte.hidden = !imPlenum', 'tieferkarte.hidden = !imTiefer']) {
+    for (const karte of ['plenumkarte.hidden = !imPlenum', 'tieferkarte.hidden = !imTiefer']) {
       expect(folie).toContain(karte);
     }
   });
@@ -235,5 +259,80 @@ describe('Wann die Lösung an der Wand steht', () => {
     // und `schritt < undefined` ist immer falsch – die Lösung stünde ab der
     // ersten Sekunde da.
     expect(folie).toMatch(/define:vars=\{\{[^}]*LOESUNG_AB[^}]*\}\}/);
+  });
+});
+
+describe('Welche Beats eine Aufgabe bekommt', () => {
+  const marke = (i: number) => SCHRITTE[i]?.marke ?? ['Plenum', 'tiefer'][i - SCHRITTE.length];
+
+  it('die erste Aufgabe steigt bei Check ein', () => {
+    expect(taktSchritte(0, 6).map(marke)).toEqual(['Check']);
+  });
+
+  it('die erste Aufgabe hat weder Reflect noch Expect noch Explain', () => {
+    // Alle drei setzen eine Vorgängerin voraus, die es hier nicht gibt.
+    const beats = taktSchritte(0, 6).map(marke);
+    expect(beats).not.toContain('Reflect');
+    expect(beats).not.toContain('Expect');
+    expect(beats).not.toContain('Explain');
+  });
+
+  it('die erste Aufgabe hat kein Plenum – dort geht es nur um den Zusammenhang', () => {
+    expect(taktSchritte(0, 6)).not.toContain(PLENUM);
+    // Zu zweit wird trotzdem gesprochen: Die Check-Impulse hängen am Schritt.
+    const check = SCHRITTE.findIndex((s) => s.marke === 'Check');
+    expect(PAAR_ZU_SCHRITT[check].length).toBeGreaterThan(0);
+  });
+
+  it('ab der zweiten Aufgabe läuft der volle Takt', () => {
+    expect(taktSchritte(1, 6).map(marke)).toEqual([
+      'Reflect', 'Expect', 'Check', 'Explain', 'Plenum',
+    ]);
+  });
+
+  it('„tiefer bohren" hängt an der letzten Aufgabe', () => {
+    expect(taktSchritte(5, 6)).toContain(TIEFER_BEAT);
+    expect(taktSchritte(4, 6)).not.toContain(TIEFER_BEAT);
+    expect(taktSchritte(5, 6).at(-1)).toBe(TIEFER_BEAT);
+  });
+
+  it('eine Folge mit nur einer Aufgabe bleibt begehbar', () => {
+    expect(taktSchritte(0, 1).map(marke)).toEqual(['Check', 'tiefer']);
+  });
+
+  it('jeder Beat der echten Folgen ist zeichenbar', () => {
+    // Ein Index außerhalb von SCHRITTE und außerhalb der drei Beats hätte
+    // an der Wand eine leere Karte zur Folge.
+    const erlaubt = new Set([...SCHRITTE.map((_, i) => i), PLENUM, TIEFER_BEAT]);
+    for (const anzahl of [1, 2, 6, 12]) {
+      for (let nr = 0; nr < anzahl; nr++) {
+        for (const b of taktSchritte(nr, anzahl)) expect(erlaubt.has(b)).toBe(true);
+      }
+    }
+  });
+});
+
+describe('Die Folie benutzt die Taktregel', () => {
+  const folie = fs.readFileSync(
+    path.join(process.cwd(), 'src/pages/aufgaben/[slug]/folge.astro'),
+    'utf8'
+  );
+
+  it('rechnet die Beats nicht selbst aus', () => {
+    expect(folie).toContain('taktSchritte(i, f.aufgaben.length)');
+    expect(folie).not.toMatch(/const PARTNER = 4, PLENUM = 5/);
+  });
+
+  it('passt den Inhalt im Vollbild ein', () => {
+    expect(folie).toContain('function einpassen()');
+    expect(folie).toContain("document.addEventListener('fullscreenchange', einpassen)");
+    expect(folie).toContain("window.addEventListener('resize', einpassen)");
+    // Ohne overflow:hidden schöbe der ungeskalierte Layoutkasten den Rest raus.
+    expect(folie).toMatch(/#mu-folge-buehne:fullscreen \{[^}]*overflow: hidden/);
+  });
+
+  it('setzt die Erwartungsbeispiele als Fließtext, nicht als Liste', () => {
+    expect(folie).toContain("punkte.textContent = s.punkte.join('  ·  ')");
+    expect(folie).toMatch(/<p id="mu-folge-punkte"/);
   });
 });
