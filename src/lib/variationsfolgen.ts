@@ -143,6 +143,15 @@ export const SCHRITTE = [
 ] as const;
 
 /**
+ * Ab welchem Schritt die Lösung an der Wand steht.
+ *
+ * Erst bei *Explain*. Check ist die Phase, in der die Klasse selbst rechnet –
+ * stünde die Lösung schon dort, gäbe es nichts mehr zu prüfen, und die
+ * Erwartung aus dem Schritt davor wäre wertlos.
+ */
+export const LOESUNG_AB = SCHRITTE.findIndex((s) => s.marke === 'Explain');
+
+/**
  * Die Partnerphase nach der Einzelarbeit.
  *
  * Craig Barton lässt zuerst allein arbeiten und stellt danach diese Impulse

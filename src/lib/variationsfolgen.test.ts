@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   leseVariationsfolgen,
   SCHRITTE,
+  LOESUNG_AB,
   SCHRITTE_PARTNER,
   PARTNER_UEBERSCHRIFT,
   SCHRITTE_PLENUM,
@@ -116,11 +117,6 @@ describe('Die Folie im Auftritt', () => {
     expect(folie).toContain('Aufgabe davor');
   });
 
-  it('die Lösung erscheint frühestens beim Check', () => {
-    // Wer die Lösung vor der Erwartung sieht, hat keine Erwartung mehr.
-    expect(folie).toContain('loesung.hidden = schritt < 2');
-  });
-
   it('die erste Aufgabe beginnt bei Expect, nicht bei Reflect', () => {
     // Es gibt nichts, womit sie sich vergleichen ließe.
     expect(folie).toMatch(/n === 0 && s === 0 && richtung > 0/);
@@ -220,5 +216,24 @@ describe('Plenum und Abschluss', () => {
     for (const karte of ['partnerkarte.hidden = !imPartner', 'plenumkarte.hidden = !imPlenum', 'tieferkarte.hidden = !imTiefer']) {
       expect(folie).toContain(karte);
     }
+  });
+});
+
+describe('Wann die Lösung an der Wand steht', () => {
+  it('erst bei Explain, nicht schon bei Check', () => {
+    expect(SCHRITTE[LOESUNG_AB].marke).toBe('Explain');
+    expect(SCHRITTE[LOESUNG_AB - 1].marke).toBe('Check');
+  });
+
+  it('die Folie liest die Regel aus LOESUNG_AB, nicht aus einer Zahl', () => {
+    const folie = fs.readFileSync(
+      path.join(process.cwd(), 'src/pages/aufgaben/[slug]/folge.astro'),
+      'utf8'
+    );
+    expect(folie).toContain('loesung.hidden = schritt < LOESUNG_AB;');
+    // Der Wert muss auch im Skriptblock ankommen, sonst ist er dort undefined
+    // und `schritt < undefined` ist immer falsch – die Lösung stünde ab der
+    // ersten Sekunde da.
+    expect(folie).toMatch(/define:vars=\{\{[^}]*LOESUNG_AB[^}]*\}\}/);
   });
 });

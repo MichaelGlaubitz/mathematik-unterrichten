@@ -8,6 +8,7 @@ import { zelleAlsLatex } from '../../../lib/mathe';
 import {
   leseVariationsfolgen,
   SCHRITTE,
+  LOESUNG_AB,
   SCHRITTE_PARTNER,
   PARTNER_UEBERSCHRIFT,
   SCHRITTE_PLENUM,
@@ -236,7 +237,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
   </div>
 </BaseLayout>
 
-<script is:inline define:vars={{ folgen: folgenGesetzt, SCHRITTE }}>
+<script is:inline define:vars={{ folgen: folgenGesetzt, SCHRITTE, LOESUNG_AB }}>
   (function () {
     const wahl = document.getElementById('mu-folge-wahl');
     const buehne = document.getElementById('mu-folge-buehne');
@@ -275,8 +276,8 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       abschnitt.textContent = f.titel;
       frage.innerHTML = a.frageHtml;
       loesung.innerHTML = a.loesungHtml;
-      // Die Lösung erscheint erst beim Check – vorher wäre die Erwartung wertlos.
-      loesung.hidden = schritt < 2;
+      // Erst bei Explain – siehe LOESUNG_AB. Bei Check wird gerechnet.
+      loesung.hidden = schritt < LOESUNG_AB;
       zaehler.textContent = `${nr + 1} von ${f.aufgaben.length}`;
 
       const davor = nr > 0 ? f.aufgaben[nr - 1] : null;
