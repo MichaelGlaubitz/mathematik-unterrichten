@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   absatzZurDatei,
   alsZeile,
+  baueFolgeAbsatz,
+  mitEinfuegung,
+  NEUER_ABSATZ_TEXT,
   findeTextstellen,
   pruefeAbsatz,
   setzeTextstellen,
@@ -358,5 +361,97 @@ describe('gegen die echten Seiten der Redaktion', () => {
   it('findet auf jeder Seite mindestens eine Textstelle', () => {
     const leer = seiten.filter((pfad) => findeTextstellen(lies(pfad)).length === 0);
     expect(leer).toEqual([]);
+  });
+});
+
+describe('baueFolgeAbsatz / mitEinfuegung', () => {
+  const seite = [
+    '<article>',
+    '  <p class="text-lg">',
+    '    Erster Absatz.',
+    '  </p>',
+    '  <ul>',
+    '    <li>Ein Punkt</li>',
+    '  </ul>',
+    '</article>',
+    '',
+  ].join('\n');
+
+  const absatzMit = (quelle: string, teil: string) =>
+    findeTextstellen(quelle).find((s) => s.art === 'absatz' && s.roh.includes(teil))!;
+
+  const einfuegen = (quelle: string, teil: string) => {
+    const stellen = findeTextstellen(quelle);
+    const stelle = absatzMit(quelle, teil);
+    const neu = baueFolgeAbsatz(quelle, stelle)!;
+    const zusammen = mitEinfuegung(stellen, stellen.map(() => null), neu.position, neu.text);
+    return setzeTextstellen(quelle, zusammen.stellen, zusammen.werte);
+  };
+
+  it('kennt die Grenzen des Elements, nicht nur die des Inhalts', () => {
+    const stelle = absatzMit(seite, 'Erster Absatz');
+    expect(seite.slice(stelle.elementVon, stelle.elementBis)).toBe(
+      '<p class="text-lg">\n    Erster Absatz.\n  </p>'
+    );
+  });
+
+  it('setzt einen neuen Absatz mit gleicher Auszeichnung darunter', () => {
+    expect(einfuegen(seite, 'Erster Absatz')).toBe(
+      [
+        '<article>',
+        '  <p class="text-lg">',
+        '    Erster Absatz.',
+        '  </p>',
+        '  <p class="text-lg">Neuer Text.</p>',
+        '  <ul>',
+        '    <li>Ein Punkt</li>',
+        '  </ul>',
+        '</article>',
+        '',
+      ].join('\n')
+    );
+  });
+
+  it('setzt hinter einen Listenpunkt einen Listenpunkt', () => {
+    const aus = einfuegen(seite, 'Ein Punkt');
+    expect(aus).toContain('    <li>Ein Punkt</li>\n    <li>Neuer Text.</li>');
+    expect(aus).toContain('</ul>');
+  });
+
+  it('gibt eine id nicht ein zweites Mal aus', () => {
+    const mitId = '<p id="einzig" class="a">Text</p>';
+    const aus = einfuegen(mitId, 'Text');
+    expect(aus).toBe('<p id="einzig" class="a">Text</p>\n<p class="a">Neuer Text.</p>');
+    expect(aus.match(/id="einzig"/g)).toHaveLength(1);
+  });
+
+  it('macht den neuen Absatz sofort wieder als Feld auffindbar', () => {
+    const aus = einfuegen(seite, 'Erster Absatz');
+    const neu = findeTextstellen(aus).filter((s) => s.roh === NEUER_ABSATZ_TEXT);
+    expect(neu).toHaveLength(1);
+    expect(neu[0].art).toBe('absatz');
+  });
+
+  it('lässt sich mehrfach anwenden', () => {
+    let aus = einfuegen(seite, 'Erster Absatz');
+    aus = einfuegen(aus, 'Erster Absatz');
+    expect(aus.match(/Neuer Text\./g)).toHaveLength(2);
+    expect(findeTextstellen(aus).filter((s) => s.art === 'absatz').length).toBe(4);
+  });
+
+  it('erhält gleichzeitige Textänderungen an anderen Stellen', () => {
+    const stellen = findeTextstellen(seite);
+    const stelle = absatzMit(seite, 'Ein Punkt');
+    const neu = baueFolgeAbsatz(seite, stelle)!;
+    const werte = stellen.map((s) => (s.roh === 'Erster Absatz.' ? 'Geänderter Absatz.' : null));
+    const zusammen = mitEinfuegung(stellen, werte, neu.position, neu.text);
+    const aus = setzeTextstellen(seite, zusammen.stellen, zusammen.werte);
+    expect(aus).toContain('Geänderter Absatz.');
+    expect(aus).toContain('<li>Neuer Text.</li>');
+  });
+
+  it('bietet für ein Textstück ohne Absatz nichts an', () => {
+    const stellen = findeTextstellen('<p>Vor <img src="/x.jpg" alt="B" /> nach</p>');
+    expect(baueFolgeAbsatz('<p>Vor <img src="/x.jpg" alt="B" /> nach</p>', stellen[0])).toBeNull();
   });
 });

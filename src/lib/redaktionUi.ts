@@ -8,7 +8,10 @@
 import { bereinigeMarkup, domZuMarkup, linkZielGueltig } from './absatzEditor';
 import {
   alsZeile,
+  baueFolgeAbsatz,
   findeTextstellen,
+  mitEinfuegung,
+  NEUER_ABSATZ_TEXT,
   pruefeAbsatz,
   setzeTextstellen,
   zurAnzeige,
@@ -451,7 +454,12 @@ export function starteRedaktion(): void {
    * auch in Safari auf dem iPad. Was dabei herauskommt, bringt `domZuMarkup`
    * ohnehin auf die Hausform.
    */
-  function baueAbsatzfeld(roh: string, beiAenderung: (markup: string) => void): HTMLElement {
+  function baueAbsatzfeld(
+    roh: string,
+    beiAenderung: (markup: string) => void,
+    einfuegenText?: string,
+    beiEinfuegen?: () => void
+  ): HTMLElement {
     const rahmen = document.createElement('div');
     rahmen.className = 'absatzfeld';
 
@@ -516,6 +524,15 @@ export function starteRedaktion(): void {
       )
     );
 
+    if (einfuegenText && beiEinfuegen) {
+      const platz = document.createElement('span');
+      platz.className = 'absatzfeld__schub';
+      leiste.append(
+        platz,
+        werkzeug(einfuegenText, 'Einen neuen, gleichartigen Absatz darunter anlegen', beiEinfuegen)
+      );
+    }
+
     feld.addEventListener('input', melden);
 
     feld.addEventListener('keydown', (e) => {
@@ -579,6 +596,50 @@ export function starteRedaktion(): void {
     const felder = document.createElement('div');
     editor.append(hinweis, titel, felder);
 
+    /**
+     * Legt einen neuen, gleichartigen Absatz hinter dem gegebenen an.
+     *
+     * Anders als eine Textänderung ändert das die Struktur. Deshalb wird der
+     * Stand danach neu eingelesen: Der neue Absatz ist dann ein Feld wie jedes
+     * andere, und alle Positionen stimmen wieder.
+     */
+    const absatzDarunter = (stelle: (typeof stellen)[number]) => {
+      const neu = baueFolgeAbsatz(basis, stelle);
+      if (!neu) return;
+
+      const zusammen = mitEinfuegung(stellen, werte, neu.position, neu.text);
+      const text = setzeTextstellen(basis, zusammen.stellen, zusammen.werte);
+
+      basis = text;
+      zustand.rumpf = text;
+      stellen = findeTextstellen(basis);
+      werte = stellen.map(() => null);
+      fehler.clear();
+      zustand.ungueltig = null;
+      zeichneFelder();
+      zustandAuffrischen();
+
+      // In das neue Feld springen und den Platzhalter markieren, damit man
+      // einfach lostippen kann.
+      const neueNummer = stellen.findIndex(
+        (s) => s.art === 'absatz' && s.roh === NEUER_ABSATZ_TEXT && s.start > stelle.start
+      );
+      const felder = editor.querySelectorAll<HTMLElement>('.absatzfeld__text');
+      const ziel = neueNummer === -1 ? null : felder[zaehleAbsaetzeBis(neueNummer)];
+      if (!ziel) return;
+      ziel.scrollIntoView({ block: 'center' });
+      ziel.focus();
+      const bereich = document.createRange();
+      bereich.selectNodeContents(ziel);
+      const auswahl = document.getSelection();
+      auswahl?.removeAllRanges();
+      auswahl?.addRange(bereich);
+    };
+
+    /** Wievielte Absatzfläche gehört zur Stelle mit dieser Nummer? */
+    const zaehleAbsaetzeBis = (nummer: number) =>
+      stellen.slice(0, nummer).filter((s) => s.art === 'absatz').length;
+
     const beschriften2 = (stelle: (typeof stellen)[number]) =>
       ELEMENTNAME[stelle.herkunft] ??
       (stelle.art === 'attribut' ? `${stelle.herkunft}=` : stelle.herkunft);
@@ -637,15 +698,20 @@ export function starteRedaktion(): void {
           // Auszeichnung: Fett sieht fett aus, ein Link wie ein Link.
           if (stelle.art === 'absatz') {
             const urzustand = alsZeile(stelle.roh);
-            const feld = baueAbsatzfeld(urzustand, (markup) => {
-              werte[i] = markup === urzustand ? null : markup;
-              const problem = pruefeAbsatz(markup);
-              if (problem) fehler.set(i, problem);
-              else fehler.delete(i);
-              meldung.hidden = !problem;
-              meldung.textContent = problem ?? '';
-              uebernehmen();
-            });
+            const feld = baueAbsatzfeld(
+              urzustand,
+              (markup) => {
+                werte[i] = markup === urzustand ? null : markup;
+                const problem = pruefeAbsatz(markup);
+                if (problem) fehler.set(i, problem);
+                else fehler.delete(i);
+                meldung.hidden = !problem;
+                meldung.textContent = problem ?? '';
+                uebernehmen();
+              },
+              `+ ${ELEMENTNAME[stelle.herkunft] ?? stelle.herkunft} darunter`,
+              () => absatzDarunter(stelle)
+            );
             huelle.append(marke, feld, meldung);
             if (mehrteilig) kasten.append(huelle);
             continue;

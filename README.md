@@ -76,8 +76,9 @@ Was die Redaktion führt:
 
 Grenzen, die bewusst so sind:
 
-- **Nur Ändern, nicht Anlegen oder Löschen.** Neue Beiträge entstehen weiter
-  über eine neue Datei im Repository (siehe unten).
+- **Keine neuen Dateien.** Neue Blogbeiträge, Aufgaben oder Stunden entstehen
+  weiter über eine neue Datei im Repository (siehe unten). Innerhalb einer
+  festen Seite lassen sich Absätze anlegen, innerhalb eines Quiz Fragen.
 - **Verschachteltes Frontmatter** (z. B. `einstiegsfrage` in Stunden) bekommt
   keine Formularfelder, sondern bleibt im Rohtextfeld. Der Editor schreibt nur
   Zeilen zurück, die er sicher versteht – siehe `src/lib/redaktionText.ts`,
@@ -95,9 +96,14 @@ Grenzen, die bewusst so sind:
   besteht nur aus einer knappen Liste erlaubter Elemente mit erlaubten
   Attributen – daher kann hier keine kaputte Auszeichnung entstehen.
   Eingefügter Text aus der Zwischenablage verliert seine Formatierung.
-  Klassen, Astro-Ausdrücke, Stil- und Skriptblöcke bleiben unberührt. Neue
-  Absätze und Listenpunkte legt man weiter im Quelltext an; dafür gibt es
-  unter den Feldern die Rohansicht.
+  Klassen, Astro-Ausdrücke, Stil- und Skriptblöcke bleiben unberührt.
+- **Neue Absätze legt der Knopf rechts in der Leiste an** – „+ Absatz
+  darunter“, bei einem Listenpunkt „+ Listenpunkt darunter“. Der neue Absatz
+  übernimmt die Auszeichnung seines Vorgängers (ein `class="text-lg"` gilt
+  dann auch für ihn), nur eine `id` wird nicht ein zweites Mal vergeben. Er
+  erscheint mit markiertem Platzhaltertext, sodass man gleich lostippen kann.
+  Löschen und Umsortieren von Absätzen gehen weiterhin nur über die
+  Rohansicht.
 - **Nicht jeder Absatz wird als Ganzes angeboten.** Steckt ein Astro-Ausdruck,
   ein `<img>`, ein weiterer Absatz oder ein funktionales Attribut wie
   `data-kat` darin, fällt die Redaktion auf die einzelnen Textstücke zurück –

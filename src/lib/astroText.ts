@@ -42,7 +42,14 @@ export type Textstelle = {
    * `attribut` — Text in einem Attribut.
    */
   art: 'absatz' | 'inhalt' | 'attribut';
+  /** Nur bei `absatz`: Anfang des öffnenden Tags im Original. */
+  elementVon?: number;
+  /** Nur bei `absatz`: Position hinter dem schließenden Tag. */
+  elementBis?: number;
 };
+
+/** Inhalt eines frisch eingefügten Absatzes — er muss Buchstaben tragen, sonst fände ihn niemand wieder. */
+export const NEUER_ABSATZ_TEXT = 'Neuer Text.';
 
 /** Elemente, die einen Absatz aufmachen und als Ganzes bearbeitbar sind. */
 const ABSATZ = new Set([
@@ -148,9 +155,19 @@ export function findeTextstellen(quelle: string): Textstelle[] {
   const tags = findeTags(quelle);
 
   // --- Absätze bestimmen, die sich als Ganzes anbieten lassen ----------------
-  type Kandidat = { name: string; von: number; bis: number; tagVon: number; tagBis: number };
+  type Kandidat = {
+    name: string;
+    /** Grenzen des Inhalts. */
+    von: number;
+    bis: number;
+    /** Grenzen des Elements samt seiner Tags. */
+    elementVon: number;
+    elementBis: number;
+    tagVon: number;
+    tagBis: number;
+  };
   const kandidaten: Kandidat[] = [];
-  const offen: Array<{ name: string; klein: string; ende: number; i: number }> = [];
+  const offen: Array<{ name: string; klein: string; start: number; ende: number; i: number }> = [];
 
   tags.forEach((tag, i) => {
     if (tag.schliessend) {
@@ -159,12 +176,20 @@ export function findeTextstellen(quelle: string): Textstelle[] {
         const auf = offen[k];
         offen.length = k;
         if (ABSATZ.has(auf.klein)) {
-          kandidaten.push({ name: auf.klein, von: auf.ende, bis: tag.start, tagVon: auf.i, tagBis: i });
+          kandidaten.push({
+            name: auf.klein,
+            von: auf.ende,
+            bis: tag.start,
+            elementVon: auf.start,
+            elementBis: tag.ende,
+            tagVon: auf.i,
+            tagBis: i,
+          });
         }
         break;
       }
     } else if (!tag.selbst && !LEER.has(tag.klein)) {
-      offen.push({ name: tag.name, klein: tag.klein, ende: tag.ende, i });
+      offen.push({ name: tag.name, klein: tag.klein, start: tag.start, ende: tag.ende, i });
     }
   });
 
@@ -209,6 +234,8 @@ export function findeTextstellen(quelle: string): Textstelle[] {
       gruppe: `absatz@${start}`,
       gruppenElement: absatz.name,
       art: 'absatz',
+      elementVon: absatz.elementVon,
+      elementBis: absatz.elementBis,
     });
   }
 
@@ -321,6 +348,71 @@ export function setzeTextstellen(
     pos = stelle.ende;
   });
   return aus + quelle.slice(pos);
+}
+
+/**
+ * Baut einen neuen Absatz derselben Art, der hinter den gegebenen gehört.
+ *
+ * Das öffnende Tag wird übernommen, damit der neue Absatz aussieht wie sein
+ * Vorgänger — ein `class="text-lg"` gilt dann auch für ihn. Nur `id` bleibt
+ * weg: die darf es kein zweites Mal geben.
+ *
+ * Zurück kommt die Stelle, an der eingefügt wird, und der einzufügende Text.
+ * Geschrieben wird wie sonst auch über `setzeTextstellen` — die Einfügung ist
+ * dort eine Stelle der Länge null.
+ */
+export function baueFolgeAbsatz(
+  quelle: string,
+  stelle: Textstelle
+): { position: number; text: string } | null {
+  if (stelle.art !== 'absatz' || stelle.elementVon === undefined || stelle.elementBis === undefined) {
+    return null;
+  }
+
+  const auf = /^<[^>]*>/.exec(quelle.slice(stelle.elementVon, stelle.start))?.[0];
+  if (!auf) return null;
+
+  // Eine zweite gleiche id wäre ein Fehler in der Seite.
+  const oeffnend = auf.replace(/\s+id="[^"]*"/g, '');
+  const zeilenanfang = quelle.lastIndexOf('\n', stelle.elementVon) + 1;
+  const einzug = /^[ \t]*/.exec(quelle.slice(zeilenanfang, stelle.elementVon))?.[0] ?? '';
+
+  return {
+    position: stelle.elementBis,
+    text: `\n${einzug}${oeffnend}${NEUER_ABSATZ_TEXT}</${stelle.herkunft}>`,
+  };
+}
+
+/**
+ * Fügt den neuen Absatz in die Liste der Stellen ein — als Stelle der Länge
+ * null an der richtigen Position. Danach schreibt `setzeTextstellen` wie
+ * gewohnt, und ein erneutes `findeTextstellen` findet den neuen Absatz als
+ * ganz gewöhnliches Feld wieder.
+ */
+export function mitEinfuegung(
+  stellen: Textstelle[],
+  werte: Array<string | null>,
+  position: number,
+  text: string
+): { stellen: Textstelle[]; werte: Array<string | null> } {
+  const marke: Textstelle = {
+    start: position,
+    ende: position,
+    roh: '',
+    herkunft: '',
+    gruppe: `einfuegung@${position}`,
+    gruppenElement: '',
+    art: 'inhalt',
+  };
+
+  // Hinter alle Stellen, die vor dieser Position enden.
+  let i = stellen.findIndex((s) => s.start >= position);
+  if (i === -1) i = stellen.length;
+
+  return {
+    stellen: [...stellen.slice(0, i), marke, ...stellen.slice(i)],
+    werte: [...werte.slice(0, i), text, ...werte.slice(i)],
+  };
 }
 
 /**
