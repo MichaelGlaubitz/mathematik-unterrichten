@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('graphen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/graphen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Graphen"
-  beschreibung="Zufallsgenerierte Aufgaben zum Ausfüllen von Wertetabellen und Zeichnen von linearen, quadratischen und kubischen Funktionsgraphen."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="graphen"
     backHref="/themen#thema-graphen"
-    h1="WB Graphen"
+    h1={generator.titel}
   />
 </BaseLayout>

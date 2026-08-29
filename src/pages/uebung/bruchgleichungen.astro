@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('bruchgleichungen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/bruchgleichungen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Bruchgleichungen"
-  beschreibung="Zufallsgenerierte Aufgaben zu Bruchgleichungen (Definitionsmenge, Hauptnenner, Kreuzprodukt) – Anzahl wählbar, Whiteboard- oder Arbeitsblatt-Modus."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="bruchgleichungen"
     backHref="/themen#thema-bruchgleichungen"
-    h1="WB Bruchgleichungen"
+    h1={generator.titel}
   />
 </BaseLayout>

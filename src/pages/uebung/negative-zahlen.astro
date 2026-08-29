@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('negative-zahlen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/negative-zahlen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Negative Zahlen"
-  beschreibung="Zufallsgenerierte Aufgaben zu ganzen Zahlen und Vorzeichen (±·, Klammern, Punkt vor Strich) mit optionalen Zahlenstrahl-Grafiken (Aufgabe ohne Marken, Lösung mit Sprung bzw. A/B; Standardzoom 200 %) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="negative-zahlen"
     backHref="/themen#thema-negative-zahlen"
-    h1="WB Negative Zahlen"
+    h1={generator.titel}
   />
 </BaseLayout>

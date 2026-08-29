@@ -153,6 +153,22 @@ const wbLabelByHref: Record<string, string> = {
   '/uebung/kreisgeometrie': 'WB Kreisgeometrie',
   '/uebung/graphen': 'WB Graphen',
 };
+/**
+ * Der volle Arbeitsblatt-Ausbau – Kartenlayout, Zählerleiste (Aufgaben,
+ * sichtbare Lösungen, Zeit), Selbstkontrolle und PDF-Export.
+ *
+ * Der Ausbau kam thematisch nacheinander dazu; übrig geblieben war eine
+ * handgepflegte Liste aus elf `variant`-Namen, die an fünf Stellen wiederholt
+ * wurde. Wer von /uebung/prozentrechnung nach /uebung/pythagoras wechselte,
+ * verlor dadurch die halbe Bedienung ohne erkennbaren Grund. Der Ausbau hängt
+ * an nichts Themenspezifischem, also gilt er jetzt für jeden Generator.
+ *
+ * Was wirklich pro Aufgabe verschieden ist – ob es Antwortfelder zum Prüfen
+ * gibt –, entscheidet zur Laufzeit der erzeugte Aufgabensatz, nicht diese
+ * Konstante.
+ */
+const vollerArbeitsblattAusbau = true;
+
 function wbLabelFromHref(href: string): string {
   return wbLabelByHref[href] ?? 'WB';
 }
@@ -162,37 +178,7 @@ function wbLabelFromHref(href: string): string {
   <!-- mu-massen: Whiteboard-Vollbild nur mit Aufgaben; Vorbereitung-Banner ohne Overlay -->
   <script is:inline set:html={`globalThis.__UG_MASSEN_ALLOWED_IDS__=${ugMassenAllowedJson};`} />
 
-  <div
-    class:list={[
-      variant !== 'bruchrechnung' &&
-        variant !== 'negative-zahlen' &&
-        variant !== 'algebra' &&
-        variant !== 'dezimalzahlen' &&
-        variant !== 'bruch-dezimal-prozent' &&
-        variant !== 'lineare-gleichungen' &&
-        variant !== 'prozentrechnung' &&
-        variant !== 'graphen' &&
-        variant !== 'stochastik' &&
-        variant !== 'binomische-formeln' &&
-        variant !== 'lineare-funktionen' &&
-        'contents',
-    ]}
-    id={
-      variant === 'bruchrechnung' ||
-      variant === 'negative-zahlen' ||
-      variant === 'algebra' ||
-      variant === 'dezimalzahlen' ||
-      variant === 'bruch-dezimal-prozent' ||
-      variant === 'lineare-gleichungen' ||
-      variant === 'prozentrechnung' ||
-      variant === 'graphen' ||
-      variant === 'stochastik' ||
-      variant === 'binomische-formeln' ||
-      variant === 'lineare-funktionen'
-        ? 'ug-wb-slot-ab-full-chrome'
-        : undefined
-    }
-  >
+  <div id="ug-wb-slot-ab-full-chrome">
   <header class="mb-8 print:hidden">
     <a
       href={backHref}
@@ -1811,17 +1797,7 @@ function wbLabelFromHref(href: string): string {
   </div>
 
     {
-    (variant === 'bruchrechnung' ||
-      variant === 'negative-zahlen' ||
-      variant === 'algebra' ||
-      variant === 'dezimalzahlen' ||
-      variant === 'bruch-dezimal-prozent' ||
-      variant === 'lineare-gleichungen' ||
-      variant === 'prozentrechnung' ||
-      variant === 'graphen' ||
-      variant === 'stochastik' ||
-      variant === 'binomische-formeln' ||
-      variant === 'lineare-funktionen') && (
+    vollerArbeitsblattAusbau && (
       <div id="ug-wb-slot-ab-chrome" class="mb-6" hidden>
         <a
           href={backHref}
@@ -1874,17 +1850,7 @@ function wbLabelFromHref(href: string): string {
     hidden
   >
     {
-      (variant === 'bruchrechnung' ||
-        variant === 'negative-zahlen' ||
-        variant === 'algebra' ||
-        variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung' ||
-        variant === 'graphen' ||
-        variant === 'stochastik' ||
-        variant === 'binomische-formeln' ||
-        variant === 'lineare-funktionen') && (
+      vollerArbeitsblattAusbau && (
         <div
           id="ug-wb-slot-ab-meta"
           class="mb-5 grid grid-cols-3 gap-3 rounded-xl border border-violet-200/90 bg-gradient-to-br from-violet-50/90 via-surface to-teal-50/50 px-3 py-3 shadow-sm sm:gap-4 sm:px-5 sm:py-4 dark:border-violet-600/40 dark:from-violet-950/50 dark:via-slate-950/40 dark:to-teal-950/25 print:hidden"
@@ -1945,17 +1911,7 @@ function wbLabelFromHref(href: string): string {
     >
     </ol>
     {
-      (variant === 'bruchrechnung' ||
-        variant === 'negative-zahlen' ||
-        variant === 'algebra' ||
-        variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung' ||
-        variant === 'graphen' ||
-        variant === 'stochastik' ||
-        variant === 'binomische-formeln' ||
-        variant === 'lineare-funktionen') && (
+      vollerArbeitsblattAusbau && (
         <div
           id="ug-wb-slot-ab-check-overlay"
           class="fixed inset-0 z-[10050] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/70 p-4 backdrop-blur-sm print:hidden"
@@ -1979,17 +1935,7 @@ function wbLabelFromHref(href: string): string {
       )
     }
     {
-      (variant === 'bruchrechnung' ||
-        variant === 'negative-zahlen' ||
-        variant === 'algebra' ||
-        variant === 'dezimalzahlen' ||
-        variant === 'bruch-dezimal-prozent' ||
-        variant === 'lineare-gleichungen' ||
-        variant === 'prozentrechnung' ||
-        variant === 'graphen' ||
-        variant === 'stochastik' ||
-        variant === 'binomische-formeln' ||
-        variant === 'lineare-funktionen') && (
+      vollerArbeitsblattAusbau && (
         <div
           id="ug-wb-slot-ab-actions"
           class="mt-6 space-y-3 print:hidden"
@@ -2605,11 +2551,15 @@ function wbLabelFromHref(href: string): string {
   import {
     ALGEBRA_GENERATOR_IDS,
     BDP_UMWANDLUNG_GENERATOR_IDS,
+    BINOMISCHE_FORMELN_GENERATOR_IDS,
     BRUCHRECHNUNG_GENERATOR_IDS,
     DEZIMALZAHLEN_GENERATOR_IDS,
-    NEGATIVE_ZAHLEN_GENERATOR_IDS,
-    STOCHASTIK_GENERATOR_IDS,
     LINEARE_FUNKTIONEN_GENERATOR_IDS,
+    LINEARE_GLEICHUNGEN_GENERATOR_IDS,
+    NEGATIVE_ZAHLEN_GENERATOR_IDS,
+    PLOTTING_GRAPHS_GENERATOR_IDS,
+    PROZENTRECHNUNG_GENERATOR_IDS,
+    STOCHASTIK_GENERATOR_IDS,
     createPracticeGenerators,
     practiceAufgabeHatLoesungInlineNachFrage,
   } from '../lib/uebungPracticeGenerators';
@@ -2665,15 +2615,14 @@ function wbLabelFromHref(href: string): string {
     stichwortLabelsFromNzSessionRaw,
     stichworteFuerNzIds,
   } from '../lib/negativeZahlenWbKeywordMap';
+  // Die frueheren sieben `erzeuge…ArbeitsblattPdf` waren bis auf den
+  // Diagramm-Renderer dieselbe Funktion. Nur die Bruchrechnung braucht ihren
+  // eigenen (Streifen- und Rastergrafiken), alle anderen den Standard.
   import {
-    erzeugeAlgebraArbeitsblattPdf,
     erzeugeBruchArbeitsblattPdf,
-    erzeugeDezimalzahlenArbeitsblattPdf,
-    erzeugeNegativeZahlenArbeitsblattPdf,
-    erzeugeLineareGleichungenArbeitsblattPdf,
-    erzeugeProzentrechnungArbeitsblattPdf,
-    erzeugeGraphenArbeitsblattPdf,
+    erzeugeStandardArbeitsblattPdf,
   } from '../lib/bruchArbeitsblattLatex';
+  import { uebungsgenerator } from '../lib/uebungsgeneratoren';
   import {
     readAlgebraMassenAnzahl,
     readAlgebraMassenLayout,
@@ -2795,6 +2744,8 @@ function wbLabelFromHref(href: string): string {
     }
 
     const massenHost = document.querySelector('[data-mu-massen-ui="wb-v2"]');
+    /** Der `variant`-Wert der Seite – Schluessel in src/lib/uebungsgeneratoren.ts. */
+    const variantName = massenHost?.getAttribute('data-mu-massen-variant') ?? '';
     const isBruchMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruchrechnung';
     const isNzMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'negative-zahlen';
     const isDzMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'dezimalzahlen';
@@ -2806,18 +2757,10 @@ function wbLabelFromHref(href: string): string {
     const isStochastikMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'stochastik';
     const isBinomischeFormelnMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'binomische-formeln';
     const isLineareFunktionenMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'lineare-funktionen';
-    const isWbSlotAbMassen =
-      isBruchMassen ||
-      isNzMassen ||
-      isAlgMassen ||
-      isDzMassen ||
-      isBdpMassen ||
-      isLgMassen ||
-      isPrMassen ||
-      isGraphenMassen ||
-      isStochastikMassen ||
-      isBinomischeFormelnMassen ||
-      isLineareFunktionenMassen;
+    // Gegenstueck zu `vollerArbeitsblattAusbau` in der Frontmatter: Das
+    // Arbeitsblatt wird fuer jeden Generator als Kartensatz mit Zaehlerleiste
+    // gerendert, nicht mehr nur fuer elf namentlich gelistete Themen.
+    const isWbSlotAbMassen = true;
 
     function allAlgIdsFiltered() {
       return ALGEBRA_GENERATOR_IDS.filter((id) => allowedSet.has(id));
@@ -3909,6 +3852,17 @@ function wbLabelFromHref(href: string): string {
       const abChrome = document.getElementById('ug-wb-slot-ab-chrome');
       if (meta) meta.hidden = !slotAbSheet;
       if (foot) foot.hidden = !slotAbSheet;
+      // „Ueberpruefen“ braucht Antwortfelder im Aufgabentext. Die liefern noch
+      // nicht alle Generatoren, also richtet sich der Knopf nach dem erzeugten
+      // Aufgabensatz statt nach dem Thema – lieber kein Knopf als einer, der
+      // „Keine Antwortfelder gefunden“ meldet.
+      const checkBtn = document.getElementById('ug-wb-slot-ab-check');
+      if (checkBtn instanceof HTMLElement) {
+        const hatAntwortfelder = aufgaben.some(
+          (a) => Array.isArray(a.abSlots) && a.abSlots.length > 0
+        );
+        checkBtn.hidden = !slotAbSheet || !hatAntwortfelder;
+      }
       if (!slotAbSheet) {
         const chkOv = document.getElementById('ug-wb-slot-ab-check-overlay');
         if (chkOv instanceof HTMLElement) {
@@ -4322,77 +4276,16 @@ function wbLabelFromHref(href: string): string {
         }
       });
       try {
+        // Thema und Dateiname kommen aus der Registry: „WB Pythagoras“ → „Pythagoras“.
+        const generator = uebungsgenerator(variantName);
         const meta = {
-          thema: isAlgMassen
-            ? 'Algebra'
-            : isNzMassen
-              ? 'Negative Zahlen'
-              : isDzMassen
-                ? 'Dezimalzahlen'
-                : isBdpMassen
-                  ? 'Bruch · Dezimal · Prozent'
-                  : isLgMassen
-                    ? 'Lineare Gleichungen'
-                    : isPrMassen
-                      ? 'Prozentrechnung'
-                      : isGraphenMassen
-                        ? 'Graphen'
-                        : isStochastikMassen
-                          ? 'Stochastik'
-                          : isBinomischeFormelnMassen
-                            ? 'Binomische Formeln'
-                            : 'Bruchrechnung',
+          thema: generator.titel.replace(/^WB\s+/, ''),
           stichworteZeile: bruchAbStichworteZeileFuerPdf(),
         };
         const diagramUiScale = (i) => readDiagramScale(diagramTaskPreferenceKey(aufgaben[i].frage, i));
-        const r = isAlgMassen
-          ? await erzeugeAlgebraArbeitsblattPdf({
-              aufgaben,
-              meta,
-              mitLoesungen,
-              diagramUiScale,
-            })
-          : isNzMassen
-            ? await erzeugeNegativeZahlenArbeitsblattPdf({
-                aufgaben,
-                meta,
-                mitLoesungen,
-                diagramUiScale,
-              })
-            : isDzMassen
-              ? await erzeugeDezimalzahlenArbeitsblattPdf({
-                  aufgaben,
-                  meta,
-                  mitLoesungen,
-                  diagramUiScale,
-                })
-              : isLgMassen
-                ? await erzeugeLineareGleichungenArbeitsblattPdf({
-                    aufgaben,
-                    meta,
-                    mitLoesungen,
-                    diagramUiScale,
-                  })
-                : isPrMassen
-                  ? await erzeugeProzentrechnungArbeitsblattPdf({
-                      aufgaben,
-                      meta,
-                      mitLoesungen,
-                      diagramUiScale,
-                    })
-                  : isGraphenMassen
-                    ? await erzeugeGraphenArbeitsblattPdf({
-                        aufgaben,
-                        meta,
-                        mitLoesungen,
-                        diagramUiScale,
-                      })
-                    : await erzeugeBruchArbeitsblattPdf({
-                        aufgaben,
-                        meta,
-                        mitLoesungen,
-                        diagramUiScale,
-                      });
+        const r = isBruchMassen
+          ? await erzeugeBruchArbeitsblattPdf({ aufgaben, meta, mitLoesungen, diagramUiScale })
+          : await erzeugeStandardArbeitsblattPdf({ aufgaben, meta, mitLoesungen, diagramUiScale });
         if (!r.ok) {
           console.error('[WB-Arbeitsblatt PDF]', { message: r.message, log: r.log });
           const kurz = String(r.message || 'Unbekannter Fehler').slice(0, 400);
@@ -4407,23 +4300,7 @@ function wbLabelFromHref(href: string): string {
           return;
         }
         const tag = new Date().toISOString().slice(0, 10);
-        const base = isAlgMassen
-          ? 'algebra'
-          : isNzMassen
-            ? 'negative-zahlen'
-            : isDzMassen
-              ? 'dezimalzahlen'
-              : isBdpMassen
-                ? 'bruch-dezimal-prozent'
-                : isLgMassen
-                  ? 'lineare-gleichungen'
-                  : isPrMassen
-                    ? 'prozentrechnung'
-                    : isStochastikMassen
-                      ? 'stochastik'
-                      : isBinomischeFormelnMassen
-                        ? 'binomische-formeln'
-                        : 'bruchrechnung';
+        const base = generator.slug;
         const name = mitLoesungen ? `${base}-ab-mit-loesungen-${tag}.pdf` : `${base}-ab-${tag}.pdf`;
         downloadePdfDatei(r.pdf, name);
       } catch (e) {
@@ -4905,6 +4782,10 @@ function wbLabelFromHref(href: string): string {
   #ug-wb-slot-ab-check-overlay[hidden],
   #ug-arbeitsblatt[hidden],
   #ug-wb-slot-ab-full-chrome[hidden],
+  /* Der Knopf traegt inline-flex aus Tailwind – das gewinnt sonst gegen die
+     Browser-Regel fuer [hidden], und ein „verstecktes“ Ueberpruefen bliebe
+     sichtbar. */
+  #ug-wb-slot-ab-check[hidden],
   #ug-wb-slot-ab-chrome[hidden] {
     display: none !important;
   }

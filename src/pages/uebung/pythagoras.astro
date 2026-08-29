@@ -1,12 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('pythagoras');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/pythagoras.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Pythagoras"
-  beschreibung="Zufallsgenerierte Aufgaben zu Pythagoras (Satz, Katheten, Abstände, Sachkontext) – Anzahl wählbar, Whiteboard- oder Arbeitsblatt-Modus."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
-  <MassenuebungGeo variant="pythagoras" backHref="/themen#thema-pythagoras" h1="WB Pythagoras" />
+  <MassenuebungGeo
+    variant="pythagoras"
+    backHref="/themen#thema-pythagoras"
+    h1={generator.titel}
+  />
 </BaseLayout>

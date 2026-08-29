@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('strahlensaetze');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/strahlensaetze.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Strahlensaetze"
-  beschreibung="Zufallsgenerierte Aufgaben zu Strahlensätzen (V- und X-Figur, Schatten, Spiegel) – Anzahl wählbar, Whiteboard- oder Arbeitsblatt-Modus."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="strahlensaetze"
     backHref="/themen#thema-strahlensaetze"
-    h1="WB Strahlensaetze"
+    h1={generator.titel}
   />
 </BaseLayout>

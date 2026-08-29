@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { werkzeuge, werkzeugPfad } from '../lib/werkzeuge';
@@ -21,18 +23,21 @@ type Eintrag = {
   frequenz: 'daily' | 'weekly' | 'monthly' | 'yearly';
 };
 
-/** Handreichungen unter public/ausb/ – von Astro nicht als Route erfasst. */
-const handreichungen = [
-  'index.html',
-  'handreichung-lernziele.html',
-  'handreichung-pu.html',
-  'handreichung-pruefungsunterricht.html',
-  'handreichung-open-middle.html',
-  'handreichung-mathe-trails.html',
-  'handreichung-denkende-klassenzimmer.html',
-  'handreichung-stundenverlaufsplan.html',
-  'Produktive-Unterrichtsgespraeche.html',
-];
+/**
+ * Handreichungen unter public/ausb/ – von Astro nicht als Route erfasst.
+ *
+ * Bewusst aus dem Verzeichnis gelesen statt von Hand gepflegt: Eine Handliste
+ * fällt auseinander, sobald eine Datei umbenannt wird, und die Sitemap bietet
+ * Suchmaschinen dann eine Adresse an, die 404 liefert. Genau das war mit
+ * `handreichung-pruefungsunterricht.html` passiert.
+ */
+function handreichungen(): string[] {
+  const verzeichnis = path.join(process.cwd(), 'public', 'ausb');
+  return fs
+    .readdirSync(verzeichnis)
+    .filter((datei) => datei.endsWith('.html'))
+    .sort();
+}
 
 function xmlEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -119,8 +124,11 @@ export const GET: APIRoute = async () => {
     eintraege.push({ pfad: `/uebung/${slug}`, prioritaet: 0.75, frequenz: 'monthly' });
   }
 
-  // Mini-Whiteboard-Routen je Thema
+  // Mini-Whiteboard-Routen je Thema. Die Bedingung muss dieselbe sein wie in
+  // src/pages/themen/[thema]/whiteboard.astro – sonst steht eine Adresse in der
+  // Sitemap, zu der es keine Seite gibt.
   for (const t of themen) {
+    if ((t.data.whiteboardAufgaben ?? []).length === 0) continue;
     const slug = t.data.thema
       .toLowerCase()
       .replace(/ä/g, 'ae')
@@ -136,7 +144,7 @@ export const GET: APIRoute = async () => {
     eintraege.push({ pfad: werkzeugPfad(w), prioritaet: 0.8, frequenz: 'monthly' });
   }
 
-  for (const datei of handreichungen) {
+  for (const datei of handreichungen()) {
     eintraege.push({ pfad: `/ausb/${datei}`, prioritaet: 0.7, frequenz: 'yearly' });
   }
 

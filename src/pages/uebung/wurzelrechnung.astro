@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('wurzelrechnung');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/wurzelrechnung.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Wurzelrechnung"
-  beschreibung="Zufallsgenerierte Aufgaben zur Wurzelrechnung (Vereinfachen, Fehlvorstellungen, Gleichungen) – Anzahl wählbar, Whiteboard- oder Arbeitsblatt-Modus."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="wurzelrechnung"
     backHref="/themen#thema-wurzelrechnung"
-    h1="WB Wurzelrechnung"
+    h1={generator.titel}
   />
 </BaseLayout>

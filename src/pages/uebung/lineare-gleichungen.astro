@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('lineare-gleichungen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/lineare-gleichungen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Lineare Gleichungen"
-  beschreibung="Zufallsgenerierte lineare Gleichungen im Barton-Workflow (Grundmuster, strukturierte Variation, klare Integer-Constraints) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="lineare-gleichungen"
     backHref="/themen#thema-lineare-gleichungen"
-    h1="WB Lineare Gleichungen"
+    h1={generator.titel}
   />
 </BaseLayout>

@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('bruchrechnung');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/bruchrechnung.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Bruchrechnung"
-  beschreibung="Zufallsgenerierte Aufgaben zur Bruchrechnung: Grundrechenarten (gleich- und ungleichnamig, Multiplikation, Division), Brüche mit ganzen Zahlen, Umgang mit Brüchen (u. a. gleichwertig, Ergänzen auf 1, gemischt/unecht, Vergleich) und einfache Sachaufgaben zu Bruchteilen – optional mit Streifen- und Rastergrafiken, Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="bruchrechnung"
     backHref="/themen#thema-bruchrechnung"
-    h1="WB Bruchrechnung"
+    h1={generator.titel}
   />
 </BaseLayout>

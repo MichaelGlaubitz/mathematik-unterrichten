@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('lineare-gleichungssysteme');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/lineare-gleichungssysteme.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Lineare Gleichungssysteme"
-  beschreibung="Zufallsgenerierte Aufgaben zu linearen Gleichungssystemen (Addieren, Einsetzen, Gleichsetzen, Spezialfälle) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="lineare-gleichungssysteme"
     backHref="/themen#thema-lineare-gleichungssysteme"
-    h1="WB Lineare Gleichungssysteme"
+    h1={generator.titel}
   />
 </BaseLayout>

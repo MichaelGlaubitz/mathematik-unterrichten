@@ -1,12 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('algebra');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/algebra.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Algebra"
-  beschreibung="Zufallsgenerierte Aufgaben zu Termen und Klammern (Distributivgesetz, gestuftes Ausmultiplizieren, ausklammern, zusammenfassen) – optional mit Flächenmodell – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
-  <MassenuebungGeo variant="algebra" backHref="/themen#thema-algebra" h1="WB Algebra" />
+  <MassenuebungGeo
+    variant="algebra"
+    backHref="/themen#thema-algebra"
+    h1={generator.titel}
+  />
 </BaseLayout>

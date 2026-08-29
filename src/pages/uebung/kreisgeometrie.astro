@@ -1,12 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('kreisgeometrie');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/kreisgeometrie.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Kreisgeometrie"
-  beschreibung="Zufallsgenerierte Aufgaben zur Kreisgeometrie (Radius, Durchmesser, Umfang, Fläche, Sektor, Tangente) – Anzahl wählbar, Whiteboard- oder Arbeitsblatt-Modus."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
-  <MassenuebungGeo variant="kreisgeometrie" backHref="/themen#thema-kreisgeometrie" h1="WB Kreisgeometrie" />
+  <MassenuebungGeo
+    variant="kreisgeometrie"
+    backHref="/themen#thema-kreisgeometrie"
+    h1={generator.titel}
+  />
 </BaseLayout>

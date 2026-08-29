@@ -213,7 +213,7 @@ export const werkzeuge: Werkzeug[] = [
     stufe: 'Klasse 5 – Oberstufe',
     einsatz: 'Beamer',
     schlagwoerter: ['wodb', 'which one doesnt belong', 'einstieg', 'begründen', 'argumentieren', 'gesprächsanlass'],
-    hintergrund: { text: 'Produktive Unterrichtsgespräche', href: '/ausb/handreichung-pu.html' },
+    hintergrund: { text: 'Produktive Unterrichtsgespräche', href: '/ausb/Produktive-Unterrichtsgespraeche.html' },
   },
   {
     slug: 'open-middle',

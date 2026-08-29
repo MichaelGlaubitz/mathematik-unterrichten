@@ -3528,7 +3528,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         'alg_factor_diff_binoms'
       ] as const;
       const t = pick(types);
-      return this[t]();
+      // GEN statt this: Die Aufrufstelle holt den Generator einzeln aus der
+      // Map (`const gen = GEN[t]; gen()`), damit ist `this` undefined und ein
+      // `this[t]()` warf hier bei jedem gezogenen Capstone einen TypeError.
+      return GEN[t]();
     },
     alg_concept_type() {
       const type = pick(['ausdruck', 'gleichung', 'formel', 'identitaet'] as const);
@@ -4432,7 +4435,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
     alg_expand_einfach_capstone() {
       const types = ['alg_expand_einfach_zahl', 'alg_expand_einfach_var', 'alg_klammer_summe'] as const;
       const t = pick(types);
-      return this[t]();
+      // GEN statt this: Die Aufrufstelle holt den Generator einzeln aus der
+      // Map (`const gen = GEN[t]; gen()`), damit ist `this` undefined und ein
+      // `this[t]()` warf hier bei jedem gezogenen Capstone einen TypeError.
+      return GEN[t]();
     },
     alg_expand_binom_double_pos() {
       const a = randInt(2, 8);
@@ -4645,7 +4651,10 @@ export function createPracticeGenerators(random: RandomFn): PracticeGeneratorMap
         'alg_expand_cube'
       ] as const;
       const t = pick(types);
-      return this[t]();
+      // GEN statt this: Die Aufrufstelle holt den Generator einzeln aus der
+      // Map (`const gen = GEN[t]; gen()`), damit ist `this` undefined und ein
+      // `this[t]()` warf hier bei jedem gezogenen Capstone einen TypeError.
+      return GEN[t]();
     },
     lg_x_plus_a_eq_b() {
       const x0 = pick([-8, -7, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 8] as const);

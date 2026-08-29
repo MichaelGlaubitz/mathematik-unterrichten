@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('binomische-formeln');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/binomische-formeln.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Binomische Formeln"
-  beschreibung="Zufallsgenerierte Aufgaben zu binomischen Formeln (ausmultiplizieren, faktorisieren, Vorzeichen sicher anwenden) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="binomische-formeln"
     backHref="/themen#thema-binomische-formeln"
-    h1="WB Binomische Formeln"
+    h1={generator.titel}
   />
 </BaseLayout>

@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('stochastik');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/stochastik.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Stochastik"
-  beschreibung="Zufallsgenerierte Aufgaben zu Daten und Zufall (Mittelwert, Median, Ausreißer, einfache Wahrscheinlichkeiten, Komplementregel) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="stochastik"
     backHref="/themen#thema-stochastik"
-    h1="WB Stochastik"
+    h1={generator.titel}
   />
 </BaseLayout>

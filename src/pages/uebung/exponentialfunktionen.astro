@@ -1,16 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MassenuebungGeo from '../../components/MassenuebungGeo.astro';
+import { uebungsgenerator } from '../../lib/uebungsgeneratoren';
+
+const generator = uebungsgenerator('exponentialfunktionen');
 ---
 
 <BaseLayout sourceFile="src/pages/uebung/exponentialfunktionen.astro"
   githubEditPath="src/components/MassenuebungGeo.astro"
-  title="WB Exponentialfunktionen"
-  beschreibung="Zufallsgenerierte Aufgaben zu Exponentialfunktionen (Wachstum, Zerfall, Parameter, Faktor, Verdopplung/Halbierung, einfache Gleichungen) – Whiteboard oder Arbeitsblatt."
+  title={generator.titel}
+  beschreibung={generator.beschreibung}
 >
   <MassenuebungGeo
     variant="exponentialfunktionen"
     backHref="/themen#thema-exponentialfunktionen"
-    h1="WB Exponentialfunktionen"
+    h1={generator.titel}
   />
 </BaseLayout>
