@@ -142,6 +142,48 @@ export const SCHRITTE = [
   },
 ] as const;
 
+/** Die Beats nach der Einzelarbeit. Sie liegen hinter den vier Schritten.
+ *  Die Partnerarbeit ist keiner davon: Ihre Impulse stehen bei dem Schritt,
+ *  zu dem sie gehören – siehe `partnerImpulse`. */
+export const PLENUM = SCHRITTE.length;
+export const TIEFER_BEAT = SCHRITTE.length + 1;
+
+const CHECK = SCHRITTE.findIndex((s) => s.marke === 'Check');
+
+/**
+ * Welche Beats eine Aufgabe bekommt.
+ *
+ * Die **erste** Aufgabe einer Folge ist der Bezugspunkt, mit dem später
+ * verglichen wird – sie hat selbst noch nichts, womit sie sich vergleichen
+ * ließe. Reflect („Was hat sich geändert?"), Expect („Wird es größer?") und
+ * Explain („Warum wirkt sich das so aus?") setzen alle eine Vorgängerin
+ * voraus. Deshalb wird sie schlicht gerechnet: Check.
+ *
+ * Die Partnerarbeit bleibt ihr trotzdem – sie steht bei Check mit auf der
+ * Folie, und „Habt ihr auf demselben Weg geprüft?" braucht keine
+ * Vorgängerin. Das Plenum entfällt: dort geht es ausschließlich um den
+ * Zusammenhang zwischen zwei Aufgaben.
+ *
+ * „Tiefer bohren" fragt nach der ganzen Folge und hängt deshalb an der
+ * letzten Aufgabe.
+ */
+export function taktSchritte(nr: number, anzahl: number): number[] {
+  const letzte = nr === anzahl - 1;
+  const beats = nr === 0
+    ? [CHECK]
+    : [...SCHRITTE.map((_, i) => i), PLENUM];
+  return letzte ? [...beats, TIEFER_BEAT] : beats;
+}
+
+/**
+ * Ab welchem Schritt die Lösung an der Wand steht.
+ *
+ * Erst bei *Explain*. Check ist die Phase, in der die Klasse selbst rechnet –
+ * stünde die Lösung schon dort, gäbe es nichts mehr zu prüfen, und die
+ * Erwartung aus dem Schritt davor wäre wertlos.
+ */
+export const LOESUNG_AB = SCHRITTE.findIndex((s) => s.marke === 'Explain');
+
 /**
  * Die Partnerphase nach der Einzelarbeit.
  *
@@ -151,6 +193,7 @@ export const SCHRITTE = [
  * hat aus dem Gespräch ein Formular gemacht.
  */
 export const PARTNER_UEBERSCHRIFT = 'Sucht euch eine Frage aus, die ihr zu zweit besprecht';
+
 
 export const SCHRITTE_PARTNER = [
   {
@@ -181,6 +224,17 @@ export const SCHRITTE_PARTNER = [
     ],
   },
 ] as const;
+
+/**
+ * Die Partnerimpulse zu einem Schritt, in der Reihenfolge der Schritte.
+ *
+ * Sie stehen bei dem Schritt, zu dem sie gehören, und nicht in einer eigenen
+ * Phase am Ende. So bleibt an der Wand immer nur ein Gedanke stehen – und die
+ * Schrift bleibt groß genug für die letzte Reihe.
+ */
+export const PAAR_ZU_SCHRITT: readonly (readonly string[])[] = SCHRITTE.map(
+  (s) => SCHRITTE_PARTNER.find((p) => p.marke === s.marke)?.punkte ?? []
+);
 
 /**
  * Die Plenumsphase, nachdem allein und zu zweit gearbeitet wurde.

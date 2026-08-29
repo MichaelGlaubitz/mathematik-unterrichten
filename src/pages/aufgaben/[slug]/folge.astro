@@ -8,7 +8,11 @@ import { zelleAlsLatex } from '../../../lib/mathe';
 import {
   leseVariationsfolgen,
   SCHRITTE,
-  SCHRITTE_PARTNER,
+  LOESUNG_AB,
+  PLENUM,
+  TIEFER_BEAT,
+  taktSchritte,
+  PAAR_ZU_SCHRITT,
   PARTNER_UEBERSCHRIFT,
   SCHRITTE_PLENUM,
   PLENUM_UEBERSCHRIFT,
@@ -113,6 +117,38 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
           Projizieren
         </button>
       </div>
+
+      <!-- Erst denkt jede und jeder allein. Der Impuls fürs Gespräch zu zweit
+           kommt danach – von selbst, damit die Lehrkraft nicht auf die Uhr
+           sehen muss. Der Ton ist Beiwerk und standardmäßig aus: Ein
+           unerwartetes Geräusch im Klassenzimmer stört mehr, als es hilft. -->
+      <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-600 dark:text-ink-300">
+        <label class="flex items-center gap-2">
+          <span>Impuls „zu zweit" nach</span>
+          <select
+            id="mu-folge-dauer"
+            class="rounded-md border border-ink-300 bg-surface px-2 py-1 dark:border-ink-500 dark:bg-slate-800 dark:text-ink-50"
+          >
+            <option value="0">sofort</option>
+            <option value="30">30 Sekunden</option>
+            <option value="45" selected>45 Sekunden</option>
+            <option value="60">1 Minute</option>
+            <option value="90">1½ Minuten</option>
+            <option value="120">2 Minuten</option>
+          </select>
+        </label>
+        <label class="flex items-center gap-2">
+          <input id="mu-folge-ton" type="checkbox" class="h-4 w-4 rounded border-ink-400 accent-accent-600" />
+          <span>mit Ton</span>
+        </label>
+        <button
+          id="mu-folge-probe"
+          type="button"
+          class="rounded-md border border-ink-300 px-2.5 py-1 dark:border-ink-500 dark:text-ink-100"
+        >
+          Ton probieren
+        </button>
+      </div>
     </header>
 
     <div id="mu-folge-buehne" class="mu-folge-buehne rounded-xl border border-ink-200 bg-surface p-6 md:p-10 dark:border-slate-600/45 dark:bg-slate-950/40">
@@ -142,39 +178,19 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       <section id="mu-folge-schritt" class="mu-folge-schrittband mt-8 rounded-xl border-l-8 border-accent-600 bg-accent-50 px-6 py-5 dark:border-accent-400 dark:bg-accent-500/15">
         <p id="mu-folge-marke" class="mu-folge-marke text-accent-800 dark:text-accent-100"></p>
         <p id="mu-folge-auftrag" class="mu-folge-auftrag mt-1 text-ink-900 dark:text-ink-50"></p>
-        <ul id="mu-folge-punkte" class="mu-folge-punkte mt-3 space-y-1 text-ink-900 dark:text-ink-100"></ul>
+        <p id="mu-folge-punkte" class="mu-folge-punkte mt-3 text-ink-900 dark:text-ink-100"></p>
+        <p id="mu-folge-paar" class="mu-folge-paar mt-4 border-t-2 border-violet-400/60 pt-3 text-ink-900 dark:border-violet-400/40 dark:text-ink-100">
+          <span class="mu-folge-paarmarke text-violet-700 dark:text-violet-200">Zu zweit</span>
+          <span id="mu-folge-paartext"></span>
+        </p>
       </section>
 
       <ol id="mu-folge-leiste" class="mu-folge-leiste mt-6 flex flex-wrap gap-2" aria-hidden="true">
         {SCHRITTE.map((s) => (
           <li class="mu-folge-punkt rounded-md border border-ink-400 px-3 py-1 text-sm font-semibold text-ink-700 dark:border-ink-400 dark:text-ink-200">{s.marke}</li>
         ))}
-        <li class="mu-folge-punkt mu-folge-punkt--paar rounded-md border border-violet-500 px-3 py-1 text-sm font-semibold text-violet-800 dark:text-violet-200">zu zweit</li>
         <li class="mu-folge-punkt mu-folge-punkt--plenum rounded-md border border-teal-600 px-3 py-1 text-sm font-semibold text-teal-800 dark:text-teal-200">Plenum</li>
       </ol>
-
-      <section
-        id="mu-folge-partner"
-        class="mu-folge-partner mt-6 rounded-xl border-2 border-violet-400/70 bg-violet-50/50 p-5 dark:border-violet-400/40 dark:bg-violet-500/10"
-        hidden
-      >
-        <p class="text-sm font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">
-          {PARTNER_UEBERSCHRIFT}
-        </p>
-        <p class="mt-1 text-sm text-ink-600 dark:text-ink-300">
-          Eine genügt – wer alle durchgeht, macht aus dem Gespräch ein Formular.
-        </p>
-        <ol class="mt-4 grid gap-3 md:grid-cols-2">
-          {SCHRITTE_PARTNER.map((s) => (
-            <li class="rounded-lg border border-violet-300/70 bg-surface/70 p-3 dark:border-violet-400/30 dark:bg-slate-900/40">
-              <p class="text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-200">{s.marke}</p>
-              <ul class="mt-1.5 space-y-0.5 text-sm text-ink-800 dark:text-ink-200">
-                {s.punkte.map((p) => <li>– {p}</li>)}
-              </ul>
-            </li>
-          ))}
-        </ol>
-      </section>
 
       <section
         id="mu-folge-plenum"
@@ -236,11 +252,21 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
   </div>
 </BaseLayout>
 
-<script is:inline define:vars={{ folgen: folgenGesetzt, SCHRITTE }}>
+<script is:inline define:vars={{ folgen: folgenGesetzt, SCHRITTE, LOESUNG_AB, PLENUM, TIEFER_BEAT, PAAR_ZU_SCHRITT, takte: folgenGesetzt.map((f) => f.aufgaben.map((_, i) => taktSchritte(i, f.aufgaben.length))) }}>
   (function () {
     const wahl = document.getElementById('mu-folge-wahl');
     const buehne = document.getElementById('mu-folge-buehne');
     if (!wahl || !buehne) return;
+
+    /* Im Vollbild darf nichts abgeschnitten werden. Wie hoch der Inhalt wird,
+       hängt vom Beat ab (die Partnerphase trägt zwölf Impulse) und von der
+       Länge der Aufgabe – das lässt sich nicht vorab in Schriftgrade gießen.
+       Deshalb wird gemessen und der ganze Inhalt so weit verkleinert, dass er
+       hineinpasst. Dafür braucht es eine Hülle, die sich skalieren lässt. */
+    const inhalt = document.createElement('div');
+    inhalt.id = 'mu-folge-inhalt';
+    while (buehne.firstChild) inhalt.appendChild(buehne.firstChild);
+    buehne.appendChild(inhalt);
 
     const abschnitt = document.getElementById('mu-folge-abschnitt');
     const vorher = document.getElementById('mu-folge-vorher');
@@ -255,28 +281,85 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     const punkte = document.getElementById('mu-folge-punkte');
     const schrittband = document.getElementById('mu-folge-schritt');
     const leiste = [...document.querySelectorAll('.mu-folge-punkt')];
-    const partnerkarte = document.getElementById('mu-folge-partner');
+    const paarzeile = document.getElementById('mu-folge-paar');
+    const paartext = document.getElementById('mu-folge-paartext');
+    const dauerWahl = document.getElementById('mu-folge-dauer');
+    const tonWahl = document.getElementById('mu-folge-ton');
+
+    /* Einstellungen bleiben auf dem Gerät. Es gibt keinen Server, der sie
+       entgegennähme – und für zwei Werte braucht es auch keinen. */
+    const SPEICHER = 'mu-folge-impuls';
+    try {
+      const merk = JSON.parse(localStorage.getItem(SPEICHER) || '{}');
+      if (merk.dauer != null) dauerWahl.value = String(merk.dauer);
+      if (merk.ton != null) tonWahl.checked = !!merk.ton;
+    } catch { /* Kaputter oder gesperrter Speicher: Voreinstellung genügt. */ }
+    const merken = () => {
+      try {
+        localStorage.setItem(SPEICHER, JSON.stringify({ dauer: Number(dauerWahl.value), ton: tonWahl.checked }));
+      } catch { /* Speichern ist Komfort, kein Muss. */ }
+    };
+
+    /* Der Ton wird gerechnet, nicht geladen: keine Datei, kein Netz, und er
+       klingt in jedem Schulnetz. */
+    let klang = null;
+    function klingeln() {
+      try {
+        klang = klang || new (window.AudioContext || window.webkitAudioContext)();
+        if (klang.state === 'suspended') klang.resume();
+        const t0 = klang.currentTime;
+        for (const [hz, ab] of [[880, 0], [1320, 0.16]]) {
+          const o = klang.createOscillator(), g = klang.createGain();
+          o.type = 'sine';
+          o.frequency.value = hz;
+          g.gain.setValueAtTime(0.0001, t0 + ab);
+          g.gain.exponentialRampToValueAtTime(0.22, t0 + ab + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + ab + 0.5);
+          o.connect(g); g.connect(klang.destination);
+          o.start(t0 + ab); o.stop(t0 + ab + 0.55);
+        }
+      } catch { /* Ohne Ton läuft die Folie weiter. */ }
+    }
+
+    let uhr = null;
+    /** Blendet den Partnerimpuls nach der eingestellten Zeit ein. */
+    function paarPlanen(impulse) {
+      clearTimeout(uhr);
+      if (impulse.length === 0) { paarzeile.hidden = true; return; }
+      const sekunden = Number(dauerWahl.value);
+      if (!sekunden) { paarzeile.hidden = false; return; }
+      paarzeile.hidden = true;
+      uhr = setTimeout(() => {
+        paarzeile.hidden = false;
+        if (tonWahl.checked) klingeln();
+        // Die Folie ist jetzt höher – im Vollbild muss neu eingepasst werden.
+        einpassen();
+      }, sekunden * 1000);
+    }
     const plenumkarte = document.getElementById('mu-folge-plenum');
     const tieferkarte = document.getElementById('mu-folge-tiefer');
 
-    // 0..3 = Reflect, Expect, Check, Explain (allein)
-    // 4 = zu zweit, 5 = Plenum, 6 = tiefer bohren (nur nach der letzten Aufgabe)
-    const PARTNER = 4, PLENUM = 5, TIEFER_S = 6;
-    let folge = 0, nr = 0, schritt = 1;
+    // Welche Beats eine Aufgabe bekommt, steht in `takte` – berechnet zur
+    // Bauzeit von taktSchritte(). Die erste Aufgabe einer Folge bekommt nur
+    // Check und die Partnerphase: Sie ist der Bezugspunkt und hat selbst
+    // nichts, womit sie sich vergleichen ließe.
+    let folge = 0, nr = 0, takt = 0;
+    const beats = () => takte[folge][nr];
+    const schrittJetzt = () => beats()[takt];
 
     function zeichne() {
       const f = folgen[folge];
       const a = f.aufgaben[nr];
-      const imPartner = schritt === PARTNER;
+      const schritt = schrittJetzt();
       const imPlenum = schritt === PLENUM;
-      const imTiefer = schritt === TIEFER_S;
-      const allein = schritt < PARTNER;
+      const imTiefer = schritt === TIEFER_BEAT;
+      const allein = schritt < PLENUM;
 
       abschnitt.textContent = f.titel;
       frage.innerHTML = a.frageHtml;
       loesung.innerHTML = a.loesungHtml;
-      // Die Lösung erscheint erst beim Check – vorher wäre die Erwartung wertlos.
-      loesung.hidden = schritt < 2;
+      // Erst bei Explain – siehe LOESUNG_AB. Bei Check wird gerechnet.
+      loesung.hidden = schritt < LOESUNG_AB;
       zaehler.textContent = `${nr + 1} von ${f.aufgaben.length}`;
 
       const davor = nr > 0 ? f.aufgaben[nr - 1] : null;
@@ -292,46 +375,76 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         const s = SCHRITTE[schritt];
         marke.textContent = s.marke;
         auftrag.textContent = s.titel;
-        punkte.innerHTML = '';
-        for (const p of s.punkte) {
-          const li = document.createElement('li');
-          li.textContent = p;
-          punkte.appendChild(li);
-        }
+        // Fließtext statt Zeile für Zeile: Die Beispiele sind Anregungen,
+        // keine Liste zum Abarbeiten – und sie kosten so weniger Höhe.
+        punkte.textContent = s.punkte.join('  ·  ');
+        punkte.hidden = s.punkte.length === 0;
+
+        // Der Impuls für das Gespräch zu zweit steht bei dem Schritt, zu dem
+        // er gehört – nicht in einer eigenen Phase am Ende.
+        const paar = PAAR_ZU_SCHRITT[schritt] ?? [];
+        paartext.textContent = paar.join('  ·  ');
+        paarPlanen(paar);
+      } else {
+        clearTimeout(uhr);
+        paarzeile.hidden = true;
       }
-      partnerkarte.hidden = !imPartner;
       plenumkarte.hidden = !imPlenum;
       tieferkarte.hidden = !imTiefer;
 
-      leiste.forEach((el, i) => el.classList.toggle('mu-folge-punkt--jetzt', i === schritt));
+      leiste.forEach((el, i) => {
+        el.classList.toggle('mu-folge-punkt--jetzt', i === schritt);
+        // Was diese Aufgabe nicht durchläuft, gehört auch nicht an die Wand.
+        el.hidden = !beats().includes(i);
+      });
       stand.textContent = imTiefer
         ? `Zum Schluss · ganze Folge`
         : imPlenum ? `Im Plenum · ${nr + 1}/${f.aufgaben.length}`
-        : imPartner ? `Zu zweit · ${nr + 1}/${f.aufgaben.length}`
-        : `Allein · ${nr + 1}/${f.aufgaben.length}`;
+        : `Erst allein, dann zu zweit · ${nr + 1}/${f.aufgaben.length}`;
+
+      einpassen();
     }
 
     function weiter(richtung) {
       const f = folgen[folge];
-      const letzte = nr === f.aufgaben.length - 1;
-      let s = schritt + richtung;
-      let n = nr;
-      // „Tiefer bohren“ fragt nach der ganzen Folge – das geht erst, wenn sie
-      // durchlaufen ist. Vorher führt der Weg zur nächsten Aufgabe.
-      if (s > PLENUM && !letzte) { s = 0; n = n + 1; }
-      else if (s > TIEFER_S) { s = TIEFER_S; }
-      // Zurück aus dem ersten Schritt: in die Plenumsphase der Aufgabe davor.
-      if (s < 0) { s = PLENUM; n = Math.max(n - 1, 0); }
-      // Die erste Aufgabe hat nichts, womit sie sich vergleichen ließe:
-      // dort beginnt der Takt bei Expect.
-      if (n === 0 && s === 0 && richtung > 0) s = 1;
-      schritt = s; nr = n;
+      let n = nr, i = takt + richtung;
+      // Über das Ende der Beat-Liste hinaus: zur nächsten Aufgabe, dort von
+      // vorn. Vor den Anfang: in den letzten Beat der Aufgabe davor.
+      if (i >= takte[folge][n].length) {
+        if (n + 1 < f.aufgaben.length) { n = n + 1; i = 0; }
+        else i = takte[folge][n].length - 1;
+      } else if (i < 0) {
+        if (n > 0) { n = n - 1; i = takte[folge][n].length - 1; }
+        else i = 0;
+      }
+      nr = n; takt = i;
       zeichne();
     }
 
+    function einpassen() {
+      inhalt.style.transform = '';
+      if (document.fullscreenElement !== buehne) return;
+      const stil = getComputedStyle(buehne);
+      const hFrei = buehne.clientHeight - parseFloat(stil.paddingTop) - parseFloat(stil.paddingBottom);
+      const bFrei = buehne.clientWidth - parseFloat(stil.paddingLeft) - parseFloat(stil.paddingRight);
+      const hNoetig = inhalt.scrollHeight;
+      const bNoetig = inhalt.scrollWidth;
+      if (hNoetig <= 0 || bNoetig <= 0) return;
+      // Ein Prozent Luft, damit ein Rundungsrest nicht doch abschneidet.
+      const k = Math.min(1, (hFrei / hNoetig) * 0.99, (bFrei / bNoetig) * 0.99);
+      if (k < 1) inhalt.style.transform = `scale(${k})`;
+    }
+
+    document.addEventListener('fullscreenchange', einpassen);
+    window.addEventListener('resize', einpassen);
+
+    dauerWahl.addEventListener('change', () => { merken(); zeichne(); });
+    tonWahl.addEventListener('change', merken);
+    document.getElementById('mu-folge-probe').addEventListener('click', klingeln);
+
     document.getElementById('mu-folge-weiter').addEventListener('click', () => weiter(1));
     document.getElementById('mu-folge-zurueck').addEventListener('click', () => weiter(-1));
-    wahl.addEventListener('change', () => { folge = Number(wahl.value); nr = 0; schritt = 1; zeichne(); });
+    wahl.addEventListener('change', () => { folge = Number(wahl.value); nr = 0; takt = 0; zeichne(); });
     document.getElementById('mu-folge-start').addEventListener('click', () => {
       if (!document.fullscreenElement) buehne.requestFullscreen?.();
     });
@@ -375,21 +488,28 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
   }
   .mu-folge-auftrag { font-size: clamp(1.35rem, 2.6vw, 2.6rem); font-weight: 600; line-height: 1.25; }
   .mu-folge-punkte { font-size: clamp(1.05rem, 1.9vw, 1.9rem); line-height: 1.4; }
-  .mu-folge-punkte li::before { content: '– '; }
+  .mu-folge-paar { font-size: clamp(1.05rem, 1.9vw, 1.9rem); line-height: 1.4; }
+  .mu-folge-paarmarke {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8em;
+    margin-right: 0.5em;
+  }
   .mu-folge-punkt--jetzt {
     background: theme('colors.accent.600');
     border-color: theme('colors.accent.600');
     color: #fff;
   }
-  #mu-folge-partner li, #mu-folge-plenum li, #mu-folge-tiefer li {
+  #mu-folge-plenum li, #mu-folge-tiefer li {
     font-size: clamp(1rem, 1.7vw, 1.7rem);
     line-height: 1.4;
   }
-  #mu-folge-partner p, #mu-folge-plenum p, #mu-folge-tiefer p {
+  #mu-folge-plenum p, #mu-folge-tiefer p {
     font-size: clamp(1rem, 1.6vw, 1.6rem);
   }
 
-  #mu-folge-partner[hidden], #mu-folge-plenum[hidden], #mu-folge-tiefer[hidden],
+  #mu-folge-plenum[hidden], #mu-folge-tiefer[hidden], #mu-folge-paar[hidden],
   #mu-folge-schritt[hidden], #mu-folge-vorher[hidden], #mu-folge-loesung[hidden] {
     display: none !important;
   }
@@ -407,6 +527,14 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     border: 0;
     border-radius: 0;
     background: #fff;
+    /* Der Inhalt wird von einpassen() so weit verkleinert, dass er hineinpasst.
+       Der Layoutkasten bleibt dabei ungeskaliert – ohne diese Zeile schöbe er
+       den Rest aus dem Bild. */
+    overflow: hidden;
+  }
+  #mu-folge-buehne:fullscreen #mu-folge-inhalt {
+    transform-origin: center center;
+    width: 100%;
   }
   html.dark #mu-folge-buehne:fullscreen { background: rgb(15 23 42); }
   #mu-folge-buehne:fullscreen .mu-folge-steuerung,
