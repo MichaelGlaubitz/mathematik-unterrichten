@@ -106,8 +106,11 @@
         <h2>Fertige Tickets</h2>
         <p style="font-size:.85rem;color:var(--text-leise);margin:.4rem 0 .7rem">
           Ein Klick übernimmt die Fragen – danach anpassen, wie es zur Stunde passt.
+          Die Tickets zu den 23 Themen stammen aus den Stundenverläufen; nach dem
+          Übernehmen führt ein Link zur zugehörigen Stunde.
         </p>
         <div class="et-bibliothek" id="et-bibliothek"></div>
+        <p id="et-herkunft" style="font-size:.85rem;margin:.7rem 0 0" hidden></p>
       </div>
 
       <div class="wz-karte">
@@ -129,41 +132,154 @@
 (function () {
   'use strict';
 
+  /*
+   * Fertige Tickets. Die themenbezogenen stammen wörtlich aus den
+   * Stundenverläufen auf mathematik-unterrichten.de/stunden: Dort ist jedes
+   * Exit-Ticket auf das Stundenziel gemünzt, und es gibt für jedes der 23
+   * Themen eines. Vorher lagen hier acht selbst geschriebene Tickets, während
+   * die 23 fertigen im Material unbenutzt danebenlagen.
+   *
+   * Die Liste wird von src/lib/exitTicketBibliothek.test.ts gegen die
+   * Stundenverläufe geprüft – ein neues Thema fällt dort auf.
+   */
   const BIBLIOTHEK = [
     {
-      name: 'Bruchrechnung – Addition',
-      titel: 'Brüche addieren',
-      fragen: ['Rechne: 2/3 + 1/4', 'Erkläre in einem Satz, warum man die Nenner nicht addiert.']
+      name: 'Algebra – Variablen: Wofür der Buchstabe steht',
+      titel: 'Algebra',
+      stunde: '/stunden/algebra-wofuer-der-buchstabe-steht',
+      fragen: ['Ein Heft kostet 2 €, ein Stift 1 €. Stelle einen Term für den Preis von n Heften und 3 Stiften auf.', 'Jemand sagt: „In 3a steht a für Apfel.“ Was stimmt daran nicht?']
     },
     {
-      name: 'Dezimalzahlen ordnen',
+      name: 'Binomische Formeln – Binomische Formeln: Woher der mittlere Term kommt',
+      titel: 'Binomische Formeln',
+      stunde: '/stunden/binomische-formeln-warum-der-mittelterm-da-ist',
+      fragen: ['Multipliziere aus: (x + 6)². Und faktorisiere: x² − 81.', 'Jemand schreibt (x + 5)² = x² + 25. Widerlege das mit einer einzigen Zahl.']
+    },
+    {
+      name: 'Bruch Dezimal Prozent – Drei Kleider, eine Zahl: Bruch, Dezimalzahl, Prozent',
+      titel: 'Bruch Dezimal Prozent',
+      stunde: '/stunden/bruch-dezimal-prozent-drei-kleider-eine-zahl',
+      fragen: ['Ergänze die fehlenden beiden Schreibweisen: (a) 0,4 (b) 3/5 (c) 12 %.', 'Was ist größer: 0,3 oder 2/5? Erkläre, wie du es entschieden hast.']
+    },
+    {
+      name: 'Bruchgleichungen – Bruchgleichungen: Wenn richtig rechnen zur falschen Lösung führt',
+      titel: 'Bruchgleichungen',
+      stunde: '/stunden/bruchgleichungen-die-probe-ist-nicht-optional',
+      fragen: ['Bestimme den Definitionsbereich von 1/(x−3) + 2/(x+1) = 5.', 'Löse mit Probe: 6/(x−1) = 3.', 'Warum ist das Multiplizieren mit dem Hauptnenner nicht immer eine Äquivalenzumformung?']
+    },
+    {
+      name: 'Bruchrechnung – Bruchaddition: Warum 1/2 + 1/3 nicht 2/5 ist',
+      titel: 'Bruchrechnung',
+      stunde: '/stunden/bruchaddition-warum-nicht-zwei-fuenftel',
+      fragen: ['Rechne: 1/4 + 1/6.', 'Jemand rechnet 2/3 + 1/4 = 3/7. Erkläre in einem Satz, warum das nicht stimmen kann – ohne nachzurechnen.', 'Ordne der Größe nach: 3/4, 1/2 + 1/3, 1.']
+    },
+    {
+      name: 'Dezimalzahlen – Dezimalzahlen: Länger ist nicht größer',
       titel: 'Dezimalzahlen',
-      fragen: ['Ordne der Größe nach: 0,7 · 0,25 · 0,45', 'Woran erkennst du, welche Zahl größer ist?']
+      stunde: '/stunden/dezimalzahlen-laenger-ist-nicht-groesser',
+      fragen: ['Was ist größer: 0,36 oder 0,4? Begründe mit den Stellenwerten.', 'Nenne eine Zahl, die zwischen 0,45 und 0,451 liegt.']
     },
     {
-      name: 'Lineare Funktionen',
+      name: 'Exponentialfunktionen – Exponentielles Wachstum: Warum die Gerade nicht reicht',
+      titel: 'Exponentialfunktionen',
+      stunde: '/stunden/exponentielles-wachstum-warum-die-gerade-nicht-reicht',
+      fragen: ['Linear oder exponentiell? (a) Ein Handytarif kostet 5 € plus 10 Cent je Minute. (b) Eine Bakterienkultur verdoppelt sich alle 20 Minuten. Begründe kurz.', 'Ein Guthaben von 800 € wächst jährlich um 3 %. Wie viel ist nach 10 Jahren da?', 'Warum ist „exponentielles Wachstum ist steiler als lineares“ als Unterscheidungsmerkmal ungeeignet?']
+    },
+    {
+      name: 'Graphen – Graphen lesen: Der Graph ist kein Bild der Strecke',
+      titel: 'Graphen',
+      stunde: '/stunden/graphen-die-geschichte-zum-bild',
+      fragen: ['In einem Zeit-Weg-Diagramm verläuft ein Abschnitt steiler als der davor. Was bedeutet das?', 'Zwei Diagramme sehen genau gleich aus. Beim einen steht links „Weg in km“, beim anderen „Höhe in m“. Erzählen sie dieselbe Geschichte? Begründe.']
+    },
+    {
+      name: 'Kreisgeometrie – Der Kreis: Warum π immer dieselbe Zahl ist',
+      titel: 'Kreisgeometrie',
+      stunde: '/stunden/kreis-warum-pi-immer-dasselbe-ist',
+      fragen: ['Ein Kreis hat den Radius 5 cm. Berechne Umfang und Flächeninhalt.', 'Ein Kreis hat den Umfang 31,4 cm. Wie groß ist sein Flächeninhalt?', 'Warum vervierfacht sich die Fläche, wenn sich der Radius verdoppelt, der Umfang aber nur verdoppelt?']
+    },
+    {
+      name: 'Lineare Funktionen – Lineare Funktionen: Steigung ist ein Verhältnis, keine Zahl am Graphen',
       titel: 'Lineare Funktionen',
-      fragen: ['Gib die Steigung von y = −3x + 4 an.', 'Zeichne den Punkt, an dem der Graph die y-Achse schneidet.', 'Was ändert sich am Graphen, wenn die 4 zu einer 7 wird?']
+      stunde: '/stunden/lineare-funktionen-steigung-als-verhaeltnis',
+      fragen: ['Eine Gerade geht durch (2|1) und (6|7). Wie groß ist die Steigung?', 'Zu einer linearen Funktion gehört die Tabelle: x = 0, 3, 6 und y = 5, 11, 17. Wie groß ist die Steigung?', 'Warum liefert ein größeres Steigungsdreieck an derselben Geraden dieselbe Steigung?']
     },
     {
-      name: 'Satz des Pythagoras',
+      name: 'Lineare Gleichungen – Lineare Gleichungen: Was das Gleichheitszeichen wirklich sagt',
+      titel: 'Lineare Gleichungen',
+      stunde: '/stunden/lineare-gleichungen-das-gleichheitszeichen',
+      fragen: ['Löse: 5x − 3 = 2x + 9.', 'Jemand rechnet: 4x + 6 = 2x + 14 | −6 → 4x = 2x + 14. Was ist hier schiefgegangen?', 'Warum ist 12 = 3x dieselbe Aussage wie 3x = 12?']
+    },
+    {
+      name: 'Lineare Gleichungssysteme – Gleichungssysteme: Wenn nichts oder alles herauskommt',
+      titel: 'Lineare Gleichungssysteme',
+      stunde: '/stunden/lineare-gleichungssysteme-drei-faelle',
+      fragen: ['Beim Lösen eines Systems kommt 0 = 0 heraus. Wie viele Lösungen hat es, und wie liegen die Geraden?', 'Hat das System y = 2x + 1 und y = 2x − 4 eine Lösung? Begründe ohne zu rechnen.', 'Warum kann ein lineares Gleichungssystem mit zwei Gleichungen niemals genau zwei Lösungen haben?']
+    },
+    {
+      name: 'Logarithmen – Logarithmen: Die Frage nach dem Exponenten',
+      titel: 'Logarithmen',
+      stunde: '/stunden/logarithmen-die-frage-nach-dem-exponenten',
+      fragen: ['Schreibe als Logarithmus: 5³ = 125. Und als Potenz: log₃(81) = 4.', 'Löse: 3^x = 50 (auf zwei Nachkommastellen).', 'Jemand schreibt log(a + b) = log a + log b. Widerlege das mit zwei Zahlen.']
+    },
+    {
+      name: 'Negative Zahlen – Negative Zahlen: Die drei Bedeutungen des Minuszeichens',
+      titel: 'Negative Zahlen',
+      stunde: '/stunden/negative-zahlen-die-drei-bedeutungen-des-minus',
+      fragen: ['Rechne: 4 − (−6) und −4 − 6.', 'Erkläre in einem Satz, warum −(−7) dasselbe ist wie 7.']
+    },
+    {
+      name: 'Prozentrechnung – Prozentrechnung: Was ist eigentlich das Ganze?',
+      titel: 'Prozentrechnung',
+      stunde: '/stunden/prozentrechnung-was-ist-das-ganze',
+      fragen: ['In einer Klasse sind 25 Kinder, 15 davon fahren mit dem Rad. Wie viel Prozent sind das?', 'Ein Handy kostet 240 €. Der Preis sinkt um 15 %. Was kostet es jetzt?', '15 % einer Strecke sind 45 km. Wie lang ist die ganze Strecke?']
+    },
+    {
+      name: 'Pythagoras – Pythagoras: Erst die Hypotenuse finden, dann rechnen',
       titel: 'Pythagoras',
-      fragen: ['Berechne die Hypotenuse für a = 6 cm und b = 8 cm.', 'Woran erkennst du in einer Figur, welche Seite die Hypotenuse ist?']
+      stunde: '/stunden/pythagoras-welche-seite-ist-die-hypotenuse',
+      fragen: ['Ein rechtwinkliges Dreieck hat die Katheten 6 cm und 8 cm. Wie lang ist die Hypotenuse?', 'Ein rechtwinkliges Dreieck hat die Hypotenuse 13 cm und eine Kathete 5 cm. Wie lang ist die andere Kathete?']
     },
     {
-      name: 'Prozentrechnung',
-      titel: 'Prozente',
-      fragen: ['Berechne 15 % von 240 €.', 'Ein Preis steigt um 20 %. Mit welcher Zahl multipliziert man?']
+      name: 'Quadratische Funktionen – Quadratische Funktionen: Was die Scheitelform verrät – und was nicht',
+      titel: 'Quadratische Funktionen',
+      stunde: '/stunden/quadratische-funktionen-was-die-scheitelform-verraet',
+      fragen: ['Wo liegt der Scheitelpunkt von f(x) = (x + 3)² − 5?', 'Eine Parabel ist nach unten geöffnet und hat den Scheitelpunkt (1 | 4). Gib eine mögliche Funktionsgleichung in Scheitelform an.', 'Jemand sagt: „Bei f(x) = (x − 2)² − 3 sind die Nullstellen 2 und −3.“ Was ist hier verwechselt worden?']
     },
     {
-      name: 'Quadratische Gleichungen',
+      name: 'Quadratische Gleichungen – Quadratische Gleichungen: Warum die Null besonders ist',
       titel: 'Quadratische Gleichungen',
-      fragen: ['Löse: x² − 5x = 0', 'Warum darf man hier nicht durch x teilen?']
+      stunde: '/stunden/quadratische-gleichungen-warum-null-besonders-ist',
+      fragen: ['Löse: x(x − 7) = 0 und (x + 3)(x − 4) = 0.', 'Jemand rechnet: (x − 1)(x + 2) = 4, also x − 1 = 4 oder x + 2 = 4. Was ist hier schiefgegangen, und wie geht es richtig?']
     },
     {
-      name: 'Termumformungen',
-      titel: 'Terme',
-      fragen: ['Fasse zusammen: 3(x + 2) − 2x', 'Nenne einen Fehler, den man bei dieser Aufgabe leicht macht.']
+      name: 'Stochastik – Stochastik: Warum der Zufall nichts ausgleicht',
+      titel: 'Stochastik',
+      stunde: '/stunden/stochastik-warum-der-zufall-nicht-ausgleicht',
+      fragen: ['Wie groß ist die Wahrscheinlichkeit, mit einem Würfel eine gerade Zahl zu werfen?', 'Bei 300 Würfen: Wie viele Sechsen erwartest du ungefähr? Muss es genau diese Zahl sein?', 'Jemand sagt: „Bei 600 Würfen kommen genau 100 Sechsen, weil die Wahrscheinlichkeit 1/6 ist.“ Was stimmt daran und was nicht?']
+    },
+    {
+      name: 'Strahlensätze – Strahlensätze: Was gehört zu was?',
+      titel: 'Strahlensätze',
+      stunde: '/stunden/strahlensaetze-was-zu-was-gehoert',
+      fragen: ['In einer Strahlensatzfigur ist ZA = 5 cm, ZA\' = 15 cm und ZB = 4 cm. Wie lang ist ZB\'?', 'Ein 1,50 m langer Stab wirft einen 2 m langen Schatten. Ein Baum wirft zur gleichen Zeit einen 14 m langen Schatten. Wie hoch ist der Baum?']
+    },
+    {
+      name: 'Termumformungen – Das Minus vor der Klammer – warum es alles trifft',
+      titel: 'Termumformungen',
+      stunde: '/stunden/termumformungen-das-minus-vor-der-klammer',
+      fragen: ['Vereinfache: 3 − (2x − 5).', 'Jemand rechnet: 10 − (a + 4) = 10 − a + 4. Was ist hier schiefgegangen?']
+    },
+    {
+      name: 'Trigonometrie – Trigonometrie: Der Winkel entscheidet, welche Seite welche ist',
+      titel: 'Trigonometrie',
+      stunde: '/stunden/trigonometrie-der-winkel-entscheidet',
+      fragen: ['Zeichne ein rechtwinkliges Dreieck und markiere einen spitzen Winkel. Beschrifte Hypotenuse, Gegenkathete und Ankathete.', 'In einem rechtwinkligen Dreieck ist die Hypotenuse 10 cm lang und ein Winkel beträgt 30°. Wie lang ist die Gegenkathete dieses Winkels?', 'Ein Dreieck hat die Katheten 3 cm und 4 cm. Wie groß ist der Winkel, der der 3-cm-Seite gegenüberliegt?']
+    },
+    {
+      name: 'Wurzelrechnung – Wurzeln: Was erlaubt ist – und was nur so aussieht',
+      titel: 'Wurzelrechnung',
+      stunde: '/stunden/wurzeln-was-erlaubt-ist-und-was-nicht',
+      fragen: ['Vereinfache so weit wie möglich: √72 und √8 · √2.', 'Jemand behauptet: √(a + b) = √a + √b. Widerlege das mit einem Zahlenbeispiel.']
     },
     {
       name: 'Allgemein (fachunabhängig)',
@@ -172,7 +288,10 @@
     }
   ];
 
-  let fragen = BIBLIOTHEK[7].fragen.slice();
+  /** Startpunkt ist das fachunabhängige Ticket – über den Namen, nicht über
+   *  einen Index: Die Liste wächst mit den Stundenverläufen. */
+  const START = BIBLIOTHEK.find(function (b) { return b.titel === 'Rückblick'; }) || BIBLIOTHEK[0];
+  let fragen = START.fragen.slice();
   const felder = [];
 
   function anzeigen() {
@@ -245,6 +364,16 @@
     }
   }
 
+  /** Woher das übernommene Ticket stammt – Rückweg ins Material. */
+  function herkunftZeigen(b) {
+    const zeile = document.getElementById('et-herkunft');
+    zeile.textContent = '';
+    if (!b.stunde) { zeile.hidden = true; return; }
+    zeile.hidden = false;
+    zeile.appendChild(document.createTextNode('Aus dem Stundenverlauf: '));
+    zeile.appendChild(WZ.el('a', { href: b.stunde, target: '_blank', rel: 'noopener' }, [b.name]));
+  }
+
   const bibliothek = document.getElementById('et-bibliothek');
   BIBLIOTHEK.forEach(function (b) {
     bibliothek.appendChild(WZ.el('button', {
@@ -253,6 +382,7 @@
         fragen = b.fragen.slice();
         while (fragen.length < 3) fragen.push('');
         document.getElementById('et-titel').value = b.titel;
+        herkunftZeigen(b);
         felderZeichnen();
         anzeigen();
       }

@@ -54,6 +54,7 @@ export const methoden: Methode[] = [
       'Dylan Wiliam beschreibt solche „Hinge Questions“ als Kern formativen Assessments; Craig Barton hat das Format für den Mathematikunterricht systematisiert (Diagnostic Questions).',
     links: [
       { text: 'Fertige Quizzes', href: '/quizzes' },
+      { text: 'Werkzeug: Abstimmung', href: '/werkzeuge/abstimmung.html' },
       { text: 'Werkzeug: Whiteboard-Check', href: '/werkzeuge/whiteboard-check.html' },
       { text: 'Blog: Hinge Questions', href: '/blog/hinge-questions' },
     ],
@@ -77,6 +78,7 @@ export const methoden: Methode[] = [
       'Formatives Assessment gehört zu den wirksamsten Unterrichtsroutinen überhaupt; entscheidend ist, dass die Rückmeldung den <em>nächsten</em> Schritt der Lehrkraft verändert, nicht erst die Klausurnote.',
     links: [
       { text: 'Werkzeug: Whiteboard-Check', href: '/werkzeuge/whiteboard-check.html' },
+      { text: 'Werkzeug: Antwortkarte (fürs Tablet)', href: '/werkzeuge/antwortkarte.html' },
       { text: 'Mini-Whiteboard-Aufgaben nach Thema', href: '/themen' },
     ],
   },
@@ -143,6 +145,7 @@ export const methoden: Methode[] = [
       'Margaret Smith und Mary Kay Stein: „5 Practices for Orchestrating Productive Mathematics Discussions“ – das methodische Rückgrat problemorientierter Mathematikstunden.',
     links: [
       { text: 'Handreichung: Produktive Unterrichtsgespräche', href: '/ausb/Produktive-Unterrichtsgespraeche.html' },
+      { text: 'Werkzeug: Unterrichts-Timer', href: '/werkzeuge/unterrichts-timer.html' },
       { text: 'Das KLAR-Konzept', href: '/konzept' },
     ],
   },
@@ -187,6 +190,7 @@ export const methoden: Methode[] = [
     forschung:
       'Worked-Example-Effekt aus der Cognitive Load Theory (Sweller u. a.); der Wechsel Beispiel–Aufgabe ist wirksamer als Blöcke von Beispielen gefolgt von Blöcken von Aufgaben.',
     links: [
+      { text: 'Aufgabenfolgen mit Kommentar', href: '/aufgaben' },
       { text: 'Blog: Worked Examples – was die Forschung weiß', href: '/blog/worked-examples-was-die-forschung-weiss' },
     ],
   },
@@ -230,6 +234,8 @@ export const methoden: Methode[] = [
     forschung:
       'Wünschenswerte Erschwernisse („desirable difficulties“, Bjork); für Mathematik u. a. Rohrer & Taylor zum Interleaving verschiedener Aufgabentypen.',
     links: [
+      { text: 'Werkzeug: Kopfrechen-Sprint', href: '/werkzeuge/kopfrechen-sprint.html' },
+      { text: 'Übungsgeneratoren nach Thema', href: '/themen' },
       { text: 'Blog: Spacing und Interleaving', href: '/blog/spacing-und-interleaving' },
     ],
   },
@@ -251,6 +257,8 @@ export const methoden: Methode[] = [
     forschung:
       'Manu Kapur: Lernende, die zuerst selbst (erfolglos) an einer Aufgabe arbeiten und danach Instruktion erhalten, erreichen bessere Übertragungsleistungen als Gruppen mit umgekehrter Reihenfolge.',
     links: [
+      { text: 'Werkzeug: Unterrichts-Timer', href: '/werkzeuge/unterrichts-timer.html' },
+      { text: 'Werkzeug: Open-Middle-Werkstatt', href: '/werkzeuge/open-middle.html' },
       { text: 'Blog: Productive Failure', href: '/blog/productive-failure' },
       { text: 'Das KLAR-Konzept', href: '/konzept' },
     ],
@@ -318,6 +326,7 @@ export const methoden: Methode[] = [
       'Format von Christopher Danielson (wodb.ca); es realisiert das, was Fachdidaktik unter „Begriffsbildung durch Kontrastieren“ fasst.',
     links: [
       { text: 'Werkzeug: WODB-Board', href: '/werkzeuge/wodb.html' },
+      { text: 'Werkzeug: Unterrichts-Timer', href: '/werkzeuge/unterrichts-timer.html' },
     ],
   },
   {
@@ -361,6 +370,7 @@ export const methoden: Methode[] = [
       'Arbeiten zur Fehlerkultur im Mathematikunterricht zeigen, dass die Analyse falscher Lösungen den Aufbau tragfähiger Grundvorstellungen unterstützt – vorausgesetzt, das Klima lässt Fehler zu.',
     links: [
       { text: 'Fehlvorstellungs-Katalog', href: '/fehlvorstellungen' },
+      { text: 'Werkzeug: Abstimmung', href: '/werkzeuge/abstimmung.html' },
       { text: 'Blog: Fehlvorstellungen sind Daten', href: '/blog/fehlvorstellungen-sind-daten' },
     ],
   },
