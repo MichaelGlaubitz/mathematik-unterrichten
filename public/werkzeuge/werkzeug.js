@@ -91,16 +91,32 @@
 
   // --- Kopf- und Fußleiste -------------------------------------------------
 
+  /**
+   * Werkzeuge in Schülerhand sind Sackgassen.
+   *
+   * Die Antwortkarte ist die einzige Adresse, die eine Klasse tippen soll.
+   * Solange Kopf- und Fußzeile von dort in den Werkzeugkasten und auf die
+   * Startseite führten, waren es zwei Klicks bis zu den Quizlösungen. Wer
+   * `rolle: 'Schülergerät'` setzt, bekommt darum eine Wortmarke ohne Link und
+   * eine Fußzeile ohne Ausgänge.
+   */
+  let istSchuelergeraet = false;
+
   function kopf(einstellungen) {
     const opt = einstellungen || {};
     const titel = opt.titel || document.title;
     const zurueck = opt.zurueck || '/werkzeuge';
+    istSchuelergeraet = opt.rolle === 'Schülergerät';
+
+    const marke = istSchuelergeraet
+      ? '<span class="wz-marke"><b>mathematik-unterrichten.de</b></span>'
+      : '<a class="wz-marke" href="' + zurueck + '">← <b>mathematik-unterrichten.de</b></a>';
 
     const kopfEl = document.createElement('header');
     kopfEl.className = 'wz-kopf wz-nicht-drucken';
     kopfEl.innerHTML =
       '<div class="wz-kopf-innen">' +
-      '<a class="wz-marke" href="' + zurueck + '">← <b>mathematik-unterrichten.de</b></a>' +
+      marke +
       '<span aria-hidden="true" style="color:var(--text-schwach)">·</span>' +
       '<p class="wz-titel">' + esc(titel) + '</p>' +
       '<div class="wz-kopf-rechts">' +
@@ -144,9 +160,13 @@
     el.innerHTML =
       '<span>' + (zusatz || 'Läuft vollständig im Browser — es werden keine Daten übertragen.') + '</span>' +
       '<span>' + (tasten || '<kbd>B</kbd> Beamer · <kbd>F</kbd> Vollbild') + '</span>' +
-      '<span style="margin-left:auto"><a href="/werkzeuge">Alle Werkzeuge</a> · ' +
-      '<a href="/">mathematik-unterrichten.de</a> · ' +
-      '<a href="/impressum">Impressum</a></span>';
+      // Auf einem Schülergerät bleibt nur das Impressum – die Pflichtangabe,
+      // die jede Seite tragen muss. Kein Weg zurück ins Lehrermaterial.
+      (istSchuelergeraet
+        ? '<span style="margin-left:auto"><a href="/impressum">Impressum</a></span>'
+        : '<span style="margin-left:auto"><a href="/werkzeuge">Alle Werkzeuge</a> · ' +
+          '<a href="/">mathematik-unterrichten.de</a> · ' +
+          '<a href="/impressum">Impressum</a></span>');
     document.body.appendChild(el);
   }
 

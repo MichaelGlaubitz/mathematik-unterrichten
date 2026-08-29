@@ -178,6 +178,22 @@ function wbLabelFromHref(href: string): string {
   <!-- mu-massen: Whiteboard-Vollbild nur mit Aufgaben; Vorbereitung-Banner ohne Overlay -->
   <script is:inline set:html={`globalThis.__UG_MASSEN_ALLOWED_IDS__=${ugMassenAllowedJson};`} />
 
+  <div
+    id="ug-modus"
+    class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-ink-200/90 bg-surface/80 px-3 py-2 text-sm print:hidden dark:border-white/10 dark:bg-white/[0.04]"
+  >
+    <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Diese Seite ist für</span>
+    <div class="inline-flex overflow-hidden rounded-md border border-ink-300 dark:border-white/15" role="group" aria-label="Rolle wählen">
+      <button type="button" id="ug-modus-lehrkraft" class="ug-modus-knopf px-3 py-1.5 text-sm font-medium" aria-pressed="true">
+        die Lehrkraft
+      </button>
+      <button type="button" id="ug-modus-schueler" class="ug-modus-knopf border-l border-ink-300 px-3 py-1.5 text-sm font-medium dark:border-white/15" aria-pressed="false">
+        die Klasse
+      </button>
+    </div>
+    <p id="ug-modus-text" class="text-ink-600 dark:text-ink-400">Mit Lösungen, Lösungs-PDF und allem, was zum Vorbereiten gehört.</p>
+  </div>
+
   <div id="ug-wb-slot-ab-full-chrome">
   <header class="mb-8 print:hidden">
     <a
@@ -1867,7 +1883,7 @@ function wbLabelFromHref(href: string): string {
               0
             </p>
           </div>
-          <div class="text-center border-x border-violet-200/70 px-1 dark:border-violet-600/35">
+          <div class="ug-stat-loesungen text-center border-x border-violet-200/70 px-1 dark:border-violet-600/35">
             <p class="text-[0.65rem] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400 sm:text-xs">
               Lösungen sichtbar
             </p>
@@ -2744,6 +2760,34 @@ function wbLabelFromHref(href: string): string {
     }
 
     const massenHost = document.querySelector('[data-mu-massen-ui="wb-v2"]');
+
+    // Rolle der Seite. Merkt sich das Gerät, damit ein Klassensatz Tablets
+    // nicht bei jedem Aufruf neu umgestellt werden muss.
+    const MODUS_SCHLUESSEL = 'mu-uebung-modus';
+    function modusSetzen(modus, merken) {
+      const schueler = modus === 'schueler';
+      massenHost?.setAttribute('data-mu-modus', schueler ? 'schueler' : 'lehrkraft');
+      const kl = document.getElementById('ug-modus-lehrkraft');
+      const ks = document.getElementById('ug-modus-schueler');
+      const txt = document.getElementById('ug-modus-text');
+      if (kl) kl.setAttribute('aria-pressed', schueler ? 'false' : 'true');
+      if (ks) ks.setAttribute('aria-pressed', schueler ? 'true' : 'false');
+      if (txt) {
+        txt.textContent = schueler
+          ? 'Ohne Lösungen. „Überprüfen“ sagt richtig oder falsch, verrät aber nichts.'
+          : 'Mit Lösungen, Lösungs-PDF und allem, was zum Vorbereiten gehört.';
+      }
+      if (merken) {
+        try { localStorage.setItem(MODUS_SCHLUESSEL, schueler ? 'schueler' : 'lehrkraft'); } catch { /* */ }
+      }
+    }
+    document.getElementById('ug-modus-lehrkraft')?.addEventListener('click', () => modusSetzen('lehrkraft', true));
+    document.getElementById('ug-modus-schueler')?.addEventListener('click', () => modusSetzen('schueler', true));
+    try {
+      modusSetzen(localStorage.getItem(MODUS_SCHLUESSEL) === 'schueler' ? 'schueler' : 'lehrkraft', false);
+    } catch {
+      modusSetzen('lehrkraft', false);
+    }
     /** Der `variant`-Wert der Seite – Schluessel in src/lib/uebungsgeneratoren.ts. */
     const variantName = massenHost?.getAttribute('data-mu-massen-variant') ?? '';
     const isBruchMassen = massenHost?.getAttribute('data-mu-massen-variant') === 'bruchrechnung';
@@ -4781,6 +4825,37 @@ function wbLabelFromHref(href: string): string {
   #ug-wb-leer[hidden],
   #ug-wb-slot-ab-check-overlay[hidden],
   #ug-arbeitsblatt[hidden],
+  /*
+   * Schülermodus: Die Seite trug zwei Rollen zugleich – sie sprach die
+   * Lehrkraft an („Sie“) und war zugleich als Bildschirmübung für die Klasse
+   * gedacht, mit „Alle Lösungen aufdecken“ direkt daneben. Der Schalter oben
+   * macht daraus eine Entscheidung. Die Auswahl greift über CSS, damit sie
+   * auch für Aufgabenkarten gilt, die erst später erzeugt werden.
+   *
+   * „Überprüfen“ bleibt bewusst sichtbar: Selbstkontrolle ist für die Klasse
+   * gedacht: Sie sagt richtig oder falsch, ohne die Lösung zu verraten.
+   */
+  [data-mu-modus='schueler'] #ug-alle-aufdecken,
+  [data-mu-modus='schueler'] #ug-alle-zuklappen,
+  [data-mu-modus='schueler'] #ug-wb-slot-ab-alle-auf,
+  [data-mu-modus='schueler'] #ug-wb-slot-ab-alle-zu,
+  [data-mu-modus='schueler'] #ug-wb-slot-ab-druck-loes,
+  [data-mu-modus='schueler'] .ug-wb-slot-ab-loesung-toggle,
+  [data-mu-modus='schueler'] .ug-task-details,
+  /* „Lösungen sichtbar 0 / 10“ zählt im Schülermodus etwas, das es nicht gibt. */
+  [data-mu-modus='schueler'] .ug-stat-loesungen {
+    display: none !important;
+  }
+  [data-mu-modus='schueler'] #ug-wb-slot-ab-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ug-modus-knopf { background: transparent; color: var(--mu-modus-aus, inherit); }
+  .ug-modus-knopf[aria-pressed='true'] {
+    background: rgb(37 99 235);
+    color: #fff;
+  }
+
   #ug-wb-slot-ab-full-chrome[hidden],
   /* Der Knopf traegt inline-flex aus Tailwind – das gewinnt sonst gegen die
      Browser-Regel fuer [hidden], und ein „verstecktes“ Ueberpruefen bliebe

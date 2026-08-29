@@ -32,13 +32,18 @@ const { Content } = await aufgabe.render();
         {aufgabe.data.tags.map((t) => <span class="badge-ink">#{t}</span>)}
       </div>
 
-      <aside class="mt-6 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4 dark:bg-accent-700/15">
+      <p class="mt-5 inline-flex items-center gap-2 rounded-md border border-ink-300/90 bg-ink-50/60 px-3 py-1.5 text-sm text-ink-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-ink-200">
+        <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Für die Lehrkraft</span>
+        <span>Kommentar und Lösungen stehen mit auf dieser Seite — der Teil für die Klasse ist unten eigens markiert.</span>
+      </p>
+
+      <aside class="mt-4 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4 dark:bg-accent-700/15">
         <p class="text-xs uppercase tracking-wide text-accent-700 font-semibold mb-1 dark:text-accent-100">Didaktischer Hinweis</p>
         <p class="text-ink-800 text-sm leading-relaxed dark:text-ink-100">{aufgabe.data.didaktischerHinweis}</p>
       </aside>
     </header>
 
-    <div class="prose prose-ink prose-mathe max-w-none dark:prose-invert">
+    <div class="prose prose-ink prose-mathe max-w-none dark:prose-invert mu-aufgabenfolge">
       <Content />
     </div>
 
@@ -48,3 +53,40 @@ const { Content } = await aufgabe.render();
     </footer>
   </article>
 </BaseLayout>
+
+<style is:global>
+  /*
+   * Eine Aufgabenfolge trägt zwei Leser: die Vorbemerkung und die Folgen sind
+   * für die Klasse geschrieben, der Kommentar am Ende für die Lehrkraft. Beides
+   * stand bisher ununterscheidbar untereinander. Die Abschnitte tragen feste
+   * ids aus der Überschrift, daran lassen sich die Zonen markieren.
+   */
+  .mu-aufgabenfolge :is(#vorbemerkung-für-die-schüler, #reflexionsfragen, #reflexionsfragen-für-die-schüler)::before,
+  .mu-aufgabenfolge #didaktischer-kommentar::before {
+    content: 'Für die Klasse';
+    display: block;
+    font-family: theme('fontFamily.sans');
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: theme('colors.teal.700');
+    margin-bottom: 0.3rem;
+  }
+  .mu-aufgabenfolge #didaktischer-kommentar::before {
+    content: 'Nur für die Lehrkraft';
+    color: theme('colors.accent.700');
+  }
+  /* Der Kommentar am Ende ist der Lehrerteil – abgesetzt bis zum Seitenende. */
+  .mu-aufgabenfolge #didaktischer-kommentar {
+    margin-top: 2.5rem;
+    padding-top: 1.4rem;
+    border-top: 2px solid theme('colors.accent.500 / 45%');
+  }
+  :global(.dark) .mu-aufgabenfolge :is(#vorbemerkung-für-die-schüler, #reflexionsfragen, #reflexionsfragen-für-die-schüler)::before {
+    color: theme('colors.teal.300');
+  }
+  :global(.dark) .mu-aufgabenfolge #didaktischer-kommentar::before {
+    color: theme('colors.accent.100');
+  }
+</style>
