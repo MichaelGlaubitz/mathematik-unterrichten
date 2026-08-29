@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { leseVariationsfolgen, SCHRITTE, SCHRITTE_PARTNER, PARTNER_UEBERSCHRIFT } from './variationsfolgen';
+import {
+  leseVariationsfolgen,
+  SCHRITTE,
+  SCHRITTE_PARTNER,
+  PARTNER_UEBERSCHRIFT,
+  SCHRITTE_PLENUM,
+  TIEFER,
+} from './variationsfolgen';
 
 const ORDNER = path.join(process.cwd(), 'src/content/aufgaben');
 const dateien = fs.readdirSync(ORDNER).filter((f) => f.endsWith('.md'));
@@ -163,12 +170,54 @@ describe('Partnerphase nach der Einzelarbeit', () => {
   });
 
   it('sie kommt erst nach Explain und verschwindet mit der nächsten Aufgabe', () => {
-    expect(folie).toContain('const PARTNER = 4');
+    expect(folie).toContain('const PARTNER = 4, PLENUM = 5, TIEFER_S = 6;');
     expect(folie).toContain('partnerkarte.hidden = !imPartner');
-    expect(folie).toContain('if (s > PARTNER)');
+    // Nach der Partnerphase geht es ins Plenum, erst danach zur nächsten Aufgabe.
+    expect(folie).toContain('if (s > PLENUM && !letzte)');
   });
 
   it('in der Partnerphase steht kein Einzelschritt mehr im Vordergrund', () => {
-    expect(folie).toContain("'mu-folge-schritt--jetzt', !imPartner && i === schritt");
+    // Sobald die Einzelarbeit vorbei ist, tritt die Schrittleiste zurück.
+    expect(folie).toContain("'mu-folge-schritt--jetzt', allein && i === schritt");
+    expect(folie).toContain('const allein = schritt < PARTNER');
+  });
+});
+
+describe('Plenum und Abschluss', () => {
+  const folie = fs.readFileSync(path.join(process.cwd(), 'src/pages/aufgaben/[slug]/folge.astro'), 'utf8');
+
+  it('im Plenum gibt es kein Check – das ist Absicht, keine Auslassung', () => {
+    // Geprüft wurde in der Einzelarbeit. Im Plenum geht es um den
+    // Zusammenhang, nicht um das Ergebnis.
+    expect(SCHRITTE_PLENUM.map((s) => s.marke)).toEqual(['Reflect', 'Expect', 'Explain']);
+    expect(folie).toContain('Kein Check mehr');
+  });
+
+  it('Reflect fragt im Plenum nach dem Warum, nicht nur nach dem Was', () => {
+    const reflect = SCHRITTE_PLENUM[0].punkte.join(' ');
+    expect(reflect).toMatch(/was ist gleich, was ist anders/i);
+    expect(reflect).toMatch(/Warum wirkt sich diese Änderung/);
+  });
+
+  it('„Tiefer bohren" fragt nach der ganzen Folge, nicht nach einer Aufgabe', () => {
+    expect(TIEFER).toHaveLength(5);
+    expect(TIEFER.join(' ')).toMatch(/dieser Folge/);
+    expect(TIEFER.join(' ')).toMatch(/Setzt die Folge .* fort/);
+    expect(folie).toContain('Nicht mehr zu einer Aufgabe – zur ganzen Folge.');
+  });
+
+  it('deshalb steht es erst am Ende der Folge', () => {
+    expect(folie).toContain('if (s > PLENUM && !letzte)');
+    expect(folie).toContain('const letzte = nr === f.aufgaben.length - 1');
+  });
+
+  it('und bleibt dort stehen, statt weiterzulaufen', () => {
+    expect(folie).toContain('else if (s > TIEFER_S) { s = TIEFER_S; }');
+  });
+
+  it('immer nur eine Karte zugleich', () => {
+    for (const karte of ['partnerkarte.hidden = !imPartner', 'plenumkarte.hidden = !imPlenum', 'tieferkarte.hidden = !imTiefer']) {
+      expect(folie).toContain(karte);
+    }
   });
 });

@@ -181,3 +181,49 @@ export const SCHRITTE_PARTNER = [
     ],
   },
 ] as const;
+
+/**
+ * Die Plenumsphase, nachdem allein und zu zweit gearbeitet wurde.
+ *
+ * Zwei Dinge daran sind Absicht und keine Auslassung:
+ *
+ * 1. Es gibt kein *Check*. Geprüft wurde schon – im Plenum geht es um den
+ *    Zusammenhang, nicht um das Ergebnis.
+ * 2. Reflect fragt hier nicht nur, *was* sich geändert hat, sondern *warum*
+ *    diese Änderung gerade so wirkt. Das ist der Schritt von der Beobachtung
+ *    zur Begründung.
+ */
+export const PLENUM_UEBERSCHRIFT = 'Im Plenum: zu diesem einen Zusammenhang';
+
+export const SCHRITTE_PLENUM = [
+  {
+    marke: 'Reflect',
+    punkte: [
+      'Wie verhält sich diese Aufgabe zur vorherigen – was ist gleich, was ist anders?',
+      'Warum wirkt sich diese Änderung gerade so auf das Ergebnis aus?',
+    ],
+  },
+  {
+    marke: 'Expect',
+    punkte: ['Hat jemand etwas anderes erwartet – und kann sagen, warum?'],
+  },
+  {
+    marke: 'Explain',
+    punkte: ['Kann jemand auf zwei verschiedene Arten erklären, warum das Ergebnis so ist?'],
+  },
+] as const;
+
+/**
+ * Zum Schluss der Folge – nicht zu einer einzelnen Aufgabe, sondern zur
+ * ganzen Reihe. Deshalb steht das hier erst, wenn die letzte Aufgabe
+ * durchlaufen ist.
+ */
+export const TIEFER_UEBERSCHRIFT = 'Zum Schluss: tiefer bohren';
+
+export const TIEFER = [
+  'Welche zwei Ergebnisse haben euch am meisten überrascht – und warum?',
+  'Erklärt diesen Zusammenhang auf zwei Arten jemandem, der ihn noch nicht versteht.',
+  'Stellt mir zwei Fragen zu dieser Folge.',
+  'Setzt die Folge mit zwei eigenen Aufgaben fort.',
+  'Denkt euch zwei Vermutungen aus und prüft sie an eigenen Beispielen.',
+] as const;
