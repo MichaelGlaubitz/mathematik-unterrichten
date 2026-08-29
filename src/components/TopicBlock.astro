@@ -43,20 +43,27 @@ const {
 } = Astro.props;
 
 const wbBdpKarten = false;
+/* Themen, deren Whiteboard-Steuerung in der Unterthemen-Kompaktzeile sitzt.
+   Der große Mini-Whiteboard-Block entfällt dort – der Weg zur Whiteboard-Runde
+   darf deshalb nicht mit entfallen (siehe die Kurzzeile weiter unten). */
+const WB_KOMPAKT = [
+  'bruchrechnung',
+  'negative-zahlen',
+  'algebra',
+  'dezimalzahlen',
+  'bruch-dezimal-prozent',
+  'lineare-gleichungen',
+  'prozentrechnung',
+  'graphen',
+  'stochastik',
+  'binomische-formeln',
+  'lineare-funktionen',
+];
+const wbKompakt = WB_KOMPAKT.includes(slug);
 const wbThemaMitAkku =
   Boolean(generatorUebungHref) &&
   (wbBdpKarten ||
-    ((slug === 'bruchrechnung' ||
-      slug === 'negative-zahlen' ||
-      slug === 'algebra' ||
-      slug === 'dezimalzahlen' ||
-      slug === 'bruch-dezimal-prozent' ||
-      slug === 'lineare-gleichungen' ||
-      slug === 'prozentrechnung' ||
-      slug === 'graphen' ||
-      slug === 'stochastik' ||
-      slug === 'binomische-formeln' ||
-      slug === 'lineare-funktionen') &&
+    (wbKompakt &&
       Boolean(unterthemenBloecke && unterthemenBloecke.length > 0)));
 const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` : '';
 
@@ -104,6 +111,25 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
           <span class="mt-1 block text-sm leading-relaxed text-ink-700 dark:text-ink-300">{stunde.kurz}</span>
         </span>
         <span class="link-arrow whitespace-nowrap text-sm">Zum Verlauf </span>
+      </a>
+    )}
+
+    {wbKompakt && whiteboard.length > 0 && (
+      <a
+        href={`/themen/${slug}/whiteboard`}
+        class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent-200/90 bg-accent-50/50 p-4 transition hover:border-accent-400 dark:border-sky-400/25 dark:bg-sky-400/[0.07] dark:hover:border-sky-400/50"
+        title="Aufgabe für Aufgabe an die Tafel projizieren"
+      >
+        <span aria-hidden="true" class="text-lg leading-none">✏️</span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-xs font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">
+            Mini-Whiteboard · Regie · zum Projizieren
+          </span>
+          <span class="mt-0.5 block text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+            {whiteboard.length} {whiteboard.length === 1 ? 'Aufgabe' : 'Aufgaben'} nacheinander, die Lösung erst auf Ihren Klick.
+          </span>
+        </span>
+        <span class="link-arrow whitespace-nowrap text-sm">Runde öffnen </span>
       </a>
     )}
 
@@ -452,24 +478,14 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
         </div>
       </details>
 
-      {slug !== 'bruchrechnung' &&
-        slug !== 'negative-zahlen' &&
-        slug !== 'algebra' &&
-        slug !== 'dezimalzahlen' &&
-        slug !== 'bruch-dezimal-prozent' &&
-        slug !== 'lineare-gleichungen' &&
-        slug !== 'prozentrechnung' &&
-        slug !== 'graphen' &&
-        slug !== 'stochastik' &&
-        slug !== 'binomische-formeln' &&
-        slug !== 'lineare-funktionen' && (
+      {!wbKompakt && (
       <!-- Mini-Whiteboard (Bruchrechnung, Negative Zahlen, Algebra: Steuerung in der Unterthemen-Kompaktzeile) -->
       <div class="md:col-span-2 rounded-lg border border-ink-200 p-4 dark:border-slate-600/45 dark:bg-slate-950/30">
         <div class="flex items-start justify-between gap-3 mb-2">
           <h4 class="font-semibold text-ink-900 dark:text-ink-50 flex items-center gap-2">
             <span aria-hidden="true">✏️</span> Mini-Whiteboard
           </h4>
-          <div class="flex flex-wrap items-center gap-2 shrink-0 justify-end">
+          <div class="flex flex-wrap items-center gap-2 min-w-0 justify-end">
             {generatorUebungen && generatorUebungen.length > 0 ? (
               generatorUebungen.map((g) => (
                 <a

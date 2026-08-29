@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { devContentToolsPlugin } from './dev-content-tools.mjs';
+import { rehypeTabellenScroll } from './src/lib/rehypeTabellenScroll.ts';
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,7 +17,7 @@ export default defineConfig({
   ],
   markdown: {
     remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
+    rehypePlugins: [rehypeKatex, rehypeTabellenScroll],
     shikiConfig: {
       theme: 'github-light',
       wrap: true,
