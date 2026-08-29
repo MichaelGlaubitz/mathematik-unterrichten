@@ -166,3 +166,79 @@ html.dark .mu-wb-unterthemen-root button.mu-wb-thema-kw.mu-wb-thema-kw--an:hover
 .katex {
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   Papier
+   --------------------------------------------------------------------------
+   Was gedruckt wird, geht meist an die Klasse. Auf dem Blatt hat deshalb
+   nichts verloren, was nur am Bildschirm einen Sinn hat: Kopfleiste,
+   Fußleiste, Sprungmarke, Schaltflächen. Aufgeklappt wird alles, was
+   zugeklappt ist — ein <details> auf Papier ist eine leere Zeile.
+   ========================================================================== */
+@media print {
+  body > header,
+  body > footer,
+  body > a[href='#hauptinhalt'],
+  .mu-nicht-drucken,
+  [data-mu-nicht-drucken] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  main {
+    min-height: 0 !important;
+  }
+
+  /* Zugeklapptes würde als leere Zeile drucken. */
+  details {
+    display: block !important;
+  }
+  details > summary {
+    list-style: none;
+  }
+  details > *:not(summary) {
+    display: revert !important;
+  }
+
+  /* Kästen und Karten nicht mitten durchschneiden. */
+  article,
+  aside,
+  figure,
+  table,
+  .mu-dark-glass-panel {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  @page {
+    margin: 16mm 14mm;
+  }
+}
+
+/* Tabellen aus Markdown rollen in ihrem eigenen Rahmen, statt die Seite
+   zur Seite zu schieben (siehe src/lib/rehypeTabellenScroll.ts). */
+.mu-tabelle-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.mu-tabelle-scroll > table {
+  margin-top: 0;
+  margin-bottom: 0;
+}

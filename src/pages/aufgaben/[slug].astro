@@ -32,9 +32,13 @@ const { Content } = await aufgabe.render();
         {aufgabe.data.tags.map((t) => <span class="badge-ink">#{t}</span>)}
       </div>
 
-      <p class="mt-5 inline-flex items-center gap-2 rounded-md border border-ink-300/90 bg-ink-50/60 px-3 py-1.5 text-sm text-ink-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-ink-200">
+      <p class="mt-5 inline-flex flex-wrap items-center gap-2 rounded-md border border-ink-300/90 bg-ink-50/60 px-3 py-1.5 text-sm text-ink-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-ink-200">
         <span class="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">Für die Lehrkraft</span>
         <span>Kommentar und Lösungen stehen mit auf dieser Seite — der Teil für die Klasse ist unten eigens markiert.</span>
+        <label class="mu-nicht-drucken inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-ink-600 dark:text-ink-300">
+          <input type="checkbox" id="mu-druck-kommentar" class="h-3.5 w-3.5 rounded border-ink-400 accent-accent-600" />
+          Kommentar mitdrucken
+        </label>
       </p>
 
       <aside class="mt-4 rounded-lg border-l-4 border-accent-500 bg-accent-50/40 p-4 dark:bg-accent-700/15">
@@ -89,4 +93,35 @@ const { Content } = await aufgabe.render();
   :global(.dark) .mu-aufgabenfolge #didaktischer-kommentar::before {
     color: theme('colors.accent.100');
   }
+
+  /*
+   * Auf Papier ist die Aufgabenfolge das Blatt für die Klasse. Der Lehrerteil
+   * bleibt deshalb standardmäßig weg — wer ihn braucht, hakt „Kommentar
+   * mitdrucken" an, bevor er druckt.
+   */
+  @media print {
+    .mu-aufgabenfolge:not([data-mu-druck='mit-kommentar']) #didaktischer-kommentar,
+    .mu-aufgabenfolge:not([data-mu-druck='mit-kommentar']) #didaktischer-kommentar ~ * {
+      display: none !important;
+    }
+    .mu-aufgabenfolge :is(#vorbemerkung-für-die-schüler, #reflexionsfragen, #reflexionsfragen-für-die-schüler)::before,
+    .mu-aufgabenfolge #didaktischer-kommentar::before {
+      color: #000 !important;
+    }
+  }
 </style>
+
+<script is:inline>
+  // Der Haken entscheidet nur, was auf Papier landet; am Bildschirm bleibt alles stehen.
+  (function () {
+    const haken = document.getElementById('mu-druck-kommentar');
+    const folge = document.querySelector('.mu-aufgabenfolge');
+    if (!haken || !folge) return;
+    const setzen = () => {
+      if (haken.checked) folge.setAttribute('data-mu-druck', 'mit-kommentar');
+      else folge.removeAttribute('data-mu-druck');
+    };
+    haken.addEventListener('change', setzen);
+    setzen();
+  })();
+</script>
