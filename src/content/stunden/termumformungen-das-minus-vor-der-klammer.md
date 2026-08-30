@@ -120,6 +120,6 @@ Die Reihenfolge Zahl → Buchstabe kostet in dieser Stunde etwa zehn Minuten. Si
 ## Zum Weiterarbeiten
 
 - [Diagnostische Fragen: Vorzeichenfehler bei Klammern](/quizzes/vorzeichenfehler-bei-klammern)
-- [Aufgabenfolge: Distributivgesetz](/aufgaben/distributivgesetz-variation)
+- [Aufgabenfolge: Terme umformen – sehen, was sich ändert](/aufgaben/distributivgesetz-variation)
 - [Stundenverlauf: Die drei Bedeutungen des Minuszeichens](/stunden/negative-zahlen-die-drei-bedeutungen-des-minus) – die Vorstufe
 - [Übungsgenerator Termumformungen](/uebung/termumformungen)

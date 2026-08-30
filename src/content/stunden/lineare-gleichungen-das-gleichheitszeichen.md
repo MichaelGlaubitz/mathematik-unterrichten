@@ -136,6 +136,6 @@ Gleichungen mit Brüchen und Klammern bleiben draußen. Sie sind nicht schwerer,
 ## Zum Weiterarbeiten
 
 - [Werkzeug: Gleichungswaage](/werkzeuge/gleichungswaage.html)
-- [Aufgabenfolge: Lineare Gleichungen – die ersten zwölf Aufgaben](/aufgaben/lineare-gleichungen-erste-schritte)
+- [Aufgabenfolge: Lineare Gleichungen – Schritt für Schritt umstellen](/aufgaben/lineare-gleichungen-erste-schritte)
 - [Diagnostische Fragen: Äquivalenzumformungen](/quizzes/lineare-gleichungen-aequivalenzumformungen)
 - [Fehlvorstellungen zu linearen Gleichungen](/fehlvorstellungen#thema-lineare-gleichungen)
