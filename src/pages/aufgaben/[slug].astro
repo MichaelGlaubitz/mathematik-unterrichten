@@ -5,6 +5,7 @@ import path from 'node:path';
 import katex from 'katex';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { leseVariationsfolgen } from '../../lib/variationsfolgen';
+import { IST_AUFGABENTEIL } from '../../lib/arbeitsblatt';
 
 export async function getStaticPaths() {
   const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
@@ -16,7 +17,9 @@ export async function getStaticPaths() {
     // Der Ablauf muss jeden Abschnitt nennen, den die Folge hat – auch die,
     // die sich nicht projizieren lassen. Sonst fehlen in der Übersicht genau
     // die Teile, die im Unterricht als Erstes drankommen.
-    const abschnitte = [...quelle.matchAll(/^## (Folge [^\n]+)$/gm)].map((m, i, alle) => {
+    const abschnitte = [...quelle.matchAll(/^## ([^\n]+)$/gm)]
+      .filter((m) => IST_AUFGABENTEIL.test(m[1].trim()))
+      .map((m, i, alle) => {
       const start = quelle.indexOf(m[0]);
       const ende = i + 1 < alle.length ? quelle.indexOf(alle[i + 1][0]) : quelle.length;
       const zeilen = quelle.slice(start, ende).split('\n').filter((z) => /^\|\s*\d+\s*\|/.test(z));
@@ -132,6 +135,23 @@ const { Content } = await aufgabe.render();
         </p>
       </section>
 
+
+      <a
+        href={`/aufgaben/${aufgabe.slug}/blatt`}
+        class="mu-nicht-drucken mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-ink-200 bg-ink-50/60 p-4 transition hover:border-ink-400 dark:border-slate-600/50 dark:bg-slate-900/40 dark:hover:border-slate-400"
+      >
+        <span aria-hidden="true" class="text-lg leading-none">🖨️</span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-xs font-semibold uppercase tracking-wide text-ink-700 dark:text-ink-200">
+            Vorbereitung · zum Ausdrucken
+          </span>
+          <span class="mt-0.5 block text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+            Arbeitsblatt mit Platz zum Rechnen, dahinter das Lösungsblatt. Enthält
+            auch die Folgen, die sich nicht projizieren lassen.
+          </span>
+        </span>
+        <span class="link-arrow whitespace-nowrap text-sm">Arbeitsblatt </span>
+      </a>
 
       {hatFolge && (
       <a
