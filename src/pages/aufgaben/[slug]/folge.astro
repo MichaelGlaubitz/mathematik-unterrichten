@@ -2,9 +2,8 @@
 import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
-import katex from 'katex';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { zelleAlsLatex } from '../../../lib/mathe';
+import { gesetzt } from '../../../lib/formelsatz';
 import {
   leseVariationsfolgen,
   SCHRITTE,
@@ -42,25 +41,7 @@ const { eintrag, folgen, uebersprungen } = Astro.props;
 /* Formelsatz entsteht zur Bauzeit: An der Wand darf kein Dollarzeichen stehen
    und nichts nachladen. Der Bestand liefert die Mathematik in $…$; eine Zelle
    kann daneben gewöhnlichen Text enthalten. */
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
 
-function gesetzt(zelle: string): string {
-  const roh = zelleAlsLatex(zelle);
-  if (!roh.includes('$')) {
-    // Kein Formelteil: alter Bestand ohne Auszeichnung oder reiner Text.
-    return /[\\^_{}]/.test(roh) ? katex.renderToString(roh, { throwOnError: false }) : escapeHtml(roh);
-  }
-  return roh
-    .split(/(\$[^$]+\$)/)
-    .map((teil) =>
-      teil.startsWith('$') && teil.endsWith('$') && teil.length > 2
-        ? katex.renderToString(teil.slice(1, -1), { throwOnError: false })
-        : escapeHtml(teil)
-    )
-    .join('');
-}
 
 const folgenGesetzt = folgen.map((f) => ({
   ...f,
@@ -165,7 +146,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         <p class="mu-folge-vorher-loesung mt-1 font-semibold text-accent-800 dark:text-accent-100"></p>
       </div>
 
-      <div class="mt-8">
+      <div id="mu-folge-aufgabe" class="mu-folge-aufgabe mt-8">
         <p class="mu-folge-etikett text-ink-700 dark:text-ink-200">
           Diese Aufgabe <span id="mu-folge-zaehler"></span>
         </p>
@@ -173,8 +154,10 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         <p id="mu-folge-loesung" class="mu-folge-loesung mt-4 font-semibold text-accent-800 dark:text-accent-100" hidden></p>
       </div>
 
-      <!-- An der Wand steht immer nur der Schritt, der gerade dran ist.
-           Vier Textkarten nebeneinander sind eine Liste, keine Regie. -->
+      <!-- Ein fester Platz für den Impuls: Schrittband, Plenum und „tiefer
+           bohren" wechseln sich darin ab. Ohne festen Platz verrutscht die
+           Aufgabe darüber von Schritt zu Schritt. -->
+      <div id="mu-folge-impuls" class="mu-folge-impuls">
       <section id="mu-folge-schritt" class="mu-folge-schrittband mt-8 rounded-xl border-l-8 border-accent-600 bg-accent-50 px-6 py-5 dark:border-accent-400 dark:bg-accent-500/15">
         <p id="mu-folge-marke" class="mu-folge-marke text-accent-800 dark:text-accent-100"></p>
         <p id="mu-folge-auftrag" class="mu-folge-auftrag mt-1 text-ink-900 dark:text-ink-50"></p>
@@ -184,13 +167,6 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
           <span id="mu-folge-paartext"></span>
         </p>
       </section>
-
-      <ol id="mu-folge-leiste" class="mu-folge-leiste mt-6 flex flex-wrap gap-2" aria-hidden="true">
-        {SCHRITTE.map((s) => (
-          <li class="mu-folge-punkt rounded-md border border-ink-400 px-3 py-1 text-sm font-semibold text-ink-700 dark:border-ink-400 dark:text-ink-200">{s.marke}</li>
-        ))}
-        <li class="mu-folge-punkt mu-folge-punkt--plenum rounded-md border border-teal-600 px-3 py-1 text-sm font-semibold text-teal-800 dark:text-teal-200">Plenum</li>
-      </ol>
 
       <section
         id="mu-folge-plenum"
@@ -233,6 +209,15 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
         </ul>
       </section>
 
+      </div>
+
+      <ol id="mu-folge-leiste" class="mu-folge-leiste mt-6 flex flex-wrap gap-2" aria-hidden="true">
+        {SCHRITTE.map((s) => (
+          <li class="mu-folge-punkt rounded-md border border-ink-400 px-3 py-1 text-sm font-semibold text-ink-700 dark:border-ink-400 dark:text-ink-200">{s.marke}</li>
+        ))}
+        <li class="mu-folge-punkt mu-folge-punkt--plenum rounded-md border border-teal-600 px-3 py-1 text-sm font-semibold text-teal-800 dark:text-teal-200">Plenum</li>
+      </ol>
+
       <div class="mt-6 flex flex-wrap items-center gap-2 mu-folge-steuerung">
         <button id="mu-folge-zurueck" type="button" class="rounded-md border border-ink-300 px-3 py-1.5 text-sm dark:border-ink-500 dark:text-ink-100">← Zurück</button>
         <button id="mu-folge-weiter" type="button" class="rounded-md bg-accent-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-accent-700 dark:bg-accent-500">Weiter (Leertaste)</button>
@@ -258,15 +243,24 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     const buehne = document.getElementById('mu-folge-buehne');
     if (!wahl || !buehne) return;
 
-    /* Im Vollbild darf nichts abgeschnitten werden. Wie hoch der Inhalt wird,
-       hängt vom Beat ab (die Partnerphase trägt zwölf Impulse) und von der
-       Länge der Aufgabe – das lässt sich nicht vorab in Schriftgrade gießen.
-       Deshalb wird gemessen und der ganze Inhalt so weit verkleinert, dass er
-       hineinpasst. Dafür braucht es eine Hülle, die sich skalieren lässt. */
-    const inhalt = document.createElement('div');
-    inhalt.id = 'mu-folge-inhalt';
-    while (buehne.firstChild) inhalt.appendChild(buehne.firstChild);
-    buehne.appendChild(inhalt);
+    /* Im Vollbild darf nichts abgeschnitten werden – und nichts darf springen.
+       Beides zusammen geht nur bereichsweise: Jeder Bereich hat seinen festen
+       Platz, und nur sein eigener Inhalt wird verkleinert, wenn er dort nicht
+       hineinpasst. Würde stattdessen die ganze Folie skaliert, änderte die
+       Aufgabe ihre Größe, sobald der Impuls darunter länger wird – von
+       Schritt zu Schritt, obwohl sich die Aufgabe gar nicht geändert hat. */
+    function huelle(id) {
+      const bereich = document.getElementById(id);
+      if (!bereich) return null;
+      const innen = document.createElement('div');
+      innen.className = 'mu-folge-innen';
+      while (bereich.firstChild) innen.appendChild(bereich.firstChild);
+      bereich.appendChild(innen);
+      return { bereich, innen };
+    }
+    const bereiche = ['mu-folge-vorher', 'mu-folge-aufgabe', 'mu-folge-impuls']
+      .map(huelle)
+      .filter(Boolean);
 
     const abschnitt = document.getElementById('mu-folge-abschnitt');
     const vorher = document.getElementById('mu-folge-vorher');
@@ -422,21 +416,29 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     }
 
     function einpassen() {
-      inhalt.style.transform = '';
-      if (document.fullscreenElement !== buehne) return;
-      const stil = getComputedStyle(buehne);
-      const hFrei = buehne.clientHeight - parseFloat(stil.paddingTop) - parseFloat(stil.paddingBottom);
-      const bFrei = buehne.clientWidth - parseFloat(stil.paddingLeft) - parseFloat(stil.paddingRight);
-      const hNoetig = inhalt.scrollHeight;
-      const bNoetig = inhalt.scrollWidth;
-      if (hNoetig <= 0 || bNoetig <= 0) return;
-      // Ein Prozent Luft, damit ein Rundungsrest nicht doch abschneidet.
-      const k = Math.min(1, (hFrei / hNoetig) * 0.99, (bFrei / bNoetig) * 0.99);
-      if (k < 1) inhalt.style.transform = `scale(${k})`;
+      const imVollbild = document.fullscreenElement === buehne;
+      for (const { bereich, innen } of bereiche) {
+        innen.style.transform = '';
+        if (!imVollbild || bereich.hidden) continue;
+        const hFrei = bereich.clientHeight;
+        const bFrei = bereich.clientWidth;
+        const hNoetig = innen.scrollHeight;
+        const bNoetig = innen.scrollWidth;
+        if (hFrei <= 0 || hNoetig <= 0 || bNoetig <= 0) continue;
+        // Nur verkleinern, nie vergrößern: Ein kurzer Impuls soll nicht
+        // aufgeblasen werden, sonst springt es wieder.
+        // Ein Prozent Luft, damit ein Rundungsrest nicht doch abschneidet.
+        const k = Math.min(1, (hFrei / hNoetig) * 0.99, (bFrei / bNoetig) * 0.99);
+        if (k < 1) innen.style.transform = `scale(${k})`;
+      }
     }
 
-    document.addEventListener('fullscreenchange', einpassen);
-    window.addEventListener('resize', einpassen);
+    function einpassenNachLayout() {
+      einpassen();
+      requestAnimationFrame(() => requestAnimationFrame(einpassen));
+    }
+    document.addEventListener('fullscreenchange', einpassenNachLayout);
+    window.addEventListener('resize', einpassenNachLayout);
 
     dauerWahl.addEventListener('change', () => { merken(); zeichne(); });
     tonWahl.addEventListener('change', merken);
@@ -518,24 +520,59 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
      schiebt der Folgentitel die ganze Seite zur Seite. */
   .mu-folge-wahl { max-width: 100%; }
 
-  /* Im Vollbild zählt nur, was die Klasse sehen soll. */
+  /* Im Vollbild zählt nur, was die Klasse sehen soll – und die Folie muss von
+     Schritt zu Schritt ruhig stehen. Deshalb ein festes Raster: Jede Zeile hat
+     ihren Platz, ob sie gerade gefüllt ist oder nicht. Die Aufgabe steht immer
+     an derselben Stelle und immer gleich groß. */
   #mu-folge-buehne:fullscreen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    grid-template-rows: auto 20vh minmax(0, 1fr) 34vh 5vh 6vh;
+    row-gap: 1.5vh;
+    align-content: stretch;
     padding: 3vh 4vw;
     border: 0;
     border-radius: 0;
     background: #fff;
-    /* Der Inhalt wird von einpassen() so weit verkleinert, dass er hineinpasst.
-       Der Layoutkasten bleibt dabei ungeskaliert – ohne diese Zeile schöbe er
-       den Rest aus dem Bild. */
     overflow: hidden;
   }
-  #mu-folge-buehne:fullscreen #mu-folge-inhalt {
-    transform-origin: center center;
-    width: 100%;
+  /* Was noch nicht dran ist, bleibt unsichtbar – behält aber seinen Platz.
+     Sonst rutscht die Folie in dem Moment, in dem etwas dazukommt: Die erste
+     Aufgabe hat keine Vorgängerin, und die Lösung erscheint erst bei Explain.
+     Beides darf die Aufgabe nicht verschieben oder verkleinern. */
+  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-loesung)[hidden] {
+    display: block !important;
+    visibility: hidden;
   }
+  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe, #mu-folge-impuls) {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+  }
+  /* Auch die Leiste behält ihren Platz. Bräche sie von einer auf zwei Zeilen
+     um, würde die Zeile darüber enger – und die Aufgabe schrumpfte mit. */
+  #mu-folge-buehne:fullscreen :is(.mu-folge-leiste, .mu-folge-steuerung) {
+    margin-top: 0;
+    overflow: hidden;
+    align-content: center;
+  }
+  #mu-folge-buehne:fullscreen .mu-folge-punkt[hidden] {
+    display: block !important;
+    visibility: hidden;
+  }
+  /* Die Hülle hängt oben links im Bereich, und dort wird auch skaliert.
+     Skalierte man um die Mitte der Hülle, läge dieser Punkt bei zu hohem
+     Inhalt selbst schon unterhalb der Bereichsmitte – und ein Rest bliebe
+     draußen, egal wie klein gerechnet wird. */
+  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe, #mu-folge-impuls) > .mu-folge-innen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transform-origin: left top;
+  }
+  /* Die Karten füllen ihren Platz, statt ihn zu verlassen. */
+  #mu-folge-buehne:fullscreen #mu-folge-impuls > .mu-folge-innen > * { margin-top: 0; }
+  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe) { margin-top: 0; }
   html.dark #mu-folge-buehne:fullscreen { background: rgb(15 23 42); }
   #mu-folge-buehne:fullscreen .mu-folge-steuerung,
   #mu-folge-buehne:fullscreen .mu-folge-leiste { opacity: 0.55; }

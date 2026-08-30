@@ -323,12 +323,33 @@ describe('Die Folie benutzt die Taktregel', () => {
     expect(folie).not.toMatch(/const PARTNER = 4, PLENUM = 5/);
   });
 
-  it('passt den Inhalt im Vollbild ein', () => {
+  it('passt jeden Bereich für sich ein, nicht die ganze Folie', () => {
+    // Würde die ganze Folie skaliert, änderte die Aufgabe ihre Größe, sobald
+    // der Impuls darunter länger wird – von Schritt zu Schritt, obwohl sich
+    // die Aufgabe gar nicht geändert hat. Genau so sah es uneinheitlich aus.
     expect(folie).toContain('function einpassen()');
-    expect(folie).toContain("document.addEventListener('fullscreenchange', einpassen)");
-    expect(folie).toContain("window.addEventListener('resize', einpassen)");
-    // Ohne overflow:hidden schöbe der ungeskalierte Layoutkasten den Rest raus.
+    expect(folie).toContain("['mu-folge-vorher', 'mu-folge-aufgabe', 'mu-folge-impuls']");
+    expect(folie).toContain("document.addEventListener('fullscreenchange', einpassenNachLayout)");
+    expect(folie).toContain("window.addEventListener('resize', einpassenNachLayout)");
     expect(folie).toMatch(/#mu-folge-buehne:fullscreen \{[^}]*overflow: hidden/);
+  });
+
+  it('das Vollbild hat ein festes Raster', () => {
+    // Feste Zeilenhöhen, damit nichts wandert, wenn ein Bereich leer bleibt.
+    expect(folie).toMatch(/grid-template-rows: auto 20vh minmax\(0, 1fr\) 34vh/);
+  });
+
+  it('was noch nicht dran ist, behält seinen Platz', () => {
+    // Die Aufgabe davor fehlt bei Nr. 1, die Lösung kommt erst bei Explain.
+    // Beides darf die Aufgabe weder verschieben noch verkleinern.
+    expect(folie).toMatch(
+      /:is\(#mu-folge-vorher, #mu-folge-loesung\)\[hidden\][^}]*visibility: hidden/
+    );
+    expect(folie).toMatch(/\.mu-folge-punkt\[hidden\][^}]*visibility: hidden/);
+  });
+
+  it('nur verkleinern, nie vergrößern', () => {
+    expect(folie).toMatch(/Math\.min\(1,/);
   });
 
   it('setzt die Erwartungsbeispiele als Fließtext, nicht als Liste', () => {

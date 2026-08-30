@@ -1,0 +1,412 @@
+---
+import { getCollection } from 'astro:content';
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { leseBlatt } from '../../../lib/arbeitsblatt';
+import { gesetzt, gesetzterAbsatz } from '../../../lib/formelsatz';
+
+export async function getStaticPaths() {
+  const aufgaben = await getCollection('aufgaben', ({ data }) => !data.entwurf);
+  return aufgaben.map((a) => {
+    const quelle = fs.readFileSync(path.join(process.cwd(), 'src/content/aufgaben', a.id), 'utf8');
+    return { params: { slug: a.slug }, props: { eintrag: a, blatt: leseBlatt(quelle) } };
+  });
+}
+
+const { eintrag, blatt } = Astro.props;
+
+/* Alles wird zur Bauzeit gesetzt. Ein Arbeitsblatt wird gedruckt – oft von
+   einem Rechner, der gerade kein Netz hat, und in einer Vorschau, die kein
+   JavaScript ausführt. */
+const abschnitte = blatt.abschnitte.map((a) => ({
+  titel: gesetzt(a.titel),
+  // Die Reihenfolge bleibt, wie sie in der Datei steht: „Frage nach Nr. 6“
+  // gehört hinter die Tabelle, auf die sie sich bezieht.
+  teile: a.teile.map((s) =>
+    s.art === 'absatz'
+      ? { art: 'absatz' as const, html: gesetzterAbsatz(s.text) }
+      : {
+          art: 'tabelle' as const,
+          kopf: s.tabelle.kopf.map(gesetzt),
+          gegebenBis: s.tabelle.gegebenBis,
+          zeilen: s.tabelle.zeilen.map((z) => ({
+            nummer: z.nummer,
+            gegeben: z.gegeben.map(gesetzt),
+            gesucht: z.gesucht.map(gesetzt),
+          })),
+        }
+  ),
+}));
+
+/* Die Vorbemerkung enthält Aufzählungen („- Bruch → Dezimalzahl: …“). Ein
+   Bindestrich am Zeilenanfang ist eine Liste, kein Gedankenstrich. */
+function alsListe(zeilen: string[]): { art: 'p' | 'ul'; teile: string[] }[] {
+  const raus: { art: 'p' | 'ul'; teile: string[] }[] = [];
+  for (const z of zeilen) {
+    const punkt = /^[-*]\s+(.*)$/.exec(z);
+    const letzte = raus[raus.length - 1];
+    if (punkt) {
+      if (letzte?.art === 'ul') letzte.teile.push(gesetzterAbsatz(punkt[1]));
+      else raus.push({ art: 'ul', teile: [gesetzterAbsatz(punkt[1])] });
+    } else {
+      raus.push({ art: 'p', teile: [gesetzterAbsatz(z)] });
+    }
+  }
+  return raus;
+}
+const vorbemerkung = alsListe(blatt.vorbemerkung);
+const reflexionsfragen = blatt.reflexionsfragen.map(gesetzterAbsatz);
+---
+
+<BaseLayout
+  sourceFile="src/pages/aufgaben/[slug]/blatt.astro"
+  title={`Arbeitsblatt: ${eintrag.data.titel}`}
+  beschreibung={`Arbeitsblatt mit Rechenraum und Lösungsblatt zu „${eintrag.data.titel}“ – ${blatt.anzahl} Aufgaben, druckfertig auf A4.`}
+>
+  <div class="container-wide py-10">
+    <header class="mu-blatt-rolle mb-6">
+      <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">
+        Vorbereitung · zum Ausdrucken
+      </p>
+      <h1 class="mt-1 font-serif text-2xl font-semibold text-ink-900 sm:text-3xl dark:text-ink-50">
+        Arbeitsblatt: {eintrag.data.titel}
+      </h1>
+      <p class="mt-2 max-w-3xl text-ink-700 dark:text-ink-300">
+        {blatt.anzahl} Aufgaben mit Platz zum Rechnen, dahinter das Lösungsblatt.
+        Das Blatt enthält auch die Folgen, die sich nicht projizieren lassen –
+        auf Papier ist eine mehrspaltige Tabelle kein Problem.
+        <a class="link-arrow ml-1" href={`/aufgaben/${eintrag.slug}`}>Zur Aufgabenfolge </a>
+      </p>
+
+      <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-700 dark:text-ink-200">
+        <label class="flex items-center gap-2">
+          <span>Rechenraum</span>
+          <select
+            id="mu-blatt-raum"
+            class="rounded-md border border-ink-300 bg-surface px-2 py-1 dark:border-ink-500 dark:bg-slate-800 dark:text-ink-50"
+          >
+            <option value="klein">klein</option>
+            <option value="mittel" selected>mittel</option>
+            <option value="gross">groß</option>
+          </select>
+        </label>
+        <label class="flex items-center gap-2">
+          <input id="mu-blatt-loesung" type="checkbox" checked class="h-4 w-4 rounded border-ink-400 accent-accent-600" />
+          <span>Lösungsblatt mitdrucken</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input id="mu-blatt-namenszeile" type="checkbox" checked class="h-4 w-4 rounded border-ink-400 accent-accent-600" />
+          <span>Zeile für Name und Datum</span>
+        </label>
+        <button
+          id="mu-blatt-drucken"
+          type="button"
+          class="rounded-md bg-accent-600 px-3 py-1.5 font-semibold text-white hover:bg-accent-700 dark:bg-accent-500"
+        >
+          Drucken
+        </button>
+      </div>
+    </header>
+
+    <div id="mu-blatt" class="mu-blatt" data-raum="mittel">
+      <!-- ---------- Arbeitsblatt ---------- -->
+      <section class="mu-blatt-seite">
+        <div class="mu-blatt-kopf">
+          <div>
+            <p class="mu-blatt-fach">{eintrag.data.thema} · Klasse {eintrag.data.klassenstufe.join('/')}</p>
+            <h2 class="mu-blatt-titel">{eintrag.data.titel}</h2>
+          </div>
+          <p class="mu-blatt-namenszeile">Name: <span></span> Datum: <span class="kurz"></span></p>
+        </div>
+
+        {vorbemerkung.length > 0 && (
+          <div class="mu-blatt-vorbemerkung">
+            {vorbemerkung.map((b) =>
+              b.art === 'ul' ? (
+                <ul>{b.teile.map((x) => <li set:html={x} />)}</ul>
+              ) : (
+                <p set:html={b.teile[0]} />
+              )
+            )}
+          </div>
+        )}
+
+        {abschnitte.map((a) => (
+          <section class="mu-blatt-folge">
+            <h3 set:html={a.titel} />
+            {a.teile.map((s) => s.art === 'absatz' ? (
+              <p class="mu-blatt-hinweis" set:html={s.html} />
+            ) : (
+              <table class="mu-blatt-tabelle">
+                <thead>
+                  <tr>
+                    <th class="mu-blatt-nr">Nr.</th>
+                    {s.kopf.map((k, i) => (
+                      <th class={i < s.gegebenBis ? 'mu-blatt-gegeben' : 'mu-blatt-feld'} set:html={k} />
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.zeilen.map((z) => (
+                    <tr>
+                      <td class="mu-blatt-nr">{z.nummer}</td>
+                      {z.gegeben.map((g) => <td class="mu-blatt-gegeben" set:html={g} />)}
+                      {z.gesucht.map(() => <td class="mu-blatt-feld"></td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
+          </section>
+        ))}
+
+        {reflexionsfragen.length > 0 && (
+          <section class="mu-blatt-folge">
+            <h3>Zum Nachdenken</h3>
+            <ol class="mu-blatt-fragen">
+              {reflexionsfragen.map((f) => (
+                <li>
+                  <p set:html={f} />
+                  <span class="mu-blatt-linien"></span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+      </section>
+
+      <!-- ---------- Lösungsblatt ---------- -->
+      <section class="mu-blatt-seite mu-blatt-loesungsteil">
+        <div class="mu-blatt-kopf">
+          <div>
+            <p class="mu-blatt-fach">Lösungsblatt · {eintrag.data.thema}</p>
+            <h2 class="mu-blatt-titel">{eintrag.data.titel}</h2>
+          </div>
+        </div>
+
+        {abschnitte.map((a) => (
+          <section class="mu-blatt-folge">
+            <h3 set:html={a.titel} />
+            {a.teile.filter((s) => s.art === 'tabelle').map((t) => (
+              <table class="mu-blatt-tabelle mu-blatt-tabelle--eng">
+                <thead>
+                  <tr>
+                    <th class="mu-blatt-nr">Nr.</th>
+                    {t.kopf.map((k) => <th set:html={k} />)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {t.zeilen.map((z) => (
+                    <tr>
+                      <td class="mu-blatt-nr">{z.nummer}</td>
+                      {z.gegeben.map((g) => <td set:html={g} />)}
+                      {z.gesucht.map((l) => <td class="mu-blatt-loesungszelle" set:html={l} />)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
+          </section>
+        ))}
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* Das Blatt sieht am Bildschirm so aus, wie es aus dem Drucker kommt.
+     Wer die Vorschau für bare Münze nimmt, soll sich nicht wundern. */
+  .mu-blatt {
+    background: #fff;
+    color: #111;
+    font-size: 11pt;
+    line-height: 1.35;
+    max-width: 190mm;
+    margin: 0 auto;
+    padding: 12mm 10mm;
+    border: 1px solid theme('colors.ink.200');
+    border-radius: 0.5rem;
+  }
+  .dark .mu-blatt { border-color: rgb(255 255 255 / 0.12); }
+
+  .mu-blatt-kopf {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    border-bottom: 2px solid #111;
+    padding-bottom: 2mm;
+    margin-bottom: 4mm;
+  }
+  .mu-blatt-fach { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+  .mu-blatt-titel { font-size: 15pt; font-weight: 700; margin: 0.5mm 0 0; line-height: 1.2; }
+  .mu-blatt-namenszeile { font-size: 10pt; margin: 0; white-space: nowrap; }
+  .mu-blatt-namenszeile span {
+    display: inline-block;
+    width: 45mm;
+    border-bottom: 1px solid #111;
+    margin: 0 3mm 0 1mm;
+  }
+  .mu-blatt-namenszeile span.kurz { width: 28mm; }
+
+  .mu-blatt-vorbemerkung {
+    border-left: 3px solid #111;
+    padding: 1mm 0 1mm 3mm;
+    margin-bottom: 5mm;
+    font-size: 10pt;
+  }
+  .mu-blatt-vorbemerkung p { margin: 0 0 1.5mm; }
+  .mu-blatt-vorbemerkung p:last-child { margin-bottom: 0; }
+
+  .mu-blatt-folge { margin-top: 6mm; }
+  .mu-blatt-folge h3 { font-size: 12pt; font-weight: 700; margin: 0 0 1.5mm; }
+  .mu-blatt-hinweis { font-size: 10pt; margin: 0 0 2mm; }
+
+  .mu-blatt-tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    /* Nicht `fixed`: Bei gleich breiten Spalten bekäme die Aufgabenspalte nur
+       ihren Anteil, und eine lange Formel liefe aus der Zelle heraus. `auto`
+       gibt ihr, was sie braucht; die Schreibspalten halten ihr Mindestmaß. */
+    table-layout: auto;
+  }
+  .mu-blatt-tabelle td.mu-blatt-feld,
+  .mu-blatt-tabelle th.mu-blatt-feld { min-width: 26mm; }
+  .mu-blatt-tabelle th,
+  .mu-blatt-tabelle td {
+    border: 1px solid #111;
+    padding: 1.5mm 2mm;
+    text-align: left;
+    vertical-align: top;
+    word-break: break-word;
+  }
+  .mu-blatt-tabelle th { font-size: 9pt; font-weight: 700; background: #f1f1f1; }
+  .mu-blatt-nr { width: 11mm; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Der Rechenraum. Die Zeilen sind eine Hilfe für die Handschrift, kein
+     Karo – Rechenwege laufen selten in Kästchen auf. */
+  .mu-blatt-tabelle td.mu-blatt-feld {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(var(--mu-zeile) - 1px),
+      #d4d4d4 var(--mu-zeile)
+    );
+    background-position: 0 1mm;
+  }
+  .mu-blatt { --mu-zeile: 7mm; --mu-raum: 22mm; }
+  .mu-blatt[data-raum='klein'] { --mu-zeile: 6mm; --mu-raum: 13mm; }
+  .mu-blatt[data-raum='gross'] { --mu-zeile: 8mm; --mu-raum: 34mm; }
+  .mu-blatt-tabelle tbody td.mu-blatt-feld { height: var(--mu-raum); }
+
+  .mu-blatt-fragen { margin: 0; padding-left: 6mm; font-size: 10pt; }
+  .mu-blatt-fragen li { margin-bottom: 2mm; break-inside: avoid; }
+  .mu-blatt-fragen p { margin: 0 0 1mm; }
+  .mu-blatt-linien {
+    display: block;
+    height: calc(var(--mu-zeile) * 2);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(var(--mu-zeile) - 1px),
+      #d4d4d4 var(--mu-zeile)
+    );
+  }
+
+  .mu-blatt-tabelle--eng td,
+  .mu-blatt-tabelle--eng th { padding: 1mm 2mm; font-size: 9.5pt; }
+  .mu-blatt-loesungszelle { font-weight: 600; }
+
+  .mu-blatt-loesungsteil { margin-top: 10mm; border-top: 3px double #111; padding-top: 6mm; }
+  .mu-blatt[data-loesung='ohne'] .mu-blatt-loesungsteil { display: none; }
+  .mu-blatt[data-namenszeile='ohne'] .mu-blatt-namenszeile { display: none; }
+
+  /* Formeln im Blatt bleiben in der Zeile und laufen nicht über den Rand. */
+  .mu-blatt .katex { font-size: 1.18em; }
+  .mu-blatt-tabelle td.mu-blatt-gegeben { font-size: 11.5pt; }
+  /* Aufzählungen in der Vorbemerkung sind Listen, keine Gedankenstriche. */
+  .mu-blatt-vorbemerkung ul { margin: 0 0 1.5mm; padding-left: 5mm; list-style: disc; }
+  .mu-blatt-vorbemerkung li { margin: 0 0 0.8mm; }
+  .mu-blatt .katex-display { margin: 0.5mm 0; }
+
+  @media print {
+    /* Auf Papier zählt nur das Blatt: keine Kopfleiste, kein Seitenfuß,
+       keine Bedienung, kein Rahmen. */
+    body > header,
+    body > footer,
+    .mu-blatt-rolle,
+    .mu-suche,
+    .mu-nicht-drucken { display: none !important; }
+
+    @page { size: A4 portrait; margin: 14mm 12mm 16mm; }
+
+    .container-wide { padding: 0 !important; max-width: none !important; }
+    .mu-blatt {
+      border: 0;
+      padding: 0;
+      max-width: none;
+      font-size: 10.5pt;
+    }
+    /* Das Lösungsblatt beginnt auf einer eigenen Seite – es soll sich vom
+       Arbeitsblatt trennen lassen, ohne zu schneiden. */
+    .mu-blatt-loesungsteil {
+      break-before: page;
+      margin-top: 0;
+      border-top: 0;
+      padding-top: 0;
+    }
+    .mu-blatt-folge { break-inside: auto; }
+    .mu-blatt-folge h3 { break-after: avoid; }
+    .mu-blatt-tabelle tr { break-inside: avoid; }
+    /* Läuft eine Tabelle auf die nächste Seite, muss die Kopfzeile mit –
+       sonst steht dort eine Spalte ohne Namen. */
+    .mu-blatt-tabelle thead { display: table-header-group; }
+    .mu-blatt-tabelle th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .mu-blatt-tabelle td.mu-blatt-feld,
+    .mu-blatt-linien { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+
+<script>
+  const blatt = document.getElementById('mu-blatt');
+  const raum = document.getElementById('mu-blatt-raum') as HTMLSelectElement | null;
+  const loesung = document.getElementById('mu-blatt-loesung') as HTMLInputElement | null;
+  const namenszeile = document.getElementById('mu-blatt-namenszeile') as HTMLInputElement | null;
+  const drucken = document.getElementById('mu-blatt-drucken');
+
+  // Die Einstellungen bleiben auf dem Gerät. Es gibt keinen Server, der sie
+  // entgegennähme – und für drei Werte braucht es auch keinen.
+  const SPEICHER = 'mu-blatt-einstellung';
+
+  function anwenden() {
+    if (!blatt) return;
+    blatt.dataset.raum = raum?.value ?? 'mittel';
+    blatt.dataset.loesung = loesung?.checked ? 'mit' : 'ohne';
+    blatt.dataset.namenszeile = namenszeile?.checked ? 'mit' : 'ohne';
+    try {
+      localStorage.setItem(
+        SPEICHER,
+        JSON.stringify({
+          raum: raum?.value,
+          loesung: loesung?.checked,
+          namenszeile: namenszeile?.checked,
+        })
+      );
+    } catch { /* Speichern ist Komfort, kein Muss. */ }
+  }
+
+  try {
+    const merk = JSON.parse(localStorage.getItem(SPEICHER) || '{}');
+    if (merk.raum && raum) raum.value = merk.raum;
+    if (merk.loesung != null && loesung) loesung.checked = !!merk.loesung;
+    if (merk.namenszeile != null && namenszeile) namenszeile.checked = !!merk.namenszeile;
+  } catch { /* Kaputter oder gesperrter Speicher: Voreinstellung genügt. */ }
+
+  raum?.addEventListener('change', anwenden);
+  loesung?.addEventListener('change', anwenden);
+  namenszeile?.addEventListener('change', anwenden);
+  drucken?.addEventListener('click', () => window.print());
+  anwenden();
+</script>
