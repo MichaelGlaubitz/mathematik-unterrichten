@@ -1,0 +1,187 @@
+---
+import { getCollection } from 'astro:content';
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { baueBestand, istDuenn } from '../../lib/bestand';
+
+const aufgabenEintraege = await getCollection('aufgaben', ({ data }) => !data.entwurf);
+const themenEintraege = await getCollection('themen');
+const quizEintraege = await getCollection('quizzes', ({ data }) => !data.entwurf);
+const stundenEintraege = await getCollection('stunden', ({ data }) => !data.entwurf);
+
+const bestand = baueBestand({
+  aufgaben: aufgabenEintraege.map((a) => ({
+    slug: a.slug,
+    thema: a.data.thema,
+    titel: a.data.titel,
+    klassenstufe: a.data.klassenstufe,
+    markdown: fs.readFileSync(path.join(process.cwd(), 'src/content/aufgaben', a.id), 'utf8'),
+  })),
+  themen: themenEintraege.map((t) => ({
+    slug: t.slug,
+    thema: t.data.thema,
+    titel: t.data.titel,
+    klassenstufenAnzeige: t.data.klassenstufenAnzeige,
+  })),
+  quizzes: quizEintraege.map((q) => ({ thema: q.data.thema })),
+  stunden: stundenEintraege.map((s) => ({ thema: s.data.thema })),
+});
+
+const schnitt = bestand.schnittFolgen;
+const duenne = bestand.zeilen.filter((z) => istDuenn(z, schnitt));
+const ohneQuiz = bestand.zeilen.filter((z) => z.quiz === 0);
+const ohneStunde = bestand.zeilen.filter((z) => z.stunden === 0);
+const zahl = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+---
+
+<BaseLayout
+  sourceFile="src/pages/aufgaben/uebersicht.astro"
+  title="Bestand: was zu jedem Thema da ist"
+  beschreibung={`Übersicht über ${bestand.summe.themen} Themen: ${bestand.summe.folgen} Variationsfolgen, ${bestand.summe.aufgaben} Aufgaben, ${bestand.summe.quiz} Quizze, ${bestand.summe.stunden} Stundenverläufe – und wo es dünn wird.`}
+>
+  <div class="container-wide py-12">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">
+      Für die Lehrkraft · Planungsblick
+    </p>
+    <h1 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl dark:text-ink-50">
+      Was zu jedem Thema da ist
+    </h1>
+    <p class="mt-4 max-w-3xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      {bestand.summe.themen} Themen, {bestand.summe.folgen} Variationsfolgen mit
+      {bestand.summe.aufgaben} Aufgaben, {bestand.summe.quiz} Quizze, {bestand.summe.stunden} Stundenverläufe.
+      Diese Seite ist zum Planen gedacht, nicht zum Angeben: Sie zeigt vor allem,
+      wo etwas dünn ist.
+    </p>
+
+    <div class="mt-6 grid gap-4 sm:grid-cols-3">
+      <div class="rounded-xl border border-ink-200/90 bg-surface p-4 dark:border-white/[0.08] dark:bg-slate-950/40">
+        <p class="text-3xl font-semibold text-ink-900 dark:text-ink-50">{duenne.length}</p>
+        <p class="mt-1 text-sm text-ink-700 dark:text-ink-300">
+          Themen mit weniger als der Hälfte der üblichen Folgen
+          (unter {zahl(schnitt / 2)} von im Schnitt {zahl(schnitt)})
+        </p>
+      </div>
+      <div class="rounded-xl border border-ink-200/90 bg-surface p-4 dark:border-white/[0.08] dark:bg-slate-950/40">
+        <p class="text-3xl font-semibold text-ink-900 dark:text-ink-50">{ohneQuiz.length}</p>
+        <p class="mt-1 text-sm text-ink-700 dark:text-ink-300">Themen ohne diagnostisches Quiz</p>
+      </div>
+      <div class="rounded-xl border border-ink-200/90 bg-surface p-4 dark:border-white/[0.08] dark:bg-slate-950/40">
+        <p class="text-3xl font-semibold text-ink-900 dark:text-ink-50">{ohneStunde.length}</p>
+        <p class="mt-1 text-sm text-ink-700 dark:text-ink-300">Themen ohne fertigen Stundenverlauf</p>
+      </div>
+    </div>
+
+    <div class="mu-tabelle-scroll mt-8">
+      <table class="mu-bestand w-full border-collapse text-sm">
+        <caption class="sr-only">
+          Aufgabenfolgen, Quizze und Stundenverläufe je Thema
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="text-left">Thema</th>
+            <th scope="col" class="text-left">Klasse</th>
+            <th scope="col" class="text-right">Folgen</th>
+            <th scope="col" class="text-right">Aufgaben</th>
+            <th scope="col" class="text-right">Quiz</th>
+            <th scope="col" class="text-right">Stunden</th>
+            <th scope="col" class="text-left">Aufgabenfolgen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {bestand.zeilen.map((z) => (
+            <tr class={istDuenn(z, schnitt) ? 'mu-bestand-duenn' : ''}>
+              <th scope="row" class="text-left font-semibold">
+                {z.themaSlug ? <a href={`/themen/${z.themaSlug}`} class="underline decoration-ink-300 underline-offset-2">{z.titel}</a> : z.titel}
+                {istDuenn(z, schnitt) && (
+                  <span class="mu-bestand-marke" title={`weniger als ${zahl(schnitt / 2)} Folgen`}>dünn</span>
+                )}
+              </th>
+              <td class="whitespace-nowrap">{z.klassenstufe}</td>
+              <td class="text-right tabular-nums">{z.folgen}</td>
+              <td class="text-right tabular-nums">{z.aufgaben}</td>
+              <td class={`text-right tabular-nums ${z.quiz === 0 ? 'mu-bestand-null' : ''}`}>{z.quiz || '–'}</td>
+              <td class={`text-right tabular-nums ${z.stunden === 0 ? 'mu-bestand-null' : ''}`}>{z.stunden || '–'}</td>
+              <td>
+                <ul class="mu-bestand-dateien">
+                  {z.dateien.map((d) => (
+                    <li>
+                      <a href={`/aufgaben/${d.slug}`} class="underline decoration-ink-300 underline-offset-2">{d.titel}</a>
+                      <span class="text-ink-500 dark:text-ink-400"> · {d.folgen} Folgen, {d.aufgaben} Aufgaben</span>
+                    </li>
+                  ))}
+                </ul>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" class="text-left">Zusammen</th>
+            <td></td>
+            <td class="text-right tabular-nums">{bestand.summe.folgen}</td>
+            <td class="text-right tabular-nums">{bestand.summe.aufgaben}</td>
+            <td class="text-right tabular-nums">{bestand.summe.quiz}</td>
+            <td class="text-right tabular-nums">{bestand.summe.stunden}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="mt-4 max-w-3xl text-sm text-ink-600 dark:text-ink-400">
+      „Dünn“ heißt: weniger als die Hälfte der durchschnittlichen Folgenzahl
+      ({zahl(schnitt)} je Thema). Die Marke wandert mit dem Bestand mit – wächst er,
+      verschiebt sich die Schwelle, statt für immer dieselben Themen anzuzeigen.
+    </p>
+
+    <p class="mt-8 text-sm">
+      <a href="/aufgaben" class="link-arrow">Zurück zur Aufgabensammlung </a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .mu-bestand th,
+  .mu-bestand td {
+    border-bottom: 1px solid theme('colors.ink.200');
+    padding: 0.55rem 0.7rem;
+    vertical-align: top;
+  }
+  .dark .mu-bestand th,
+  .dark .mu-bestand td { border-bottom-color: rgb(255 255 255 / 0.1); }
+  .mu-bestand thead th {
+    border-bottom-width: 2px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: theme('colors.ink.700');
+  }
+  .dark .mu-bestand thead th { color: theme('colors.ink.200'); }
+  .mu-bestand tfoot th,
+  .mu-bestand tfoot td { border-bottom: 0; border-top: 2px solid theme('colors.ink.300'); font-weight: 600; }
+  .dark .mu-bestand tfoot th,
+  .dark .mu-bestand tfoot td { border-top-color: rgb(255 255 255 / 0.2); }
+
+  .mu-bestand-duenn { background: theme('colors.amber.50'); }
+  .dark .mu-bestand-duenn { background: rgb(245 158 11 / 0.1); }
+  .mu-bestand-marke {
+    margin-left: 0.45rem;
+    border-radius: 0.3rem;
+    background: theme('colors.amber.200');
+    color: theme('colors.amber.900');
+    padding: 0.05rem 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    vertical-align: 0.1em;
+  }
+  .dark .mu-bestand-marke { background: rgb(245 158 11 / 0.3); color: theme('colors.amber.100'); }
+  /* Eine Null ist hier die Information, kein Fehlen von Information. */
+  .mu-bestand-null { color: theme('colors.amber.700'); font-weight: 700; }
+  .dark .mu-bestand-null { color: theme('colors.amber.300'); }
+
+  .mu-bestand-dateien { margin: 0; padding: 0; list-style: none; }
+  .mu-bestand-dateien li + li { margin-top: 0.2rem; }
+</style>
