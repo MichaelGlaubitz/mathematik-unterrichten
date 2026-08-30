@@ -334,6 +334,22 @@ describe('Die Folie benutzt die Taktregel', () => {
     expect(folie).toMatch(/#mu-folge-buehne:fullscreen \{[^}]*overflow: hidden/);
   });
 
+  it('im Querformat stehen Mathematik und Regie nebeneinander', () => {
+    // Ein Beamerbild ist breit und niedrig. Untereinander wird die Mathematik
+    // flach gedrückt, damit der Impuls darunter Platz hat.
+    expect(folie).toMatch(/@media \(min-aspect-ratio: 5\/4\)/);
+    expect(folie).toMatch(/'aufgabe regie'/);
+    // Und der Schriftgrad richtet sich dann nach der Spalte, nicht nach der
+    // ganzen Bildbreite – sonst müsste fast jede Folie heruntergerechnet
+    // werden, und das sah uneinheitlich aus.
+    expect(folie).toMatch(/@media \(min-aspect-ratio: 5\/4\)[\s\S]*?\.mu-folge-frage \{ font-size: clamp/);
+  });
+
+  it('im Hochformat bleibt es einspaltig', () => {
+    // Zwei Spalten wären dort zwei zu schmale Spalten.
+    expect(folie).toMatch(/grid-template-areas: 'kopf' 'vorher' 'aufgabe' 'regie' 'leiste' 'steuer'/);
+  });
+
   it('das Vollbild hat ein festes Raster', () => {
     // Feste Zeilenhöhen, damit nichts wandert, wenn ein Bereich leer bleibt.
     expect(folie).toMatch(/grid-template-rows: auto 20vh minmax\(0, 1fr\) 34vh/);
