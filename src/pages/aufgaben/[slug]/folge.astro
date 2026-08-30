@@ -526,7 +526,9 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
      an derselben Stelle und immer gleich groß. */
   #mu-folge-buehne:fullscreen {
     display: grid;
+    grid-template-columns: 1fr;
     grid-template-rows: auto 20vh minmax(0, 1fr) 34vh 5vh 6vh;
+    grid-template-areas: 'kopf' 'vorher' 'aufgabe' 'regie' 'leiste' 'steuer';
     row-gap: 1.5vh;
     align-content: stretch;
     padding: 3vh 4vw;
@@ -534,6 +536,41 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     border-radius: 0;
     background: #fff;
     overflow: hidden;
+  }
+  #mu-folge-buehne:fullscreen > .mu-folge-kopfzeile { grid-area: kopf; }
+  #mu-folge-buehne:fullscreen > #mu-folge-vorher { grid-area: vorher; }
+  #mu-folge-buehne:fullscreen > #mu-folge-aufgabe { grid-area: aufgabe; }
+  #mu-folge-buehne:fullscreen > #mu-folge-impuls { grid-area: regie; }
+  #mu-folge-buehne:fullscreen > .mu-folge-leiste { grid-area: leiste; }
+  #mu-folge-buehne:fullscreen > .mu-folge-steuerung { grid-area: steuer; }
+
+  /* Ein Beamerbild ist breit und niedrig. Untereinander verschenkt das die
+     Hälfte der Fläche: Die Mathematik wird flach gedrückt, damit der Impuls
+     darunter Platz hat. Nebeneinander bekommen beide ihre volle Höhe –
+     links, was die Klasse rechnet, rechts, was sie dabei tun soll.
+     Nur im Querformat: Auf einem hochkant stehenden Bild wären zwei Spalten
+     zwei zu schmale Spalten. */
+  @media (min-aspect-ratio: 5/4) {
+    #mu-folge-buehne:fullscreen {
+      grid-template-columns: 1.15fr 1fr;
+      grid-template-rows: auto 22vh minmax(0, 1fr) 5vh 6vh;
+      grid-template-areas:
+        'kopf    kopf'
+        'vorher  regie'
+        'aufgabe regie'
+        'leiste  leiste'
+        'steuer  steuer';
+      column-gap: 3vw;
+    }
+    /* Die Aufgabe steht jetzt in einer Spalte, nicht über die ganze Wand.
+       Der Grad richtet sich nach der Spalte, sonst müsste jede zweite Folie
+       heruntergerechnet werden – und genau das ließ sie uneinheitlich
+       aussehen. */
+    #mu-folge-buehne:fullscreen .mu-folge-frage { font-size: clamp(2rem, 4.1vw, 5rem); }
+    #mu-folge-buehne:fullscreen .mu-folge-loesung { font-size: clamp(1.4rem, 2.5vw, 3.2rem); }
+    #mu-folge-buehne:fullscreen :is(.mu-folge-vorher-frage, .mu-folge-vorher-loesung) {
+      font-size: clamp(1.1rem, 1.7vw, 2rem);
+    }
   }
   /* Was noch nicht dran ist, bleibt unsichtbar – behält aber seinen Platz.
      Sonst rutscht die Folie in dem Moment, in dem etwas dazukommt: Die erste
@@ -565,10 +602,36 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
      draußen, egal wie klein gerechnet wird. */
   #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe, #mu-folge-impuls) > .mu-folge-innen {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    inset: 0;
     transform-origin: left top;
+  }
+  /* Die Aufgabe sitzt in der Mitte ihrer Spalte statt oben zu kleben.
+     Passt sie einmal nicht, rutscht sie beim Verkleinern nach oben – das ist
+     der Preis dafür, dass von oben links skaliert wird, und der ist richtig
+     herum: lieber nicht ganz mittig als abgeschnitten. */
+  #mu-folge-buehne:fullscreen #mu-folge-aufgabe > .mu-folge-innen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Der Kasten „Aufgabe davor" bekommt seinen Platz reserviert, füllt ihn
+     aber nicht aus: Der Rahmen wandert auf die Hülle und umschließt nur den
+     Inhalt. Ein großer leerer Rahmen sieht nach Fehler aus. */
+  #mu-folge-buehne:fullscreen #mu-folge-vorher {
+    border: 0;
+    background: none;
+    padding: 0;
+  }
+  #mu-folge-buehne:fullscreen #mu-folge-vorher > .mu-folge-innen {
+    inset: 0 0 auto 0;
+    border: 1px solid theme('colors.ink.300');
+    background: theme('colors.ink.50');
+    border-radius: 0.5rem;
+    padding: 0.9rem 1.25rem;
+  }
+  :global(.dark) #mu-folge-buehne:fullscreen #mu-folge-vorher > .mu-folge-innen {
+    border-color: theme('colors.slate.500');
+    background: theme('colors.slate.900');
   }
   /* Die Karten füllen ihren Platz, statt ihn zu verlassen. */
   #mu-folge-buehne:fullscreen #mu-folge-impuls > .mu-folge-innen > * { margin-top: 0; }
