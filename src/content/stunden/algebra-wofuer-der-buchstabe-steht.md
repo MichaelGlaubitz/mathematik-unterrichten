@@ -126,7 +126,7 @@ Die dritte Spalte ist der Teil, der meistens fehlt und der die Stunde trägt: Ei
 
 ## Zum Weiterarbeiten
 
-- [Aufgabenfolge: Distributivgesetz](/aufgaben/distributivgesetz-variation)
+- [Aufgabenfolge: Terme umformen – sehen, was sich ändert](/aufgaben/distributivgesetz-variation)
 - [Stundenverlauf: Das Minus vor der Klammer](/stunden/termumformungen-das-minus-vor-der-klammer) – der nächste Schritt
 - [Übungsgenerator Algebra](/uebung/algebra)
 - [Fehlvorstellungen zur Algebra](/fehlvorstellungen#thema-algebra)

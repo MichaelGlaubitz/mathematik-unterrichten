@@ -45,6 +45,18 @@ export function istDuenn(zeile: Bestandszeile, schnittFolgen: number): boolean {
   return zeile.folgen < schnittFolgen / 2;
 }
 
+/**
+ * Das Thema, bei dem der nächste Ausbau am meisten brächte.
+ *
+ * Sobald kein Thema mehr als „dünn“ auffällt, stünde die Übersicht sonst mit
+ * lauter Nullen da. Die Frage dahinter bleibt aber dieselbe: Wo weiter? Bei
+ * gleicher Folgenzahl entscheidet die Aufgabenzahl, sonst wäre die Reihenfolge
+ * vom Zufall der Sortierung abhängig.
+ */
+export function schmalsteZeile(zeilen: Bestandszeile[]): Bestandszeile | undefined {
+  return [...zeilen].sort((a, b) => a.folgen - b.folgen || a.aufgaben - b.aufgaben)[0];
+}
+
 export interface Quelle {
   aufgaben: { slug: string; thema: string; titel: string; klassenstufe: string[]; markdown: string }[];
   themen: { slug: string; thema: string; titel: string; klassenstufenAnzeige?: string }[];

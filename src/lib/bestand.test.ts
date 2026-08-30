@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { baueBestand, istDuenn, type Quelle } from './bestand';
+import { baueBestand, istDuenn, schmalsteZeile, type Quelle } from './bestand';
 
 /** Die echten Sammlungen – die Übersicht soll den Bestand zeigen, nicht ein Modell davon. */
 function ausDenDateien(): Quelle {
@@ -81,6 +81,26 @@ describe('Bestandsaufnahme', () => {
     const satt = { ...bestand.zeilen[0], folgen: Math.ceil(schnitt) };
     expect(istDuenn(knapp, schnitt)).toBe(true);
     expect(istDuenn(satt, schnitt)).toBe(false);
+  });
+
+  it('das schmalste Thema ist das mit den wenigsten Folgen', () => {
+    // Wenn nichts mehr „dünn" ist, muss die Übersicht trotzdem sagen können,
+    // wo der nächste Ausbau hingehört.
+    const schmal = schmalsteZeile(bestand.zeilen);
+    expect(schmal).toBeDefined();
+    for (const z of bestand.zeilen) {
+      expect(z.folgen, `${z.titel} hat weniger als ${schmal!.titel}`).toBeGreaterThanOrEqual(schmal!.folgen);
+    }
+  });
+
+  it('bei gleicher Folgenzahl entscheidet die Aufgabenzahl', () => {
+    const roh = { thema: '', titel: '', klassenstufe: '', dateien: [], quiz: 0, stunden: 0 };
+    const schmal = schmalsteZeile([
+      { ...roh, thema: 'A', titel: 'A', folgen: 2, aufgaben: 20 },
+      { ...roh, thema: 'B', titel: 'B', folgen: 2, aufgaben: 8 },
+      { ...roh, thema: 'C', titel: 'C', folgen: 3, aufgaben: 4 },
+    ]);
+    expect(schmal?.titel).toBe('B');
   });
 
   it('ein Thema ohne Themenseite fällt nicht unter den Tisch', () => {

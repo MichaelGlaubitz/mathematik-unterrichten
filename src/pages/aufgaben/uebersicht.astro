@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { baueBestand, istDuenn } from '../../lib/bestand';
+import { baueBestand, istDuenn, schmalsteZeile } from '../../lib/bestand';
 
 const aufgabenEintraege = await getCollection('aufgaben', ({ data }) => !data.entwurf);
 const themenEintraege = await getCollection('themen');
@@ -33,6 +33,12 @@ const duenne = bestand.zeilen.filter((z) => istDuenn(z, schnitt));
 const ohneQuiz = bestand.zeilen.filter((z) => z.quiz === 0);
 const ohneStunde = bestand.zeilen.filter((z) => z.stunden === 0);
 const zahl = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+
+// Wenn keine der drei Lücken mehr offen ist, sähe die Seite mit drei Nullen
+// aus wie kaputt. Dann zeigt sie stattdessen, wo der nächste Ausbau am
+// meisten brächte – das ist die Frage, die dahintersteckt.
+const alleGedeckt = duenne.length === 0 && ohneQuiz.length === 0 && ohneStunde.length === 0;
+const schmalste = schmalsteZeile(bestand.zeilen);
 ---
 
 <BaseLayout
@@ -71,6 +77,16 @@ const zahl = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 1
         <p class="mt-1 text-sm text-ink-700 dark:text-ink-300">Themen ohne fertigen Stundenverlauf</p>
       </div>
     </div>
+
+    {alleGedeckt && schmalste && (
+      <p class="mt-4 max-w-3xl rounded-xl border border-emerald-300/70 bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-950 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-100">
+        <strong>Keine offene Lücke nach diesen drei Maßstäben.</strong> Jedes Thema
+        hat mindestens ein Quiz, einen Stundenverlauf und genug Aufgabenfolgen.
+        Am schmalsten ist derzeit <em>{schmalste.titel}</em> mit {schmalste.folgen}
+        {schmalste.folgen === 1 ? ' Folge' : ' Folgen'} und {schmalste.aufgaben} Aufgaben –
+        dort lohnt der nächste Ausbau.
+      </p>
+    )}
 
     <div class="mu-tabelle-scroll mt-8">
       <table class="mu-bestand w-full border-collapse text-sm">
