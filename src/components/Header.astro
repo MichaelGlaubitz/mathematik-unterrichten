@@ -232,6 +232,17 @@ const gruppeAktiv = (g: Gruppe) => g.punkte.some((p) => istAktiv(p.href));
     left: auto;
     right: 0;
   }
+  /* Unsichtbare Brücke über den Spalt (mt-2) zwischen Knopf und Menü: ohne sie
+     verlässt der Cursor auf dem Weg nach unten die Gruppe, mouseleave feuert,
+     und das Menü klappt weg, bevor man einen Punkt anklicken kann. */
+  .mu-menue::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -0.625rem;
+    height: 0.625rem;
+  }
 </style>
 
 <script>
