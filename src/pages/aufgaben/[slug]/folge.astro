@@ -49,6 +49,7 @@ const folgenGesetzt = folgen.map((f) => ({
     ...a,
     frageHtml: gesetzt(a.frage),
     loesungHtml: gesetzt(a.loesung),
+    gesuchtHtml: a.gesucht ? gesetzt(a.gesucht) : '',
   })),
 }));
 const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
@@ -151,6 +152,10 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
           Diese Aufgabe <span id="mu-folge-zaehler"></span>
         </p>
         <p id="mu-folge-frage" class="mu-folge-frage mt-2 text-ink-900 dark:text-ink-50"></p>
+        <p id="mu-folge-gesucht" class="mu-folge-gesucht mt-1 text-ink-700 dark:text-ink-200" hidden>
+          <span class="mu-folge-gesuchtmarke">Gesucht</span>
+          <span id="mu-folge-gesuchttext"></span>
+        </p>
         <p id="mu-folge-loesung" class="mu-folge-loesung mt-4 font-semibold text-accent-800 dark:text-accent-100" hidden></p>
       </div>
 
@@ -228,9 +233,8 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
 
     {uebersprungen.length > 0 && (
       <p class="mu-folge-hinweis mt-6 text-sm text-ink-500 dark:text-ink-400">
-        Nicht projizierbar sind {uebersprungen.length} Tabellen dieser Aufgabenfolge
-        ({uebersprungen.map((u) => u.titel).filter(Boolean).join(', ')}) – dort stehen mehrere
-        Spalten nebeneinander, und es ist nicht entscheidbar, was Aufgabe und was Lösung ist.
+        Nicht auf der Folie: {uebersprungen.length} Tabellen dieser Aufgabenfolge
+        ({uebersprungen.map((u) => u.titel).filter(Boolean).join(', ')}) – {uebersprungen[0].grund}.
         Sie stehen vollständig auf der <a class="underline" href={`/aufgaben/${eintrag.slug}`}>Seite der Aufgabenfolge</a>.
       </p>
     )}
@@ -249,18 +253,35 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
        hineinpasst. Würde stattdessen die ganze Folie skaliert, änderte die
        Aufgabe ihre Größe, sobald der Impuls darunter länger wird – von
        Schritt zu Schritt, obwohl sich die Aufgabe gar nicht geändert hat. */
-    function huelle(id) {
+    function huelle(id, groesstens, ausserhalb) {
       const bereich = document.getElementById(id);
       if (!bereich) return null;
+      // Zwei Hüllen: `innen` spannt den Bereich auf und richtet aus, `inhalt`
+      // behält seine natürliche Höhe. Nur so lässt sich messen, wie groß der
+      // Inhalt *wirklich* ist – und nicht bloß, wie groß sein Kasten ist.
+      const bleibt = ausserhalb ? [...bereich.querySelectorAll(ausserhalb)] : [];
       const innen = document.createElement('div');
       innen.className = 'mu-folge-innen';
-      while (bereich.firstChild) innen.appendChild(bereich.firstChild);
+      const inhalt = document.createElement('div');
+      inhalt.className = 'mu-folge-inhalt';
+      while (bereich.firstChild) inhalt.appendChild(bereich.firstChild);
+      innen.appendChild(inhalt);
       bereich.appendChild(innen);
-      return { bereich, innen };
+      // Was nicht mitskaliert werden soll, wandert vor die Hülle zurück: Die
+      // Zeile „Diese Aufgabe 3 von 6" ist Beschriftung. Mitskaliert schriee
+      // sie lauter als die Mathematik, um die es geht.
+      for (const el of bleibt) bereich.insertBefore(el, innen);
+      return { bereich, innen, inhalt, groesstens, raum: bleibt.length ? innen : bereich };
     }
-    const bereiche = ['mu-folge-vorher', 'mu-folge-aufgabe', 'mu-folge-impuls']
-      .map(huelle)
-      .filter(Boolean);
+    /* Wie weit ein Bereich wachsen darf. Die Aufgabe soll ihre Spalte füllen:
+       „2/5 + 2/5“ in derselben Größe wie eine dreizeilige Textaufgabe zu
+       setzen verschenkt die halbe Wand. Die Regie daneben wächst nicht – sie
+       ist Beiwerk und würde sonst lauter als die Mathematik. */
+    const bereiche = [
+      huelle('mu-folge-vorher', 1.8),
+      huelle('mu-folge-aufgabe', 3, '.mu-folge-etikett'),
+      huelle('mu-folge-impuls', 1),
+    ].filter(Boolean);
 
     const abschnitt = document.getElementById('mu-folge-abschnitt');
     const vorher = document.getElementById('mu-folge-vorher');
@@ -268,6 +289,8 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     const vorherLoesung = vorher.querySelector('.mu-folge-vorher-loesung');
     const frage = document.getElementById('mu-folge-frage');
     const loesung = document.getElementById('mu-folge-loesung');
+    const gesuchtzeile = document.getElementById('mu-folge-gesucht');
+    const gesuchttext = document.getElementById('mu-folge-gesuchttext');
     const zaehler = document.getElementById('mu-folge-zaehler');
     const stand = document.getElementById('mu-folge-stand');
     const marke = document.getElementById('mu-folge-marke');
@@ -352,6 +375,10 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
       abschnitt.textContent = f.titel;
       frage.innerHTML = a.frageHtml;
       loesung.innerHTML = a.loesungHtml;
+      // Bei „Bruch | Dezimalzahl | Prozent" steht an der Wand nur der Bruch.
+      // Ohne diese Zeile wüsste die Klasse nicht, was daraus werden soll.
+      gesuchttext.innerHTML = a.gesuchtHtml;
+      gesuchtzeile.hidden = !a.gesuchtHtml;
       // Erst bei Explain – siehe LOESUNG_AB. Bei Check wird gerechnet.
       loesung.hidden = schritt < LOESUNG_AB;
       zaehler.textContent = `${nr + 1} von ${f.aufgaben.length}`;
@@ -417,19 +444,20 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
 
     function einpassen() {
       const imVollbild = document.fullscreenElement === buehne;
-      for (const { bereich, innen } of bereiche) {
-        innen.style.transform = '';
+      for (const { bereich, inhalt, groesstens, raum } of bereiche) {
+        inhalt.style.transform = '';
         if (!imVollbild || bereich.hidden) continue;
-        const hFrei = bereich.clientHeight;
-        const bFrei = bereich.clientWidth;
-        const hNoetig = innen.scrollHeight;
-        const bNoetig = innen.scrollWidth;
+        const hFrei = raum.clientHeight;
+        const bFrei = raum.clientWidth;
+        const hNoetig = inhalt.scrollHeight;
+        const bNoetig = inhalt.scrollWidth;
         if (hFrei <= 0 || hNoetig <= 0 || bNoetig <= 0) continue;
-        // Nur verkleinern, nie vergrößern: Ein kurzer Impuls soll nicht
-        // aufgeblasen werden, sonst springt es wieder.
-        // Ein Prozent Luft, damit ein Rundungsrest nicht doch abschneidet.
-        const k = Math.min(1, (hFrei / hNoetig) * 0.99, (bFrei / bNoetig) * 0.99);
-        if (k < 1) innen.style.transform = `scale(${k})`;
+        // Zwei Prozent Luft, damit ein Rundungsrest nicht doch abschneidet.
+        // Der Faktor hängt nur am Inhalt des Bereichs, und der ist innerhalb
+        // einer Aufgabe über alle Schritte gleich – die Aufgabe ändert ihre
+        // Größe also nicht, während die Klasse an ihr arbeitet.
+        const k = Math.min(groesstens, (hFrei / hNoetig) * 0.98, (bFrei / bNoetig) * 0.98);
+        if (Math.abs(k - 1) > 0.005) inhalt.style.transform = `scale(${k})`;
       }
     }
 
@@ -480,6 +508,14 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
     font-weight: 600;
   }
   .mu-folge-loesung { font-size: clamp(1.5rem, 4vw, 4rem); line-height: 1.2; }
+  .mu-folge-gesucht { font-size: clamp(1rem, 1.6vw, 1.6rem); line-height: 1.3; }
+  .mu-folge-gesuchtmarke {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.82em;
+    margin-right: 0.45em;
+  }
   .mu-folge-vorher-frage { font-size: clamp(1.25rem, 2.3vw, 2.2rem); line-height: 1.3; }
   .mu-folge-vorher-loesung { font-size: clamp(1.25rem, 2.3vw, 2.2rem); line-height: 1.3; }
   .mu-folge-marke {
@@ -512,6 +548,7 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
   }
 
   #mu-folge-plenum[hidden], #mu-folge-tiefer[hidden], #mu-folge-paar[hidden],
+  #mu-folge-gesucht[hidden],
   #mu-folge-schritt[hidden], #mu-folge-vorher[hidden], #mu-folge-loesung[hidden] {
     display: none !important;
   }
@@ -600,42 +637,82 @@ const gesamt = folgen.reduce((n, f) => n + f.aufgaben.length, 0);
      Skalierte man um die Mitte der Hülle, läge dieser Punkt bei zu hohem
      Inhalt selbst schon unterhalb der Bereichsmitte – und ein Rest bliebe
      draußen, egal wie klein gerechnet wird. */
+  /* `innen` spannt den Bereich auf und richtet aus; `inhalt` behält seine
+     natürliche Höhe und wird skaliert. Nur so lässt sich messen, wie groß der
+     Inhalt wirklich ist. */
   #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe, #mu-folge-impuls) > .mu-folge-innen {
     position: absolute;
-    inset: 0;
+    inset: 0 0 auto 0;
+  }
+  #mu-folge-buehne:fullscreen .mu-folge-inhalt {
     transform-origin: left top;
   }
-  /* Die Aufgabe sitzt in der Mitte ihrer Spalte statt oben zu kleben.
-     Passt sie einmal nicht, rutscht sie beim Verkleinern nach oben – das ist
-     der Preis dafür, dass von oben links skaliert wird, und der ist richtig
-     herum: lieber nicht ganz mittig als abgeschnitten. */
+  /* Ein Absatz ist ein Block und damit so breit wie seine Spalte – auch wenn
+     „2/5 + 2/5“ darin nur ein Sechstel einnimmt. Gemessen würde dann immer
+     die Spaltenbreite, und die Aufgabe könnte nie wachsen. `max-content`
+     zieht den Kasten auf die tatsächliche Breite des Gesetzten zusammen;
+     `max-width` lässt lange Aufgaben weiterhin umbrechen. */
+  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe) .mu-folge-inhalt {
+    width: max-content;
+    max-width: 100%;
+  }
+  /* Die Aufgabe steht mittig in ihrer Spalte. Weil sie vorher zentriert wird,
+     ist hier die Mitte der richtige Ursprung: Beim Skalieren bleibt sie
+     zentriert und damit zwangsläufig innerhalb des Bereichs. Oben verankert
+     wäre die Mitte falsch – daran ist die vorige Fassung gescheitert. */
+  /* Die Beschriftung steht oben und bleibt ungeskaliert; darunter nimmt die
+     Hülle den Rest der Spalte ein und richtet die Mathematik darin mittig
+     aus. Deshalb ist sie hier kein absoluter Kasten, sondern ein Flex-Kind
+     mit fester Resthöhe – nur so lässt sich der freie Raum messen. */
+  #mu-folge-buehne:fullscreen #mu-folge-aufgabe {
+    display: flex;
+    flex-direction: column;
+  }
+  #mu-folge-buehne:fullscreen #mu-folge-aufgabe > .mu-folge-etikett { flex: none; }
   #mu-folge-buehne:fullscreen #mu-folge-aufgabe > .mu-folge-innen {
+    position: relative;
+    inset: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
+  #mu-folge-buehne:fullscreen #mu-folge-aufgabe .mu-folge-inhalt { flex: none; }
+  #mu-folge-buehne:fullscreen #mu-folge-aufgabe .mu-folge-inhalt {
+    /* Links verankert, senkrecht um die Mitte: Der Kasten beginnt am linken
+       Spaltenrand, also wüchse er bei mittigem Ursprung nach links aus dem
+       Bild – genau das hat die Aufgabe abgeschnitten. Senkrecht ist die Mitte
+       richtig, weil der Kasten vorher zentriert wird. */
+    transform-origin: left center;
+  }
   /* Der Kasten „Aufgabe davor" bekommt seinen Platz reserviert, füllt ihn
-     aber nicht aus: Der Rahmen wandert auf die Hülle und umschließt nur den
-     Inhalt. Ein großer leerer Rahmen sieht nach Fehler aus. */
+     aber nicht aus: Der Rahmen umschließt nur den Inhalt. Ein großer leerer
+     Rahmen sieht nach Fehler aus. */
   #mu-folge-buehne:fullscreen #mu-folge-vorher {
     border: 0;
     background: none;
     padding: 0;
   }
-  #mu-folge-buehne:fullscreen #mu-folge-vorher > .mu-folge-innen {
-    inset: 0 0 auto 0;
+  #mu-folge-buehne:fullscreen #mu-folge-vorher .mu-folge-inhalt {
     border: 1px solid theme('colors.ink.300');
     background: theme('colors.ink.50');
     border-radius: 0.5rem;
     padding: 0.9rem 1.25rem;
   }
-  :global(.dark) #mu-folge-buehne:fullscreen #mu-folge-vorher > .mu-folge-innen {
+  :global(.dark) #mu-folge-buehne:fullscreen #mu-folge-vorher .mu-folge-inhalt {
     border-color: theme('colors.slate.500');
     background: theme('colors.slate.900');
   }
   /* Die Karten füllen ihren Platz, statt ihn zu verlassen. */
-  #mu-folge-buehne:fullscreen #mu-folge-impuls > .mu-folge-innen > * { margin-top: 0; }
-  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe) { margin-top: 0; }
+  /* Außenabstände werden von `transform` nicht mitskaliert: Ein Rand von
+     32 px bleibt 32 px, auch wenn der Inhalt auf 83 % gerechnet wird – und
+     genau um diesen Rand ragt er dann aus seinem Bereich. Innerhalb der
+     Bereiche macht das Raster die Abstände, nicht die Ränder. */
+  #mu-folge-buehne:fullscreen .mu-folge-inhalt,
+  #mu-folge-buehne:fullscreen .mu-folge-inhalt > * { margin-top: 0; }
+  #mu-folge-buehne:fullscreen :is(#mu-folge-vorher, #mu-folge-aufgabe, #mu-folge-impuls) { margin-top: 0; }
   html.dark #mu-folge-buehne:fullscreen { background: rgb(15 23 42); }
   #mu-folge-buehne:fullscreen .mu-folge-steuerung,
   #mu-folge-buehne:fullscreen .mu-folge-leiste { opacity: 0.55; }

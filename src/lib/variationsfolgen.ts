@@ -15,11 +15,22 @@
  * welche das sind – geraten wird nicht.
  */
 
+import { gegebeneSpalten } from './spalten';
+
 export interface Variationsaufgabe {
   /** Laufende Nummer, wie sie in der Aufgabenfolge steht. */
   nummer: number;
   frage: string;
   loesung: string;
+  /**
+   * Was gesucht ist, wenn die Spaltenüberschriften es sagen.
+   *
+   * Bei „Nr. | Bruch | Dezimalzahl | Prozent" steht an der Wand nur
+   * „$\frac12$" – ohne diese Zeile wüsste die Klasse nicht, dass sie daraus
+   * Dezimalzahl und Prozent machen soll. Heißt die Spalte schlicht „Lösung",
+   * bleibt die Zeile weg; das sagt nichts.
+   */
+  gesucht?: string;
 }
 
 export interface Variationsfolge {
@@ -40,6 +51,21 @@ export interface Uebersprungen {
 export interface Folgenfund {
   folgen: Variationsfolge[];
   uebersprungen: Uebersprungen[];
+}
+
+/** Spaltennamen, die nichts über den Inhalt sagen. */
+const IST_GENERISCH = /^(Lösung|Lösungen|Ergebnis|Antwort)$/i;
+
+/**
+ * Setzt mehrere Spalten zu einer Zeile zusammen.
+ *
+ * Eine Spalte bleibt, wie sie ist. Mehrere bekommen ihre Überschrift davor –
+ * sonst stünde bei „Gegeben | Gesucht" an der Wand nur „$U = 18{,}85$ cm  ·
+ * $r$" und niemand wüsste, was davon was ist.
+ */
+function beschriftet(kopf: readonly string[], werte: readonly string[]): string {
+  if (werte.length === 1) return werte[0];
+  return werte.map((w, i) => `${kopf[i]}: ${w}`).join('  ·  ');
 }
 
 /** Trennt eine Markdown-Tabellenzeile in ihre Zellen. */
@@ -64,18 +90,28 @@ export function leseVariationsfolgen(markdown: string): Folgenfund {
     if (tabelle.length >= 3) {
       const kopf = zellen(tabelle[0]);
       const daten = tabelle.slice(2).filter((z) => /^\|\s*\d+\s*\|/.test(z));
-      if (kopf.length !== 3) {
-        uebersprungen.push({ titel, kopf, zeilen: daten.length, grund: `${kopf.length} Spalten statt 3` });
+      if (kopf.length < 3) {
+        uebersprungen.push({ titel, kopf, zeilen: daten.length, grund: `nur ${kopf.length} Spalten` });
       } else if (daten.length < 2) {
         // Eine einzelne Zeile ist keine Folge: Es gäbe nichts zu vergleichen.
         uebersprungen.push({ titel, kopf, zeilen: daten.length, grund: 'weniger als zwei Aufgaben' });
       } else {
+        // Ohne die Nummernspalte: Was steht schon da, was füllt die Klasse?
+        const spalten = kopf.slice(1);
+        const bis = gegebeneSpalten(spalten);
+        const gesuchteNamen = spalten.slice(bis).filter((n) => !IST_GENERISCH.test(n));
         folgen.push({
           titel,
           hinweis,
           aufgaben: daten.map((z) => {
-            const [nr, frage, loesung] = zellen(z);
-            return { nummer: Number(nr), frage, loesung };
+            const felder = zellen(z);
+            const rest = felder.slice(1);
+            return {
+              nummer: Number(felder[0]),
+              frage: beschriftet(spalten.slice(0, bis), rest.slice(0, bis)),
+              loesung: beschriftet(spalten.slice(bis), rest.slice(bis)),
+              gesucht: gesuchteNamen.length > 0 ? gesuchteNamen.join('  ·  ') : undefined,
+            };
           }),
         });
       }

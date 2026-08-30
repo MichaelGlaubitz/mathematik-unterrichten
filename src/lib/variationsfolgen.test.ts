@@ -23,13 +23,13 @@ const alle = dateien.map((f) => ({
 }));
 
 describe('Variationsfolgen aus den Aufgabenfolgen lesen', () => {
-  it('bis auf eine liefert jede Aufgabenfolge projizierbare Folgen', () => {
-    // „Lineare Funktionen“ ist durchgehend fünfspaltig aufgebaut
-    // (Funktion | y-Achsenabschnitt | Punkt für x=0 | Punkt für x=1). Dort
-    // ließe sich nicht entscheiden, was an die Wand gehört, ohne zu raten.
-    // Der Test hält die Lücke fest, statt sie zu verstecken.
+  it('jede Aufgabenfolge liefert projizierbare Folgen', () => {
+    // Auch „Lineare Funktionen“, das durchgehend fünfspaltig aufgebaut ist
+    // (Funktion | y-Achsenabschnitt | Punkt für x=0 | Punkt für x=1). Früher
+    // fiel diese Datei ganz aus – zu Unrecht: Welche Spalte gegeben ist,
+    // steht in `spalten.ts` und ist an den echten Zeilen geprüft.
     const ohne = alle.filter((a) => a.fund.folgen.length === 0).map((a) => a.datei);
-    expect(ohne).toEqual(['lineare-funktionen-steigung-und-achsenabschnitt.md']);
+    expect(ohne).toEqual([]);
   });
 
   it('eine Folge hat mindestens zwei Aufgaben – sonst gibt es nichts zu vergleichen', () => {
@@ -61,17 +61,49 @@ describe('Variationsfolgen aus den Aufgabenfolgen lesen', () => {
     }
   });
 
-  it('nichts wird geraten: mehrspaltige Tabellen landen in „übersprungen“', () => {
-    // Wo Zwischenspalten stehen („Lösungsidee“, „Hauptnenner“) oder mehrere
-    // Darstellungen nebeneinander, ist nicht entscheidbar, was an die Wand
-    // gehört. Diese Tabellen werden gemeldet, nicht interpretiert.
-    const gesamt = alle.reduce((n, a) => n + a.fund.uebersprungen.length, 0);
-    expect(gesamt).toBeGreaterThan(0);
-    for (const { fund } of alle) {
+  it('auch mehrspaltige Tabellen kommen an die Wand', () => {
+    // Früher wurden sie übersprungen: „nicht entscheidbar, was Aufgabe und
+    // was Lösung ist". Entscheidbar ist es – dieselbe Regel, die auf dem
+    // Arbeitsblatt sagt, welche Spalte leer bleibt, sagt hier, was die Frage
+    // ist. Übrig bleiben darf nur, was wirklich keine Folge ist.
+    for (const { datei, fund } of alle) {
       for (const u of fund.uebersprungen) {
-        expect(u.grund).toMatch(/Spalten statt 3|weniger als zwei Aufgaben/);
+        expect(u.grund, `${datei}: „${u.titel}“`).toMatch(/nur \d Spalten|weniger als zwei Aufgaben/);
       }
     }
+  });
+
+  it('jede Aufgabe hat eine Frage und eine Lösung', () => {
+    // Eine leere Zelle an der Wand ist schlimmer als eine übersprungene
+    // Tabelle: Sie sieht aus, als sei die Folie kaputt.
+    for (const { datei, fund } of alle) {
+      for (const f of fund.folgen) {
+        for (const a of f.aufgaben) {
+          expect(a.frage.trim(), `${datei} Nr. ${a.nummer}`).not.toBe('');
+          expect(a.loesung.trim(), `${datei} Nr. ${a.nummer}`).not.toBe('');
+        }
+      }
+    }
+  });
+
+  it('mehrere Spalten bekommen ihre Überschrift davor', () => {
+    // „Gegeben | Gesucht" ergäbe sonst zwei Werte ohne Bezug.
+    const kreis = alle.find((a) => a.datei.startsWith('kreis-umfang'));
+    const folge = kreis?.fund.folgen.find((f) => f.aufgaben[0]?.frage.includes('Gegeben:'));
+    expect(folge, 'Folge mit Gegeben/Gesucht').toBeDefined();
+    expect(folge!.aufgaben[0].frage).toMatch(/Gegeben:.*·.*Gesucht:/);
+  });
+
+  it('gesucht wird benannt, wo die Überschrift etwas sagt', () => {
+    const kleider = alle.find((a) => a.datei.startsWith('bruch-dezimal-prozent-drei-kleider'));
+    const folgeA = kleider?.fund.folgen[0];
+    expect(folgeA?.aufgaben[0].gesucht).toBe('Dezimalzahl  ·  Prozent');
+    // Heißt die Spalte „Lösung", sagt das nichts – dann bleibt die Zeile weg.
+    const mitLoesung = alle
+      .flatMap((a) => a.fund.folgen)
+      .flatMap((f) => f.aufgaben)
+      .filter((a) => a.gesucht);
+    for (const a of mitLoesung) expect(a.gesucht).not.toMatch(/^(Lösung|Ergebnis|Antwort)$/i);
   });
 
   it('keine Tabellenstriche im Text – die Zellen sind sauber getrennt', () => {
@@ -136,8 +168,11 @@ describe('Die Folie im Auftritt', () => {
   });
 
   it('was nicht projizierbar ist, wird benannt statt verschwiegen', () => {
+    // Übersprungen wird inzwischen nichts mehr; der Weg dafür bleibt aber
+    // offen – und wenn er je greift, nennt die Folie den Grund aus dem
+    // Parser, statt ihn zu erfinden.
     expect(folie).toContain('uebersprungen.length > 0');
-    expect(folie).toContain('nicht entscheidbar');
+    expect(folie).toContain('uebersprungen[0].grund');
   });
 });
 
@@ -325,10 +360,12 @@ describe('Die Folie benutzt die Taktregel', () => {
 
   it('passt jeden Bereich für sich ein, nicht die ganze Folie', () => {
     // Würde die ganze Folie skaliert, änderte die Aufgabe ihre Größe, sobald
-    // der Impuls darunter länger wird – von Schritt zu Schritt, obwohl sich
+    // der Impuls daneben länger wird – von Schritt zu Schritt, obwohl sich
     // die Aufgabe gar nicht geändert hat. Genau so sah es uneinheitlich aus.
     expect(folie).toContain('function einpassen()');
-    expect(folie).toContain("['mu-folge-vorher', 'mu-folge-aufgabe', 'mu-folge-impuls']");
+    for (const id of ['mu-folge-vorher', 'mu-folge-aufgabe', 'mu-folge-impuls']) {
+      expect(folie).toContain(`huelle('${id}'`);
+    }
     expect(folie).toContain("document.addEventListener('fullscreenchange', einpassenNachLayout)");
     expect(folie).toContain("window.addEventListener('resize', einpassenNachLayout)");
     expect(folie).toMatch(/#mu-folge-buehne:fullscreen \{[^}]*overflow: hidden/);
@@ -364,8 +401,29 @@ describe('Die Folie benutzt die Taktregel', () => {
     expect(folie).toMatch(/\.mu-folge-punkt\[hidden\][^}]*visibility: hidden/);
   });
 
-  it('nur verkleinern, nie vergrößern', () => {
-    expect(folie).toMatch(/Math\.min\(1,/);
+  it('die Mathematik füllt ihre Spalte, die Regie wächst nicht mit', () => {
+    // „2/5 + 2/5" in derselben Größe wie eine dreizeilige Textaufgabe zu
+    // setzen verschenkt die halbe Wand. Die Aufgabe darf deshalb wachsen –
+    // der Impuls daneben nicht, sonst wird das Beiwerk lauter als die Sache.
+    expect(folie).toMatch(/huelle\('mu-folge-aufgabe', 3/);
+    expect(folie).toMatch(/huelle\('mu-folge-impuls', 1\)/);
+    expect(folie).toMatch(/Math\.min\(groesstens,/);
+  });
+
+  it('der Inhalt zieht sich auf seine Breite zusammen', () => {
+    // Ein Absatz ist so breit wie seine Spalte, auch wenn die Formel darin
+    // schmal ist. Ohne max-content misst der Einpasser immer die Spalte und
+    // die Aufgabe könnte nie wachsen.
+    expect(folie).toMatch(
+      /:is\(#mu-folge-vorher, #mu-folge-aufgabe\) \.mu-folge-inhalt \{[^}]*width: max-content/
+    );
+  });
+
+  it('die Beschriftung wird nicht mitskaliert', () => {
+    // „Diese Aufgabe 3 von 6" ist Beschriftung. Mitskaliert schriee sie
+    // lauter als die Mathematik, um die es geht.
+    expect(folie).toMatch(/huelle\('mu-folge-aufgabe', 3, '\.mu-folge-etikett'\)/);
+    expect(folie).toContain('bereich.insertBefore(el, innen)');
   });
 
   it('setzt die Erwartungsbeispiele als Fließtext, nicht als Liste', () => {
