@@ -98,9 +98,9 @@ const gruppeAktiv = (g: Gruppe) => g.punkte.some((p) => istAktiv(p.href));
 
             <div
               id={`mu-menue-${i}`}
-              class="mu-menue invisible absolute left-0 top-full z-50 mt-2 w-[19rem] -translate-y-1 rounded-xl border border-ink-200/90 bg-surface p-2 opacity-0 shadow-lg transition-[opacity,transform] duration-150 dark:border-white/10 dark:bg-[rgb(30_26_40)] dark:shadow-[0_18px_40px_-12px_rgba(0,0,0,0.85)]"
+              class="mu-menue invisible absolute left-0 top-full z-50 w-[19rem] pt-2 opacity-0 transition-opacity duration-150"
             >
-              <ul>
+              <ul class="mu-tafel rounded-xl border border-ink-200/90 bg-surface p-2 shadow-lg dark:border-white/10 dark:bg-[rgb(30_26_40)] dark:shadow-[0_18px_40px_-12px_rgba(0,0,0,0.85)]">
                 {g.punkte.map((p) => (
                   <li>
                     <a
@@ -222,6 +222,16 @@ const gruppeAktiv = (g: Gruppe) => g.punkte.some((p) => istAktiv(p.href));
   .mu-menue:focus-within {
     visibility: visible;
     opacity: 1;
+  }
+  /* Das Einblenden bewegt die sichtbare Tafel, nicht das umgebende Feld:
+     dessen Oberkante muss am Knopf kleben bleiben, sonst entsteht wieder
+     eine Lücke, in der mouseleave feuert. */
+  .mu-tafel {
+    transform: translateY(-0.25rem);
+    transition: transform 150ms;
+  }
+  .mu-gruppe.mu-offen .mu-tafel,
+  .mu-menue:focus-within .mu-tafel {
     transform: translateY(0);
   }
   .mu-gruppe.mu-offen .mu-pfeil {
@@ -231,17 +241,6 @@ const gruppeAktiv = (g: Gruppe) => g.punkte.some((p) => istAktiv(p.href));
   .mu-gruppe:last-child .mu-menue {
     left: auto;
     right: 0;
-  }
-  /* Unsichtbare Brücke über den Spalt (mt-2) zwischen Knopf und Menü: ohne sie
-     verlässt der Cursor auf dem Weg nach unten die Gruppe, mouseleave feuert,
-     und das Menü klappt weg, bevor man einen Punkt anklicken kann. */
-  .mu-menue::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: -0.625rem;
-    height: 0.625rem;
   }
 </style>
 
