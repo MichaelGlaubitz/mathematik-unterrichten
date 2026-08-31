@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Abstimmung</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#4f46e5; --green:#15803d; --gold:#d97706;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0b1220;--panel:#151d2e;--ink:#e8edf7;--muted:#94a3b8;--line:#26304a}
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);
+       padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));
+       display:flex;flex-direction:column;gap:12px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .raum{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .stand{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  h1{font-size:clamp(19px,5.2vw,30px);line-height:1.25;font-weight:800}
+  .karten{display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center}
+  button.wahl{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    background:var(--panel);border:2px solid var(--line);border-radius:16px;
+    padding:16px 14px;font:inherit;color:inherit;font-size:clamp(16px,4.2vw,21px);
+    line-height:1.3;cursor:pointer;transition:border-color .15s,background .15s}
+  button.wahl .bst{flex:0 0 auto;width:2em;height:2em;border-radius:12px;background:#eef2ff;
+    color:var(--accent);font-weight:800;display:flex;align-items:center;justify-content:center}
+  @media (prefers-color-scheme:dark){button.wahl .bst{background:#25306b;color:#c7d2fe}}
+  button.wahl[aria-pressed="true"]{border-color:var(--green);background:#f0fdf4}
+  @media (prefers-color-scheme:dark){button.wahl[aria-pressed="true"]{background:#10301d}}
+  button.wahl[aria-pressed="true"] .bst{background:var(--green);color:#fff}
+  button.wahl:disabled{opacity:.55;cursor:default}
+  .hinweis{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px;color:var(--muted);font-size:15px;line-height:1.45;text-align:center}
+  .hinweis b{color:var(--ink)}
+  .fuss{font-size:12px;color:var(--muted);text-align:center;line-height:1.4}
+  .warte{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);
+    margin-right:6px;vertical-align:1px;animation:blink 1.4s infinite}
+  @keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+  .fehler{color:#b91c1c}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="raum" id="raum">–</span>
+  <span class="stand" id="stand"></span>
+</header>
+
+<h1 id="frage">Abstimmung</h1>
+<div class="karten" id="karten"></div>
+<div class="hinweis" id="hinweis"><span class="warte"></span>Verbinde …</div>
+
+<p class="fuss">
+  Keine Namen, keine Anmeldung. Dein Gerät bekommt eine Zufallsnummer,
+  damit jede Stimme einmal zählt — sonst wird nichts gespeichert.
+</p>
+
+<script>
+"use strict";
+/* ------------------------------------------------------------------
+   Abstimmungsseite fuer die Schuelergeraete.
+
+   Sie kennt weder die richtige Antwort noch die Verteilung der
+   Stimmen — beides gibt der Dienst nur gegen den Lehrerschluessel
+   heraus. Hier laeuft nur: Frage holen, Antwort schicken.
+
+   Adresse des Dienstes: ?dienst=… in der URL, sonst der eingebaute
+   Wert unten. So laesst sich fuer eine Vertretungsstunde auch ein
+   anderer (etwa der lokale) Dienst ansteuern, ohne die Seite neu
+   auszuliefern.
+   ------------------------------------------------------------------ */
+const P = new URLSearchParams(location.search);
+const DIENST = (P.get("dienst") || "https://abstimmung.mathematik-unterrichten.workers.dev")
+                 .replace(/\/+$/, "");
+const RAUM = (P.get("raum") || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
+
+const BUCHSTABEN = ["A", "B", "C", "D"];
+const $ = id => document.getElementById(id);
+
+/* Geraetekennung: einmal wuerfeln, im Browser behalten. Kein Bezug zu
+   einer Person — sie sorgt nur dafuer, dass ein Gerät eine Stimme hat. */
+function geraet(){
+  let g = null;
+  try { g = localStorage.getItem("abstimmung-geraet"); } catch(e){}
+  if (!g){
+    g = ([1e7]+"").replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))
+      + Math.random().toString(36).slice(2, 8);
+    try { localStorage.setItem("abstimmung-geraet", g); } catch(e){}
+  }
+  return g;
+}
+const GERAET = geraet();
+
+let stand = { schluessel: "", offen: false };
+let meineWahl = null;
+let fehlerAmStueck = 0;
+
+function zeigeHinweis(html, klasse){
+  $("hinweis").className = "hinweis" + (klasse ? " " + klasse : "");
+  $("hinweis").innerHTML = html;
+  $("hinweis").hidden = false;
+}
+
+function baueKarten(optionen){
+  const box = $("karten");
+  box.textContent = "";
+  optionen.forEach((text, i) => {
+    const b = document.createElement("button");
+    b.className = "wahl";
+    b.type = "button";
+    b.setAttribute("aria-pressed", "false");
+    const bst = document.createElement("span");
+    bst.className = "bst";
+    bst.textContent = BUCHSTABEN[i] || (i + 1);
+    const t = document.createElement("span");
+    t.textContent = text;                       /* Text, kein HTML */
+    b.append(bst, t);
+    b.onclick = () => waehle(i);
+    box.append(b);
+  });
+}
+
+function malWahl(){
+  [...$("karten").children].forEach((b, i) => {
+    b.setAttribute("aria-pressed", String(i === meineWahl));
+    b.disabled = !stand.offen;
+  });
+}
+
+async function waehle(i){
+  const vorher = meineWahl;
+  meineWahl = i;                                 /* sofort anzeigen */
+  malWahl();
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/stimme", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ geraet: GERAET, wahl: i, schluessel: stand.schluessel }),
+    });
+    const d = await a.json();
+    if (!d.ok){
+      meineWahl = vorher; malWahl();
+      zeigeHinweis(d.grund === "zu"
+        ? "Die Abstimmung ist <b>geschlossen</b>."
+        : "Das kam nicht an. Gleich noch einmal versuchen.", "fehler");
+    } else {
+      zeigeHinweis("Deine Antwort ist da: <b>" + (BUCHSTABEN[i] || i + 1) + "</b>. "
+                   + "Du darfst sie ändern, solange die Frage offen ist.");
+    }
+  } catch (e){
+    meineWahl = vorher; malWahl();
+    zeigeHinweis("Keine Verbindung. Die Antwort wurde <b>nicht</b> gezählt.", "fehler");
+  }
+}
+
+async function hole(){
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM, { cache: "no-store" });
+    const d = await a.json();
+    fehlerAmStueck = 0;
+    if (!d.ok) return;
+    $("stand").textContent = d.abgestimmt ? d.abgestimmt + " haben abgestimmt" : "";
+    if (d.schluessel !== stand.schluessel){      /* neue Frage: alles zurueck */
+      meineWahl = null;
+      stand.schluessel = d.schluessel;
+      baueKarten(d.optionen || []);
+      $("hinweis").hidden = true;
+    }
+    stand.offen = d.offen;
+    $("frage").textContent = d.frage || (d.offen ? "Frage läuft" : "Gleich geht es los");
+    if (!d.optionen || !d.optionen.length){
+      $("karten").textContent = "";
+      zeigeHinweis('<span class="warte"></span>Warte auf die nächste Frage …');
+    } else {
+      malWahl();
+      if (!d.offen && meineWahl === null)
+        zeigeHinweis("Die Abstimmung ist <b>geschlossen</b>.");
+    }
+  } catch (e){
+    if (++fehlerAmStueck === 3)
+      zeigeHinweis("Keine Verbindung zum Dienst.<br>Ist das WLAN an?", "fehler");
+  }
+}
+
+if (!RAUM){
+  $("frage").textContent = "Kein Raum angegeben";
+  zeigeHinweis("Diese Seite wird über den <b>QR-Code an der Wand</b> geöffnet. "
+               + "Scanne ihn noch einmal.", "fehler");
+} else {
+  $("raum").textContent = "Raum " + RAUM.toUpperCase();
+  hole();
+  setInterval(hole, 1500);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) hole(); });
+}
+</script>
+</body>
+</html>

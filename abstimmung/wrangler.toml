@@ -1,0 +1,27 @@
+# Live-Abstimmung · Cloudflare Worker
+#
+# Ausrollen:
+#   npx wrangler login
+#   npx wrangler secret put LEHRER      # geheimer Lehrerschluessel
+#   npx wrangler deploy
+#
+# Der Lehrerschluessel steht NICHT in dieser Datei — er wird als Secret
+# gesetzt und ist danach auch fuer wrangler nicht mehr lesbar.
+
+name = "abstimmung"
+main = "worker.mjs"
+compatibility_date = "2025-01-01"
+
+# Ein Durable Object je Raum. Nur damit laesst sich verlaesslich zaehlen:
+# dreissig gleichzeitige Stimmen landen in derselben Instanz, nacheinander.
+[[durable_objects.bindings]]
+name = "RAUM"
+class_name = "Raum"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Raum"]
+
+# Beobachtung an, damit man im Zweifel sieht, ob Anfragen ankommen.
+[observability]
+enabled = true
