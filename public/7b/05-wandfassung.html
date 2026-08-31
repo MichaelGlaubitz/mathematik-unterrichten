@@ -177,6 +177,18 @@
   .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
   @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
 
+  /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
+     hoeher als das Bild, und die Einpassung muesste die ganze Folie
+     verkleinern - die Schrift ausgerechnet dort, wo der Beleg gelesen
+     werden muss. */
+  .plzeile{display:flex;gap:26px;align-items:center;margin-top:16px}
+  .plzeile .plbild{flex:0 0 auto;margin:0;max-width:52%}
+  .plzeile .plickers{flex:1 1 0;min-width:0;margin-top:0}
+  /* Zwei Schilder nebeneinander statt untereinander: Der Umbruch
+     verdoppelte die Hoehe des Belegs und verkleinerte darueber die
+     ganze Folie. */
+  .plzeile .schilder{flex-wrap:nowrap;gap:16px}
+  .plzeile .schilder .schild{min-width:0}
   .plbild{margin:.7vh 0 .2vh}
   .plbild .wtab{margin-top:0}
   .plbild .wtab td,.plbild .wtab th{font-size:clamp(12px,1.42vw,21px);
@@ -186,25 +198,40 @@
   .plbild .schild td{font-size:clamp(13px,1.5vw,22px);padding:.16em .1em}
   .plbild .schild h3{font-size:clamp(15px,1.7vw,25px)}
   .plbild .graph{margin-top:0;width:min(46vw,560px)}
-  .slide.mitbild h2.wt{font-size:clamp(21px,2.9vw,42px);margin-bottom:.2em}
-  .slide.mitbild .plickers{gap:1vh 1.4vw;margin-top:1.2vh}
-  .slide.mitbild .opt{padding:.85vh 1vw;font-size:clamp(13px,1.5vw,21px)}
-  .slide.mitbild .aufloesung{margin-top:1.2vh;padding:1vh 1.1vw;
-    font-size:clamp(13px,1.5vw,22px)}
+  .slide.mitbild h2.wt{margin-bottom:.2em;max-width:38ch}
 
   /* --- Plickers --- */
-  .plickers{display:grid;grid-template-columns:1fr 1fr;gap:1.5vh 1.5vw;margin-top:2.2vh}
-  @media (max-width:900px){.plickers{grid-template-columns:1fr}}
-  .opt{position:relative;display:flex;gap:.85vw;align-items:flex-start;
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:1.25vh 1.1vw;font-size:clamp(15px,1.8vw,26px);line-height:1.28}
+  /* Eine Spalte, nicht zwei: siehe die Begruendung an der Entwurfsflaeche
+     weiter unten. Die Karte ist so breit wie die Folie, der Text wird
+     gross, und die vier Karten untereinander fuellen die Hoehe. */
+  .plickers{display:grid;grid-template-columns:1fr;gap:14px;margin-top:22px}
+  .opt{position:relative;display:flex;gap:18px;
+    align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:16px 20px;font-size:28px;line-height:1.3}
+  /* Alles Sichtbare liegt ueber der Fuellung ... */
+  .opt > *{position:relative;z-index:1}
+  /* ... und die Fuellung selbst darunter: Sie faerbt die Karte von links,
+     waehrend die Stimmen eingehen. Ein Balken, der die Antwort nicht mehr
+     verdeckt, sondern hinterlegt. */
+  .opt .fuellung{position:absolute;left:0;top:0;bottom:0;width:0;z-index:0;
+    background:#e6ebff;border-radius:13px;transition:width .35s ease}
+  .opt .zahl{margin-left:auto;padding-left:.7em;font-weight:800;
+    font-variant-numeric:tabular-nums;display:none}
+  .slide.abstimmt .opt .zahl{display:block}
+  /* Solange nicht aufgeloest ist, verraet keine Fuellung, welche Karte
+     stimmt - erst danach faerbt sich die richtige gruen. */
+  .plickers.gezeigt .opt.istrichtig .fuellung{background:#bbf7d0}
   .opt .bst{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:10px;
     background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
     align-items:center;justify-content:center;font-size:.95em}
   /* Die Markierung der richtigen Antwort ist ein eigenes .frag-Element:
      Sie legt sich als gruener Rahmen ueber die Karte, sobald aufgeloest wird. */
-  .haken{position:absolute;inset:-3px;border:3px solid var(--green);border-radius:17px;
-    background:rgba(220,252,231,.45);display:flex;align-items:flex-start;
+  .haken{position:absolute;inset:-3px;z-index:2;
+    border:3px solid var(--green);border-radius:17px;
+    /* Nur ein Hauch Farbe: Der Rahmen liegt UEBER dem Text, damit das
+       Schild nicht verdeckt wird - ein kraeftiger Schleier machte die
+       richtige Antwort blasser als die falschen. */
+    background:rgba(220,252,231,.16);display:flex;align-items:flex-start;
     justify-content:flex-end;pointer-events:none}
   .haken b{background:var(--green);color:#fff;border-radius:999px;
     padding:.12em .75em;font-size:clamp(12px,1.25vw,18px);
@@ -296,40 +323,14 @@
   .abstand.zu .punkt{background:#cbd5e1}
   body.livean .home{display:none}
 
-  .balken{margin-top:1.6vh;display:none;flex-direction:column;gap:.7vh}
-  .slide.on .balken.an{display:flex}
-  .balkenzeile{display:flex;align-items:center;gap:.9vw}
-  .balkenzeile .bst{flex:0 0 auto;width:1.7em;height:1.7em;border-radius:9px;
-    background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
-    align-items:center;justify-content:center;font-size:clamp(14px,1.6vw,23px)}
-  .balkenzeile .bar{flex:1 1 auto;height:clamp(15px,1.9vh,26px);background:#eef2f7;
-    border-radius:999px;overflow:hidden}
-  .balkenzeile .bar i{display:block;height:100%;width:0;background:var(--accent);
-    border-radius:999px;transition:width .35s ease}
-  .balkenzeile.richtig .bar i{background:var(--green)}
-  .balkenzeile .zahl{flex:0 0 auto;min-width:2.4em;text-align:right;font-weight:800;
-    font-variant-numeric:tabular-nums;font-size:clamp(14px,1.7vw,25px)}
-  /* Haengt der Eck-QR rechts unten, macht ihm der Balken Platz - sonst
-     verdeckt er ausgerechnet die Zahl, um die es geht. */
-  body.qrzeigen .balken{padding-right:112px}
-  /* Solange nicht aufgeloest ist, verraet kein Balken, welche Karte stimmt. */
-  .balken:not(.gezeigt) .balkenzeile.richtig .bar i{background:var(--accent)}
+  /* Die frueheren Balkenzeilen unter den Karten sind entfallen: Sie
+     wiederholten die Buchstaben und machten die Folie breiter und
+     flacher. Der Balken steckt jetzt in der Karte (.opt .fuellung). */
 
-  /* Kommen die Balken dazu, wird die Folie enger - sonst laeuft sie oben
-     aus dem Bild und die Frage ist weg, waehrend abgestimmt wird. */
-  .slide.abstimmt h2.wt{font-size:clamp(19px,2.55vw,37px);margin-bottom:.15em}
-  .slide.abstimmt .plbild{margin:.4vh 0 .1vh}
-  .slide.abstimmt .plbild .schild{padding:.6vh .8vw}
-  .slide.abstimmt .plbild .schild td{font-size:clamp(12px,1.35vw,19px)}
-  .slide.abstimmt .plbild .wtab td,.slide.abstimmt .plbild .wtab th{
-    font-size:clamp(11px,1.3vw,19px);padding:.16em .42em}
-  .slide.abstimmt .plbild .graph{width:min(38vw,430px)}
-  .slide.abstimmt .plickers{gap:.75vh 1.2vw;margin-top:.8vh}
-  .slide.abstimmt .opt{padding:.6vh .9vw;font-size:clamp(12px,1.4vw,19px)}
-  .slide.abstimmt .balken{margin-top:1vh;gap:.5vh}
-  .slide.abstimmt .balkenzeile .bar{height:clamp(12px,1.5vh,20px)}
-  .slide.abstimmt .aufloesung{margin-top:1vh;padding:.9vh 1vw;
-    font-size:clamp(12px,1.4vw,20px)}
+  /* Waehrend abgestimmt wird, aendert sich an den Groessen NICHTS mehr.
+     Frueher stand hier eine Reihe von Verkleinerungen; sie stammten aus
+     der Zeit vor der Entwurfsflaeche und haben die Schrift ausgerechnet
+     dann zusammenfallen lassen, wenn die ganze Klasse hinsieht. */
 
   .schluesselknopf{position:fixed;top:16px;left:18px;z-index:57;font-size:12px;
     background:#fffbeb;border:1px solid #fcd34d;color:#8d6e00;border-radius:9px;
@@ -338,63 +339,99 @@
   body.schluesselfehlt .abstand{display:none}
 
   /* ====================================================================
-     Groessen an die HOEHE binden
+     Feste Entwurfsflaeche
      --------------------------------------------------------------------
-     Die Vorlage bemisst jede Schrift mit vw und deckelt sie bei einem
-     festen Hoechstwert. Auf 1920x1080 passt das; auf 1600x900 ist die
-     Schrift dann GENAUSO gross - der Deckel greift in beiden Faellen -,
-     aber es sind 180 Pixel weniger Hoehe da. Genau so laeuft eine
-     dichte Folie unten heraus, und zwar erst im Klassenraum.
+     Jede Folie wird auf 1200 Punkte Breite gesetzt und als GANZES auf den
+     Bildschirm skaliert (window.einpassen). Deshalb stehen hier feste
+     Punktgroessen und keine vw-Rechnungen mehr.
 
-     Deshalb steht ueberall, wo die Hoehe knapp wird, min(…vw, …vh):
-     Es gilt der kleinere der beiden Werte, und ein flaches Fenster
-     verkleinert mit. Auf 16:9 aendert sich nichts, was vorher passte.
-     Nachgemessen wird in vier Formaten von pruefe_wand.mjs.
+     Der Grund: vw-Groessen mit Hoechstwert sind auf einem grossen Bild
+     doppelt schaedlich - der Deckel greift, die Schrift bleibt klein,
+     und die untere Bildhaelfte bleibt leer. Wer stattdessen die ganze
+     Flaeche skaliert, bekommt auf 1920 x 1080 eine um ein Viertel
+     groessere Schrift als auf 1600 x 900, ohne dass sich das Layout
+     aendert. Eine Folie sieht ueberall gleich aus, nur groesser.
+
+     Die Zahlen sind fuer die letzte Reihe gewaehlt: Fliesstext 30 px auf
+     1500 px Breite entspricht auf einer 3 m breiten Projektion rund
+     6 cm Zeilenhoehe.
      ==================================================================== */
-  .slide h2.wt{font-size:clamp(20px,min(4.1vw,5.6vh),60px)}
-  .slide p,.slide li{font-size:clamp(14px,min(2vw,2.9vh),28px)}
-  .frage{font-size:clamp(24px,min(5.2vw,7.4vh),84px)}
-  .antwort .wert{font-size:clamp(28px,min(6vw,8.4vh),96px)}
-  .lead{font-size:clamp(15px,min(2.05vw,2.9vh),30px)}
-  .opt{font-size:clamp(12px,min(1.8vw,2.6vh),26px)}
-  .schritt .txt{font-size:clamp(13px,min(1.9vw,2.7vh),28px)}
-  .schilder .schild td{font-size:clamp(13px,min(2vw,2.8vh),30px)}
-  .schilder .schild h3{font-size:clamp(15px,min(2.2vw,3vh),33px)}
-  .wtab td,.wtab th{font-size:clamp(13px,min(1.9vw,2.7vh),29px)}
-  .merk .satz{font-size:clamp(18px,min(2.75vw,3.9vh),42px)}
-  .merk .zusatz{font-size:clamp(13px,min(1.7vw,2.4vh),25px)}
-  .auftrag li{font-size:clamp(14px,min(1.9vw,2.7vh),28px)}
-  .aufloesung{font-size:clamp(13px,min(1.75vw,2.5vh),25px)}
-  .paar .halb p{font-size:clamp(13px,min(1.8vw,2.6vh),26px)}
-  .tab td.nrz,.tab td.fr{font-size:clamp(12px,min(1.45vw,2.1vh),20px)}
-  .tab td.an{font-size:clamp(12px,min(1.5vw,2.2vh),21px)}
-  .balkenzeile .bst{font-size:clamp(12px,min(1.6vw,2.3vh),23px)}
-  .balkenzeile .zahl{font-size:clamp(12px,min(1.7vw,2.4vh),25px)}
-  .balkenzeile .bar{height:clamp(11px,1.7vh,26px)}
-  .kurzadresse{font-size:clamp(15px,min(2.6vw,3.4vh),38px)}
-  .qrfolie .qrbild svg{width:min(30vw,34vh,340px)}
-  .graphpaar .graph{width:min(38vw,44vh,470px)}
-  .graph{width:min(52vw,58vh,640px)}
+  .slide h1{font-size:74px;line-height:1.05}
+  .slide h2{font-size:50px}
+  /* 26 Zeichen waren aus der alten, schmaleren Fassung uebrig: Die Frage
+     stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
+     420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
+     verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
+  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  .slide p,.slide li{font-size:30px;line-height:1.45}
+  .kicker{font-size:21px}
+  .lead{font-size:31px;max-width:46ch}
+  .callout{padding:.75em 1.05em}
+  .frage{font-size:66px;max-width:22ch}
+  .antwort .wert{font-size:78px}
+  .antwort .neben{font-size:28px}
+  .pill{font-size:20px}
+  .marke{font-size:19px}
+  .opt{font-size:28px;padding:16px 18px}
+  .opt .bst{font-size:26px}
+  .aufloesung{font-size:29px;padding:16px 19px}
+  .schritt{padding:14px 16px}
+  .schritt .txt{font-size:31px}
+  .schritt .num{font-size:27px}
+  .schilder .schild{padding:18px 20px}
+  .schilder .schild td{font-size:32px;padding:.24em .1em}
+  .schilder .schild h3{font-size:35px}
+  .schilder .schild .fuss{font-size:20px}
+  .wtab td,.wtab th{font-size:31px;padding:.3em .7em}
+  .wtab td.pf{font-size:24px}
+  .merk{padding:26px 28px}
+  .merk .satz{font-size:46px}
+  .merk .zusatz{font-size:27px}
+  .auftrag{padding:24px 26px}
+  .auftrag li{font-size:31px}
+  .zeitschild{font-size:24px}
+  .paar .halb{padding:18px 20px}
+  .paar .halb h4{font-size:22px}
+  .paar .halb p{font-size:28px}
+  .tab td.nrz,.tab td.fr{font-size:22px}
+  .tab td.an{font-size:23px}
+  .tab th{font-size:17px}
+  .opt .zahl{font-size:27px}
+  .kurzadresse{font-size:40px}
+  .qrfolie .qrbild svg{width:330px}
+  .graph{width:620px}
+  .graphpaar .graph{width:450px}
+  .graphreihe .graph{max-width:250px}
+  .graphreihe figcaption{font-size:22px}
+  .plbild .schild td{font-size:26px}
+  .plbild .schild h3{font-size:29px}
+  .plbild .wtab td,.plbild .wtab th{font-size:26px;padding:.22em .55em}
+  .plbild .graph{width:520px}
+  .mwsplit .frage{font-size:54px;max-width:none}
+  .mwsplit .antwort .wert{font-size:66px}
 
-  /* Auf der dichtesten Folie - Beleg, vier Karten, Balken, Aufloesung -
-     reicht das nicht; dort wird zusaetzlich enger gesetzt. */
-  .slide.abstimmt h2.wt{font-size:clamp(17px,min(2.9vw,3.9vh),42px)}
-  .slide.abstimmt .opt{font-size:clamp(11px,min(1.5vw,2.05vh),21px)}
-  .slide.abstimmt .aufloesung{font-size:clamp(11px,min(1.4vw,1.95vh),22px)}
-  .slide.abstimmt .plbild .schild td{font-size:clamp(11px,min(1.5vw,2vh),22px)}
-  .slide.abstimmt .plbild .schild h3{font-size:clamp(12px,min(1.7vw,2.2vh),25px)}
-  .slide.abstimmt .plbild .wtab td,.slide.abstimmt .plbild .wtab th{
-    font-size:clamp(11px,min(1.4vw,1.95vh),21px)}
-  .slide.abstimmt .plbild .graph{width:min(34vw,30vh,400px)}
-  .slide.abstimmt .balkenzeile .bar{height:clamp(9px,1.35vh,20px)}
+  /* Die dichteste Folie - Beleg, vier Karten, Aufloesung - behaelt ihre
+     Groessen. Passt sie nicht, verkleinert die Einpassung die ganze
+     Flaeche; das faellt kaum auf, weil alles gleichmaessig mitgeht. Eine
+     eigene, kleinere Schrift fuer die Abstimmung gibt es nicht mehr:
+     Sie war der Grund, warum die Folie unlesbar wurde, sobald die Klasse
+     zu antworten begann. */
 
-  /* --- Selbsteinpassung ------------------------------------------------
-     Trotz aller Groessenregeln bleibt eine dichte Folie auf einer flachen
-     Anlage zu hoch. Statt weiter an Zahlen zu drehen, misst die Folie sich
-     beim Aufblenden selbst und schrumpft, wenn sie muss. Der Inhalt liegt
-     dafuer in einer .buehne - alles ausser der Randnotiz, die weiter fest
-     am Bildrand haengt. */
-  .buehne{width:100%;transform-origin:top center}
+  /* --- Die Entwurfsflaeche selbst --------------------------------------
+     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
+     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
+     nach oben. */
+  .buehne{width:1200px;transform-origin:top center}
+  /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
+     skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
+     Titelfolie richtet ihren Text ueber ein eigenes style-Attribut links
+     aus - das gewinnt gegen diese Regel.
+     (Kein Selektor auf [style*="flex-start"]: Der prueft die ZEICHENKETTE
+     des Attributs und traf auch das justify-content, das die Einpassung
+     dort setzt. Die Flaeche rutschte dadurch um 40 Pixel nach links aus
+     dem Bild.) */
+  .slide{align-items:center}
 
   /* --- Randnotiz: die Weiche der Lehrkraft ---
      Sie liegt wie in allen Projektionsseiten ueber der Folie; auf einer
@@ -448,7 +485,7 @@
 </section>
 
 <section class="slide mitbild" data-phase="2 · Der Konflikt" data-ab="14" data-marke="P1" data-frage="4 Brötchen kosten 1,40 €, 6 Brötchen kosten 2,00 €. Ist Anzahl → Preis proportional?" data-optionen="[&quot;Ja — mehr Brötchen kosten mehr Geld.&quot;, &quot;Ja — von 4 auf 6 sind es 2 Brötchen mehr und 0,60 € mehr. Das passt.&quot;, &quot;Nein — 1,40 €: 4 = 0,35 €, aber 2,00 €: 6 ≈ 0,33 €.&quot;, &quot;Mit nur zwei Zeilen kann man das nicht entscheiden.&quot;]" data-schluessel="p1">
-<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Prognose — vor jeder Rechnung</div><h2 class="wt">4 Brötchen kosten 1,40 €, 6 Brötchen kosten 2,00 €.<br>Ist <span class="term">Anzahl → Preis</span> proportional?</h2><div class="plbild"><div class="schild"><h3>Brötchen</h3><table><tr><td>einzeln, je Stück</td><td class="p">0,35 €</td></tr><tr><td>6 Stück im Angebot</td><td class="p">2,00 €</td></tr><tr><td>Lena: 4 Stück</td><td class="p">1,40 €</td></tr><tr><td>Tom: 6 Stück</td><td class="p">2,00 €</td></tr></table><div class="fuss">Buch S. 20</div></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Ja — mehr Brötchen kosten mehr Geld.</span></div><div class="opt"><span class="bst">B</span><span>Ja — von 4 auf 6 sind es 2 Brötchen mehr und 0,60 € mehr. Das passt.</span></div><div class="opt"><span class="bst">C</span><span>Nein — 1,40 € : 4 = 0,35 €, aber 2,00 € : 6 ≈ 0,33 €.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>Mit nur zwei Zeilen kann man das nicht entscheiden.</span></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">C</b>. Man teilt in <b>jeder Zeile</b> den Preis durch die Anzahl. Kommt nicht überall dieselbe Zahl heraus, ist die Zuordnung nicht proportional.</div><div class="randnotiz"><b>B ist die Mehrheitsfalle</b> und der Denkfehler, gegen den die ganze Stunde arbeitet. Erwarten Sie 40–60 % auf B.<br><b>A</b> ist die Antwort von gestern — sie war schon gestern zu wenig. <b>D</b> klingt vorsichtig und ist trotzdem falsch: Zum <i>Widerlegen</i> genügen zwei Zeilen sehr wohl. Diesen Punkt nicht hier ausbreiten — er ist Phase 7.<br><b>Nach dem Balken:</b> jemanden mit B aufrufen und die Differenz 0,60 € : 2 = 0,30 € gemeinsam ausrechnen lassen. Dass dabei eine <i>dritte</i> Zahl herauskommt (nicht 0,35, nicht 0,33), erledigt das Argument gründlicher als jede Erklärung.<span class="weiche"><i>Weiche:</i> Nicht verzweigen — eine niedrige Quote ist hier erwünscht. Weiter zur Auflösung.</span></div>
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Prognose — vor jeder Rechnung</div><h2 class="wt">4 Brötchen kosten 1,40 €, 6 Brötchen kosten 2,00 €.<br>Ist <span class="term">Anzahl → Preis</span> proportional?</h2><div class="plzeile"><div class="plbild"><div class="schild"><h3>Brötchen</h3><table><tr><td>einzeln, je Stück</td><td class="p">0,35 €</td></tr><tr><td>6 Stück im Angebot</td><td class="p">2,00 €</td></tr><tr><td>Lena: 4 Stück</td><td class="p">1,40 €</td></tr><tr><td>Tom: 6 Stück</td><td class="p">2,00 €</td></tr></table><div class="fuss">Buch S. 20</div></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Ja — mehr Brötchen kosten mehr Geld.</span></div><div class="opt"><span class="bst">B</span><span>Ja — von 4 auf 6 sind es 2 Brötchen mehr und 0,60 € mehr. Das passt.</span></div><div class="opt"><span class="bst">C</span><span>Nein — 1,40 € : 4 = 0,35 €, aber 2,00 € : 6 ≈ 0,33 €.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>Mit nur zwei Zeilen kann man das nicht entscheiden.</span></div></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">C</b>. Man teilt in <b>jeder Zeile</b> den Preis durch die Anzahl. Kommt nicht überall dieselbe Zahl heraus, ist die Zuordnung nicht proportional.</div><div class="randnotiz"><b>B ist die Mehrheitsfalle</b> und der Denkfehler, gegen den die ganze Stunde arbeitet. Erwarten Sie 40–60 % auf B.<br><b>A</b> ist die Antwort von gestern — sie war schon gestern zu wenig. <b>D</b> klingt vorsichtig und ist trotzdem falsch: Zum <i>Widerlegen</i> genügen zwei Zeilen sehr wohl. Diesen Punkt nicht hier ausbreiten — er ist Phase 7.<br><b>Nach dem Balken:</b> jemanden mit B aufrufen und die Differenz 0,60 € : 2 = 0,30 € gemeinsam ausrechnen lassen. Dass dabei eine <i>dritte</i> Zahl herauskommt (nicht 0,35, nicht 0,33), erledigt das Argument gründlicher als jede Erklärung.<span class="weiche"><i>Weiche:</i> Nicht verzweigen — eine niedrige Quote ist hier erwünscht. Weiter zur Auflösung.</span></div>
 </section>
 
 <section class="slide" data-phase="2 · Der Konflikt" data-ab="17">
@@ -492,7 +529,7 @@
 </section>
 
 <section class="slide mitbild" data-phase="5 · Der Faktor" data-ab="47" data-marke="P3" data-frage="Welcher Graph gehört sicher nicht zu einer proportionalen Zuordnung?" data-optionen="[&quot;eine Halbgerade vom Ursprung nach rechts oben&quot;, &quot;eine sehr flache Halbgerade vom Ursprung aus&quot;, &quot;eine steigende Gerade, die die y-Achse bei 3 schneidet&quot;, &quot;eine steile Halbgerade vom Ursprung aus&quot;]" data-schluessel="p3">
-<div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Am Graphen entscheiden</div><h2 class="wt">Welcher Graph gehört <span class="accent">sicher nicht</span> zu einer proportionalen Zuordnung?</h2><div class="plbild"><div class="graphreihe"><figure><figcaption>A</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 184.0,52.8" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="58.8" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>B</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 184.0,87.6" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="93.6" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>C</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,73.2 184.0,32.2" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="38.2" fill="#dc2626" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>D</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 151.5,27.1" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="161.5" y="33.1" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>eine Halbgerade vom Ursprung nach rechts oben</span></div><div class="opt"><span class="bst">B</span><span>eine sehr flache Halbgerade vom Ursprung aus</span></div><div class="opt"><span class="bst">C</span><span>eine steigende Gerade, die die y-Achse bei 3 schneidet</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>eine steile Halbgerade vom Ursprung aus</span></div></div><div class="aufloesung frag hart"><b class="loesungswert">C</b>. Dort gehört zu x = 0 der Wert y = 3, nicht <b class="loesungswert">0</b>. Wie steil oder flach eine Halbgerade ist, entscheidet dagegen gar nichts.</div><div class="randnotiz"><b>A, B und D sind alle proportional</b> — sie unterscheiden sich nur im Faktor. Wer B oder D wählt, hält „sehr flach“ oder „sehr steil“ für verdächtig und hat den Faktor noch nicht als beliebige Zahl akzeptiert.<br><b>Buch S. 21 Nr. 3</b> zeigt vier gezeichnete Graphen; wenn Zeit ist, danach das Buch aufschlagen lassen und dieselbe Entscheidung an den Bildern treffen — dort ist einer eine <i>Kurve</i>, was hier nicht vorkommt.<span class="weiche"><i>Weiche:</i> ab 75 % weiter · unter 75 % zurück zu Folie 19 und die rote Linie bis zur y-Achse verfolgen lassen.</span></div>
+<div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Am Graphen entscheiden</div><h2 class="wt">Welcher Graph gehört <span class="accent">sicher nicht</span> zu einer proportionalen Zuordnung?</h2><div class="plzeile"><div class="plbild"><div class="graphreihe"><figure><figcaption>A</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 184.0,52.8" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="58.8" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>B</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 184.0,87.6" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="93.6" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>C</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,73.2 184.0,32.2" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="38.2" fill="#dc2626" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>D</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 151.5,27.1" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="161.5" y="33.1" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>eine Halbgerade vom Ursprung nach rechts oben</span></div><div class="opt"><span class="bst">B</span><span>eine sehr flache Halbgerade vom Ursprung aus</span></div><div class="opt"><span class="bst">C</span><span>eine steigende Gerade, die die y-Achse bei 3 schneidet</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>eine steile Halbgerade vom Ursprung aus</span></div></div></div><div class="aufloesung frag hart"><b class="loesungswert">C</b>. Dort gehört zu x = 0 der Wert y = 3, nicht <b class="loesungswert">0</b>. Wie steil oder flach eine Halbgerade ist, entscheidet dagegen gar nichts.</div><div class="randnotiz"><b>A, B und D sind alle proportional</b> — sie unterscheiden sich nur im Faktor. Wer B oder D wählt, hält „sehr flach“ oder „sehr steil“ für verdächtig und hat den Faktor noch nicht als beliebige Zahl akzeptiert.<br><b>Buch S. 21 Nr. 3</b> zeigt vier gezeichnete Graphen; wenn Zeit ist, danach das Buch aufschlagen lassen und dieselbe Entscheidung an den Bildern treffen — dort ist einer eine <i>Kurve</i>, was hier nicht vorkommt.<span class="weiche"><i>Weiche:</i> ab 75 % weiter · unter 75 % zurück zu Folie 19 und die rote Linie bis zur y-Achse verfolgen lassen.</span></div>
 </section>
 
 <section class="slide" data-phase="6 · Wir zusammen" data-ab="51">
@@ -674,28 +711,43 @@
       folie.insertBefore(b, folie.firstChild);
     }
     /* Nur ueber style, NIE ueber eine Klasse: Der Beobachter unten horcht
-       auf Klassenwechsel: und wuerde sich sonst selbst wieder ausloesen -
+       auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
        eine Schleife, die den Aufbau der Seite anhaelt. */
     b.style.transform = "";
     folie.style.justifyContent = "";
-    /* Die Polsterung folgt den gemessenen Leisten statt festen vh-Werten:
-       Kommt eine Anzeige dazu (Abstimmung) oder faellt eine weg, stimmt
-       der Rand von selbst. */
+    /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
+       mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
+       Die Titelfolie stellt align-items auf flex-start, um ihren Text
+       links zu setzen; ohne dieses align-self ruckte die skalierte
+       Flaeche dadurch seitlich aus dem Bild. Der Text bleibt trotzdem
+       links - er richtet sich INNERHALB der Flaeche aus. */
+    b.style.alignSelf = "center";
     const B = window.leistenband();
-    folie.style.paddingTop = Math.round(B.oben) + "px";
-    folie.style.paddingBottom = Math.round(innerHeight - B.unten) + "px";
     const platz = B.unten - B.oben;
+    const breite = folie.clientWidth
+                 - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
     const hoch = b.getBoundingClientRect().height;
-    if(hoch > platz - 6 && platz > 0){
-      /* Sechs Pixel Luft: Runden und Zwischenraeume summieren sich sonst
-         genau bis an die Kante, und „genau bis an die Kante" heisst an der
-         Wand: eine angeschnittene Zeile. */
-      const k = Math.max(0.6, (platz - 6) / hoch);
-      b.style.transform = "scale(" + k.toFixed(4) + ")";
-      folie.style.justifyContent = "flex-start";
-      return k;
-    }
-    return 1;
+    if(platz <= 0 || hoch <= 0) return 1;
+    /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
+       von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
+       wuerde eine kurze Folie grotesk wirken. */
+    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    b.style.transform = "scale(" + k.toFixed(4) + ")";
+    /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
+       Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
+    const rest = Math.max(0, platz - hoch * k);
+    const soll = B.oben + rest / 2;
+    folie.style.justifyContent = "flex-start";
+    folie.style.paddingTop = Math.round(soll) + "px";
+    folie.style.paddingBottom = Math.round(innerHeight - B.unten + rest / 2) + "px";
+    /* Nachmessen statt vertrauen: Zwischen der gerechneten und der
+       wirklichen Lage lagen 8 px - die Flaeche stand unten aus dem freien
+       Band heraus. Woher der Versatz kommt (Polster, Ursprung der
+       Skalierung, Rundung), muss man nicht wissen, wenn man ihn misst. */
+    const ist = b.getBoundingClientRect().top;
+    if (Math.abs(ist - soll) > 0.5)
+      folie.style.paddingTop = Math.round(soll - (ist - soll)) + "px";
+    return k;
   };
 
   (function einpassenVerdrahten(){
@@ -816,32 +868,37 @@
       }
     }
 
-    /* --- Balkenzeilen in eine Plickers-Folie einhaengen --- */
+    /* --- Die Karten fuer die Abstimmung herrichten ---
+       Jede Antwortkarte bekommt eine Fuellung hinter ihrem Text und eine
+       Zahl an den rechten Rand. Kein eigener Balkenblock mehr: Der
+       wiederholte die Buchstaben und machte die Folie flach. */
     function balken(folie){
-      let b = folie.querySelector(".balken");
-      if (b) return b;
       const karten = [...folie.querySelectorAll(".opt")];
       if (!karten.length) return null;
-      b = document.createElement("div");
-      b.className = "balken";
-      karten.forEach((k, i) => {
-        const zeile = document.createElement("div");
-        zeile.className = "balkenzeile" + (k.querySelector(".haken") ? " richtig" : "");
-        zeile.innerHTML = '<span class="bst">' + (BST[i]||i+1) + '</span>'
-                        + '<div class="bar"><i></i></div><span class="zahl">0</span>';
-        b.appendChild(zeile);
+      karten.forEach(k => {
+        if (k.querySelector(".fuellung")) return;
+        /* Die richtige Karte wird hier vermerkt, aber noch nicht gefaerbt
+           - das geschieht erst beim Aufloesen (.plickers.gezeigt). */
+        if (k.querySelector(".haken")) k.classList.add("istrichtig");
+        const f = document.createElement("i");
+        f.className = "fuellung";
+        k.insertBefore(f, k.firstChild);
+        const z = document.createElement("span");
+        z.className = "zahl";
+        z.textContent = "0";
+        k.appendChild(z);
       });
-      folie.querySelector(".plickers").after(b);
-      return b;
+      return folie.querySelector(".plickers");
     }
 
     function male(folie, zaehler, abgestimmt){
-      const b = balken(folie); if (!b) return;
+      const wand = balken(folie); if (!wand) return;
       const summe = zaehler.reduce((s,n)=>s+n, 0) || 1;
-      [...b.children].forEach((zeile, i) => {
+      [...folie.querySelectorAll(".opt")].forEach((k, i) => {
         const n = zaehler[i] || 0;
-        zeile.querySelector("i").style.width = Math.round(n / summe * 100) + "%";
-        zeile.querySelector(".zahl").textContent = n;
+        k.querySelector(".fuellung").style.width =
+          Math.round(n / summe * 100) + "%";
+        k.querySelector(".zahl").textContent = n;
       });
       stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
     }
@@ -861,8 +918,7 @@
         laufend = { folie, schluessel };
         stand.classList.remove("zu");
         const b = balken(folie);
-        if (b){ b.classList.add("an"); b.classList.remove("gezeigt");
-                folie.classList.add("abstimmt"); }
+        if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
         tick();
         clearInterval(ticker); ticker = setInterval(tick, 1500);
       } catch(e){}
@@ -899,7 +955,7 @@
       if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
       if (laufend && laufend.folie !== folie) return schliesse();
       if (laufend && aufgeloest){
-        const b = folie.querySelector(".balken"); if (b) b.classList.add("gezeigt");
+        const b = folie.querySelector(".plickers"); if (b) b.classList.add("gezeigt");
         return schliesse();
       }
     }
