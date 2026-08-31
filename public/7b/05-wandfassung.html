@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wandfassung · Die Zahl, die in jeder Zeile gleich bleibt (7b)</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#4f46e5; --accent2:#0ea5e9; --gold:#d97706; --green:#15803d; --red:#dc2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:4.5vh 5vw 9vh;animation:fade .35s ease}
+  .slide.on{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1{font-size:clamp(34px,5.5vw,76px);line-height:1.04;font-weight:800;letter-spacing:-.01em}
+  h2{font-size:clamp(26px,3.6vw,48px);font-weight:800;line-height:1.08;margin-bottom:.5em}
+  .kicker{font-size:clamp(13px,1.4vw,18px);font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em}
+  p,li{font-size:clamp(17px,2vw,28px);line-height:1.5}
+  .muted{color:var(--muted)} .accent{color:var(--accent)} .gold{color:var(--gold)} .green{color:var(--green)} .red{color:var(--red)}
+  .big{font-size:clamp(40px,7vw,110px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:.25em .9em;font-size:clamp(13px,1.4vw,18px);font-weight:700}
+  .callout{background:#eef2ff;border:1px solid #c7d2fe;border-left:7px solid var(--accent);border-radius:14px;padding:.8em 1.1em;margin-top:.7em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:2.2vh 2vw;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:50}
+  .nav button{border:1px solid var(--line);background:#fff;color:var(--ink);width:46px;height:46px;border-radius:12px;font-size:20px;cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .dots{display:flex;gap:8px}.dot{width:11px;height:11px;border-radius:50%;background:#cbd5e1;cursor:pointer}.dot.on{background:var(--accent);transform:scale(1.25)}
+  .counter{position:fixed;top:16px;right:20px;font-size:14px;font-weight:700;color:var(--muted);z-index:50}
+  .home{position:fixed;top:14px;left:18px;z-index:50;font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 11px}
+  .home:hover{color:var(--accent);border-color:var(--accent)}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:.6em 1.1em;font-size:clamp(15px,1.6vw,20px);font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btnrow{display:flex;gap:10px;margin-top:1em;flex-wrap:wrap}
+  .hintkey{position:fixed;bottom:74px;left:0;right:0;text-align:center;color:var(--muted);font-size:13px;z-index:40}
+  .frag{transition:opacity .3s ease}
+  .ghostctl{position:fixed;left:16px;bottom:18px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;z-index:60;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .ghostctl input{width:96px;accent-color:var(--accent)}
+  @media print{.ghostctl{display:none}}
+
+  /* --- Whiteboard-Runde --- */
+  .nr{font-variant-numeric:tabular-nums}
+  .frage{font-size:clamp(30px,5.2vw,84px);font-weight:800;line-height:1.14;letter-spacing:-.01em;max-width:22ch}
+  .frage .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .zusatz{font-size:clamp(16px,1.9vw,26px);color:var(--muted);margin-top:.9em}
+  .antwort{margin-top:3.4vh;display:flex;align-items:baseline;gap:1.1vw;flex-wrap:wrap}
+  .antwort .wert{font-size:clamp(34px,6vw,96px);font-weight:800;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
+  .antwort .neben{font-size:clamp(16px,1.8vw,26px)}
+  /* Randnotiz: nur fuer die Lehrkraft, Taste D */
+  .randnotiz{display:none;position:fixed;left:16px;bottom:120px;max-width:min(38ch,42vw);background:#fffbeb;border:1px solid #fcd34d;border-left:7px solid var(--gold);border-radius:12px;padding:.7em .9em;font-size:clamp(12px,1.05vw,15px);line-height:1.45;color:#4a3410;z-index:55;box-shadow:0 6px 20px rgba(15,23,42,.12)}
+  body.notizen .slide.on .randnotiz{display:block}
+  .randnotiz b{color:#92400e}
+  .notizmarke{position:fixed;top:16px;right:96px;z-index:56;display:none;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid #fcd34d;background:#fffbeb;border-radius:8px;padding:4px 9px}
+  body.notizen .notizmarke{display:block}
+  /* Uebersicht */
+  .tab{width:100%;border-collapse:collapse;margin-top:1.4vh}
+  .tab th,.tab td{border-bottom:1px solid var(--line);padding:.45em .6em;text-align:left;vertical-align:top}
+  .tab th{font-size:clamp(11px,1.1vw,15px);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800}
+  .tab td.nrz{width:2.4em;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .tab td.fr{font-size:clamp(13px,1.55vw,22px);line-height:1.3}
+  .tab td.an{font-size:clamp(14px,1.7vw,24px);font-weight:800;color:var(--green);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tab td.di,.tab th.di{display:none;font-size:clamp(11px,1.1vw,15px);color:#4a3410;line-height:1.35;max-width:44ch}
+  body.notizen .tab td.di,body.notizen .tab th.di{display:table-cell}
+  body.notizen .tab td.fr{font-size:clamp(12px,1.25vw,17px)}
+  body.notizen .tab td.an{font-size:clamp(12px,1.35vw,19px)}
+
+  /* ================= Wandfassung (Direct Instruction) ================= */
+
+  /* --- Regieleiste: Phase, Planminute, Stoppuhr --- */
+  .regie{position:fixed;top:13px;left:50%;transform:translateX(-50%);z-index:52;
+    display:flex;align-items:center;gap:12px;background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:5px 15px;
+    font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;
+    box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .regie .pnam{color:var(--ink)}
+  .regie .ptr{color:#cbd5e1}
+  .regie .puhr{font-variant-numeric:tabular-nums;color:var(--accent);min-width:4.2em;
+    text-align:right}
+  body.spaet .regie{border-color:#fcd34d;background:#fffbeb}
+  body.spaet .regie .puhr{color:var(--gold)}
+  body.sehrspaet .regie{border-color:#fecaca;background:#fef2f2}
+  body.sehrspaet .regie .puhr{color:var(--red)}
+  @media print{.regie{display:none}}
+
+  /* --- Platz fuer die Leisten ------------------------------------------
+     Die Vorlage laesst oben 4,5vh frei. Das genuegt fuer den blossen
+     Zurueck-Link, nicht fuer Regieleiste, Abstimmungsanzeige und
+     Foliennummer - die liegen sonst auf der ersten Zeile. Unten dasselbe
+     mit Tastenzeile und Blaetterknoepfen. Feste Mindestwerte, weil vh auf
+     einem flachen Fenster zu wenig ergibt. */
+  .slide{padding:max(7.5vh,66px) 5vw max(10vh,86px)}
+
+  /* --- Ueberschriften und Fliesstext der Lehrgangsfolien --- */
+  .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
+  .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* --- Ablauftabelle der zweiten Folie ---------------------------------
+     Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
+     steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
+     so hoch macht. Auf einem breiten Bildschirm laeuft die Folie damit
+     unten heraus. */
+  .tab td.nrz{width:auto;min-width:4.4em;white-space:nowrap;
+    font-size:clamp(13px,1.4vw,20px)}
+  .tab td.fr{font-size:clamp(13px,1.45vw,20px)}
+  .tab td.an{font-size:clamp(13px,1.5vw,21px)}
+  .tab th,.tab td{padding:.34em .55em}
+  .lead{font-size:clamp(17px,2.05vw,30px);line-height:1.4;max-width:44ch}
+  .weit{max-width:none}
+
+  /* --- Ich zeige es: Rechenschritte, einer nach dem anderen --- */
+  .schritte{display:flex;flex-direction:column;gap:1.15vh;margin-top:1.8vh}
+  .schritt{display:flex;gap:1vw;align-items:flex-start;background:var(--panel);
+    border:1px solid var(--line);border-left:7px solid var(--accent2);
+    border-radius:14px;padding:1.15vh 1.15vw}
+  .schritt .num{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:9px;
+    background:#e0f2fe;color:#075985;font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:clamp(15px,1.7vw,25px)}
+  .schritt .txt{font-size:clamp(16px,1.9vw,28px);line-height:1.33}
+  .schritt .rech{display:block;margin-top:.18em;font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .schritt.ergebnis{border-left-color:var(--green);background:#f0fdf4}
+  .schritt.ergebnis .num{background:#dcfce7;color:#14532d}
+  .schritt.ergebnis .rech{color:var(--green)}
+  .schritt.fehler{border-left-color:var(--red);background:#fef2f2}
+  .schritt.fehler .num{background:#fee2e2;color:#7f1d1d}
+  .schritt.fehler .rech{color:var(--red)}
+  /* Ab fuenf Schritten passt die Folie sonst nicht mehr auf 16:9 - dann
+     rueckt alles enger zusammen, statt oben aus dem Bild zu laufen. */
+  .schritte.eng{gap:.7vh}
+  .schritte.eng .schritt{padding:.8vh 1vw}
+  .schritte.eng .txt{font-size:clamp(14px,1.62vw,24px)}
+  .schritte.eng .num{width:1.6em;height:1.6em;font-size:clamp(13px,1.45vw,21px)}
+
+  /* --- Preisschilder --- */
+  .schilder{display:flex;gap:2vw;margin-top:1.8vh;flex-wrap:wrap;align-items:flex-start}
+  .schild{flex:1 1 300px;background:#fffdf3;border:2px solid #e6c34a;border-radius:16px;
+    padding:1.5vh 1.4vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .schild h3{font-size:clamp(18px,2.2vw,33px);font-weight:800;color:#8d6e00;
+    margin-bottom:.35em;line-height:1.15}
+  .schild table{width:100%;border-collapse:collapse}
+  .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
+    font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
+  .schild tr:last-child td{border-bottom:none}
+  .schild td.p{text-align:right;font-weight:800}
+  .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
+
+  /* --- Wertetabelle mit Vervielfachungspfeilen --- */
+  .wtab{border-collapse:collapse;margin-top:1.8vh}
+  .wtab td,.wtab th{border:2px solid #94a3b8;padding:.34em .75em;
+    font-size:clamp(15px,1.9vw,29px);text-align:center;font-variant-numeric:tabular-nums}
+  .wtab th{background:#eef2ff;font-weight:800;text-align:left;white-space:nowrap}
+  .wtab td.pf{border:none;background:none;color:var(--accent);font-weight:800;
+    font-size:clamp(13px,1.5vw,22px);padding:.34em .35em;white-space:nowrap}
+  .wtab td.hin{background:#f0fdf4;color:var(--green);font-weight:800}
+  .wtab td.raus{background:#fef2f2;color:var(--red);font-weight:800}
+  .wtab td.luecke{background:#fffbeb;color:var(--gold);font-weight:800}
+
+  /* --- Abfrage mit Beleg ---------------------------------------------
+     Wer ueber eine Tabelle abstimmt, muss die Tabelle sehen. Steht die
+     Frage auf einer eigenen Folie, ist der Beleg von der Vorfolie weg -
+     deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
+     Plickers ueber die vier Karten. */
+  .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
+  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
+  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
+  .mwsplit .antwort{margin-top:2.2vh}
+  .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
+  .mwsplit .wtab{margin-top:0}
+  .mwsplit .wtab td,.mwsplit .wtab th{font-size:clamp(13px,1.55vw,24px);
+    padding:.26em .55em}
+  .mwsplit .schilder{margin-top:0}
+  .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
+  .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+
+  .plbild{margin:.7vh 0 .2vh}
+  .plbild .wtab{margin-top:0}
+  .plbild .wtab td,.plbild .wtab th{font-size:clamp(12px,1.42vw,21px);
+    padding:.2em .5em}
+  .plbild .schilder{margin-top:0}
+  .plbild .schild{padding:.9vh 1vw}
+  .plbild .schild td{font-size:clamp(13px,1.5vw,22px);padding:.16em .1em}
+  .plbild .schild h3{font-size:clamp(15px,1.7vw,25px)}
+  .plbild .graph{margin-top:0;width:min(46vw,560px)}
+  .slide.mitbild h2.wt{font-size:clamp(21px,2.9vw,42px);margin-bottom:.2em}
+  .slide.mitbild .plickers{gap:1vh 1.4vw;margin-top:1.2vh}
+  .slide.mitbild .opt{padding:.85vh 1vw;font-size:clamp(13px,1.5vw,21px)}
+  .slide.mitbild .aufloesung{margin-top:1.2vh;padding:1vh 1.1vw;
+    font-size:clamp(13px,1.5vw,22px)}
+
+  /* --- Plickers --- */
+  .plickers{display:grid;grid-template-columns:1fr 1fr;gap:1.5vh 1.5vw;margin-top:2.2vh}
+  @media (max-width:900px){.plickers{grid-template-columns:1fr}}
+  .opt{position:relative;display:flex;gap:.85vw;align-items:flex-start;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:1.25vh 1.1vw;font-size:clamp(15px,1.8vw,26px);line-height:1.28}
+  .opt .bst{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:10px;
+    background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:.95em}
+  /* Die Markierung der richtigen Antwort ist ein eigenes .frag-Element:
+     Sie legt sich als gruener Rahmen ueber die Karte, sobald aufgeloest wird. */
+  .haken{position:absolute;inset:-3px;border:3px solid var(--green);border-radius:17px;
+    background:rgba(220,252,231,.45);display:flex;align-items:flex-start;
+    justify-content:flex-end;pointer-events:none}
+  .haken b{background:var(--green);color:#fff;border-radius:999px;
+    padding:.12em .75em;font-size:clamp(12px,1.25vw,18px);
+    transform:translate(-.5em,-.65em)}
+  .aufloesung{margin-top:1.8vh;background:#f0fdf4;border:1px solid #86efac;
+    border-left:7px solid var(--green);border-radius:14px;padding:1.3vh 1.2vw;
+    font-size:clamp(15px,1.75vw,25px);line-height:1.38}
+  .aufloesung .loesungswert{color:var(--green);font-variant-numeric:tabular-nums}
+  .marke{display:inline-block;background:var(--accent);color:#fff;border-radius:8px;
+    padding:.1em .55em;font-size:clamp(12px,1.25vw,17px);font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;vertical-align:.12em}
+  .marke.mwb{background:#0f766e}
+  .marke.plk{background:#7c3aed}
+
+  /* --- Kleines Koordinatensystem --- */
+  .graph{width:min(52vw,640px);height:auto;margin-top:1.4vh}
+  .graphpaar{display:flex;gap:2vw;align-items:flex-start;flex-wrap:wrap}
+  .graphpaar .graph{width:min(38vw,470px)}
+  /* Vier Skizzen nebeneinander, je eine je Antwortkarte - damit man ueber
+     Graphen abstimmen kann, ohne sie sich vorstellen zu muessen. */
+  .graphreihe{display:flex;gap:1.1vw;align-items:flex-start;justify-content:center}
+  .graphreihe figure{margin:0;text-align:center;flex:1 1 0;min-width:0}
+  .graphreihe figcaption{font-size:clamp(13px,1.5vw,21px);font-weight:800;
+    color:var(--accent);margin-bottom:.15em}
+  .graphreihe .graph{width:100%;max-width:230px;margin-top:0}
+
+  /* --- Merksatz --- */
+  .merk{background:#fffbeb;border:2px solid #fcd34d;border-left:9px solid var(--gold);
+    border-radius:18px;padding:2.1vh 1.9vw;margin-top:1.6vh}
+  .merk .satz{font-size:clamp(20px,2.75vw,42px);font-weight:800;line-height:1.24}
+  .merk .zusatz{font-size:clamp(15px,1.7vw,25px);color:#7a5c10;margin-top:.65em;
+    line-height:1.4}
+
+  /* --- Arbeitsauftrag der kurzen Eigenphase --- */
+  .auftrag{background:var(--panel);border:1px solid var(--line);
+    border-left:9px solid var(--accent);border-radius:18px;padding:2vh 1.9vw;
+    margin-top:1.6vh;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .auftrag ol{margin:.4em 0 0 1.3em}
+  .auftrag li{margin:.34em 0;font-size:clamp(16px,1.9vw,28px);line-height:1.35}
+  .zeitschild{display:inline-block;background:var(--accent);color:#fff;
+    border-radius:999px;padding:.18em .95em;font-size:clamp(14px,1.5vw,22px);
+    font-weight:800}
+
+  /* --- Zwei Spalten nebeneinander (Vorhersage gegen Schild) --- */
+  .paar{display:grid;grid-template-columns:1fr 1fr;gap:1.6vw;margin-top:1.8vh}
+  @media (max-width:900px){.paar{grid-template-columns:1fr}}
+  .paar .halb{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:1.4vh 1.2vw}
+  .paar .halb h4{font-size:clamp(14px,1.5vw,21px);text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);font-weight:800;margin-bottom:.5em}
+  .paar .halb.gut{border-color:#86efac;background:#f0fdf4}
+  .paar .halb.schlecht{border-color:#fecaca;background:#fef2f2}
+  .paar .halb p{font-size:clamp(15px,1.8vw,26px)}
+
+  /* --- Reservefolien: liegen hinter dem Durchlauf und werden nur bei
+         Bedarf angesprungen. Der bernsteinfarbene Rahmen sagt sofort, dass
+         der geplante Weg gerade verlassen ist - und legt sich, anders als
+         ein Streifen am oberen Rand, nicht ueber die Regieleiste. --- */
+  .slide.reserve{box-shadow:inset 0 0 0 7px var(--gold)}
+
+  /* --- Live-Abstimmung ------------------------------------------------
+     Nur sichtbar, wenn ein Abstimmungsdienst erreichbar ist. Ist er es
+     nicht, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter - genau wie ohne diese Zeilen. */
+  .qrfolie{display:flex;gap:3vw;align-items:center;margin-top:1.6vh}
+  .qrfolie .qrbild{flex:0 0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:1.6vh 1.6vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .qrfolie .qrbild svg{width:min(30vw,340px);height:auto;display:block}
+  .qrfolie .qrtext{flex:1 1 auto;min-width:0}
+  .kurzadresse{font-size:clamp(19px,2.6vw,38px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums;word-break:break-all;margin:.3em 0 .5em}
+  /* Rechts unten, nicht links: links liegen der Vorschau-Regler und die
+     Randnotiz, und die Balken brauchen die volle Breite. */
+  .qrecke{position:fixed;right:14px;bottom:14px;z-index:54;background:#fff;
+    border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 4px 14px rgba(15,23,42,.12);display:none}
+  .qrecke svg{width:88px;height:88px;display:block}
+  .qrecke .code{font-size:11px;font-weight:800;color:var(--muted);text-align:center;
+    letter-spacing:.1em;margin-top:3px}
+  body.qrzeigen .qrecke{display:block}
+  @media print{.qrecke{display:none}}
+
+  .abstand{position:fixed;top:16px;left:18px;z-index:53;display:none;
+    align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:5px 10px}
+  body.livean .abstand{display:flex}
+  .abstand .punkt{width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .abstand.zu .punkt{background:#cbd5e1}
+  body.livean .home{display:none}
+
+  .balken{margin-top:1.6vh;display:none;flex-direction:column;gap:.7vh}
+  .slide.on .balken.an{display:flex}
+  .balkenzeile{display:flex;align-items:center;gap:.9vw}
+  .balkenzeile .bst{flex:0 0 auto;width:1.7em;height:1.7em;border-radius:9px;
+    background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:clamp(14px,1.6vw,23px)}
+  .balkenzeile .bar{flex:1 1 auto;height:clamp(15px,1.9vh,26px);background:#eef2f7;
+    border-radius:999px;overflow:hidden}
+  .balkenzeile .bar i{display:block;height:100%;width:0;background:var(--accent);
+    border-radius:999px;transition:width .35s ease}
+  .balkenzeile.richtig .bar i{background:var(--green)}
+  .balkenzeile .zahl{flex:0 0 auto;min-width:2.4em;text-align:right;font-weight:800;
+    font-variant-numeric:tabular-nums;font-size:clamp(14px,1.7vw,25px)}
+  /* Haengt der Eck-QR rechts unten, macht ihm der Balken Platz - sonst
+     verdeckt er ausgerechnet die Zahl, um die es geht. */
+  body.qrzeigen .balken{padding-right:112px}
+  /* Solange nicht aufgeloest ist, verraet kein Balken, welche Karte stimmt. */
+  .balken:not(.gezeigt) .balkenzeile.richtig .bar i{background:var(--accent)}
+
+  /* Kommen die Balken dazu, wird die Folie enger - sonst laeuft sie oben
+     aus dem Bild und die Frage ist weg, waehrend abgestimmt wird. */
+  .slide.abstimmt h2.wt{font-size:clamp(19px,2.55vw,37px);margin-bottom:.15em}
+  .slide.abstimmt .plbild{margin:.4vh 0 .1vh}
+  .slide.abstimmt .plbild .schild{padding:.6vh .8vw}
+  .slide.abstimmt .plbild .schild td{font-size:clamp(12px,1.35vw,19px)}
+  .slide.abstimmt .plbild .wtab td,.slide.abstimmt .plbild .wtab th{
+    font-size:clamp(11px,1.3vw,19px);padding:.16em .42em}
+  .slide.abstimmt .plbild .graph{width:min(38vw,430px)}
+  .slide.abstimmt .plickers{gap:.75vh 1.2vw;margin-top:.8vh}
+  .slide.abstimmt .opt{padding:.6vh .9vw;font-size:clamp(12px,1.4vw,19px)}
+  .slide.abstimmt .balken{margin-top:1vh;gap:.5vh}
+  .slide.abstimmt .balkenzeile .bar{height:clamp(12px,1.5vh,20px)}
+  .slide.abstimmt .aufloesung{margin-top:1vh;padding:.9vh 1vw;
+    font-size:clamp(12px,1.4vw,20px)}
+
+  .schluesselknopf{position:fixed;top:16px;left:18px;z-index:57;font-size:12px;
+    background:#fffbeb;border:1px solid #fcd34d;color:#8d6e00;border-radius:9px;
+    padding:5px 11px;cursor:pointer;font-weight:700;display:none}
+  body.schluesselfehlt .schluesselknopf{display:block}
+  body.schluesselfehlt .abstand{display:none}
+
+  /* ====================================================================
+     Groessen an die HOEHE binden
+     --------------------------------------------------------------------
+     Die Vorlage bemisst jede Schrift mit vw und deckelt sie bei einem
+     festen Hoechstwert. Auf 1920x1080 passt das; auf 1600x900 ist die
+     Schrift dann GENAUSO gross - der Deckel greift in beiden Faellen -,
+     aber es sind 180 Pixel weniger Hoehe da. Genau so laeuft eine
+     dichte Folie unten heraus, und zwar erst im Klassenraum.
+
+     Deshalb steht ueberall, wo die Hoehe knapp wird, min(…vw, …vh):
+     Es gilt der kleinere der beiden Werte, und ein flaches Fenster
+     verkleinert mit. Auf 16:9 aendert sich nichts, was vorher passte.
+     Nachgemessen wird in vier Formaten von pruefe_wand.mjs.
+     ==================================================================== */
+  .slide h2.wt{font-size:clamp(20px,min(4.1vw,5.6vh),60px)}
+  .slide p,.slide li{font-size:clamp(14px,min(2vw,2.9vh),28px)}
+  .frage{font-size:clamp(24px,min(5.2vw,7.4vh),84px)}
+  .antwort .wert{font-size:clamp(28px,min(6vw,8.4vh),96px)}
+  .lead{font-size:clamp(15px,min(2.05vw,2.9vh),30px)}
+  .opt{font-size:clamp(12px,min(1.8vw,2.6vh),26px)}
+  .schritt .txt{font-size:clamp(13px,min(1.9vw,2.7vh),28px)}
+  .schilder .schild td{font-size:clamp(13px,min(2vw,2.8vh),30px)}
+  .schilder .schild h3{font-size:clamp(15px,min(2.2vw,3vh),33px)}
+  .wtab td,.wtab th{font-size:clamp(13px,min(1.9vw,2.7vh),29px)}
+  .merk .satz{font-size:clamp(18px,min(2.75vw,3.9vh),42px)}
+  .merk .zusatz{font-size:clamp(13px,min(1.7vw,2.4vh),25px)}
+  .auftrag li{font-size:clamp(14px,min(1.9vw,2.7vh),28px)}
+  .aufloesung{font-size:clamp(13px,min(1.75vw,2.5vh),25px)}
+  .paar .halb p{font-size:clamp(13px,min(1.8vw,2.6vh),26px)}
+  .tab td.nrz,.tab td.fr{font-size:clamp(12px,min(1.45vw,2.1vh),20px)}
+  .tab td.an{font-size:clamp(12px,min(1.5vw,2.2vh),21px)}
+  .balkenzeile .bst{font-size:clamp(12px,min(1.6vw,2.3vh),23px)}
+  .balkenzeile .zahl{font-size:clamp(12px,min(1.7vw,2.4vh),25px)}
+  .balkenzeile .bar{height:clamp(11px,1.7vh,26px)}
+  .kurzadresse{font-size:clamp(15px,min(2.6vw,3.4vh),38px)}
+  .qrfolie .qrbild svg{width:min(30vw,34vh,340px)}
+  .graphpaar .graph{width:min(38vw,44vh,470px)}
+  .graph{width:min(52vw,58vh,640px)}
+
+  /* Auf der dichtesten Folie - Beleg, vier Karten, Balken, Aufloesung -
+     reicht das nicht; dort wird zusaetzlich enger gesetzt. */
+  .slide.abstimmt h2.wt{font-size:clamp(17px,min(2.9vw,3.9vh),42px)}
+  .slide.abstimmt .opt{font-size:clamp(11px,min(1.5vw,2.05vh),21px)}
+  .slide.abstimmt .aufloesung{font-size:clamp(11px,min(1.4vw,1.95vh),22px)}
+  .slide.abstimmt .plbild .schild td{font-size:clamp(11px,min(1.5vw,2vh),22px)}
+  .slide.abstimmt .plbild .schild h3{font-size:clamp(12px,min(1.7vw,2.2vh),25px)}
+  .slide.abstimmt .plbild .wtab td,.slide.abstimmt .plbild .wtab th{
+    font-size:clamp(11px,min(1.4vw,1.95vh),21px)}
+  .slide.abstimmt .plbild .graph{width:min(34vw,30vh,400px)}
+  .slide.abstimmt .balkenzeile .bar{height:clamp(9px,1.35vh,20px)}
+
+  /* --- Selbsteinpassung ------------------------------------------------
+     Trotz aller Groessenregeln bleibt eine dichte Folie auf einer flachen
+     Anlage zu hoch. Statt weiter an Zahlen zu drehen, misst die Folie sich
+     beim Aufblenden selbst und schrumpft, wenn sie muss. Der Inhalt liegt
+     dafuer in einer .buehne - alles ausser der Randnotiz, die weiter fest
+     am Bildrand haengt. */
+  .buehne{width:100%;transform-origin:top center}
+
+  /* --- Randnotiz: die Weiche der Lehrkraft ---
+     Sie liegt wie in allen Projektionsseiten ueber der Folie; auf einer
+     Plickers-Folie mit vier Karten ist das eng. Deshalb hier schmaler,
+     tiefer angesetzt und bei sehr langen Notizen scrollbar. Der volle
+     Wortlaut steht ohnehin auf dem Lehrerblatt. */
+  .randnotiz{max-width:min(38ch,30vw);bottom:100px;max-height:56vh;overflow:auto}
+  .randnotiz .weiche{display:block;margin-top:.55em;padding-top:.5em;
+    border-top:1px dashed #e0b93c}
+  .randnotiz .weiche i{font-style:normal;font-weight:800;color:#92400e}
+</style>
+</head>
+<body>
+<a class="home" href="../Klassen/Mathe_7b.html">&larr; Mathe 7b</a>
+<div class="counter" id="counter"></div>
+<div class="notizmarke">Randnotizen sichtbar · D</div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span></div>
+<div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" class="segno"><path class="qrline" stroke="#0f172a" d="M1 1.5h7m3 0h1m1 0h2m2 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m5 0h4m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h4m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m2 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m3 0h1m1 0h3m3 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h2m1 0h2m2 0h1m1 0h4m-24 1h1m1 0h5m4 0h1m1 0h5m1 0h1m2 0h3m1 0h5m-31 1h1m8 0h1m1 0h1m4 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h1m1 0h1m1 0h5m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-27 1h1m1 0h1m1 0h3m2 0h2m2 0h1m1 0h3m1 0h1m3 0h3m-31 1h2m1 0h1m1 0h3m2 0h1m1 0h1m4 0h2m1 0h1m2 0h3m2 0h2m1 0h1m-32 1h3m1 0h1m2 0h1m3 0h1m2 0h3m1 0h2m1 0h3m2 0h1m2 0h4m-32 1h4m1 0h2m1 0h2m1 0h3m5 0h2m3 0h2m1 0h4m-32 1h1m2 0h1m1 0h1m1 0h2m2 0h2m3 0h1m3 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h4m1 0h4m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m2 0h2m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-32 1h2m1 0h1m1 0h1m5 0h5m3 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-24 1h1m1 0h1m1 0h1m7 0h3m2 0h1m1 0h4m1 0h1m-31 1h3m1 0h6m2 0h2m1 0h1m1 0h1m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h3m4 0h1m7 0h1m2 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m2 0h2m1 0h2m5 0h1m1 0h2m1 0h3m2 0h5m1 0h1m-32 1h1m2 0h1m3 0h1m1 0h1m4 0h2m2 0h1m1 0h2m3 0h1m1 0h1m1 0h3m-32 1h1m1 0h3m1 0h1m3 0h3m1 0h2m1 0h1m4 0h7m3 0h1m-25 1h1m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m1 0h1m2 0h2m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h2m2 0h1m1 0h2m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m4 0h1m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h3m2 0h3m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h8m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m3 0h1m1 0h4m2 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h3m2 0h1m3 0h1m4 0h4m1 0h1m3 0h1"/></svg><div class="code">7B-MI</div></div>
+<div class="deck" id="deck">
+
+<section class="slide on" data-phase="0 · Ankommen" data-ab="0" style="align-items:flex-start">
+<div class="kicker">Mathematik 7b · Mi 02.09.2026 · 07:50–09:20 · E343</div><h1>Die Zahl, die in jeder Zeile<br><span class="accent">gleich bleibt</span></h1><p class="muted lead frag" style="margin-top:.9em">Gestern habt ihr von einer Zeile zur nächsten vervielfacht. Heute rechnet ihr <b>in jeder Zeile</b> — und bekommt jedes Mal dieselbe Zahl heraus. Wenn die Zuordnung proportional ist.</p><div class="callout frag"><p><b>So läuft das heute:</b> wie gestern. Ich zeige, wir rechnen gemeinsam, ihr zeigt. Plickers-Karten und Mini-Whiteboard bereitlegen. Und: Bei jeder Frage antworten <b>alle</b>.</p></div>
+</section>
+
+<section class="slide" data-phase="0 · Ankommen" data-ab="1">
+<div class="kicker">So l&auml;uft die Doppelstunde</div><table class="tab"><tr><th>Min</th><th>Was</th><th>Wie</th></tr><tr><td class="nrz">0–10</td><td class="fr">Aufwärmen: Teilen, und was gestern war</td><td class="an">alle schreiben</td></tr><tr><td class="nrz">10–20</td><td class="fr">Der Bäcker — hier stimmt etwas nicht</td><td class="an">Plickers</td></tr><tr><td class="nrz">20–31</td><td class="fr">Ich rechne es vor: teilen statt vervielfachen</td><td class="an">vormachen</td></tr><tr><td class="nrz">31–39</td><td class="fr">Merksatz und ein neuer Name</td><td class="an">Plickers</td></tr><tr><td class="nrz">39–51</td><td class="fr">Was der Faktor kann — und der Punkt (0 | 0)</td><td class="an">Plickers</td></tr><tr><td class="nrz">51–65</td><td class="fr">Buchaufgaben, gemeinsam</td><td class="an">Whiteboard</td></tr><tr><td class="nrz">65–77</td><td class="fr">Wie viele Zeilen muss man prüfen?</td><td class="an">Plickers</td></tr><tr><td class="nrz">77–84</td><td class="fr">Der Kassenbon — allein</td><td class="an">still</td></tr><tr><td class="nrz">84–90</td><td class="fr">Auflösung, Abfrage und Exit-Ticket</td><td class="an">Plickers</td></tr></table><div class="callout frag"><p><b>Ziel:</b> Ihr könnt am Ende an <b>jeder</b> Tabelle entscheiden, ob sie proportional ist — durch Teilen, ohne Probieren —, und ihr wisst, was die Zahl bedeutet, die dabei herauskommt.</p></div>
+</section>
+
+<section class="slide" data-phase="0 · Ankommen" data-ab="2" data-marke="QR">
+<div class="kicker">Einmal scannen — dann könnt ihr mitstimmen</div><h2 class="wt">Holt eure iPads heraus</h2><div class="qrfolie"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m3 0h1m1 0h2m2 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m5 0h4m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h4m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m2 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m3 0h1m1 0h3m3 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h2m1 0h2m2 0h1m1 0h4m-24 1h1m1 0h5m4 0h1m1 0h5m1 0h1m2 0h3m1 0h5m-31 1h1m8 0h1m1 0h1m4 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h1m1 0h1m1 0h5m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-27 1h1m1 0h1m1 0h3m2 0h2m2 0h1m1 0h3m1 0h1m3 0h3m-31 1h2m1 0h1m1 0h3m2 0h1m1 0h1m4 0h2m1 0h1m2 0h3m2 0h2m1 0h1m-32 1h3m1 0h1m2 0h1m3 0h1m2 0h3m1 0h2m1 0h3m2 0h1m2 0h4m-32 1h4m1 0h2m1 0h2m1 0h3m5 0h2m3 0h2m1 0h4m-32 1h1m2 0h1m1 0h1m1 0h2m2 0h2m3 0h1m3 0h3m2 0h3m2 0h1m-30 1h1m1 0h1m1 0h4m1 0h4m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m2 0h2m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-32 1h2m1 0h1m1 0h1m5 0h5m3 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-24 1h1m1 0h1m1 0h1m7 0h3m2 0h1m1 0h4m1 0h1m-31 1h3m1 0h6m2 0h2m1 0h1m1 0h1m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h3m4 0h1m7 0h1m2 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m2 0h2m1 0h2m5 0h1m1 0h2m1 0h3m2 0h5m1 0h1m-32 1h1m2 0h1m3 0h1m1 0h1m4 0h2m2 0h1m1 0h2m3 0h1m1 0h1m1 0h3m-32 1h1m1 0h3m1 0h1m3 0h3m1 0h2m1 0h1m4 0h7m3 0h1m-25 1h1m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m1 0h1m2 0h2m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h2m2 0h1m1 0h2m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m4 0h1m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h3m2 0h3m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h8m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m3 0h1m1 0h4m2 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h3m2 0h1m3 0h1m4 0h4m1 0h1m3 0h1"/></svg></div><div class="qrtext"><p class="lead weit">Kamera auf den Code halten und auf die Meldung tippen. Wer keine Kamera hat, tippt die Adresse ein:</p><p class="kurzadresse">mathematik-unterrichten.de/abstimmung/?raum=7b-mi</p><p class="lead weit">Die Seite bleibt die ganze Stunde offen. Sobald an der Wand eine Frage steht, könnt ihr antworten.</p></div></div><div class="callout frag"><p>Keine Namen, keine Anmeldung. Euer Gerät bekommt eine Zufallsnummer, damit jede Stimme einmal zählt — mehr wird nicht gespeichert.</p></div><div class="randnotiz"><b>Diese Folie stehen lassen, bis alle verbunden sind</b> — erfahrungsgemäß eine Minute. Der Zähler oben links sagt Ihnen, wie viele Geräte mitmachen.<br><b>Danach klein in der Ecke:</b> Der Code bleibt unten links hängen, für Nachzügler und für Geräte, die sich verabschieden. <b>Q</b> blendet ihn aus und wieder ein.<br><b>Kein Dienst erreichbar?</b> Dann fehlt die Anzeige oben links. Diese Folie überspringen und die Stunde mit den Plickers-Karten halten — alle Abfragen funktionieren unverändert.</div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="3">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;1 von 10 &middot; Teilen — das Werkzeug von heute</div><div class="frage">Wie viel ist <span class="term">12 : 3</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">4</span> </div><div class="randnotiz"><b>Absichtlich trivial.</b> Sie prüfen nicht das Rechnen, sondern ob der Takt sitzt: schreiben, hochheben, alle zugleich. Zählen Sie hörbar an.<br>Diese Zahl kommt in vier Minuten als Einstiegsrechnung wieder — sagen Sie das nicht vorher.</div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="5">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;2 von 10 &middot; Teilen mit Komma</div><div class="frage">Wie viel ist <span class="term">1,50 € : 6</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">0,25 €</span> <span class="muted neben">— Probe: 6 · 0,25 € = 1,50 €</span></div><div class="randnotiz"><b>Hier wird es ernst.</b> Heute wird in jeder einzelnen Zeile geteilt, und die Ergebnisse haben Kommastellen. Wer das nicht kann, kommt durch die Stunde, ohne etwas zu verstehen.<br><b>Wenn viele scheitern:</b> Die Probe (mal statt geteilt) an der Tafel zeigen und ausdrücklich als Kontrollmittel für heute empfehlen.<span class="weiche"><i>Weiche:</i> unter 70 % — zwei Minuten Divisionsübung einschieben: 2,40 € : 4 · 3,00 € : 5 · 1,20 € : 8. Diese Zeit holen Sie in Phase 6 wieder herein.</span></div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="7">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;3 von 10 &middot; Preis für ein Stück</div><div class="frage">3 kg Kirschen kosten 12 €.<br>Was kostet <span class="term">1 kg</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">4,00 €</span> </div><div class="randnotiz"><b>Diese Rechnung bekommt heute einen Namen</b> — und dieselben Kirschen stehen gleich als Beispiel des Buches auf der Wand. Sagen Sie nach der Auflösung nur: „Merkt euch die 4.“<br>Buch S. 20.</div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="9">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;4 von 10 &middot; Gestern</div><div class="frage">Erdbeeren: 500 g kosten 2,50 €, 1 kg kostet 4,50 €.<br><span class="term">Proportional?</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">nein</span> <span class="muted neben">— das Doppelte wären 5,00 €</span></div><div class="randnotiz"><b>Die Brücke zu gestern.</b> Wer hier stolpert, hat den Dienstag nicht mitgenommen — dann brauchen Sie heute in Phase 3 einen Blick mehr auf diese Schüler.<br><b>Nachfassen:</b> Rufen Sie jemanden auf und fragen Sie nach der <i>Rechnung</i>, nicht nach dem Urteil. Genau diese Anforderung gilt heute den ganzen Vormittag.</div>
+</section>
+
+<section class="slide" data-phase="2 · Der Konflikt" data-ab="11">
+<div class="kicker">Beim Bäcker</div><h2 class="wt">Zwei Angaben, mehr steht nicht am Tresen.</h2><div class="schilder"><div class="schild"><h3>Brötchen</h3><table><tr><td>einzeln, je Stück</td><td class="p">0,35 €</td></tr><tr><td>6 Stück im Angebot</td><td class="p">2,00 €</td></tr></table><div class="fuss">Buch S. 20</div></div></div><p class="lead weit frag" style="margin-top:1.4vh">Lena kauft 4 Brötchen und zahlt <b>1,40 €</b>. Tom kauft 6 und zahlt <b>2,00 €</b>.<br>Ist die Zuordnung <b>Anzahl → Preis</b> proportional?</p><div class="randnotiz"><b>Erst rechnen lassen, was 4 Brötchen kosten</b> (4 · 0,35 € = 1,40 €) — dann steht Toms Zeile daneben und die Falle ist gestellt.<br>Der Denkfehler des Tages ist <b>nicht</b> der von gestern. Er lautet: „Von 4 auf 6 sind es 2 Stück mehr und 0,60 € mehr — das passt doch.“ Das ist der Vergleich von <i>Unterschieden</i> statt von <i>Verhältnissen</i>, und er ist hartnäckiger als „je mehr, desto mehr“, weil er nach Rechnen aussieht.</div>
+</section>
+
+<section class="slide mitbild" data-phase="2 · Der Konflikt" data-ab="14" data-marke="P1" data-frage="4 Brötchen kosten 1,40 €, 6 Brötchen kosten 2,00 €. Ist Anzahl → Preis proportional?" data-optionen="[&quot;Ja — mehr Brötchen kosten mehr Geld.&quot;, &quot;Ja — von 4 auf 6 sind es 2 Brötchen mehr und 0,60 € mehr. Das passt.&quot;, &quot;Nein — 1,40 €: 4 = 0,35 €, aber 2,00 €: 6 ≈ 0,33 €.&quot;, &quot;Mit nur zwei Zeilen kann man das nicht entscheiden.&quot;]" data-schluessel="p1">
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Prognose — vor jeder Rechnung</div><h2 class="wt">4 Brötchen kosten 1,40 €, 6 Brötchen kosten 2,00 €.<br>Ist <span class="term">Anzahl → Preis</span> proportional?</h2><div class="plbild"><div class="schild"><h3>Brötchen</h3><table><tr><td>einzeln, je Stück</td><td class="p">0,35 €</td></tr><tr><td>6 Stück im Angebot</td><td class="p">2,00 €</td></tr><tr><td>Lena: 4 Stück</td><td class="p">1,40 €</td></tr><tr><td>Tom: 6 Stück</td><td class="p">2,00 €</td></tr></table><div class="fuss">Buch S. 20</div></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Ja — mehr Brötchen kosten mehr Geld.</span></div><div class="opt"><span class="bst">B</span><span>Ja — von 4 auf 6 sind es 2 Brötchen mehr und 0,60 € mehr. Das passt.</span></div><div class="opt"><span class="bst">C</span><span>Nein — 1,40 € : 4 = 0,35 €, aber 2,00 € : 6 ≈ 0,33 €.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>Mit nur zwei Zeilen kann man das nicht entscheiden.</span></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">C</b>. Man teilt in <b>jeder Zeile</b> den Preis durch die Anzahl. Kommt nicht überall dieselbe Zahl heraus, ist die Zuordnung nicht proportional.</div><div class="randnotiz"><b>B ist die Mehrheitsfalle</b> und der Denkfehler, gegen den die ganze Stunde arbeitet. Erwarten Sie 40–60 % auf B.<br><b>A</b> ist die Antwort von gestern — sie war schon gestern zu wenig. <b>D</b> klingt vorsichtig und ist trotzdem falsch: Zum <i>Widerlegen</i> genügen zwei Zeilen sehr wohl. Diesen Punkt nicht hier ausbreiten — er ist Phase 7.<br><b>Nach dem Balken:</b> jemanden mit B aufrufen und die Differenz 0,60 € : 2 = 0,30 € gemeinsam ausrechnen lassen. Dass dabei eine <i>dritte</i> Zahl herauskommt (nicht 0,35, nicht 0,33), erledigt das Argument gründlicher als jede Erklärung.<span class="weiche"><i>Weiche:</i> Nicht verzweigen — eine niedrige Quote ist hier erwünscht. Weiter zur Auflösung.</span></div>
+</section>
+
+<section class="slide" data-phase="2 · Der Konflikt" data-ab="17">
+<div class="kicker">Auflösung</div><h2 class="wt">Unterschied oder Verhältnis — das ist nicht dasselbe</h2><div class="paar"><div class="halb schlecht"><h4>So rechnet der Denkfehler</h4><p>Von 4 auf 6 Brötchen:<br><b>2 Stück mehr, 0,60 € mehr.</b></p><p>Je Stück also 0,60 € : 2 = <b>0,30 €</b>.</p><p>Aber Lena zahlt je Brötchen 0,35 € — und Tom 0,33 €. <b>Drei verschiedene Zahlen.</b></p></div><div class="halb gut"><h4>So rechnet man richtig</h4><p>In <b>jeder Zeile</b> teilen:</p><p>1,40 € : 4 = <b>0,35 €</b><br>2,00 € : 6 ≈ <b>0,33 €</b></p><p>Nicht gleich — also <b>nicht proportional</b>.</p></div></div><p class="lead weit frag" style="margin-top:1.6vh">Der Grund steckt im Angebot: 6 Brötchen einzeln wären <b>2,10 €</b>, im Sechserpack kosten sie 2,00 € — <b>0,10 € gespart</b>.</p><div class="randnotiz"><b>Die linke Spalte ist der Kern.</b> Lassen Sie die drei Zahlen 0,30 · 0,35 · 0,33 nebeneinander stehen und fragen Sie: „Welche davon ist der Preis für ein Brötchen?“ — Die Antwort ist: <i>keine eindeutige</i>, und genau das heißt „nicht proportional“.<br><b>Ans Tafelbild:</b> Schreiben Sie „Unterschied ≠ Verhältnis“ an den Rand und lassen Sie es die ganze Stunde stehen.</div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="19" data-marke="M1">
+<div class="kicker">Ich zeige es &mdash; laut mitgedacht</div><h2 class="wt">Ein zweites Prüfverfahren: in jeder Zeile teilen</h2><p class="lead weit">Kirschen, Buch S. 20: 3 kg für 12 €, 1 kg für 4 €, 7 kg für 28 €.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Das Buch nennt drei Zeilen. Ich nehme die erste und teile den Preis durch die Menge:<span class="rech">12 € : 3 kg = 4</span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Zweite Zeile, dieselbe Rechnung:<span class="rech">4 € : 1 kg = 4</span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Dritte Zeile:<span class="rech">28 € : 7 kg = 4</span></span></div><div class="schritt ergebnis frag"><span class="num">4</span><span class="txt">Überall dieselbe Zahl. <b>Also proportional</b> — und ich musste keine einzige Zeile mit einer anderen vergleichen.<span class="rech">4 = 4 = 4  ✓</span></span></div></div><div class="randnotiz"><b>Der Fortschritt gegenüber gestern gehört ausgesprochen.</b> Gestern musste man ein <i>Paar</i> von Zeilen aussuchen, bei dem die eine Zahl ein Vielfaches der anderen ist — bei krummen Zahlen geht das nicht. Heute rechnet man jede Zeile für sich. Das funktioniert immer.<br><b>Chorantwort:</b> „Was teile ich wodurch?“ — <i>y durch x</i>. Zweimal fragen. Die Reihenfolge ist die häufigste Fehlerquelle der Stunde.</div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="22">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;5 von 10 &middot; Jetzt ihr — Kirschen</div><div class="frage">7 kg Kirschen kosten 28 €.<br>Wie groß ist der Quotient <span class="term">Preis : Menge</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">4</span> <span class="muted neben">— also 28 € : 7 kg</span></div><div class="randnotiz"><b>Bewusst die Zeile mit der größten Zahl.</b> Wer 7 : 28 rechnet und 0,25 schreibt, hat die Reihenfolge gedreht — das ist der Fehler, den Plickers 2 gleich noch einmal abfragt.<br><b>Diese Abfrage steht zwischen den beiden Modellrechnungen</b>: erst anwenden, was ich vorgemacht habe, dann den Gegenfall sehen. Ohne sie reden Sie dreizehn Minuten am Stück.<br><b>Nachfassen:</b> „Was bedeutet die 4?“ — Der Preis für ein Kilogramm. Diese Frage jedes Mal stellen; sie ist der Übergang zu Phase 5.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % zurück zu Folie 11 und die drei Zeilen noch einmal laut rechnen.</span></div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="24" data-marke="M2">
+<div class="kicker">Ich zeige es &mdash; dasselbe beim Bäcker</div><h2 class="wt">Und jetzt an der Tabelle, die nicht passt</h2><p class="lead weit">Gleiches Verfahren, gleiche Rechnung, anderes Ergebnis.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Lenas Zeile:<span class="rech">1,40 € : 4 = 0,35 €</span></span></div><div class="schritt fehler frag"><span class="num">2</span><span class="txt">Toms Zeile:<span class="rech">2,00 € : 6 ≈ 0,33 €</span></span></div><div class="schritt fehler frag"><span class="num">3</span><span class="txt">Zwei verschiedene Zahlen. <b>Nicht proportional</b> — und ich brauchte dafür genau zwei Divisionen.<span class="rech">0,35 € ≠ 0,33 €</span></span></div></div><div class="randnotiz"><b>2,00 : 6 geht nicht glatt auf</b> — 0,333… Das gehört benannt, nicht versteckt: „Wenn beim Teilen kein glatter Betrag herauskommt, ist das schon ein Hinweis, aber kein Beweis. Der Beweis ist, dass die Zahlen <i>verschieden</i> sind.“<br>Runden Sie an der Tafel auf zwei Stellen und schreiben Sie das Zeichen ≈ dazu — die Klasse kennt es, benutzt es aber selten.</div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="28">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;6 von 10 &middot; Jetzt ihr — Bäcker</div><div class="frage">6 Brötchen kosten im Angebot 2,00 €.<br>Was kostet <b>ein</b> Brötchen?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">rund 0,33 €</span> <span class="muted neben">— 2,00 € : 6 = 0,333…</span></div><div class="randnotiz"><b>Hier ist die Antwort absichtlich unschön.</b> Wer „0,33 €“ schreibt, hat richtig gerechnet und gerundet; wer „0,34 €“ schreibt, hat aufgerundet — beides gelten lassen, aber das Zeichen ≈ verlangen.<br>Wer „0,30 €“ schreibt, ist bei der Differenz hängengeblieben. <b>Das ist die Antwort, auf die Sie achten.</b></div>
+</section>
+
+<section class="slide" data-phase="4 · Merksatz" data-ab="31" data-marke="MERK">
+<div class="kicker">Sicherung — ins Heft</div><table class="wtab"><tr><th>Menge in kg</th><td>3</td><td>1</td><td>7</td></tr><tr><th>Preis in €</th><td>12</td><td>4</td><td>28</td></tr><tr><th>Preis : Menge</th><td>4</td><td>4</td><td>4</td></tr></table><div class="merk frag"><div class="satz">Eine Zuordnung ist genau dann proportional, wenn <span class="gold">jedes</span> Wertepaar denselben Quotienten <span class="gold">y : x</span> hat.</div><div class="zusatz">Diese Zahl heißt <b>Proportionalitätsfaktor</b>. Bei den Kirschen ist sie 4 — der Preis für <i>ein</i> Kilogramm.<br><br>Und damit gilt: <b>y = Faktor · x</b>. Ein Wertepaar genügt, und man kann jeden anderen Wert ausrechnen.</div></div><div class="randnotiz"><b>Die dritte Tabellenzeile ist neu und trägt den Satz.</b> Sie ist die Rechnung, die gerade dreimal gemacht wurde — jetzt als eigene Zeile. Lassen Sie sie ins Heft übernehmen: Ab heute gehört unter jede Wertetabelle eine Quotientenzeile.<br><b>Das Wort <i>jedes</i> unterstreichen lassen.</b> Es trägt den ganzen Satz, und Phase 7 handelt von nichts anderem.<br><b>Zwei Minuten Schreibzeit, in Stille.</b> Danach den Merksatz von gestern daneben schreiben — beide gelten, beide prüfen dasselbe.</div>
+</section>
+
+<section class="slide" data-phase="4 · Merksatz" data-ab="35" data-marke="P2" data-frage="Welche Aussage ist richtig?" data-optionen="[&quot;Der Proportionalitätsfaktor ist die Zahl, die man erhält, wenn man x durch y teilt.&quot;, &quot;Bei einer proportionalen Zuordnung hat jedes Wertepaar denselben Quotienten y: x.&quot;, &quot;Der Graph einer proportionalen Zuordnung ist immer eine steigende Linie.&quot;, &quot;Je größer der Proportionalitätsfaktor, desto weiter rechts liegt die Halbgerade.&quot;]" data-schluessel="p2">
+<div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Selbstcheck — was steht da eigentlich?</div><h2 class="wt">Welche Aussage ist <span class="accent">richtig</span>?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>Der Proportionalitätsfaktor ist die Zahl, die man erhält, wenn man x durch y teilt.</span></div><div class="opt"><span class="bst">B</span><span>Bei einer proportionalen Zuordnung hat jedes Wertepaar denselben Quotienten y : x.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Der Graph einer proportionalen Zuordnung ist immer eine steigende Linie.</span></div><div class="opt"><span class="bst">D</span><span>Je größer der Proportionalitätsfaktor, desto weiter rechts liegt die Halbgerade.</span></div></div><div class="aufloesung frag hart"><b class="loesungswert">B</b>. <b>A</b> dreht die Reihenfolge um — es ist <b class="loesungswert">y : x</b>. <b>C</b> ist zu wenig: Eine steigende Linie kann über dem Ursprung beginnen. <b>D</b> verwechselt steiler mit weiter rechts.</div><div class="randnotiz"><b>A ist die häufigste Wahl nach B</b> und derselbe Fehler wie „7 : 28“ auf dem Whiteboard. Gegenmittel ist die Einheit: 12 € je 3 kg sind <b>Euro je Kilogramm</b>, also Euro durch Kilogramm. Wer die Einheit mitspricht, dreht nichts mehr um.<br><b>C und D greifen dem Graphen vor</b> — beide werden in Phase 5 beantwortet. Wenn viele dort liegen, ist das kein Problem, sondern der Anlass für die nächsten zehn Minuten.<br><b>Vorher 30 Sekunden mit dem Nachbarn.</b><span class="weiche"><i>Weiche:</i> ab 75 % weiter · 50–74 % Reservefolie 38 (y : x mit Einheiten, zwei Minuten) · unter 50 % zurück zu Folie 15, Quotientenzeile Spalte für Spalte nachrechnen, dann diese Frage erneut.</span></div>
+</section>
+
+<section class="slide" data-phase="5 · Der Faktor" data-ab="39" data-marke="FAK">
+<div class="kicker">Wozu der Faktor gut ist</div><h2 class="wt">Ein Wertepaar — und alle anderen folgen</h2><p class="lead weit">Der Faktor ist 4. Also gilt <b>y = 4 · x</b> — für jede Menge, auch für eine, die gar nicht in der Tabelle steht.</p><table class="wtab"><tr><th>Menge in kg</th><td>1</td><td>3</td><td class="luecke">5</td><td>7</td></tr><tr><th>Preis in €</th><td>4</td><td>12</td><td class="luecke"><span class="frag hart">20</span></td><td>28</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Genau dafür ist der Faktor da: <b>keine Tabelle mehr, nur noch eine Multiplikation.</b></p><div class="randnotiz"><b>Die Lücke bei 5 kg erst nach der Ansage aufdecken.</b> Ein Whiteboard-Zeigen, zehn Sekunden.<br><b>Der Gewinn gehört benannt:</b> Gestern brauchte man eine passende Nachbarzeile. Heute genügt <i>eine einzige</i> Zeile — der Rest ist Multiplikation. Das ist der Grund, warum sich die Mühe der Quotientenzeile lohnt.</div>
+</section>
+
+<section class="slide" data-phase="5 · Der Faktor" data-ab="42">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;7 von 10 &middot; Jetzt ihr — mit dem Faktor rechnen</div><div class="frage">Ein Brötchen kostet 0,35 € (Einzelverkauf, ohne Angebot).<br>Was kosten <span class="term">20 Brötchen</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7,00 €</span> <span class="muted neben">— y = 0,35 · 20</span></div><div class="randnotiz"><b>Zurück zum Bäcker, jetzt ohne Angebot.</b> Der Einzelverkauf <i>ist</i> proportional — das ist die Pointe: Nicht der Bäcker war unproportional, sondern sein Sechserpack.<br><b>Wenn falsch:</b> „20,35 €“ heißt addiert. „5,50 €“ heißt mit einer falschen Zahl multipliziert.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % dieselbe Frage mit 10 Brötchen (3,50 €), dann noch einmal mit 20.</span></div>
+</section>
+
+<section class="slide" data-phase="5 · Der Faktor" data-ab="44" data-marke="GRAPH">
+<div class="kicker">Und wie sieht das aus?</div><h2 class="wt">Jede proportionale Zuordnung beginnt im Ursprung</h2><div class="graphpaar"><svg class="graph" viewBox="0 0 560 330" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="284.0" x2="486.0" y2="284.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="284.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="492.0" y="290.0" fill="#64748b" font-size="17" font-weight="700">kg</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">€</text><polyline points="54.0,284.0 409.2,54.8" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="419.2" y="60.8" fill="#4f46e5" font-size="18" font-weight="800">Faktor 4</text><circle cx="54.0" cy="284.0" r="6" fill="#0f172a"/><text x="44.0" y="306.0" fill="#0f172a" font-size="16" font-weight="700" text-anchor="end">(0 | 0)</text></svg><svg class="graph" viewBox="0 0 560 330" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="284.0" x2="456.0" y2="284.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="284.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="462.0" y="290.0" fill="#64748b" font-size="17" font-weight="700">kg</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">€</text><polyline points="54.0,284.0 430.0,153.0" fill="none" stroke="#15803d" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="440.0" y="159.0" fill="#15803d" font-size="18" font-weight="800">Faktor 2</text><polyline points="54.0,218.5 430.0,87.5" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="440.0" y="93.5" fill="#dc2626" font-size="18" font-weight="800">kein Faktor</text><circle cx="54.0" cy="284.0" r="6" fill="#0f172a"/><text x="44.0" y="306.0" fill="#0f172a" font-size="16" font-weight="700" text-anchor="end">(0 | 0)</text></svg></div><p class="lead weit frag" style="margin-top:1.2vh">Links: eine <b>Halbgerade durch den Ursprung</b>. Zu 0 kg gehören 0 €. <br>Rechts: die rote Linie steigt genauso gleichmäßig — beginnt aber <b>nicht</b> im Ursprung. Sie ist nicht proportional.</p><div class="randnotiz"><b>Zwei Merkmale, beide nötig:</b> Gerade <b>und</b> durch den Ursprung. Fragen Sie ab: „Was kostet der Einkauf, wenn ich nichts kaufe?“ — Chorantwort: nichts. Bei der roten Linie zahlt man 6 €, ohne etwas zu bekommen.<br><b>Das ist gestern schon einmal begegnet</b> — falls Sie die Taxi-Reservefolie benutzt haben, greifen Sie sie hier auf: Die Grundgebühr ist genau dieser Achsenabschnitt.<br><b>Steiler, nicht weiter rechts:</b> Beide Halbgeraden starten im selben Punkt. Das erledigt Antwort D von Plickers 2.</div>
+</section>
+
+<section class="slide mitbild" data-phase="5 · Der Faktor" data-ab="47" data-marke="P3" data-frage="Welcher Graph gehört sicher nicht zu einer proportionalen Zuordnung?" data-optionen="[&quot;eine Halbgerade vom Ursprung nach rechts oben&quot;, &quot;eine sehr flache Halbgerade vom Ursprung aus&quot;, &quot;eine steigende Gerade, die die y-Achse bei 3 schneidet&quot;, &quot;eine steile Halbgerade vom Ursprung aus&quot;]" data-schluessel="p3">
+<div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Am Graphen entscheiden</div><h2 class="wt">Welcher Graph gehört <span class="accent">sicher nicht</span> zu einer proportionalen Zuordnung?</h2><div class="plbild"><div class="graphreihe"><figure><figcaption>A</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 184.0,52.8" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="58.8" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>B</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 184.0,87.6" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="93.6" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>C</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,73.2 184.0,32.2" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="194.0" y="38.2" fill="#dc2626" font-size="18" font-weight="800"></text></svg></figure><figure><figcaption>D</figcaption><svg class="graph" viewBox="0 0 230 150" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="104.0" x2="210.0" y2="104.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="104.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="216.0" y="110.0" fill="#64748b" font-size="17" font-weight="700"></text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle"></text><polyline points="54.0,104.0 151.5,27.1" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="161.5" y="33.1" fill="#4f46e5" font-size="18" font-weight="800"></text></svg></figure></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>eine Halbgerade vom Ursprung nach rechts oben</span></div><div class="opt"><span class="bst">B</span><span>eine sehr flache Halbgerade vom Ursprung aus</span></div><div class="opt"><span class="bst">C</span><span>eine steigende Gerade, die die y-Achse bei 3 schneidet</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>eine steile Halbgerade vom Ursprung aus</span></div></div><div class="aufloesung frag hart"><b class="loesungswert">C</b>. Dort gehört zu x = 0 der Wert y = 3, nicht <b class="loesungswert">0</b>. Wie steil oder flach eine Halbgerade ist, entscheidet dagegen gar nichts.</div><div class="randnotiz"><b>A, B und D sind alle proportional</b> — sie unterscheiden sich nur im Faktor. Wer B oder D wählt, hält „sehr flach“ oder „sehr steil“ für verdächtig und hat den Faktor noch nicht als beliebige Zahl akzeptiert.<br><b>Buch S. 21 Nr. 3</b> zeigt vier gezeichnete Graphen; wenn Zeit ist, danach das Buch aufschlagen lassen und dieselbe Entscheidung an den Bildern treffen — dort ist einer eine <i>Kurve</i>, was hier nicht vorkommt.<span class="weiche"><i>Weiche:</i> ab 75 % weiter · unter 75 % zurück zu Folie 19 und die rote Linie bis zur y-Achse verfolgen lassen.</span></div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="51">
+<div class="kicker">Wir zusammen &middot; A1 = Buch S. 21 Nr. 1 a)</div><h2 class="wt">Quotientenzeile ausfüllen — eine Spalte nach der anderen</h2><p class="lead weit">Ab jetzt hat jede Tabelle eine dritte Zeile. Rechnet sie aus — <b>eine Spalte, dann Whiteboard hoch</b>.</p><table class="wtab"><tr><th>Anzahl</th><td>4</td><td class="luecke">6</td><td>10</td></tr><tr><th>Preis in €</th><td>1,20</td><td class="luecke">1,50</td><td>2,70</td></tr><tr><th>Preis : Anzahl</th><td><span class="frag hart">0,30 €</span></td><td class="luecke"><span class="frag hart">0,25 €</span></td><td><span class="frag hart">0,27 €</span></td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Drei verschiedene Zahlen. <b>Nicht proportional.</b></p><div class="randnotiz"><b>Verdeckt aufgedeckt, eine Spalte je Tastendruck.</b> Nach der ersten Spalte fragen: „Reicht das schon für ein Urteil?“ — Nein, eine Zahl allein sagt nichts. Nach der zweiten: „Und jetzt?“ — Ja, jetzt steht es fest. Damit ist Phase 7 vorbereitet, ohne dass sie angekündigt wird.<br><b>0,27 € ist der Stolperstein</b> (2,70 : 10) — wer das Komma verschiebt, schreibt 0,27 oder 2,7 fast zufällig richtig. Nachfragen lassen.</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="54">
+<div class="kicker">Wir zusammen &middot; A1 = Buch S. 21 Nr. 1 b)</div><h2 class="wt">Dieselbe Arbeit, anderes Ergebnis</h2><p class="lead weit">Diesmal keine Preise: ein Stoff wird gewogen.</p><table class="wtab"><tr><th>Volumen in cm³</th><td>20</td><td>100</td><td>180</td></tr><tr><th>Masse in g</th><td>50</td><td>250</td><td>450</td></tr><tr><th>Masse : Volumen</th><td><span class="frag hart">2,5</span></td><td><span class="frag hart">2,5</span></td><td><span class="frag hart">2,5</span></td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Überall 2,5. <b>Proportional</b> — und der Faktor bedeutet: <b>2,5 g je cm³</b>. Das ist die Dichte des Stoffes.</p><div class="randnotiz"><b>Die Einheit ist hier der Ertrag.</b> Der Faktor ist nicht „einfach 2,5“, sondern 2,5 <i>Gramm je Kubikzentimeter</i>. Verlangen Sie die Einheit — genau dieses Mitsprechen verhindert das Vertauschen von y : x und x : y.<br><b>Weg von den Preisen:</b> Sagen Sie ausdrücklich, dass hier niemand etwas verkauft und die Rechnung trotzdem dieselbe ist. Das ist der Transfer, den die Klassenarbeit verlangt.</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="57">
+<div class="kicker">Wir zusammen &middot; A2 = Buch S. 21 Nr. 2</div><h2 class="wt">Zwei Tabellen — und in einer bricht genau eine Zeile aus</h2><p class="lead weit">Prüft beide. Auf dem Whiteboard steht nur: <i>(1) ja/nein, (2) ja/nein</i> — und bei „nein“ die <b>Zeile</b>, an der es scheitert.</p><table class="wtab"><tr><th>(1) Menge in kg</th><td>1,5</td><td>4,5</td><td>0,5</td><td>2</td></tr><tr><th>Preis in €</th><td>6</td><td>18</td><td>2</td><td>8</td></tr></table><div style="height:1.4vh"></div><table class="wtab"><tr><th>(2) Strecke in km</th><td>120</td><td>30</td><td>150</td><td>270</td></tr><tr><th>Verbrauch</th><td>180</td><td>45</td><td>235</td><td>425</td></tr></table><div class="randnotiz"><b>(1) ist proportional</b>, Faktor 4 — auch bei 0,5 kg und 1,5 kg, also mit Kommazahlen im Nenner. Wer nur ganze Zahlen teilen kann, scheitert hier; das ist beabsichtigt.<br><b>(2) ist nicht proportional:</b> 180 : 120 = 1,5 und 45 : 30 = 1,5, aber 235 : 150 ist es nicht — 1,5 · 150 wäre <b>225</b>, dort stehen <b>235</b>. Die dritte Zeile bricht aus.<br><b>Das ist die wichtigste Beobachtung des Tages:</b> Zwei passende Zeilen haben nichts bewiesen. Halten Sie sie fest — Phase 7 baut darauf auf.</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="60">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;8 von 10 &middot; A2 (2) — die Zeile, die ausbricht</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Der Faktor der ersten beiden Zeilen ist 1,5.<br>Was müsste bei <span class="term">150 km</span> stehen?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">225</span> <span class="muted neben">— dort stehen aber 235</span></div></div><div class="mwbild"><table class="wtab"><tr><th>Strecke in km</th><td>120</td><td>30</td><td class="luecke">150</td><td>270</td></tr><tr><th>Verbrauch</th><td>180</td><td>45</td><td class="luecke">235</td><td>425</td></tr></table></div></div><div class="randnotiz"><b>Die Rückrichtung als Prüfmittel.</b> Statt 235 : 150 zu teilen (krumm), rechnet man 1,5 · 150 und vergleicht. Das ist schneller und für die 7b sicherer — zeigen Sie es ausdrücklich als Handgriff.<br><b>Wer 235 schreibt</b>, hat abgelesen statt gerechnet und die Frage nicht gelesen. Die gehört benannt: Gefragt ist, was dort <i>stehen müsste</i>, nicht was dort steht.<span class="weiche"><i>Weiche:</i> ab 75 % weiter · unter 75 % dieselbe Frage für die zweite Zeile (1,5 · 30 = 45), dort passt es — der Vergleich macht den Unterschied sichtbar.</span></div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="62">
+<div class="kicker">Wir zusammen &middot; A2, die beiden letzten</div><h2 class="wt">Und zwei, bei denen man genau hinsehen muss</h2><p class="lead weit">Hier hilft kein Blick — hier hilft nur Teilen.</p><table class="wtab"><tr><th>(3) Länge in m</th><td>6</td><td>4</td><td>9</td><td>13</td></tr><tr><th>Preis in €</th><td>15,60</td><td>10,40</td><td>22,50</td><td>32,50</td></tr></table><div style="height:1.4vh"></div><table class="wtab"><tr><th>(4) Stückzahl</th><td>240</td><td>180</td><td>150</td><td>330</td></tr><tr><th>Preis in €</th><td>655,20</td><td>491,40</td><td>409,50</td><td>900,90</td></tr></table><div class="randnotiz"><b>(3) ist nicht proportional</b>, und zwar knapp: 15,60 : 6 = <b>2,6</b> und 10,40 : 4 = 2,6, aber 22,50 : 9 = <b>2,5</b> und 32,50 : 13 = 2,5. Zwei Paare mit je gleichem Quotienten — und trotzdem nicht proportional. Wer nur die ersten beiden Zeilen prüft, urteilt falsch.<br><b>(4) ist proportional</b>, Faktor <b>2,73</b>. Die Zahlen sind abschreckend groß und die Rechnung geht jedes Mal glatt auf — das ist die Belohnung dafür, sie überhaupt anzufangen.<br><b>Wenn die Zeit knapp ist:</b> (4) streichen, (3) auf keinen Fall — sie trägt Phase 7.</div>
+</section>
+
+<section class="slide" data-phase="7 · Wie viele Zeilen?" data-ab="65" data-marke="WID">
+<div class="kicker">Die Frage, die alles zusammenhält &middot; Buch S. 21 Nr. 5 a)</div><h2 class="wt">Wie viele Zeilen muss man prüfen, um NEIN zu sagen?</h2><p class="lead weit">Zum <b>Widerlegen</b> genügen zwei Zeilen.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Erste Zeile: 3 → 1,5<span class="rech">1,5 : 3 = 0,5</span></span></div><div class="schritt fehler frag"><span class="num">2</span><span class="txt">Zweite Zeile: 7 → 2,8<span class="rech">2,8 : 7 = 0,4</span></span></div><div class="schritt ergebnis frag"><span class="num">3</span><span class="txt">Verschieden. <b>Fertig.</b> Die restlichen Zeilen kann man sich sparen — ein einziges Paar, das nicht passt, kippt die ganze Sache.<span class="rech">0,5 ≠ 0,4</span></span></div></div><div class="randnotiz"><b>Das Aufhördürfen ist die Pointe.</b> Viele rechnen aus Pflichtgefühl alle Zeilen durch — sagen Sie ausdrücklich, dass das Zeitverschwendung ist, sobald ein Widerspruch dasteht.<br><b>In der Klassenarbeit</b> ist genau das die erwartete Antwort: zwei Quotienten, ein Ungleichheitszeichen, ein Satz.</div>
+</section>
+
+<section class="slide" data-phase="7 · Wie viele Zeilen?" data-ab="67">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;9 von 10 &middot; Kurz nachgefasst</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Wie viele Zeilen musstest du eben prüfen?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">zwei</span> <span class="muted neben">— mehr braucht es zum Widerlegen nicht</span></div></div><div class="mwbild"><table class="wtab"><tr><th>x</th><td>3</td><td>7</td><td>11</td><td>19</td></tr><tr><th>y</th><td>1,5</td><td>2,8</td><td>4,4</td><td>7,5</td></tr></table></div></div><div class="randnotiz"><b>Eine Frage ohne Rechnung — und trotzdem die härteste der Stunde.</b> Sie prüft, ob die Regel als Regel angekommen ist und nicht nur als Rechenweg.<br><b>Wer „vier“ oder „alle“ zeigt</b>, hat aus Pflichtgefühl weitergerechnet. Das ist kein Fehler im Ergebnis, aber Zeitverschwendung — und in der Klassenarbeit fehlt die Zeit dann woanders.<br><b>Nicht auflösen und weiterziehen:</b> Die nächste Folie zeigt, dass die Regel andersherum <i>nicht</i> gilt. Erst danach steht der Merksatz.<span class="weiche"><i>Weiche:</i> unabhängig von der Quote weiter — die nächste Folie ist die Antwort. Bei sehr vielen „alle“ dort besonders langsam vorgehen.</span></div>
+</section>
+
+<section class="slide" data-phase="7 · Wie viele Zeilen?" data-ab="69" data-marke="BEST">
+<div class="kicker">Und andersherum &middot; Buch S. 21 Nr. 5 b)</div><h2 class="wt">Wie viele Zeilen muss man prüfen, um JA zu sagen?</h2><div class="schritte eng"><div class="schritt  frag"><span class="num">1</span><span class="txt">Erste Zeile: 5 → 6,5<span class="rech">6,5 : 5 = 1,3</span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Zweite Zeile: 8 → 10,4<span class="rech">10,4 : 8 = 1,3</span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Dritte Zeile: 10 → 13<span class="rech">13 : 10 = 1,3</span></span></div><div class="schritt fehler frag"><span class="num">4</span><span class="txt">Dreimal 1,3 — wer jetzt aufhört, sagt „proportional“. <b>Und liegt falsch.</b></span></div><div class="schritt fehler frag"><span class="num">5</span><span class="txt">Vierte Zeile: 12 → 15,8. Mit 1,3 müssten es <b>15,6</b> sein.<span class="rech">15,8 : 12 ≠ 1,3</span></span></div><div class="schritt ergebnis frag"><span class="num">6</span><span class="txt">Zum <b>Bestätigen</b> muss man <b>alle</b> Zeilen prüfen. Deshalb steht im Merksatz das Wort <i>jedes</i>.</span></div></div><div class="randnotiz"><b>Diese Folie ist der intellektuelle Höhepunkt der Doppelstunde</b> — und sie funktioniert nur, wenn Sie nach Schritt 3 wirklich anhalten und fragen: „Und? Proportional?“ Lassen Sie die Klasse „ja“ rufen. Erst dann Schritt 4.<br><b>Der Ärger darüber ist erwünscht.</b> Er ist die Erfahrung, die das Wort <i>jedes</i> im Merksatz trägt — stärker als jede Ermahnung.<br>Vergleichen Sie danach mit Aufgabe A2 (3): dort waren es sogar zwei Zeilen, die zusammenpassten.</div>
+</section>
+
+<section class="slide" data-phase="7 · Wie viele Zeilen?" data-ab="72">
+<div class="kicker">Zweiter Merksatz — ins Heft</div><div class="merk frag"><div class="satz">Zum <span class="gold">Widerlegen</span> genügt ein Wertepaar. Zum <span class="gold">Bestätigen</span> braucht man alle.</div><div class="zusatz">Ein einziger Quotient, der nicht passt, entscheidet die Sache. Aber drei, die passen, entscheiden nichts.</div></div><div class="randnotiz"><b>Kurz, und deshalb wirksam.</b> Ein Satz, zwei Richtungen. Er gilt weit über dieses Kapitel hinaus und darf ruhig so angekündigt werden.<br>Eine Minute Schreibzeit.</div>
+</section>
+
+<section class="slide" data-phase="7 · Wie viele Zeilen?" data-ab="74" data-frage="Du hast zwei Zeilen geprüft und 0,5 und 0,4 erhalten. Was folgt daraus?" data-optionen="[&quot;Nichts — man muss alle Zeilen prüfen.&quot;, &quot;Die Zuordnung ist nicht proportional, weitere Zeilen sind unnötig.&quot;, &quot;Die Zuordnung ist proportional mit dem Faktor 0,45.&quot;, &quot;Man muss noch eine dritte Zeile prüfen.&quot;]" data-schluessel="p4">
+<div class="kicker"><span class="marke plk">Plickers 4</span> &nbsp;Sitzt das?</div><h2 class="wt">Du hast zwei Zeilen geprüft und <span class="term">0,5</span> und <span class="term">0,4</span> erhalten. Was folgt daraus?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>Nichts — man muss alle Zeilen prüfen.</span></div><div class="opt"><span class="bst">B</span><span>Die Zuordnung ist nicht proportional, weitere Zeilen sind unnötig.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Die Zuordnung ist proportional mit dem Faktor 0,45.</span></div><div class="opt"><span class="bst">D</span><span>Man muss noch eine dritte Zeile prüfen.</span></div></div><div class="aufloesung frag hart"><b class="loesungswert">B</b>. Ein einziges Paar, das nicht passt, widerlegt die Sache — man darf sofort aufhören. Umgekehrt gilt das nicht: Zum Bestätigen muss man alle Zeilen prüfen.</div><div class="randnotiz"><b>A und D sind der übervorsichtige Fehler</b> — die Regel wird in beide Richtungen gleich streng angewandt. C ist der Mittelwert-Reflex: aus zwei Zahlen wird der Durchschnitt gebildet, als ließe sich der Widerspruch verrechnen.<br><b>Diese Quote ist Ihre Diagnose für die Klassenarbeit.</b> Notieren Sie sie.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % zurück zu den Folien 26 und 28 und beide Fälle in je einem Satz wiederholen lassen — von einem Schüler, nicht von Ihnen.</span></div>
+</section>
+
+<section class="slide" data-phase="8 · Allein, kurz" data-ab="77">
+<div class="kicker">Jetzt allein &middot; in Stille</div><h2 class="wt">Der Kassenbon <span class="zeitschild">7 Minuten</span></h2><div class="auftrag"><ol><li><b>A5</b> — Buch S. 21 Nr. 6: Auf dem Bon stehen 1,5 kg Birnen für 2,97 €. <b>Wie teuer ist ein Kilogramm?</b></li><li>Rechnet damit die Preise für 2 kg, 2,5 kg, 7 kg und 500 g aus.</li><li>★ Und dann für <b>750 g</b> und <b>1,25 kg</b>. Achtung: Da passiert etwas, das ihr benennen sollt.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Wer nicht weiterkommt: erst der Faktor, dann alles andere.</p></div><div class="randnotiz"><b>Ein einziger Bon, sechs Preise — das ist der Faktor in seiner reinsten Form.</b> Wer hier den Umweg über eine Tabelle geht, hat Phase 5 nicht mitgenommen.<br><b>Der Stern ist keine Zusatzaufgabe, sondern eine Falle mit Sinn:</b> 750 g kosten exakt 1,485 € und 1,25 kg exakt 2,475 € — beides sind keine Cent-Beträge. Das ist keine Rechenpanne, sondern der Punkt, an dem das Modell auf die Wirklichkeit trifft: Die Kasse rundet.<br><b>Beim Herumgehen fragen:</b> „Wie teuer ist ein Kilogramm?“ — wer das nicht sofort sagen kann, hat noch keinen Faktor.</div>
+</section>
+
+<section class="slide" data-phase="8 · Allein, kurz" data-ab="84">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;10 von 10 &middot; Bevor ich auflöse</div><div class="frage">Auf dem Bon: 1,5 kg Birnen für 2,97 €.<br>Was kostet <span class="term">1 kg</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">1,98 €</span> <span class="muted neben">— 2,97 € : 1,5 kg</span></div><div class="randnotiz"><b>Erst zeigen lassen, dann auflösen.</b> Nach sieben Minuten stiller Arbeit weiß sonst niemand, wer gerechnet hat und wer zugesehen hat, wie die Lösung an die Wand kommt.<br><b>Durch eine Kommazahl teilen</b> ist die eigentliche Hürde. Wer 1,5 : 2,97 rechnet, hat wieder y und x vertauscht — die Einheit verrät es: gefragt sind Euro je Kilogramm.<span class="weiche"><i>Weiche:</i> ab 70 % die Auflösung zügig zeigen · unter 70 % die erste Zeile der nächsten Folie gemeinsam rechnen, den Rest als Hausaufgabe.</span></div>
+</section>
+
+<section class="slide" data-phase="8 · Allein, kurz" data-ab="85">
+<div class="kicker">Auflösung &middot; A5</div><h2 class="wt">Birnen: 1,5 kg für 2,97 €</h2><div class="schritte eng"><div class="schritt ergebnis frag"><span class="num">1</span><span class="txt">Zuerst der Faktor — Preis geteilt durch Menge:<span class="rech">2,97 € : 1,5 kg = 1,98 €</span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Damit alles Weitere, ohne Tabelle:<span class="rech">2 kg → 3,96 €  ·  2,5 kg → 4,95 €  ·  7 kg → 13,86 €</span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Und 500 g, also die Hälfte von einem Kilogramm:<span class="rech">0,99 €</span></span></div><div class="schritt fehler frag"><span class="num">4</span><span class="txt">★ 750 g wären genau 1,485 € — <b>so einen Betrag gibt es nicht</b>. Die Kasse rundet auf <b>1,49 €</b>.<span class="rech">1,49 €</span></span></div><div class="schritt fehler frag"><span class="num">5</span><span class="txt">★ Und 1,25 kg wären 2,475 €, an der Kasse <b>2,48 €</b>. Das Modell rechnet genauer, als bezahlt werden kann.<span class="rech">2,48 €</span></span></div></div><div class="randnotiz"><b>Die beiden Sternschritte sind der Ertrag.</b> Sie zeigen, dass „proportional“ eine Beschreibung der Wirklichkeit ist und nicht die Wirklichkeit selbst. Fragen Sie: „Ist der Bon damit falsch?“ — Nein. Aber die Rechnung ist genauer als das Geld.<br><b>Wenn die Zeit fehlt</b>, die ersten drei Schritte zeigen und die Sternschritte als Hausaufgabe stellen. Sie sind zu gut, um sie zu streichen.</div>
+</section>
+
+<section class="slide" data-phase="9 · Abschluss" data-ab="88" data-frage="120 cm³ eines Stoffes wiegen 180 g. Wie schwer sind 200 cm³ desselben Stoffes?" data-optionen="[&quot;260 g&quot;, &quot;280 g&quot;, &quot;300 g&quot;, &quot;360 g&quot;]" data-schluessel="p5">
+<div class="kicker"><span class="marke plk">Plickers 5</span> &nbsp;Abschluss — weg von den Preisen</div><h2 class="wt">120 cm³ eines Stoffes wiegen 180 g.<br>Wie schwer sind <span class="term">200 cm³</span> desselben Stoffes?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>260 g</span></div><div class="opt"><span class="bst">B</span><span>280 g</span></div><div class="opt"><span class="bst">C</span><span>300 g</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>360 g</span></div></div><div class="aufloesung frag hart"><b class="loesungswert">300 g</b>. Erst der Faktor: 180 g : 120 cm³ = <b class="loesungswert">1,5</b> g je cm³. Dann 1,5 · 200. Wer <b class="loesungswert">260 g</b> rechnet, hat 80 addiert statt mit 1,5 multipliziert — <b>wieder Differenz statt Verhältnis</b>.</div><div class="randnotiz"><b>A ist der Denkfehler des Tages, ein letztes Mal.</b> 120 + 80 = 200, also 180 + 80 = 260. Das ist genau die Brötchenfalle vom Anfang, nur in Gramm. Sagen Sie das nach der Auflösung — der Bogen von Minute 14 bis Minute 85 ist die Stunde.<br><b>Diese Quote ist die Abschlussdiagnose.</b> Unter 60 % gehört der Unterschied Differenz/Verhältnis in die nächste Wiederholungsrunde.</div>
+</section>
+
+<section class="slide" data-phase="9 · Abschluss" data-ab="88">
+<div class="kicker">Exit-Ticket &middot; auf einen Zettel, mit Namen</div><h2 class="wt">Zwei Fragen, drei Minuten</h2><div class="auftrag"><ol><li>Eine Zuordnung ist proportional. Ein Wertepaar: <b>4 kg kosten 10 €</b>. Wie groß ist der Proportionalitätsfaktor, und was <b>bedeutet</b> er? Schreibe die Einheit dazu.</li><li>Du prüfst eine Tabelle mit fünf Zeilen. Die ersten drei haben denselben Quotienten. <b>Darfst du schon „proportional“ schreiben?</b> Begründe in einem Satz.</li></ol></div><div class="callout frag"><p><b>Hausaufgabe:</b> Buch S. 21 Nr. 4. Wer mag: Nr. 7.<br><b>Danach:</b> Wenn mehr Leute an einer Wand streichen, dauert es <i>kürzer</i>, nicht länger. Zuordnungen, bei denen es andersherum läuft — das ist die nächste Woche.</p></div><div class="randnotiz"><b>Frage 1 prüft den Faktor samt Bedeutung</b> (10 € : 4 kg = 2,50 €, und zwar Euro je Kilogramm). Wer die Einheit weglässt, hat gerechnet, aber nicht verstanden.<br><b>Frage 2 prüft den zweiten Merksatz</b> — die erwartete Antwort ist „nein, es fehlen zwei Zeilen“. Wer „ja“ schreibt, hat Phase 7 nicht mitgenommen; das ist die Gruppe, die Sie in der nächsten Übungsstunde zuerst ansehen.<br><b>Einsammeln beim Hinausgehen.</b></div>
+</section>
+
+<section class="slide" data-phase="9 · Abschluss" data-ab="89">
+<div class="kicker">Zum Mitnehmen — beide Sätze der Woche</div><div class="merk frag"><div class="satz">Gestern: derselbe Faktor <span class="gold">zwischen</span> zwei Zeilen. Heute: derselbe Quotient <span class="gold">in</span> jeder Zeile.</div><div class="zusatz">Zwei Wege, dieselbe Frage zu beantworten. Der von heute funktioniert immer — auch dann, wenn keine Zeile ein glattes Vielfaches der anderen ist.</div></div><div class="randnotiz"><b>Bleibt an der Wand, während die Klasse packt.</b> Der Zusammenhang der beiden Tage ist das, was in vier Wochen von der Woche übrig sein soll — nicht die Brötchen.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R1">
+<div class="kicker">Reserve zu Plickers 1</div><h2 class="wt">Dasselbe mit ganz glatten Zahlen</h2><div class="paar"><div class="halb "><h4>Unterschied</h4><p>2 Stück kosten 1,00 €.<br>4 Stück kosten 2,00 €.</p><p>Von 2 auf 4: <b>2 Stück mehr, 1,00 € mehr</b>.</p><p>Das sagt nichts darüber, was <i>ein</i> Stück kostet.</p></div><div class="halb gut"><h4>Verhältnis</h4><p>1,00 € : 2 = <b>0,50 €</b><br>2,00 € : 4 = <b>0,50 €</b></p><p>Dieselbe Zahl in beiden Zeilen. <b>Proportional</b>, Faktor 0,50 € je Stück.</p></div></div><p class="lead weit frag" style="margin-top:1.6vh">Rechnet immer <b>in</b> der Zeile, nicht <b>zwischen</b> den Zeilen. Dann kann der Unterschied euch nicht täuschen.</p><div class="randnotiz"><b>Einzusetzen, wenn nach Plickers 1 sichtbar wird, dass die Klasse Differenz und Quotient nicht auseinanderhält.</b> Hier sind die Zahlen so glatt, dass beide Rechenwege sichtbar sind und man ihren Unterschied nicht mit Rechenschwierigkeiten verwechseln kann.<br>Danach zurück zu Folie 11.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R2">
+<div class="kicker">Reserve zu Plickers 2</div><h2 class="wt">y : x oder x : y? Die Einheit entscheidet</h2><div class="schritte"><div class="schritt ergebnis"><span class="num">1</span><span class="txt">2 kg kosten 5 €. Gefragt ist der Preis <b>je Kilogramm</b> — also <b>Euro durch Kilogramm</b>.<span class="rech">5 € : 2 kg = 2,5 &nbsp;(Euro je Kilogramm)</span></span></div><div class="schritt fehler"><span class="num">2</span><span class="txt">Andersherum gerechnet kommt auch eine sinnvolle Zahl heraus — aber eine andere Größe: <b>Kilogramm je Euro</b>.<span class="rech">2 kg : 5 € = 0,4 &nbsp;(Kilogramm je Euro)</span></span></div><div class="schritt"><span class="num">3</span><span class="txt">Für <b>y = Faktor · x</b> braucht man die erste Zahl. Sprecht die Einheit mit, dann dreht ihr nichts um.<span class="rech">„je“ heißt: geteilt durch</span></span></div></div><div class="randnotiz"><b>Zwei Minuten.</b> Das Vertauschen von y : x und x : y ist der häufigste Fehler des Kapitels, und er lässt sich nicht durch Merken beheben, sondern nur durch Mitsprechen der Einheit.<br><b>Übung dazu, mündlich:</b> „Kilometer je Stunde“, „Euro je Meter“, „Gramm je Kubikzentimeter“ — jedes Mal fragen, was durch was geteilt wird.<br>Danach zurück zu Folie 16.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R3">
+<div class="kicker">Reserve &middot; wenn der Ursprung fehlt</div><h2 class="wt">Das Taxi von gestern — jetzt mit der Nullzeile</h2><p class="lead weit">Bei 0 km zahlt man <b>2,00 €</b> — die Grundgebühr. Genau das sieht man am Graphen als Startpunkt über der Null.</p><table class="wtab"><tr><th>Strecke in km</th><td class="hin">0</td><td>1</td><td>2</td><td>4</td></tr><tr><th>Preis in €</th><td class="hin">2,00</td><td>4,00</td><td>6,00</td><td>10,00</td></tr><tr><th>Preis : Strecke</th><td class="hin">—</td><td>4</td><td>3</td><td>2,5</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Die Quotientenzeile fällt: 4, dann 3, dann 2,5. <b>Nicht proportional</b> — und der Grund steht in der ersten Spalte.</p><div class="randnotiz"><b>Verbindet die beiden Tage.</b> Gestern scheiterte das Taxi am Vervielfachen, heute an der Quotientenzeile — und die Nullspalte zeigt, warum: Zu 0 gehört nicht 0.<br><b>Der Strich in der ersten Spalte</b> ist kein Versehen: 2,00 € : 0 km lässt sich nicht rechnen. Wer danach fragt, hat eine gute Frage gestellt — durch null wird nicht geteilt.<br>Einzusetzen nach Plickers 3 oder als Anschluss an Folie 19.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R4">
+<div class="kicker">Reserve &middot; für die Schnellen</div><h2 class="wt">Wer früher fertig ist</h2><div class="auftrag"><ol><li><b>Buch S. 21 Nr. 4</b> — die Hausaufgabe, schon jetzt.</li><li><b>Buch S. 21 Nr. 7</b> — dort ist der Faktor gegeben und die Tabelle fehlt. Der Rückweg.</li><li><b>Selbst erfinden:</b> Baue eine Tabelle mit fünf Zeilen, bei der die ersten <b>vier</b> denselben Quotienten haben und die fünfte ausbricht. Gib sie deinem Nachbarn — er darf nur so lange rechnen, bis er sicher ist.</li></ol></div><div class="randnotiz"><b>Aufgabe 3 ist die wertvollste</b> und zugleich die schönste Rückmeldung an Phase 7: Wer eine solche Tabelle bauen kann, hat verstanden, warum vier passende Zeilen nichts beweisen.<br>Der Zusatz „nur so lange rechnen, bis er sicher ist“ macht aus der Bastelei eine echte Aufgabe — der Nachbar muss alle fünf Zeilen prüfen und merkt das erst am Ende.</div>
+</section>
+
+</div>
+
+<div class="hintkey">&larr; &rarr; bl&auml;ttern &middot; Leertaste weiter &middot; <b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> Uhr zur&uuml;ck &middot; <b>Q</b> QR &middot; F Vollbild</div>
+<div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
+<div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
+
+<script>
+  // ---- Slide-Navigation mit schrittweisem Aufbau ----
+  // Wie in Projektion_k1-s*.html. Neu: Elemente mit der Klasse .hart bekommen
+  // KEINE Geist-Vorschau - eine halb durchscheinende Loesung waere in einer
+  // Whiteboard-Runde ein Spoiler.
+  const slides=[...document.querySelectorAll('.slide')];
+  const dotsBox=document.getElementById('dots');
+  let idx=0;
+  // Teil-Ansicht: ?folien=2-11 -> nur die zehn Fragen, ohne Uebersicht.
+  const QS=new URLSearchParams(location.search);
+  const FOLIEN=QS.get('folien');
+  const mF=FOLIEN&&FOLIEN.match(/^\s*(\d+)\s*(?:-\s*(\d+))?\s*$/);
+  const LO=mF?Math.max(0,Math.min(slides.length-1,+mF[1]-1)):0;
+  const HI=mF?Math.max(LO,Math.min(slides.length-1,+(mF[2]||mF[1])-1)):slides.length-1;
+  slides.forEach((s,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>{revealAll(i);go(i);};if(i<LO||i>HI)d.style.display='none';dotsBox.appendChild(d);});
+  const dots=[...document.querySelectorAll('.dot')];
+  const frags=i=>[...slides[i].querySelectorAll('.frag')];
+  function revealAll(i){ slides[i].dataset.step=frags(i).length; }
+  let GHOST=0.12;   // Deckkraft des naechsten Elements (per Regler); uebernaechstes = halb so stark
+  function paintFrags(i){ const f=frags(i); const step=+(slides[i].dataset.step||0);
+    f.forEach((el,k)=>{
+      let o;
+      if(el.classList.contains('hart')){ o = k<step?1:0; }
+      else { o = k<step?1 : (k===step?GHOST : (k===step+1?GHOST/2 : 0)); }
+      el.style.opacity=o; el.style.pointerEvents=(o===0?'none':''); }); }
+  function go(i){ idx=Math.max(LO,Math.min(HI,i));
+    if(slides[idx].dataset.step==null) slides[idx].dataset.step=0;
+    slides.forEach((s,k)=>s.classList.toggle('on',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    document.getElementById('counter').textContent=(idx-LO+1)+' / '+(HI-LO+1);
+    paintFrags(idx);
+  }
+  function next(){ const f=frags(idx); const step=+(slides[idx].dataset.step||0);
+    if(step<f.length){ slides[idx].dataset.step=step+1; paintFrags(idx); return; }
+    if(idx<HI){ slides[idx+1].dataset.step=0; go(idx+1); } }
+  function prev(){ const step=+(slides[idx].dataset.step||0);
+    if(step>0){ slides[idx].dataset.step=step-1; paintFrags(idx); return; }
+    if(idx>LO){ revealAll(idx-1); go(idx-1); } }
+  document.getElementById('next').onclick=next;
+  document.getElementById('prev').onclick=prev;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'){next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){prev();}
+    else if(e.key===' '){e.preventDefault();next();}
+    else if(e.key==='d'||e.key==='D'){document.body.classList.toggle('notizen');}
+    else if(e.key==='f'||e.key==='F'){toggleFs();}
+  });
+  function toggleFs(){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();} else {document.exitFullscreen&&document.exitFullscreen();} }
+  const ghostSlider=document.getElementById('ghost');
+  if(ghostSlider){ GHOST=(+ghostSlider.value)/100;
+    ghostSlider.addEventListener('input',()=>{ GHOST=(+ghostSlider.value)/100; paintFrags(idx); }); }
+  go(LO);
+
+  window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "7b-mi"};
+
+  /* ---- Selbsteinpassung ------------------------------------------------
+     Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
+     Hoehe. Auf einer flachen Anlage geht das nicht immer auf - und es
+     faellt erst im Klassenraum auf, wenn die Frage halb unter der
+     Bedienleiste liegt.
+
+     Deshalb misst jede Folie sich beim Aufblenden selbst: Passt ihr Inhalt
+     nicht zwischen die Leisten, wird er so weit verkleinert, dass er
+     passt. Weniger als 65 % waere unleserlich; dort ist Schluss, und dann
+     stimmt etwas mit der Folie nicht, nicht mit dem Bildschirm. */
+  /* Das freie Band zwischen den festen Leisten - gemessen, nicht geraten.
+     Der Eck-QR zaehlt nicht mit: Er sitzt in der Ecke, der Text laeuft
+     neben ihm vorbei (nur die Balken bekommen rechts Platz gemacht). */
+  window.leistenband = function(){
+    const sicht = w => w && getComputedStyle(w).display !== "none"
+                    && w.getBoundingClientRect().height > 0;
+    const ob = [".regie", ".counter", ".abstand", ".home"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().bottom);
+    const un = [".hintkey", ".nav", ".ghostctl"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().top);
+    return { oben: (ob.length ? Math.max(...ob) : 0) + 10,
+             unten: (un.length ? Math.min(...un) : innerHeight) - 10 };
+  };
+
+  window.einpassen = function(folie){
+    if(!folie) return 1;
+    let b = folie.querySelector(":scope > .buehne");
+    if(!b){
+      b = document.createElement("div");
+      b.className = "buehne";
+      [...folie.children].filter(e => !e.classList.contains("randnotiz"))
+        .forEach(k => b.appendChild(k));
+      folie.insertBefore(b, folie.firstChild);
+    }
+    /* Nur ueber style, NIE ueber eine Klasse: Der Beobachter unten horcht
+       auf Klassenwechsel: und wuerde sich sonst selbst wieder ausloesen -
+       eine Schleife, die den Aufbau der Seite anhaelt. */
+    b.style.transform = "";
+    folie.style.justifyContent = "";
+    /* Die Polsterung folgt den gemessenen Leisten statt festen vh-Werten:
+       Kommt eine Anzeige dazu (Abstimmung) oder faellt eine weg, stimmt
+       der Rand von selbst. */
+    const B = window.leistenband();
+    folie.style.paddingTop = Math.round(B.oben) + "px";
+    folie.style.paddingBottom = Math.round(innerHeight - B.unten) + "px";
+    const platz = B.unten - B.oben;
+    const hoch = b.getBoundingClientRect().height;
+    if(hoch > platz - 6 && platz > 0){
+      /* Sechs Pixel Luft: Runden und Zwischenraeume summieren sich sonst
+         genau bis an die Kante, und „genau bis an die Kante" heisst an der
+         Wand: eine angeschnittene Zeile. */
+      const k = Math.max(0.6, (platz - 6) / hoch);
+      b.style.transform = "scale(" + k.toFixed(4) + ")";
+      folie.style.justifyContent = "flex-start";
+      return k;
+    }
+    return 1;
+  };
+
+  (function einpassenVerdrahten(){
+    const jetzt = () => window.einpassen(document.querySelector(".slide.on"));
+    new MutationObserver(jetzt).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    addEventListener("resize", jetzt);
+    addEventListener("load", jetzt);
+    jetzt();
+  })();
+
+  /* ---- Regieleiste: Phase, geplante Startminute, Stoppuhr -------------
+     Greift NICHT in go()/next()/prev() ein. Der Folienwechsel wird ueber
+     einen MutationObserver auf die Klasse .on beobachtet - so bleibt die
+     uebernommene Mechanik Zeile fuer Zeile die der anderen Projektionen. */
+  (function regie(){
+    const leiste = document.querySelector('.regie');
+    if(!leiste) return;
+    const nam  = leiste.querySelector('.pnam');
+    const plan = leiste.querySelector('.pplan');
+    const anz  = leiste.querySelector('.puhr');
+    let ms = 0, seit = null;                 // verstrichen / laeuft seit
+    const verstrichen = () => ms + (seit === null ? 0 : Date.now() - seit);
+    const aktiv = () => ms > 0 || seit !== null;
+
+    function zeige(){
+      const s = document.querySelector('.slide.on');
+      if(!s) return;
+      nam.textContent  = s.dataset.phase || '';
+      plan.textContent = s.dataset.ab ? ('ab Min. ' + s.dataset.ab) : '';
+      if(!aktiv()){
+        anz.textContent = '--:--';
+        document.body.classList.remove('spaet','sehrspaet');
+        return;
+      }
+      const min = verstrichen() / 60000;
+      const g = Math.floor(min), sek = Math.floor((min - g) * 60);
+      anz.textContent = (seit === null ? '\u23f8 ' : '') + g + ':' + String(sek).padStart(2,'0');
+      const rueck = s.dataset.ab ? min - (+s.dataset.ab) : 0;
+      document.body.classList.toggle('spaet', rueck > 3 && rueck <= 6);
+      document.body.classList.toggle('sehrspaet', rueck > 6);
+    }
+
+    new MutationObserver(zeige).observe(document.getElementById('deck'),
+      { subtree:true, attributes:true, attributeFilter:['class'] });
+    document.addEventListener('keydown', e => {
+      if(e.key === 't' || e.key === 'T'){
+        if(seit === null){ seit = Date.now(); }
+        else { ms += Date.now() - seit; seit = null; }
+        zeige();
+      } else if(e.key === 'r' || e.key === 'R'){
+        ms = 0; seit = null; zeige();
+      }
+    });
+    setInterval(zeige, 1000);
+    zeige();
+  })();
+
+  /* ---- Live-Abstimmung ------------------------------------------------
+     Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
+     Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
+     lokal geoeffnet -, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter. Nichts an dieser Mechanik ist Voraussetzung
+     fuer den Rest der Folien.
+
+     Verteilt wird nur, was die Wand ohnehin zeigt. Die Geraete erfahren
+     weder die richtige Antwort noch die Verteilung. */
+  (function abstimmung(){
+    const K = window.ABSTIMMUNG;
+    if (!K || !K.dienst) return;
+    /* ?dienst=… und ?raum=… ueberschreiben die eingebauten Werte. Damit
+       laesst sich dieselbe Datei auf den Notfall-Dienst im Klassenraum
+       umbiegen oder in einer Vertretungsstunde in einen anderen Raum
+       schicken - ohne sie neu zu bauen. */
+    const Q = new URLSearchParams(location.search);
+    const dienst = (Q.get("dienst") || K.dienst).replace(/\/+$/, "");
+    const raum = (Q.get("raum") || K.raum).toLowerCase()
+                   .replace(/[^a-z0-9-]/g, "").slice(0, 24);
+    const BST = ["A","B","C","D"];
+
+    const stand = document.createElement("div");
+    stand.className = "abstand zu";
+    stand.innerHTML = '<span class="punkt"></span><span class="text">Abstimmung</span>';
+    document.body.appendChild(stand);
+
+    const knopf = document.createElement("button");
+    knopf.className = "schluesselknopf";
+    knopf.textContent = "🔑 Lehrerschlüssel eintragen";
+    document.body.appendChild(knopf);
+
+    const holeSchluessel = () => { try { return localStorage.getItem("wand-lehrer") || ""; }
+                                   catch(e){ return ""; } };
+    const setzeSchluessel = v => { try { localStorage.setItem("wand-lehrer", v); } catch(e){} };
+    knopf.onclick = () => {
+      const v = prompt("Lehrerschlüssel für die Abstimmung:", holeSchluessel());
+      if (v !== null){ setzeSchluessel(v.trim()); document.body.classList.remove("schluesselfehlt"); pruefe(); }
+    };
+
+    const kopf = () => ({ "content-type":"application/json", "x-lehrer": holeSchluessel() });
+    let lebt = false, laufend = null, ticker = null;
+
+    async function pruefe(){
+      try {
+        const a = await fetch(dienst + "/v1/ping", { cache:"no-store" });
+        lebt = a.ok;
+      } catch(e){ lebt = false; }
+      document.body.classList.toggle("livean", lebt);
+      if (lebt){
+        document.body.classList.toggle("schluesselfehlt", !holeSchluessel());
+        document.body.classList.add("qrzeigen");
+      }
+    }
+
+    /* --- Balkenzeilen in eine Plickers-Folie einhaengen --- */
+    function balken(folie){
+      let b = folie.querySelector(".balken");
+      if (b) return b;
+      const karten = [...folie.querySelectorAll(".opt")];
+      if (!karten.length) return null;
+      b = document.createElement("div");
+      b.className = "balken";
+      karten.forEach((k, i) => {
+        const zeile = document.createElement("div");
+        zeile.className = "balkenzeile" + (k.querySelector(".haken") ? " richtig" : "");
+        zeile.innerHTML = '<span class="bst">' + (BST[i]||i+1) + '</span>'
+                        + '<div class="bar"><i></i></div><span class="zahl">0</span>';
+        b.appendChild(zeile);
+      });
+      folie.querySelector(".plickers").after(b);
+      return b;
+    }
+
+    function male(folie, zaehler, abgestimmt){
+      const b = balken(folie); if (!b) return;
+      const summe = zaehler.reduce((s,n)=>s+n, 0) || 1;
+      [...b.children].forEach((zeile, i) => {
+        const n = zaehler[i] || 0;
+        zeile.querySelector("i").style.width = Math.round(n / summe * 100) + "%";
+        zeile.querySelector(".zahl").textContent = n;
+      });
+      stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+    }
+
+    async function oeffne(folie){
+      const frage = folie.dataset.frage || "";
+      let optionen = [];
+      try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
+      if (optionen.length < 2) return;
+      const schluessel = raum + "-" + folie.dataset.schluessel;
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ frage, optionen, schluessel }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+        if (!a.ok) return;
+        laufend = { folie, schluessel };
+        stand.classList.remove("zu");
+        const b = balken(folie);
+        if (b){ b.classList.add("an"); b.classList.remove("gezeigt");
+                folie.classList.add("abstimmt"); }
+        tick();
+        clearInterval(ticker); ticker = setInterval(tick, 1500);
+      } catch(e){}
+    }
+
+    async function schliesse(){
+      clearInterval(ticker); ticker = null;
+      if (!laufend) return;
+      const alt = laufend; laufend = null;
+      stand.classList.add("zu");
+      try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
+                        { method:"POST", headers: kopf() }); } catch(e){}
+      await zeichne(alt.folie);
+    }
+
+    async function zeichne(folie){
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/ergebnis",
+                              { headers: kopf(), cache:"no-store" });
+        const d = await a.json();
+        if (d.ok) male(folie, d.zaehler || [], d.abgestimmt || 0);
+      } catch(e){}
+    }
+
+    const tick = () => { if (laufend) zeichne(laufend.folie); };
+
+    /* --- Folienwechsel und Aufloesung beobachten --- */
+    function beobachte(){
+      const folie = document.querySelector(".slide.on");
+      if (!folie) return;
+      const istAbfrage = !!folie.dataset.frage;
+      if (!istAbfrage){ if (laufend) schliesse(); return; }
+      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
+      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      if (laufend && laufend.folie !== folie) return schliesse();
+      if (laufend && aufgeloest){
+        const b = folie.querySelector(".balken"); if (b) b.classList.add("gezeigt");
+        return schliesse();
+      }
+    }
+
+    new MutationObserver(beobachte).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    document.addEventListener("keydown", e => {
+      if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
+    });
+
+    pruefe().then(beobachte);
+    setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
+  })();
+</script>
+</body>
+</html>
