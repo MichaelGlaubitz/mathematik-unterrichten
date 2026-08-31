@@ -85,9 +85,28 @@
   body.sehrspaet .regie .puhr{color:var(--red)}
   @media print{.regie{display:none}}
 
+  /* --- Platz fuer die Leisten ------------------------------------------
+     Die Vorlage laesst oben 4,5vh frei. Das genuegt fuer den blossen
+     Zurueck-Link, nicht fuer Regieleiste, Abstimmungsanzeige und
+     Foliennummer - die liegen sonst auf der ersten Zeile. Unten dasselbe
+     mit Tastenzeile und Blaetterknoepfen. Feste Mindestwerte, weil vh auf
+     einem flachen Fenster zu wenig ergibt. */
+  .slide{padding:max(7.5vh,66px) 5vw max(10vh,86px)}
+
   /* --- Ueberschriften und Fliesstext der Lehrgangsfolien --- */
   .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
   .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* --- Ablauftabelle der zweiten Folie ---------------------------------
+     Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
+     steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
+     so hoch macht. Auf einem breiten Bildschirm laeuft die Folie damit
+     unten heraus. */
+  .tab td.nrz{width:auto;min-width:4.4em;white-space:nowrap;
+    font-size:clamp(13px,1.4vw,20px)}
+  .tab td.fr{font-size:clamp(13px,1.45vw,20px)}
+  .tab td.an{font-size:clamp(13px,1.5vw,21px)}
+  .tab th,.tab td{padding:.34em .55em}
   .lead{font-size:clamp(17px,2.05vw,30px);line-height:1.4;max-width:44ch}
   .weit{max-width:none}
 
@@ -317,6 +336,65 @@
     padding:5px 11px;cursor:pointer;font-weight:700;display:none}
   body.schluesselfehlt .schluesselknopf{display:block}
   body.schluesselfehlt .abstand{display:none}
+
+  /* ====================================================================
+     Groessen an die HOEHE binden
+     --------------------------------------------------------------------
+     Die Vorlage bemisst jede Schrift mit vw und deckelt sie bei einem
+     festen Hoechstwert. Auf 1920x1080 passt das; auf 1600x900 ist die
+     Schrift dann GENAUSO gross - der Deckel greift in beiden Faellen -,
+     aber es sind 180 Pixel weniger Hoehe da. Genau so laeuft eine
+     dichte Folie unten heraus, und zwar erst im Klassenraum.
+
+     Deshalb steht ueberall, wo die Hoehe knapp wird, min(…vw, …vh):
+     Es gilt der kleinere der beiden Werte, und ein flaches Fenster
+     verkleinert mit. Auf 16:9 aendert sich nichts, was vorher passte.
+     Nachgemessen wird in vier Formaten von pruefe_wand.mjs.
+     ==================================================================== */
+  .slide h2.wt{font-size:clamp(20px,min(4.1vw,5.6vh),60px)}
+  .slide p,.slide li{font-size:clamp(14px,min(2vw,2.9vh),28px)}
+  .frage{font-size:clamp(24px,min(5.2vw,7.4vh),84px)}
+  .antwort .wert{font-size:clamp(28px,min(6vw,8.4vh),96px)}
+  .lead{font-size:clamp(15px,min(2.05vw,2.9vh),30px)}
+  .opt{font-size:clamp(12px,min(1.8vw,2.6vh),26px)}
+  .schritt .txt{font-size:clamp(13px,min(1.9vw,2.7vh),28px)}
+  .schilder .schild td{font-size:clamp(13px,min(2vw,2.8vh),30px)}
+  .schilder .schild h3{font-size:clamp(15px,min(2.2vw,3vh),33px)}
+  .wtab td,.wtab th{font-size:clamp(13px,min(1.9vw,2.7vh),29px)}
+  .merk .satz{font-size:clamp(18px,min(2.75vw,3.9vh),42px)}
+  .merk .zusatz{font-size:clamp(13px,min(1.7vw,2.4vh),25px)}
+  .auftrag li{font-size:clamp(14px,min(1.9vw,2.7vh),28px)}
+  .aufloesung{font-size:clamp(13px,min(1.75vw,2.5vh),25px)}
+  .paar .halb p{font-size:clamp(13px,min(1.8vw,2.6vh),26px)}
+  .tab td.nrz,.tab td.fr{font-size:clamp(12px,min(1.45vw,2.1vh),20px)}
+  .tab td.an{font-size:clamp(12px,min(1.5vw,2.2vh),21px)}
+  .balkenzeile .bst{font-size:clamp(12px,min(1.6vw,2.3vh),23px)}
+  .balkenzeile .zahl{font-size:clamp(12px,min(1.7vw,2.4vh),25px)}
+  .balkenzeile .bar{height:clamp(11px,1.7vh,26px)}
+  .kurzadresse{font-size:clamp(15px,min(2.6vw,3.4vh),38px)}
+  .qrfolie .qrbild svg{width:min(30vw,34vh,340px)}
+  .graphpaar .graph{width:min(38vw,44vh,470px)}
+  .graph{width:min(52vw,58vh,640px)}
+
+  /* Auf der dichtesten Folie - Beleg, vier Karten, Balken, Aufloesung -
+     reicht das nicht; dort wird zusaetzlich enger gesetzt. */
+  .slide.abstimmt h2.wt{font-size:clamp(17px,min(2.9vw,3.9vh),42px)}
+  .slide.abstimmt .opt{font-size:clamp(11px,min(1.5vw,2.05vh),21px)}
+  .slide.abstimmt .aufloesung{font-size:clamp(11px,min(1.4vw,1.95vh),22px)}
+  .slide.abstimmt .plbild .schild td{font-size:clamp(11px,min(1.5vw,2vh),22px)}
+  .slide.abstimmt .plbild .schild h3{font-size:clamp(12px,min(1.7vw,2.2vh),25px)}
+  .slide.abstimmt .plbild .wtab td,.slide.abstimmt .plbild .wtab th{
+    font-size:clamp(11px,min(1.4vw,1.95vh),21px)}
+  .slide.abstimmt .plbild .graph{width:min(34vw,30vh,400px)}
+  .slide.abstimmt .balkenzeile .bar{height:clamp(9px,1.35vh,20px)}
+
+  /* --- Selbsteinpassung ------------------------------------------------
+     Trotz aller Groessenregeln bleibt eine dichte Folie auf einer flachen
+     Anlage zu hoch. Statt weiter an Zahlen zu drehen, misst die Folie sich
+     beim Aufblenden selbst und schrumpft, wenn sie muss. Der Inhalt liegt
+     dafuer in einer .buehne - alles ausser der Randnotiz, die weiter fest
+     am Bildrand haengt. */
+  .buehne{width:100%;transform-origin:top center}
 
   /* --- Randnotiz: die Weiche der Lehrkraft ---
      Sie liegt wie in allen Projektionsseiten ueber der Folie; auf einer
@@ -558,6 +636,76 @@
   go(LO);
 
   window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "7b-mi"};
+
+  /* ---- Selbsteinpassung ------------------------------------------------
+     Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
+     Hoehe. Auf einer flachen Anlage geht das nicht immer auf - und es
+     faellt erst im Klassenraum auf, wenn die Frage halb unter der
+     Bedienleiste liegt.
+
+     Deshalb misst jede Folie sich beim Aufblenden selbst: Passt ihr Inhalt
+     nicht zwischen die Leisten, wird er so weit verkleinert, dass er
+     passt. Weniger als 65 % waere unleserlich; dort ist Schluss, und dann
+     stimmt etwas mit der Folie nicht, nicht mit dem Bildschirm. */
+  /* Das freie Band zwischen den festen Leisten - gemessen, nicht geraten.
+     Der Eck-QR zaehlt nicht mit: Er sitzt in der Ecke, der Text laeuft
+     neben ihm vorbei (nur die Balken bekommen rechts Platz gemacht). */
+  window.leistenband = function(){
+    const sicht = w => w && getComputedStyle(w).display !== "none"
+                    && w.getBoundingClientRect().height > 0;
+    const ob = [".regie", ".counter", ".abstand", ".home"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().bottom);
+    const un = [".hintkey", ".nav", ".ghostctl"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().top);
+    return { oben: (ob.length ? Math.max(...ob) : 0) + 10,
+             unten: (un.length ? Math.min(...un) : innerHeight) - 10 };
+  };
+
+  window.einpassen = function(folie){
+    if(!folie) return 1;
+    let b = folie.querySelector(":scope > .buehne");
+    if(!b){
+      b = document.createElement("div");
+      b.className = "buehne";
+      [...folie.children].filter(e => !e.classList.contains("randnotiz"))
+        .forEach(k => b.appendChild(k));
+      folie.insertBefore(b, folie.firstChild);
+    }
+    /* Nur ueber style, NIE ueber eine Klasse: Der Beobachter unten horcht
+       auf Klassenwechsel: und wuerde sich sonst selbst wieder ausloesen -
+       eine Schleife, die den Aufbau der Seite anhaelt. */
+    b.style.transform = "";
+    folie.style.justifyContent = "";
+    /* Die Polsterung folgt den gemessenen Leisten statt festen vh-Werten:
+       Kommt eine Anzeige dazu (Abstimmung) oder faellt eine weg, stimmt
+       der Rand von selbst. */
+    const B = window.leistenband();
+    folie.style.paddingTop = Math.round(B.oben) + "px";
+    folie.style.paddingBottom = Math.round(innerHeight - B.unten) + "px";
+    const platz = B.unten - B.oben;
+    const hoch = b.getBoundingClientRect().height;
+    if(hoch > platz - 6 && platz > 0){
+      /* Sechs Pixel Luft: Runden und Zwischenraeume summieren sich sonst
+         genau bis an die Kante, und „genau bis an die Kante" heisst an der
+         Wand: eine angeschnittene Zeile. */
+      const k = Math.max(0.6, (platz - 6) / hoch);
+      b.style.transform = "scale(" + k.toFixed(4) + ")";
+      folie.style.justifyContent = "flex-start";
+      return k;
+    }
+    return 1;
+  };
+
+  (function einpassenVerdrahten(){
+    const jetzt = () => window.einpassen(document.querySelector(".slide.on"));
+    new MutationObserver(jetzt).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    addEventListener("resize", jetzt);
+    addEventListener("load", jetzt);
+    jetzt();
+  })();
 
   /* ---- Regieleiste: Phase, geplante Startminute, Stoppuhr -------------
      Greift NICHT in go()/next()/prev() ein. Der Folienwechsel wird ueber
