@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wandfassung · Die Zahl, die keinen Namen hatte (10b)</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#4f46e5; --accent2:#0ea5e9; --gold:#d97706; --green:#15803d; --red:#dc2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:4.5vh 5vw 9vh;animation:fade .35s ease}
+  .slide.on{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1{font-size:clamp(34px,5.5vw,76px);line-height:1.04;font-weight:800;letter-spacing:-.01em}
+  h2{font-size:clamp(26px,3.6vw,48px);font-weight:800;line-height:1.08;margin-bottom:.5em}
+  .kicker{font-size:clamp(13px,1.4vw,18px);font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em}
+  p,li{font-size:clamp(17px,2vw,28px);line-height:1.5}
+  .muted{color:var(--muted)} .accent{color:var(--accent)} .gold{color:var(--gold)} .green{color:var(--green)} .red{color:var(--red)}
+  .big{font-size:clamp(40px,7vw,110px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:.25em .9em;font-size:clamp(13px,1.4vw,18px);font-weight:700}
+  .callout{background:#eef2ff;border:1px solid #c7d2fe;border-left:7px solid var(--accent);border-radius:14px;padding:.8em 1.1em;margin-top:.7em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:2.2vh 2vw;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:50}
+  .nav button{border:1px solid var(--line);background:#fff;color:var(--ink);width:46px;height:46px;border-radius:12px;font-size:20px;cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .dots{display:flex;gap:8px}.dot{width:11px;height:11px;border-radius:50%;background:#cbd5e1;cursor:pointer}.dot.on{background:var(--accent);transform:scale(1.25)}
+  .counter{position:fixed;top:16px;right:20px;font-size:14px;font-weight:700;color:var(--muted);z-index:50}
+  .home{position:fixed;top:14px;left:18px;z-index:50;font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 11px}
+  .home:hover{color:var(--accent);border-color:var(--accent)}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:.6em 1.1em;font-size:clamp(15px,1.6vw,20px);font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btnrow{display:flex;gap:10px;margin-top:1em;flex-wrap:wrap}
+  .hintkey{position:fixed;bottom:74px;left:0;right:0;text-align:center;color:var(--muted);font-size:13px;z-index:40}
+  .frag{transition:opacity .3s ease}
+  .ghostctl{position:fixed;left:16px;bottom:18px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;z-index:60;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .ghostctl input{width:96px;accent-color:var(--accent)}
+  @media print{.ghostctl{display:none}}
+
+  /* --- Whiteboard-Runde --- */
+  .nr{font-variant-numeric:tabular-nums}
+  .frage{font-size:clamp(30px,5.2vw,84px);font-weight:800;line-height:1.14;letter-spacing:-.01em;max-width:22ch}
+  .frage .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .zusatz{font-size:clamp(16px,1.9vw,26px);color:var(--muted);margin-top:.9em}
+  .antwort{margin-top:3.4vh;display:flex;align-items:baseline;gap:1.1vw;flex-wrap:wrap}
+  .antwort .wert{font-size:clamp(34px,6vw,96px);font-weight:800;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
+  .antwort .neben{font-size:clamp(16px,1.8vw,26px)}
+  /* Randnotiz: nur fuer die Lehrkraft, Taste D */
+  .randnotiz{display:none;position:fixed;left:16px;bottom:120px;max-width:min(38ch,42vw);background:#fffbeb;border:1px solid #fcd34d;border-left:7px solid var(--gold);border-radius:12px;padding:.7em .9em;font-size:clamp(12px,1.05vw,15px);line-height:1.45;color:#4a3410;z-index:55;box-shadow:0 6px 20px rgba(15,23,42,.12)}
+  body.notizen .slide.on .randnotiz{display:block}
+  .randnotiz b{color:#92400e}
+  .notizmarke{position:fixed;top:16px;right:96px;z-index:56;display:none;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid #fcd34d;background:#fffbeb;border-radius:8px;padding:4px 9px}
+  body.notizen .notizmarke{display:block}
+  /* Uebersicht */
+  .tab{width:100%;border-collapse:collapse;margin-top:1.4vh}
+  .tab th,.tab td{border-bottom:1px solid var(--line);padding:.45em .6em;text-align:left;vertical-align:top}
+  .tab th{font-size:clamp(11px,1.1vw,15px);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800}
+  .tab td.nrz{width:2.4em;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .tab td.fr{font-size:clamp(13px,1.55vw,22px);line-height:1.3}
+  .tab td.an{font-size:clamp(14px,1.7vw,24px);font-weight:800;color:var(--green);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tab td.di,.tab th.di{display:none;font-size:clamp(11px,1.1vw,15px);color:#4a3410;line-height:1.35;max-width:44ch}
+  body.notizen .tab td.di,body.notizen .tab th.di{display:table-cell}
+  body.notizen .tab td.fr{font-size:clamp(12px,1.25vw,17px)}
+  body.notizen .tab td.an{font-size:clamp(12px,1.35vw,19px)}
+
+  /* ================= Wandfassung (Direct Instruction) ================= */
+
+  /* --- Regieleiste: Phase, Planminute, Stoppuhr --- */
+  .regie{position:fixed;top:13px;left:50%;transform:translateX(-50%);z-index:52;
+    display:flex;align-items:center;gap:12px;background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:5px 15px;
+    font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;
+    box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .regie .pnam{color:var(--ink)}
+  .regie .ptr{color:#cbd5e1}
+  .regie .puhr{font-variant-numeric:tabular-nums;color:var(--accent);min-width:4.2em;
+    text-align:right}
+  body.spaet .regie{border-color:#fcd34d;background:#fffbeb}
+  body.spaet .regie .puhr{color:var(--gold)}
+  body.sehrspaet .regie{border-color:#fecaca;background:#fef2f2}
+  body.sehrspaet .regie .puhr{color:var(--red)}
+  @media print{.regie{display:none}}
+
+  /* --- Platz fuer die Leisten ------------------------------------------
+     Die Vorlage laesst oben 4,5vh frei. Das genuegt fuer den blossen
+     Zurueck-Link, nicht fuer Regieleiste, Abstimmungsanzeige und
+     Foliennummer - die liegen sonst auf der ersten Zeile. Unten dasselbe
+     mit Tastenzeile und Blaetterknoepfen. Feste Mindestwerte, weil vh auf
+     einem flachen Fenster zu wenig ergibt. */
+  .slide{padding:max(7.5vh,66px) 5vw max(10vh,86px)}
+
+  /* --- Ueberschriften und Fliesstext der Lehrgangsfolien --- */
+  .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
+  .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* --- Ablauftabelle der zweiten Folie ---------------------------------
+     Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
+     steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
+     so hoch macht. Auf einem breiten Bildschirm laeuft die Folie damit
+     unten heraus. */
+  .tab td.nrz{width:auto;min-width:4.4em;white-space:nowrap;
+    font-size:clamp(13px,1.4vw,20px)}
+  .tab td.fr{font-size:clamp(13px,1.45vw,20px)}
+  .tab td.an{font-size:clamp(13px,1.5vw,21px)}
+  .tab th,.tab td{padding:.34em .55em}
+  .lead{font-size:clamp(17px,2.05vw,30px);line-height:1.4;max-width:44ch}
+  .weit{max-width:none}
+
+  /* --- Ich zeige es: Rechenschritte, einer nach dem anderen --- */
+  .schritte{display:flex;flex-direction:column;gap:1.15vh;margin-top:1.8vh}
+  .schritt{display:flex;gap:1vw;align-items:flex-start;background:var(--panel);
+    border:1px solid var(--line);border-left:7px solid var(--accent2);
+    border-radius:14px;padding:1.15vh 1.15vw}
+  .schritt .num{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:9px;
+    background:#e0f2fe;color:#075985;font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:clamp(15px,1.7vw,25px)}
+  .schritt .txt{font-size:clamp(16px,1.9vw,28px);line-height:1.33}
+  .schritt .rech{display:block;margin-top:.18em;font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .schritt.ergebnis{border-left-color:var(--green);background:#f0fdf4}
+  .schritt.ergebnis .num{background:#dcfce7;color:#14532d}
+  .schritt.ergebnis .rech{color:var(--green)}
+  .schritt.fehler{border-left-color:var(--red);background:#fef2f2}
+  .schritt.fehler .num{background:#fee2e2;color:#7f1d1d}
+  .schritt.fehler .rech{color:var(--red)}
+  /* Ab fuenf Schritten passt die Folie sonst nicht mehr auf 16:9 - dann
+     rueckt alles enger zusammen, statt oben aus dem Bild zu laufen. */
+  .schritte.eng{gap:.7vh}
+  .schritte.eng .schritt{padding:.8vh 1vw}
+  .schritte.eng .txt{font-size:clamp(14px,1.62vw,24px)}
+  .schritte.eng .num{width:1.6em;height:1.6em;font-size:clamp(13px,1.45vw,21px)}
+
+  /* --- Preisschilder --- */
+  .schilder{display:flex;gap:2vw;margin-top:1.8vh;flex-wrap:wrap;align-items:flex-start}
+  .schild{flex:1 1 300px;background:#fffdf3;border:2px solid #e6c34a;border-radius:16px;
+    padding:1.5vh 1.4vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .schild h3{font-size:clamp(18px,2.2vw,33px);font-weight:800;color:#8d6e00;
+    margin-bottom:.35em;line-height:1.15}
+  .schild table{width:100%;border-collapse:collapse}
+  .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
+    font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
+  .schild tr:last-child td{border-bottom:none}
+  .schild td.p{text-align:right;font-weight:800}
+  .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
+
+  /* --- Wertetabelle mit Vervielfachungspfeilen --- */
+  .wtab{border-collapse:collapse;margin-top:1.8vh}
+  .wtab td,.wtab th{border:2px solid #94a3b8;padding:.34em .75em;
+    font-size:clamp(15px,1.9vw,29px);text-align:center;font-variant-numeric:tabular-nums}
+  .wtab th{background:#eef2ff;font-weight:800;text-align:left;white-space:nowrap}
+  .wtab td.pf{border:none;background:none;color:var(--accent);font-weight:800;
+    font-size:clamp(13px,1.5vw,22px);padding:.34em .35em;white-space:nowrap}
+  .wtab td.hin{background:#f0fdf4;color:var(--green);font-weight:800}
+  .wtab td.raus{background:#fef2f2;color:var(--red);font-weight:800}
+  .wtab td.luecke{background:#fffbeb;color:var(--gold);font-weight:800}
+
+  /* --- Abfrage mit Beleg ---------------------------------------------
+     Wer ueber eine Tabelle abstimmt, muss die Tabelle sehen. Steht die
+     Frage auf einer eigenen Folie, ist der Beleg von der Vorfolie weg -
+     deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
+     Plickers ueber die vier Karten. */
+  .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
+  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
+  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
+  .mwsplit .antwort{margin-top:2.2vh}
+  .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
+  .mwsplit .wtab{margin-top:0}
+  .mwsplit .wtab td,.mwsplit .wtab th{font-size:clamp(13px,1.55vw,24px);
+    padding:.26em .55em}
+  .mwsplit .schilder{margin-top:0}
+  .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
+  .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+
+  /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
+     hoeher als das Bild, und die Einpassung muesste die ganze Folie
+     verkleinern - die Schrift ausgerechnet dort, wo der Beleg gelesen
+     werden muss. */
+  .plzeile{display:flex;gap:26px;align-items:center;margin-top:16px}
+  .plzeile .plbild{flex:0 0 auto;margin:0;max-width:52%}
+  .plzeile .plickers{flex:1 1 0;min-width:0;margin-top:0}
+  /* Zwei Schilder nebeneinander statt untereinander: Der Umbruch
+     verdoppelte die Hoehe des Belegs und verkleinerte darueber die
+     ganze Folie. */
+  .plzeile .schilder{flex-wrap:nowrap;gap:16px}
+  .plzeile .schilder .schild{min-width:0}
+  .plbild{margin:.7vh 0 .2vh}
+  .plbild .wtab{margin-top:0}
+  .plbild .wtab td,.plbild .wtab th{font-size:clamp(12px,1.42vw,21px);
+    padding:.2em .5em}
+  .plbild .schilder{margin-top:0}
+  .plbild .schild{padding:.9vh 1vw}
+  .plbild .schild td{font-size:clamp(13px,1.5vw,22px);padding:.16em .1em}
+  .plbild .schild h3{font-size:clamp(15px,1.7vw,25px)}
+  .plbild .graph{margin-top:0;width:min(46vw,560px)}
+  .slide.mitbild h2.wt{margin-bottom:.2em;max-width:38ch}
+
+  /* --- Plickers --- */
+  /* Eine Spalte, nicht zwei: siehe die Begruendung an der Entwurfsflaeche
+     weiter unten. Die Karte ist so breit wie die Folie, der Text wird
+     gross, und die vier Karten untereinander fuellen die Hoehe. */
+  .plickers{display:grid;grid-template-columns:1fr;gap:14px;margin-top:22px}
+  .opt{position:relative;display:flex;gap:18px;
+    align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:16px 20px;font-size:28px;line-height:1.3}
+  /* Alles Sichtbare liegt ueber der Fuellung ... */
+  .opt > *{position:relative;z-index:1}
+  /* ... und die Fuellung selbst darunter: Sie faerbt die Karte von links,
+     waehrend die Stimmen eingehen. Ein Balken, der die Antwort nicht mehr
+     verdeckt, sondern hinterlegt. */
+  .opt .fuellung{position:absolute;left:0;top:0;bottom:0;width:0;z-index:0;
+    background:#e6ebff;border-radius:13px;transition:width .35s ease}
+  .opt .zahl{margin-left:auto;padding-left:.7em;font-weight:800;
+    font-variant-numeric:tabular-nums;display:none}
+  .slide.abstimmt .opt .zahl{display:block}
+  /* Solange nicht aufgeloest ist, verraet keine Fuellung, welche Karte
+     stimmt - erst danach faerbt sich die richtige gruen. */
+  .plickers.gezeigt .opt.istrichtig .fuellung{background:#bbf7d0}
+  .opt .bst{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:10px;
+    background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:.95em}
+  /* Die Markierung der richtigen Antwort ist ein eigenes .frag-Element:
+     Sie legt sich als gruener Rahmen ueber die Karte, sobald aufgeloest wird. */
+  .haken{position:absolute;inset:-3px;z-index:2;
+    border:3px solid var(--green);border-radius:17px;
+    /* Nur ein Hauch Farbe: Der Rahmen liegt UEBER dem Text, damit das
+       Schild nicht verdeckt wird - ein kraeftiger Schleier machte die
+       richtige Antwort blasser als die falschen. */
+    background:rgba(220,252,231,.16);display:flex;align-items:flex-start;
+    justify-content:flex-end;pointer-events:none}
+  .haken b{background:var(--green);color:#fff;border-radius:999px;
+    padding:.12em .75em;font-size:clamp(12px,1.25vw,18px);
+    transform:translate(-.5em,-.65em)}
+  .aufloesung{margin-top:1.8vh;background:#f0fdf4;border:1px solid #86efac;
+    border-left:7px solid var(--green);border-radius:14px;padding:1.3vh 1.2vw;
+    font-size:clamp(15px,1.75vw,25px);line-height:1.38}
+  .aufloesung .loesungswert{color:var(--green);font-variant-numeric:tabular-nums}
+  .marke{display:inline-block;background:var(--accent);color:#fff;border-radius:8px;
+    padding:.1em .55em;font-size:clamp(12px,1.25vw,17px);font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;vertical-align:.12em}
+  .marke.mwb{background:#0f766e}
+  .marke.plk{background:#7c3aed}
+
+  /* --- Kleines Koordinatensystem --- */
+  .graph{width:min(52vw,640px);height:auto;margin-top:1.4vh}
+  .graphpaar{display:flex;gap:2vw;align-items:flex-start;flex-wrap:wrap}
+  .graphpaar .graph{width:min(38vw,470px)}
+  /* Vier Skizzen nebeneinander, je eine je Antwortkarte - damit man ueber
+     Graphen abstimmen kann, ohne sie sich vorstellen zu muessen. */
+  .graphreihe{display:flex;gap:1.1vw;align-items:flex-start;justify-content:center}
+  .graphreihe figure{margin:0;text-align:center;flex:1 1 0;min-width:0}
+  .graphreihe figcaption{font-size:clamp(13px,1.5vw,21px);font-weight:800;
+    color:var(--accent);margin-bottom:.15em}
+  .graphreihe .graph{width:100%;max-width:230px;margin-top:0}
+
+  /* --- Merksatz --- */
+  .merk{background:#fffbeb;border:2px solid #fcd34d;border-left:9px solid var(--gold);
+    border-radius:18px;padding:2.1vh 1.9vw;margin-top:1.6vh}
+  .merk .satz{font-size:clamp(20px,2.75vw,42px);font-weight:800;line-height:1.24}
+  .merk .zusatz{font-size:clamp(15px,1.7vw,25px);color:#7a5c10;margin-top:.65em;
+    line-height:1.4}
+
+  /* --- Arbeitsauftrag der kurzen Eigenphase --- */
+  .auftrag{background:var(--panel);border:1px solid var(--line);
+    border-left:9px solid var(--accent);border-radius:18px;padding:2vh 1.9vw;
+    margin-top:1.6vh;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .auftrag ol{margin:.4em 0 0 1.3em}
+  .auftrag li{margin:.34em 0;font-size:clamp(16px,1.9vw,28px);line-height:1.35}
+  .zeitschild{display:inline-block;background:var(--accent);color:#fff;
+    border-radius:999px;padding:.18em .95em;font-size:clamp(14px,1.5vw,22px);
+    font-weight:800}
+
+  /* --- Zwei Spalten nebeneinander (Vorhersage gegen Schild) --- */
+  .paar{display:grid;grid-template-columns:1fr 1fr;gap:1.6vw;margin-top:1.8vh}
+  @media (max-width:900px){.paar{grid-template-columns:1fr}}
+  .paar .halb{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:1.4vh 1.2vw}
+  .paar .halb h4{font-size:clamp(14px,1.5vw,21px);text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);font-weight:800;margin-bottom:.5em}
+  .paar .halb.gut{border-color:#86efac;background:#f0fdf4}
+  .paar .halb.schlecht{border-color:#fecaca;background:#fef2f2}
+  .paar .halb p{font-size:clamp(15px,1.8vw,26px)}
+
+  /* --- Reservefolien: liegen hinter dem Durchlauf und werden nur bei
+         Bedarf angesprungen. Der bernsteinfarbene Rahmen sagt sofort, dass
+         der geplante Weg gerade verlassen ist - und legt sich, anders als
+         ein Streifen am oberen Rand, nicht ueber die Regieleiste. --- */
+  .slide.reserve{box-shadow:inset 0 0 0 7px var(--gold)}
+
+  /* --- Live-Abstimmung ------------------------------------------------
+     Nur sichtbar, wenn ein Abstimmungsdienst erreichbar ist. Ist er es
+     nicht, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter - genau wie ohne diese Zeilen. */
+  .qrfolie{display:flex;gap:3vw;align-items:center;margin-top:1.6vh}
+  .qrfolie .qrbild{flex:0 0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:1.6vh 1.6vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .qrfolie .qrbild svg{width:min(30vw,340px);height:auto;display:block}
+  .qrfolie .qrtext{flex:1 1 auto;min-width:0}
+  .kurzadresse{font-size:clamp(19px,2.6vw,38px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums;word-break:break-all;margin:.3em 0 .5em}
+  /* Rechts unten, nicht links: links liegen der Vorschau-Regler und die
+     Randnotiz, und die Balken brauchen die volle Breite. */
+  .qrecke{position:fixed;right:14px;bottom:14px;z-index:54;background:#fff;
+    border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 4px 14px rgba(15,23,42,.12);display:none}
+  .qrecke svg{width:88px;height:88px;display:block}
+  .qrecke .code{font-size:11px;font-weight:800;color:var(--muted);text-align:center;
+    letter-spacing:.1em;margin-top:3px}
+  body.qrzeigen .qrecke{display:block}
+  @media print{.qrecke{display:none}}
+
+  .abstand{position:fixed;top:16px;left:18px;z-index:53;display:none;
+    align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:5px 10px}
+  body.livean .abstand{display:flex}
+  .abstand .punkt{width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .abstand.zu .punkt{background:#cbd5e1}
+  body.livean .home{display:none}
+
+  /* Die frueheren Balkenzeilen unter den Karten sind entfallen: Sie
+     wiederholten die Buchstaben und machten die Folie breiter und
+     flacher. Der Balken steckt jetzt in der Karte (.opt .fuellung). */
+
+  /* Waehrend abgestimmt wird, aendert sich an den Groessen NICHTS mehr.
+     Frueher stand hier eine Reihe von Verkleinerungen; sie stammten aus
+     der Zeit vor der Entwurfsflaeche und haben die Schrift ausgerechnet
+     dann zusammenfallen lassen, wenn die ganze Klasse hinsieht. */
+
+  .schluesselknopf{position:fixed;top:16px;left:18px;z-index:57;font-size:12px;
+    background:#fffbeb;border:1px solid #fcd34d;color:#8d6e00;border-radius:9px;
+    padding:5px 11px;cursor:pointer;font-weight:700;display:none}
+  body.schluesselfehlt .schluesselknopf{display:block}
+  body.schluesselfehlt .abstand{display:none}
+
+  /* ====================================================================
+     Feste Entwurfsflaeche
+     --------------------------------------------------------------------
+     Jede Folie wird auf 1200 Punkte Breite gesetzt und als GANZES auf den
+     Bildschirm skaliert (window.einpassen). Deshalb stehen hier feste
+     Punktgroessen und keine vw-Rechnungen mehr.
+
+     Der Grund: vw-Groessen mit Hoechstwert sind auf einem grossen Bild
+     doppelt schaedlich - der Deckel greift, die Schrift bleibt klein,
+     und die untere Bildhaelfte bleibt leer. Wer stattdessen die ganze
+     Flaeche skaliert, bekommt auf 1920 x 1080 eine um ein Viertel
+     groessere Schrift als auf 1600 x 900, ohne dass sich das Layout
+     aendert. Eine Folie sieht ueberall gleich aus, nur groesser.
+
+     Die Zahlen sind fuer die letzte Reihe gewaehlt: Fliesstext 30 px auf
+     1500 px Breite entspricht auf einer 3 m breiten Projektion rund
+     6 cm Zeilenhoehe.
+     ==================================================================== */
+  /* Hochgestelltes: klein, aber ohne die Zeile aufzureissen.
+     line-height:0 haelt die Zeilenhoehe fest - sonst waere eine
+     Formelzeile hoeher als die anderen, und die Einpassung
+     rechnete mit einer zu hohen Folie. */
+  .slide sup{font-size:.62em;line-height:0;vertical-align:super;
+    font-weight:inherit}
+  .slide h1{font-size:74px;line-height:1.05}
+  .slide h2{font-size:50px}
+  /* 26 Zeichen waren aus der alten, schmaleren Fassung uebrig: Die Frage
+     stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
+     420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
+     verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
+  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  .slide p,.slide li{font-size:30px;line-height:1.45}
+  .kicker{font-size:21px}
+  .lead{font-size:31px;max-width:46ch}
+  .callout{padding:.75em 1.05em}
+  .frage{font-size:66px;max-width:22ch}
+  .antwort .wert{font-size:78px}
+  .antwort .neben{font-size:28px}
+  .pill{font-size:20px}
+  .marke{font-size:19px}
+  .opt{font-size:28px;padding:16px 18px}
+  .opt .bst{font-size:26px}
+  .aufloesung{font-size:29px;padding:16px 19px}
+  .schritt{padding:14px 16px}
+  .schritt .txt{font-size:31px}
+  .schritt .num{font-size:27px}
+  .schilder .schild{padding:18px 20px}
+  .schilder .schild td{font-size:32px;padding:.24em .1em}
+  .schilder .schild h3{font-size:35px}
+  .schilder .schild .fuss{font-size:20px}
+  .wtab td,.wtab th{font-size:31px;padding:.3em .7em}
+  .wtab td.pf{font-size:24px}
+  .merk{padding:26px 28px}
+  .merk .satz{font-size:46px}
+  .merk .zusatz{font-size:27px}
+  .auftrag{padding:24px 26px}
+  .auftrag li{font-size:31px}
+  .zeitschild{font-size:24px}
+  .paar .halb{padding:18px 20px}
+  .paar .halb h4{font-size:22px}
+  .paar .halb p{font-size:28px}
+  .tab td.nrz,.tab td.fr{font-size:22px}
+  .tab td.an{font-size:23px}
+  .tab th{font-size:17px}
+  .opt .zahl{font-size:27px}
+  .kurzadresse{font-size:40px}
+  .qrfolie .qrbild svg{width:330px}
+  .graph{width:620px}
+  .graphpaar .graph{width:450px}
+  .graphreihe .graph{max-width:250px}
+  .graphreihe figcaption{font-size:22px}
+  .plbild .schild td{font-size:26px}
+  .plbild .schild h3{font-size:29px}
+  .plbild .wtab td,.plbild .wtab th{font-size:26px;padding:.22em .55em}
+  .plbild .graph{width:520px}
+  .mwsplit .frage{font-size:54px;max-width:none}
+  .mwsplit .antwort .wert{font-size:66px}
+
+  /* Die dichteste Folie - Beleg, vier Karten, Aufloesung - behaelt ihre
+     Groessen. Passt sie nicht, verkleinert die Einpassung die ganze
+     Flaeche; das faellt kaum auf, weil alles gleichmaessig mitgeht. Eine
+     eigene, kleinere Schrift fuer die Abstimmung gibt es nicht mehr:
+     Sie war der Grund, warum die Folie unlesbar wurde, sobald die Klasse
+     zu antworten begann. */
+
+  /* --- Die Entwurfsflaeche selbst --------------------------------------
+     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
+     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
+     nach oben. */
+  .buehne{width:1200px;transform-origin:top center}
+  /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
+     skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
+     Titelfolie richtet ihren Text ueber ein eigenes style-Attribut links
+     aus - das gewinnt gegen diese Regel.
+     (Kein Selektor auf [style*="flex-start"]: Der prueft die ZEICHENKETTE
+     des Attributs und traf auch das justify-content, das die Einpassung
+     dort setzt. Die Flaeche rutschte dadurch um 40 Pixel nach links aus
+     dem Bild.) */
+  .slide{align-items:center}
+
+  /* --- Randnotiz: die Weiche der Lehrkraft ---
+     Sie liegt wie in allen Projektionsseiten ueber der Folie; auf einer
+     Plickers-Folie mit vier Karten ist das eng. Deshalb hier schmaler,
+     tiefer angesetzt und bei sehr langen Notizen scrollbar. Der volle
+     Wortlaut steht ohnehin auf dem Lehrerblatt. */
+  /* ====================================================================
+     Bedienleisten: eine Zeile statt dreier Etagen
+     --------------------------------------------------------------------
+     Gemessen kosteten Hinweiszeile, Punktreihe und Regler zusammen rund
+     102 px am unteren Rand - Platz, der der Folie fehlt und damit der
+     Schrift, weil die Flaeche als Ganzes eingepasst wird.
+
+     Jetzt sitzt alles auf einer Hoehe: links der Vorschau-Regler, mittig
+     Pfeile und Punkte, rechts der Tastenhinweis. Kleiner, aber sichtbar
+     - ein Bedienelement, das sich wegblendet, sucht man genau dann,
+     wenn die Klasse wartet.
+     ==================================================================== */
+  /* Die Punktreihe zentriert sich zwischen Regler (links) und Hinweis
+     (rechts), nicht mehr im ganzen Bild - sonst stiess sie bei vielen
+     Folien in den Hinweis hinein (gemessen: 129 px Ueberlappung). */
+  .nav{bottom:12px;gap:10px;left:215px;right:300px}
+  .dots{flex-wrap:wrap;justify-content:center;max-width:100%}
+  .nav button{width:32px;height:32px;font-size:15px;border-radius:9px}
+  .dots{gap:6px}
+  .dot{width:8px;height:8px}
+  .hintkey{bottom:17px;left:auto;right:20px;width:auto;max-width:42vw;
+    text-align:right;font-size:12px;line-height:1.2}
+  /* Haengt der Eck-QR unten rechts, macht ihm der Hinweis Platz. */
+  body.qrzeigen .hintkey{right:126px}
+  .ghostctl{bottom:15px;padding:4px 9px;font-size:11px}
+  .ghostctl input{width:110px}
+  /* Oben dasselbe in klein: Die Regieleiste braucht keine 13 px Schrift,
+     sie steht fuer die Lehrkraft da, nicht fuer die letzte Reihe. */
+  .regie{top:9px;padding:4px 13px;font-size:12px;gap:10px}
+
+  .randnotiz{max-width:min(38ch,30vw);bottom:100px;max-height:56vh;overflow:auto}
+  .randnotiz .weiche{display:block;margin-top:.55em;padding-top:.5em;
+    border-top:1px dashed #e0b93c}
+  .randnotiz .weiche i{font-style:normal;font-weight:800;color:#92400e}
+</style>
+</head>
+<body>
+<a class="home" href="../Klassen/Mathe_10b.html">&larr; Mathe 10b</a>
+<div class="counter" id="counter"></div>
+<div class="notizmarke">Randnotizen sichtbar · D</div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span></div>
+<div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m2 0h1m3 0h1m1 0h4m-24 1h1m1 0h5m4 0h4m1 0h2m1 0h1m2 0h3m1 0h5m-31 1h4m3 0h4m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h2m3 0h1m1 0h1m3 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-32 1h4m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h3m-27 1h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h3m2 0h2m1 0h1m-30 1h1m1 0h2m1 0h1m1 0h1m2 0h1m3 0h1m1 0h2m1 0h3m2 0h1m2 0h4m-31 1h1m2 0h3m5 0h1m1 0h1m4 0h2m3 0h2m1 0h4m-32 1h1m2 0h2m2 0h3m2 0h1m1 0h1m5 0h3m2 0h3m2 0h1m-31 1h1m1 0h2m1 0h3m3 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m2 0h2m6 0h1m4 0h1m2 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-32 1h1m2 0h4m1 0h2m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-31 1h2m2 0h1m2 0h1m4 0h1m4 0h1m1 0h3m2 0h1m1 0h4m1 0h1m-32 1h2m2 0h2m2 0h1m2 0h8m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h2m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m3 0h2m1 0h5m1 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m8 0h2m2 0h4m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m-31 1h1m1 0h3m1 0h2m1 0h2m4 0h1m1 0h1m4 0h7m2 0h2m-25 1h2m1 0h2m3 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m3 0h4m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m4 0h1m1 0h1m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg><div class="code">10B-WURZ</div></div>
+<div class="deck" id="deck">
+
+<section class="slide on" data-phase="0 · Ankommen" data-ab="0" style="align-items:flex-start">
+<div class="kicker">Mathematik 10b · Do 03.09.2026 · 11:30–13:00 · E311</div><h1>Die Zahl,<br>die keinen <span class="accent">Namen</span> hatte</h1><p class="muted lead frag" style="margin-top:.9em">x⁵ = 7. Über Jahrtausende war das eine unlösbare Aufgabe — nicht weil die Zahl fehlte, sondern weil niemand sie aufschreiben konnte. Heute bekommt sie zwei Namen, und beide meinen dasselbe.</p><div class="callout frag"><p><b>So läuft das heute:</b> Ich zeige etwas vor, dann rechnen wir es gemeinsam, dann fragt ihr euch selbst ab. Bei jeder Frage antworten <b>alle</b> — auf dem Mini-Whiteboard oder auf dem iPad.</p></div>
+</section>
+
+<section class="slide" data-phase="0 · Ankommen" data-ab="1">
+<div class="kicker">So l&auml;uft die Doppelstunde</div><table class="tab"><tr><th>Min</th><th>Was</th><th>Wie</th></tr><tr><td class="nrz">0–9</td><td class="fr">Aufwärmen: Potenzen von Dienstag</td><td class="an">alle schreiben</td></tr><tr><td class="nrz">9–17</td><td class="fr">x⁵ = 7 — die Frage des Buches</td><td class="an">Abstimmung</td></tr><tr><td class="nrz">17–29</td><td class="fr">Ich rechne es vor: die Permanenz entscheidet</td><td class="an">vormachen</td></tr><tr><td class="nrz">29–36</td><td class="fr">Der Merksatz — und die Falle darin</td><td class="an">Abstimmung</td></tr><tr><td class="nrz">36–48</td><td class="fr">Zähler und Nenner: a<sup>m/n</sup></td><td class="an">Abstimmung</td></tr><tr><td class="nrz">48–62</td><td class="fr">Gleichungen und der verbotene Radikand</td><td class="an">Whiteboard</td></tr><tr><td class="nrz">62–73</td><td class="fr">Zwei Aufgaben allein</td><td class="an">still</td></tr><tr><td class="nrz">73–90</td><td class="fr">Auflösung, Abfrage und Exit-Ticket</td><td class="an">Abstimmung</td></tr></table><div class="callout frag"><p><b>Ziel:</b> Ihr könnt am Ende jede Wurzel als Potenz schreiben und jede Potenz mit Bruch im Exponenten <b>im Kopf</b> ausrechnen, wenn sie aufgeht.</p></div>
+</section>
+
+<section class="slide" data-phase="0 · Ankommen" data-ab="2" data-marke="QR">
+<div class="kicker">Einmal scannen — dann könnt ihr mitstimmen</div><h2 class="wt">Holt eure iPads heraus</h2><div class="qrfolie"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m2 0h1m3 0h1m1 0h4m-24 1h1m1 0h5m4 0h4m1 0h2m1 0h1m2 0h3m1 0h5m-31 1h4m3 0h4m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h2m3 0h1m1 0h1m3 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-32 1h4m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h3m-27 1h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h3m2 0h2m1 0h1m-30 1h1m1 0h2m1 0h1m1 0h1m2 0h1m3 0h1m1 0h2m1 0h3m2 0h1m2 0h4m-31 1h1m2 0h3m5 0h1m1 0h1m4 0h2m3 0h2m1 0h4m-32 1h1m2 0h2m2 0h3m2 0h1m1 0h1m5 0h3m2 0h3m2 0h1m-31 1h1m1 0h2m1 0h3m3 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m2 0h2m6 0h1m4 0h1m2 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-32 1h1m2 0h4m1 0h2m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-31 1h2m2 0h1m2 0h1m4 0h1m4 0h1m1 0h3m2 0h1m1 0h4m1 0h1m-32 1h2m2 0h2m2 0h1m2 0h8m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h2m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m3 0h2m1 0h5m1 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m8 0h2m2 0h4m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m-31 1h1m1 0h3m1 0h2m1 0h2m4 0h1m1 0h1m4 0h7m2 0h2m-25 1h2m1 0h2m3 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m3 0h4m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m4 0h1m1 0h1m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg></div><div class="qrtext"><p class="lead weit">Kamera auf den Code halten und auf die Meldung tippen. Wer keine Kamera hat, tippt die Adresse ein:</p><p class="kurzadresse">mathematik-unterrichten.de/abstimmung/?raum=10b-wurz</p><p class="lead weit">Die Seite bleibt die ganze Stunde offen. Sobald an der Wand eine Frage steht, könnt ihr antworten.</p></div></div><div class="callout frag"><p>Keine Namen, keine Anmeldung. Euer Gerät bekommt eine Zufallsnummer, damit jede Stimme einmal zählt — mehr wird nicht gespeichert.</p></div><div class="randnotiz"><b>Diese Folie stehen lassen, bis alle verbunden sind</b> — erfahrungsgemäß eine Minute. Der Zähler oben links sagt Ihnen, wie viele Geräte mitmachen.<br><b>Danach klein in der Ecke:</b> Der Code bleibt unten links hängen, für Nachzügler und für Geräte, die sich verabschieden. <b>Q</b> blendet ihn aus und wieder ein.<br><b>Kein Dienst erreichbar?</b> Dann fehlt die Anzeige oben links. Diese Folie überspringen und die Stunde mit den Plickers-Karten halten — alle Abfragen funktionieren unverändert.</div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="3">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;1 von 12 &middot; Vom Dienstag</div><div class="frage">Wie viel ist <span class="term">5⁰</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">1</span> </div><div class="randnotiz"><b>Erste Frage des Tages, bewusst leicht.</b> Sie stellt den Takt her: schreiben, hochheben, alle zugleich. Zählen Sie hörbar an: „drei, zwei, eins, hoch“.<br><b>Und sie ist mehr als Aufwärmen:</b> a⁰ = 1 kam in Stunde S3 aus derselben Überlegung, die heute a<sup>1/n</sup> festlegt. Merken Sie sich diese Folie für Phase 3 — Sie kommen darauf zurück.</div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="5">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;2 von 12 &middot; Negativer Exponent</div><div class="frage">Wie viel ist <span class="term">2⁻³</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">1/8</span> <span class="muted neben">— also 0,125</span></div><div class="randnotiz"><b>Zweite Säule von Stunde S3.</b> Wer hier 1/8 schreibt, hat die Permanenzreihe verstanden — und genau die trägt heute den gesamten Beweis.<br><b>Wenn falsch:</b> „−8“ heißt, das Minus wurde auf die Potenz gezogen statt in den Nenner. „−6“ heißt multipliziert. Beides sind Vorzeichenfehler, keine Potenzfehler.<span class="weiche"><i>Weiche:</i> unter 75 % — zwei Minuten die Potenz-Treppe wiederholen (2³, 2², 2¹, 2⁰, 2⁻¹, jedes Mal halbieren). Ohne das läuft Phase 3 ins Leere.</span></div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="7">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;3 von 12 &middot; Potenz einer Potenz</div><div class="frage">Wie viel ist <span class="term">(2³)²</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">64</span> <span class="muted neben">— also 2⁶, die Exponenten mal</span></div><div class="randnotiz"><b>Das Gesetz, das heute alles trägt.</b> (aᵐ)ⁿ = a<sup>m·n</sup> ist der einzige Grund, warum a<sup>1/n</sup> die n-te Wurzel sein <i>muss</i>. Wenn diese Regel wackelt, wackelt die ganze Stunde.<br><b>Wenn falsch:</b> „2⁵ = 32“ heißt addiert statt multipliziert — die Verwechslung mit aᵐ · aⁿ. Lassen Sie (2³)² einmal ausschreiben: 8 · 8. Das entscheidet es.<span class="weiche"><i>Weiche:</i> unter 70 % — (2³)² und 2³ · 2² nebeneinander an die Tafel und beide ausschreiben. Drei Minuten, die sich heute doppelt auszahlen.</span></div>
+</section>
+
+<section class="slide" data-phase="1 · Rückblick" data-ab="9">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;4 von 12 &middot; Und die Wurzel</div><div class="frage">Welche Zahl mal sich selbst ergibt <span class="term">49</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7</span> <span class="muted neben">— also √49 = 7</span></div><div class="randnotiz"><b>Absichtlich als Frage gestellt, nicht als Zeichen.</b> Die Wurzel ist heute nicht neu — neu ist, dass sie einen zweiten Namen bekommt. Die Formulierung „welche Zahl mal sich selbst“ ist genau die, mit der gleich die dritte Wurzel erklärt wird.</div>
+</section>
+
+<section class="slide" data-phase="2 · Die offene Frage" data-ab="11">
+<div class="kicker">Buch S. 26 &mdash; der erste Absatz des Kapitels</div><h2 class="wt">Eine Gleichung, die zweitausend Jahre offen war</h2><p class="lead weit">„<i>Eine Gleichung wie</i> x⁵ = 7 <i>stellte über Jahrtausende eine unlösbare Herausforderung dar. Die gesuchte Zahl x ist jedenfalls eine Zahl, die fünfmal mit sich selbst multipliziert die Zahl 7 ergibt.</i>“</p><div class="callout frag"><p>Für diese Zahl schreibt man kurz <b>x = ⁵√7</b>. Und dann stellt das Buch die Frage, um die es heute geht:</p><p style="margin-top:.5em"><b>„Vielleicht kann man ⁵√7 auch als eine Potenz von 7 schreiben: ⁵√7 = 7ᵖ?“</b></p></div><div class="randnotiz"><b>Diesen Absatz vorlesen, wörtlich.</b> Er kostet vierzig Sekunden und stellt die Frage besser, als eine Überschrift es könnte: Es geht nicht um ein neues Verfahren, sondern um einen zweiten Namen für dieselbe Zahl.<br><b>Das Wort „unlösbar“ betonen.</b> Die Zahl gab es immer — was fehlte, war eine Schreibweise. Das ist derselbe Gedanke wie am Dienstag bei den Zehnerpotenzen.<br><b>Noch nichts erklären.</b> Die nächste Folie fragt ab, was die Klasse vermutet — vor jeder Rechnung.</div>
+</section>
+
+<section class="slide" data-phase="2 · Die offene Frage" data-ab="14" data-marke="P1" data-frage="Wenn ⁵√7 = 7ᵖ gilt: Was ist dann p?" data-optionen="[&quot;p = 5&quot;, &quot;p = −5&quot;, &quot;p = ⅕&quot;, &quot;p = 7&quot;]" data-schluessel="p1">
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Prognose — vor jeder Rechnung</div><h2 class="wt">Wenn <span class="accent">⁵√7 = 7ᵖ</span> gilt: Was ist dann p?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>p = 5</span></div><div class="opt"><span class="bst">B</span><span>p = −5</span></div><div class="opt"><span class="bst">C</span><span>p = ⅕</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">D</span><span>p = 7</span></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">p = ⅕</b> — aber das ist hier noch <b>geraten</b>. Warum es so sein <i>muss</i>, zeigt die nächste Folie. <b>p = 5</b> wäre 7⁵ = 16 807, das Gegenteil. <b>p = −5</b> verwechselt Wurzel mit Kehrwert.</div><div class="randnotiz"><b>Eine Prognosefrage — hier wird nicht verzweigt.</b> Auch wer richtig tippt, weiß noch nicht warum; genau das ist der Übergang zur nächsten Phase.<br><b>Erwartung:</b> 40–60 % auf C. Viele haben die Formel schon einmal gesehen, ohne den Grund zu kennen.<br><b>Der Satz, mit dem Sie weitergehen:</b> „Die Mehrheit hat recht. Aber niemand kann mir bisher sagen, warum es nicht ⅐ ist. Das machen wir jetzt.“<span class="weiche"><i>Weiche:</i> Hier wird <b>nicht</b> nach Quote verzweigt. Weiter zur Herleitung.</span></div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="17" data-marke="HERL">
+<div class="kicker">Buch S. 26, Aufgabe 2 b) &mdash; die Ãœberlegung der Mathematiker</div><h2 class="wt">Dieselbe Klammer, zwei Wege</h2><p class="lead weit">Wir rechnen <b>(5<sup>⅓</sup>)³</b> auf zwei Arten aus — einmal ausgeschrieben, einmal mit dem Potenzgesetz von eben.</p><table class="wtab"><tr><th>Weg</th><td class="hin">ausmultiplizieren</td><td class="hin">Potenzgesetz</td></tr><tr><th>(5<sup>⅓</sup>)³ ist …</th><td class="hin">5<sup>⅓</sup> · 5<sup>⅓</sup> · 5<sup>⅓</sup></td><td class="hin">5<sup>⅓ · 3</sup> = 5¹ = 5</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Beide Wege müssen dasselbe ergeben. <b>Und der rechte ist fertig: 5.</b></p><div class="randnotiz"><b>Die rechte Spalte zuerst lesen lassen</b> — sie ist die kurze. (5<sup>⅓</sup>)³ = 5<sup>⅓·3</sup> = 5¹ = 5, direkt aus Whiteboard 3.<br><b>Dann die linke:</b> Ausgeschrieben ist es 5<sup>⅓</sup> · 5<sup>⅓</sup> · 5<sup>⅓</sup> — dieselbe Zahl dreimal mit sich selbst multipliziert.<br><b>Jetzt die Schlussfrage stellen und warten:</b> „Eine Zahl, die dreimal mit sich selbst multipliziert 5 ergibt — wie heißt die?“ Warten Sie die Stille aus. Wer es sagt, hat den Kern.</div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="20" data-marke="M1">
+<div class="kicker">Ich zeige es &middot; 1 von 2</div><h2 class="wt">Es bleibt keine Wahl</h2><p class="lead weit">Niemand hat entschieden, dass 5<sup>⅓</sup> die dritte Wurzel sein soll. Es ergibt sich — sobald man will, dass die alten Regeln weitergelten.</p><div class="schritte eng"><div class="schritt  frag"><span class="num">1</span><span class="txt">Das Potenzgesetz soll <b>weiter gelten</b> — auch wenn im Exponenten ein Bruch steht. Das ist die einzige Forderung.<span class="rech">(aᵐ)ⁿ = a<sup>m·n</sup></span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Damit rechnen wir die Klammer aus.<span class="rech">(5<sup>⅓</sup>)³ = 5<sup>⅓ · 3</sup> = 5¹ = 5</span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Ausgeschrieben heißt dieselbe Klammer:<span class="rech">5<sup>⅓</sup> · 5<sup>⅓</sup> · 5<sup>⅓</sup> = 5</span></span></div><div class="schritt  frag"><span class="num">4</span><span class="txt">Also ist 5<sup>⅓</sup> <b>die</b> Zahl, die dreimal mit sich selbst multipliziert 5 ergibt.</span></div><div class="schritt ergebnis frag"><span class="num">5</span><span class="txt">Und genau das ist die Definition der dritten Wurzel.<span class="rech">5<sup>⅓</sup> = ³√5</span></span></div></div><div class="randnotiz"><b>Das Wort für diesen Gedanken heißt Permanenz</b> und ist der Klasse aus Stunde S3 bekannt: a⁰ = 1 und a⁻ⁿ = 1/aⁿ wurden genauso gewonnen. Sagen Sie das ausdrücklich — es ist das dritte Mal, nicht das erste.<br><b>Schritt 4 ist der eigentliche Schritt.</b> Er sieht wie eine Wiederholung aus, ist aber der Schluss von „die Klammer ergibt 5“ auf „also ist die Basis die dritte Wurzel“. Langsam sprechen.<br><b>Zurück zu Plickers 1:</b> ⁵√7 = 7<sup>⅕</sup>, weil (7<sup>⅕</sup>)⁵ = 7 ist. Dieselbe Rechnung mit anderen Zahlen.</div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="19">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;5 von 12 &middot; Die Herleitung selbst</div><div class="frage">Wie viel ist <span class="term">(7<sup>⅕</sup>)⁵</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7</span> <span class="muted neben">— die Exponenten mal: ⅕ · 5 = 1</span></div><div class="randnotiz"><b>Dieselbe Rechnung wie eben, andere Zahlen — und genau die Frage aus Plickers 1.</b> Wer hier 7 schreibt, hat die Herleitung nicht nur gesehen, sondern angewendet.<br><b>Diese Runde steht hier, damit zwischen Abstimmung und Anwendung keine elf Minuten Vortrag liegen.</b> Sie kostet eine Minute.<br><b>Wenn falsch:</b> „35“ heißt 7 · 5 — die Exponenten wurden nicht multipliziert, sondern die Zahlen. Zurück zu Folie 11, Schritt 2.</div>
+</section>
+
+<section class="slide" data-phase="3 · Ich zeige es" data-ab="25">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;6 von 12 &middot; Sofort anwenden</div><div class="frage">Wie viel ist <span class="term">8<sup>⅓</sup></span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">2</span> <span class="muted neben">— denn 2 · 2 · 2 = 8</span></div><div class="randnotiz"><b>Die erste Zahl, die aufgeht.</b> Fragen Sie nicht „was ist 8 hoch ein Drittel“, sondern „welche Zahl dreimal mit sich selbst ergibt 8“ — dieselbe Frage, aber beantwortbar.<br><b>Wenn falsch:</b> „2,67“ heißt 8 : 3. Das ist DER Fehler dieser Stunde, und er kommt gleich noch einmal als Abstimmung.<br><b>Die Gegenprobe zeigen:</b> 2³ = 8 ✓. Wer die Probe macht, braucht die Regel nicht auswendig.</div>
+</section>
+
+<section class="slide" data-phase="4 · Merksatz" data-ab="29" data-marke="MERK">
+<div class="kicker">Das ist der Satz</div><div class="merk frag"><div class="satz"><span class="gold">a<sup>1/n</sup> = ⁿ√a</span></div><div class="zusatz">Für jede positive Zahl a und jede natürliche Zahl n ≠ 0.<br>Der <b>Nenner</b> des Exponenten sagt, <b>welche Wurzel</b>.</div></div><div class="randnotiz"><b>Buch S. 27, Basiswissen, Formel (1).</b> Wortgleich.<br><b>Der zweite Satz ist die Merkhilfe, auf die es ankommt:</b> Nenner → Wurzel. Er beugt genau dem Fehler vor, der gleich abgefragt wird.<br><b>Zwei Minuten abschreiben lassen.</b> Diese Formel steht in der Klassenarbeit am 15.09.</div>
+</section>
+
+<section class="slide" data-phase="4 · Merksatz" data-ab="32" data-marke="P2" data-frage="Wie viel ist 16^½?" data-optionen="[&quot;8&quot;, &quot;4&quot;, &quot;32&quot;, &quot;256&quot;]" data-schluessel="p2">
+<div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Selbstcheck — sitzt der Nenner?</div><h2 class="wt">Wie viel ist <span class="accent">16<sup>½</sup></span>?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>8</span></div><div class="opt"><span class="bst">B</span><span>4</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>32</span></div><div class="opt"><span class="bst">D</span><span>256</span></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">4</b>, denn 4 · 4 = 16. <b>8</b> ist 16 : 2 — der häufigste Fehler überhaupt: Der Exponent wird als Divisor gelesen. <b>32</b> ist 16 · 2, <b>256</b> ist 16².</div><div class="randnotiz"><b>Die wichtigste Abfrage der Stunde.</b> Hier entscheidet sich, ob der Merksatz mehr ist als eine abgeschriebene Formel.<br><b>Erwartung:</b> 60–80 % auf B. Erfahrungsgemäß wählen 15–25 % die A — 16 : 2 = 8.<br><b>Bei A nachfragen, nicht korrigieren:</b> „Mach die Probe: 8 · 8 — ist das 16?“ Die Probe erledigt den Fehler von selbst, und sie ist das Werkzeug, das bleibt.<span class="weiche"><i>Weiche:</i> unter 70 % richtig — Reservefolie 32 (vier Potenzen, jede mit Probe). Das kostet vier Minuten. Über 85 % — Phase 5 direkt beginnen und Whiteboard 6 überspringen.</span></div>
+</section>
+
+<section class="slide" data-phase="4 · Merksatz" data-ab="35">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;7 von 12 &middot; Dieselbe Regel, andere Wurzel</div><div class="frage">Wie viel ist <span class="term">625<sup>¼</sup></span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">5</span> <span class="muted neben">— denn 5 · 5 · 5 · 5 = 625</span></div><div class="randnotiz"><b>Buch S. 28 Nr. 4 b).</b> Prüft, ob der Nenner wirklich als Wurzelzahl gelesen wird und nicht nur bei ½ auswendig sitzt.<br><b>Wenn falsch:</b> „156,25“ heißt 625 : 4. Derselbe Fehler wie eben, nur mit anderer Zahl — dann Reservefolie 32.<br><b>Bei über 85 % in Plickers 2</b> kann diese Folie entfallen.</div>
+</section>
+
+<section class="slide" data-phase="5 · Zähler und Nenner" data-ab="38" data-marke="M2">
+<div class="kicker">Ich zeige es &middot; 2 von 2</div><h2 class="wt">Und wenn oben nicht 1 steht?</h2><p class="lead weit">Buch S. 27, Formel (2): a<sup>m/n</sup> = (ⁿ√a)<sup>m</sup>. Beide Reihenfolgen sind erlaubt, eine ist bequemer.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Der Bruch wird zerlegt — der Nenner ist die Wurzel, der Zähler die Potenz.<span class="rech">27<sup>4/3</sup> = (27<sup>⅓</sup>)⁴</span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Erst die Wurzel ziehen. Die Zahlen bleiben klein.<span class="rech">27<sup>⅓</sup> = ³√27 = 3</span></span></div><div class="schritt ergebnis frag"><span class="num">3</span><span class="txt">Dann potenzieren.<span class="rech">3⁴ = 81</span></span></div><div class="schritt  frag"><span class="num">4</span><span class="txt">Andersherum ginge es auch — nur rechnet niemand gern mit 531 441.<span class="rech">27⁴ = 531 441,  dann ³√531 441 = 81</span></span></div></div><div class="randnotiz"><b>Buch S. 27, Beispiel A b) — dort mit 27<sup>4/3</sup>.</b> Wortgleich übernommen.<br><b>Schritt 4 nicht weglassen.</b> Dass beide Wege dasselbe ergeben, ist die Aussage der Formel; dass einer bequemer ist, ist die Lehre daraus. „Erst wurzeln, dann potenzieren“ ist die Regel für die Klassenarbeit.<br><b>531 441 stehen lassen und wirken lassen.</b> Das Argument überzeugt besser als jede Ermahnung.</div>
+</section>
+
+<section class="slide" data-phase="5 · Zähler und Nenner" data-ab="43">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;8 von 12 &middot; Zusammengesetzt</div><div class="frage">Wie viel ist <span class="term">27<sup>⅔</sup></span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">9</span> <span class="muted neben">— erst ³√27 = 3, dann 3² = 9</span></div><div class="randnotiz"><b>Buch S. 28 Nr. 4 d).</b> Die erste Aufgabe, bei der beide Teile des Bruchs arbeiten.<br><b>Wenn falsch:</b> „18“ heißt 27 · ⅔. „3“ heißt, der Zähler wurde vergessen. „729“ heißt, Zähler und Nenner sind vertauscht (27² = 729, davon die Wurzel wäre 27 — auch das kommt vor).<br><b>Merksatz laut wiederholen lassen:</b> Nenner = Wurzel.</div>
+</section>
+
+<section class="slide" data-phase="5 · Zähler und Nenner" data-ab="46" data-marke="P3" data-frage="Welche Rechnung führt zu 25^(3/2)?" data-optionen="[&quot;√25 = 5, dann 5³ = 125&quot;, &quot;25: 2 = 12,5, dann · 3 = 37,5&quot;, &quot;25³ = 15 625, dann: 2 = 7812,5&quot;, &quot;√25 = 5, dann 5 · 3 = 15&quot;]" data-schluessel="p3">
+<div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Der Fehler, der Punkte kostet</div><h2 class="wt">Welche Rechnung führt zu <span class="accent">25<sup>3/2</sup></span>?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>√25 = 5, dann 5³ = 125</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">B</span><span>25 : 2 = 12,5, dann · 3 = 37,5</span></div><div class="opt"><span class="bst">C</span><span>25³ = 15 625, dann : 2 = 7812,5</span></div><div class="opt"><span class="bst">D</span><span>√25 = 5, dann 5 · 3 = 15</span></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">125</b>: Der Nenner 2 sagt „Quadratwurzel“, der Zähler 3 sagt „hoch 3“. <b>B</b> und <b>C</b> lesen den Bruch als Rechenzeichen, <b>D</b> multipliziert mit dem Zähler statt zu potenzieren.</div><div class="randnotiz"><b>Diese Frage prüft nicht das Ergebnis, sondern den Weg.</b> Deshalb stehen in den Karten Rechnungen und keine Zahlen — wer nur das Resultat kennt, muss hier trotzdem den Weg lesen.<br><b>Erwartung:</b> 55–75 % auf A. Die häufigste falsche Wahl ist <b>D</b> — potenzieren und multiplizieren werden verwechselt.<br><b>Bei D nachhaken:</b> „Was heißt hoch 3?“ Meist kommt sofort „mal sich selbst, dreimal“ — dann ist es geklärt.<span class="weiche"><i>Weiche:</i> unter 60 % — Reservefolie 33 (der Bruch als zwei Befehle, mit Pfeilen). Über 80 % — Whiteboard 8 überspringen und gleich zu den Gleichungen.</span></div>
+</section>
+
+<section class="slide" data-phase="5 · Zähler und Nenner" data-ab="50">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;9 von 12 &middot; Und mit Minus davor</div><div class="frage">Wie viel ist <span class="term">36<sup>−3/2</sup></span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">1/216</span> <span class="muted neben">— erst √36 = 6, dann 6³ = 216, dann Kehrwert</span></div><div class="randnotiz"><b>Buch S. 28 Nr. 4 f) — die schwerste der Reihe.</b> Sie verbindet drei Regeln: Nenner als Wurzel, Zähler als Potenz, Minus als Kehrwert.<br><b>Die Reihenfolge ansagen, bevor geschrieben wird:</b> „Erst das Minus wegdenken, ausrechnen, am Ende umdrehen.“<br><b>Wenn falsch:</b> „−216“ heißt, das Minus wurde nicht in den Nenner gezogen — derselbe Fehler wie in Whiteboard 2, nur schwerer zu sehen. Zeigen Sie beide nebeneinander.<span class="weiche"><i>Weiche:</i> unter 50 % ist in Ordnung — diese Aufgabe ist Anforderungsbereich III. Ergebnis notieren, weitergehen; sie kommt in der Generalprobe nächste Woche wieder.</span></div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="53" data-marke="GL">
+<div class="kicker">Buch S. 26 Nr. 3 a) &mdash; gemeinsam f&uuml;llen</div><h2 class="wt">Wie viele Lösungen hat jede Gleichung?</h2><p class="lead weit">Vier Gleichungen. Bevor wir rechnen: Schaut auf den <b>Exponenten</b> und auf das <b>Vorzeichen rechts</b>.</p><table class="wtab"><tr><th>Gleichung</th><td>x³ = 8</td><td>x² = −9</td><td>x⁴ = 10 000</td><td>x⁵ = −32</td></tr><tr><th>Exponent</th><td>ungerade</td><td>gerade</td><td>gerade</td><td>ungerade</td></tr><tr><th>rechte Seite</th><td>positiv</td><td>negativ</td><td>positiv</td><td>negativ</td></tr><tr><th>Lösungen</th><td>?</td><td>?</td><td>?</td><td>?</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Die letzte Spalte füllen wir zusammen — eine Zeile nach der anderen.</p><div class="randnotiz"><b>Die mittleren Spalten stehen absichtlich schon da.</b> Sie sind die Sortierhilfe, die das Buch auf S. 27 als Tabelle anbietet; hier muss die Klasse nur noch den Schluss ziehen.<br><b>Reihenfolge:</b> x³ = 8 (eine), x² = −9 (keine — Quadrate sind nie negativ), x⁴ = 10 000 (zwei: 10 und −10, das wird vergessen), x⁵ = −32 (eine: −2).<br><b>Die dritte Zeile ist die wichtige.</b> „−10 hoch 4“ an die Tafel und ausrechnen lassen. Die vergessene negative Lösung ist ein Klassiker in Klassenarbeiten.</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="56">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;10 von 12 &middot; Die Zeile, die man vergisst</div><div class="frage">Wie viele Lösungen hat <span class="term">x⁴ = 10 000</span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">zwei: 10 und −10</span> <span class="muted neben">— (−10)⁴ ist auch 10 000</span></div><div class="randnotiz"><b>Die vergessene negative Lösung ist ein Klassiker</b> — und sie steht in der Klassenarbeit.<br><b>Wenn „eine“ überwiegt:</b> (−10)⁴ an die Tafel und ausrechnen lassen. Vier Minuszeichen, die sich paarweise aufheben — das Ergebnis widerlegt die Antwort von selbst.<br><b>Diese Runde steht hier, damit der Gleichungsblock nicht sechzehn Minuten ohne Rückmeldung läuft.</b><span class="weiche"><i>Weiche:</i> unter 60 % — bei der Auflösung gleich danach die gerade Zeile doppelt so lange stehen lassen und (−10)⁴ ausschreiben.</span></div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="58">
+<div class="kicker">Auflösung</div><h2 class="wt">Der Exponent entscheidet, das Vorzeichen auch</h2><div class="paar"><div class="halb gut"><h4>Exponent <b>gerade</b></h4><p>x⁴ = 10 000 → <b>zwei</b> Lösungen: 10 und −10</p><p>x² = −9 → <b>keine</b> Lösung</p><p>Denn eine gerade Potenz ist nie negativ.</p></div><div class="halb "><h4>Exponent <b>ungerade</b></h4><p>x³ = 8 → <b>eine</b> Lösung: 2</p><p>x⁵ = −32 → <b>eine</b> Lösung: −2</p><p>Denn eine ungerade Potenz behält das Vorzeichen.</p></div></div><p class="lead weit frag" style="margin-top:1.6vh">Zwei, eine oder keine — das steht fest, <b>bevor</b> man rechnet.</p><div class="randnotiz"><b>Buch S. 27, die große Tabelle.</b> Hier auf das reduziert, was in der Klassenarbeit gebraucht wird.<br><b>Der Nachsatz ist die Botschaft:</b> Die Zahl der Lösungen liest man ab, man rechnet sie nicht aus. Das ist Zeitgewinn in der Arbeit und ein Selbstkontroll-Werkzeug.</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="61" data-marke="WID">
+<div class="kicker">Buch S. 29 Nr. 14 &mdash; genau hingeschaut</div><h2 class="wt">Warum ist ³√(−8) verboten?</h2><p class="lead weit">Das Basiswissen sagt: Wurzeln aus negativen Zahlen werden <b>nicht definiert</b>. Das klingt willkürlich. Ist es nicht.</p><table class="wtab"><tr><th>Schritt</th><td>Angenommen</td><td>Dann ist</td><td>Hieraus folgt</td><td class="raus">Aber</td></tr><tr><th>Rechnung</th><td>³√(−8) = −2</td><td>⁶√((−8)²) = −2</td><td>⁶√64 = −2</td><td class="raus">⁶√64 = 2</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Vier Schritte, und man steht vor <b>zwei verschiedenen Werten für dieselbe Zahl</b>. Deshalb wird es gar nicht erst erlaubt.</p><div class="randnotiz"><b>Zeile für Zeile aufdecken, nicht auf einmal.</b> Die Klasse soll den Widerspruch kommen sehen.<br><b>Der Schritt von Zeile 2 auf 3:</b> (−8)² = 64, und ⁶√64 = 2 — nicht −2. Genau dort platzt die Annahme.<br><b>Der wichtigste Satz der Folie, unbedingt sagen:</b> Verboten ist das <i>Wurzelzeichen</i>, nicht die Lösung. Die Gleichung x³ = −8 hat sehr wohl die Lösung −2 — man schreibt sie nur nicht mit einem Wurzelzeichen über einer negativen Zahl.<br><b>Das ist die häufigste Verwechslung des Kapitels</b> und steht so auch in Aufgabe 14 b).</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir zusammen" data-ab="64">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;11 von 12 &middot; Sitzt der Unterschied?</div><div class="frage">Hat <span class="term">x³ = −8</span> eine Lösung?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">ja: −2</span> <span class="muted neben">— aber ³√(−8) schreibt man nicht</span></div><div class="randnotiz"><b>Die Kontrollfrage zur Folie davor</b>, und sie trennt sauber: Gleichung lösbar — Schreibweise verboten.<br><b>Wenn „nein“ überwiegt:</b> (−2)³ an die Tafel und ausrechnen lassen: (−2)·(−2)·(−2) = −8. Das Ergebnis steht dann da und widerlegt die Antwort von selbst.<br><b>Diese Unterscheidung kommt in der Klassenarbeit vor</b> — sie ist Aufgabe 14 des Buches und damit Pflichtstoff.</div>
+</section>
+
+<section class="slide" data-phase="7 · Allein, kurz" data-ab="69">
+<div class="kicker">Jetzt ihr &middot; still</div><h2 class="wt">Drei Aufgaben, allein <span class="zeitschild">11 Minuten</span></h2><div class="auftrag"><ol><li><b>Buch S. 28 Nr. 4</b> a), c), e) — im Kopf, ohne Rechner. Schreibt bei jeder die <b>Probe</b> dazu.</li><li><b>Buch S. 28 Nr. 7</b> a) und c) — Wurzeln zusammenfassen. Beispiel steht in der Aufgabe.</li><li><b>Buch S. 29 Nr. 10</b> a) und b) — Wurzel aus einer Potenz. Der Tipp neben der Aufgabe verrät den Weg.</li><li><b>Wer fertig ist:</b> Nr. 11 a) — dort steckt ein Fehler. Findet ihn und schreibt hin, wie es richtig heißt.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Wer nicht weiterkommt, hebt die Hand — nicht warten, bis die Zeit um ist.</p></div><div class="randnotiz"><b>Elf Minuten, Stoppuhr sichtbar (T).</b> Das ist die einzige längere stille Phase der Stunde.<br><b>Nr. 4 mit Probe ist der Kern des Auftrags.</b> Wer die Probe gewöhnt, korrigiert sich in der Klassenarbeit selbst.<br><b>Beim Herumgehen auf zwei Dinge achten:</b> Wird der Nenner als Wurzel gelesen? Und wird bei Nr. 7 zusammengefasst (³√2 · ³√4 = ³√8 = 2) statt einzeln genähert?<br><b>Nr. 11 a) ist die Zusatzaufgabe mit dem meisten Ertrag:</b> ³√a · ⁴√a ist nicht ¹²√a, sondern a<sup>⅓+¼</sup> = a<sup>7/12</sup> = ¹²√(a⁷). Wer das findet, hat die Potenzschreibweise wirklich verstanden.</div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="80">
+<div class="kicker"><span class="marke mwb">Mini-Whiteboard</span> &nbsp;12 von 12 &middot; Zurück aus der Stillarbeit</div><div class="frage">Was hast du bei <span class="term">1000<sup>⅓</sup></span>?</div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">10</span> <span class="muted neben">— denn 10 · 10 · 10 = 1000</span></div><div class="randnotiz"><b>Der Übergang aus der Eigenphase.</b> Nicht „wer hat es gehabt?“, sondern alle zugleich — sonst antworten dieselben vier wie immer.<br><b>Diese Runde steht hier, damit zwischen dem Beginn der Stillarbeit und der nächsten Rückmeldung nicht fünfzehn Minuten liegen.</b><br><b>Die Quote sagt Ihnen, wie ausführlich die Auflösung gleich sein muss</b> — bei über 85 % genügt das Aufdecken.</div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="81">
+<div class="kicker">Auflösung &middot; die drei aus Nr. 4</div><h2 class="wt">Erst wurzeln, dann potenzieren — jedes Mal</h2><p class="lead weit">Drei Ergebnisse, drei Proben: 4² = 16 ✓, 10³ = 1000 ✓, 125 = 5·5·5 ✓.</p><div class="schritte"><div class="schritt ergebnis frag"><span class="num">1</span><span class="txt">a) 16<sup>½</sup> — der Nenner 2 heißt Quadratwurzel.<span class="rech">√16 = 4</span></span></div><div class="schritt ergebnis frag"><span class="num">2</span><span class="txt">c) 1000<sup>⅓</sup> — welche Zahl dreimal mit sich selbst ergibt 1000?<span class="rech">³√1000 = 10</span></span></div><div class="schritt ergebnis frag"><span class="num">3</span><span class="txt">e) 25<sup>3/2</sup> — Nenner 2: Wurzel. Zähler 3: hoch 3.<span class="rech">√25 = 5,  5³ = 125</span></span></div></div><div class="randnotiz"><b>Erst zeigen lassen, dann aufdecken.</b> Fragen Sie bei jeder Zeile zuerst in die Klasse und decken Sie danach auf — das erhält die Beteiligung bis zum Schluss.<br><b>Die Proben laut mitsprechen.</b> Sie sind das Werkzeug, das nächste Woche in der Generalprobe gebraucht wird.</div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="84" data-marke="P4" data-frage="Wie viel ist 81^(3/4)?" data-optionen="[&quot;27&quot;, &quot;60,75&quot;, &quot;3&quot;, &quot;531 441&quot;]" data-schluessel="p4">
+<div class="kicker"><span class="marke plk">Plickers 4</span> &nbsp;Letzte Abfrage — zählt für die Generalprobe</div><h2 class="wt">Wie viel ist <span class="accent">81<sup>3/4</sup></span>?</h2><div class="plickers"><div class="opt"><span class="bst">A</span><span>27</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">B</span><span>60,75</span></div><div class="opt"><span class="bst">C</span><span>3</span></div><div class="opt"><span class="bst">D</span><span>531 441</span></div></div><div class="aufloesung frag hart">Richtig ist <b class="loesungswert">27</b>: erst ⁴√81 = 3, dann 3³ = 27. <b>60,75</b> ist 81 · ¾ — der Bruch als Faktor gelesen. <b>3</b> ist nur die Wurzel, der Zähler wurde vergessen. <b>531 441</b> ist 81³ ohne Wurzel.</div><div class="randnotiz"><b>Die Quote dieser Frage notieren.</b> Sie sagt, ob der vollständige Bruch sitzt — beide Teile, nicht nur der Nenner. Nächste Woche ist Generalprobe, am 15.09. die Klassenarbeit.<br><b>Erwartung:</b> 55–75 % auf A. <b>C</b> (nur die Wurzel) ist die häufigste falsche Wahl und zugleich die harmloseste — der Weg stimmt, ein Schritt fehlt.<br><b>Unter 50 %:</b> Nr. 4 d) und e) als Hausaufgabe ergänzen und in der Generalprobe eine Station dafür einplanen.</div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="87">
+<div class="kicker">Exit-Ticket &middot; auf einen Zettel, Name drauf</div><h2 class="wt">Zwei Fragen, drei Minuten</h2><div class="auftrag"><ol><li><b>Rechne aus:</b> 100<sup>½</sup> und 8<sup>⅔</sup>. Schreib bei beiden die <b>Probe</b> dazu.</li><li><b>Erkläre in einem Satz:</b> Warum ist 16<sup>½</sup> nicht 8?</li></ol></div><p class="muted weit" style="margin-top:.7em">Abgeben beim Hinausgehen.</p><div class="randnotiz"><b>Frage 1 prüft das Handwerk</b> (100<sup>½</sup> = 10, 8<sup>⅔</sup> = 4) — einmal einfacher Nenner, einmal mit Zähler.<br><b>Frage 2 prüft das Verstehen.</b> Erwartet wird: Der Exponent ist kein Divisor; ½ heißt Quadratwurzel, und 8 · 8 wäre 64, nicht 16. Wer nur „weil es 4 ist“ schreibt, hat das Ergebnis und nicht den Grund.<br><b>Einsammeln beim Hinausgehen</b>, nicht in der Stunde.</div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="89">
+<div class="kicker">Zum Mitnehmen</div><div class="merk frag"><div class="satz"><span class="gold">a<sup>m/n</sup> = (ⁿ√a)<sup>m</sup></span></div><div class="zusatz">Der <b>Nenner</b> sagt, welche Wurzel. Der <b>Zähler</b> sagt, welche Potenz.<br>Und: Verboten ist das Wurzelzeichen über einer negativen Zahl — nicht die Lösung der Gleichung.</div></div><div class="randnotiz"><b>Bleibt an der Wand, während die Klasse packt.</b> Die beiden Sätze sind die zwei Denkfehler des Tages, positiv gewendet.<br><b>Hausaufgabe ansagen:</b> Buch S. 28 Nr. 4 b), d), f) und Nr. 8 a), b). Nächste Woche ist Generalprobe.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R1">
+<div class="kicker">Reserve zu Plickers 2</div><h2 class="wt">Vier Potenzen — und jede mit ihrer Probe</h2><p class="lead weit">Bei keiner dieser Zahlen wird geteilt. Der Nenner sagt immer nur: <b>welche Wurzel</b>.</p><table class="wtab"><tr><th>Potenz</th><td class="hin">16<sup>½</sup></td><td>27<sup>⅓</sup></td><td>81<sup>¼</sup></td><td>1000<sup>⅓</sup></td></tr><tr><th>gelesen als</th><td class="hin">√16</td><td>³√27</td><td>⁴√81</td><td>³√1000</td></tr><tr><th>Wert</th><td class="hin">4</td><td>3</td><td>3</td><td>10</td></tr><tr><th>Probe</th><td class="hin">4² = 16</td><td>3³ = 27</td><td>3⁴ = 81</td><td>10³ = 1000</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh"><b>Die letzte Spalte ist das eigentliche Werkzeug.</b> Wer die Probe macht, braucht die Regel nicht auswendig.</p><div class="randnotiz"><b>Einzusetzen, wenn Plickers 2 unter 70 % bleibt</b> — also wenn 16<sup>½</sup> = 8 noch verbreitet ist.<br><b>Die dritte Spalte zuletzt aufdecken.</b> Erst raten lassen, dann prüfen: Das ist derselbe Takt wie in der ganzen Stunde.<br>Danach zurück zu Folie 14.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R2">
+<div class="kicker">Reserve zu Plickers 3</div><h2 class="wt">Der Bruch im Exponenten sind zwei Befehle</h2><p class="lead weit">Zwei Befehle, immer in dieser Reihenfolge — erst wurzeln, dann potenzieren.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Der <b>Nenner</b> ist der erste Befehl: <b>Wurzel ziehen</b>.<span class="rech">25<sup>3/2</sup> → √25 = 5</span></span></div><div class="schritt ergebnis frag"><span class="num">2</span><span class="txt">Der <b>Zähler</b> ist der zweite Befehl: <b>potenzieren</b>.<span class="rech">5³ = 125</span></span></div><div class="schritt fehler frag"><span class="num">3</span><span class="txt">Nie ein Rechenzeichen. Weder 25 : 2 noch 25 · 3 noch 25 · 1,5.<span class="rech">25 · 1,5 = 37,5 — falsch</span></span></div><div class="schritt  frag"><span class="num">4</span><span class="txt">Die Probe entscheidet: Ist 125 wirklich 25 hoch anderthalb? 125 = 5³ und 5 = √25 — also ja.</span></div></div><div class="randnotiz"><b>Einzusetzen, wenn Plickers 3 unter 60 % bleibt.</b> Die Folie sagt nichts Neues, sie sortiert nur: zwei Befehle statt einer Formel.<br><b>Schritt 3 ist absichtlich als Fehler markiert.</b> Nennen Sie ihn beim Namen — „das ist die Falle, sie sieht harmlos aus“.<br>Danach zurück zu Folie 17.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R3">
+<div class="kicker">Reserve &middot; wenn der Taschenrechner mitreden soll</div><h2 class="wt">8<sup>0,4</sup> — auch Dezimalzahlen gehen</h2><div class="schritte"><div class="schritt"><span class="num">1</span><span class="txt">Die Dezimalzahl im Exponenten wird zum <b>Bruch</b>.<span class="rech">0,4 = ⅖</span></span></div><div class="schritt"><span class="num">2</span><span class="txt">Dann gilt derselbe Satz wie eben: Nenner ist die Wurzel, Zähler die Potenz.<span class="rech">8<sup>0,4</sup> = 8<sup>⅖</sup> = ⁵√(8²) = ⁵√64</span></span></div><div class="schritt ergebnis"><span class="num">3</span><span class="txt">Diese Wurzel geht nicht auf — hier ist der Rechner erlaubt.<span class="rech">⁵√64 ≈ 2,2974</span></span></div><div class="schritt"><span class="num">4</span><span class="txt">Und die Probe zeigt, dass es stimmt.<span class="rech">2,2974⁵ ≈ 64,00</span></span></div></div><div class="randnotiz"><b>Buch S. 28, Beispiel C.</b> Gute Folie, wenn Zeit übrig ist oder jemand fragt, ob im Exponenten auch Kommazahlen stehen dürfen — die Frage kommt erfahrungsgemäß.<br><b>Der Wert 2,2974 ist nachgerechnet</b>, nicht aus dem Buch übernommen: 2,2974⁵ ergibt 64,00.<br><b>Nebenbei die Brücke zum Dienstag:</b> Auch hier ist die Frage „welche Form?“ und nicht „welcher Wert?“.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R4">
+<div class="kicker">Reserve &middot; f&uuml;r die Schnellen</div><h2 class="wt">Wer früher fertig ist</h2><div class="auftrag"><ol><li><b>Buch S. 29 Nr. 13</b> a) und b) — schwierige Ausdrücke. Der Tipp daneben zeigt den ganzen Weg.</li><li><b>Buch S. 26 Nr. 1</b> — ein Würfel mit 1000 l Inhalt. Welche Kantenlänge? Und dann derselbe Würfel mit 100 l: schätzen, dann nachrechnen.</li><li><b>Selbst erfinden:</b> Schreib eine Potenz mit Bruch im Exponenten auf, die <b>genau 6</b> ergibt. Finde zwei verschiedene. Gib sie deinem Nachbarn.</li></ol></div><div class="randnotiz"><b>Aufgabe 3 ist die wertvollste.</b> Wer 36<sup>½</sup> und 216<sup>⅓</sup> findet, hat die Regel rückwärts angewendet — ein höheres Anforderungsniveau als jede Rechenaufgabe und ohne Vorbereitung zu haben.<br><b>Nr. 1 b) ist die schönste Anwendung der Seite:</b> ³√100 geht nicht auf, also wird geschätzt und dann mit dem Rechner geprüft — 4,642 dm. Genau die Verbindung von Schätzen und Rechnen, die die Klassenarbeit verlangt.</div>
+</section>
+
+</div>
+
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
+<div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
+<div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
+
+<script>
+  // ---- Slide-Navigation mit schrittweisem Aufbau ----
+  // Wie in Projektion_k1-s*.html. Neu: Elemente mit der Klasse .hart bekommen
+  // KEINE Geist-Vorschau - eine halb durchscheinende Loesung waere in einer
+  // Whiteboard-Runde ein Spoiler.
+  const slides=[...document.querySelectorAll('.slide')];
+  const dotsBox=document.getElementById('dots');
+  let idx=0;
+  // Teil-Ansicht: ?folien=2-11 -> nur die zehn Fragen, ohne Uebersicht.
+  const QS=new URLSearchParams(location.search);
+  const FOLIEN=QS.get('folien');
+  const mF=FOLIEN&&FOLIEN.match(/^\s*(\d+)\s*(?:-\s*(\d+))?\s*$/);
+  const LO=mF?Math.max(0,Math.min(slides.length-1,+mF[1]-1)):0;
+  const HI=mF?Math.max(LO,Math.min(slides.length-1,+(mF[2]||mF[1])-1)):slides.length-1;
+  slides.forEach((s,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>{revealAll(i);go(i);};if(i<LO||i>HI)d.style.display='none';dotsBox.appendChild(d);});
+  const dots=[...document.querySelectorAll('.dot')];
+  const frags=i=>[...slides[i].querySelectorAll('.frag')];
+  function revealAll(i){ slides[i].dataset.step=frags(i).length; }
+  let GHOST=0.12;   // Deckkraft des naechsten Elements (per Regler); uebernaechstes = halb so stark
+  function paintFrags(i){ const f=frags(i); const step=+(slides[i].dataset.step||0);
+    f.forEach((el,k)=>{
+      let o;
+      if(el.classList.contains('hart')){ o = k<step?1:0; }
+      else { o = k<step?1 : (k===step?GHOST : (k===step+1?GHOST/2 : 0)); }
+      el.style.opacity=o; el.style.pointerEvents=(o===0?'none':''); }); }
+  function go(i){ idx=Math.max(LO,Math.min(HI,i));
+    if(slides[idx].dataset.step==null) slides[idx].dataset.step=0;
+    slides.forEach((s,k)=>s.classList.toggle('on',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    document.getElementById('counter').textContent=(idx-LO+1)+' / '+(HI-LO+1);
+    paintFrags(idx);
+  }
+  function next(){ const f=frags(idx); const step=+(slides[idx].dataset.step||0);
+    if(step<f.length){ slides[idx].dataset.step=step+1; paintFrags(idx); return; }
+    if(idx<HI){ slides[idx+1].dataset.step=0; go(idx+1); } }
+  function prev(){ const step=+(slides[idx].dataset.step||0);
+    if(step>0){ slides[idx].dataset.step=step-1; paintFrags(idx); return; }
+    if(idx>LO){ revealAll(idx-1); go(idx-1); } }
+  document.getElementById('next').onclick=next;
+  document.getElementById('prev').onclick=prev;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'){next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){prev();}
+    else if(e.key===' '){e.preventDefault();next();}
+    else if(e.key==='d'||e.key==='D'){document.body.classList.toggle('notizen');}
+    else if(e.key==='f'||e.key==='F'){toggleFs();}
+  });
+  function toggleFs(){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();} else {document.exitFullscreen&&document.exitFullscreen();} }
+  const ghostSlider=document.getElementById('ghost');
+  if(ghostSlider){ GHOST=(+ghostSlider.value)/100;
+    ghostSlider.addEventListener('input',()=>{ GHOST=(+ghostSlider.value)/100; paintFrags(idx); }); }
+  go(LO);
+
+  window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "10b-wurz"};
+
+  /* ---- Selbsteinpassung ------------------------------------------------
+     Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
+     Hoehe. Auf einer flachen Anlage geht das nicht immer auf - und es
+     faellt erst im Klassenraum auf, wenn die Frage halb unter der
+     Bedienleiste liegt.
+
+     Deshalb misst jede Folie sich beim Aufblenden selbst: Passt ihr Inhalt
+     nicht zwischen die Leisten, wird er so weit verkleinert, dass er
+     passt. Weniger als 65 % waere unleserlich; dort ist Schluss, und dann
+     stimmt etwas mit der Folie nicht, nicht mit dem Bildschirm. */
+  /* Das freie Band zwischen den festen Leisten - gemessen, nicht geraten.
+     Der Eck-QR zaehlt nicht mit: Er sitzt in der Ecke, der Text laeuft
+     neben ihm vorbei (nur die Balken bekommen rechts Platz gemacht). */
+  window.leistenband = function(){
+    const sicht = w => w && getComputedStyle(w).display !== "none"
+                    && w.getBoundingClientRect().height > 0;
+    const ob = [".regie", ".counter", ".abstand", ".home"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().bottom);
+    const un = [".hintkey", ".nav", ".ghostctl"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().top);
+    return { oben: (ob.length ? Math.max(...ob) : 0) + 10,
+             unten: (un.length ? Math.min(...un) : innerHeight) - 10 };
+  };
+
+  window.einpassen = function(folie){
+    if(!folie) return 1;
+    let b = folie.querySelector(":scope > .buehne");
+    if(!b){
+      b = document.createElement("div");
+      b.className = "buehne";
+      [...folie.children].filter(e => !e.classList.contains("randnotiz"))
+        .forEach(k => b.appendChild(k));
+      folie.insertBefore(b, folie.firstChild);
+    }
+    /* Nur ueber style, NIE ueber eine Klasse: Der Beobachter unten horcht
+       auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
+       eine Schleife, die den Aufbau der Seite anhaelt. */
+    b.style.transform = "";
+    folie.style.justifyContent = "";
+    /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
+       mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
+       Die Titelfolie stellt align-items auf flex-start, um ihren Text
+       links zu setzen; ohne dieses align-self ruckte die skalierte
+       Flaeche dadurch seitlich aus dem Bild. Der Text bleibt trotzdem
+       links - er richtet sich INNERHALB der Flaeche aus. */
+    b.style.alignSelf = "center";
+    const B = window.leistenband();
+    const platz = B.unten - B.oben;
+    const breite = folie.clientWidth
+                 - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
+    const hoch = b.getBoundingClientRect().height;
+    if(platz <= 0 || hoch <= 0) return 1;
+    /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
+       von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
+       wuerde eine kurze Folie grotesk wirken. */
+    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    b.style.transform = "scale(" + k.toFixed(4) + ")";
+    /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
+       Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
+    const rest = Math.max(0, platz - hoch * k);
+    const soll = B.oben + rest / 2;
+    folie.style.justifyContent = "flex-start";
+    folie.style.paddingTop = Math.round(soll) + "px";
+    folie.style.paddingBottom = Math.round(innerHeight - B.unten + rest / 2) + "px";
+    /* Nachmessen statt vertrauen: Zwischen der gerechneten und der
+       wirklichen Lage lagen 8 px - die Flaeche stand unten aus dem freien
+       Band heraus. Woher der Versatz kommt (Polster, Ursprung der
+       Skalierung, Rundung), muss man nicht wissen, wenn man ihn misst. */
+    const ist = b.getBoundingClientRect().top;
+    if (Math.abs(ist - soll) > 0.5)
+      folie.style.paddingTop = Math.round(soll - (ist - soll)) + "px";
+    return k;
+  };
+
+  (function einpassenVerdrahten(){
+    const jetzt = () => window.einpassen(document.querySelector(".slide.on"));
+    new MutationObserver(jetzt).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    addEventListener("resize", jetzt);
+    addEventListener("load", jetzt);
+    jetzt();
+  })();
+
+  /* ---- Regieleiste: Phase, geplante Startminute, Stoppuhr -------------
+     Greift NICHT in go()/next()/prev() ein. Der Folienwechsel wird ueber
+     einen MutationObserver auf die Klasse .on beobachtet - so bleibt die
+     uebernommene Mechanik Zeile fuer Zeile die der anderen Projektionen. */
+  (function regie(){
+    const leiste = document.querySelector('.regie');
+    if(!leiste) return;
+    const nam  = leiste.querySelector('.pnam');
+    const plan = leiste.querySelector('.pplan');
+    const anz  = leiste.querySelector('.puhr');
+    let ms = 0, seit = null;                 // verstrichen / laeuft seit
+    const verstrichen = () => ms + (seit === null ? 0 : Date.now() - seit);
+    const aktiv = () => ms > 0 || seit !== null;
+
+    function zeige(){
+      const s = document.querySelector('.slide.on');
+      if(!s) return;
+      nam.textContent  = s.dataset.phase || '';
+      plan.textContent = s.dataset.ab ? ('ab Min. ' + s.dataset.ab) : '';
+      if(!aktiv()){
+        anz.textContent = '--:--';
+        document.body.classList.remove('spaet','sehrspaet');
+        return;
+      }
+      const min = verstrichen() / 60000;
+      const g = Math.floor(min), sek = Math.floor((min - g) * 60);
+      anz.textContent = (seit === null ? '\u23f8 ' : '') + g + ':' + String(sek).padStart(2,'0');
+      const rueck = s.dataset.ab ? min - (+s.dataset.ab) : 0;
+      document.body.classList.toggle('spaet', rueck > 3 && rueck <= 6);
+      document.body.classList.toggle('sehrspaet', rueck > 6);
+    }
+
+    new MutationObserver(zeige).observe(document.getElementById('deck'),
+      { subtree:true, attributes:true, attributeFilter:['class'] });
+    document.addEventListener('keydown', e => {
+      if(e.key === 't' || e.key === 'T'){
+        if(seit === null){ seit = Date.now(); }
+        else { ms += Date.now() - seit; seit = null; }
+        zeige();
+      } else if(e.key === 'r' || e.key === 'R'){
+        ms = 0; seit = null; zeige();
+      }
+    });
+    setInterval(zeige, 1000);
+    zeige();
+  })();
+
+  /* ---- Live-Abstimmung ------------------------------------------------
+     Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
+     Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
+     lokal geoeffnet -, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter. Nichts an dieser Mechanik ist Voraussetzung
+     fuer den Rest der Folien.
+
+     Verteilt wird nur, was die Wand ohnehin zeigt. Die Geraete erfahren
+     weder die richtige Antwort noch die Verteilung. */
+  (function abstimmung(){
+    const K = window.ABSTIMMUNG;
+    if (!K || !K.dienst) return;
+    /* ?dienst=… und ?raum=… ueberschreiben die eingebauten Werte. Damit
+       laesst sich dieselbe Datei auf den Notfall-Dienst im Klassenraum
+       umbiegen oder in einer Vertretungsstunde in einen anderen Raum
+       schicken - ohne sie neu zu bauen. */
+    const Q = new URLSearchParams(location.search);
+    const dienst = (Q.get("dienst") || K.dienst).replace(/\/+$/, "");
+    const raum = (Q.get("raum") || K.raum).toLowerCase()
+                   .replace(/[^a-z0-9-]/g, "").slice(0, 24);
+    /* Kennung DIESES Durchlaufs. Sie steckt im Fragenschluessel, damit die
+       Stimmen der Parallelklasse von heute Morgen nicht in der Abfrage von
+       heute Mittag stehen: Beim Aufschlagen der Wandfassung faengt jede
+       Frage bei null an. Dieselbe Frage waehrend der Stunde noch einmal
+       oeffnen (eine Folie zurueck) behaelt ihre Stimmen - der Schluessel
+       aendert sich dabei nicht. */
+    const sitzung = Math.random().toString(36).slice(2, 8);
+    const BST = ["A","B","C","D"];
+
+    const stand = document.createElement("div");
+    stand.className = "abstand zu";
+    stand.innerHTML = '<span class="punkt"></span><span class="text">Abstimmung</span>';
+    document.body.appendChild(stand);
+
+    const knopf = document.createElement("button");
+    knopf.className = "schluesselknopf";
+    knopf.textContent = "🔑 Lehrerschlüssel eintragen";
+    document.body.appendChild(knopf);
+
+    const holeSchluessel = () => { try { return localStorage.getItem("wand-lehrer") || ""; }
+                                   catch(e){ return ""; } };
+    const setzeSchluessel = v => { try { localStorage.setItem("wand-lehrer", v); } catch(e){} };
+    knopf.onclick = () => {
+      const v = prompt("Lehrerschlüssel für die Abstimmung:", holeSchluessel());
+      if (v !== null){ setzeSchluessel(v.trim()); document.body.classList.remove("schluesselfehlt"); pruefe(); }
+    };
+
+    const kopf = () => ({ "content-type":"application/json", "x-lehrer": holeSchluessel() });
+    let lebt = false, laufend = null, ticker = null;
+
+    async function pruefe(){
+      try {
+        const a = await fetch(dienst + "/v1/ping", { cache:"no-store" });
+        lebt = a.ok;
+      } catch(e){ lebt = false; }
+      document.body.classList.toggle("livean", lebt);
+      if (lebt){
+        document.body.classList.toggle("schluesselfehlt", !holeSchluessel());
+        document.body.classList.add("qrzeigen");
+      }
+    }
+
+    /* --- Die Karten fuer die Abstimmung herrichten ---
+       Jede Antwortkarte bekommt eine Fuellung hinter ihrem Text und eine
+       Zahl an den rechten Rand. Kein eigener Balkenblock mehr: Der
+       wiederholte die Buchstaben und machte die Folie flach. */
+    function balken(folie){
+      const karten = [...folie.querySelectorAll(".opt")];
+      if (!karten.length) return null;
+      karten.forEach(k => {
+        if (k.querySelector(".fuellung")) return;
+        /* Die richtige Karte wird hier vermerkt, aber noch nicht gefaerbt
+           - das geschieht erst beim Aufloesen (.plickers.gezeigt). */
+        if (k.querySelector(".haken")) k.classList.add("istrichtig");
+        const f = document.createElement("i");
+        f.className = "fuellung";
+        k.insertBefore(f, k.firstChild);
+        const z = document.createElement("span");
+        z.className = "zahl";
+        z.textContent = "0";
+        k.appendChild(z);
+      });
+      return folie.querySelector(".plickers");
+    }
+
+    function male(folie, zaehler, abgestimmt){
+      const wand = balken(folie); if (!wand) return;
+      const summe = zaehler.reduce((s,n)=>s+n, 0) || 1;
+      [...folie.querySelectorAll(".opt")].forEach((k, i) => {
+        const n = zaehler[i] || 0;
+        k.querySelector(".fuellung").style.width =
+          Math.round(n / summe * 100) + "%";
+        k.querySelector(".zahl").textContent = n;
+      });
+      stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+    }
+
+    async function oeffne(folie){
+      const frage = folie.dataset.frage || "";
+      let optionen = [];
+      try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
+      if (optionen.length < 2) return;
+      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ frage, optionen, schluessel }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+        if (!a.ok) return;
+        laufend = { folie, schluessel };
+        stand.classList.remove("zu");
+        const b = balken(folie);
+        if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
+        tick();
+        clearInterval(ticker); ticker = setInterval(tick, 1500);
+      } catch(e){}
+    }
+
+    async function schliesse(){
+      clearInterval(ticker); ticker = null;
+      if (!laufend) return;
+      const alt = laufend; laufend = null;
+      stand.classList.add("zu");
+      try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
+                        { method:"POST", headers: kopf() }); } catch(e){}
+      await zeichne(alt.folie);
+    }
+
+    async function zeichne(folie){
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/ergebnis",
+                              { headers: kopf(), cache:"no-store" });
+        const d = await a.json();
+        if (d.ok) male(folie, d.zaehler || [], d.abgestimmt || 0);
+      } catch(e){}
+    }
+
+    const tick = () => { if (laufend) zeichne(laufend.folie); };
+
+    /* --- Folienwechsel und Aufloesung beobachten --- */
+    function beobachte(){
+      const folie = document.querySelector(".slide.on");
+      if (!folie) return;
+      const istAbfrage = !!folie.dataset.frage;
+      if (!istAbfrage){ if (laufend) schliesse(); return; }
+      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
+      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      if (laufend && laufend.folie !== folie) return schliesse();
+      if (laufend && aufgeloest){
+        const b = folie.querySelector(".plickers"); if (b) b.classList.add("gezeigt");
+        return schliesse();
+      }
+    }
+
+    new MutationObserver(beobachte).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    document.addEventListener("keydown", e => {
+      if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
+    });
+
+    pruefe().then(beobachte);
+    setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
+  })();
+</script>
+</body>
+</html>
