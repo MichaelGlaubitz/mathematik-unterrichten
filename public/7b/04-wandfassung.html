@@ -438,6 +438,36 @@
      Plickers-Folie mit vier Karten ist das eng. Deshalb hier schmaler,
      tiefer angesetzt und bei sehr langen Notizen scrollbar. Der volle
      Wortlaut steht ohnehin auf dem Lehrerblatt. */
+  /* ====================================================================
+     Bedienleisten: eine Zeile statt dreier Etagen
+     --------------------------------------------------------------------
+     Gemessen kosteten Hinweiszeile, Punktreihe und Regler zusammen rund
+     102 px am unteren Rand - Platz, der der Folie fehlt und damit der
+     Schrift, weil die Flaeche als Ganzes eingepasst wird.
+
+     Jetzt sitzt alles auf einer Hoehe: links der Vorschau-Regler, mittig
+     Pfeile und Punkte, rechts der Tastenhinweis. Kleiner, aber sichtbar
+     - ein Bedienelement, das sich wegblendet, sucht man genau dann,
+     wenn die Klasse wartet.
+     ==================================================================== */
+  /* Die Punktreihe zentriert sich zwischen Regler (links) und Hinweis
+     (rechts), nicht mehr im ganzen Bild - sonst stiess sie bei vielen
+     Folien in den Hinweis hinein (gemessen: 129 px Ueberlappung). */
+  .nav{bottom:12px;gap:10px;left:215px;right:300px}
+  .dots{flex-wrap:wrap;justify-content:center;max-width:100%}
+  .nav button{width:32px;height:32px;font-size:15px;border-radius:9px}
+  .dots{gap:6px}
+  .dot{width:8px;height:8px}
+  .hintkey{bottom:17px;left:auto;right:20px;width:auto;max-width:42vw;
+    text-align:right;font-size:12px;line-height:1.2}
+  /* Haengt der Eck-QR unten rechts, macht ihm der Hinweis Platz. */
+  body.qrzeigen .hintkey{right:126px}
+  .ghostctl{bottom:15px;padding:4px 9px;font-size:11px}
+  .ghostctl input{width:110px}
+  /* Oben dasselbe in klein: Die Regieleiste braucht keine 13 px Schrift,
+     sie steht fuer die Lehrkraft da, nicht fuer die letzte Reihe. */
+  .regie{top:9px;padding:4px 13px;font-size:12px;gap:10px}
+
   .randnotiz{max-width:min(38ch,30vw);bottom:100px;max-height:56vh;overflow:auto}
   .randnotiz .weiche{display:block;margin-top:.55em;padding-top:.5em;
     border-top:1px dashed #e0b93c}
@@ -610,7 +640,7 @@
 
 </div>
 
-<div class="hintkey">&larr; &rarr; bl&auml;ttern &middot; Leertaste weiter &middot; <b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> Uhr zur&uuml;ck &middot; <b>Q</b> QR &middot; F Vollbild</div>
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
 <div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
 <div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
 
