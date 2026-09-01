@@ -420,6 +420,29 @@ body.kopf-offen #kopfPunkte{background:var(--blau,#0b5aa0); color:#fff}
   #kopfExtra{display:flex !important}
   #kopfPunkte{display:none !important}
 }
+/* ===== AKTIVITAETSWAECHTER =============================================
+   Zwei Schirme: die Nachfrage und die Pause. Beide liegen ueber allem,
+   aber UNTER dem Anmeldeschirm (z-index 900) - vor der Anmeldung hat der
+   Waechter nichts zu sagen. */
+.wachschirm{position:fixed; inset:0; z-index:880; background:rgba(15,39,51,.62);
+  display:grid; place-items:center; padding:1.2rem}
+.wachschirm[hidden]{display:none}
+.wachkarte{background:#fff; border-radius:16px; border-top:6px solid var(--blau,#0b5aa0);
+  padding:1.5rem 1.7rem 1.3rem; max-width:32rem; width:100%;
+  box-shadow:0 24px 60px -20px rgba(16,24,32,.6); text-align:center}
+.wachkarte h2{margin:0 0 .5rem; font-size:1.35rem; color:var(--blau,#0b5aa0)}
+.wachkarte p{margin:.4rem 0 0; font-size:1rem; line-height:1.55; color:#3b4650}
+.wachkarte .klein{font-size:.86rem; color:#6b7680; margin-top:.7rem}
+.wachzeile{display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center;
+  margin-top:1.3rem}
+/* Fingergross: Das wird auf einem Touchscreen getroffen, nicht angeklickt. */
+.wachzeile .knopf{min-height:46px; font-size:1rem; padding:.5rem 1.1rem}
+.wachkarte .fest{border-color:var(--orange,#ef6c00); color:#b35300}
+.wachkarte .fest:hover{background:#fff3e6}
+.wachuhr{font-variant-numeric:tabular-nums; font-weight:700; font-size:2.6rem;
+  color:var(--blau,#0b5aa0); margin:.6rem 0 .1rem; line-height:1.1}
+
+@media print{ .wachschirm{display:none !important} }
 </style>
 </head>
 <body>
@@ -4205,6 +4228,269 @@ zeige(0);
       return ergebnis;
     };
   }
+})();
+</script>
+<script>
+/* ===== AKTIVITAETSWAECHTER =============================================
+   Laeuft NACH der Stunde und fasst von ihr nichts an. Er haengt sich an
+   echte Ereignisse und an protokolliere(); im Koerper einer Stunde ist
+   dafuer nichts noetig. */
+(function aktivitaetswaechter() {
+  "use strict";
+  if (window.__aktivitaetswaechter) return;
+  window.__aktivitaetswaechter = true;
+
+  var MINUTEN = 7;             /* ohne Eingabe, dann wird gefragt */
+  var MINUTEN_PLAN_A = 16;     /* mit echtem Versuch: weg vom iPad ist der Sinn */
+  var TAKT = 15000;            /* so oft wird nachgesehen */
+
+  var laeuft = true, pause = false, offen = false;
+  var letzteTat = Date.now(), pauseSeit = 0;
+  var klangRaum = null, pausenUhr = null;
+
+  /* Eigene Eintraege gehen an die UNVERPACKTE Fassung - sonst zaehlte der
+     Waechter seine eigenen Meldungen als Taetigkeit. */
+  var rohesProtokoll = (typeof window.protokolliere === "function")
+    ? window.protokolliere : null;
+  function log(feld, wert, zusatz) {
+    if (rohesProtokoll) rohesProtokoll("aktivitaet", feld, wert, zusatz || "");
+  }
+
+  function grenze() {
+    var planA = document.body.getAttribute("data-plan") === "A";
+    return (planA ? MINUTEN_PLAN_A : MINUTEN) * 60000;
+  }
+  function minuten(ms) { return Math.max(1, Math.round(ms / 60000)); }
+
+  /* --- 1 Was als Eingabe zaehlt -----------------------------------------
+     Erkannt an echten Ereignissen, nicht am Protokoll: Ein Textfeld meldet
+     seine Eingabe erst beim Verlassen. Wer sieben Minuten am Stueck tippt,
+     bekaeme sonst eine Nachfrage - ausgerechnet der Fleissigste. */
+  var NAVIGATION = ".nav, .pillen, header, .schrittnav, .punktreihe, .wachschirm";
+  var ARBEIT_KLICK = ".mc, .quizfrage, .bedienfeld, .sprungzeile, .zwerkzeug,"
+    + " .zachsen, .zpalette, .zeichenfeld, details.gesperrt, .hilfeknopf,"
+    + " .messtabelle, .antwortfeld";
+
+  function istArbeit(e) {
+    var t = e.target;
+    if (!t || !t.closest) return false;
+    if (t.closest(NAVIGATION)) return false;
+    if (e.type === "input" || e.type === "change") return true;
+    if (e.type === "pointerdown") return !!t.closest(".zeichenfeld, " + ARBEIT_KLICK);
+    if (e.type === "click") return !!t.closest(ARBEIT_KLICK);
+    return false;
+  }
+
+  function tat() {
+    if (offen) return;                /* Der Schirm liegt davor - kein Durchgriff */
+    letzteTat = Date.now();
+  }
+
+  ["input", "change", "pointerdown", "click"].forEach(function (art) {
+    document.addEventListener(art, function (e) {
+      klangFreischalten();            /* jede Beruehrung taugt dafuer */
+      if (istArbeit(e)) tat();
+    }, true);
+  });
+
+  /* protokolliere() liefert zusaetzlich die beiden Nachrichten, die der
+     Waechter selbst nicht sehen kann. */
+  if (rohesProtokoll) {
+    window.protokolliere = function (art, feld, wert, zusatz) {
+      var r = rohesProtokoll.apply(this, arguments);
+      if (art === "anmeldung-ohne") aus("ohne Tafelzahl begonnen");
+      else if (art === "abgabe") aus("abgegeben");
+      else if (art === "zeichnung" || art === "eingabe" || art === "auswahl"
+        || art === "quizantwort" || art === "regler") tat();
+      return r;
+    };
+  }
+
+  function aus(grund) {
+    if (!laeuft) return;
+    laeuft = false;
+    schliessen();
+    log("waechter", "aus", grund);
+  }
+
+  /* --- 2 Klang: darf fehlen ---------------------------------------------
+     Safari laesst Ton erst nach einer Beruehrung zu. Klappt es nicht,
+     erscheint das Fenster stumm - ein Waechter, der ohne Ton nicht
+     funktioniert, waere auf dem iPad keiner. */
+  function klangFreischalten() {
+    try {
+      if (!klangRaum) {
+        var K = window.AudioContext || window.webkitAudioContext;
+        if (K) klangRaum = new K();
+      }
+      if (klangRaum && klangRaum.state === "suspended") {
+        klangRaum.resume().catch(function () { });
+      }
+    } catch (e) { klangRaum = null; }
+  }
+
+  function tuten() {
+    if (!klangRaum || klangRaum.state !== "running") return false;
+    try {
+      [[0, 660], [0.24, 880]].forEach(function (p) {
+        var o = klangRaum.createOscillator(), g = klangRaum.createGain();
+        o.type = "sine";
+        o.frequency.value = p[1];
+        o.connect(g); g.connect(klangRaum.destination);
+        var t = klangRaum.currentTime + p[0];
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.16, t + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+        o.start(t); o.stop(t + 0.22);
+      });
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* --- 3 Die Schirme ----------------------------------------------------
+     Baut das Skript selbst; im Koerper einer Stunde ist dafuer nichts
+     noetig - wie bei der Laborbuehne und der Plan-Pille. */
+  var schirm = document.createElement("div");
+  schirm.className = "wachschirm";
+  schirm.id = "wachschirm";
+  schirm.hidden = true;
+  schirm.setAttribute("role", "dialog");
+  schirm.setAttribute("aria-modal", "true");
+  schirm.innerHTML =
+    '<div class="wachkarte">'
+    + '<h2>Bist du noch dran?</h2>'
+    + '<p><span class="sprache-standard">Seit einer Weile ist nichts eingetragen worden.'
+    + ' Kein Vorwurf &#8211; sag einfach kurz, woran du bist.</span>'
+    + '<span class="sprache-einfach">Seit einer Weile hast du nichts eingetragen.'
+    + ' Das ist kein Vorwurf. Sag kurz, wie es dir geht.</span></p>'
+    + '<div class="wachzeile">'
+    + '<button type="button" class="knopf voll" id="k-wach-weiter">Ja, ich mache weiter</button>'
+    + '<button type="button" class="knopf" id="k-wach-pause">Pause</button>'
+    + '<button type="button" class="knopf fest" id="k-wach-fest">Ich komme nicht weiter</button>'
+    + '</div>'
+    + '<p class="klein"><span class="sprache-standard">&#8222;Ich komme nicht weiter&#8220;'
+    + ' &#246;ffnet dir die Hilfe zur laufenden Aufgabe. Das ist erlaubt und erw&#252;nscht.</span>'
+    + '<span class="sprache-einfach">Der letzte Knopf zeigt dir die Hilfe.'
+    + ' Das darfst du. Das ist gut so.</span></p>'
+    + '</div>';
+
+  var pausenschirm = document.createElement("div");
+  pausenschirm.className = "wachschirm";
+  pausenschirm.id = "pausenschirm";
+  pausenschirm.hidden = true;
+  pausenschirm.setAttribute("role", "dialog");
+  pausenschirm.setAttribute("aria-modal", "true");
+  pausenschirm.innerHTML =
+    '<div class="wachkarte">'
+    + '<h2>Pause</h2>'
+    + '<div class="wachuhr" id="wach-pausenuhr">0:00</div>'
+    + '<p><span class="sprache-standard">Die Uhr der Stunde l&#228;uft weiter.'
+    + ' Komm zur&#252;ck, wenn du so weit bist.</span>'
+    + '<span class="sprache-einfach">Die Uhr l&#228;uft weiter. Komm zur&#252;ck,'
+    + ' wenn du bereit bist.</span></p>'
+    + '<div class="wachzeile">'
+    + '<button type="button" class="knopf voll" id="k-wach-zurueck">Weiter arbeiten</button>'
+    + '</div>'
+    + '</div>';
+
+  function anhaengen() {
+    document.body.appendChild(schirm);
+    document.body.appendChild(pausenschirm);
+  }
+  if (document.body) anhaengen();
+  else document.addEventListener("DOMContentLoaded", anhaengen);
+
+  /* --- 4 Fragen und Antworten ------------------------------------------- */
+  function fragen() {
+    if (offen || !laeuft) return;
+    offen = true;
+    schirm.hidden = false;
+    var mitTon = tuten();
+    log("nachgefragt", minuten(Date.now() - letzteTat) + " min ohne Eingabe",
+      mitTon ? "" : "ohne Ton");
+    var k = document.getElementById("k-wach-weiter");
+    if (k) { try { k.focus(); } catch (e) { } }
+  }
+
+  function schliessen() {
+    offen = false;
+    schirm.hidden = true;
+    letzteTat = Date.now();
+  }
+
+  function hilfeSuchen() {
+    var phase = document.querySelector("section.phase.aktiv") || document.body;
+    var schritt = phase.querySelector(".schritt.an");
+    function sichtbar(wurzel) {
+      var alle = wurzel ? wurzel.querySelectorAll(".hilfeknopf") : [];
+      for (var i = 0; i < alle.length; i++) {
+        if (alle[i].getBoundingClientRect().height > 0) return alle[i];
+      }
+      return null;
+    }
+    return sichtbar(schritt) || sichtbar(phase);
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t || !t.id) return;
+
+    if (t.id === "k-wach-weiter") {
+      log("weiter", "hat bestätigt weiterzuarbeiten");
+      schliessen();
+
+    } else if (t.id === "k-wach-pause") {
+      pause = true;
+      pauseSeit = Date.now();
+      schliessen();
+      pausenschirm.hidden = false;
+      pausenUhrStellen();
+      pausenUhr = setInterval(pausenUhrStellen, 1000);
+      log("pause", "Pause begonnen");
+
+    } else if (t.id === "k-wach-zurueck") {
+      var dauer = minuten(Date.now() - pauseSeit);
+      pause = false;
+      clearInterval(pausenUhr);
+      pausenschirm.hidden = true;
+      letzteTat = Date.now();
+      log("pause-ende", dauer + " min Pause");
+
+    } else if (t.id === "k-wach-fest") {
+      var kn = hilfeSuchen();
+      log("festgefahren", kn ? "Hilfe zur laufenden Aufgabe geöffnet"
+        : "kein Hilfeknopf an dieser Stelle");
+      schliessen();
+      if (kn) {
+        try {
+          kn.scrollIntoView({ block: "center", behavior: "smooth" });
+          kn.click();
+        } catch (e2) { kn.click(); }
+      }
+    }
+  });
+
+  function pausenUhrStellen() {
+    var s = Math.floor((Date.now() - pauseSeit) / 1000);
+    var el = document.getElementById("wach-pausenuhr");
+    if (el) el.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  }
+
+  /* --- 5 Nachsehen ------------------------------------------------------ */
+  function pruefen() {
+    if (!laeuft || pause || offen) return;
+    /* Vor der Anmeldung hat der Waechter nichts zu sagen. */
+    if (document.getElementById("anmeldeschirm")) { letzteTat = Date.now(); return; }
+    if (Date.now() - letzteTat >= grenze()) fragen();
+  }
+  setInterval(pruefen, TAKT);
+
+  /* Weggeschaltete Seiten bekommen auf dem iPad kaum noch Taktschlaege.
+     Genau der Fall - jemand ist in einer anderen App - soll aber erkannt
+     werden, also wird beim Zurueckkommen sofort nachgesehen. */
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) setTimeout(pruefen, 400);
+  });
 })();
 </script>
 </body>
