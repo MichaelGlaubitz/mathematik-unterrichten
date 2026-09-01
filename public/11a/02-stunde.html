@@ -370,6 +370,21 @@ body[data-versuch="teiler"] [data-versuch="ohm"]{display:none !important}
 }
 /* Wer Bewegung reduziert haben will, bekommt das alte Verhalten. */
 @media (prefers-reduced-motion:reduce){ .laborbuehne{position:static} }
+/* Zwischenspeicher: Warnung, Fortsetzungshinweis, Speicherstand.
+   Der Zwischenspeicher wird aktiv geprueft (schreiben, lesen, loeschen) -
+   ein try um setItem genuegt nicht: Manche Browser nehmen den Wert an und
+   geben ihn nie zurueck. Faellt die Probe durch, steht die Warnung dauerhaft
+   oben in <main> und laesst sich nicht wegklicken; sie beschreibt eine
+   Bedingung, die bis zum Ende der Stunde gilt. */
+#speicherWarnung{margin:0 0 1rem; padding:.9rem 1.1rem; border:2px solid #c62828;
+  border-left:8px solid #c62828; border-radius:12px; background:#fdecea; color:#8d2417}
+#speicherWarnung b{color:#8d2417}
+#speicherWarnung p{margin:.4rem 0 0}
+#speicherHinweis{margin:0 0 1rem; padding:.75rem 1.1rem; border:1px solid #ffb74d;
+  border-left:8px solid #e07000; border-radius:12px; background:#fff8ec; color:#5a4020}
+#speicherHinweis .knopf{margin-top:.6rem}
+#speicherStand{font-size:.76rem; color:#5a6570; white-space:nowrap; padding:.2rem .3rem}
+#speicherStand.schlecht{color:#c62828; font-weight:700}
 
 /* --- Zusaetze dieser Stunde ---------------------------------------- */
 .formentabelle{width:100%; border-collapse:collapse; margin:.2rem 0 .1rem}
@@ -3872,19 +3887,102 @@ function zustand() {
     felder: felderWerte, elemente: elemente, achsen: achsen, eintraege: protokollEintraege
   };
 }
+/* ---------------------------------------------------------------------------
+   Zwischenspeicher: von selbst fortsetzen, nicht fragen
+
+   Fruehere Fassungen boten nach einem Neuladen einen Kasten an („Daran
+   weiterarbeiten" / „Neu beginnen"). Das hatte zwei Schwaechen. Erstens
+   ueberschrieb der Autospeicher den gefundenen Stand, bevor jemand antworten
+   konnte - am 01.09.2026 hing die Arbeit eines Schuelers der 10b an einem
+   einzigen weiteren Neuladen. Zweitens verlangte der Kasten eine Entscheidung
+   genau in dem Moment, in dem ein Schueler ohnehin verunsichert ist, und der
+   falsche Knopf loeschte ohne Rueckfrage.
+
+   Deshalb setzt die Stunde jetzt VON SELBST fort. Der Schueler soll seine
+   Arbeit vorfinden, nicht erst eine Entscheidung treffen muessen. Wer
+   tatsaechlich neu anfangen will, findet dafuer einen Knopf - mit Rueckfrage.
+
+   Diese Fassung ist die der 7b-Stunden der KW 36 (bau-7b/teil_c_prop.py) und
+   wurde von dort uebernommen, nicht nachgebaut.
+--------------------------------------------------------------------------- */
 let speicherTimer = null;
+let speicherGeht = null;              /* null = noch nicht geprüft */
+
+/* Schreiben, lesen, wieder wegräumen. Nur wer alle drei Schritte übersteht,
+   hat wirklich einen Zwischenspeicher. Ein reines try um setItem genügt
+   nicht: Manche Browser nehmen den Wert an und geben ihn nie zurück. */
+function speicherProbe() {
+  try {
+    const k = SPEICHER + "-probe";
+    localStorage.setItem(k, "1");
+    const ok = localStorage.getItem(k) === "1";
+    localStorage.removeItem(k);
+    return ok;
+  } catch (e) { return false; }
+}
+
+let speicherStandEl = null;
+function speicherMelden(text, schlecht) {
+  if (!speicherStandEl) {
+    const chip = document.getElementById("protokollChip");
+    if (!chip || !chip.parentNode) return;
+    speicherStandEl = document.createElement("div");
+    speicherStandEl.id = "speicherStand";
+    chip.parentNode.insertBefore(speicherStandEl, chip.nextSibling);
+  }
+  speicherStandEl.textContent = text;
+  speicherStandEl.classList.toggle("schlecht", !!schlecht);
+}
+
+/* Die Warnung steht oben in <main> und damit über jeder Phase: Beim
+   Phasenwechsel rollt die Seite nach oben, sie wird also immer wieder
+   gesehen. Sie lässt sich nicht wegklicken - sie beschreibt eine Bedingung,
+   die bis zum Ende der Stunde gilt. */
+function speicherWarnung() {
+  if (document.getElementById("speicherWarnung")) return;
+  const m = document.querySelector("main");
+  if (!m) return;
+  const b = document.createElement("div");
+  b.id = "speicherWarnung";
+  b.setAttribute("role", "alert");
+  b.innerHTML =
+    '<div class="sprache-standard"><b>Achtung: Dieses Gerät speichert nichts zwischen.</b>'
+    + '<p>Schließe diese Seite nicht und lade sie nicht neu &#8212; sonst ist deine Arbeit weg. '
+    + 'Sag Herrn Glaubitz Bescheid. Am Ende trotzdem: Protokoll speichern und abgeben.</p>'
+    + '<p>Das passiert meistens, wenn die Stunde aus einer Mail oder aus der Dateien-App '
+    + 'geöffnet wurde. Besser: über den Link auf der Klassenseite öffnen.</p></div>'
+    + '<div class="sprache-einfach"><b>Achtung: Dieses Gerät speichert nichts zwischen.</b>'
+    + '<p>Schließe die Seite nicht. Lade sie nicht neu. Sonst ist deine Arbeit weg.</p>'
+    + '<p>Sag Herrn Glaubitz Bescheid.</p>'
+    + '<p>Am Ende: Protokoll speichern und abgeben.</p>'
+    + '<p>Grund: Du hast die Stunde wohl aus einer Mail geöffnet. '
+    + 'Besser ist der Link auf der Klassenseite.</p></div>';
+  m.insertBefore(b, m.firstChild);
+}
+
 function speichern() {
   clearTimeout(speicherTimer);
   speicherTimer = setTimeout(() => {
-    try { localStorage.setItem(SPEICHER, JSON.stringify(zustand())); } catch (e) { }
+    if (speicherGeht === false) return;      /* einmal gemeldet genügt */
+    try {
+      localStorage.setItem(SPEICHER, JSON.stringify(zustand()));
+      const d = new Date();
+      speicherMelden("gespeichert "
+        + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2), false);
+    } catch (e) {
+      speicherGeht = false;
+      speicherMelden("NICHT gespeichert", true);
+      speicherWarnung();
+    }
   }, 600);
 }
+
 function wiederherstellen(z) {
   Object.keys(z.felder || {}).forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
   });
-  const gezeichnet = z.elemente || z.striche || {};   // "striche": Protokolle vor der Werkzeug-Erweiterung
+  const gezeichnet = z.elemente || z.striche || {};
   Object.keys(gezeichnet).forEach(zid => {
     if (zeichnungen[zid]) {
       zeichnungen[zid].elemente = gezeichnet[zid] || [];
@@ -3893,78 +3991,61 @@ function wiederherstellen(z) {
     }
   });
   (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
-  protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
+  protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt ("
+    + (z.eintraege || []).length + " frühere Einträge)");
   sperrenPruefen(); chipMalen();
 }
-/* ---------------------------------------------------------------------------
-   Das Angebot „Daran weiterarbeiten" — und warum es einen zweiten Schlüssel gibt
 
-   Der Autospeicher schreibt bei JEDEM Protokolleintrag; der allererste Eintrag
-   („Doppelstunde geöffnet") entsteht schon beim Laden. Eine Sekunde nach dem
-   Neuladen stand unter SPEICHER also der neue, leere Stand — der gefundene
-   lebte nur noch in dieser einen offenen Seite. Ein zweites Neuladen, ein
-   geschlossener Tab, und die Arbeit war weg; das Angebot sah dabei genauso aus
-   wie vorher, nur mit einem einzigen Eintrag darin.
+(function fortsetzen() {
+  speicherGeht = speicherProbe();
+  if (!speicherGeht) {
+    speicherWarnung();
+    speicherMelden("NICHT gespeichert", true);
+    return;
+  }
+  let z = null;
+  try { const roh = localStorage.getItem(SPEICHER); if (roh) z = JSON.parse(roh); } catch (e) { }
+  if (!z || !z.eintraege || !z.eintraege.length) return;
 
-   So ist es am 01.09.2026 einem Schüler der 10b ergangen: iPad im Energiesparen
-   aus, nach dem Aufwecken „alles weg", Protokoll bei 1 Eintrag. Nichts war
-   gelöscht — aber es hing an einem einzigen weiteren Neuladen.
+  /* Von selbst fortsetzen. Der Schüler soll seine Arbeit vorfinden, nicht
+     erst eine Entscheidung treffen müssen. */
+  wiederherstellen(z);
 
-   Deshalb wird der gefundene Stand jetzt SOFORT unter GESICHERT abgelegt. Diese
-   Kopie überlebt jedes Neuladen und wird erst gelöscht, wenn die Frage
-   beantwortet ist. Angeboten wird der reichere der beiden Stände — „reicher"
-   heißt: mehr Protokolleinträge, also mehr Arbeit.
---------------------------------------------------------------------------- */
-const GESICHERT = SPEICHER + "-gesichert";
-
-function standLesen(schluessel) {
-  try {
-    const roh = localStorage.getItem(schluessel);
-    if (!roh) return null;
-    const z = JSON.parse(roh);
-    return (z && z.eintraege && z.eintraege.length) ? z : null;
-  } catch (e) { return null; }
-}
-
-(function angebotPruefen() {
-  /* Beide Stände lesen: den laufenden und die Sicherung eines früheren
-     Ladevorgangs, dessen Frage nie beantwortet wurde. */
-  const haupt = standLesen(SPEICHER);
-  const sicher = standLesen(GESICHERT);
-  const z = (!haupt) ? sicher
-          : (!sicher) ? haupt
-          : (sicher.eintraege.length > haupt.eintraege.length ? sicher : haupt);
-  if (!z) return;
-
-  /* Sofort sichern, bevor der Autospeicher dieser Sitzung zuschlägt. Schlägt
-     das Schreiben fehl (privates Surfen, gesperrte Website-Daten), bleibt es
-     beim alten Verhalten: Das Angebot gilt dann nur für diese offene Seite. */
-  let gesichert = false;
-  try { localStorage.setItem(GESICHERT, JSON.stringify(z)); gesichert = true; } catch (e) { }
-
-  const banner = document.createElement("div");
-  banner.className = "karte warn";
-  banner.innerHTML = '<h4>Angefangenes Protokoll gefunden</h4><p>Auf diesem Gerät liegt ein Protokoll von <b>' +
-    (z.gespeichert || z.gestartet) + '</b> mit ' + z.eintraege.length + ' Einträgen' +
-    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>' +
-    (gesichert
-      ? '<p class="fuss">Es ist gesichert und bleibt erhalten, auch wenn die Seite noch einmal neu lädt. Erst einer der beiden Knöpfe entscheidet darüber.</p>'
-      : '<p class="fuss">Achtung: Auf diesem Gerät lässt sich nichts zwischenspeichern. Dieses Angebot gilt nur, solange die Seite offen bleibt — nicht neu laden.</p>');
-  const w = document.createElement("button"); w.className = "knopf voll"; w.textContent = "Daran weiterarbeiten";
-  const n = document.createElement("button"); n.className = "knopf"; n.textContent = "Neu beginnen (löscht das alte)";
-  const p = document.createElement("p"); p.appendChild(w); p.appendChild(document.createTextNode(" ")); p.appendChild(n);
-  banner.appendChild(p);
-  /* Erst nach einer Antwort verschwindet die Sicherung - bei beiden Knöpfen. */
-  const sicherungWeg = () => { try { localStorage.removeItem(GESICHERT); } catch (e) { } };
-  w.addEventListener("click", () => { sicherungWeg(); wiederherstellen(z); banner.remove(); });
-  n.addEventListener("click", () => {
-    sicherungWeg();
+  const m = document.querySelector("main");
+  if (!m) return;
+  const b = document.createElement("div");
+  b.id = "speicherHinweis";
+  const wer = z.name ? String(z.name).replace(/</g, "&lt;") : "";
+  /* "2026-09-01 10:28:06" ist für einen Siebtklässler Rauschen. Vom selben
+     Tag zeigen wir nur die Uhrzeit, sonst Datum und Uhrzeit ohne Sekunden. */
+  const roh_z = String(z.gespeichert || z.gestartet || "");
+  const heute = new Date().toISOString().slice(0, 10);
+  const stand = roh_z.slice(0, 10) === heute
+    ? "heute um " + roh_z.slice(11, 16) + " Uhr"
+    : roh_z.slice(8, 10) + "." + roh_z.slice(5, 7) + ". um " + roh_z.slice(11, 16) + " Uhr";
+  b.innerHTML =
+    '<div class="sprache-standard"><b>Deine Arbeit wurde geladen.</b> '
+    + 'Stand von ' + stand + ' mit ' + z.eintraege.length + ' Einträgen'
+    + (wer ? ' (Name im Protokoll: <b>' + wer + '</b>)' : '') + '. '
+    + 'Du kannst da weitermachen, wo du aufgehört hast.</div>'
+    + '<div class="sprache-einfach"><b>Deine Arbeit wurde geladen.</b>'
+    + '<p>Stand von ' + stand + '. ' + z.eintraege.length + ' Einträge'
+    + (wer ? '. Name im Protokoll: <b>' + wer + '</b>' : '') + '.</p>'
+    + '<p>Du kannst da weitermachen, wo du aufgehört hast.</p></div>';
+  const k = document.createElement("button");
+  k.type = "button";
+  k.className = "knopf klein";
+  k.innerHTML = '<span class="sprache-standard">Das ist nicht meine Arbeit – von vorn beginnen</span>'
+    + '<span class="sprache-einfach">Das ist nicht meine Arbeit. Von vorn beginnen.</span>';
+  k.addEventListener("click", () => {
+    /* Rückfrage, weil dieser Knopf Arbeit vernichtet - genau der Schritt, der
+       in der Fassung davor ohne Nachfrage möglich war. */
+    if (!window.confirm("Wirklich von vorn beginnen? Alles Eingetragene wird gelöscht.")) return;
     try { localStorage.removeItem(SPEICHER); } catch (e) { }
-    protokolliere("neu", "", "Neues Protokoll begonnen, altes verworfen");
-    banner.remove();
+    location.reload();
   });
-  const ziel = document.querySelector("section.phase");
-  ziel.insertBefore(banner, ziel.children[2]);
+  b.appendChild(k);
+  m.insertBefore(b, m.firstChild);
 })();
 
 /* ---------- 15 Ausgabe: Text, Protokolldatei, Versand ---------- */
