@@ -429,6 +429,115 @@ table.tab td{vertical-align:top}
    Vier-Faelle-Bild brauchen die volle Spaltenbreite, sonst sind die
    Beschriftungen unlesbar. */
 .bild svg.breit{max-width:100%}
+/* ===== FOLIENMODUS =====================================================
+   Eine Folie ist ein Bildschirm. Die Phase bleibt das Kapitel, die Pille
+   im Kopf zeigt weiterhin sie - neu ist nur, dass eine Phase in mehrere
+   Schirme zerfaellt, statt am Stueck zu scrollen. */
+.folie{display:none}
+.folie.an{display:block}
+.folie > *:first-child{margin-top:.15rem}
+
+/* Lesbare Zeilenlaenge. Ohne diese Regel standen im Querformat 132 Zeichen
+   in einer Zeile; das Auge verliert dabei den Zeilenanschluss. */
+.folie p, .folie li, .folie .zeitnote, .folie .bildtext{max-width:64ch}
+
+/* --- Zwei Spalten im Querformat --------------------------------------
+   Links wird gelesen, rechts wird gearbeitet. Das ist die eigentliche
+   Anpassung an das Querformat: Der Platz, den ein iPad quer hat, ist
+   Breite - nicht Hoehe. Die Aufteilung macht das Skript (spalten()), und
+   zwar nur dort, wo eine Folie beides enthaelt. */
+@media (min-width:900px){
+  .folie.an.zweispaltig{display:grid; grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+    gap:0 1.7rem; align-items:start}
+  .folie.an.zweispaltig > .spalte{min-width:0}
+  .folie.an.zweispaltig .spalte-text > *:first-child,
+  .folie.an.zweispaltig .spalte-werkzeug > *:first-child{margin-top:0}
+  /* In der Werkzeugspalte darf ein Graph die volle Spaltenbreite nehmen. */
+  .folie.an.zweispaltig .spalte-werkzeug .bild svg{max-width:100%}
+
+  /* Dieselbe Teilung eine Ebene tiefer. Sie ist der eigentliche Gewinn:
+     Ein Aufgabenblock ist EIN Kind der Phase, sein Zeichenfeld sitzt
+     INNEN - die Teilung auf oberster Ebene sah es deshalb gar nicht, und
+     der Block blieb einspaltig 983 px hoch. Jetzt steht der Auftrag links
+     und wird gezeichnet, waehrend man ihn liest. */
+  .aufgabe.innen-zwei,
+  .schritt.an.innen-zwei,
+  .quizfrage.innen-zwei{display:grid;
+    grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+    gap:0 1.4rem; align-items:start}
+  .innen-zwei > .spalte{min-width:0}
+  .innen-zwei > .spalte > *:first-child{margin-top:0}
+  /* Der Wiederaufnahme-Hinweis kommt erst NACH dem Schnitt in die erste
+     Folie und ist damit ein drittes Gitterkind. Ohne diese Zeile nimmt er
+     Spalte 1 und schiebt den ganzen Text nach rechts - genau so sah der
+     erste Probelauf aus. Er gehoert ueber beide Spalten. */
+  .folie.an.zweispaltig > #speicherHinweis,
+  .folie.an.zweispaltig > #speicherWarnung{grid-column:1 / -1}
+
+  /* --- Die hohe Werkzeugspalte ---------------------------------------
+     In einer Laborphase muessen drei Dinge gleichzeitig sichtbar sein:
+     die Auftraege, der Regler und der Graph. Zusammen sind das 1300 bis
+     1600 px - das passt auf keinen Schirm, gleich wie man es anordnet.
+     Die Antwort ist dieselbe, die das Haus schon einmal gefunden hat
+     (laborbuehne): Das Geraet bleibt stehen, die Arbeit scrollt daran
+     vorbei. Neu ist nur, dass die Spalte dabei gedeckelt wird - dadurch
+     bestimmt sie die Folienhoehe nicht mehr mit. */
+  .folie.an.zweispaltig > .spalte-werkzeug.hoch{
+    position:sticky; top:calc(var(--kopfhoehe,0px) + .3rem); align-self:start;
+    max-height:calc(100vh - var(--kopfhoehe,0px) - var(--fusshoehe,0px) - 1.6rem);
+    overflow-y:auto; overscroll-behavior:contain; padding-right:.4rem}
+}
+
+/* --- Schlanker Kopf ---------------------------------------------------
+   Der Kopf kostet auf JEDEM Schirm Hoehe, nicht nur einmal. Gemessen
+   waren es 89 px von 760. Was selten gebraucht wird, steht jetzt hinter
+   dem Knopf mit den drei Punkten; sichtbar bleiben Titel, Uhr, der
+   Sprachschalter und - wo es ihn gibt - die Plan-Pille. */
+header{padding:.3rem .8rem}
+.kopf{gap:.45rem}
+.kopf h1{font-size:.97rem; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; min-width:0}
+.balken{margin-top:.28rem; height:4px}
+.pillen{margin-top:.28rem; flex-wrap:nowrap; overflow-x:auto;
+  scrollbar-width:none; -ms-overflow-style:none}
+.pillen::-webkit-scrollbar{display:none}
+.pille{font-size:.72rem; padding:.13rem .5rem}
+#kopfExtra{display:none; gap:.45rem; align-items:center; flex-wrap:wrap;
+  width:100%; margin-top:.3rem; padding-top:.35rem; border-top:1px solid var(--linie)}
+body.kopf-offen #kopfExtra{display:flex}
+#kopfPunkte{line-height:1; font-size:1.05rem; padding:.25rem .6rem}
+body.kopf-offen #kopfPunkte{background:var(--blau); color:#fff}
+
+/* --- Schlanker Fuss ---------------------------------------------------
+   Die Knoepfe bleiben fingergross (40 px), nur der Rahmen wird duenner. */
+.nav{padding:.3rem .8rem; gap:.5rem}
+.nav .knopf{min-height:40px; display:inline-flex; align-items:center}
+.nav .mitte{font-size:.78rem; display:flex; gap:.7rem; align-items:center;
+  justify-content:center; flex-wrap:wrap; min-width:0}
+.foliendots{display:flex; gap:.32rem; align-items:center}
+.foliendots button{width:.66rem; height:.66rem; border-radius:50%; padding:0;
+  border:1px solid var(--linie); background:#fff; cursor:pointer; flex:none}
+.foliendots button.fertig{background:#b9dcc4; border-color:#8dbf9c}
+.foliendots button.an{background:var(--blau); border-color:var(--blau);
+  transform:scale(1.3)}
+
+/* --- Wiederaufnahme: einmal, nicht auf jedem Schirm --------------------
+   Der Hinweis "Deine Arbeit wurde geladen" hing bisher an <main> und stand
+   damit ueber JEDER Phase. Jetzt steht er auf der ersten Folie und
+   verschwindet, sobald weitergeblaettert wird. */
+#speicherHinweis{margin:0 0 .9rem}
+
+@media print{
+  .folie{display:block !important}
+  .folie.zweispaltig{display:block !important}
+  .innen-zwei{display:block !important}
+  .spalte-werkzeug.hoch{position:static !important; max-height:none !important;
+    overflow:visible !important}
+  .folie.zweispaltig > .spalte{display:block}
+  .foliendots{display:none !important}
+  #kopfExtra{display:flex !important}
+  #kopfPunkte{display:none !important}
+}
 </style>
 </head>
 <body>
@@ -5281,6 +5390,652 @@ function aufbauSchritte(box) {
 
 /* ---------- Start ---------- */
 zeige(0);
+</script>
+<script>
+/* ===== FOLIENMODUS =====================================================
+   Laeuft NACH der Phasensteuerung der Stunde und baut auf ihr auf: Die
+   Phasen bleiben, wie sie sind, sie zerfallen nur in Folien. Deshalb ist
+   dieses Stueck in jede vorhandene Stunde nachruestbar, ohne ihren Koerper
+   anzufassen. */
+(function folienmodus() {
+  "use strict";
+  if (window.__folienmodus) return;
+  window.__folienmodus = true;
+
+  var phasen = Array.prototype.slice.call(
+    document.querySelectorAll("section.phase"));
+  if (!phasen.length) return;
+
+  /* Was der Autor selbst bestimmen kann - beides freiwillig, der Schnitt
+     laeuft auch ohne. data-folie="neu" erzwingt hier einen neuen Schirm
+     (etwa vor einem Gedankenwechsel, den die Hoehe allein nicht sieht),
+     data-folie="mit" bindet einen Baustein an den vorigen. */
+  var ERZWUNGEN = "[data-folie='neu'], .folienschnitt";
+  var GEBUNDEN = "[data-folie='mit']";
+
+  /* Darf keine Folie EROEFFNEN: es fehlte der Bezug nach oben. */
+  var KLEBT_VOR = ".antwortfeld,.rueck,.mc,.hilfeknopf,details,.zeichenfeld," +
+    ".ablesekarte,.bildtext,.zstatus,.fertigmarke,.schrittnav,.zwerkzeug," +
+    ".zachsen,.zpalette,.sprungzeile,.reglerzeile,.werte,.videohinweis";
+  /* Darf keine Folie BESCHLIESSEN: es fehlte der Bezug nach unten. */
+  var ZIEHT_NACH = "h2,h3,h4,.bedienfeld,.laborbuehne,.auftragszeile," +
+    ".ablesekarte,.sprachkarte";
+  /* Gehoert im Querformat in die rechte Spalte: das Geraet, nicht der Text.
+     Das Zeichenfeld gehoert ausdruecklich NICHT dazu, obwohl es ein Geraet
+     ist: Es ist die Arbeitsflaeche des Schuelers. Im schmalen Streifen fiel
+     die Zeichenflaeche von 940 x 355 auf 425 x 162 px, weil die
+     Werkzeugleiste dort auf vier Zeilen umbrach und 247 px frass - auf so
+     einer Flaeche laesst sich ein Zahlenstrahl mit elf Stufen nicht mehr
+     mit dem Finger zeichnen. Eine Aufgabe mit Zeichenfeld bleibt deshalb
+     einspaltig und darf scrollen. Das ist die eine Stelle, an der das
+     Folienideal der Arbeitsflaeche weicht - bewusst. */
+  var WERKZEUG = ".bedienfeld,.laborbuehne,.ablesekarte,.bild," +
+    ".videobox,.antwortfeld,canvas,svg.schaltung";
+
+  var zustand = new WeakMap();   /* Phase -> {roh, folien, i} */
+
+  /* ---------------------------------------------------------------------
+     Reihenfolge sichern, BEVOR das erste Element bewegt wird.
+     sammleFelder() der Stunde liest die Felder in Dokumentreihenfolge; die
+     zwei Spalten wuerden sie umsortieren und damit die Reihenfolge im
+     abgegebenen Protokoll aendern. Der Stempel haelt die urspruengliche
+     Folge fest, die Ueberschreibung sortiert danach. */
+  (function reihenfolgeSichern() {
+    var n = 0;
+    document.querySelectorAll("[data-label]").forEach(function (el) {
+      if (!el.dataset.reihe) el.dataset.reihe = String(n);
+      n++;
+    });
+    if (typeof window.sammleFelder !== "function") return;
+    window.sammleFelder = function () {
+      var liste = [];
+      document.querySelectorAll("[data-label]").forEach(function (el) {
+        liste.push({
+          id: el.id || el.dataset.zid || "",
+          titel: el.dataset.label,
+          reihe: parseInt(el.dataset.reihe, 10)
+        });
+      });
+      liste.sort(function (a, b) {
+        if (isNaN(a.reihe) || isNaN(b.reihe)) return 0;
+        return a.reihe - b.reihe;
+      });
+      return liste.map(function (e) { return [e.id, e.titel]; });
+    };
+  })();
+
+  /* ---------------------------------------------------------------------
+     1 - Hoehenbudget: gemessen, nicht geraten. Kopf und Fuss aendern ihre
+     Hoehe beim Umschalten auf einfache Sprache und beim Drehen. */
+  function budget() {
+    var kopf = document.querySelector("header");
+    var fuss = document.querySelector(".nav");
+    var hk = kopf ? kopf.getBoundingClientRect().height : 0;
+    var hf = fuss ? fuss.getBoundingClientRect().height : 0;
+    /* Beide Hoehen auch als CSS-Variablen: Der Deckel der hohen
+       Werkzeugspalte rechnet damit, und --kopfhoehe setzt sonst nur die
+       Laborbuehne - die es nicht in jeder Stunde gibt. */
+    var wurzel = document.documentElement.style;
+    wurzel.setProperty("--kopfhoehe", Math.round(hk) + "px");
+    wurzel.setProperty("--fusshoehe", Math.round(hf) + "px");
+    return Math.max(340, window.innerHeight - hk - hf - 26);
+  }
+
+  function unsichtbar(el) {
+    return el.getBoundingClientRect().height === 0;
+  }
+
+  /* ---------------------------------------------------------------------
+     2 - Schneiden. Wird je Phase beim ersten Anzeigen gerufen und beim
+     Drehen des Geraets erneut - dann sind die Hoehen andere. */
+  /* Ein Quizkasten ist ein einziges Kind der Phase, enthaelt aber fuenf
+     Fragen - gemessen 2392 px am Stueck, der zweitschlimmste Wert der ganzen
+     Stunde. Er wird deshalb DURCHLAESSIG gemacht: Die Fragen wandern eine
+     Ebene hoeher und werden damit selbst zu Bausteinen, die der Schnitt
+     einzeln sieht. Der Kasten bleibt stehen (leer), weil sein id im Skript
+     der Stunde steht. Das Aufbauen des Quiz ist zu diesem Zeitpunkt laengst
+     gelaufen - dieses Modul ist das letzte Skript der Datei. */
+  function durchlaessig(sec) {
+    Array.prototype.slice.call(sec.children).forEach(function (k) {
+      if (k.classList.contains("folie") || k.classList.contains("quizfrage")) return;
+
+      /* Fall 1: der Quizkasten. */
+      var fragen = k.querySelectorAll(":scope > .quizfrage");
+      if (fragen.length >= 2) {
+        var nach = k.nextSibling;
+        Array.prototype.slice.call(fragen).forEach(function (x) {
+          sec.insertBefore(x, nach);
+        });
+        return;
+      }
+
+      /* Fall 2: die Plan-Huelle der Physikstunden. nachruesten.py legt
+         den gesamten Inhalt einer Phase in ein <div data-plan="A"> - aus
+         Sicht des Schnitts EIN Baustein von bis zu 1995 px. Die Huelle
+         wird durchlaessig gemacht, indem jedes Kind das data-plan selbst
+         bekommt: Die CSS-Regeln body[data-plan=…] [data-plan=…] greifen
+         danach unveraendert, und die (nun leere) Huelle bleibt stehen,
+         damit die Anwesenheitspruefung HAT_PLAN_B sie weiter findet. */
+      var plan = k.getAttribute && k.getAttribute("data-plan");
+      /* NUR die nackte Huelle aufloesen: kein id, keine Klasse, ein div.
+         Ohne die Klassenbedingung traf es in der 10c die Schrittfolge
+         selbst - <div class="schritte" data-plan="A"> -, und ihre drei
+         Schritte wurden aus ihr herausgerissen. Die Schrittsteuerung fand
+         danach nichts mehr zu zeigen: eine Phase ohne Auftraege. */
+      if (!plan || k.id || k.className || k.tagName !== "DIV") return;
+      if (k.children.length < 3) return;
+      var hinter = k.nextSibling;
+      Array.prototype.slice.call(k.children).forEach(function (x) {
+        if (!x.getAttribute("data-plan")) x.setAttribute("data-plan", plan);
+        sec.insertBefore(x, hinter);
+      });
+    });
+  }
+
+  function urzustand(sec) {
+    var z = zustand.get(sec);
+    if (!z) {
+      durchlaessig(sec);
+      z = { roh: [], folien: [], i: 0 };
+      Array.prototype.forEach.call(sec.children, function (k) {
+        if (!k.classList.contains("folie")) z.roh.push(k);
+      });
+      zustand.set(sec, z);
+    }
+    return z;
+  }
+
+  /* Die Spalten INNERHALB von Aufgaben und Schritten muessen vor dem
+     Neuschneiden weg - die auf Folienebene verschwinden ohnehin mit ihrer
+     Folie, diese nicht. */
+  /* Aufloesen muss die urspruengliche Folge zurueckbringen, nicht nur die
+     Rahmen entfernen. Wer die Textspalte und danach die Werkzeugspalte
+     auskippt, haengt das Zeichenfeld hinter die Loesung - und beim naechsten
+     Drehen des iPads noch einmal weiter nach hinten. Deshalb bekommt jedes
+     Kind vor dem ersten Verschieben seine Nummer (data-ir). */
+  function innenAufloesenEines(el) {
+    var spalten = Array.prototype.slice.call(el.querySelectorAll(":scope > .spalte"));
+    if (spalten.length) {
+      var kinder = [];
+      spalten.forEach(function (sp) {
+        Array.prototype.slice.call(sp.children).forEach(function (k) { kinder.push(k); });
+      });
+      kinder.sort(function (a, b) {
+        return (parseInt(a.dataset.ir, 10) || 0) - (parseInt(b.dataset.ir, 10) || 0);
+      });
+      kinder.forEach(function (k) { el.appendChild(k); });
+      spalten.forEach(function (sp) { sp.remove(); });
+    }
+    el.classList.remove("innen-zwei");
+  }
+
+  function innenAufloesen(wurzel) {
+    Array.prototype.slice.call(wurzel.querySelectorAll(".innen-zwei"))
+      .forEach(innenAufloesenEines);
+    if (wurzel.classList && wurzel.classList.contains("innen-zwei")) {
+      innenAufloesenEines(wurzel);
+    }
+  }
+
+  function flachlegen(sec, z) {
+    innenAufloesen(sec);
+    /* appendChild VERSCHIEBT; die Reihenfolge des Feldes roh stellt damit
+       die urspruengliche Dokumentreihenfolge wieder her. Nichts wird
+       geklont und nichts neu erzeugt - daran haengt die Wiederaufnahme. */
+    z.roh.forEach(function (k) { sec.appendChild(k); });
+    Array.prototype.slice.call(sec.children).forEach(function (k) {
+      if (k.classList.contains("folie")) k.remove();
+    });
+  }
+
+  /* Waehrend des Aufbaus wird nach JEDEM Baustein gemessen, nicht vorher
+     gerechnet. Der Grund steckt in der ersten Fassung: Sie hat auf
+     einspaltig gemessenen Hoehen geschnitten und die Folie erst DANACH in
+     zwei Spalten gelegt - damit blieb die halbe Flaeche leer, und aus einer
+     Phase wurden drei Folien, wo zwei gereicht haetten. Die Spaltenwahl
+     gehoert in den Aufbau hinein, nicht dahinter. */
+  function einordnen(f, kind, quer) {
+    if (!quer) { f.appendChild(kind); return; }
+    var werkzeug = kind.matches(WERKZEUG) && !kind.closest(".zeichenfeld");
+    var name = werkzeug ? "spalte-werkzeug" : "spalte-text";
+    var sp = f.querySelector(":scope > ." + name);
+    if (!sp) {
+      sp = document.createElement("div");
+      sp.className = "spalte " + name;
+      /* Die Textspalte steht links, also immer zuerst im Dokument. */
+      if (werkzeug) f.appendChild(sp);
+      else f.insertBefore(sp, f.firstChild);
+    }
+    sp.appendChild(kind);
+    f.classList.toggle("zweispaltig",
+      !!f.querySelector(":scope > .spalte-text")
+      && !!f.querySelector(":scope > .spalte-werkzeug"));
+  }
+
+  /* Dieselbe Aufteilung eine Ebene tiefer, fuer Bausteine, die Text und
+     Geraet in sich tragen. Auch hier wird nur umgehaengt. */
+  var INNEN = ".aufgabe, .schritt, .quizfrage";
+  function innenSpalten(wurzel) {
+    var liste = Array.prototype.slice.call(wurzel.querySelectorAll(INNEN));
+    if (wurzel.matches && wurzel.matches(INNEN)) liste.unshift(wurzel);
+    liste.forEach(function (el) {
+      if (el.querySelector(":scope > .spalte")) return;
+      var kinder = Array.prototype.slice.call(el.children);
+      if (kinder.length < 2) return;
+      kinder.forEach(function (k, i) {
+        if (k.dataset.ir === undefined) k.dataset.ir = String(i);
+      });
+      function geraet(k) {
+        /* canvas steht in WERKZEUG wegen der freien Graphen mancher
+           Stunden - die Zeichenflaeche im Zeichenfeld ist damit aber
+           nicht gemeint. */
+        return k.matches(WERKZEUG) && !k.closest(".zeichenfeld");
+      }
+      var werk = kinder.filter(geraet);
+      var text = kinder.filter(function (k) { return !geraet(k); });
+      if (!werk.length || !text.length) return;
+      /* Lohnt nur, wenn dadurch wirklich Hoehe gespart wird - fuer ein
+         Antwortfeld von 60 px zwei Spalten aufzumachen, macht die Zeile
+         nur schmaler, ohne den Schirm zu entlasten. */
+      var hWerk = werk.reduce(function (s, k) {
+        return s + k.getBoundingClientRect().height; }, 0);
+      if (hWerk < 140) return;
+      /* Und nur, wenn ueberhaupt Breite da ist. In einer 555 px schmalen
+         Folienspalte hat die innere Teilung eine Schrittfolge nicht
+         niedriger, sondern hoeher gemacht: 703 auf 789 px. Zwei Spalten
+         zu 260 px sind keine zwei Spalten mehr. */
+      if (el.getBoundingClientRect().width < 620) return;
+      var a = document.createElement("div");
+      a.className = "spalte spalte-text";
+      var b = document.createElement("div");
+      b.className = "spalte spalte-werkzeug";
+      el.insertBefore(a, el.firstChild);
+      el.appendChild(b);
+      text.forEach(function (k) { a.appendChild(k); });
+      werk.forEach(function (k) { b.appendChild(k); });
+      el.classList.add("innen-zwei");
+    });
+  }
+
+  /* Eine Folie, in der nur eine Spalte etwas bekommen hat, ist keine
+     zweispaltige - der Rahmen kommt wieder weg, damit die einspaltige
+     Regel (64 Zeichen Zeilenlaenge) greift. */
+  function spaltenAufloesen(f) {
+    /* Leergebliebene Spalten zuerst weg: Sie entstehen, wenn ein Baustein
+       die Folie gesprengt hat und in die naechste umgezogen ist. */
+    Array.prototype.slice.call(f.querySelectorAll(":scope > .spalte"))
+      .forEach(function (sp) { if (!sp.children.length) sp.remove(); });
+    if (f.querySelector(":scope > .spalte-text")
+      && f.querySelector(":scope > .spalte-werkzeug")) return;
+    Array.prototype.slice.call(f.querySelectorAll(":scope > .spalte"))
+      .forEach(function (sp) {
+        while (sp.firstChild) f.insertBefore(sp.firstChild, sp);
+        sp.remove();
+      });
+    f.classList.remove("zweispaltig");
+  }
+
+  /* Der Deckel muss schon beim Packen sitzen, nicht erst danach: Sonst
+     misst die Packung eine Folie als zu hoch, schneidet unnoetig - oder
+     rechnet mit einer Werkzeugspalte, die spaeter ohnehin gedeckelt wird. */
+  function deckeln(f) {
+    var w = f.querySelector(":scope > .spalte-werkzeug");
+    var tx = f.querySelector(":scope > .spalte-text");
+    if (!w) return;
+    w.classList.remove("hoch");
+    if (tx && w.getBoundingClientRect().height > deckelGrenze) w.classList.add("hoch");
+  }
+  var deckelGrenze = 0;
+
+  function schneiden(sec) {
+    var z = urzustand(sec);
+    var warAktiv = sec.classList.contains("aktiv");
+    if (!warAktiv) sec.classList.add("aktiv");   /* messen geht nur sichtbar */
+    flachlegen(sec, z);
+
+    var grenze = budget();
+    deckelGrenze = grenze;
+    var quer = window.innerWidth >= 900 && window.innerWidth > window.innerHeight;
+    var folien = [];
+
+    function neueFolie() {
+      var f = document.createElement("div");
+      f.className = "folie an";     /* "an", damit sie messbar ist */
+      sec.appendChild(f);
+      folien.push(f);
+      return f;
+    }
+
+    var f = neueFolie();
+    var inhalt = [];
+    var legal = -1;   /* Stelle in inhalt, VOR der zuletzt geschnitten werden durfte */
+
+    function hoehe(el) { return el.getBoundingClientRect().height; }
+
+    z.roh.forEach(function (kind) {
+      var letztes = inhalt.length ? inhalt[inhalt.length - 1] : null;
+      if (inhalt.length > 0
+        && !unsichtbar(kind)
+        && !kind.matches(GEBUNDEN)
+        && !kind.matches(KLEBT_VOR)
+        && !(letztes && letztes.matches(ZIEHT_NACH))) {
+        legal = inhalt.length;
+      }
+
+      /* Erzwungener Schnitt: Der Autor weiss manchmal etwas, das keine
+         Hoehenmessung sieht - dass hier ein neuer Gedanke anfaengt. */
+      if (inhalt.length > 0 && kind.matches(ERZWUNGEN)) {
+        deckeln(f);
+        f.classList.remove("an");
+        f = neueFolie();
+        inhalt = [];
+        legal = -1;
+      }
+
+      einordnen(f, kind, quer);
+      /* Die innere Teilung erst JETZT: vorher stand der Baustein noch in
+         voller Breite in der Phase, und die Entscheidung "passt das in
+         zwei Spalten?" waere an der falschen Breite getroffen worden. */
+      if (quer) innenSpalten(kind);
+      deckeln(f);
+      inhalt.push(kind);
+
+      if (hoehe(f) <= grenze || legal < 1) return;
+
+      /* Ruecksprung auf die letzte erlaubte Stelle. Der Baustein, der die
+         Folie sprengt, ist selten der, vor dem man schneiden darf: In der
+         Phase "Vorzeichen" kam zuerst das Bedienfeld, dann die Ablesekarte
+         (die keine Folie eroeffnen darf) und erst dann die Schrittfolge
+         (vor der wegen der Ablesekarte nicht geschnitten werden darf).
+         Ohne Ruecksprung landete alles auf einer Folie von 1144 px,
+         obwohl vor der Auftragszeile ein sauberer Schnitt moeglich war. */
+      var rest = inhalt.slice(legal);
+      var alt = f;
+      f = neueFolie();
+      rest.forEach(function (k) { einordnen(f, k, quer); });
+      deckeln(alt); deckeln(f);
+
+      if (hoehe(alt) < grenze * 0.3) {
+        /* Was uebrig bliebe, waere ein Schnipsel - dann lieber eine Folie,
+           die ein Stueck scrollt, als zwei, von denen eine fast leer ist. */
+        folien.pop();
+        f.remove();
+        f = alt;
+        rest.forEach(function (k) { einordnen(f, k, quer); });
+        deckeln(f);
+        legal = -1;
+        return;
+      }
+      alt.classList.remove("an");
+      inhalt = rest;
+      legal = -1;
+    });
+
+    folien.forEach(function (x) {
+      /* Sichtbar machen, sonst misst alles 0. Ohne diese Zeile hielt die
+         Nachlese JEDE Folie ausser der letzten fuer 0 px breit und nahm
+         darum jede innere Teilung wieder zurueck - der Fehler, der die
+         Aufgabenbloecke wieder auf 983 px hat wachsen lassen. */
+      x.classList.add("an");
+      spaltenAufloesen(x);
+      /* Nachlese: Ein Baustein, der beim Einordnen noch breit war und erst
+         durch einen spaeteren Nachbarn in die schmale Spalte gerutscht ist,
+         verliert seine innere Teilung wieder. */
+      Array.prototype.slice.call(x.querySelectorAll(".innen-zwei"))
+        .forEach(function (el) {
+          if (el.getBoundingClientRect().width < 560) innenAufloesenEines(el);
+        });
+      deckeln(x);
+      x.classList.remove("an");
+    });
+    z.folien = folien;
+    z.frisch = true;
+    z.i = Math.min(z.i, folien.length - 1);
+    if (!warAktiv) sec.classList.remove("aktiv");
+    return z;
+  }
+
+  /* ---------------------------------------------------------------------
+     4 - Anzeigen */
+  var lehrerPhasen = phasen.filter(function (p) {
+    return p.classList.contains("nurlehrer")
+      || /Lehrerblatt/i.test(p.dataset.titel || "");
+  });
+  var letzteSchueler = phasen.length - 1;
+  while (letzteSchueler > 0 && lehrerPhasen.indexOf(phasen[letzteSchueler]) >= 0) {
+    letzteSchueler--;
+  }
+
+  var gesehen = new Set();
+  var hinweisWeg = false;
+
+  function aktivePhase() {
+    for (var i = 0; i < phasen.length; i++) {
+      if (phasen[i].classList.contains("aktiv")) return i;
+    }
+    return 0;
+  }
+
+  function setzeFolie(sec, n, melden) {
+    var z = zustand.get(sec) || schneiden(sec);
+    if (!z.folien.length) return;
+    n = Math.max(0, Math.min(n, z.folien.length - 1));
+    z.folien.forEach(function (f, k) { f.classList.toggle("an", k === n); });
+    z.i = n;
+    /* melden === false heisst: nicht der Schueler hat geblaettert, sondern
+       das Modul hat gerade selbst geschnitten. Dann darf weder ein
+       Protokolleintrag entstehen noch der Wiederaufnahme-Hinweis fallen -
+       er verschwand sonst schon beim Laden, also genau bevor ihn jemand
+       lesen konnte. */
+    if (melden !== false) {
+      protokollFolie(sec, n);
+      if (!hinweisWeg) hinweisFort();
+    }
+    window.scrollTo({ top: 0, behavior: "auto" });
+    aktualisiere();
+  }
+
+  function protokollFolie(sec, n) {
+    var marke = phasen.indexOf(sec) + "." + n;
+    if (gesehen.has(marke)) return;   /* nur die erste Ankunft, sonst flutet es */
+    gesehen.add(marke);
+    if (typeof window.protokolliere === "function") {
+      var z = zustand.get(sec);
+      window.protokolliere("folie",
+        (sec.dataset.titel || "Phase"),
+        "Folie " + (n + 1) + " von " + (z ? z.folien.length : 1));
+    }
+  }
+
+  /* Der Wiederaufnahme-Hinweis gehoert auf den ersten Schirm, nicht auf
+     jeden. Wer weiterblaettert, hat ihn gelesen. */
+  function hinweisFort() {
+    var h = document.getElementById("speicherHinweis");
+    if (!h) return;
+    hinweisWeg = true;
+    h.remove();
+  }
+
+  /* ---------------------------------------------------------------------
+     5 - Fuss: Punkte je Folie, Beschriftung, Knoepfe */
+  var fussMitte = document.getElementById("navinfo");
+  var punkte = document.createElement("div");
+  punkte.className = "foliendots";
+  if (fussMitte && fussMitte.parentNode) {
+    fussMitte.parentNode.insertBefore(punkte, fussMitte.nextSibling);
+  }
+
+  function aktualisiere() {
+    var pi = aktivePhase();
+    var sec = phasen[pi];
+    var z = zustand.get(sec);
+    if (!z) return;
+    var n = z.i, anz = z.folien.length;
+
+    punkte.innerHTML = "";
+    if (anz > 1) {
+      z.folien.forEach(function (f, k) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "" + (k === n ? "an" : (k < n ? "fertig" : ""));
+        b.setAttribute("aria-label", "Folie " + (k + 1));
+        b.addEventListener("click", function () { setzeFolie(sec, k); });
+        punkte.appendChild(b);
+      });
+    }
+
+    var lehrer = lehrerPhasen.indexOf(sec) >= 0;
+    if (fussMitte) {
+      fussMitte.textContent = lehrer
+        ? "Lehrerblatt (nicht für Schüler)"
+        : (sec.dataset.titel || ("Phase " + pi))
+          + (anz > 1 ? " · " + (n + 1) + " von " + anz : "");
+    }
+
+    var zurueck = document.getElementById("zurueck");
+    var weiter = document.getElementById("weiter");
+    if (zurueck) zurueck.disabled = (pi === 0 && n === 0);
+    if (weiter) {
+      var ende = (pi >= letzteSchueler && n >= anz - 1);
+      weiter.disabled = ende;
+      weiter.textContent = ende ? "Fertig" : "Weiter ›";
+    }
+
+    var balken = document.getElementById("balken");
+    if (balken && letzteSchueler > 0) {
+      var anteil = (pi + (anz > 1 ? n / anz : 0)) / letzteSchueler;
+      balken.style.width = Math.round(Math.min(1, anteil) * 100) + "%";
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     6 - Die Knoepfe uebernehmen. Die alten Hoerer werden durch Austausch
+     des Knopfes entfernt; zeige() der Stunde fragt beide Knoepfe jedes Mal
+     neu ab und findet deshalb die neuen. */
+  function ersetzen(id) {
+    var alt = document.getElementById(id);
+    if (!alt) return null;
+    var neu = alt.cloneNode(true);
+    alt.parentNode.replaceChild(neu, alt);
+    return neu;
+  }
+  var knopfZurueck = ersetzen("zurueck");
+  var knopfWeiter = ersetzen("weiter");
+
+  function blaettern(richtung) {
+    var pi = aktivePhase();
+    var sec = phasen[pi];
+    var z = zustand.get(sec) || schneiden(sec);
+    var ziel = z.i + richtung;
+    if (ziel >= 0 && ziel < z.folien.length) { setzeFolie(sec, ziel); return; }
+    var np = pi + richtung;
+    if (np < 0 || np > letzteSchueler) return;
+    window.zeige(np);
+    var nz = zustand.get(phasen[np]);
+    if (nz && richtung < 0) setzeFolie(phasen[np], nz.folien.length - 1);
+  }
+  if (knopfWeiter) knopfWeiter.addEventListener("click", function () { blaettern(1); });
+  if (knopfZurueck) knopfZurueck.addEventListener("click", function () { blaettern(-1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || "")) ) return;
+    if (e.key === "ArrowRight") blaettern(1);
+    else if (e.key === "ArrowLeft") blaettern(-1);
+  });
+
+  /* ---------------------------------------------------------------------
+     7 - An zeige() der Stunde andocken. zeige ist dort eine
+     Funktionsdeklaration auf oberster Ebene, also eine Eigenschaft von
+     window: Wer sie hier ersetzt, ersetzt sie auch fuer die Pillen im
+     Kopf, die aus ihrem eigenen Abschluss heraus dieselbe Bindung rufen. */
+  var altZeige = window.zeige;
+  if (typeof altZeige === "function") {
+    window.zeige = function (i) {
+      altZeige.apply(this, arguments);
+      var sec = phasen[aktivePhase()];
+      var z = zustand.get(sec);
+      if (!z || !z.frisch) z = schneiden(sec);
+      setzeFolie(sec, 0, true);
+      return z;
+    };
+  }
+
+  /* ---------------------------------------------------------------------
+     8 - Kopf schlank machen: was selten gebraucht wird, hinter drei Punkte.
+     Sichtbar bleiben Titel, Uhr, Sprachschalter und die Plan-Pille. */
+  (function kopfSchlank() {
+    var kopf = document.querySelector(".kopf");
+    if (!kopf || document.getElementById("kopfExtra")) return;
+    var extra = document.createElement("div");
+    extra.id = "kopfExtra";
+    var punkteKnopf = document.createElement("button");
+    punkteKnopf.type = "button";
+    punkteKnopf.id = "kopfPunkte";
+    punkteKnopf.className = "knopf klein";
+    punkteKnopf.textContent = "···";
+    punkteKnopf.title = "Weitere Schalter";
+    punkteKnopf.setAttribute("aria-label", "Weitere Schalter");
+    punkteKnopf.addEventListener("click", function () {
+      document.body.classList.toggle("kopf-offen");
+    });
+    ["protokollChip", "uhrKnopf", "lehrerKnopf"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) extra.appendChild(el);
+    });
+    if (!extra.children.length) return;
+    kopf.appendChild(punkteKnopf);
+    kopf.appendChild(extra);
+  })();
+
+  /* ---------------------------------------------------------------------
+     9 - Neu schneiden, wenn sich die Hoehen aendern: Drehen, Fenstergroesse,
+     Sprachumschaltung. Die Stelle wird gehalten - gemerkt wird das ERSTE
+     Element der laufenden Folie, danach gilt die Folie, die es enthaelt. */
+  var warte = null;
+  function neuSchneiden() {
+    /* Beim Drehen aendert sich die Aufteilung in JEDER Phase, nicht nur in
+       der sichtbaren. Wer nur diese neu schneidet, hinterlaesst in allen
+       uebrigen die Spalten des Querformats - im Hochformat standen so
+       18 Spaltenrahmen herum, die dort nichts zu suchen haben. Die anderen
+       Phasen werden nur entwertet; geschnitten wird beim naechsten Aufruf. */
+    phasen.forEach(function (p) {
+      var zp = zustand.get(p);
+      if (zp) zp.frisch = false;
+    });
+    var sec = phasen[aktivePhase()];
+    var z = zustand.get(sec);
+    var anker = (z && z.folien[z.i]) ? z.folien[z.i].firstElementChild : null;
+    if (anker && anker.classList.contains("spalte")) anker = anker.firstElementChild;
+    var nz = schneiden(sec);
+    var ziel = 0;
+    if (anker) {
+      nz.folien.forEach(function (f, k) { if (f.contains(anker)) ziel = k; });
+    }
+    setzeFolie(sec, ziel, false);
+  }
+  function spaeter() {
+    clearTimeout(warte);
+    warte = setTimeout(neuSchneiden, 220);
+  }
+  window.addEventListener("orientationchange", spaeter);
+  window.addEventListener("resize", spaeter);
+  var spracheKnopf = document.getElementById("spracheKnopf");
+  if (spracheKnopf) spracheKnopf.addEventListener("click", spaeter);
+
+  /* ---------------------------------------------------------------------
+     10 - Loslegen. zeige(0) der Stunde ist beim Laden dieses Skripts schon
+     gelaufen; die aktive Phase ist also da, aber noch ungeschnitten. */
+  (function start() {
+    var sec = phasen[aktivePhase()];
+    schneiden(sec);
+    /* Der Wiederaufnahme-Hinweis haengt an <main> und stuende sonst ueber
+       jeder Phase. Er gehoert auf den ersten Schirm. */
+    var h = document.getElementById("speicherHinweis");
+    var z = zustand.get(sec);
+    if (h && z && z.folien.length) z.folien[0].insertBefore(h, z.folien[0].firstChild);
+    setzeFolie(sec, 0, false);
+  })();
+})();
 </script>
 </body>
 </html>
