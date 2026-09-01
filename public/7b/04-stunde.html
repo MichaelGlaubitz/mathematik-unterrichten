@@ -399,6 +399,16 @@ canvas#c-modell{width:100%; height:auto; background:#fff;
 #speicherHinweis .knopf{margin-top:.6rem}
 #speicherStand{font-size:.76rem; color:#5a6570; white-space:nowrap; padding:.2rem .3rem}
 #speicherStand.schlecht{color:#c62828; font-weight:700}
+/* Lueckensatz-Geruest (Phase 4) und die freiwillige Zeichnung in A1. */
+.geruest{margin:.7rem 0; padding:.7rem .9rem; border:1px solid #cfd8e0;
+  border-left:6px solid #1565c0; border-radius:10px; background:#f7fafc; line-height:2.1}
+.geruest p{margin:.25rem 0}
+input.luecke-feld{width:5.2rem; font:inherit; text-align:center; padding:.25rem;
+  border:1px solid var(--linie); border-bottom:2px solid #1565c0; border-radius:6px;
+  background:#fffde7; margin:0 .2rem}
+details.zusatzzeichnung{margin:.8rem 0 .2rem; border:1px dashed var(--linie);
+  border-radius:10px; padding:.5rem .8rem; background:#fafbfc}
+details.zusatzzeichnung summary{cursor:pointer; color:#5a6570; font-size:.94rem}
 .vertiefung{display:none}
 .vertiefung.offen{display:block; margin:1.2rem 0 .4rem; padding:.9rem 1.1rem;
   border:1px solid #a5d6a7; border-left:7px solid #2e7d32; border-radius:12px;
@@ -994,40 +1004,74 @@ canvas#c-modell{width:100%; height:auto; background:#fff;
   <div class="schritte" data-titel="Auftrag" data-log="Phase 4 – Zweitfall">
     <div class="schritt">
       <h4>Die Prüfung aufschreiben</h4>
+      <!-- ENTSCHÄRFT nach dem ersten Durchlauf: Hier fiel zweimal der
+           Hilfeknopf - die einzige Stelle der Stunde. Vorher stand hier ein
+           leeres Feld mit der Aufforderung, die ganze Prüfung selbst zu
+           formulieren; zwischen "gar nichts" und "vollständiger Beweis" gab
+           es nichts. Jetzt füllt man erst fünf Lücken aus, und der eigene
+           Satz kommt danach - aus dem Ausgefüllten lässt er sich ablesen. -->
       <div class="sprache-standard">
-        <p>Schreibt die Prüfung so auf, dass jemand anders sie nachvollziehen kann: Welche zwei
-        Zeilen habt ihr genommen? Mit welcher Zahl wird links vervielfacht? Was müsste dann rechts
-        stehen, und was steht wirklich dort?</p>
+        <p>Fangt mit dem Gerüst an: Füllt die Lücken, dann steht die Prüfung fast von selbst da.
+        Die drei Zeilen der Tabelle stehen im Bild darüber.</p>
       </div>
       <div class="sprache-einfach">
-        <ol>
-          <li>Wähl zwei Zeilen aus der Tabelle.</li>
-          <li>Schreib auf, mit welcher Zahl links vervielfacht wird.</li>
-          <li>Schreib auf, was dann rechts stehen müsste.</li>
-          <li>Schreib auf, was wirklich dort steht.</li>
-        </ol>
+        <p>Fang mit dem Gerüst an. Füll die Lücken aus.</p>
+        <p>Dann steht die Prüfung fast von allein da.</p>
+        <p>Die drei Zeilen der Tabelle stehen im Bild darüber.</p>
       </div>
+
+      <div class="geruest">
+        <p><span class="sprache-standard">Ich vergleiche die Zeile mit</span><span
+           class="sprache-einfach">Ich vergleiche die Zeile mit</span>
+        <input id="z-alt1" data-label="Zweitfall – erstes Alter" inputmode="decimal"
+               autocomplete="off" data-soll="1" class="luecke-feld">
+        <span class="sprache-standard">Jahr und die Zeile mit</span><span
+           class="sprache-einfach">Jahr und die Zeile mit</span>
+        <input id="z-alt2" data-label="Zweitfall – zweites Alter" inputmode="decimal"
+               autocomplete="off" data-soll="4" class="luecke-feld">
+        <span class="sprache-standard">Jahren.</span><span class="sprache-einfach">Jahren.</span></p>
+
+        <p><span class="sprache-standard">Links wird mit</span><span
+           class="sprache-einfach">Links wird mit</span>
+        <input id="z-faktor" data-label="Zweitfall – Vervielfachungszahl" inputmode="decimal"
+               autocomplete="off" data-soll="4" class="luecke-feld">
+        <span class="sprache-standard">vervielfacht.</span><span
+           class="sprache-einfach">vervielfacht.</span></p>
+
+        <p><span class="sprache-standard">Rechts müssten dann</span><span
+           class="sprache-einfach">Rechts müssten dann</span>
+        <input id="z-soll" data-label="Zweitfall – erwartete Größe" inputmode="decimal"
+               autocomplete="off" data-soll="300" class="luecke-feld">
+        <span class="sprache-standard">cm stehen. Dort stehen aber</span><span
+           class="sprache-einfach">cm stehen. Dort stehen aber</span>
+        <input id="z-ist" data-label="Zweitfall – gemessene Größe" inputmode="decimal"
+               autocomplete="off" data-soll="104" class="luecke-feld">
+        <span class="sprache-standard">cm.</span><span class="sprache-einfach">cm.</span></p>
+      </div>
+
       <div class="antwortfeld">
-        <div class="kopfzeile">✍ Deine Prüfung – hier eintragen</div>
-        <textarea id="t-z1" data-label="Zweitfall – Prüfung" style="min-height:6rem"></textarea>
+        <div class="kopfzeile">✍ Und jetzt der Schluss: Was folgt daraus? Ein Satz.</div>
+        <textarea id="t-z1" data-label="Zweitfall – Schlusssatz" style="min-height:3.5rem"
+          placeholder="Also ist die Zuordnung …"></textarea>
       </div>
-      <details class="gesperrt" data-fuer="t-z1" data-min="40">
+      <details class="gesperrt" data-fuer="z-alt1,z-alt2,z-faktor,z-soll,z-ist" data-min="1">
         <summary><span class="sprache-standard">Kontrolle</span><span
                  class="sprache-einfach">Kontrolle – erst nach eigener Notiz</span></summary>
         <div class="sprache-standard">
-          <p>Zeilen: <b>1 Jahr &#8594; 75 cm</b> und <b>4 Jahre &#8594; 104 cm</b>.
-          Links wird mit <b>4</b> vervielfacht (aus 1 wird 4).
-          Rechts müssten dann 4 · 75 cm = <b>300 cm</b> stehen. Dort stehen 104 cm.
-          Also <b>nicht proportional</b>.</p>
+          <p>Ich vergleiche die Zeile mit <b>1</b> Jahr und die Zeile mit <b>4</b> Jahren.
+          Links wird mit <b>4</b> vervielfacht. Rechts müssten dann <b>300</b> cm stehen
+          (4 · 75 cm). Dort stehen aber <b>104</b> cm.</p>
+          <p><b>Schluss:</b> Also ist die Zuordnung <b>nicht proportional</b>.</p>
           <p>Man kann auch andere Zeilen nehmen &#8212; nur muss die eine Zahl ein Vielfaches der
           anderen sein, sonst rechnet man umständlicher. Von 1 auf 3 wäre es das Dreifache:
           3 · 75 cm = 225 cm, gemessen sind 97 cm. Dasselbe Ergebnis.</p>
         </div>
         <div class="sprache-einfach">
-          <p>Nimm die Zeilen <b>1 Jahr &#8594; 75 cm</b> und <b>4 Jahre &#8594; 104 cm</b>.</p>
-          <p>Links wird mit <b>4</b> vervielfacht. Aus 1 wird 4.</p>
-          <p>Rechts müssten dann 4 · 75 cm = <b>300 cm</b> stehen. Dort stehen 104 cm.</p>
-          <p>Also ist die Zuordnung <b>nicht proportional</b>.</p>
+          <p>Ich vergleiche die Zeile mit <b>1</b> Jahr und die Zeile mit <b>4</b> Jahren.</p>
+          <p>Links wird mit <b>4</b> vervielfacht.</p>
+          <p>Rechts müssten dann <b>300</b> cm stehen. Denn 4 · 75 cm = 300 cm.</p>
+          <p>Dort stehen aber <b>104</b> cm.</p>
+          <p><b>Schluss:</b> Die Zuordnung ist <b>nicht proportional</b>.</p>
           <p>Du kannst auch andere Zeilen nehmen. Zum Beispiel 1 Jahr und 3 Jahre.
           3 · 75 cm = 225 cm. Gemessen sind 97 cm. Gleiches Ergebnis.</p>
         </div>
@@ -1159,43 +1203,71 @@ canvas#c-modell{width:100%; height:auto; background:#fff;
         <li>Wie viel kosten 3 kg Fruchtgummi?</li>
         <li>Wie viel Fruchtgummi erhält man für 21 &#8364;?</li>
       </ol>
-      <p>Zeichnet dazu in das Feld eine kleine Tabelle mit Pfeilen &#8212; so wie im Buch auf
-      Seite 16. An den Pfeilen soll stehen, womit vervielfacht (oder geteilt) wird.</p>
+      <p>Die Tabelle mit den Pfeilen ist schon vorgezeichnet. Ihr müsst nur noch die beiden
+      Kästchen und den fehlenden Preis füllen.</p>
     </div>
     <div class="sprache-einfach">
       <ol class="teilaufgaben">
         <li>Was kosten 3 kg Fruchtgummi?</li>
         <li>Wie viel Fruchtgummi bekommst du für 21 &#8364;?</li>
       </ol>
-      <p>Zeichne dazu eine kleine Tabelle mit Pfeilen. So wie im Buch auf Seite 16.</p>
-      <p>Schreib an die Pfeile, womit du vervielfachst oder teilst.</p>
+      <p>Die Tabelle mit den Pfeilen ist schon gezeichnet.</p>
+      <p>Du füllst nur die beiden Kästchen und den fehlenden Preis aus.</p>
     </div>
     <p class="quelle">Buch S. 16 Nr. 1</p>
-    <div class="zeichenfeld" data-zid="a1" data-titel="Tabelle mit Pfeilen zu A1"
-         data-label="Zeichnung A1" data-hoehe="320" data-gitter="punkte"></div>
+    <svg viewBox="0 0 640 230" width="100%" role="img" aria-label="Tabelle mit zwei leeren Pfeilbeschriftungen" style="max-width:640px;height:auto;display:block;margin:0 auto"><rect x="0" y="0" width="640" height="230" fill="#ffffff"/><defs><marker id="pfa1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#1565c0"/></marker></defs><rect x="170" y="54" width="300" height="126" rx="8" fill="#f7fafc" stroke="#cfd8e0"/><text x="251" y="80" font-size="13" font-weight="700" fill="#5a6570" text-anchor="middle">Menge in kg</text><text x="389" y="80" font-size="13" font-weight="700" fill="#5a6570" text-anchor="middle">Preis in Euro</text><line x1="170" y1="96" x2="470" y2="96" stroke="#e3e9ef"/><text x="251" y="123" font-size="15" fill="#14202a" text-anchor="middle">1</text><text x="389" y="123" font-size="15" fill="#14202a" text-anchor="middle">3,50 &#8364;</text><line x1="170" y1="138" x2="470" y2="138" stroke="#e3e9ef"/><text x="251" y="165" font-size="15" fill="#14202a" text-anchor="middle">3</text><text x="389" y="165" font-size="15" fill="#14202a" text-anchor="middle">?</text><path d="M 166 118 C 128 118, 128 160, 166 160" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#pfa1)"/><rect x="85" y="126" width="46" height="26" rx="5" fill="#fffde7" stroke="#1565c0" stroke-dasharray="4 3"/><text x="108" y="144" font-size="14" fill="#5a6570" text-anchor="middle">&#183; ?</text><path d="M 474 118 C 512 118, 512 160, 474 160" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#pfa1)"/><rect x="509" y="126" width="46" height="26" rx="5" fill="#fffde7" stroke="#1565c0" stroke-dasharray="4 3"/><text x="532" y="144" font-size="14" fill="#5a6570" text-anchor="middle">&#183; ?</text><text x="320" y="212" font-size="13" fill="#5a6570" text-anchor="middle">In beide K&#228;stchen geh&#246;rt <tspan font-weight="700">dieselbe</tspan> Zahl. Welche?</text></svg>
+    <table class="messtabelle" id="a1-tab" data-label="A1 – Pfeilzahl, Preis, Menge">
+      <tr>
+        <th>In beide Kästchen gehört</th>
+        <th>3 kg kosten (in &#8364;)</th>
+        <th>Für 21 &#8364; bekommst du (in kg)</th>
+      </tr>
+      <tr>
+        <td><input id="a1-pfeil" data-label="A1 – Zahl an beiden Pfeilen"
+                   inputmode="decimal" autocomplete="off" data-soll="3"></td>
+        <td><input id="a1-preis" data-label="A1 – Preis für 3 kg"
+                   inputmode="decimal" autocomplete="off" data-soll="10,50"></td>
+        <td><input id="a1-menge" data-label="A1 – Menge für 21 Euro"
+                   inputmode="decimal" autocomplete="off" data-soll="6"></td>
+      </tr>
+    </table>
     <div class="antwortfeld">
-      <div class="kopfzeile">✍ Deine Rechnung zu A1 – hier eintragen</div>
-      <textarea id="t-a1" data-label="A1 – Rechnung" style="min-height:5rem"></textarea>
+      <div class="kopfzeile">✍ Wie hast du gerechnet? – kurz, ein Satz genügt</div>
+      <textarea id="t-a1" data-label="A1 – Rechenweg" style="min-height:3.5rem"></textarea>
     </div>
-    <details class="gesperrt" data-fuer="zeichnung:a1,t-a1" data-min="30">
+    <details class="gesperrt" data-fuer="a1-pfeil,a1-preis,a1-menge" data-min="1">
       <summary><span class="sprache-standard">Lösung A1</span><span
                class="sprache-einfach">Lösung A1 – erst nach eigener Zeichnung und Rechnung</span></summary>
       <div class="sprache-standard">
         <p><b>a)</b> 3 kg sind das Dreifache von 1 kg, also 3 · 3,50 &#8364; = <b>10,50 &#8364;</b>.</p>
         <p><b>b)</b> Hier geht es rückwärts: 21 &#8364; : 3,50 &#8364; = <b>6</b>, also 6 kg.
         Probe: 6 · 3,50 &#8364; = 21 &#8364;. ✓</p>
-        <p>In der Tabelle: links 1 kg &#8594; 3 kg mit dem Pfeil „· 3“, rechts 3,50 &#8364; &#8594;
-        10,50 &#8364; mit demselben Pfeil „· 3“. Dass an beiden Pfeilen <i>dieselbe</i> Zahl steht,
+        <p>In beide Kästchen gehört die <b>3</b>: links 1 kg &#8594; 3 kg, rechts
+        3,50 &#8364; &#8594; 10,50 &#8364;. Dass an beiden Pfeilen <i>dieselbe</i> Zahl steht,
         ist die ganze Aussage.</p>
       </div>
       <div class="sprache-einfach">
         <p><b>a)</b> 3 kg sind das Dreifache von 1 kg. Also 3 · 3,50 &#8364; = <b>10,50 &#8364;</b>.</p>
         <p><b>b)</b> Hier rechnest du rückwärts: 21 &#8364; : 3,50 &#8364; = <b>6</b>. Also 6 kg.</p>
         <p>Probe: 6 · 3,50 &#8364; = 21 &#8364;. ✓</p>
-        <p>In der Tabelle steht links: 1 kg &#8594; 3 kg, Pfeil „· 3“.
-        Rechts steht: 3,50 &#8364; &#8594; 10,50 &#8364;, Pfeil „· 3“.</p>
+        <p>In beide Kästchen gehört die <b>3</b>.</p>
+        <p>Links: 1 kg &#8594; 3 kg. Rechts: 3,50 &#8364; &#8594; 10,50 &#8364;.</p>
         <p>An beiden Pfeilen steht <i>dieselbe</i> Zahl. Das ist der ganze Punkt.</p>
       </div>
+    </details>
+
+    <!-- Freiwillig und ausdrücklich NACH der Antwort. Im ersten Durchlauf
+         stand hier eine leere Zeichenfläche im Pflichtweg; eine Schülerin
+         verbrachte 22 Minuten darin und sah das Ende der Stunde nie. -->
+    <details class="zusatzzeichnung">
+      <summary><span class="sprache-standard">Freiwillig: die Tabelle selbst zeichnen</span><span
+               class="sprache-einfach">Freiwillig: Zeichne die Tabelle selbst.</span></summary>
+      <p class="hinweiszeile sprache-standard">Nur, wenn ihr Zeit übrig habt &#8212; für die
+      Aufgabe wird es nicht gebraucht.</p>
+      <p class="hinweiszeile sprache-einfach">Nur, wenn du Zeit übrig hast.
+      Für die Aufgabe brauchst du es nicht.</p>
+      <div class="zeichenfeld" data-zid="a1" data-titel="Tabelle mit Pfeilen (freiwillig)"
+           data-label="Zeichnung A1 (freiwillig)" data-hoehe="300" data-gitter="punkte"></div>
     </details>
   </div>
 
