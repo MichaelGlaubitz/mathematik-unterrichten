@@ -22,6 +22,14 @@ name = "rueckmeldung"
 main = "worker.mjs"
 compatibility_date = "2025-01-01"
 
+# Die eine oeffentliche Adresse ja, Preview-URLs nein. Preview-URLs geben
+# JEDER ausgerollten Fassung eine eigene oeffentliche Adresse, die bestehen
+# bleibt: Eine spaeter reparierte Pruefung liefe dort ungerepariert weiter,
+# mit denselben Geheimnissen und demselben Speicher. Beides steht hier
+# ausdruecklich, sonst setzt wrangler es stillschweigend selbst.
+workers_dev = true
+preview_urls = false
+
 # EIN Durable Object fuer beide Bretter. Nur damit laesst sich
 # verlaesslich zaehlen: KV wird zu langsam konsistent, um Stimmen zu
 # halten, wenn dreissig iPads gleichzeitig tippen. Je Meldung ein
