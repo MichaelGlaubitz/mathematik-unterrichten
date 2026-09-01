@@ -370,6 +370,21 @@ body[data-versuch="teiler"] [data-versuch="ohm"]{display:none !important}
 }
 /* Wer Bewegung reduziert haben will, bekommt das alte Verhalten. */
 @media (prefers-reduced-motion:reduce){ .laborbuehne{position:static} }
+/* Zwischenspeicher: Warnung, Fortsetzungshinweis, Speicherstand.
+   Der Zwischenspeicher wird aktiv geprueft (schreiben, lesen, loeschen) -
+   ein try um setItem genuegt nicht: Manche Browser nehmen den Wert an und
+   geben ihn nie zurueck. Faellt die Probe durch, steht die Warnung dauerhaft
+   oben in <main> und laesst sich nicht wegklicken; sie beschreibt eine
+   Bedingung, die bis zum Ende der Stunde gilt. */
+#speicherWarnung{margin:0 0 1rem; padding:.9rem 1.1rem; border:2px solid #c62828;
+  border-left:8px solid #c62828; border-radius:12px; background:#fdecea; color:#8d2417}
+#speicherWarnung b{color:#8d2417}
+#speicherWarnung p{margin:.4rem 0 0}
+#speicherHinweis{margin:0 0 1rem; padding:.75rem 1.1rem; border:1px solid #ffb74d;
+  border-left:8px solid #e07000; border-radius:12px; background:#fff8ec; color:#5a4020}
+#speicherHinweis .knopf{margin-top:.6rem}
+#speicherStand{font-size:.76rem; color:#5a6570; white-space:nowrap; padding:.2rem .3rem}
+#speicherStand.schlecht{color:#c62828; font-weight:700}
 
 /* --- Zusaetze dieser Stunde ---------------------------------------- */
 /* Herkunftszeile unter einer Buchaufgabe. */
@@ -427,6 +442,30 @@ details.zusatzzeichnung summary{cursor:pointer; color:#5a6570; font-size:.94rem}
 .aufgabe table td{padding:.32rem .55rem; border:1px solid #dbe3ea;
   text-align:center}
 @media (max-width:560px){ .aufgabe table{font-size:.9rem} }
+
+/* --- Der grosse Abgabeknopf ---------------------------------------- */
+/* Er ist absichtlich unverhaeltnismaessig gross. Am 01.09. sind sechzehn
+   von dreissig Abgaben angekommen; der Rest ist an drei Schritten und
+   einem Teilen-Dialog gescheitert. Ein Ziel, das man nicht verfehlen
+   kann, ist hier kein Schmuck, sondern die Funktion. */
+.abgabeknopf{display:block; width:100%; margin:.7rem 0 .5rem; min-height:4.4rem;
+  padding:1.25rem 1rem; font:700 1.5rem/1.15 inherit; letter-spacing:.03em;
+  color:#fff; background:#1b7f3b; border:none; border-bottom:5px solid #14602c;
+  border-radius:16px; cursor:pointer}
+.abgabeknopf:active{transform:translateY(2px); border-bottom-width:3px}
+.abgabeknopf:disabled{background:#8fa79a; border-bottom-color:#75897f; cursor:default}
+.abgabeknopf.fertig{background:#0b5aa0; border-bottom-color:#08447a; font-size:1.25rem}
+@media (max-width:560px){ .abgabeknopf{font-size:1.3rem} }
+/* Die Standzeile darunter. Sie ist das einzige, was nach dem Druck etwas
+   sagt - deshalb gross genug, um sie nicht zu uebersehen. */
+.abgabestand{margin:.2rem 0 .6rem; padding:.6rem .8rem; border-radius:10px;
+  font-size:1rem; background:#f2f6f9; border:1px solid #dbe3ea; color:#33414d}
+.abgabestand.gut{background:#eaf6ec; border-color:#a5d6a7; color:#1b5e20}
+.abgabestand.warnung{background:#fff8ec; border-color:#ffb74d; color:#5a4020}
+.abgabestand.schlecht{background:#fdecea; border-color:#e59d97; color:#8d2417}
+details#abgabe-notweg{margin-top:.8rem; border:1px dashed var(--linie);
+  border-radius:10px; padding:.5rem .8rem; background:#fafbfc}
+details#abgabe-notweg summary{cursor:pointer; color:#5a6570; font-size:.94rem}
 </style>
 </head>
 <body>
@@ -1608,8 +1647,8 @@ details.zusatzzeichnung summary{cursor:pointer; color:#5a6570; font-size:.94rem}
     <textarea id="t-unklar" data-label="Offene Frage" placeholder="Eine Frage, die offen geblieben ist (darf leer bleiben)"></textarea>
   </div>
 
-  <div class="karte blau">
-    <h4>Abgabe – Protokoll an Herrn Glaubitz</h4>
+  <div class="karte blau" id="abgabekasten">
+    <h4>Abgabe &#8211; Protokoll an Herrn Glaubitz</h4>
     <div class="zwei">
       <div><label class="reg">Name:</label>
         <input id="i-name" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="Vorname Nachname"></div>
@@ -1617,30 +1656,46 @@ details.zusatzzeichnung summary{cursor:pointer; color:#5a6570; font-size:.94rem}
         <input id="i-klasse" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="7b" value="7b"></div>
     </div>
 
-    <p style="margin:.9rem 0 .2rem"><b>So geht die Abgabe – drei Schritte:</b></p>
-    <ol style="margin-top:.2rem">
-      <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">📄 Protokoll speichern</button><br>
-        <span style="font-size:.88rem;color:#4a5560" class="sprache-standard">Eine Datei mit allen Antworten, Zeichnungen und Zeitstempeln. Landet in „Downloads“ bzw. in der Dateien-App.</span><span
-        style="font-size:.88rem;color:#4a5560" class="sprache-einfach">Das erzeugt eine Datei. Darin stehen alle deine Antworten und Zeichnungen. Sie landet in „Downloads“ oder in der Dateien-App.</span></li>
-      <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">✉ Senden / Teilen</button><br>
-        <span style="font-size:.88rem;color:#4a5560" class="sprache-standard">Öffnet den Teilen-Dialog → <b>Mail</b> wählen → die Datei ist als Anhang dabei. Empfänger:</span><span
-        style="font-size:.88rem;color:#4a5560" class="sprache-einfach">Es öffnet sich ein Fenster. Wähle dort <b>Mail</b>. Die Datei hängt schon dran. Schick sie an:</span>
-        <span style="font-size:.88rem;color:#4a5560"><b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
-      <li><b>Kontrollieren:</b> <span class="sprache-standard">Steht euer Name in der Mail? Ist der Anhang dabei? Dann senden.</span><span
-        class="sprache-einfach">Steht dein Name in der Mail? Ist die Datei dabei? Dann schick sie ab.</span></li>
-    </ol>
+    <p style="margin:.9rem 0 .1rem" class="sprache-standard"><b>Namen eintragen, dann auf den gro&#223;en Knopf.</b>
+    Mehr ist nicht zu tun &#8212; keine Datei suchen, keine Mail schreiben.</p>
+    <p style="margin:.9rem 0 .1rem" class="sprache-einfach"><b>Schreib deinen Namen. Dann dr&#252;ck auf den gro&#223;en Knopf.</b>
+    Mehr musst du nicht tun. Du musst keine Datei suchen. Du musst keine Mail schreiben.</p>
 
-    <p style="margin-top:.7rem">
-      <button class="knopf" id="k-json">Rohdaten als JSON</button>
-      <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
-      <button class="knopf" id="k-kopieren">Text kopieren</button>
-    </p>
-    <p class="videohinweis sprache-standard" id="mail-hinweis">Wenn „Senden / Teilen“ nicht
-    funktioniert: Protokoll speichern, dann selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b> schreiben und die
-    Datei anhängen.</p>
-    <p class="videohinweis sprache-einfach">„Senden / Teilen“ geht nicht? Dann so:
-    Speichere das Protokoll. Schreib selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b>. Häng die Datei an.</p>
+    <button class="abgabeknopf" id="k-abgeben">JETZT ABGEBEN</button>
+
+    <p class="abgabestand" id="abgabe-stand" role="status" aria-live="polite"><span
+      class="sprache-standard">Noch nicht abgegeben.</span><span
+      class="sprache-einfach">Du hast noch nicht abgegeben.</span></p>
+
+    <details id="abgabe-notweg">
+      <summary><span class="sprache-standard">Der Knopf geht nicht? Andere Wege</span><span
+        class="sprache-einfach">Der Knopf geht nicht? Hier sind andere Wege.</span></summary>
+
+      <p style="margin:.7rem 0 .2rem"><b>Weg 1 &#8211; Datei speichern und selbst schicken:</b></p>
+      <ol style="margin-top:.2rem">
+        <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">&#128196; Protokoll speichern</button><br>
+          <span style="font-size:.88rem;color:#4a5560" class="sprache-standard">Eine Datei mit allen Antworten, Zeichnungen und Zeitstempeln. Landet in &#8222;Downloads&#8220; bzw. in der Dateien-App.</span><span
+          style="font-size:.88rem;color:#4a5560" class="sprache-einfach">Das erzeugt eine Datei. Darin stehen alle deine Antworten und Zeichnungen. Sie landet in &#8222;Downloads&#8220; oder in der Dateien-App.</span></li>
+        <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">&#9993; Senden / Teilen</button><br>
+          <span style="font-size:.88rem;color:#4a5560" class="sprache-standard">&#214;ffnet den Teilen-Dialog &#8594; <b>Mail</b> w&#228;hlen &#8594; die Datei ist als Anhang dabei. Empf&#228;nger:</span><span
+          style="font-size:.88rem;color:#4a5560" class="sprache-einfach">Es &#246;ffnet sich ein Fenster. W&#228;hle dort <b>Mail</b>. Die Datei h&#228;ngt schon dran. Schick sie an:</span>
+          <span style="font-size:.88rem;color:#4a5560"><b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
+      </ol>
+
+      <p style="margin-top:.7rem">
+        <button class="knopf" id="k-json">Rohdaten als JSON</button>
+        <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
+        <button class="knopf" id="k-kopieren">Text kopieren</button>
+      </p>
+      <p class="videohinweis sprache-standard" id="mail-hinweis">Wenn auch das nicht
+      funktioniert: Protokoll speichern und Herrn Glaubitz Bescheid sagen &#8212; die Datei
+      bleibt auf dem iPad und geht nicht verloren.</p>
+      <p class="videohinweis sprache-einfach">Geht auch das nicht? Dann speichere das
+      Protokoll und sag Herrn Glaubitz Bescheid. Die Datei bleibt auf deinem iPad.
+      Sie geht nicht verloren.</p>
+    </details>
   </div>
+
 
   <p>
     <button class="knopf" id="k-zusammenfassung">Ergebnisse am Bildschirm ansehen</button>
@@ -3863,6 +3918,24 @@ function zustand() {
     felder: felderWerte, elemente: elemente, achsen: achsen, eintraege: protokollEintraege
   };
 }
+/* ---------------------------------------------------------------------------
+   Zwischenspeicher: von selbst fortsetzen, nicht fragen
+
+   Fruehere Fassungen boten nach einem Neuladen einen Kasten an („Daran
+   weiterarbeiten" / „Neu beginnen"). Das hatte zwei Schwaechen. Erstens
+   ueberschrieb der Autospeicher den gefundenen Stand, bevor jemand antworten
+   konnte - am 01.09.2026 hing die Arbeit eines Schuelers der 10b an einem
+   einzigen weiteren Neuladen. Zweitens verlangte der Kasten eine Entscheidung
+   genau in dem Moment, in dem ein Schueler ohnehin verunsichert ist, und der
+   falsche Knopf loeschte ohne Rueckfrage.
+
+   Deshalb setzt die Stunde jetzt VON SELBST fort. Der Schueler soll seine
+   Arbeit vorfinden, nicht erst eine Entscheidung treffen muessen. Wer
+   tatsaechlich neu anfangen will, findet dafuer einen Knopf - mit Rueckfrage.
+
+   Diese Fassung ist die der 7b-Stunden der KW 36 (bau-7b/teil_c_prop.py) und
+   wurde von dort uebernommen, nicht nachgebaut.
+--------------------------------------------------------------------------- */
 let speicherTimer = null;
 let speicherGeht = null;              /* null = noch nicht geprüft */
 
@@ -4742,6 +4815,141 @@ zeige(0);
       note.style.display = "";
     });
   });
+})();
+
+/* ---------- JETZT ABGEBEN --------------------------------------------
+   Ein Knopf. Er schickt das Protokoll an den Briefkasten (siehe
+   mathematik-unterrichten/abgabe/) und sagt in einem Satz, was passiert
+   ist.
+
+   Die eine Regel, die alles andere bestimmt: Der Knopf laesst niemanden
+   mit leeren Haenden stehen. Geht das Senden schief - kein Netz, Dienst
+   aus, Adresse nicht eingetragen, Schul-WLAN sperrt -, dann speichert
+   derselbe Druck das Protokoll auf das Geraet und sagt das deutlich.
+   Ein Knopf, der stumm nichts tut, waere schlimmer als gar keiner.
+   ------------------------------------------------------------------ */
+(function abgeben() {
+  const knopf = document.getElementById("k-abgeben");
+  const stand = document.getElementById("abgabe-stand");
+  if (!knopf || !stand) return;
+  const notweg = document.getElementById("abgabe-notweg");
+
+  /* Die Adresse laesst sich ohne Neubauen umbiegen - dafuer ist der
+     Node-Zwilling auf dem Lehrer-Laptop da:
+       ...-stunde.html?abgabe=http://192.168.x.x:8741             */
+  const gesetzt = "https://abgabe.michaelglaubitz-barton.workers.dev";
+  const dienst = ((new URLSearchParams(location.search)).get("abgabe") || gesetzt || "")
+    .trim().replace(/\/+$/, "");
+
+  /* Dieselbe Rechnung wie im Dienst. Der Briefkasten nimmt die laufende
+     Woche und ihre beiden Nachbarn an - eine um Tage falsch gestellte
+     iPad-Uhr faellt damit nicht auf, eine um Monate falsche schon. */
+  function isoWoche(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const tag = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - tag);
+    const jahr = t.getUTCFullYear();
+    const kw = Math.ceil(((t - new Date(Date.UTC(jahr, 0, 1))) / 86400000 + 1) / 7);
+    return jahr + "-W" + String(kw).padStart(2, "0");
+  }
+
+  function melden(html, art) {
+    stand.className = "abgabestand" + (art ? " " + art : "");
+    stand.innerHTML = html;
+  }
+  function uhr() {
+    const d = new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  /* Eigene Namenspruefung: Die der Vorlage schreibt ihre Meldung nach
+     #mail-hinweis, und der steckt jetzt im zugeklappten Notweg - dort
+     saehe sie niemand. */
+  function nameFehltHier() {
+    if (namen()) return false;
+    melden("<b>Zuerst den Namen eintragen.</b> Sonst weiß Herr Glaubitz nicht, "
+           + "von wem das Protokoll kommt.", "schlecht");
+    const el = document.getElementById("i-name");
+    if (el) { el.focus(); el.scrollIntoView({ block: "center" }); }
+    return true;
+  }
+
+  function aufsGeraet(html, grund, satz) {
+    herunterladen(dateiname() + ".html", html, "text/html");
+    exportiert = true; chipMalen();
+    protokolliere("abgabe", "notweg", "Senden nicht moeglich (" + grund
+      + ") - Protokoll auf das Geraet gespeichert");
+    melden("<b>Das Senden hat nicht geklappt.</b> " + satz
+      + "<br>Deine Arbeit ist <b>nicht verloren</b>: Sie liegt jetzt als Datei "
+      + "<b>" + dateiname() + ".html</b> auf dem iPad (Dateien-App, Ordner „Downloads“). "
+      + "Sag Herrn Glaubitz Bescheid.", "warnung");
+    if (notweg) notweg.open = true;
+  }
+
+  const GRUENDE = {
+    "woche": "Die Uhr dieses iPads zeigt ein falsches Datum.",
+    "name-fehlt": "Der Name fehlt.",
+    "klasse": "Im Feld „Klasse“ steht etwas anderes als 7b.",
+    "zu-gross": "Das Protokoll ist zu groß.",
+    "leer": "Es war noch nichts auszufüllen da.",
+    "zu-oft": "Von diesem iPad kamen schon sehr viele Abgaben.",
+    "tageslimit": "Der Briefkasten ist für heute voll.",
+  };
+
+  async function senden() {
+    if (nameFehltHier()) return;
+    erfassenAlle();
+    const html = protokollHtml();
+
+    if (!dienst) {
+      aufsGeraet(html, "keine Adresse eingetragen", "Für diese Stunde ist noch kein Briefkasten eingerichtet.");
+      return;
+    }
+
+    const vorher = knopf.textContent;
+    knopf.disabled = true;
+    knopf.textContent = "Wird gesendet …";
+    melden("Einen Moment – das Protokoll geht gerade raus.");
+
+    const abbruch = new AbortController();
+    const wecker = setTimeout(() => abbruch.abort(), 20000);
+    try {
+      const antwort = await fetch(dienst + "/v1/abgabe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          klasse: klasse() || "7b",
+          kennung: "proportionale-zuordnungen-7b",
+          name: namen(),
+          woche: isoWoche(new Date()),
+          inhalt: html,
+        }),
+        signal: abbruch.signal,
+      });
+      const d = await antwort.json().catch(() => ({}));
+      if (antwort.ok && d.ok) {
+        exportiert = true; chipMalen();
+        protokolliere("abgabe", "gesendet", "Protokoll abgegeben um " + uhr());
+        melden("<b>✔ Abgegeben um " + uhr() + ".</b> Herr Glaubitz hat dein Protokoll. "
+          + "Du kannst das Fenster jetzt schließen.", "gut");
+        knopf.className = "abgabeknopf fertig";
+        knopf.textContent = "✔ ABGEGEBEN – noch einmal senden";
+        return;
+      }
+      aufsGeraet(html, d.grund || ("HTTP " + antwort.status),
+                 GRUENDE[d.grund] || "Der Briefkasten hat die Abgabe nicht angenommen.");
+      knopf.textContent = vorher;
+    } catch (e) {
+      aufsGeraet(html, (e && e.name === "AbortError") ? "Zeitüberschreitung" : "kein Netz",
+                 "Das iPad kommt gerade nicht ins Netz.");
+      knopf.textContent = vorher;
+    } finally {
+      clearTimeout(wecker);
+      knopf.disabled = false;
+    }
+  }
+
+  knopf.addEventListener("click", senden);
 })();
 </script>
 </body>
