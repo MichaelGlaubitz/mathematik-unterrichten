@@ -843,6 +843,28 @@ const kopf = {
     /* Leitfaden nach dem ersten Mal zugeklappt lassen. */
     if (speicher('mu-rm-leitfaden-gesehen')) $('#rm-leitfaden').open = false;
 
+    /* --------------------------------------------------------------
+       Aus der Stunde heraus gerufen: ?melden=1&bezug=<Stunde>
+
+       Der Knopf am Ende jeder Selbstlernstunde bringt mit, WORAUF sich
+       die Meldung bezieht. Das ist genau das Feld, das sonst am
+       schlechtesten ausgefüllt wird — wer von Hand tippt, schreibt
+       "in der Stunde" und ich suche. Vorbelegt heisst nicht
+       festgelegt: Das Feld bleibt änderbar.
+       -------------------------------------------------------------- */
+    var BEZUG_FELD = { mr: 'wo', fr: 'wann' };
+    var BEZUG_TEXT = {
+      mr: function (b) { return b; },
+      fr: function (b) { return 'In der Stunde: ' + b; },
+    };
+    var P = new URLSearchParams(location.search);
+    var bezug = String(P.get('bezug') || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+    if (bezug || P.has('melden')) {
+      $('#rm-oeffnen').click();
+      var bf = form.querySelector('[data-feld="' + BEZUG_FELD[art] + '"]');
+      if (bf && bezug && !bf.value) bf.value = BEZUG_TEXT[art](bezug);
+    }
+
     laden();
   })();
 </script>

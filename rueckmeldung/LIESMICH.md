@@ -99,6 +99,25 @@ Das ist der eigentliche Bau. Ein Textfeld mit „Was möchtest du melden?“ bri
 8. **Wichtiges oben, Abgeschlossenes unten.** Die Standardreihenfolge ist nicht
    „neu“, sondern „wichtig“.
 
+## Aus der Stunde heraus gerufen
+
+Am Ende jeder Selbstlernstunde (Phase 7, nach der Abgabe) stehen zwei Knöpfe.
+Sie hängen den Stundentitel an die Adresse:
+
+```
+https://mathematik-unterrichten.de/mr?melden=1&bezug=Zehnerpotenzen%20%C2%B7%20Mathematik%20%C2%B7%2010b
+```
+
+* `melden=1` klappt das Formular gleich auf — wer den Knopf drückt, will melden.
+* `bezug=…` belegt das Feld vor, das ohne Hilfe am schlechtesten ausgefüllt
+  wird: bei `/mr` das **Wo**, bei `/fr` das **Wann** (als „In der Stunde: …“).
+  Vorbelegt heißt nicht festgelegt — die Felder bleiben änderbar.
+
+Der Titel kommt in der Stunde aus der Überschrift, nicht aus einem Platzhalter:
+So kann kein Anführungszeichen im Thema das Skript zerlegen. Gebaut wird der
+Knopf in `Werkzeuge/skills/selbstlern-doppelstunde/assets/vorlage_interaktiv.html`
+(anderes Repo) — **eine Änderung dort wirkt nur auf neu gebaute Stunden.**
+
 ## Einmalig ausrollen
 
 Voraussetzung: ein Cloudflare-Konto (kostenlos). Die Anmeldung müssen Sie selbst
