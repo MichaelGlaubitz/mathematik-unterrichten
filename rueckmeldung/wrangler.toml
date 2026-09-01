@@ -1,0 +1,48 @@
+# Rueckmeldebrett · Cloudflare Worker
+#
+# Einmalig einrichten:
+#   npx wrangler login
+#   npx wrangler secret put CODES     # z. B.  7b:hufeisen42, 10b:seilbahn7
+#   npx wrangler secret put LEHRER    # geheimer Lehrerschluessel
+#   npx wrangler deploy
+#
+# Danach steht der Dienst unter
+#   https://rueckmeldung.<konto>.workers.dev
+# Moderationsseite:
+#   https://rueckmeldung.<konto>.workers.dev/?s=<Lehrerschluessel>
+#
+# WEDER die Klassencodes NOCH der Lehrerschluessel stehen in dieser
+# Datei oder in irgendeiner Datei der Website. Sie werden als Secret
+# gesetzt und sind danach auch fuer wrangler nicht mehr lesbar.
+#
+# Fehlt CODES, ist das Brett nur noch lesbar — niemand kann melden
+# oder abstimmen. Das ist die gewollte Richtung des Fehlers.
+
+name = "rueckmeldung"
+main = "worker.mjs"
+compatibility_date = "2025-01-01"
+
+# Die eine oeffentliche Adresse ja, Preview-URLs nein. Preview-URLs geben
+# JEDER ausgerollten Fassung eine eigene oeffentliche Adresse, die bestehen
+# bleibt: Eine spaeter reparierte Pruefung liefe dort ungerepariert weiter,
+# mit denselben Geheimnissen und demselben Speicher. Beides steht hier
+# ausdruecklich, sonst setzt wrangler es stillschweigend selbst.
+workers_dev = true
+preview_urls = false
+
+# EIN Durable Object fuer beide Bretter. Nur damit laesst sich
+# verlaesslich zaehlen: KV wird zu langsam konsistent, um Stimmen zu
+# halten, wenn dreissig iPads gleichzeitig tippen. Je Meldung ein
+# eigener Schluessel im Objekt, damit die Wertgrenze nicht mitten im
+# Schuljahr zuschlaegt.
+[[durable_objects.bindings]]
+name = "BRETT"
+class_name = "Brett"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Brett"]
+
+# Beobachtung an, damit man im Zweifel sieht, ob Anfragen ankommen.
+[observability]
+enabled = true
