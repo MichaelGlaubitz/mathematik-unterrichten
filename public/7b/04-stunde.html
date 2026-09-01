@@ -385,6 +385,19 @@ ol.teilaufgaben>li{margin:.32rem 0}
 .bedienfeld .reglerblock .sprungzeile{margin:.45rem 0 .1rem}
 canvas#c-modell{width:100%; height:auto; background:#fff;
   border:1px solid var(--linie); border-radius:12px}
+/* Die Begruendungs-Weiche. Bis zum Aufdecken ist der Kasten nicht da; das
+   Aufdecken besorgt die Klasse "offen" (siehe WEICHE in teil_c_prop.py).
+   Bewusst mit display statt dem hidden-Attribut: Eine eigene Regel laesst
+   sich nicht versehentlich von einer spaeteren Regel ueberschreiben. */
+.vertiefung{display:none}
+.vertiefung.offen{display:block; margin:1.2rem 0 .4rem; padding:.9rem 1.1rem;
+  border:1px solid #a5d6a7; border-left:7px solid #2e7d32; border-radius:12px;
+  background:#f2faf3; animation:vertiefung-auf .5s ease}
+.vertiefung h4{margin:0 0 .5rem; color:#1b5e20}
+.vertiefung details.v-loesung{margin-top:.7rem; border:1px solid #cfe3d0; border-radius:9px;
+  background:#fff; padding:.5rem .8rem}
+.vertiefung details.v-loesung summary{cursor:pointer; font-weight:600; color:#1b5e20}
+@keyframes vertiefung-auf{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
 /* Die kleinen Wertetabellen der Aufgaben A2 und A3. */
 .aufgabe table{width:100%; border-collapse:collapse; margin:.5rem 0 .6rem;
   font-size:.98rem}
@@ -803,10 +816,61 @@ canvas#c-modell{width:100%; height:auto; background:#fff;
     </div>
   </div>
 
+  <!-- Erscheint nur für die, die alle drei Aufträge aus eigener Kraft gelöst
+       haben (kein Hilfeknopf). Sperrt den Weg nicht. -->
+  <div class="vertiefung">
+    <h4>Eine Frage noch &#8212; für dich, weil du sauber durch bist</h4>
+    <div class="sprache-standard">
+      <p>Bei Stand A durftest du den Preis für 3 kg ausrechnen, obwohl auf dem Schild gar kein
+      Preis für 3 kg steht. Erkläre einem Kind aus der 6. Klasse, <b>warum man das darf</b>
+      &#8212; und benutze dabei die Wörter <i>proportional</i> und <i>vervielfachen</i>
+      <b>nicht</b>. Du sollst also sagen, was dahintersteckt, nicht wie es heißt.</p>
+    </div>
+    <div class="sprache-einfach">
+      <p>Bei Stand A hast du den Preis für 3 kg ausgerechnet. Auf dem Schild steht dieser Preis
+      gar nicht.</p>
+      <p>Erklär einem Kind aus der 6. Klasse: <b>Warum darf man das?</b></p>
+      <p>Aber: Die Wörter <i>proportional</i> und <i>vervielfachen</i> darfst du <b>nicht</b>
+      benutzen. Sag, was dahintersteckt. Nicht, wie es heißt.</p>
+    </div>
+    <div class="antwortfeld">
+      <div class="kopfzeile">✍ Deine Erklärung – hier eintragen</div>
+      <textarea id="t-v1" data-label="Vertiefung – warum man rechnen darf"
+                style="min-height:5.5rem"></textarea>
+    </div>
+    <details class="v-loesung" data-feld="t-v1">
+      <summary><span class="sprache-standard">So könnte man antworten</span><span
+               class="sprache-einfach">So könnte man antworten – erst nach eigener Notiz</span></summary>
+      <div class="sprache-standard">
+        <p>Weil an diesem Stand jedes Kilo <b>denselben Betrag kostet</b>: 0,90 &#8364;. Das
+        gilt beim ersten Kilo genauso wie beim vierten. Wenn der Preis für 1, 2, 4 und 6 kg auf
+        diese eine Art entsteht, dann entsteht er auch für 3 kg so &#8212; zwischen den Zahlen
+        auf dem Schild ändert der Stand nichts an seiner Regel.</p>
+        <p>Beim Erdbeerstand geht das nicht, weil der Preis dort <b>nicht nur von der Menge
+        abhängt</b>, sondern auch davon, wie viel man auf einmal nimmt. Da gibt es keine Regel,
+        die man auf eine Menge übertragen könnte, die nicht auf dem Schild steht.</p>
+        <p><b>Worauf es ankommt:</b> „Weil es proportional ist“ ist keine Erklärung, sondern der
+        Name. Die Erklärung ist: <i>Jedes Kilo kostet gleich viel, und das ändert sich nicht.</i></p>
+      </div>
+      <div class="sprache-einfach">
+        <p>Weil an diesem Stand jedes Kilo <b>gleich viel kostet</b>: 0,90 &#8364;.</p>
+        <p>Das gilt beim ersten Kilo. Und beim vierten Kilo. Immer.</p>
+        <p>Dann gilt es auch für 3 kg. Der Stand ändert seine Regel nicht zwischendurch.</p>
+        <p>Beim Erdbeerstand geht das nicht. Dort hängt der Preis nicht nur von der Menge ab.
+        Er hängt auch davon ab, wie viel du auf einmal kaufst.</p>
+        <p><b>Wichtig:</b> „Weil es proportional ist“ ist keine Erklärung. Das ist nur der Name.
+        Die Erklärung ist: <i>Jedes Kilo kostet gleich viel.</i></p>
+      </div>
+    </details>
+  </div>
+
   <div class="lehrer"><h4>Beim Herumgehen</h4>
   <p><b>Die Frage, die weiterhilft:</b> „Du hast das Schild abgelesen. Rechne jetzt einmal,
   ohne hinzusehen &#8212; und dann vergleiche.“ Wer das Labor nur anschaut, statt zu vergleichen,
   hat den Auftrag nicht verstanden.</p>
+  <p><b>Die Vertiefungsfrage</b> erscheint nur bei denen, die alle drei Aufträge aus eigener
+  Kraft gelöst haben. Sie verlangt eine Erklärung <i>ohne</i> die Fachwörter &#8212; genau daran
+  zeigt sich, ob der Begriff getragen wird oder nur benannt.</p>
   <p><b>Häufiger Kurzschluss in Auftrag 2:</b> „Der Unterschied ist bei 4 größer, weil die Zahlen
   größer sind.“ Das ist keine Begründung, sondern eine Beobachtung. Nachfragen: „Bei Stand A
   sind die Zahlen auch größer. Wieso wächst dort kein Unterschied?“</p></div>
@@ -998,6 +1062,62 @@ canvas#c-modell{width:100%; height:auto; background:#fff;
         </div>
       </details>
     </div>
+  </div>
+
+  <div class="vertiefung">
+    <h4>Eine Frage noch &#8212; für dich, weil du sauber durch bist</h4>
+    <div class="sprache-standard">
+      <p>Du hast heute zwei Zuordnungen gesehen, die <b>nicht</b> proportional sind: den
+      Erdbeerstand und die Körpergröße. Bei der einen gibt es einen Grund, den man benennen kann
+      (den Rabatt) &#8212; bei der anderen nicht.</p>
+      <p>Beantworte beides: <b>Woran</b> entscheidet man, ob eine Zuordnung proportional ist
+      &#8212; und woran ganz sicher <b>nicht</b>? Nenne zu beidem je ein Beispiel von heute.</p>
+    </div>
+    <div class="sprache-einfach">
+      <p>Du hast heute zwei Zuordnungen gesehen, die <b>nicht</b> proportional sind:
+      den Erdbeerstand und die Körpergröße.</p>
+      <p>Beim Erdbeerstand gibt es einen Grund dafür: den Rabatt.
+      Bei der Körpergröße gibt es keinen Grund. Es ist einfach so.</p>
+      <p>Antworte auf zwei Fragen:</p>
+      <p><b>Woran</b> entscheidest du, ob eine Zuordnung proportional ist?</p>
+      <p>Und woran entscheidest du es ganz sicher <b>nicht</b>?</p>
+      <p>Nenn zu beidem ein Beispiel von heute.</p>
+    </div>
+    <div class="antwortfeld">
+      <div class="kopfzeile">✍ Deine Antwort – hier eintragen</div>
+      <textarea id="t-v2" data-label="Vertiefung – woran man es entscheidet"
+                style="min-height:5.5rem"></textarea>
+    </div>
+    <details class="v-loesung" data-feld="t-v2">
+      <summary><span class="sprache-standard">So könnte man antworten</span><span
+               class="sprache-einfach">So könnte man antworten – erst nach eigener Notiz</span></summary>
+      <div class="sprache-standard">
+        <p><b>Entschieden wird am Vervielfachen:</b> Man sucht zwei Zeilen, bei denen die eine
+        Größe ein Vielfaches der anderen ist, und prüft, ob die zweite Größe genauso vervielfacht
+        ist. Beim Kartoffelstand: 1 kg &#8594; 2 kg ist verdoppeln, 0,90 &#8364; &#8594;
+        1,80 &#8364; auch. ✓</p>
+        <p><b>Nicht entschieden wird daran, ob es wächst.</b> Die Körpergröße wächst und ist
+        trotzdem nicht proportional.</p>
+        <p><b>Und auch nicht daran, ob jemand einen Grund dafür hat.</b> Beim Erdbeerstand gibt
+        es einen (den Rabatt), bei der Körpergröße keinen &#8212; beide sind gleich wenig
+        proportional. Der Grund erklärt vielleicht, <i>warum</i> es so ist; er entscheidet aber
+        nicht, <i>ob</i> es so ist. Das entscheidet allein die Rechnung.</p>
+      </div>
+      <div class="sprache-einfach">
+        <p><b>Du entscheidest am Vervielfachen.</b></p>
+        <p>Such zwei Zeilen. Bei der einen Größe muss die eine Zahl ein Vielfaches der anderen
+        sein. Dann prüf: Ist die zweite Größe genauso vervielfacht?</p>
+        <p>Beim Kartoffelstand: 1 kg &#8594; 2 kg ist verdoppeln.
+        0,90 &#8364; &#8594; 1,80 &#8364; ist auch verdoppeln. ✓</p>
+        <p><b>Du entscheidest es nicht daran, ob es wächst.</b>
+        Die Körpergröße wächst. Trotzdem ist sie nicht proportional.</p>
+        <p><b>Und auch nicht daran, ob es einen Grund gibt.</b>
+        Beim Erdbeerstand gibt es einen Grund: den Rabatt.
+        Bei der Körpergröße gibt es keinen. Beide sind nicht proportional.</p>
+        <p>Der Grund sagt vielleicht, <i>warum</i> es so ist. Er sagt nicht, <i>ob</i> es so ist.
+        Das sagt nur die Rechnung.</p>
+      </div>
+    </details>
   </div>
 
   <div class="lehrer"><h4>Warum dieser Zweitfall</h4>
@@ -4348,6 +4468,103 @@ function aufbauSchritte(box) {
 
 /* ---------- Start ---------- */
 zeige(0);
+
+/* ---------- Begründungs-Weiche für die, die sauber durchkommen ---------- */
+(function begruendungsWeiche() {
+  const boxen = Array.from(document.querySelectorAll(".vertiefung"));
+  if (!boxen.length) return;
+
+  /* Wer den Hilfeknopf gedrückt hat, gehört nicht zu dieser Gruppe. In der
+     Erfassungsphase (true), damit es auch dann greift, wenn der Knopf sein
+     eigenes Ereignis stoppt. */
+  document.addEventListener("click", function (ev) {
+    const t = ev.target;
+    const k = t && t.closest ? t.closest(".hilfeknopf") : null;
+    if (!k) return;
+    const p = k.closest("section.phase");
+    if (p) p.dataset.hilfeGenutzt = "1";
+  }, true);
+
+  /* Die Sperren der Phase - ohne die der Vertiefung selbst. Sonst wartete die
+     Bedingung auf eine Antwort, die es ohne das Aufdecken gar nicht geben kann. */
+  function sperren(p) {
+    return Array.from(p.querySelectorAll("details[data-fuer]"))
+      .filter(d => !d.closest(".vertiefung"));
+  }
+
+  function pruefePhase(p) {
+    const box = p.querySelector(".vertiefung");
+    if (!box || box.classList.contains("offen")) return;
+    if (p.dataset.hilfeGenutzt === "1") return;
+    const s = sperren(p);
+    if (!s.length || !s.every(d => d.classList.contains("frei"))) return;
+    box.classList.add("offen");
+    /* Ruhig hinrollen: Ohne das steht die Frage unter dem Rand und wird
+       schlicht nicht gesehen. */
+    setTimeout(function () {
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+  }
+
+  /* Nachlaufend prüfen: Die Sperren werden beim Tippen laufend neu bewertet;
+     würde die Frage im selben Moment aufspringen, spränge sie mitten im Satz. */
+  let warten = null;
+  document.addEventListener("input", function (ev) {
+    const t = ev.target;
+    const p = t && t.closest ? t.closest("section.phase") : null;
+    if (!p || !p.querySelector(".vertiefung")) return;
+    clearTimeout(warten);
+    warten = setTimeout(function () { pruefePhase(p); }, 1200);
+  }, true);
+
+  /* ---- Eigene, kleine Sperre für die Musterantwort der Vertiefung ----
+     Warum nicht die der Vorlage (details.gesperrt mit data-fuer)? Weil
+     pruefe_html.mjs jede Sperre ausfüllen und aufgehen sehen will - und die
+     Felder der Vertiefung sind zum Zeitpunkt der Prüfung noch verborgen.
+     Eine Sperre, die der Prüfer nicht ausüben kann, ist eine ungeprüfte
+     Sperre; die will ich nicht ausliefern.
+
+     Diese hier prüft schlichter als die der Vorlage: nur die Länge, keine
+     Dublettenerkennung. Das ist vertretbar, weil sie eine freiwillige
+     Zusatzfrage schützt und keine bewertete Aufgabe - und weil sie ohnehin
+     nur denen begegnet, die die ganze Phase aus eigener Kraft gelöst haben. */
+  boxen.forEach(function (box) {
+    const d = box.querySelector("details.v-loesung");
+    if (!d) return;
+    const feld = document.getElementById(d.dataset.feld || "");
+    const note = document.createElement("p");
+    note.className = "videohinweis";
+    note.innerHTML =
+      '<span class="sprache-standard">Erst deine eigene Antwort &#8212; dann geht das auf.</span>' +
+      '<span class="sprache-einfach">Schreib erst deine eigene Antwort. Dann geht das auf.</span>';
+    note.style.display = "none";
+    d.parentNode.insertBefore(note, d.nextSibling);
+
+    function reichtAus() {
+      return !!feld && feld.value.trim().length >= 60;
+    }
+
+    /* Am KLICK abfangen, nicht am toggle: toggle läuft erst, nachdem der
+       Browser das <details> schon geöffnet hat - die Lösung blitzt dann kurz
+       auf, bevor sie wieder zuklappt. preventDefault() verhindert das
+       Öffnen von vornherein. Gilt auch für Tastaturbedienung, weil Enter und
+       Leertaste auf einem summary ebenfalls ein click-Ereignis auslösen. */
+    d.querySelector("summary").addEventListener("click", function (ev) {
+      if (d.open) { note.style.display = "none"; return; }   /* Zuklappen immer */
+      if (reichtAus()) { note.style.display = "none"; return; }
+      ev.preventDefault();
+      note.style.display = "";
+    });
+
+    /* Rückfall für den Fall, dass ein Browser das <details> auf anderem Weg
+       öffnet (etwa über die Suchfunktion der Seite). */
+    d.addEventListener("toggle", function () {
+      if (!d.open || reichtAus()) return;
+      d.open = false;
+      note.style.display = "";
+    });
+  });
+})();
 </script>
 </body>
 </html>
