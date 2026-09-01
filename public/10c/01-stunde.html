@@ -3777,12 +3777,6 @@ zeige(0);
     var rueck = document.getElementById("anmelde-rueck");
     var schon = false;
     try { schon = localStorage.getItem(ANGEMELDET) === "ja"; } catch(e){}
-    if (schon) {
-      var p = "A";
-      try { p = localStorage.getItem(PLAN_KEY) || "A"; } catch(e){}
-      setzePlan(p, false);
-      oeffnen(true);
-    }
     function oeffnen(still){
       document.body.classList.add("angemeldet");
       if (schirm.parentNode) schirm.parentNode.removeChild(schirm);
@@ -3819,6 +3813,20 @@ zeige(0);
       log("anmeldung-ohne", "", "Ohne Tafelzahl begonnen" + (HAT_PLAN_B ? " \u2013 Plan B" : ""));
       oeffnen(true);
     });
+
+    /* ERST verdrahten, DANN ueberspringen. Diese Reihenfolge ist der ganze
+       Punkt: oeffnen(true) nimmt den Schirm aus dem DOM, und wer danach
+       noch getElementById("k-anmelden") ruft, bekommt null. Die Ausnahme
+       beendete den Block - und mit ihm das Einstiegsquiz, das darunter
+       steht. Beim ersten Oeffnen fiel das nicht auf, ab dem zweiten fehlte
+       eine ganze Phase. Hoerer auf einem gleich entfernten Knoten schaden
+       nichts. */
+    if (schon) {
+      var p = "A";
+      try { p = localStorage.getItem(PLAN_KEY) || "A"; } catch(e){}
+      setzePlan(p, false);
+      oeffnen(true);
+    }
   }
 
   /* ---- Einstiegsquiz ------------------------------------------------ */
