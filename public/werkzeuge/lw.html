@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lautstärke-Warner</title>
+<style>
+  :root {
+    --bg: #10151c;
+    --panel: #1a222c;
+    --text: #e8edf3;
+    --muted: #8a97a6;
+    --green: #3ecf6b;
+    --yellow: #e8c547;
+    --red: #e8503f;
+    --border: #2a3542;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    transition: background-color 0.15s ease;
+  }
+  body.warning {
+    background-color: #4a0d0d;
+    animation: flash 0.6s ease-in-out infinite;
+  }
+  @keyframes flash {
+    0%, 100% { background-color: #4a0d0d; }
+    50% { background-color: #8f1616; }
+  }
+  .card {
+    width: min(92vw, 640px);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px 36px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  }
+  h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: 0.2px;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0 0 28px;
+  }
+  .meter-wrap {
+    position: relative;
+    height: 36px;
+    background: #0c1116;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .meter-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--green), var(--green));
+    transition: width 0.08s linear, background-color 0.15s ease;
+    border-radius: 999px;
+  }
+  .threshold-marker {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    background: var(--text);
+    opacity: 0.85;
+    left: 60%;
+  }
+  .meter-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .row label {
+    font-size: 0.95rem;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--yellow);
+  }
+  .threshold-val {
+    min-width: 42px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .status-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .status-text.idle { color: var(--muted); }
+  .status-text.ok { color: var(--green); }
+  .status-text.warn { color: var(--red); }
+  .streak {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  button {
+    appearance: none;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 22px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 22px;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+  }
+  #toggleBtn {
+    background: var(--green);
+    color: #06210f;
+  }
+  #toggleBtn.running {
+    background: var(--red);
+    color: #2a0808;
+  }
+  .banner {
+    display: none;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 18px;
+  }
+  body.warning .banner { display: block; }
+  .hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .err {
+    display: none;
+    background: #3a1414;
+    border: 1px solid #5a2020;
+    color: #f2b3ac;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="banner">⚠️ ZU LAUT!</div>
+  <h1>Lautstärke-Warner</h1>
+  <p class="sub">Läuft komplett lokal im Browser. Es wird nichts aufgenommen, gespeichert oder übertragen.</p>
+
+  <div class="meter-wrap">
+    <div class="meter-fill" id="meterFill"></div>
+    <div class="threshold-marker" id="thresholdMarker"></div>
+  </div>
+  <div class="meter-labels">
+    <span>leise</span>
+    <span>laut</span>
+  </div>
+
+  <div class="row">
+    <label for="threshold">Schwelle</label>
+    <input type="range" id="threshold" min="1" max="100" value="55">
+    <span class="threshold-val" id="thresholdVal">55</span>
+  </div>
+
+  <div class="row">
+    <label for="interval">Messintervall</label>
+    <input type="range" id="interval" min="200" max="1000" step="50" value="500">
+    <span class="threshold-val" id="intervalVal">500 ms</span>
+  </div>
+
+  <div class="status-line">
+    <span class="status-text idle" id="statusText">Bereit</span>
+    <span class="streak" id="streakText">0 / 3 über der Schwelle</span>
+  </div>
+
+  <button id="toggleBtn">Mikrofon starten</button>
+
+  <div class="err" id="errBox"></div>
+
+  <p class="hint">
+    Schwelle so einstellen, dass sie bei normaler Arbeitslautstärke gerade nicht anschlägt.
+    Nach 3 aufeinanderfolgenden Messungen über der Schwelle blinkt der Bildschirm rot und ein Warnton ertönt,
+    bis der Pegel wieder unter die Schwelle fällt.
+  </p>
+</div>
+
+<script>
+(() => {
+  const thresholdSlider = document.getElementById('threshold');
+  const thresholdVal = document.getElementById('thresholdVal');
+  const intervalSlider = document.getElementById('interval');
+  const intervalVal = document.getElementById('intervalVal');
+  const thresholdMarker = document.getElementById('thresholdMarker');
+  const meterFill = document.getElementById('meterFill');
+  const statusText = document.getElementById('statusText');
+  const streakText = document.getElementById('streakText');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const errBox = document.getElementById('errBox');
+
+  let audioCtx = null;
+  let analyser = null;
+  let dataArray = null;
+  let stream = null;
+  let sampleTimer = null;
+  let running = false;
+  let streak = 0;
+  let warningActive = false;
+  let beepTimer = null;
+  let noiseBuffer = null;
+
+  const REQUIRED_STREAK = 3;
+
+  function buildNoiseBuffer(ctx, duration) {
+    const size = Math.max(1, Math.floor(ctx.sampleRate * duration));
+    const buffer = ctx.createBuffer(1, size, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
+    return buffer;
+  }
+
+  function updateThresholdMarker() {
+    thresholdMarker.style.left = thresholdSlider.value + '%';
+  }
+  thresholdSlider.addEventListener('input', () => {
+    thresholdVal.textContent = thresholdSlider.value;
+    updateThresholdMarker();
+  });
+  intervalSlider.addEventListener('input', () => {
+    intervalVal.textContent = intervalSlider.value + ' ms';
+    if (running) {
+      restartSampling();
+    }
+  });
+  updateThresholdMarker();
+
+  function levelFromAnalyser() {
+    analyser.getByteTimeDomainData(dataArray);
+    let sumSquares = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      const v = (dataArray[i] - 128) / 128;
+      sumSquares += v * v;
+    }
+    const rms = Math.sqrt(sumSquares / dataArray.length);
+    // rms is roughly 0..1. Convert to a dB-ish scale and map to 0-100 for a usable slider range.
+    const db = 20 * Math.log10(rms || 0.00001);
+    const percent = Math.min(100, Math.max(0, (db + 55) / 55 * 100));
+    return percent;
+  }
+
+  function playAlarmPulse(startTime) {
+    const dur = 0.16;
+
+    // Two dissonant, high-pitched sweeping tones (cuts through ambient noise
+    // far better than a single mid-range beep).
+    const osc1 = audioCtx.createOscillator();
+    osc1.type = 'square';
+    osc1.frequency.setValueAtTime(2400, startTime);
+    osc1.frequency.linearRampToValueAtTime(3600, startTime + dur * 0.5);
+    osc1.frequency.linearRampToValueAtTime(2400, startTime + dur);
+
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = 'sawtooth';
+    osc2.frequency.setValueAtTime(3300, startTime);
+    osc2.frequency.linearRampToValueAtTime(4400, startTime + dur * 0.5);
+    osc2.frequency.linearRampToValueAtTime(3300, startTime + dur);
+
+    // Broadband noise burst (high-passed) so the alarm has energy across the
+    // whole spectrum, not just one narrow pitch.
+    const noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 1800;
+
+    const gain1 = audioCtx.createGain();
+    const gain2 = audioCtx.createGain();
+    const gainNoise = audioCtx.createGain();
+
+    osc1.connect(gain1).connect(audioCtx.destination);
+    osc2.connect(gain2).connect(audioCtx.destination);
+    noiseSrc.connect(noiseFilter).connect(gainNoise).connect(audioCtx.destination);
+
+    [gain1, gain2].forEach(g => {
+      g.gain.setValueAtTime(0.0001, startTime);
+      g.gain.exponentialRampToValueAtTime(0.3, startTime + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
+    });
+    gainNoise.gain.setValueAtTime(0.0001, startTime);
+    gainNoise.gain.exponentialRampToValueAtTime(0.18, startTime + 0.015);
+    gainNoise.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
+
+    const stopAt = startTime + dur + 0.02;
+    osc1.start(startTime); osc1.stop(stopAt);
+    osc2.start(startTime); osc2.stop(stopAt);
+    noiseSrc.start(startTime); noiseSrc.stop(stopAt);
+  }
+
+  function playBeep() {
+    if (!audioCtx) return;
+    if (!noiseBuffer) noiseBuffer = buildNoiseBuffer(audioCtx, 0.2);
+    const now = audioCtx.currentTime;
+    // Triple pulse (like a smoke detector) — harder to tune out than one tone.
+    playAlarmPulse(now);
+    playAlarmPulse(now + 0.26);
+    playAlarmPulse(now + 0.52);
+  }
+
+  function setWarning(active) {
+    if (active === warningActive) return;
+    warningActive = active;
+    document.body.classList.toggle('warning', active);
+    if (active) {
+      statusText.textContent = 'ACHTUNG: ZU LAUT';
+      statusText.className = 'status-text warn';
+      playBeep();
+      beepTimer = setInterval(playBeep, 1100);
+    } else {
+      statusText.textContent = running ? 'läuft – im grünen Bereich' : 'Bereit';
+      statusText.className = 'status-text ' + (running ? 'ok' : 'idle');
+      if (beepTimer) { clearInterval(beepTimer); beepTimer = null; }
+    }
+  }
+
+  function sampleOnce() {
+    const percent = levelFromAnalyser();
+    meterFill.style.width = percent + '%';
+    const threshold = Number(thresholdSlider.value);
+
+    if (percent >= threshold) {
+      streak = Math.min(REQUIRED_STREAK, streak + 1);
+    } else {
+      streak = 0;
+    }
+    streakText.textContent = streak + ' / ' + REQUIRED_STREAK + ' über der Schwelle';
+
+    if (streak >= REQUIRED_STREAK) {
+      setWarning(true);
+    } else if (percent < threshold) {
+      setWarning(false);
+    }
+
+    if (!warningActive) {
+      meterFill.style.backgroundColor = percent >= threshold ? '#e8c547' : '#3ecf6b';
+    } else {
+      meterFill.style.backgroundColor = '#e8503f';
+    }
+  }
+
+  function restartSampling() {
+    if (sampleTimer) clearInterval(sampleTimer);
+    sampleTimer = setInterval(sampleOnce, Number(intervalSlider.value));
+  }
+
+  async function start() {
+    errBox.style.display = 'none';
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      errBox.textContent = 'Mikrofonzugriff nicht möglich: ' + e.message + '. Bitte im Browser erlauben und diese Seite ggf. neu laden.';
+      errBox.style.display = 'block';
+      return;
+    }
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    dataArray = new Uint8Array(analyser.fftSize);
+    source.connect(analyser);
+
+    running = true;
+    streak = 0;
+    toggleBtn.textContent = 'Mikrofon stoppen';
+    toggleBtn.classList.add('running');
+    statusText.textContent = 'läuft – im grünen Bereich';
+    statusText.className = 'status-text ok';
+    restartSampling();
+  }
+
+  function stop() {
+    running = false;
+    if (sampleTimer) { clearInterval(sampleTimer); sampleTimer = null; }
+    if (beepTimer) { clearInterval(beepTimer); beepTimer = null; }
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    document.body.classList.remove('warning');
+    warningActive = false;
+    streak = 0;
+    meterFill.style.width = '0%';
+    toggleBtn.textContent = 'Mikrofon starten';
+    toggleBtn.classList.remove('running');
+    statusText.textContent = 'Bereit';
+    statusText.className = 'status-text idle';
+    streakText.textContent = '0 / 3 über der Schwelle';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (running) stop(); else start();
+  });
+})();
+</script>
+</body>
+</html>
