@@ -23,11 +23,14 @@
    ============================================================ */
 import {
   bearbeite, sortiere, punkte, istGehaltvoll, codesLesen, klasseFuerCode,
-  GRENZE_MELDUNG_GERAET,
+  istVerbrannt, GRENZE_MELDUNG_GERAET,
 } from "./kern.mjs";
 
-const CODES = "7b:hufeisen42, 10b:seilbahn7";
-const LEHRER = "geheim-probe";
+/* Erfundene Werte, die NIRGENDS gesetzt werden dürfen und auch nicht
+   danach aussehen. Die frühere Prüfung nahm dafür Werte, die wie echte
+   Codes aussahen — und genau die wurden beim Einrichten übernommen. */
+const CODES = "7b:pruefwert-aaa-7b, 10b:pruefwert-bbb-10b";
+const LEHRER = "pruefwert-lehrer-ccc";
 const GEHEIM = { codes: CODES, lehrer: LEHRER };
 const OHNE_CODES = { codes: "", lehrer: LEHRER };
 
@@ -66,7 +69,7 @@ const post = (pfad, koerper, kopf = {}) => new Request("https://x" + pfad, {
 const hole = (pfad, kopf = {}) => new Request("https://x" + pfad, { headers: kopf });
 
 const MANGEL = {
-  art: "mr", code: "hufeisen42", geraet: "geraet-aaaaaaaa",
+  art: "mr", code: "pruefwert-aaa-7b", geraet: "geraet-aaaaaaaa",
   titel: "Zeichenfeld verliert die Eingabe beim Prüfen",
   felder: {
     wo: "Zehnerpotenzen 10b, Aufgabe 3, das Zeichenfeld",
@@ -79,7 +82,7 @@ const MANGEL = {
   kuerzel: "L.A.",
 };
 const WUNSCH = {
-  art: "fr", code: "seilbahn7", geraet: "geraet-bbbbbbbb",
+  art: "fr", code: "pruefwert-bbb-10b", geraet: "geraet-bbbbbbbb",
   titel: "Am Schluss zeigen, welche Aufgaben falsch waren",
   felder: {
     problem: "Ich weiß am Ende der Stunde nicht, welche Aufgaben ich falsch hatte.",
@@ -91,10 +94,39 @@ const WUNSCH = {
 
 console.log("=== Codes lesen");
 pruefe("zwei Codes erkannt", codesLesen(CODES).length, 2);
-pruefe("Code führt zur Klasse", klasseFuerCode(codesLesen(CODES), "seilbahn7"), "10b");
-pruefe("falscher Code führt nirgendwohin", klasseFuerCode(codesLesen(CODES), "seilbahn8"), null);
+pruefe("Code führt zur Klasse", klasseFuerCode(codesLesen(CODES), "pruefwert-bbb-10b"), "10b");
+pruefe("falscher Code führt nirgendwohin", klasseFuerCode(codesLesen(CODES), "pruefwert-bbb-XX"), null);
 pruefe("blanker Code gilt für alle", codesLesen("nurdieser")[0].klasse, "alle");
 pruefe("zu kurzer Code zählt nicht", codesLesen("ab").length, 0);
+
+console.log("\n=== Verbrannte Geheimnisse werden abgewiesen");
+/* Der Grund steht in kern.mjs: Am 01.09.2026 wurde die Beispielzeile aus
+   dem öffentlichen LIESMICH wortwörtlich gesetzt, und als Lehrerschlüssel
+   das hausweite Lehrerkennwort. Beides ist öffentlich — der Dienst darf
+   damit nicht so tun, als sei er geschützt. */
+pruefe("hausweites Lehrerkennwort gilt als verbrannt", istVerbrannt("sumdideldum"), true);
+pruefe("auch mit Großschreibung", istVerbrannt("SumDidelDum"), true);
+pruefe("früheres Beispiel gilt als verbrannt", istVerbrannt("hufeisen42"), true);
+pruefe("ein eigener Code nicht", istVerbrannt("holzbank471"), false);
+pruefe("verbrannter Code fällt aus der Liste",
+  codesLesen("7b:hufeisen42, 10b:eigenerwert9").map((c) => c.klasse), ["10b"]);
+pruefe("ein Brett nur mit verbrannten Codes ist ein stummes Brett",
+  codesLesen("7b:hufeisen42, 11a:kreide19").length, 0);
+
+let vb = await ruf(hole("/"), { codes: CODES, lehrer: "sumdideldum" });
+pruefe("Moderationsseite mit verbranntem Schlüssel: 401", vb.status, 401);
+vb = await ruf(hole("/?s=sumdideldum"), { codes: CODES, lehrer: "sumdideldum" });
+pruefe("auch mit dem Schlüssel selbst: 401", vb.status, 401);
+vb = await ruf(post("/v1/melden", { ...MANGEL, code: "hufeisen42" }),
+  { codes: "7b:hufeisen42", lehrer: LEHRER });
+pruefe("melden mit verbranntem Code: 503 (Brett ist stumm)", vb.status, 503);
+
+vb = await ruf(hole("/v1/ping"), { codes: "7b:hufeisen42, 10b:eigenerwert9", lehrer: "sumdideldum" });
+const pd = await vb.json();
+pruefe("ping nennt nur die gültige Lerngruppe", pd.klassen, ["10b"]);
+pruefe("ping meldet die Moderation als zu", pd.moderation, false);
+pruefe("ping zählt die abgewiesenen Geheimnisse", pd.verbrannt, 2);
+pruefe("ping nennt keinen Code", JSON.stringify(pd).includes("eigenerwert9"), false);
 
 console.log("\n=== Ohne eingerichteten Code nimmt der Dienst nichts an");
 let a = await ruf(post("/v1/melden", MANGEL), OHNE_CODES);
@@ -106,10 +138,10 @@ a = await ruf(hole("/v1/ping"), OHNE_CODES);
 pruefe("ping sagt es ehrlich", (await a.json()).schreiben, false);
 
 console.log("\n=== Mit falschem Code auch nicht");
-a = await ruf(post("/v1/melden", { ...MANGEL, code: "hufeisen43" }));
+a = await ruf(post("/v1/melden", { ...MANGEL, code: "pruefwert-aaa-XX" }));
 pruefe("melden: 403", a.status, 403);
 pruefe("Grund genannt", (await ruf(post("/v1/zutritt", { code: "falsch" })) ).status, 403);
-a = await ruf(post("/v1/zutritt", { code: "hufeisen42" }));
+a = await ruf(post("/v1/zutritt", { code: "pruefwert-aaa-7b" }));
 pruefe("Zutritt mit Code nennt die Klasse", (await a.json()).klasse, "7b");
 
 console.log("\n=== Melden");
@@ -165,7 +197,7 @@ pruefe("Klassenfilter greift",
   (await (await ruf(hole("/v1/brett/mr?klasse=10b"))).json()).eintraege.length, 0);
 
 console.log("\n=== Abstimmen");
-const stimme = (geraet, wert, id = mangelId, code = "hufeisen42") =>
+const stimme = (geraet, wert, id = mangelId, code = "pruefwert-aaa-7b") =>
   ruf(post("/v1/stimme", { art: "mr", code, geraet, id, wert }));
 
 a = await stimme("geraet-dddddddd", 1);
