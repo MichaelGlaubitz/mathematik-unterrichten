@@ -4678,6 +4678,74 @@ document.getElementById("k-zusammenfassung").addEventListener("click", () => {
 });
 document.getElementById("k-drucken").addEventListener("click", () => window.print());
 
+/* ------------------------------------------------------------------
+   Rückmeldebretter /mr und /fr.
+
+   WARUM DIE KARTE HIER ENTSTEHT UND NICHT IM KÖRPER STEHT
+   -------------------------------------------------------
+   Die Bauskripte der Stunden nehmen aus dieser Vorlage nur den Kopf
+   und diese Skriptmechanik; ihren Körper bringen sie aus den eigenen
+   teil_*-Modulen mit. Eine Karte, die unten im Körper der Vorlage
+   stünde, käme deshalb in KEINER gebauten Stunde an — sie stünde nur
+   in der Vorlage, die niemand öffnet. Genau das ist beim ersten
+   Versuch passiert: dreizehn Stunden trugen das Skript und keine
+   einzige den Knopf.
+
+   Hier gebaut heißt: einmal geschrieben, in jeder Stunde vorhanden —
+   auch in den älteren, ohne dass jemand ihren Körper anfasst.
+
+   Der Stundentitel geht als ?bezug= mit. „Wo ist es passiert?" ist auf
+   dem Brett das Feld, das ohne Hilfe am schlechtesten ausgefüllt wird;
+   wer von Hand tippt, schreibt „in der Stunde", und die Lehrkraft
+   sucht. Der Titel kommt aus der Überschrift, nicht aus einem
+   Platzhalter: So kann kein Anführungszeichen im Thema etwas zerlegen.
+------------------------------------------------------------------ */
+(() => {
+  const anker = document.getElementById("ausgabe");
+  if (!anker || document.getElementById("rueckmeldung")) return;
+
+  const h1 = document.querySelector("header h1") || document.querySelector("h1");
+  const bezug = (h1 ? h1.textContent : "").replace(/\s+/g, " ").trim().slice(0, 120);
+  const adresse = (brett) => "https://mathematik-unterrichten.de/" + brett
+    + "?melden=1" + (bezug ? "&bezug=" + encodeURIComponent(bezug) : "");
+
+  const karte = document.createElement("div");
+  karte.className = "karte";
+  karte.id = "rueckmeldung";
+  karte.innerHTML =
+    '<h4>Hat etwas geklemmt? Hat etwas gefehlt?</h4>'
+    + '<p class="sprache-standard">Diese Stunde ist gebaut, nicht gewachsen — und wer sie'
+    + ' durchgearbeitet hat, sieht Dinge, die ich beim Bauen nicht sehe. Zwei Bretter, auf'
+    + ' denen die Klasse abstimmt, was zuerst drankommt:</p>'
+    + '<p class="sprache-einfach">Ihr habt die Stunde durchgearbeitet. Ihr merkt Sachen,'
+    + ' die ich nicht merke. Schreibt sie auf. Die Klasse stimmt ab, was ich zuerst'
+    + ' ändere.</p>'
+    + '<p id="rueckmeldung-knoepfe"></p>'
+    + '<p class="videohinweis sprache-standard">Zum Schreiben und Abstimmen braucht ihr den'
+    + ' Klassencode – ihr habt ihn im Unterricht bekommen. Euer Name steht nirgends.</p>'
+    + '<p class="videohinweis sprache-einfach">Zum Schreiben braucht ihr den Klassencode'
+    + ' aus dem Unterricht. Euer Name steht nirgends.</p>';
+  /* insertBefore statt after(): Die Schul-iPads sind nicht alle jung. */
+  anker.parentNode.insertBefore(karte, anker.nextSibling);
+
+  const knoepfe = karte.querySelector("#rueckmeldung-knoepfe");
+  for (const [id, brett, wort] of [["k-mangel", "mr", "🔧 Etwas war kaputt"],
+                                   ["k-wunsch", "fr", "💡 Etwas hat gefehlt"]]) {
+    const a = document.createElement("a");
+    a.className = "knopf voll";
+    a.id = id;
+    a.href = adresse(brett);
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = wort;
+    a.addEventListener("click", () =>
+      protokolliere("rueckmeldung", brett === "mr" ? "mangel" : "wunsch",
+        "Rückmeldebrett geöffnet: " + bezug));
+    knoepfe.appendChild(a);
+    knoepfe.appendChild(document.createTextNode(" "));
+  }
+})();
+
 window.addEventListener("beforeunload", e => {
   if (protokollEintraege.length > 4 && !exportiert) { e.preventDefault(); e.returnValue = ""; return ""; }
 });
