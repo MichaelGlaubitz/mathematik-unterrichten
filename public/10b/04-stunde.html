@@ -4415,21 +4415,69 @@ function wiederherstellen(z) {
   protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
   sperrenPruefen(); chipMalen();
 }
+/* ---------------------------------------------------------------------------
+   Das Angebot „Daran weiterarbeiten" — und warum es einen zweiten Schlüssel gibt
+
+   Der Autospeicher schreibt bei JEDEM Protokolleintrag; der allererste Eintrag
+   („Doppelstunde geöffnet") entsteht schon beim Laden. Eine Sekunde nach dem
+   Neuladen stand unter SPEICHER also der neue, leere Stand — der gefundene
+   lebte nur noch in dieser einen offenen Seite. Ein zweites Neuladen, ein
+   geschlossener Tab, und die Arbeit war weg; das Angebot sah dabei genauso aus
+   wie vorher, nur mit einem einzigen Eintrag darin.
+
+   So ist es am 01.09.2026 einem Schüler der 10b ergangen: iPad im Energiesparen
+   aus, nach dem Aufwecken „alles weg", Protokoll bei 1 Eintrag. Nichts war
+   gelöscht — aber es hing an einem einzigen weiteren Neuladen.
+
+   Deshalb wird der gefundene Stand jetzt SOFORT unter GESICHERT abgelegt. Diese
+   Kopie überlebt jedes Neuladen und wird erst gelöscht, wenn die Frage
+   beantwortet ist. Angeboten wird der reichere der beiden Stände — „reicher"
+   heißt: mehr Protokolleinträge, also mehr Arbeit.
+--------------------------------------------------------------------------- */
+const GESICHERT = SPEICHER + "-gesichert";
+
+function standLesen(schluessel) {
+  try {
+    const roh = localStorage.getItem(schluessel);
+    if (!roh) return null;
+    const z = JSON.parse(roh);
+    return (z && z.eintraege && z.eintraege.length) ? z : null;
+  } catch (e) { return null; }
+}
+
 (function angebotPruefen() {
-  let z = null;
-  try { const roh = localStorage.getItem(SPEICHER); if (roh) z = JSON.parse(roh); } catch (e) { }
-  if (!z || !z.eintraege || !z.eintraege.length) return;
+  /* Beide Stände lesen: den laufenden und die Sicherung eines früheren
+     Ladevorgangs, dessen Frage nie beantwortet wurde. */
+  const haupt = standLesen(SPEICHER);
+  const sicher = standLesen(GESICHERT);
+  const z = (!haupt) ? sicher
+          : (!sicher) ? haupt
+          : (sicher.eintraege.length > haupt.eintraege.length ? sicher : haupt);
+  if (!z) return;
+
+  /* Sofort sichern, bevor der Autospeicher dieser Sitzung zuschlägt. Schlägt
+     das Schreiben fehl (privates Surfen, gesperrte Website-Daten), bleibt es
+     beim alten Verhalten: Das Angebot gilt dann nur für diese offene Seite. */
+  let gesichert = false;
+  try { localStorage.setItem(GESICHERT, JSON.stringify(z)); gesichert = true; } catch (e) { }
+
   const banner = document.createElement("div");
   banner.className = "karte warn";
   banner.innerHTML = '<h4>Angefangenes Protokoll gefunden</h4><p>Auf diesem Gerät liegt ein Protokoll von <b>' +
     (z.gespeichert || z.gestartet) + '</b> mit ' + z.eintraege.length + ' Einträgen' +
-    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>';
+    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>' +
+    (gesichert
+      ? '<p class="fuss">Es ist gesichert und bleibt erhalten, auch wenn die Seite noch einmal neu lädt. Erst einer der beiden Knöpfe entscheidet darüber.</p>'
+      : '<p class="fuss">Achtung: Auf diesem Gerät lässt sich nichts zwischenspeichern. Dieses Angebot gilt nur, solange die Seite offen bleibt — nicht neu laden.</p>');
   const w = document.createElement("button"); w.className = "knopf voll"; w.textContent = "Daran weiterarbeiten";
   const n = document.createElement("button"); n.className = "knopf"; n.textContent = "Neu beginnen (löscht das alte)";
   const p = document.createElement("p"); p.appendChild(w); p.appendChild(document.createTextNode(" ")); p.appendChild(n);
   banner.appendChild(p);
-  w.addEventListener("click", () => { wiederherstellen(z); banner.remove(); });
+  /* Erst nach einer Antwort verschwindet die Sicherung - bei beiden Knöpfen. */
+  const sicherungWeg = () => { try { localStorage.removeItem(GESICHERT); } catch (e) { } };
+  w.addEventListener("click", () => { sicherungWeg(); wiederherstellen(z); banner.remove(); });
   n.addEventListener("click", () => {
+    sicherungWeg();
     try { localStorage.removeItem(SPEICHER); } catch (e) { }
     protokolliere("neu", "", "Neues Protokoll begonnen, altes verworfen");
     banner.remove();
