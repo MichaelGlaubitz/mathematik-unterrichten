@@ -382,6 +382,16 @@ ol.teilaufgaben>li{margin:.32rem 0}
 .bedienfeld .reglerblock .sprungzeile{margin:.45rem 0 .1rem}
 canvas#c-modell,canvas#c-strahl{width:100%; height:auto; background:#fff;
   border:1px solid var(--linie); border-radius:12px}
+/* Die Begruendungs-Weiche - wie in bau_prop.py. */
+.vertiefung{display:none}
+.vertiefung.offen{display:block; margin:1.2rem 0 .4rem; padding:.9rem 1.1rem;
+  border:1px solid #a5d6a7; border-left:7px solid #2e7d32; border-radius:12px;
+  background:#f2faf3; animation:vertiefung-auf .5s ease}
+.vertiefung h4{margin:0 0 .5rem; color:#1b5e20}
+.vertiefung details.v-loesung{margin-top:.7rem; border:1px solid #cfe3d0; border-radius:9px;
+  background:#fff; padding:.5rem .8rem}
+.vertiefung details.v-loesung summary{cursor:pointer; font-weight:600; color:#1b5e20}
+@keyframes vertiefung-auf{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
 .aufgabe table{width:100%; border-collapse:collapse; margin:.5rem 0 .6rem;
   font-size:.98rem}
 .aufgabe table th{text-align:left; background:#f2f6f9; color:#33414d;
@@ -783,10 +793,67 @@ canvas#c-modell,canvas#c-strahl{width:100%; height:auto; background:#fff;
     </div>
   </div>
 
+  <!-- Erscheint nur für die, die beide Aufträge aus eigener Kraft gelöst
+       haben (kein Hilfeknopf). Sperrt den Weg nicht. -->
+  <div class="vertiefung">
+    <h4>Eine Frage noch &#8212; für dich, weil du sauber durch bist</h4>
+    <div class="sprache-standard">
+      <p>Bei den Kirschen ist der Proportionalitätsfaktor <b>4</b> (Euro je Kilogramm). Jemand
+      rechnet stattdessen <b>3 kg : 12 &#8364; = 0,25</b> und sagt: „Das ist doch auch in jeder
+      Zeile dieselbe Zahl &#8212; also ist 0,25 genauso gut der Faktor.“</p>
+      <p><b>Hat er recht?</b> Und wozu taugt seine 0,25?</p>
+    </div>
+    <div class="sprache-einfach">
+      <p>Bei den Kirschen ist der Proportionalitätsfaktor <b>4</b>. Die Einheit ist Euro je
+      Kilogramm.</p>
+      <p>Jemand rechnet andersherum: <b>3 kg : 12 &#8364; = 0,25</b>.</p>
+      <p>Er sagt: „Das ist auch in jeder Zeile dieselbe Zahl. Also ist 0,25 auch der Faktor.“</p>
+      <p><b>Hat er recht?</b> Und wofür ist seine 0,25 gut?</p>
+    </div>
+    <div class="antwortfeld">
+      <div class="kopfzeile">✍ Deine Antwort – hier eintragen</div>
+      <textarea id="t-v1" data-label="Vertiefung – die andere Richtung"
+                style="min-height:5.5rem"></textarea>
+    </div>
+    <details class="v-loesung" data-feld="t-v1">
+      <summary><span class="sprache-standard">So könnte man antworten</span><span
+               class="sprache-einfach">So könnte man antworten – erst nach eigener Notiz</span></summary>
+      <div class="sprache-standard">
+        <p><b>Halb recht.</b> Es stimmt, dass auch 3 : 12 in jeder Zeile dieselbe Zahl ergibt
+        (1 : 4 = 0,25 und 7 : 28 = 0,25). Das ist kein Zufall &#8212; es folgt daraus, dass y : x
+        überall gleich ist.</p>
+        <p><b>Für die Formel taugt sie trotzdem nicht.</b> In y = Faktor · x muss die Zahl mit
+        der Menge multipliziert werden: 4 · 3 = 12 &#8364;. ✓ Mit seiner Zahl käme
+        0,25 · 3 = 0,75 heraus &#8212; und 0,75 &#8364; für 3 kg Kirschen wäre ein sehr guter
+        Preis.</p>
+        <p><b>Seine 0,25 bedeutet aber etwas:</b> <b>0,25 Kilogramm je Euro</b> &#8212; also wie
+        viel Kirschen man für einen Euro bekommt. Dieselbe Sache, nur von der anderen Seite
+        gefragt. Welche der beiden Zahlen man braucht, entscheidet sich daran, <i>was gegeben
+        ist und was gesucht wird</i>.</p>
+      </div>
+      <div class="sprache-einfach">
+        <p><b>Er hat halb recht.</b></p>
+        <p>Es stimmt: Auch 3 : 12 ergibt in jeder Zeile dieselbe Zahl.
+        Rechne nach: 1 : 4 = 0,25. Und 7 : 28 = 0,25.</p>
+        <p><b>Aber für die Formel taugt sie nicht.</b> In y = Faktor · x rechnest du
+        Faktor mal Menge.</p>
+        <p>Mit 4: 4 · 3 = 12 &#8364;. ✓</p>
+        <p>Mit 0,25: 0,25 · 3 = 0,75 &#8364;. Das wäre sehr billig für 3 kg Kirschen.</p>
+        <p><b>Seine 0,25 bedeutet trotzdem etwas:</b> 0,25 Kilogramm je Euro.
+        Also: So viel Kirschen bekommst du für 1 Euro.</p>
+        <p>Es ist dieselbe Sache. Nur von der anderen Seite gefragt.</p>
+      </div>
+    </details>
+  </div>
+
   <div class="lehrer"><h4>Beim Herumgehen</h4>
   <p><b>Die Frage, die weiterhilft:</b> „Du hast die Zahl 4. Was ist das für eine Zahl &#8212;
   4 was?“ Ohne Einheit bleibt der Faktor eine Rechenspur; mit Einheit ist er eine Aussage über
   die Sache.</p>
+  <p><b>Die Vertiefungsfrage</b> erscheint nur bei denen, die beide Aufträge aus eigener Kraft
+  gelöst haben. Sie nimmt den häufigsten Fehler (x : y statt y : x) und dreht ihn um: Die
+  Kehrzahl ist nicht falsch, sie beantwortet nur eine andere Frage. Wer das sagen kann, hat den
+  Faktor als Größe verstanden und nicht als Rechenvorschrift.</p>
   <p><b>Häufiger Fehler:</b> x : y statt y : x. Das gibt 0,25 statt 4 &#8212; auch eine sinnvolle
   Zahl (Kilogramm je Euro), aber sie taugt nicht für y = Faktor · x. Gegenmittel: die Einheit
   aussprechen lassen, dann fällt es von selbst auf.</p></div>
@@ -996,6 +1063,64 @@ canvas#c-modell,canvas#c-strahl{width:100%; height:auto; background:#fff;
         </div>
       </details>
     </div>
+  </div>
+
+  <div class="vertiefung">
+    <h4>Eine Frage noch &#8212; für dich, weil du sauber durch bist</h4>
+    <div class="sprache-standard">
+      <p>Im Faktorlabor beginnt <b>jede</b> Halbgerade im Ursprung (0 | 0). Beantworte zweierlei:</p>
+      <ol class="teilaufgaben">
+        <li>Was bedeutet der Punkt (0 | 0), wenn x eine Menge Kirschen ist und y ihr Preis?
+        Sag es in einem Satz <i>über Kirschen</i>, nicht über Mathematik.</li>
+        <li>Eine Gerade beginnt bei y = 3 statt im Ursprung. Warum kann sie <b>nie</b> zu einer
+        proportionalen Zuordnung gehören &#8212; auch dann nicht, wenn sie danach schön gerade
+        weiterläuft?</li>
+      </ol>
+    </div>
+    <div class="sprache-einfach">
+      <p>Im Faktorlabor beginnt <b>jede</b> Halbgerade im Ursprung (0 | 0).</p>
+      <p>Antworte auf zwei Fragen:</p>
+      <ol class="teilaufgaben">
+        <li>x ist eine Menge Kirschen. y ist ihr Preis. Was bedeutet dann der Punkt (0 | 0)?
+        Sag es in einem Satz <i>über Kirschen</i>. Nicht über Mathematik.</li>
+        <li>Eine Gerade beginnt bei y = 3. Sie beginnt also nicht im Ursprung.
+        Warum kann sie <b>nie</b> proportional sein? Auch nicht, wenn sie danach schön
+        gerade weiterläuft?</li>
+      </ol>
+    </div>
+    <div class="antwortfeld">
+      <div class="kopfzeile">✍ Deine beiden Antworten – hier eintragen</div>
+      <textarea id="t-v2" data-label="Vertiefung – der Ursprung"
+                style="min-height:5.5rem"></textarea>
+    </div>
+    <details class="v-loesung" data-feld="t-v2">
+      <summary><span class="sprache-standard">So könnte man antworten</span><span
+               class="sprache-einfach">So könnte man antworten – erst nach eigener Notiz</span></summary>
+      <div class="sprache-standard">
+        <p><b>a)</b> Für 0 kg Kirschen zahlt man 0 &#8364; &#8212; wer nichts kauft, zahlt
+        nichts. Das klingt selbstverständlich, ist es aber nicht: Bei einer Grundgebühr wäre es
+        anders.</p>
+        <p><b>b)</b> Weil dort schon vor dem ersten Kilo 3 &#8364; fällig sind. Diese 3 wird beim
+        Verdoppeln <b>nicht mitverdoppelt</b>. Ein Beispiel: Bei 1 kg zahlt man 3 + 1 = 4 &#8364;,
+        bei 2 kg dann 3 + 2 = 5 &#8364;. Doppelte Menge, aber nicht doppelter Preis &#8212;
+        das Doppelte von 4 wäre 8. Genau daran scheitert es, und daran ändert auch die schönste
+        gerade Linie nichts.</p>
+        <p>Man sieht daran: <b>Der Ursprung ist das Kriterium, nicht die Geradheit</b> und schon
+        gar nicht die Steilheit. Das brauchst du gleich in Aufgabe A3.</p>
+      </div>
+      <div class="sprache-einfach">
+        <p><b>a)</b> Für 0 kg Kirschen zahlst du 0 &#8364;. Wer nichts kauft, zahlt nichts.</p>
+        <p>Das klingt selbstverständlich. Ist es aber nicht. Bei einer Grundgebühr wäre es
+        anders.</p>
+        <p><b>b)</b> Weil du schon vor dem ersten Kilo 3 &#8364; zahlst.</p>
+        <p>Diese 3 wird beim Verdoppeln <b>nicht mitverdoppelt</b>.</p>
+        <p>Ein Beispiel: Bei 1 kg zahlst du 3 + 1 = 4 &#8364;.
+        Bei 2 kg zahlst du 3 + 2 = 5 &#8364;.</p>
+        <p>Die Menge ist doppelt. Der Preis nicht: Das Doppelte von 4 wäre 8, nicht 5.</p>
+        <p>Merk dir: <b>Der Ursprung entscheidet.</b> Nicht die Geradheit. Und nicht die
+        Steilheit. Das brauchst du gleich in Aufgabe A3.</p>
+      </div>
+    </details>
   </div>
 
   <div class="lehrer"><h4>Warum dieses zweite Labor</h4>
@@ -4473,6 +4598,103 @@ function aufbauSchritte(box) {
 
 /* ---------- Start ---------- */
 zeige(0);
+
+/* ---------- Begründungs-Weiche für die, die sauber durchkommen ---------- */
+(function begruendungsWeiche() {
+  const boxen = Array.from(document.querySelectorAll(".vertiefung"));
+  if (!boxen.length) return;
+
+  /* Wer den Hilfeknopf gedrückt hat, gehört nicht zu dieser Gruppe. In der
+     Erfassungsphase (true), damit es auch dann greift, wenn der Knopf sein
+     eigenes Ereignis stoppt. */
+  document.addEventListener("click", function (ev) {
+    const t = ev.target;
+    const k = t && t.closest ? t.closest(".hilfeknopf") : null;
+    if (!k) return;
+    const p = k.closest("section.phase");
+    if (p) p.dataset.hilfeGenutzt = "1";
+  }, true);
+
+  /* Die Sperren der Phase - ohne die der Vertiefung selbst. Sonst wartete die
+     Bedingung auf eine Antwort, die es ohne das Aufdecken gar nicht geben kann. */
+  function sperren(p) {
+    return Array.from(p.querySelectorAll("details[data-fuer]"))
+      .filter(d => !d.closest(".vertiefung"));
+  }
+
+  function pruefePhase(p) {
+    const box = p.querySelector(".vertiefung");
+    if (!box || box.classList.contains("offen")) return;
+    if (p.dataset.hilfeGenutzt === "1") return;
+    const s = sperren(p);
+    if (!s.length || !s.every(d => d.classList.contains("frei"))) return;
+    box.classList.add("offen");
+    /* Ruhig hinrollen: Ohne das steht die Frage unter dem Rand und wird
+       schlicht nicht gesehen. */
+    setTimeout(function () {
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+  }
+
+  /* Nachlaufend prüfen: Die Sperren werden beim Tippen laufend neu bewertet;
+     würde die Frage im selben Moment aufspringen, spränge sie mitten im Satz. */
+  let warten = null;
+  document.addEventListener("input", function (ev) {
+    const t = ev.target;
+    const p = t && t.closest ? t.closest("section.phase") : null;
+    if (!p || !p.querySelector(".vertiefung")) return;
+    clearTimeout(warten);
+    warten = setTimeout(function () { pruefePhase(p); }, 1200);
+  }, true);
+
+  /* ---- Eigene, kleine Sperre für die Musterantwort der Vertiefung ----
+     Warum nicht die der Vorlage (details.gesperrt mit data-fuer)? Weil
+     pruefe_html.mjs jede Sperre ausfüllen und aufgehen sehen will - und die
+     Felder der Vertiefung sind zum Zeitpunkt der Prüfung noch verborgen.
+     Eine Sperre, die der Prüfer nicht ausüben kann, ist eine ungeprüfte
+     Sperre; die will ich nicht ausliefern.
+
+     Diese hier prüft schlichter als die der Vorlage: nur die Länge, keine
+     Dublettenerkennung. Das ist vertretbar, weil sie eine freiwillige
+     Zusatzfrage schützt und keine bewertete Aufgabe - und weil sie ohnehin
+     nur denen begegnet, die die ganze Phase aus eigener Kraft gelöst haben. */
+  boxen.forEach(function (box) {
+    const d = box.querySelector("details.v-loesung");
+    if (!d) return;
+    const feld = document.getElementById(d.dataset.feld || "");
+    const note = document.createElement("p");
+    note.className = "videohinweis";
+    note.innerHTML =
+      '<span class="sprache-standard">Erst deine eigene Antwort &#8212; dann geht das auf.</span>' +
+      '<span class="sprache-einfach">Schreib erst deine eigene Antwort. Dann geht das auf.</span>';
+    note.style.display = "none";
+    d.parentNode.insertBefore(note, d.nextSibling);
+
+    function reichtAus() {
+      return !!feld && feld.value.trim().length >= 60;
+    }
+
+    /* Am KLICK abfangen, nicht am toggle: toggle läuft erst, nachdem der
+       Browser das <details> schon geöffnet hat - die Lösung blitzt dann kurz
+       auf, bevor sie wieder zuklappt. preventDefault() verhindert das
+       Öffnen von vornherein. Gilt auch für Tastaturbedienung, weil Enter und
+       Leertaste auf einem summary ebenfalls ein click-Ereignis auslösen. */
+    d.querySelector("summary").addEventListener("click", function (ev) {
+      if (d.open) { note.style.display = "none"; return; }   /* Zuklappen immer */
+      if (reichtAus()) { note.style.display = "none"; return; }
+      ev.preventDefault();
+      note.style.display = "";
+    });
+
+    /* Rückfall für den Fall, dass ein Browser das <details> auf anderem Weg
+       öffnet (etwa über die Suchfunktion der Seite). */
+    d.addEventListener("toggle", function () {
+      if (!d.open || reichtAus()) return;
+      d.open = false;
+      note.style.display = "";
+    });
+  });
+})();
 </script>
 </body>
 </html>
