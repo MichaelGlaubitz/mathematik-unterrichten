@@ -1,0 +1,848 @@
+---
+/**
+ * Rückmeldebrett — eine Komponente für beide Bretter (`mr`, `fr`).
+ *
+ * Felder, Beispiele und Leitfaden kommen beim Bauen aus `rueckmeldung/kern.mjs`,
+ * also aus derselben Datei, gegen die der Dienst später prüft. Wer dort ein Feld
+ * ändert, ändert damit Formular, Vorschau und Prüfung in einem Zug — ein
+ * Formular, das nach etwas anderem fragt, als der Dienst annimmt, kann so gar
+ * nicht erst entstehen.
+ *
+ * Die Seite ist ohne Dienst nicht wertlos: Leitfaden und Formular stehen
+ * statisch da. Antwortet der Dienst nicht, sagt die Seite das im Klartext und
+ * bietet an, die fertig getippte Meldung zu kopieren — niemand tippt umsonst.
+ */
+import {
+  FELDER, LEITFADEN, BRETT, TITEL_MIN, TITEL_MAX, KUERZEL_MAX, STATUS_TEXT,
+} from '../../rueckmeldung/kern.mjs';
+
+export interface Props {
+  /** Welches Brett: `mr` = Mängelberichte, `fr` = Feature-Requests. */
+  art: 'mr' | 'fr';
+}
+const { art } = Astro.props;
+
+const felder = FELDER[art];
+const regeln = LEITFADEN[art];
+const anderes = art === 'mr' ? 'fr' : 'mr';
+
+/** Adresse des Dienstes. Für einen Testlauf: `?dienst=http://localhost:8742`. */
+const DIENST =
+  (import.meta.env.PUBLIC_MU_RUECKMELDUNG_URL as string | undefined)?.trim() ||
+  'https://rueckmeldung.michaelglaubitz-barton.workers.dev';
+
+const kopf = {
+  mr: {
+    kicker: 'Etwas ist kaputt',
+    h1: 'Mängelberichte',
+    lead:
+      'Wenn in einer Selbstlernstunde etwas nicht funktioniert, klemmt oder unverständlich ' +
+      'ist: hierher damit. Vier Fragen, zwei Minuten — und ich kann den Fehler nachstellen, ' +
+      'statt zu raten.',
+    knopf: 'Mangel melden',
+    hin: 'Etwas fehlt, statt kaputt zu sein? Das gehört auf das andere Brett:',
+  },
+  fr: {
+    kicker: 'Etwas fehlt',
+    h1: 'Feature-Requests',
+    lead:
+      'Was würde dir das Arbeiten in den Selbstlernstunden leichter machen? Schreib zuerst, ' +
+      'was dir schwerfällt, dann deinen Vorschlag. Die Klasse stimmt ab, was zuerst drankommt.',
+    knopf: 'Wunsch eintragen',
+    hin: 'Etwas ist kaputt statt fehlend? Das gehört auf das andere Brett:',
+  },
+}[art];
+---
+
+<section class="container-wide py-10 sm:py-12">
+  <!-- ------------------------------------------------------------------ Kopf -->
+  <header class="max-w-3xl">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">
+      {kopf.kicker}
+    </p>
+    <h1 class="mt-2 font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      {kopf.h1}
+    </h1>
+    <p class="mt-4 text-lg leading-relaxed text-ink-700 dark:text-ink-300">{kopf.lead}</p>
+    <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">
+      {kopf.hin}{' '}
+      <a href={`/${anderes}`} class="link-arrow">{BRETT[anderes].titel}</a>
+    </p>
+  </header>
+
+  <!-- Lage des Dienstes. Steht leer da, solange alles geht. -->
+  <p
+    id="rm-lage"
+    hidden
+    class="mt-6 rounded-lg border border-coral-300 bg-coral-50/70 px-4 py-3 text-sm text-ink-800 dark:border-coral-400/40 dark:bg-coral-600/10 dark:text-ink-100"
+  >
+  </p>
+
+  <!-- ------------------------------------------------------------- Leitfaden -->
+  <!-- Offen beim ersten Besuch: Wer zum ersten Mal meldet, soll die Regeln
+       gesehen haben, bevor er tippt. Danach merkt sich die Seite, dass sie
+       zugeklappt bleiben darf. -->
+  <details id="rm-leitfaden" class="card mt-8 max-w-3xl" open>
+    <summary class="cursor-pointer font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
+      So wird aus einer Rückmeldung eine Änderung
+    </summary>
+    <ol class="mt-4 space-y-3 text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+      {regeln.map((r: string) => (
+        <li class="flex gap-3">
+          <span
+            class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent-100 text-[11px] font-bold text-accent-800 dark:bg-accent-600/25 dark:text-accent-100"
+            aria-hidden="true">·</span>
+          <span>{r}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="mt-4 border-t border-ink-200/80 pt-4 text-sm text-ink-600 dark:border-slate-600/40 dark:text-ink-400">
+      <b class="text-ink-800 dark:text-ink-200">Dein Name steht nirgends.</b> Lesen darf jeder,
+      schreiben und abstimmen nur mit dem Klassencode — den nenne ich in der Stunde. Wenn du
+      möchtest, dass ich nachfragen kann, gib beim Absenden freiwillig ein Kürzel an; das sehe
+      nur ich, es steht nicht auf dem Brett.
+    </p>
+  </details>
+
+  <!-- -------------------------------------------------------------- Formular -->
+  <div class="mt-8 max-w-3xl">
+    <button
+      type="button"
+      id="rm-oeffnen"
+      class="rounded-lg bg-accent-600 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500/40 dark:bg-accent-600 dark:hover:bg-accent-500"
+    >
+      + {kopf.knopf}
+    </button>
+
+    <form id="rm-form" hidden class="card mt-4 space-y-6" novalidate>
+      <!-- Schritt 1: Überschrift und die Frage, ob es das schon gibt.
+           Die Dublettensuche steht bewusst VOR den Feldern: Wer merkt, dass es
+           die Meldung schon gibt, soll abstimmen statt tippen. -->
+      <fieldset data-schritt="1">
+        <legend class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
+          1 · Worum geht es in einem Satz?
+        </legend>
+        <label for="rm-titel" class="mt-3 block text-sm font-medium text-ink-800 dark:text-ink-100">
+          Überschrift
+        </label>
+        <input
+          id="rm-titel"
+          type="text"
+          maxlength={TITEL_MAX}
+          autocomplete="off"
+          placeholder={art === 'mr'
+            ? 'Zeichenfeld verliert die Eingabe beim Prüfen'
+            : 'Am Schluss zeigen, welche Aufgaben falsch waren'}
+          class="mt-1.5 w-full rounded-md border border-ink-300 bg-surface px-3 py-2 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-slate-600/55 dark:bg-slate-950/75 dark:text-ink-50 dark:placeholder:text-ink-500"
+        />
+        <p class="mt-1.5 flex justify-between text-xs text-ink-500 dark:text-ink-400">
+          <span>Woran andere erkennen, ob sie dasselbe meinen.</span>
+          <span id="rm-titel-zahl">0/{TITEL_MAX}</span>
+        </p>
+        <p data-fehler="titel" hidden class="mt-1.5 text-sm text-coral-600 dark:text-coral-300"></p>
+
+        <div id="rm-aehnlich" hidden class="mt-4 rounded-lg border border-accent-200 bg-accent-50/60 p-4 dark:border-sky-400/25 dark:bg-sky-950/30">
+          <p class="text-sm font-semibold text-accent-800 dark:text-accent-100">
+            Gibt es das vielleicht schon?
+          </p>
+          <p class="mt-1 text-xs text-ink-600 dark:text-ink-400">
+            Eine zweite gleiche Meldung hilft mir nicht — eine Stimme mehr schon.
+          </p>
+          <ul id="rm-aehnlich-liste" class="mt-3 space-y-2"></ul>
+        </div>
+
+        <button
+          type="button"
+          id="rm-weiter"
+          disabled
+          class="mt-4 rounded-lg border border-accent-600 px-4 py-2 text-sm font-semibold text-accent-700 transition hover:bg-accent-50 disabled:cursor-not-allowed disabled:opacity-45 dark:border-accent-400/60 dark:text-accent-100 dark:hover:bg-sky-950/40"
+        >
+          Weiter
+        </button>
+      </fieldset>
+
+      <!-- Schritt 2: die Felder. Jedes mit einem Beispiel im Platzhalter —
+           ein Beispiel erklärt in zwei Sekunden, was drei Sätze Anleitung
+           nicht schaffen. -->
+      <fieldset data-schritt="2" hidden class="space-y-5 border-t border-ink-200/80 pt-6 dark:border-slate-600/40">
+        <legend class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
+          2 · Die Einzelheiten
+        </legend>
+
+        {felder.map((f: any) => (
+          <div>
+            <label
+              for={`rm-f-${f.schluessel}`}
+              class="block text-sm font-medium text-ink-800 dark:text-ink-100"
+            >
+              {f.frage}
+              {f.pflicht && <span class="text-coral-600 dark:text-coral-300" aria-hidden="true"> *</span>}
+            </label>
+            {f.hilfe && (
+              <p class="mt-0.5 text-xs leading-relaxed text-ink-500 dark:text-ink-400">{f.hilfe}</p>
+            )}
+
+            {f.auswahl ? (
+              <div class="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label={f.frage}>
+                {f.auswahl.map((w: string) => (
+                  <label class="cursor-pointer rounded-full border border-ink-300 px-3.5 py-1.5 text-sm text-ink-700 transition has-[:checked]:border-accent-600 has-[:checked]:bg-accent-50 has-[:checked]:font-semibold has-[:checked]:text-accent-800 dark:border-slate-600/55 dark:text-ink-200 dark:has-[:checked]:border-accent-400 dark:has-[:checked]:bg-sky-950/50 dark:has-[:checked]:text-accent-100">
+                    <input type="radio" name={`rm-f-${f.schluessel}`} value={w} class="sr-only" />
+                    {w}
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <textarea
+                id={`rm-f-${f.schluessel}`}
+                data-feld={f.schluessel}
+                rows={f.min >= 10 ? 3 : 2}
+                maxlength={f.max}
+                placeholder={f.beispiel ? `Zum Beispiel: ${f.beispiel}` : ''}
+                class="mt-2 w-full rounded-md border border-ink-300 bg-surface px-3 py-2 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-slate-600/55 dark:bg-slate-950/75 dark:text-ink-50 dark:placeholder:text-ink-500"
+              ></textarea>
+            )}
+            <p data-fehler={f.schluessel} hidden class="mt-1 text-sm text-coral-600 dark:text-coral-300"></p>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          id="rm-vorschau"
+          class="rounded-lg border border-accent-600 px-4 py-2 text-sm font-semibold text-accent-700 transition hover:bg-accent-50 dark:border-accent-400/60 dark:text-accent-100 dark:hover:bg-sky-950/40"
+        >
+          Vorschau
+        </button>
+      </fieldset>
+
+      <!-- Schritt 3: erst sehen, wie es ankommt — dann absenden. -->
+      <fieldset data-schritt="3" hidden class="space-y-4 border-t border-ink-200/80 pt-6 dark:border-slate-600/40">
+        <legend class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
+          3 · So lese ich deine Meldung
+        </legend>
+        <div id="rm-vorschau-feld" class="rounded-lg border border-ink-200 bg-ink-50/60 p-4 text-sm dark:border-slate-600/40 dark:bg-slate-900/50"></div>
+
+        <div>
+          <label for="rm-kuerzel" class="block text-sm font-medium text-ink-800 dark:text-ink-100">
+            Kürzel (freiwillig)
+          </label>
+          <p class="mt-0.5 text-xs text-ink-500 dark:text-ink-400">
+            Damit ich nachfragen kann, wenn etwas unklar ist. Sehe nur ich — auf dem Brett steht
+            deine Meldung anonym.
+          </p>
+          <input
+            id="rm-kuerzel"
+            type="text"
+            maxlength={KUERZEL_MAX}
+            autocomplete="off"
+            class="mt-2 w-full max-w-xs rounded-md border border-ink-300 bg-surface px-3 py-2 text-ink-900 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-slate-600/55 dark:bg-slate-950/75 dark:text-ink-50"
+          />
+        </div>
+
+        <p data-fehler="allgemein" hidden class="text-sm text-coral-600 dark:text-coral-300"></p>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            id="rm-senden"
+            class="rounded-lg bg-accent-600 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-accent-700 disabled:opacity-60 dark:hover:bg-accent-500"
+          >
+            Absenden
+          </button>
+          <button
+            type="button"
+            id="rm-abbrechen"
+            class="text-sm font-medium text-ink-600 underline decoration-ink-300 underline-offset-4 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100"
+          >
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            id="rm-kopieren"
+            hidden
+            class="rounded-lg border border-ink-300 px-4 py-2 text-sm font-semibold text-ink-700 dark:border-slate-600/55 dark:text-ink-200"
+          >
+            Als Text kopieren
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <!-- ------------------------------------------------------------ Codeschirm -->
+  <div
+    id="rm-codeschirm"
+    hidden
+    class="mt-6 max-w-3xl rounded-xl border border-accent-300 bg-accent-50/70 p-5 dark:border-sky-400/30 dark:bg-sky-950/40"
+  >
+    <p class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">Klassencode</p>
+    <p id="rm-code-grund" class="mt-1 text-sm text-ink-700 dark:text-ink-300"></p>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <input
+        id="rm-code-feld"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="Code aus der Stunde"
+        class="w-56 rounded-md border border-ink-300 bg-surface px-3 py-2 text-ink-900 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30 dark:border-slate-600/55 dark:bg-slate-950/75 dark:text-ink-50"
+      />
+      <button
+        type="button"
+        id="rm-code-ok"
+        class="rounded-lg bg-accent-600 px-4 py-2 font-semibold text-white hover:bg-accent-700"
+      >Prüfen</button>
+      <button
+        type="button"
+        id="rm-code-weg"
+        class="text-sm font-medium text-ink-600 underline decoration-ink-300 underline-offset-4 dark:text-ink-400"
+      >Abbrechen</button>
+    </div>
+    <p id="rm-code-fehler" hidden class="mt-2 text-sm text-coral-600 dark:text-coral-300"></p>
+    <p class="mt-3 text-xs text-ink-600 dark:text-ink-400">
+      Der Code bleibt auf diesem Gerät gespeichert; du musst ihn nur einmal eingeben.
+    </p>
+  </div>
+
+  <!-- ---------------------------------------------------------- Steuerzeile -->
+  <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-ink-200/80 pt-6 dark:border-slate-600/40">
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-ink-600 dark:text-ink-400">Reihenfolge</span>
+      <div class="flex overflow-hidden rounded-lg border border-ink-300 dark:border-slate-600/55" role="group">
+        <button type="button" data-sortierung="wichtig" class="rm-schalter px-3 py-1.5 text-sm font-medium">Wichtigste</button>
+        <button type="button" data-sortierung="neu" class="rm-schalter px-3 py-1.5 text-sm font-medium border-l border-ink-300 dark:border-slate-600/55">Neueste</button>
+      </div>
+    </div>
+    <label class="flex items-center gap-2 text-sm text-ink-600 dark:text-ink-400">
+      Lerngruppe
+      <select
+        id="rm-klasse"
+        class="rounded-md border border-ink-300 bg-surface px-2 py-1.5 text-sm text-ink-900 dark:border-slate-600/55 dark:bg-slate-950/75 dark:text-ink-50"
+      >
+        <option value="">alle</option>
+      </select>
+    </label>
+    <label class="flex items-center gap-2 text-sm text-ink-600 dark:text-ink-400">
+      <input id="rm-fertig" type="checkbox" class="h-4 w-4 rounded border-ink-300 accent-accent-600" />
+      Abgeschlossene mitzeigen
+    </label>
+    <span id="rm-zahl" class="ml-auto text-sm text-ink-500 dark:text-ink-400"></span>
+  </div>
+
+  <div id="rm-liste" class="mt-6 space-y-3">
+    <p class="text-sm text-ink-500 dark:text-ink-400">Wird geladen …</p>
+  </div>
+</section>
+
+<style>
+  .rm-schalter { color: rgb(86 73 56); background: transparent; }
+  .rm-schalter[aria-pressed='true'] { background: rgb(239 246 255); color: rgb(30 64 175); font-weight: 700; }
+  :global(.dark) .rm-schalter { color: rgb(220 213 197); }
+  :global(.dark) .rm-schalter[aria-pressed='true'] { background: rgb(12 42 74); color: rgb(219 234 254); }
+</style>
+
+<script
+  is:inline
+  define:vars={{ art, DIENST, felder, TITEL_MIN, TITEL_MAX, STATUS_TEXT, brettName: BRETT[art].titel }}
+>
+  (function () {
+    'use strict';
+
+    /* --------------------------------------------------------------
+       Gerätenummer und Klassencode. Beides liegt im Browser, nichts
+       davon ist ein Ausweis: Die Nummer sorgt nur dafür, dass ein
+       Gerät eine Stimme hat, der Code ist der Klassenschlüssel.
+       -------------------------------------------------------------- */
+    var LS_GERAET = 'mu-rm-geraet', LS_CODE = 'mu-rm-zutritt';
+    var dienst = new URLSearchParams(location.search).get('dienst') || DIENST;
+    dienst = String(dienst).replace(/\/+$/, '');
+
+    var eintraege = [], sortierung = 'wichtig', zutritt = null, dienstDa = true;
+
+    function speicher(schluessel, wert) {
+      try {
+        if (wert === undefined) return localStorage.getItem(schluessel);
+        if (wert === null) localStorage.removeItem(schluessel);
+        else localStorage.setItem(schluessel, wert);
+      } catch (e) { return null; }
+    }
+
+    function geraet() {
+      var g = speicher(LS_GERAET);
+      if (g && /^[A-Za-z0-9_-]{8,64}$/.test(g)) return g;
+      var z = 'g-';
+      var b = new Uint8Array(16);
+      (window.crypto || {}).getRandomValues
+        ? window.crypto.getRandomValues(b)
+        : b.forEach(function (_, i) { b[i] = Math.floor(Math.random() * 256); });
+      for (var i = 0; i < b.length; i++) z += (b[i] % 36).toString(36);
+      speicher(LS_GERAET, z);
+      return z;
+    }
+
+    function zutrittLaden() {
+      try { return JSON.parse(speicher(LS_CODE) || 'null'); } catch (e) { return null; }
+    }
+    zutritt = zutrittLaden();
+
+    var $ = function (w) { return document.querySelector(w); };
+    var esc = function (s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+
+    /* --------------------------------------------------------------
+       Lage des Dienstes. Ein Brett, das schweigend nichts tut, ist
+       schlimmer als eines, das sagt, warum.
+       -------------------------------------------------------------- */
+    function lage(text) {
+      var p = $('#rm-lage');
+      if (!text) { p.hidden = true; return; }
+      p.textContent = text;
+      p.hidden = false;
+    }
+
+    /* -------------------------------------------------------- Laden */
+    async function laden() {
+      var u = dienst + '/v1/brett/' + art + '?geraet=' + encodeURIComponent(geraet())
+        + '&sortierung=' + sortierung;
+      try {
+        var r = await fetch(u, { cache: 'no-store' });
+        var d = await r.json();
+        if (!r.ok || !d.ok) throw new Error(d.grund || ('Antwort ' + r.status));
+        eintraege = d.eintraege || [];
+        dienstDa = true;
+        lage('');
+      } catch (e) {
+        dienstDa = false;
+        eintraege = [];
+        lage('Das Brett ist gerade nicht erreichbar — die Liste bleibt leer. '
+          + 'Du kannst trotzdem eine Meldung schreiben und sie am Ende als Text kopieren; '
+          + 'dann geht nichts verloren.');
+      }
+      klassenFuellen();
+      zeichnen();
+    }
+
+    function klassenFuellen() {
+      var s = $('#rm-klasse'), gewaehlt = s.value;
+      var klassen = [];
+      eintraege.forEach(function (e) {
+        if (e.klasse && e.klasse !== 'alle' && klassen.indexOf(e.klasse) < 0) klassen.push(e.klasse);
+      });
+      klassen.sort();
+      s.innerHTML = '<option value="">alle</option>'
+        + klassen.map(function (k) { return '<option value="' + esc(k) + '">' + esc(k) + '</option>'; }).join('');
+      s.value = klassen.indexOf(gewaehlt) >= 0 ? gewaehlt : '';
+    }
+
+    /* ---------------------------------------------------- Zeichnen */
+    var STATUS_FARBE = {
+      'neu': 'bg-accent-100 text-accent-800 dark:bg-accent-600/25 dark:text-accent-100',
+      'gesehen': 'bg-ink-100 text-ink-700 dark:bg-slate-800 dark:text-ink-200',
+      'in-arbeit': 'bg-coral-100 text-coral-600 dark:bg-coral-600/20 dark:text-coral-200',
+      'erledigt': 'bg-teal-100 text-teal-800 dark:bg-teal-600/20 dark:text-teal-100',
+      'nicht-geplant': 'bg-ink-100 text-ink-600 dark:bg-slate-800 dark:text-ink-400',
+    };
+    var fertig = function (e) { return e.status === 'erledigt' || e.status === 'nicht-geplant'; };
+
+    function datum(iso) {
+      var d = new Date(iso);
+      return isNaN(d) ? '' : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
+
+    function sichtbare() {
+      var k = $('#rm-klasse').value, mitFertig = $('#rm-fertig').checked;
+      return eintraege.filter(function (e) {
+        return (!k || e.klasse === k) && (mitFertig || !fertig(e));
+      });
+    }
+
+    function zeichnen() {
+      var liste = sichtbare(), ziel = $('#rm-liste');
+      $('#rm-zahl').textContent = dienstDa
+        ? liste.length + (liste.length === 1 ? ' Eintrag' : ' Einträge')
+        : '';
+
+      if (!liste.length) {
+        ziel.innerHTML = '<p class="text-sm text-ink-500 dark:text-ink-400">'
+          + (dienstDa
+            ? 'Noch nichts eingetragen. Deine Meldung wäre die erste.'
+            : 'Nichts zu zeigen, solange der Dienst nicht antwortet.')
+          + '</p>';
+        return;
+      }
+
+      ziel.innerHTML = liste.map(function (e) {
+        var reihen = felder.map(function (f) {
+          var w = e.felder && e.felder[f.schluessel];
+          if (!w) return '';
+          return '<div class="mt-2"><dt class="text-xs font-semibold uppercase tracking-wide '
+            + 'text-accent-700 dark:text-accent-200">' + esc(f.frage) + '</dt>'
+            + '<dd class="mt-0.5 whitespace-pre-wrap text-ink-700 dark:text-ink-300">'
+            + esc(w) + '</dd></div>';
+        }).join('');
+
+        var knopf = function (wert, zeichen, wort) {
+          var an = e.meine === wert;
+          return '<button type="button" data-stimme="' + wert + '" data-id="' + esc(e.id) + '" '
+            + 'aria-pressed="' + (an ? 'true' : 'false') + '" title="' + esc(wort) + '" '
+            + 'aria-label="' + esc(wort) + '" class="grid h-8 w-8 place-items-center rounded-md '
+            + 'border text-sm transition ' + (an
+              ? 'border-accent-600 bg-accent-600 text-white'
+              : 'border-ink-300 text-ink-500 hover:border-accent-500 hover:text-accent-700 '
+                + 'dark:border-slate-600/55 dark:text-ink-400 dark:hover:text-accent-100')
+            + '">' + zeichen + '</button>';
+        };
+
+        return '<article class="card !p-4 flex gap-4' + (fertig(e) ? ' opacity-75' : '') + '">'
+          + '<div class="flex w-9 shrink-0 flex-col items-center gap-1">'
+          + knopf(1, '&#9650;', 'Betrifft mich auch')
+          + '<span class="text-base font-bold tabular-nums text-ink-800 dark:text-ink-100">'
+          + e.punkte + '</span>'
+          + knopf(-1, '&#9660;', 'Für mich nicht wichtig')
+          + '</div>'
+          + '<div class="min-w-0 flex-1">'
+          + '<div class="flex flex-wrap items-center gap-2">'
+          + '<span class="badge ' + (STATUS_FARBE[e.status] || STATUS_FARBE.neu) + '">'
+          + esc(STATUS_TEXT[e.status] || e.status) + '</span>'
+          + '<span class="text-xs text-ink-500 dark:text-ink-400">'
+          + esc(e.klasse) + ' · ' + datum(e.zeit) + ' · ' + e.abgestimmt
+          + (e.abgestimmt === 1 ? ' Stimme' : ' Stimmen') + '</span>'
+          + '</div>'
+          + '<h3 class="mt-1.5 font-serif text-lg font-semibold leading-snug text-ink-900 dark:text-ink-50">'
+          + esc(e.titel) + '</h3>'
+          + (e.notiz
+            ? '<p class="mt-2 rounded-md border-l-4 border-teal-500 bg-teal-50/70 px-3 py-2 text-sm '
+              + 'text-ink-800 dark:border-teal-400/60 dark:bg-teal-950/30 dark:text-ink-200">'
+              + esc(e.notiz) + ' <span class="text-ink-500 dark:text-ink-400">— Herr Glaubitz</span></p>'
+            : '')
+          + '<details class="mt-2"><summary class="cursor-pointer text-sm font-medium '
+          + 'text-accent-700 dark:text-accent-100">Ganze Meldung</summary>'
+          + '<dl class="mt-1 text-sm">' + reihen + '</dl></details>'
+          + '</div></article>';
+      }).join('');
+    }
+
+    /* -------------------------------------------------------- Code */
+    var codeAufloesen = null;
+    function codeFragen(grund) {
+      $('#rm-code-grund').textContent = grund;
+      $('#rm-code-fehler').hidden = true;
+      $('#rm-codeschirm').hidden = false;
+      $('#rm-code-feld').focus();
+      $('#rm-codeschirm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return new Promise(function (fertig) { codeAufloesen = fertig; });
+    }
+    function codeSchliessen(ergebnis) {
+      $('#rm-codeschirm').hidden = true;
+      if (codeAufloesen) { codeAufloesen(ergebnis); codeAufloesen = null; }
+    }
+
+    $('#rm-code-ok').addEventListener('click', async function () {
+      var feld = $('#rm-code-feld'), fehler = $('#rm-code-fehler');
+      var code = feld.value.trim();
+      if (!code) return;
+      this.disabled = true;
+      try {
+        var r = await fetch(dienst + '/v1/zutritt', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ code: code }),
+        });
+        var d = await r.json();
+        if (r.ok && d.ok) {
+          zutritt = { code: code, klasse: d.klasse };
+          speicher(LS_CODE, JSON.stringify(zutritt));
+          feld.value = '';
+          codeSchliessen(true);
+        } else {
+          fehler.textContent = d.grund === 'kein-code-eingerichtet'
+            ? 'Für dieses Brett ist noch kein Code eingerichtet. Sag mir Bescheid.'
+            : 'Der Code stimmt nicht. Er wurde in der Stunde genannt.';
+          fehler.hidden = false;
+        }
+      } catch (e) {
+        fehler.textContent = 'Der Dienst antwortet gerade nicht.';
+        fehler.hidden = false;
+      } finally { this.disabled = false; }
+    });
+    $('#rm-code-feld').addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); $('#rm-code-ok').click(); }
+    });
+    $('#rm-code-weg').addEventListener('click', function () { codeSchliessen(false); });
+
+    async function brauchtCode(grund) {
+      if (zutritt && zutritt.code) return true;
+      return await codeFragen(grund);
+    }
+
+    /* ---------------------------------------------------- Abstimmen */
+    document.addEventListener('click', async function (ev) {
+      var b = ev.target.closest && ev.target.closest('button[data-stimme]');
+      if (!b) return;
+      if (!(await brauchtCode('Zum Abstimmen brauchst du den Klassencode.'))) return;
+
+      var id = b.dataset.id, wert = Number(b.dataset.stimme);
+      var e = eintraege.find(function (x) { return x.id === id; });
+      if (!e) return;
+      /* Nochmal auf denselben Pfeil heißt: Stimme zurücknehmen. */
+      var neu = e.meine === wert ? 0 : wert;
+      b.disabled = true;
+      try {
+        var r = await fetch(dienst + '/v1/stimme', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ art: art, code: zutritt.code, geraet: geraet(), id: id, wert: neu }),
+        });
+        var d = await r.json();
+        if (r.status === 403) {
+          zutritt = null; speicher(LS_CODE, null);
+          if (await brauchtCode('Der gespeicherte Code gilt nicht mehr.')) return;
+          return;
+        }
+        if (!r.ok || !d.ok) throw new Error(d.grund || 'Antwort ' + r.status);
+        Object.assign(e, d.eintrag);
+        zeichnen();
+        var kasten = $('#rm-aehnlich');
+        if (!kasten.hidden) aehnlicheZeigen(kasten.dataset.titel || '');
+      } catch (err) {
+        lage('Die Stimme kam nicht an. Noch einmal versuchen?');
+      } finally { b.disabled = false; }
+    });
+
+    /* ------------------------------------------------- Steuerzeile */
+    Array.prototype.forEach.call(document.querySelectorAll('.rm-schalter'), function (b) {
+      b.setAttribute('aria-pressed', b.dataset.sortierung === sortierung ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        sortierung = b.dataset.sortierung;
+        Array.prototype.forEach.call(document.querySelectorAll('.rm-schalter'), function (x) {
+          x.setAttribute('aria-pressed', x.dataset.sortierung === sortierung ? 'true' : 'false');
+        });
+        laden();
+      });
+    });
+    $('#rm-klasse').addEventListener('change', zeichnen);
+    $('#rm-fertig').addEventListener('change', zeichnen);
+
+    /* --------------------------------------------------- Formular */
+    var form = $('#rm-form');
+    var schritt = function (n) { return form.querySelector('[data-schritt="' + n + '"]'); };
+
+    function fehlerLeeren() {
+      Array.prototype.forEach.call(form.querySelectorAll('[data-fehler]'), function (p) {
+        p.hidden = true; p.textContent = '';
+      });
+    }
+    function fehlerZeigen(karte) {
+      var erstes = null;
+      Object.keys(karte || {}).forEach(function (k) {
+        var p = form.querySelector('[data-fehler="' + k + '"]');
+        if (!p) return;
+        p.textContent = karte[k]; p.hidden = false;
+        if (!erstes) erstes = p;
+      });
+      if (erstes) erstes.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    $('#rm-oeffnen').addEventListener('click', function () {
+      form.hidden = false;
+      this.hidden = true;
+      /* Gerät und Browser einmal vorbelegen — die Angabe ist nützlich und
+         niemand tippt sie freiwillig ab. */
+      var g = form.querySelector('[data-feld="geraet_art"]');
+      if (g && !g.value) g.value = geraetName();
+      $('#rm-titel').focus();
+      speicher('mu-rm-leitfaden-gesehen', '1');
+    });
+    $('#rm-abbrechen').addEventListener('click', function () {
+      form.reset(); form.hidden = true; $('#rm-oeffnen').hidden = false;
+      schritt(2).hidden = true; schritt(3).hidden = true;
+      fehlerLeeren();
+      $('#rm-oeffnen').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    function geraetName() {
+      var u = navigator.userAgent || '';
+      var g = /iPad/.test(u) ? 'iPad' : /iPhone/.test(u) ? 'iPhone'
+        : /Android/.test(u) ? 'Android' : /Mac/.test(u) ? 'Mac'
+        : /Windows/.test(u) ? 'Windows' : 'Rechner';
+      var b = /Edg\//.test(u) ? 'Edge' : /Chrome\//.test(u) ? 'Chrome'
+        : /Firefox\//.test(u) ? 'Firefox' : /Safari\//.test(u) ? 'Safari' : 'Browser';
+      return g + ', ' + b;
+    }
+
+    /* -------------------------------------- Gibt es das schon? */
+    /* Wortvergleich, absichtlich schlicht: Er soll auf Ähnliches
+       aufmerksam machen, nicht darüber entscheiden. */
+    var STOPP = ['der','die','das','und','oder','nicht','ist','sind','eine','einen','einem',
+      'beim','beim','wenn','wird','werden','kann','man','mit','für','von','den','dem','auf',
+      'aus','als','ich','mir','mich','sich','habe','hat','war','dass','aber','noch','wie'];
+    function worte(s) {
+      return String(s || '').toLowerCase().replace(/[^a-zäöüß0-9 ]/g, ' ').split(/\s+/)
+        .filter(function (w) { return w.length > 3 && STOPP.indexOf(w) < 0; });
+    }
+    function aehnliche(titel) {
+      var w = worte(titel);
+      if (w.length < 2) return [];
+      return eintraege.map(function (e) {
+        var andere = worte(e.titel + ' ' + Object.keys(e.felder || {})
+          .map(function (k) { return e.felder[k]; }).join(' '));
+        var treffer = 0;
+        w.forEach(function (x) { if (andere.indexOf(x) >= 0) treffer++; });
+        return { e: e, wert: treffer / w.length };
+      }).filter(function (x) { return x.wert >= 0.4; })
+        .sort(function (a, b) { return b.wert - a.wert; })
+        .slice(0, 4).map(function (x) { return x.e; });
+    }
+
+    var titelFeld = $('#rm-titel'), warten = null;
+    titelFeld.addEventListener('input', function () {
+      $('#rm-titel-zahl').textContent = titelFeld.value.length + '/' + TITEL_MAX;
+      $('#rm-weiter').disabled = titelFeld.value.trim().length < TITEL_MIN;
+      clearTimeout(warten);
+      warten = setTimeout(function () { aehnlicheZeigen(titelFeld.value); }, 250);
+    });
+
+    function aehnlicheZeigen(titel) {
+      var treffer = aehnliche(titel), kasten = $('#rm-aehnlich');
+      if (!treffer.length) { kasten.hidden = true; $('#rm-weiter').textContent = 'Weiter'; return; }
+      $('#rm-aehnlich-liste').innerHTML = treffer.map(function (e) {
+        /* Wer hier schon zugestimmt hat, muss das sehen — sonst nimmt der
+           zweite Klick die eigene Stimme still wieder zurück. */
+        var an = e.meine === 1;
+        return '<li class="flex items-start gap-3 rounded-md bg-surface/80 p-2 '
+          + 'dark:bg-slate-900/50">'
+          + '<button type="button" data-stimme="1" data-id="' + esc(e.id) + '" '
+          + 'aria-pressed="' + (an ? 'true' : 'false') + '" '
+          + 'class="mt-0.5 shrink-0 whitespace-nowrap rounded-md border px-2 py-1 text-xs '
+          + 'font-semibold ' + (an
+            ? 'border-accent-600 bg-accent-600 text-white'
+            : 'border-accent-600 text-accent-700 dark:border-accent-400/60 dark:text-accent-100')
+          + '">' + (an ? 'gestimmt &#10003; ' : '&#9650; ') + e.punkte + '</button>'
+          + '<span class="min-w-0 text-sm text-ink-800 dark:text-ink-200">' + esc(e.titel) + '</span>'
+          + '</li>';
+      }).join('');
+      /* Merken, worauf die Liste zuletzt gebaut war, damit eine Stimme sie
+         sofort auffrischt statt sie stehenzulassen. */
+      kasten.dataset.titel = titel;
+      kasten.hidden = false;
+      $('#rm-weiter').textContent = 'Keine passt — weiter';
+    }
+
+    $('#rm-weiter').addEventListener('click', function () {
+      schritt(2).hidden = false;
+      schritt(2).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function sammeln() {
+      var raus = {};
+      felder.forEach(function (f) {
+        if (f.auswahl) {
+          var an = form.querySelector('input[name="rm-f-' + f.schluessel + '"]:checked');
+          raus[f.schluessel] = an ? an.value : '';
+        } else {
+          var t = form.querySelector('[data-feld="' + f.schluessel + '"]');
+          raus[f.schluessel] = t ? t.value : '';
+        }
+      });
+      return raus;
+    }
+
+    $('#rm-vorschau').addEventListener('click', function () {
+      var werte = sammeln();
+      $('#rm-vorschau-feld').innerHTML =
+        '<p class="font-serif text-base font-semibold text-ink-900 dark:text-ink-50">'
+        + esc(titelFeld.value.trim() || '(ohne Überschrift)') + '</p>'
+        + '<dl class="mt-2">' + felder.map(function (f) {
+          if (!werte[f.schluessel]) return '';
+          return '<div class="mt-2"><dt class="text-xs font-semibold uppercase tracking-wide '
+            + 'text-accent-700 dark:text-accent-200">' + esc(f.frage) + '</dt>'
+            + '<dd class="mt-0.5 whitespace-pre-wrap text-ink-700 dark:text-ink-300">'
+            + esc(werte[f.schluessel]) + '</dd></div>';
+        }).join('') + '</dl>';
+      schritt(3).hidden = false;
+      schritt(3).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function alsText() {
+      var werte = sammeln();
+      return brettName + ': ' + titelFeld.value.trim() + '\n\n'
+        + felder.map(function (f) {
+          return werte[f.schluessel] ? f.frage + '\n' + werte[f.schluessel] : '';
+        }).filter(Boolean).join('\n\n');
+    }
+
+    $('#rm-kopieren').addEventListener('click', async function () {
+      try {
+        await navigator.clipboard.writeText(alsText());
+        this.textContent = 'Kopiert ✓';
+      } catch (e) {
+        window.prompt('Zum Kopieren markieren und Strg+C drücken:', alsText());
+      }
+    });
+
+    form.addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      fehlerLeeren();
+      if (!(await brauchtCode('Zum Absenden brauchst du den Klassencode.'))) return;
+
+      var knopf = $('#rm-senden');
+      knopf.disabled = true;
+      var alt = knopf.textContent;
+      knopf.textContent = 'wird gesendet …';
+      try {
+        var r = await fetch(dienst + '/v1/melden', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            art: art, code: zutritt.code, geraet: geraet(),
+            titel: titelFeld.value, felder: sammeln(),
+            kuerzel: $('#rm-kuerzel').value,
+          }),
+        });
+        var d = await r.json();
+
+        if (r.status === 403) {
+          zutritt = null; speicher(LS_CODE, null);
+          fehlerZeigen({ allgemein: 'Der gespeicherte Code gilt nicht mehr. Bitte neu eingeben.' });
+          return;
+        }
+        if (r.status === 429) {
+          fehlerZeigen({ allgemein: d.grund === 'tageslimit'
+            ? 'Heute sind schon sehr viele Meldungen eingegangen. Morgen wieder.'
+            : 'Du hast heute schon mehrere Meldungen geschickt. Das reicht für heute — '
+              + 'stimm lieber für das ab, was schon dasteht.' });
+          return;
+        }
+        if (!r.ok || !d.ok) {
+          if (d.fehler) fehlerZeigen(d.fehler);
+          else fehlerZeigen({ allgemein: 'Das ging nicht (' + esc(d.grund || r.status) + ').' });
+          return;
+        }
+
+        form.reset();
+        form.hidden = true;
+        schritt(2).hidden = true; schritt(3).hidden = true;
+        $('#rm-oeffnen').hidden = false;
+        $('#rm-titel-zahl').textContent = '0/' + TITEL_MAX;
+        $('#rm-weiter').disabled = true;
+        $('#rm-aehnlich').hidden = true;
+        lage('Danke — deine Meldung steht jetzt auf dem Brett.');
+        setTimeout(function () { lage(''); }, 6000);
+        await laden();
+        var neu = document.querySelector('[data-id="' + d.eintrag.id + '"]');
+        if (neu) neu.closest('article').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {
+        fehlerZeigen({ allgemein: 'Der Dienst antwortet nicht. Deine Meldung ist nicht verloren — '
+          + 'mit „Als Text kopieren“ kannst du sie sichern und mir später geben.' });
+        $('#rm-kopieren').hidden = false;
+      } finally {
+        knopf.disabled = false;
+        knopf.textContent = alt;
+      }
+    });
+
+    /* Leitfaden nach dem ersten Mal zugeklappt lassen. */
+    if (speicher('mu-rm-leitfaden-gesehen')) $('#rm-leitfaden').open = false;
+
+    laden();
+  })();
+</script>
