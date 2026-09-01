@@ -126,10 +126,39 @@ vornehmen — `wrangler login` öffnet den Browser.
 ```bash
 cd rueckmeldung
 npx wrangler login
-npx wrangler secret put CODES     # z. B.  7b:hufeisen42, 10b:seilbahn7, 10c:nordpol3, 11a:kreide19
+npx wrangler secret put CODES     # Form:  7b:…, 10b:…, 10c:…, 11a:…
 npx wrangler secret put LEHRER    # frei wählbar, nur für Sie
 npx wrangler deploy
 ```
+
+> **Denken Sie sich die Werte selbst aus — hier steht mit Absicht keiner.**
+> Am 01.09.2026 stand an dieser Stelle eine Beispielzeile mit vier
+> erfundenen Codes. Sie wurde beim Einrichten wortwörtlich übernommen, und
+> damit war die Sperre wertlos: Diese Datei liegt öffentlich auf GitHub.
+> Beim Lehrerschlüssel derselbe Fehler — gesetzt wurde `sumdideldum`, das
+> hausweite Lehrerkennwort, das im Quelltext **jeder veröffentlichten
+> Stundenseite** steht. Damit hätte jeder die Moderationsseite geöffnet.
+>
+> Der Dienst weist solche Werte inzwischen **zurück** (`VERBRANNT` in
+> `kern.mjs`), statt so zu tun, als sei er geschützt. Ein abgewiesenes
+> Geheimnis heißt: stummes Brett bzw. keine Moderationsseite.
+>
+> **Und wenn ein Code einmal öffentlich stand, ist er für immer verbrannt.**
+> Git vergisst nichts; ihn zu löschen genügt nicht, er muss ersetzt werden.
+
+Was gesetzt ist, verrät die Statusauskunft — **Lerngruppen ja, Codes nie**:
+
+```bash
+curl https://rueckmeldung.<konto>.workers.dev/v1/ping
+```
+
+```json
+{"ok":true,"schreiben":true,"klassen":["7b","10b","10c","11a"],
+ "moderation":true,"verbrannt":0}
+```
+
+`verbrannt` größer als 0 heißt: Etwas wurde abgewiesen. Ohne diese Zahl
+suchte man den Fehler bei den iPads.
 
 `wrangler deploy` nennt zum Schluss die Adresse, etwa
 `https://rueckmeldung.<konto>.workers.dev`. **Weicht sie von

@@ -212,15 +212,41 @@ export function gleich(a, b) {
   return d === 0;
 }
 
+/* ------------------------------------------------------------------
+   Geheimnisse, die keine sind.
+
+   Am 01.09.2026 stand in dieser Datei eine Beispielzeile mit vier
+   erfundenen Codes. Sie wurde beim Einrichten wortwoertlich uebernommen
+   — und damit war die Zugangssperre wertlos, denn die Beispiele liegen
+   oeffentlich auf GitHub. Derselbe Fehler beim Lehrerschluessel: Gesetzt
+   wurde das hausweite Lehrerkennwort, das im Quelltext jeder
+   veroeffentlichten Stundenseite steht.
+
+   Eine Warnung im Text haette das nicht verhindert — sie stand da. Der
+   Dienst weist solche Werte deshalb ZURUECK, statt so zu tun, als sei
+   er geschuetzt. Dass die Liste die verbrannten Werte nennt, schadet
+   nicht: Sie sind ohnehin oeffentlich, und Git vergisst sie nie wieder.
+------------------------------------------------------------------ */
+export const VERBRANNT = [
+  "sumdideldum",                                     // hausweites Lehrerkennwort
+  "hufeisen42", "seilbahn7", "nordpol3", "kreide19", // frueheres Beispiel
+  "geheim-probe", "probe", "probe1234", "probe5678", // Werte aus der Pruefung
+];
+export const istVerbrannt = (s) =>
+  VERBRANNT.includes(String(s == null ? "" : s).trim().toLowerCase());
+
 /* Die Codes kommen als ein einziges Secret herein, damit nicht fuer
    jede neue Lerngruppe die Konfiguration angefasst werden muss:
 
-     CODES = "7b:hufeisen42, 10b:seilbahn7, 10c:nordpol3, 11a:kreide19"
+     CODES = "7b:<eigener Code>, 10b:<eigener Code>"
 
    Ein blanker Code ohne Klasse gilt fuer alle und traegt die Klasse
    "alle" — fuer den Fall, dass es schnell gehen muss. */
-export function codesLesen(roh) {
+/* `auchVerbrannte` zaehlt mit, was sonst wegfaellt — nur damit die
+   Statusauskunft sagen kann, dass etwas abgewiesen wurde. */
+export function codesLesen(roh, auchVerbrannte = false) {
   const raus = [];
+  const weg = auchVerbrannte ? () => false : istVerbrannt;
   for (const stueck of String(roh || "").split(/[,;\n]+/)) {
     const t = stueck.trim();
     if (!t) continue;
@@ -228,8 +254,9 @@ export function codesLesen(roh) {
     if (i > 0) {
       const klasse = t.slice(0, i).trim();
       const code = t.slice(i + 1).trim();
-      if (KLASSE_RE.test(klasse) && code.length >= 4) raus.push({ klasse, code });
-    } else if (t.length >= 4) {
+      if (KLASSE_RE.test(klasse) && code.length >= 4 && !weg(code))
+        raus.push({ klasse, code });
+    } else if (t.length >= 4 && !weg(t)) {
       raus.push({ klasse: "alle", code: t });
     }
   }
@@ -440,14 +467,26 @@ export async function bearbeite(req, brett, wache, geheim, jetzt = new Date()) {
   const url = new URL(req.url);
   const pfad = url.pathname.replace(/\/+$/, "") || "/";
   const codes = codesLesen(geheim && geheim.codes);
-  const lehrer = (geheim && geheim.lehrer) || "";
+  /* Ein verbrannter Lehrerschluessel oeffnet nichts. Fail closed: lieber
+     keine Moderationsseite als eine, die jeder aufbekommt. */
+  const rohLehrer = (geheim && geheim.lehrer) || "";
+  const lehrer = istVerbrannt(rohLehrer) ? "" : rohLehrer;
 
   if (req.method === "OPTIONS")
     return new Response(null, { status: 204, headers: corsKopf() });
 
-  if (pfad === "/v1/ping")
+  /* Die Statusauskunft nennt die Lerngruppen, aber nie einen Code: So
+     laesst sich nachsehen, ob eine Klasse eingerichtet ist, ohne dass
+     jemand mitliest, womit. `verbrannt` faellt auf, wenn ein Geheimnis
+     abgewiesen wurde — sonst suchte man den Fehler bei den iPads. */
+  if (pfad === "/v1/ping") {
+    const abgewiesen = codesLesen((geheim && geheim.codes) || "", true).length - codes.length;
     return json({ ok: true, dienst: "rueckmeldung", bretter: ARTEN,
-                  schreiben: codes.length > 0 });
+                  schreiben: codes.length > 0,
+                  klassen: codes.map((c) => c.klasse),
+                  moderation: !!lehrer,
+                  verbrannt: abgewiesen + (istVerbrannt(rohLehrer) ? 1 : 0) });
+  }
 
   /* Felder und Leitfaden holt sich die Seite hier ab, damit Formular
      und Pruefung nicht auseinanderlaufen koennen. */

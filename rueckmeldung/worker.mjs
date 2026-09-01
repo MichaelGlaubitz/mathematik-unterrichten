@@ -32,7 +32,11 @@
               Zaehler fuer die Schranken.
      CODES    die Klassencodes. Ohne sie nimmt der Dienst NICHTS an.
               Setzen mit:  npx wrangler secret put CODES
-              Form:        7b:hufeisen42, 10b:seilbahn7
+              Form:        7b:<eigener Code>, 10b:<eigener Code>
+              Erfundene Beispiele stehen hier mit Absicht nicht: Das
+              Vorbild wurde einmal woertlich uebernommen, und damit lag
+              der Schluessel oeffentlich auf GitHub. Bekannte Werte
+              weist der Dienst inzwischen zurueck (VERBRANNT, kern.mjs).
      LEHRER   das Geheimnis, mit dem die Moderationsseite aufgeht.
               Setzen mit:  npx wrangler secret put LEHRER
 
