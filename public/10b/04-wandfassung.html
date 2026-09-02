@@ -1224,7 +1224,16 @@
         const a = await fetch(dienst + "/v1/raum/" + raum + "/hinweis", {
           method:"POST", headers: kopf(),
           body: JSON.stringify({ text: an ? RUHETEXT : "" }) });
-        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+        if (a.status === 403){
+          /* Ohne gueltigen Schluessel hat der Dienst nichts gesetzt - dann
+             darf die Wand es auch nicht behaupten. */
+          document.body.classList.add("schluesselfehlt");
+          ruhe = false;
+          document.body.classList.remove("ruhe");
+          if (ruheKnopf) ruheKnopf.setAttribute("aria-pressed", "false");
+          stand.querySelector(".text").textContent = "Abstimmung";
+          return;
+        }
       } catch(e){}
       if (!an) beobachte();
     }
