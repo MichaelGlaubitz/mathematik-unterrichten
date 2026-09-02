@@ -79,6 +79,20 @@ Website übertragen.
 unverändert weiter — die Fragen stehen ja an der Wand. Plickers-Karten
 austeilen, fertig.
 
+## „Blick nach vorn.“ — der Grundzustand
+
+Der Schalter **👀 Blick nach vorn** in der Regieleiste der Wandfassung (oder
+die Taste **B**) nimmt den Geräten die Karten weg und stellt nur diesen einen
+Satz hin — groß, in der Mitte. Solange der Schalter gedrückt ist, öffnet die
+Wand keine Frage, auch nicht beim Blättern auf eine Abfragefolie. Wird er
+gelöst, geht eine Frage, die gerade an der Wand steht, von selbst wieder auf;
+die schon abgegebenen Stimmen sind noch da.
+
+Technisch ist das `POST /v1/raum/<code>/hinweis` mit `{ "text": "…" }` gegen
+den Lehrerschlüssel; ein leerer Text hebt den Grundzustand auf, und jede neu
+geöffnete Frage hebt ihn ebenfalls auf. Der Satz lässt sich je Stunde
+ersetzen: `…-wandfassung.html?ruhe=Heft%20zu.`
+
 ## Wenn das Schul-WLAN streikt
 
 `lokal.mjs` ist derselbe Dienst als Node-Server für den Lehrer-Laptop:

@@ -49,7 +49,7 @@ export const corsKopf = () => ({
 
 const leer = (code) => ({
   code, frage: "", optionen: [], offen: false, schluessel: "",
-  stimmen: {}, geaendert: Date.now(),
+  stimmen: {}, hinweis: "", geaendert: Date.now(),
 });
 
 const zaehle = (z) => {
@@ -90,6 +90,9 @@ export async function bearbeite(req, speicher, lehrer) {
       /* Wie viele schon abgestimmt haben, darf jeder sehen - es macht
          das Warten ertraeglich und verraet nichts ueber die Antwort. */
       abgestimmt: Object.keys(z.stimmen).length,
+      /* Der Grundzustand: Steht hier ein Text („Blick nach vorn."), zeigt
+         das Geraet nur ihn - keine Karten, keine Frage. */
+      hinweis: z.hinweis || "",
     });
   }
 
@@ -129,9 +132,23 @@ export async function bearbeite(req, speicher, lehrer) {
     z.frage = saeubere(b.frage, 400);
     z.optionen = optionen;
     z.offen = true;
+    z.hinweis = "";                    // eine offene Frage beendet den Grundzustand
     z.geaendert = Date.now();
     await speicher.schreib(code, z);
     return json({ ok: true, schluessel });
+  }
+
+  /* Grundzustand: Die Geraete zeigen nur einen Satz („Blick nach vorn.")
+     und keine Karten. Frage, Antworten und Stimmen bleiben im Raum
+     liegen - wird dieselbe Frage danach wieder geoeffnet, sind die
+     Stimmen noch da. Ein leerer Text hebt den Grundzustand auf. */
+  if (req.method === "POST" && was === "hinweis") {
+    let b; try { b = await req.json(); } catch { return json({ ok: false, grund: "kaputt" }, 400); }
+    z.hinweis = saeubere(b.text, 120);
+    z.offen = false;
+    z.geaendert = Date.now();
+    await speicher.schreib(code, z);
+    return json({ ok: true, hinweis: z.hinweis });
   }
 
   if (req.method === "POST" && was === "zu") {
