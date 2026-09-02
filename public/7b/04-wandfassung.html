@@ -274,6 +274,7 @@
     letter-spacing:.06em;text-transform:uppercase;vertical-align:.12em}
   .marke.mwb{background:#0f766e}
   .marke.plk{background:#7c3aed}
+  .marke.zei{background:#b45309}
 
   /* --- Wenn eine Abfrage dran ist --------------------------------------
      Die kleine Marke oben genuegt nicht: Sie sagt der Lehrkraft, was
@@ -292,11 +293,13 @@
      neu an, auch beim Zurueckblaettern. */
   .slide.abfrage.mwb{background:linear-gradient(178deg,#ecfdf5 0%,#ccfbf1 100%)}
   .slide.abfrage.plk{background:linear-gradient(178deg,#f5f3ff 0%,#e9e3ff 100%)}
+  .slide.abfrage.zei{background:linear-gradient(178deg,#fffbeb 0%,#fdf0c8 100%)}
   /* Der Balken sitzt unter den Leisten (z-index 52) und ueber der Folie. */
   .slide.abfrage::before{content:"";position:absolute;left:0;right:0;top:0;
     height:11px;z-index:3}
   .slide.abfrage.mwb::before{background:#0f766e}
   .slide.abfrage.plk::before{background:#7c3aed}
+  .slide.abfrage.zei::before{background:#b45309}
 
   @keyframes blitzen{0%,100%{opacity:0}44%{opacity:.82}}
   .slide.abfrage.on::after{content:"";position:absolute;inset:0;opacity:0;
@@ -305,6 +308,37 @@
     background:radial-gradient(ellipse at 50% 45%,rgba(20,184,166,.30),rgba(15,118,110,.60))}
   .slide.abfrage.plk.on::after{
     background:radial-gradient(ellipse at 50% 45%,rgba(167,139,250,.30),rgba(124,58,237,.60))}
+  .slide.abfrage.zei.on::after{
+    background:radial-gradient(ellipse at 50% 45%,rgba(251,191,36,.30),rgba(180,83,9,.60))}
+
+  /* --- Zeichenauftrag: die Galerie --- */
+  /* Ein Raster, dessen Spaltenzahl das Skript aus der Zahl der Bilder
+     rechnet (siehe galerie() in ABSTIMMUNG_JS): alle Kacheln passen ins
+     Bild, und je weniger es sind, desto groesser ist jede. Kein
+     display:none an der Galerie selbst - die Pruefung misst die Raender
+     aller Kinder, und ein unsichtbares Kind laege bei 0. */
+  .galerie{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+  .galerie .leer{grid-column:1/-1;margin:0;color:var(--muted)}
+  .galerie:not([data-n="0"]) .leer{display:none}
+  .kachel{position:relative;aspect-ratio:4/3;background:#f1f5f9;border:2px solid var(--line);
+    border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:26px;color:var(--muted);cursor:pointer}
+  .kachel img{display:none;width:100%;height:100%;object-fit:contain;background:#fff}
+  .kachel.frei img{display:block}
+  .kachel.frei .nr{display:none}
+  .kachel.frei{border-color:var(--green)}
+  .zeiknoepfe{display:flex;gap:10px;align-items:center;margin-top:12px}
+  .zeiknoepfe button{font:inherit;font-size:16px;font-weight:800;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:4px 14px;cursor:pointer}
+  .zeiknoepfe button:hover{color:var(--ink);border-color:#94a3b8}
+  .zeiknoepfe .zaehler{margin-left:auto;font-weight:800;color:var(--muted);font-size:18px}
+  /* Ein Bild gross: legt sich ueber die Folie, ein Klick nimmt es weg. */
+  .lupe{position:absolute;inset:0;z-index:6;background:#fff;display:none;
+    align-items:center;justify-content:center;cursor:pointer}
+  .lupe.an{display:flex}
+  .lupe img{max-width:100%;max-height:100%}
+  @media print{.zeiknoepfe,.lupe{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -1056,14 +1090,15 @@
 
     async function oeffne(folie){
       const frage = folie.dataset.frage || "";
+      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
       let optionen = [];
       try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
-      if (optionen.length < 2) return;
+      if (art === "wahl" && optionen.length < 2) return;
       const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
       try {
         const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
           method:"POST", headers: kopf(),
-          body: JSON.stringify({ frage, optionen, schluessel }) });
+          body: JSON.stringify({ frage, optionen, schluessel, art }) });
         if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
         if (!a.ok) return;
         laufend = { folie, schluessel };
@@ -1090,11 +1125,94 @@
         const a = await fetch(dienst + "/v1/raum/" + raum + "/ergebnis",
                               { headers: kopf(), cache:"no-store" });
         const d = await a.json();
-        if (d.ok) male(folie, d.zaehler || [], d.abgestimmt || 0);
+        if (!d.ok) return;
+        if (d.art === "zeichnen") galerie(folie, d);
+        else male(folie, d.zaehler || [], d.abgestimmt || 0);
       } catch(e){}
     }
 
     const tick = () => { if (laufend) zeichne(laufend.folie); };
+
+    /* --- Zeichenauftrag: die Galerie an der Wand ----------------------
+       Jedes eingereichte Bild ist eine Kachel. Nicht freigegebene sind
+       grau und tragen nur eine Nummer; freigegebene zeigen das Bild. Ein
+       Klick auf eine graue Kachel gibt sie frei - blind; wer vorher sehen
+       will, nimmt die Sichtung auf dem eigenen Geraet
+       (abstimmung/sichtung.html?raum=…). Ein Klick auf ein Bild zeigt es
+       gross. Das Raster richtet sich nach der Zahl der Bilder, damit alle
+       ins Bild passen: Spalten = Wurzel aus (Bilder mal 4/3), mindestens
+       zwei - bei 32 sind das sieben Spalten in fuenf Reihen. */
+    function galerie(folie, d){
+      const g = folie.querySelector(".galerie"); if (!g) return;
+      const liste = d.bilder || [];
+      const z = folie.querySelector(".zaehler");
+      if (z) z.textContent = liste.length + (liste.length === 1 ? " Bild" : " Bilder")
+                             + (d.offen ? "" : " · geschlossen");
+      stand.querySelector(".text").textContent = "Bilder: " + liste.length;
+      g.dataset.n = liste.length;
+      const spalten = Math.max(2, Math.ceil(Math.sqrt(liste.length * 4 / 3)));
+      g.style.gridTemplateColumns = "repeat(" + spalten + ",1fr)";
+      const da = new Set(liste.map(b => b.geraet));
+      [...g.querySelectorAll(".kachel")].forEach(k => {
+        if (!da.has(k.dataset.geraet)) k.remove(); });
+      liste.forEach((b, i) => {
+        let k = g.querySelector('.kachel[data-geraet="' + b.geraet + '"]');
+        if (!k){
+          k = document.createElement("div");
+          k.className = "kachel"; k.dataset.geraet = b.geraet;
+          k.innerHTML = '<span class="nr"></span>';
+          k.addEventListener("click", e => { e.stopPropagation(); kachelKlick(folie, k); });
+          g.appendChild(k);
+        }
+        k.querySelector(".nr").textContent = i + 1;
+        k.classList.toggle("frei", !!b.frei);
+        /* Ein ersetztes Bild traegt eine neue Zeit - dann noch einmal holen. */
+        if (b.frei && k.dataset.geladen !== String(b.zeit)) holeBild(k, b);
+      });
+    }
+    async function holeBild(k, b){
+      if (k.dataset.laedt === String(b.zeit)) return;
+      k.dataset.laedt = String(b.zeit);
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/bild?geraet="
+                              + encodeURIComponent(b.geraet),
+                              { headers: kopf(), cache:"no-store" });
+        const d = await a.json();
+        if (!d.ok) return;
+        let img = k.querySelector("img");
+        if (!img){ img = document.createElement("img"); img.alt = ""; k.appendChild(img); }
+        img.src = d.daten;
+        k.dataset.geladen = String(b.zeit);
+      } catch(e){}
+    }
+    async function freigeben(folie, koerper){
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frei",
+                              { method:"POST", headers: kopf(), body: JSON.stringify(koerper) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+      } catch(e){}
+      zeichne(folie);
+    }
+    function kachelKlick(folie, k){
+      if (!k.classList.contains("frei"))
+        return freigeben(folie, { geraet: k.dataset.geraet, frei: true });
+      const img = k.querySelector("img"); if (!img) return;
+      let lupe = folie.querySelector(".lupe");
+      if (!lupe){
+        lupe = document.createElement("div"); lupe.className = "lupe";
+        lupe.innerHTML = '<img alt="">';
+        lupe.addEventListener("click", e => { e.stopPropagation(); lupe.classList.remove("an"); });
+        folie.appendChild(lupe);
+      }
+      lupe.querySelector("img").src = img.src;
+      lupe.classList.add("an");
+    }
+    document.addEventListener("click", e => {
+      const b = e.target.closest(".zeiknoepfe button"); if (!b) return;
+      e.stopPropagation();
+      const folie = b.closest(".slide"); if (!folie) return;
+      freigeben(folie, { alle: true, frei: b.classList.contains("alle") });
+    });
 
     /* --- Grundzustand: „Blick nach vorn." ------------------------------
        Die Geraete zeigen normalerweise nur diesen Satz - keine Karten,
