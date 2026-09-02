@@ -5617,7 +5617,36 @@ window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
     VERWAIST = [];
     document.querySelectorAll(".anp-warnung").forEach(function (w) { w.remove(); });
 
-    daten.eintraege.forEach(function (e) {
+    /* Von aussen nach innen: flache Pfade zuerst.
+
+       Wer ein Element UND eines seiner Kinder aendert, aendert mit dem Kind
+       auch den Textinhalt des Elternteils - und damit dessen Fingerabdruck.
+       Kam das Kind zuerst, erkannte der Elternteil sich selbst nicht mehr
+       und galt als verwaist: An der 7b-Wandfassung ging so ein ganzer
+       Absatz verloren, waehrend die Zeile darin ankam.
+
+       Der Elternteil setzt seinen Inhalt ohnehin als Ganzes; ihn zuerst zu
+       legen ist auch der Reihenfolge nach richtig. */
+    var reihe = daten.eintraege.slice().sort(function (a, b) {
+      return (a.pfad === "" ? 0 : a.pfad.split("/").length)
+           - (b.pfad === "" ? 0 : b.pfad.split("/").length);
+    });
+
+    /* Ein Eintrag, der UNTERHALB eines anderen liegt, welcher seinen Inhalt
+       als Ganzes setzt, ist wirkungslos: Der Elternteil bringt den Text des
+       Kindes schon mit. Das ist kein Fehler und darf nicht als verwaist
+       gemeldet werden - sonst steht eine rote Warnung an der Wand, obwohl
+       genau das dasteht, was gewollt war. */
+    function verdecktVon(e) {
+      return reihe.some(function (a) {
+        return a !== e && a.behaelter === e.behaelter
+            && typeof (a.was || {}).text === "string"
+            && a.pfad !== "" && e.pfad.indexOf(a.pfad + "/") === 0;
+      });
+    }
+
+    reihe.forEach(function (e) {
+      if (verdecktVon(e)) return;
       var el = elementFinden(e);
       if (!el) { VERWAIST.push(e); return; }
       var w = e.was || {};

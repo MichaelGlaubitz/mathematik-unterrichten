@@ -1057,7 +1057,7 @@
     setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
   })();
 
-  window.ANPASSUNGEN = {"fassung": 1, "anzeige": "proportionale-zuordnungen-7b-wandfassung.html", "eintraege": [{"behaelter": "#1", "pfad": "3/0", "fp": "1x7qpfd", "was": {"text": "<b>So läuft das heute:</b> Ich zeige etwas vor, dann rechnen wir es gemeinsam, dann fragt ihr euch selbst ab. Wir verwenden das Mini-Whiteboard und probieren Clickers aus. Bei jeder Frage antworten <b>alle</b> — nicht bloß die Schnellsten."}}, {"behaelter": "#2", "pfad": "1/0/2/2", "fp": "1ixt05e", "was": {"text": "Clickers"}}, {"behaelter": "#2", "pfad": "1/0/4/2", "fp": "1j4d95h", "was": {"text": "Clickers"}}, {"behaelter": "A2", "pfad": "4", "fp": "4r76cs", "was": {"text": "Merkt euch den Weg: Ihr braucht <b>eine</b> bekannte Zeile oder Spalte, dann geht jede andere."}}, {"behaelter": "#23", "pfad": "2", "fp": "nyrqri", "was": {"text": "Prüft <b>beide</b>. Auf dem Whiteboard steht am Ende nur: <br><i>ja oder nein</i> — die Rechnung dazu im Heft."}}, {"behaelter": "VERF", "pfad": "3/0/1", "fp": "fkigf3", "was": {"text": "Sucht eine Zeile, die ihr vollständig kennt."}}, {"behaelter": "#34", "pfad": "3/0/2", "fp": "1xadrh7", "was": {"text": "Nächste Stunde:"}}, {"behaelter": "#34", "pfad": "3/0", "fp": "10lq6zf", "was": {"text": "<b>Hausaufgabe:</b> Buch S. 17 Nr. 7. Wer mag: Nr. 10 (Windbeutel).<br><b class=\"\" contenteditable=\"false\">Nächste Stunde:</b> Wir teilen statt zu vervielfachen — und bekommen jedes Mal dieselbe Zahl heraus. Warum das kein Zufall ist, klärt die nächste Stunde."}}]};
+  window.ANPASSUNGEN = {"fassung": 1, "anzeige": "proportionale-zuordnungen-7b-wandfassung.html", "eintraege": [{"behaelter": "#1", "pfad": "3/0", "fp": "ibqylh", "was": {"text": "<b>So läuft das heute:</b> Ich zeige etwas vor, dann rechnen wir es gemeinsam, dann fragt ihr euch selbst ab. Wir verwenden das Mini-Whiteboard und probieren Clickers aus. Bei jeder Frage antworten <b>alle</b> — nicht bloß die Schnellsten."}}, {"behaelter": "#2", "pfad": "1/0/2/2", "fp": "1ixt05e", "was": {"text": "Clickers"}}, {"behaelter": "#2", "pfad": "1/0/4/2", "fp": "1ixt05e", "was": {"text": "Clickers"}}, {"behaelter": "A2", "pfad": "4", "fp": "2erd5l", "was": {"text": "Merkt euch den Weg: Ihr braucht <b>eine</b> bekannte Zeile oder Spalte, dann geht jede andere."}}, {"behaelter": "#23", "pfad": "2", "fp": "1r7dd2w", "was": {"text": "Prüft <b>beide</b>. Auf dem Whiteboard steht am Ende nur: <br><i>ja oder nein</i> — die Rechnung dazu im Heft."}}, {"behaelter": "VERF", "pfad": "3/0/1", "fp": "1g6qck5", "was": {"text": "Sucht eine Zeile, die ihr vollständig kennt."}}, {"behaelter": "#34", "pfad": "3/0/2", "fp": "f1n0zr", "was": {"text": "Nächste Stunde:"}}, {"behaelter": "#34", "pfad": "3/0", "fp": "19lcibw", "was": {"text": "<b>Hausaufgabe:</b> Buch S. 17 Nr. 7. Wer mag: Nr. 10 (Windbeutel).<br><b class=\"\" contenteditable=\"false\">Nächste Stunde:</b> Wir teilen statt zu vervielfachen — und bekommen jedes Mal dieselbe Zahl heraus. Warum das kein Zufall ist, klärt die nächste Stunde."}}]};
 /* ===========================================================================
    Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
 
@@ -1252,7 +1252,36 @@
     VERWAIST = [];
     document.querySelectorAll(".anp-warnung").forEach(function (w) { w.remove(); });
 
-    daten.eintraege.forEach(function (e) {
+    /* Von aussen nach innen: flache Pfade zuerst.
+
+       Wer ein Element UND eines seiner Kinder aendert, aendert mit dem Kind
+       auch den Textinhalt des Elternteils - und damit dessen Fingerabdruck.
+       Kam das Kind zuerst, erkannte der Elternteil sich selbst nicht mehr
+       und galt als verwaist: An der 7b-Wandfassung ging so ein ganzer
+       Absatz verloren, waehrend die Zeile darin ankam.
+
+       Der Elternteil setzt seinen Inhalt ohnehin als Ganzes; ihn zuerst zu
+       legen ist auch der Reihenfolge nach richtig. */
+    var reihe = daten.eintraege.slice().sort(function (a, b) {
+      return (a.pfad === "" ? 0 : a.pfad.split("/").length)
+           - (b.pfad === "" ? 0 : b.pfad.split("/").length);
+    });
+
+    /* Ein Eintrag, der UNTERHALB eines anderen liegt, welcher seinen Inhalt
+       als Ganzes setzt, ist wirkungslos: Der Elternteil bringt den Text des
+       Kindes schon mit. Das ist kein Fehler und darf nicht als verwaist
+       gemeldet werden - sonst steht eine rote Warnung an der Wand, obwohl
+       genau das dasteht, was gewollt war. */
+    function verdecktVon(e) {
+      return reihe.some(function (a) {
+        return a !== e && a.behaelter === e.behaelter
+            && typeof (a.was || {}).text === "string"
+            && a.pfad !== "" && e.pfad.indexOf(a.pfad + "/") === 0;
+      });
+    }
+
+    reihe.forEach(function (e) {
+      if (verdecktVon(e)) return;
       var el = elementFinden(e);
       if (!el) { VERWAIST.push(e); return; }
       var w = e.was || {};
