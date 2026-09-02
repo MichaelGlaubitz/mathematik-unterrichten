@@ -993,6 +993,9 @@
       if (lebt){
         document.body.classList.toggle("schluesselfehlt", !holeSchluessel());
         document.body.classList.add("qrzeigen");
+        /* Kommt der Dienst (oder der Schluessel) erst jetzt, holt das
+           die Regel fuer die Folie nach, die gerade steht. */
+        beobachte();
       }
     }
 
@@ -1074,16 +1077,19 @@
     const tick = () => { if (laufend) zeichne(laufend.folie); };
 
     /* --- Grundzustand: „Blick nach vorn." ------------------------------
-       Der Schalter in der Regieleiste (oder B) nimmt den Geraeten die
-       Karten weg und stellt einen Satz hin. Solange er gedrueckt ist,
-       oeffnet die Wand keine Frage - auch nicht beim Blaettern auf eine
-       Abfragefolie. Wird er geloest, geht eine Frage, die gerade an der
-       Wand steht, von selbst wieder auf; ihre Stimmen sind noch da, weil
-       der Dienst beim Grundzustand nichts loescht. ?ruhe=… in der Adresse
-       ersetzt den Satz. */
+       Die Geraete zeigen normalerweise nur diesen Satz - keine Karten,
+       keine Frage. Nur waehrend eine Abfragefolie an der Wand steht, ist
+       der Grundzustand aus und die Frage offen; die naechste Folie ohne
+       Abfrage schaltet ihn wieder ein, eine weitere Abfragefolie nicht.
+       Das geschieht von selbst beim Folienwechsel (beobachte). Der
+       Schalter in der Regieleiste (oder B) ueberstimmt das bis zum
+       naechsten Folienwechsel - etwa um eine Frage kurz zuzuhalten.
+       Die Stimmen bleiben dabei erhalten, weil der Dienst beim
+       Grundzustand nichts loescht. ?ruhe=… in der Adresse ersetzt den
+       Satz. */
     const RUHETEXT = (Q.get("ruhe") || "Blick nach vorn.").slice(0, 120);
     const ruheKnopf = document.querySelector(".regie .ruhe");
-    let ruhe = false;
+    let ruhe = false, zuletzt = null;     /* zuletzt: Folie der letzten Regel */
     async function ruheSetzen(an){
       if (!lebt) return;
       ruhe = an;
@@ -1107,12 +1113,21 @@
     function beobachte(){
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
-      if (ruhe) return;                /* Grundzustand: nichts geht auf */
       const istAbfrage = !!folie.dataset.frage;
+      /* Die Regel beim Folienwechsel: Grundzustand ueberall, nur nicht
+         auf einer Abfragefolie. Einmal je Folie - danach darf der
+         Schalter von Hand anders entscheiden. */
+      if (folie !== zuletzt && lebt && holeSchluessel()){
+        zuletzt = folie;
+        if (ruhe !== !istAbfrage) return ruheSetzen(!istAbfrage);
+      }
+      if (ruhe) return;                /* Grundzustand: nichts geht auf */
       if (!istAbfrage){ if (laufend) schliesse(); return; }
       const aufgeloest = (+(folie.dataset.step || 0)) > 0;
       if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
-      if (laufend && laufend.folie !== folie) return schliesse();
+      /* Von einer Abfragefolie direkt auf die naechste: erst die alte
+         schliessen, dann noch einmal hinsehen, damit die neue aufgeht. */
+      if (laufend && laufend.folie !== folie) return schliesse().then(beobachte);
       if (laufend && aufgeloest){
         /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
            Gefaerbt - und damit verraten - wird die richtige Karte erst beim
