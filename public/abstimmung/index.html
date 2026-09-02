@@ -138,15 +138,24 @@ let stand = { schluessel: "", offen: false };
 let meineWahl = null;
 let fehlerAmStueck = 0;
 
-/* $…$ im Text setzen - wenn KaTeX da ist. */
+/* $…$ im Text setzen - wenn KaTeX da ist. Liefert, ob gesetzt wurde:
+   Die Bibliothek laedt verzoegert, die erste Abfrage kommt oft vorher.
+   Wer dann nicht setzen konnte, merkt sich das nicht als erledigt. */
 function setzeTex(el){
-  if (typeof renderMathInElement !== "function") return;
+  if (typeof renderMathInElement !== "function") return false;
   try {
     renderMathInElement(el, { delimiters: [
       { left: "$$", right: "$$", display: true },
       { left: "$", right: "$", display: false }], throwOnError: false });
   } catch (e) {}
+  return true;
 }
+/* Sobald KaTeX da ist: nachsetzen, was vorher roh stehen blieb. */
+window.addEventListener("load", () => {
+  document.querySelectorAll("[data-roh-offen]").forEach(el => {
+    if (setzeTex(el)) delete el.dataset.rohOffen;
+  });
+});
 
 function zeigeHinweis(html, klasse){
   $("hinweis").className = "hinweis" + (klasse ? " " + klasse : "");
@@ -167,7 +176,7 @@ function baueKarten(optionen){
     bst.textContent = BUCHSTABEN[i] || (i + 1);
     const t = document.createElement("span");
     t.textContent = text;                       /* Text, kein HTML */
-    setzeTex(t);
+    if (!setzeTex(t) && text.includes("$")) t.dataset.rohOffen = "1";
     b.append(bst, t);
     b.onclick = () => waehle(i);
     box.append(b);
@@ -245,9 +254,11 @@ async function hole(){
     }
     const frageText = d.frage || (d.offen ? "Frage läuft" : "Gleich geht es los");
     if ($("frage").dataset.roh !== frageText){
-      $("frage").dataset.roh = frageText;
       $("frage").textContent = frageText;
-      setzeTex($("frage"));
+      /* Erst als erledigt merken, wenn gesetzt ist - sonst beim naechsten
+         Abruf noch einmal, dann ist KaTeX da. */
+      if (setzeTex($("frage")) || !frageText.includes("$"))
+        $("frage").dataset.roh = frageText;
     }
     if (!d.optionen || !d.optionen.length){
       $("karten").textContent = "";
@@ -333,9 +344,9 @@ feldLeeren();
 function zeichnenStand(d){
   const frageText = d.frage || "Zeichne";
   if ($("frage").dataset.roh !== frageText){
-    $("frage").dataset.roh = frageText;
     $("frage").textContent = frageText;
-    setzeTex($("frage"));
+    if (setzeTex($("frage")) || !frageText.includes("$"))
+      $("frage").dataset.roh = frageText;
   }
   $("stand").textContent = d.eingereicht
     ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
