@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Abstimmung</title>
+<!-- Formeln: Die Wand schreibt sie als $…$ in die Frage; hier setzt KaTeX
+     sie. Fehlt die Bibliothek (kein Netz beim ersten Laden), steht der
+     Quelltext da - lesbar, nur nicht schoen. -->
+<link rel="stylesheet" href="katex/katex.min.css">
+<script defer src="katex/katex.min.js"></script>
+<script defer src="katex/contrib/auto-render.min.js"></script>
 <style>
   :root{
     --bg:#f6f7fb; --panel:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
@@ -132,6 +138,16 @@ let stand = { schluessel: "", offen: false };
 let meineWahl = null;
 let fehlerAmStueck = 0;
 
+/* $…$ im Text setzen - wenn KaTeX da ist. */
+function setzeTex(el){
+  if (typeof renderMathInElement !== "function") return;
+  try {
+    renderMathInElement(el, { delimiters: [
+      { left: "$$", right: "$$", display: true },
+      { left: "$", right: "$", display: false }], throwOnError: false });
+  } catch (e) {}
+}
+
 function zeigeHinweis(html, klasse){
   $("hinweis").className = "hinweis" + (klasse ? " " + klasse : "");
   $("hinweis").innerHTML = html;
@@ -151,6 +167,7 @@ function baueKarten(optionen){
     bst.textContent = BUCHSTABEN[i] || (i + 1);
     const t = document.createElement("span");
     t.textContent = text;                       /* Text, kein HTML */
+    setzeTex(t);
     b.append(bst, t);
     b.onclick = () => waehle(i);
     box.append(b);
@@ -221,11 +238,17 @@ async function hole(){
     document.body.classList.toggle("ruhe", !!d.hinweis);
     if (d.hinweis){
       $("frage").textContent = d.hinweis;
+      $("frage").dataset.roh = "";            /* danach wird die Frage neu gesetzt */
       $("stand").textContent = "";
       $("hinweis").hidden = true;
       return;
     }
-    $("frage").textContent = d.frage || (d.offen ? "Frage läuft" : "Gleich geht es los");
+    const frageText = d.frage || (d.offen ? "Frage läuft" : "Gleich geht es los");
+    if ($("frage").dataset.roh !== frageText){
+      $("frage").dataset.roh = frageText;
+      $("frage").textContent = frageText;
+      setzeTex($("frage"));
+    }
     if (!d.optionen || !d.optionen.length){
       $("karten").textContent = "";
       zeigeHinweis('<span class="warte"></span>Warte auf die nächste Frage …');
@@ -308,7 +331,12 @@ $("senden").onclick = async () => {
 feldLeeren();
 
 function zeichnenStand(d){
-  $("frage").textContent = d.frage || "Zeichne";
+  const frageText = d.frage || "Zeichne";
+  if ($("frage").dataset.roh !== frageText){
+    $("frage").dataset.roh = frageText;
+    $("frage").textContent = frageText;
+    setzeTex($("frage"));
+  }
   $("stand").textContent = d.eingereicht
     ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
   $("loeschen").disabled = !d.offen;

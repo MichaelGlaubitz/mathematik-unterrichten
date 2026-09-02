@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Sichtung</title>
+<link rel="stylesheet" href="katex/katex.min.css">
+<script defer src="katex/katex.min.js"></script>
+<script defer src="katex/contrib/auto-render.min.js"></script>
 <style>
   :root{
     --bg:#f6f7fb; --panel:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
@@ -139,7 +142,15 @@ async function hole(){
       return;
     }
     if (d.schluessel !== letzterSchluessel){ letzterSchluessel = d.schluessel; $("galerie").textContent = ""; bilder.clear(); }
-    $("auftrag").textContent = d.frage || "Zeichenauftrag";
+    const auftragText = d.frage || "Zeichenauftrag";
+    if ($("auftrag").dataset.roh !== auftragText){
+      $("auftrag").dataset.roh = auftragText;
+      $("auftrag").textContent = auftragText;
+      if (typeof renderMathInElement === "function")
+        try { renderMathInElement($("auftrag"), { delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }], throwOnError: false }); } catch (e) {}
+    }
     const liste = d.bilder || [];
     const freiZahl = liste.filter(b => b.frei).length;
     $("stand").textContent = liste.length + (liste.length === 1 ? " Bild" : " Bilder")
