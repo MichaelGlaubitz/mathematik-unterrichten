@@ -85,10 +85,43 @@
   body.sehrspaet .regie .puhr{color:var(--red)}
   @media print{.regie{display:none}}
   /* --- Pause: ein kleiner Schalter in der Regieleiste ruft den Timer --- */
-  .regie .pause,.regie .ruhe{font:inherit;font-size:11px;font-weight:800;color:var(--muted);
-    background:none;border:1px solid var(--line);border-radius:999px;
+  .regie .pause,.regie .ruhe,.regie .protokoll{font:inherit;font-size:11px;font-weight:800;
+    color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;
     padding:1px 8px;cursor:pointer;line-height:1.3;white-space:nowrap}
-  .regie .pause:hover,.regie .ruhe:hover{color:var(--ink);border-color:#94a3b8}
+  .regie .pause:hover,.regie .ruhe:hover,.regie .protokoll:hover{color:var(--ink);
+    border-color:#94a3b8}
+
+  /* --- Protokoll: alle Folien bis zur aktuellen als PDF ---
+     Der Knopf in der Regieleiste stellt die Seite auf „Protokoll" um und
+     ruft den Druckdialog; „Als PDF speichern" legt die Datei in Downloads
+     ab. Gedruckt werden die Folien 1 bis zur aktuellen, jede auf einer
+     Seite, in dem Zustand, in dem sie verlassen wurden: aufgedeckte
+     Schritte bleiben aufgedeckt, Stimmenbalken und Bilder bleiben stehen.
+     Die Vorschau des naechsten Schritts (halb durchsichtig) faellt weg. */
+  .protokollkopf{display:none}
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body.protokoll{overflow:visible!important;height:auto!important;background:#fff}
+    body.protokoll .deck{position:static;height:auto;width:auto;overflow:visible}
+    body.protokoll .slide{display:none!important}
+    body.protokoll .slide.im-protokoll{display:block!important;position:relative;inset:auto;
+      height:auto;min-height:0;padding:0!important;animation:none;overflow:visible;
+      background:#fff;break-after:page;page-break-after:always}
+    body.protokoll .slide.im-protokoll.letzte{break-after:auto;page-break-after:auto}
+    body.protokoll .slide.im-protokoll::before,
+    body.protokoll .slide.im-protokoll::after{display:none!important}
+    body.protokoll .slide.im-protokoll .buehne{transform:none!important;width:1200px;
+      zoom:.74;margin:0 auto}
+    body.protokoll .slide.im-protokoll .frag{opacity:0!important}
+    body.protokoll .slide.im-protokoll .frag[style*="opacity: 1"]{opacity:1!important}
+    body.protokoll .slide.im-protokoll .protokollkopf{display:block;font-size:15px;
+      color:#64748b;border-bottom:1px solid #e2e8f0;padding-bottom:5px;margin-bottom:12px}
+    body.protokoll .regie,body.protokoll .randnotiz,body.protokoll .qrecke,
+    body.protokoll .hintkey,body.protokoll .nav,body.protokoll #dots,body.protokoll .dots,
+    body.protokoll .ghostctl,body.protokoll .abstand,body.protokoll .schluesselknopf,
+    body.protokoll .home,body.protokoll .counter,body.protokoll .lupe,
+    body.protokoll .pauseschirm,body.protokoll .anp-leiste{display:none!important}
+  }
   body.pause .regie .pause,body.ruhe .regie .ruhe{color:#fff;background:var(--accent);
     border-color:var(--accent)}
   /* „Blick nach vorn" wirkt auf die Geraete - ohne Dienst gibt es nichts
@@ -619,7 +652,7 @@
 <a class="home" href="../Klassen/Mathe_10b.html">&larr; Mathe 10b</a>
 <div class="counter" id="counter"></div>
 <div class="notizmarke">Randnotizen sichtbar · D</div>
-<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span><button class="ruhe" type="button" aria-pressed="false" title="Grundzustand auf den iPads: nur &bdquo;Blick nach vorn.&ldquo; (B)">&#128064; Blick nach vorn</button><button class="pause" type="button" aria-pressed="false" title="Zwei Minuten Pause ausrufen (P)">&#9208; 2 min</button></div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span><button class="protokoll" type="button" title="Protokoll: alle Folien bis hierher als PDF &ndash; Drucken, dann &bdquo;Als PDF speichern&ldquo; (landet in Downloads)">&#128196; Protokoll</button><button class="ruhe" type="button" aria-pressed="false" title="Grundzustand auf den iPads: nur &bdquo;Blick nach vorn.&ldquo; (B)">&#128064; Blick nach vorn</button><button class="pause" type="button" aria-pressed="false" title="Zwei Minuten Pause ausrufen (P)">&#9208; 2 min</button></div>
 <div class="pauseschirm"></div>
 <div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m2 0h1m3 0h1m1 0h4m-24 1h1m1 0h5m4 0h4m1 0h2m1 0h1m2 0h3m1 0h5m-31 1h4m3 0h4m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h2m3 0h1m1 0h1m3 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-32 1h4m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h3m-27 1h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h3m2 0h2m1 0h1m-30 1h1m1 0h2m1 0h1m1 0h1m2 0h1m3 0h1m1 0h2m1 0h3m2 0h1m2 0h4m-31 1h1m2 0h3m5 0h1m1 0h1m4 0h2m3 0h2m1 0h4m-32 1h1m2 0h2m2 0h3m2 0h1m1 0h1m5 0h3m2 0h3m2 0h1m-31 1h1m1 0h2m1 0h3m3 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m2 0h2m6 0h1m4 0h1m2 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-32 1h1m2 0h4m1 0h2m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-31 1h2m2 0h1m2 0h1m4 0h1m4 0h1m1 0h3m2 0h1m1 0h4m1 0h1m-32 1h2m2 0h2m2 0h1m2 0h8m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h2m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m3 0h2m1 0h5m1 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m8 0h2m2 0h4m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m-31 1h1m1 0h3m1 0h2m1 0h2m4 0h1m1 0h1m4 0h7m2 0h2m-25 1h2m1 0h2m3 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m3 0h4m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m4 0h1m1 0h1m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg><div class="code">10B-WURZ</div></div>
 <div class="deck" id="deck">
@@ -956,6 +989,61 @@
     });
     setInterval(zeige, 1000);
     zeige();
+  })();
+
+  /* ---- Protokoll: alle Folien bis zur aktuellen als PDF ---------------
+     Umgestellt wird nur fuer den Druck: Klassen am body und an den
+     Folien, eine Kopfzeile je Folie. Danach kommt alles wieder weg, die
+     Stunde laeuft weiter, wo sie war. Die beiden Funktionen haengen am
+     window, damit die Pruefung sie ohne Druckdialog aufrufen kann. */
+  (function protokoll(){
+    const TITEL = document.title;
+    window.protokollVorbereiten = function(){
+      const folien = [...document.querySelectorAll('.slide')];
+      const aktuell = folien.findIndex(s => s.classList.contains('on'));
+      const jetzt = new Date();
+      const stand = jetzt.toLocaleDateString('de-DE')
+                  + ', ' + jetzt.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+      folien.forEach((s, i) => {
+        const drin = i <= aktuell;
+        s.classList.toggle('im-protokoll', drin);
+        s.classList.toggle('letzte', i === aktuell);
+        if(!drin) return;
+        let k = s.querySelector('.protokollkopf');
+        if(!k){
+          k = document.createElement('div');
+          k.className = 'protokollkopf';
+          (s.querySelector(':scope > .buehne') || s).prepend(k);
+        }
+        k.textContent = TITEL + ' · Folie ' + (i + 1) + ' von ' + folien.length
+                      + (s.dataset.phase ? ' · ' + s.dataset.phase : '')
+                      + ' · Stand ' + stand;
+      });
+      document.body.classList.add('protokoll');
+      document.title = 'Protokoll ' + TITEL + ' '
+                     + jetzt.toISOString().slice(0, 16).replace('T', ' ').replace(':', '-');
+      return aktuell + 1;
+    };
+    window.protokollBeenden = function(){
+      document.body.classList.remove('protokoll');
+      document.title = TITEL;
+      document.querySelectorAll('.slide').forEach(s => {
+        s.classList.remove('im-protokoll', 'letzte');
+        const k = s.querySelector('.protokollkopf');
+        if(k) k.remove();
+      });
+    };
+    const knopf = document.querySelector('.regie .protokoll');
+    if(!knopf) return;
+    knopf.addEventListener('click', e => {
+      e.stopPropagation();
+      window.protokollVorbereiten();
+      const fertig = () => { window.removeEventListener('afterprint', fertig);
+                             window.protokollBeenden(); };
+      window.addEventListener('afterprint', fertig);
+      window.print();
+      setTimeout(fertig, 1500);      /* falls afterprint ausbleibt */
+    });
   })();
 
   /* ---- Pause: der Unterrichts-Timer der Website ueber der Folie -------
