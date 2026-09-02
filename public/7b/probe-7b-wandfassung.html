@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probe · Abstimmung (7B)</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#4f46e5; --accent2:#0ea5e9; --gold:#d97706; --green:#15803d; --red:#dc2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:4.5vh 5vw 9vh;animation:fade .35s ease}
+  .slide.on{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1{font-size:clamp(34px,5.5vw,76px);line-height:1.04;font-weight:800;letter-spacing:-.01em}
+  h2{font-size:clamp(26px,3.6vw,48px);font-weight:800;line-height:1.08;margin-bottom:.5em}
+  .kicker{font-size:clamp(13px,1.4vw,18px);font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em}
+  p,li{font-size:clamp(17px,2vw,28px);line-height:1.5}
+  .muted{color:var(--muted)} .accent{color:var(--accent)} .gold{color:var(--gold)} .green{color:var(--green)} .red{color:var(--red)}
+  .big{font-size:clamp(40px,7vw,110px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:.25em .9em;font-size:clamp(13px,1.4vw,18px);font-weight:700}
+  .callout{background:#eef2ff;border:1px solid #c7d2fe;border-left:7px solid var(--accent);border-radius:14px;padding:.8em 1.1em;margin-top:.7em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:2.2vh 2vw;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:50}
+  .nav button{border:1px solid var(--line);background:#fff;color:var(--ink);width:46px;height:46px;border-radius:12px;font-size:20px;cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .dots{display:flex;gap:8px}.dot{width:11px;height:11px;border-radius:50%;background:#cbd5e1;cursor:pointer}.dot.on{background:var(--accent);transform:scale(1.25)}
+  .counter{position:fixed;top:16px;right:20px;font-size:14px;font-weight:700;color:var(--muted);z-index:50}
+  .home{position:fixed;top:14px;left:18px;z-index:50;font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 11px}
+  .home:hover{color:var(--accent);border-color:var(--accent)}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:.6em 1.1em;font-size:clamp(15px,1.6vw,20px);font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btnrow{display:flex;gap:10px;margin-top:1em;flex-wrap:wrap}
+  .hintkey{position:fixed;bottom:74px;left:0;right:0;text-align:center;color:var(--muted);font-size:13px;z-index:40}
+  .frag{transition:opacity .3s ease}
+  .ghostctl{position:fixed;left:16px;bottom:18px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;z-index:60;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .ghostctl input{width:96px;accent-color:var(--accent)}
+  @media print{.ghostctl{display:none}}
+
+  /* --- Whiteboard-Runde --- */
+  .nr{font-variant-numeric:tabular-nums}
+  .frage{font-size:clamp(30px,5.2vw,84px);font-weight:800;line-height:1.14;letter-spacing:-.01em;max-width:22ch}
+  .frage .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .zusatz{font-size:clamp(16px,1.9vw,26px);color:var(--muted);margin-top:.9em}
+  .antwort{margin-top:3.4vh;display:flex;align-items:baseline;gap:1.1vw;flex-wrap:wrap}
+  .antwort .wert{font-size:clamp(34px,6vw,96px);font-weight:800;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
+  .antwort .neben{font-size:clamp(16px,1.8vw,26px)}
+  /* Randnotiz: nur fuer die Lehrkraft, Taste D */
+  .randnotiz{display:none;position:fixed;left:16px;bottom:120px;max-width:min(38ch,42vw);background:#fffbeb;border:1px solid #fcd34d;border-left:7px solid var(--gold);border-radius:12px;padding:.7em .9em;font-size:clamp(12px,1.05vw,15px);line-height:1.45;color:#4a3410;z-index:55;box-shadow:0 6px 20px rgba(15,23,42,.12)}
+  body.notizen .slide.on .randnotiz{display:block}
+  .randnotiz b{color:#92400e}
+  .notizmarke{position:fixed;top:16px;right:96px;z-index:56;display:none;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid #fcd34d;background:#fffbeb;border-radius:8px;padding:4px 9px}
+  body.notizen .notizmarke{display:block}
+  /* Uebersicht */
+  .tab{width:100%;border-collapse:collapse;margin-top:1.4vh}
+  .tab th,.tab td{border-bottom:1px solid var(--line);padding:.45em .6em;text-align:left;vertical-align:top}
+  .tab th{font-size:clamp(11px,1.1vw,15px);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800}
+  .tab td.nrz{width:2.4em;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .tab td.fr{font-size:clamp(13px,1.55vw,22px);line-height:1.3}
+  .tab td.an{font-size:clamp(14px,1.7vw,24px);font-weight:800;color:var(--green);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tab td.di,.tab th.di{display:none;font-size:clamp(11px,1.1vw,15px);color:#4a3410;line-height:1.35;max-width:44ch}
+  body.notizen .tab td.di,body.notizen .tab th.di{display:table-cell}
+  body.notizen .tab td.fr{font-size:clamp(12px,1.25vw,17px)}
+  body.notizen .tab td.an{font-size:clamp(12px,1.35vw,19px)}
+
+  /* ================= Wandfassung (Direct Instruction) ================= */
+
+  /* --- Regieleiste: Phase, Planminute, Stoppuhr --- */
+  .regie{position:fixed;top:13px;left:50%;transform:translateX(-50%);z-index:52;
+    display:flex;align-items:center;gap:12px;background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:5px 15px;
+    font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;
+    box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .regie .pnam{color:var(--ink)}
+  .regie .ptr{color:#cbd5e1}
+  .regie .puhr{font-variant-numeric:tabular-nums;color:var(--accent);min-width:4.2em;
+    text-align:right}
+  body.spaet .regie{border-color:#fcd34d;background:#fffbeb}
+  body.spaet .regie .puhr{color:var(--gold)}
+  body.sehrspaet .regie{border-color:#fecaca;background:#fef2f2}
+  body.sehrspaet .regie .puhr{color:var(--red)}
+  @media print{.regie{display:none}}
+
+  /* --- Platz fuer die Leisten ------------------------------------------
+     Die Vorlage laesst oben 4,5vh frei. Das genuegt fuer den blossen
+     Zurueck-Link, nicht fuer Regieleiste, Abstimmungsanzeige und
+     Foliennummer - die liegen sonst auf der ersten Zeile. Unten dasselbe
+     mit Tastenzeile und Blaetterknoepfen. Feste Mindestwerte, weil vh auf
+     einem flachen Fenster zu wenig ergibt. */
+  .slide{padding:max(7.5vh,66px) 5vw max(10vh,86px)}
+
+  /* --- Ueberschriften und Fliesstext der Lehrgangsfolien --- */
+  .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
+  .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* --- Ablauftabelle der zweiten Folie ---------------------------------
+     Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
+     steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
+     so hoch macht. Auf einem breiten Bildschirm laeuft die Folie damit
+     unten heraus. */
+  .tab td.nrz{width:auto;min-width:4.4em;white-space:nowrap;
+    font-size:clamp(13px,1.4vw,20px)}
+  .tab td.fr{font-size:clamp(13px,1.45vw,20px)}
+  .tab td.an{font-size:clamp(13px,1.5vw,21px)}
+  .tab th,.tab td{padding:.34em .55em}
+  .lead{font-size:clamp(17px,2.05vw,30px);line-height:1.4;max-width:44ch}
+  .weit{max-width:none}
+
+  /* --- Ich zeige es: Rechenschritte, einer nach dem anderen --- */
+  .schritte{display:flex;flex-direction:column;gap:1.15vh;margin-top:1.8vh}
+  .schritt{display:flex;gap:1vw;align-items:flex-start;background:var(--panel);
+    border:1px solid var(--line);border-left:7px solid var(--accent2);
+    border-radius:14px;padding:1.15vh 1.15vw}
+  .schritt .num{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:9px;
+    background:#e0f2fe;color:#075985;font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:clamp(15px,1.7vw,25px)}
+  .schritt .txt{font-size:clamp(16px,1.9vw,28px);line-height:1.33}
+  .schritt .rech{display:block;margin-top:.18em;font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .schritt.ergebnis{border-left-color:var(--green);background:#f0fdf4}
+  .schritt.ergebnis .num{background:#dcfce7;color:#14532d}
+  .schritt.ergebnis .rech{color:var(--green)}
+  .schritt.fehler{border-left-color:var(--red);background:#fef2f2}
+  .schritt.fehler .num{background:#fee2e2;color:#7f1d1d}
+  .schritt.fehler .rech{color:var(--red)}
+  /* Ab fuenf Schritten passt die Folie sonst nicht mehr auf 16:9 - dann
+     rueckt alles enger zusammen, statt oben aus dem Bild zu laufen. */
+  .schritte.eng{gap:.7vh}
+  .schritte.eng .schritt{padding:.8vh 1vw}
+  .schritte.eng .txt{font-size:clamp(14px,1.62vw,24px)}
+  .schritte.eng .num{width:1.6em;height:1.6em;font-size:clamp(13px,1.45vw,21px)}
+
+  /* --- Preisschilder --- */
+  .schilder{display:flex;gap:2vw;margin-top:1.8vh;flex-wrap:wrap;align-items:flex-start}
+  .schild{flex:1 1 300px;background:#fffdf3;border:2px solid #e6c34a;border-radius:16px;
+    padding:1.5vh 1.4vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .schild h3{font-size:clamp(18px,2.2vw,33px);font-weight:800;color:#8d6e00;
+    margin-bottom:.35em;line-height:1.15}
+  .schild table{width:100%;border-collapse:collapse}
+  .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
+    font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
+  .schild tr:last-child td{border-bottom:none}
+  .schild td.p{text-align:right;font-weight:800}
+  .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
+
+  /* --- Wertetabelle mit Vervielfachungspfeilen --- */
+  .wtab{border-collapse:collapse;margin-top:1.8vh}
+  .wtab td,.wtab th{border:2px solid #94a3b8;padding:.34em .75em;
+    font-size:clamp(15px,1.9vw,29px);text-align:center;font-variant-numeric:tabular-nums}
+  .wtab th{background:#eef2ff;font-weight:800;text-align:left;white-space:nowrap}
+  .wtab td.pf{border:none;background:none;color:var(--accent);font-weight:800;
+    font-size:clamp(13px,1.5vw,22px);padding:.34em .35em;white-space:nowrap}
+  .wtab td.hin{background:#f0fdf4;color:var(--green);font-weight:800}
+  .wtab td.raus{background:#fef2f2;color:var(--red);font-weight:800}
+  .wtab td.luecke{background:#fffbeb;color:var(--gold);font-weight:800}
+
+  /* --- Abfrage mit Beleg ---------------------------------------------
+     Wer ueber eine Tabelle abstimmt, muss die Tabelle sehen. Steht die
+     Frage auf einer eigenen Folie, ist der Beleg von der Vorfolie weg -
+     deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
+     Plickers ueber die vier Karten. */
+  .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
+  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
+  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
+  .mwsplit .antwort{margin-top:2.2vh}
+  .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
+  .mwsplit .wtab{margin-top:0}
+  .mwsplit .wtab td,.mwsplit .wtab th{font-size:clamp(13px,1.55vw,24px);
+    padding:.26em .55em}
+  .mwsplit .schilder{margin-top:0}
+  .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
+  .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+
+  /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
+     hoeher als das Bild, und die Einpassung muesste die ganze Folie
+     verkleinern - die Schrift ausgerechnet dort, wo der Beleg gelesen
+     werden muss. */
+  .plzeile{display:flex;gap:26px;align-items:center;margin-top:16px}
+  .plzeile .plbild{flex:0 0 auto;margin:0;max-width:52%}
+  .plzeile .plickers{flex:1 1 0;min-width:0;margin-top:0}
+  /* Zwei Schilder nebeneinander statt untereinander: Der Umbruch
+     verdoppelte die Hoehe des Belegs und verkleinerte darueber die
+     ganze Folie. */
+  .plzeile .schilder{flex-wrap:nowrap;gap:16px}
+  .plzeile .schilder .schild{min-width:0}
+  .plbild{margin:.7vh 0 .2vh}
+  .plbild .wtab{margin-top:0}
+  .plbild .wtab td,.plbild .wtab th{font-size:clamp(12px,1.42vw,21px);
+    padding:.2em .5em}
+  .plbild .schilder{margin-top:0}
+  .plbild .schild{padding:.9vh 1vw}
+  .plbild .schild td{font-size:clamp(13px,1.5vw,22px);padding:.16em .1em}
+  .plbild .schild h3{font-size:clamp(15px,1.7vw,25px)}
+  .plbild .graph{margin-top:0;width:min(46vw,560px)}
+  .slide.mitbild h2.wt{margin-bottom:.2em;max-width:38ch}
+
+  /* --- Plickers --- */
+  /* Eine Spalte, nicht zwei: siehe die Begruendung an der Entwurfsflaeche
+     weiter unten. Die Karte ist so breit wie die Folie, der Text wird
+     gross, und die vier Karten untereinander fuellen die Hoehe. */
+  .plickers{display:grid;grid-template-columns:1fr;gap:14px;margin-top:22px}
+  .opt{position:relative;display:flex;gap:18px;
+    align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:16px 20px;font-size:28px;line-height:1.3}
+  /* Alles Sichtbare liegt ueber der Fuellung ... */
+  .opt > *{position:relative;z-index:1}
+  /* ... und die Fuellung selbst darunter: Sie faerbt die Karte von links,
+     waehrend die Stimmen eingehen. Ein Balken, der die Antwort nicht mehr
+     verdeckt, sondern hinterlegt. */
+  .opt .fuellung{position:absolute;left:0;top:0;bottom:0;width:0;z-index:0;
+    background:#e6ebff;border-radius:13px;transition:width .35s ease}
+  .opt .zahl{margin-left:auto;padding-left:.7em;font-weight:800;
+    font-variant-numeric:tabular-nums;display:none}
+  .slide.abstimmt .opt .zahl{display:block}
+  /* Stufige Abstimmung: Waehrend gestimmt wird (Schritt 0), stehen die
+     Karten leer da. In der Ecke laeuft trotzdem mit, WIE VIELE schon
+     abgegeben haben - das beruhigt, ohne die Antwort zu verraten. */
+  .slide.stufig[data-step="0"] .opt .zahl,
+  .slide.stufig[data-step="0"] .opt .fuellung{opacity:0}
+  .slide.stufig .opt .zahl,
+  .slide.stufig .opt .fuellung{transition:opacity .3s ease}
+  /* Solange nicht aufgeloest ist, verraet keine Fuellung, welche Karte
+     stimmt - erst danach faerbt sich die richtige gruen. */
+  .plickers.gezeigt .opt.istrichtig .fuellung{background:#bbf7d0}
+  .opt .bst{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:10px;
+    background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:.95em}
+  /* Die Markierung der richtigen Antwort ist ein eigenes .frag-Element:
+     Sie legt sich als gruener Rahmen ueber die Karte, sobald aufgeloest wird. */
+  .haken{position:absolute;inset:-3px;z-index:2;
+    border:3px solid var(--green);border-radius:17px;
+    /* Nur ein Hauch Farbe: Der Rahmen liegt UEBER dem Text, damit das
+       Schild nicht verdeckt wird - ein kraeftiger Schleier machte die
+       richtige Antwort blasser als die falschen. */
+    background:rgba(220,252,231,.16);display:flex;align-items:flex-start;
+    justify-content:flex-end;pointer-events:none}
+  .haken b{background:var(--green);color:#fff;border-radius:999px;
+    padding:.12em .75em;font-size:clamp(12px,1.25vw,18px);
+    transform:translate(-.5em,-.65em)}
+  .aufloesung{margin-top:1.8vh;background:#f0fdf4;border:1px solid #86efac;
+    border-left:7px solid var(--green);border-radius:14px;padding:1.3vh 1.2vw;
+    font-size:clamp(15px,1.75vw,25px);line-height:1.38}
+  .aufloesung .loesungswert{color:var(--green);font-variant-numeric:tabular-nums}
+  .marke{display:inline-block;background:var(--accent);color:#fff;border-radius:8px;
+    padding:.1em .55em;font-size:clamp(12px,1.25vw,17px);font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;vertical-align:.12em}
+  .marke.mwb{background:#0f766e}
+  .marke.plk{background:#7c3aed}
+
+  /* --- Wenn eine Abfrage dran ist --------------------------------------
+     Die kleine Marke oben genuegt nicht: Sie sagt der Lehrkraft, was
+     kommt, aber sie holt niemanden aus dem Heft hoch. Deshalb traegt jede
+     Folie, auf der die ganze Klasse antwortet, zweierlei - ein
+     dreimaliges Aufblinken im Moment des Wechsels und danach eine
+     getoente Flaeche, die stehen bleibt. Das Blinken holt den Blick, die
+     Farbe traegt ihn: Wer erst nach zehn Sekunden aufsieht, erkennt immer
+     noch, dass geantwortet wird und womit.
+
+     Alles in CSS, nichts in JS. Der Beobachter der Einpassung horcht auf
+     Klassenwechsel; wer den Hinweis per Skript an- und abmeldet, loest ihn
+     dabei aus und passt die Folie mitten in der Animation neu ein.
+     Die Animation haengt stattdessen an `.abfrage.on` - beim Blaettern
+     faellt `.on` weg und kommt wieder, und damit laeuft sie von selbst
+     neu an, auch beim Zurueckblaettern. */
+  .slide.abfrage.mwb{background:linear-gradient(178deg,#ecfdf5 0%,#ccfbf1 100%)}
+  .slide.abfrage.plk{background:linear-gradient(178deg,#f5f3ff 0%,#e9e3ff 100%)}
+  /* Der Balken sitzt unter den Leisten (z-index 52) und ueber der Folie. */
+  .slide.abfrage::before{content:"";position:absolute;left:0;right:0;top:0;
+    height:11px;z-index:3}
+  .slide.abfrage.mwb::before{background:#0f766e}
+  .slide.abfrage.plk::before{background:#7c3aed}
+
+  @keyframes blitzen{0%,100%{opacity:0}44%{opacity:.82}}
+  .slide.abfrage.on::after{content:"";position:absolute;inset:0;opacity:0;
+    pointer-events:none;z-index:4;animation:blitzen .42s ease-in-out 3}
+  .slide.abfrage.mwb.on::after{
+    background:radial-gradient(ellipse at 50% 45%,rgba(20,184,166,.30),rgba(15,118,110,.60))}
+  .slide.abfrage.plk.on::after{
+    background:radial-gradient(ellipse at 50% 45%,rgba(167,139,250,.30),rgba(124,58,237,.60))}
+  /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
+  @media print{
+    .slide.abfrage{background:none}
+    .slide.abfrage.on::after{animation:none;display:none}
+  }
+
+  /* --- Kleines Koordinatensystem --- */
+  .graph{width:min(52vw,640px);height:auto;margin-top:1.4vh}
+  .graphpaar{display:flex;gap:2vw;align-items:flex-start;flex-wrap:wrap}
+  .graphpaar .graph{width:min(38vw,470px)}
+  /* Vier Skizzen nebeneinander, je eine je Antwortkarte - damit man ueber
+     Graphen abstimmen kann, ohne sie sich vorstellen zu muessen. */
+  .graphreihe{display:flex;gap:1.1vw;align-items:flex-start;justify-content:center}
+  .graphreihe figure{margin:0;text-align:center;flex:1 1 0;min-width:0}
+  .graphreihe figcaption{font-size:clamp(13px,1.5vw,21px);font-weight:800;
+    color:var(--accent);margin-bottom:.15em}
+  .graphreihe .graph{width:100%;max-width:230px;margin-top:0}
+
+  /* --- Merksatz --- */
+  .merk{background:#fffbeb;border:2px solid #fcd34d;border-left:9px solid var(--gold);
+    border-radius:18px;padding:2.1vh 1.9vw;margin-top:1.6vh}
+  .merk .satz{font-size:clamp(20px,2.75vw,42px);font-weight:800;line-height:1.24}
+  .merk .zusatz{font-size:clamp(15px,1.7vw,25px);color:#7a5c10;margin-top:.65em;
+    line-height:1.4}
+
+  /* --- Arbeitsauftrag der kurzen Eigenphase --- */
+  .auftrag{background:var(--panel);border:1px solid var(--line);
+    border-left:9px solid var(--accent);border-radius:18px;padding:2vh 1.9vw;
+    margin-top:1.6vh;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .auftrag ol{margin:.4em 0 0 1.3em}
+  .auftrag li{margin:.34em 0;font-size:clamp(16px,1.9vw,28px);line-height:1.35}
+  .zeitschild{display:inline-block;background:var(--accent);color:#fff;
+    border-radius:999px;padding:.18em .95em;font-size:clamp(14px,1.5vw,22px);
+    font-weight:800}
+
+  /* --- Zwei Spalten nebeneinander (Vorhersage gegen Schild) --- */
+  .paar{display:grid;grid-template-columns:1fr 1fr;gap:1.6vw;margin-top:1.8vh}
+  @media (max-width:900px){.paar{grid-template-columns:1fr}}
+  .paar .halb{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:1.4vh 1.2vw}
+  .paar .halb h4{font-size:clamp(14px,1.5vw,21px);text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);font-weight:800;margin-bottom:.5em}
+  .paar .halb.gut{border-color:#86efac;background:#f0fdf4}
+  .paar .halb.schlecht{border-color:#fecaca;background:#fef2f2}
+  .paar .halb p{font-size:clamp(15px,1.8vw,26px)}
+
+  /* --- Reservefolien: liegen hinter dem Durchlauf und werden nur bei
+         Bedarf angesprungen. Der bernsteinfarbene Rahmen sagt sofort, dass
+         der geplante Weg gerade verlassen ist - und legt sich, anders als
+         ein Streifen am oberen Rand, nicht ueber die Regieleiste. --- */
+  .slide.reserve{box-shadow:inset 0 0 0 7px var(--gold)}
+
+  /* --- Live-Abstimmung ------------------------------------------------
+     Nur sichtbar, wenn ein Abstimmungsdienst erreichbar ist. Ist er es
+     nicht, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter - genau wie ohne diese Zeilen. */
+  .qrfolie{display:flex;gap:3vw;align-items:center;margin-top:1.6vh}
+  .qrfolie .qrbild{flex:0 0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:1.6vh 1.6vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .qrfolie .qrbild svg{width:min(30vw,340px);height:auto;display:block}
+  .qrfolie .qrtext{flex:1 1 auto;min-width:0}
+  .kurzadresse{font-size:clamp(19px,2.6vw,38px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums;word-break:break-all;margin:.3em 0 .5em}
+  /* Rechts unten, nicht links: links liegen der Vorschau-Regler und die
+     Randnotiz, und die Balken brauchen die volle Breite. */
+  .qrecke{position:fixed;right:14px;bottom:14px;z-index:54;background:#fff;
+    border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 4px 14px rgba(15,23,42,.12);display:none}
+  .qrecke svg{width:88px;height:88px;display:block}
+  .qrecke .code{font-size:11px;font-weight:800;color:var(--muted);text-align:center;
+    letter-spacing:.1em;margin-top:3px}
+  body.qrzeigen .qrecke{display:block}
+  @media print{.qrecke{display:none}}
+
+  .abstand{position:fixed;top:16px;left:18px;z-index:53;display:none;
+    align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:5px 10px}
+  body.livean .abstand{display:flex}
+  .abstand .punkt{width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .abstand.zu .punkt{background:#cbd5e1}
+  body.livean .home{display:none}
+
+  /* Die frueheren Balkenzeilen unter den Karten sind entfallen: Sie
+     wiederholten die Buchstaben und machten die Folie breiter und
+     flacher. Der Balken steckt jetzt in der Karte (.opt .fuellung). */
+
+  /* Waehrend abgestimmt wird, aendert sich an den Groessen NICHTS mehr.
+     Frueher stand hier eine Reihe von Verkleinerungen; sie stammten aus
+     der Zeit vor der Entwurfsflaeche und haben die Schrift ausgerechnet
+     dann zusammenfallen lassen, wenn die ganze Klasse hinsieht. */
+
+  .schluesselknopf{position:fixed;top:16px;left:18px;z-index:57;font-size:12px;
+    background:#fffbeb;border:1px solid #fcd34d;color:#8d6e00;border-radius:9px;
+    padding:5px 11px;cursor:pointer;font-weight:700;display:none}
+  body.schluesselfehlt .schluesselknopf{display:block}
+  body.schluesselfehlt .abstand{display:none}
+
+  /* ====================================================================
+     Feste Entwurfsflaeche
+     --------------------------------------------------------------------
+     Jede Folie wird auf 1200 Punkte Breite gesetzt und als GANZES auf den
+     Bildschirm skaliert (window.einpassen). Deshalb stehen hier feste
+     Punktgroessen und keine vw-Rechnungen mehr.
+
+     Der Grund: vw-Groessen mit Hoechstwert sind auf einem grossen Bild
+     doppelt schaedlich - der Deckel greift, die Schrift bleibt klein,
+     und die untere Bildhaelfte bleibt leer. Wer stattdessen die ganze
+     Flaeche skaliert, bekommt auf 1920 x 1080 eine um ein Viertel
+     groessere Schrift als auf 1600 x 900, ohne dass sich das Layout
+     aendert. Eine Folie sieht ueberall gleich aus, nur groesser.
+
+     Die Zahlen sind fuer die letzte Reihe gewaehlt: Fliesstext 30 px auf
+     1500 px Breite entspricht auf einer 3 m breiten Projektion rund
+     6 cm Zeilenhoehe.
+     ==================================================================== */
+  /* Hochgestelltes: klein, aber ohne die Zeile aufzureissen.
+     line-height:0 haelt die Zeilenhoehe fest - sonst waere eine
+     Formelzeile hoeher als die anderen, und die Einpassung
+     rechnete mit einer zu hohen Folie. */
+  .slide sup{font-size:.62em;line-height:0;vertical-align:super;
+    font-weight:inherit}
+  .slide h1{font-size:74px;line-height:1.05}
+  .slide h2{font-size:50px}
+  /* 26 Zeichen waren aus der alten, schmaleren Fassung uebrig: Die Frage
+     stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
+     420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
+     verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
+  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  .slide p,.slide li{font-size:30px;line-height:1.45}
+  .kicker{font-size:21px}
+  .lead{font-size:31px;max-width:46ch}
+  .callout{padding:.75em 1.05em}
+  .frage{font-size:66px;max-width:22ch}
+  .antwort .wert{font-size:78px}
+  .antwort .neben{font-size:28px}
+  .pill{font-size:20px}
+  .marke{font-size:19px}
+  .opt{font-size:28px;padding:16px 18px}
+  .opt .bst{font-size:26px}
+  .aufloesung{font-size:29px;padding:16px 19px}
+  .schritt{padding:14px 16px}
+  .schritt .txt{font-size:31px}
+  .schritt .num{font-size:27px}
+  .schilder .schild{padding:18px 20px}
+  .schilder .schild td{font-size:32px;padding:.24em .1em}
+  .schilder .schild h3{font-size:35px}
+  .schilder .schild .fuss{font-size:20px}
+  .wtab td,.wtab th{font-size:31px;padding:.3em .7em}
+  .wtab td.pf{font-size:24px}
+  .merk{padding:26px 28px}
+  .merk .satz{font-size:46px}
+  .merk .zusatz{font-size:27px}
+  .auftrag{padding:24px 26px}
+  .auftrag li{font-size:31px}
+  .zeitschild{font-size:24px}
+  .paar .halb{padding:18px 20px}
+  .paar .halb h4{font-size:22px}
+  .paar .halb p{font-size:28px}
+  .tab td.nrz,.tab td.fr{font-size:22px}
+  .tab td.an{font-size:23px}
+  .tab th{font-size:17px}
+  .opt .zahl{font-size:27px}
+  .kurzadresse{font-size:40px}
+  .qrfolie .qrbild svg{width:330px}
+  .graph{width:620px}
+  .graphpaar .graph{width:450px}
+  .graphreihe .graph{max-width:250px}
+  .graphreihe figcaption{font-size:22px}
+  .plbild .schild td{font-size:26px}
+  .plbild .schild h3{font-size:29px}
+  .plbild .wtab td,.plbild .wtab th{font-size:26px;padding:.22em .55em}
+  .plbild .graph{width:520px}
+  .mwsplit .frage{font-size:54px;max-width:none}
+  .mwsplit .antwort .wert{font-size:66px}
+
+  /* Die dichteste Folie - Beleg, vier Karten, Aufloesung - behaelt ihre
+     Groessen. Passt sie nicht, verkleinert die Einpassung die ganze
+     Flaeche; das faellt kaum auf, weil alles gleichmaessig mitgeht. Eine
+     eigene, kleinere Schrift fuer die Abstimmung gibt es nicht mehr:
+     Sie war der Grund, warum die Folie unlesbar wurde, sobald die Klasse
+     zu antworten begann. */
+
+  /* --- Die Entwurfsflaeche selbst --------------------------------------
+     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
+     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
+     nach oben. */
+  .buehne{width:1200px;transform-origin:top center}
+  /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
+     skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
+     Titelfolie richtet ihren Text ueber ein eigenes style-Attribut links
+     aus - das gewinnt gegen diese Regel.
+     (Kein Selektor auf [style*="flex-start"]: Der prueft die ZEICHENKETTE
+     des Attributs und traf auch das justify-content, das die Einpassung
+     dort setzt. Die Flaeche rutschte dadurch um 40 Pixel nach links aus
+     dem Bild.) */
+  .slide{align-items:center}
+
+  /* --- Randnotiz: die Weiche der Lehrkraft ---
+     Sie liegt wie in allen Projektionsseiten ueber der Folie; auf einer
+     Plickers-Folie mit vier Karten ist das eng. Deshalb hier schmaler,
+     tiefer angesetzt und bei sehr langen Notizen scrollbar. Der volle
+     Wortlaut steht ohnehin auf dem Lehrerblatt. */
+  /* ====================================================================
+     Bedienleisten: eine Zeile statt dreier Etagen
+     --------------------------------------------------------------------
+     Gemessen kosteten Hinweiszeile, Punktreihe und Regler zusammen rund
+     102 px am unteren Rand - Platz, der der Folie fehlt und damit der
+     Schrift, weil die Flaeche als Ganzes eingepasst wird.
+
+     Jetzt sitzt alles auf einer Hoehe: links der Vorschau-Regler, mittig
+     Pfeile und Punkte, rechts der Tastenhinweis. Kleiner, aber sichtbar
+     - ein Bedienelement, das sich wegblendet, sucht man genau dann,
+     wenn die Klasse wartet.
+     ==================================================================== */
+  /* Die Punktreihe zentriert sich zwischen Regler (links) und Hinweis
+     (rechts), nicht mehr im ganzen Bild - sonst stiess sie bei vielen
+     Folien in den Hinweis hinein (gemessen: 129 px Ueberlappung). */
+  .nav{bottom:12px;gap:10px;left:215px;right:300px}
+  .dots{flex-wrap:wrap;justify-content:center;max-width:100%}
+  .nav button{width:32px;height:32px;font-size:15px;border-radius:9px}
+  .dots{gap:6px}
+  .dot{width:8px;height:8px}
+  .hintkey{bottom:17px;left:auto;right:20px;width:auto;max-width:42vw;
+    text-align:right;font-size:12px;line-height:1.2}
+  /* Haengt der Eck-QR unten rechts, macht ihm der Hinweis Platz. */
+  body.qrzeigen .hintkey{right:126px}
+  .ghostctl{bottom:15px;padding:4px 9px;font-size:11px}
+  .ghostctl input{width:110px}
+  /* Oben dasselbe in klein: Die Regieleiste braucht keine 13 px Schrift,
+     sie steht fuer die Lehrkraft da, nicht fuer die letzte Reihe. */
+  .regie{top:9px;padding:4px 13px;font-size:12px;gap:10px}
+
+  .randnotiz{max-width:min(38ch,30vw);bottom:100px;max-height:56vh;overflow:auto}
+  .randnotiz .weiche{display:block;margin-top:.55em;padding-top:.5em;
+    border-top:1px dashed #e0b93c}
+  .randnotiz .weiche i{font-style:normal;font-weight:800;color:#92400e}
+/* ===========================================================================
+   Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
+
+   Alles hier haengt an `body.anp-an` oder an `.anp-*`. Im Unterricht ist
+   der Editor aus, und dann darf keine einzige Regel greifen - eine Anzeige,
+   die im Bearbeitungszustand an der Wand haengt, waere schlimmer als gar
+   kein Editor.
+   =========================================================================== */
+
+/* --- Warnung bei verwaisten Eintraegen -------------------------------
+   Sichtbar, nicht in der Konsole: Im Unterricht hat niemand die Konsole
+   offen, und eine Anpassung, die ins Leere greift, muss auffallen. */
+.anp-warnung{position:fixed;left:50%;top:52px;transform:translateX(-50%);z-index:80;
+  background:#fef2f2;border:1px solid #fecaca;border-left:7px solid #dc2626;
+  color:#7f1d1d;border-radius:11px;padding:9px 15px;font-size:14px;font-weight:600;
+  max-width:70vw;cursor:pointer;box-shadow:0 3px 12px rgba(15,23,42,.18)}
+@media print{.anp-warnung{display:none}}
+
+
+</style>
+</head>
+<body>
+<a class="home" href="../Klassen/Mathe_7b.html">&larr; Mathe 7b</a>
+<div class="counter" id="counter"></div>
+<div class="notizmarke">Randnotizen sichtbar · D</div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span></div>
+<div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m3 0h2m1 0h1m2 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m2 0h4m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h1m2 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m1 0h2m2 0h1m1 0h4m-24 1h1m1 0h5m4 0h1m1 0h5m1 0h1m2 0h3m1 0h5m-31 1h1m2 0h3m1 0h2m1 0h3m3 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-27 1h4m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-22 1h2m2 0h2m2 0h1m1 0h3m1 0h1m3 0h3m-31 1h7m1 0h2m1 0h1m5 0h2m1 0h1m2 0h3m2 0h2m1 0h1m-32 1h1m2 0h2m4 0h7m2 0h2m1 0h3m2 0h1m2 0h4m-33 1h1m1 0h2m1 0h2m2 0h5m1 0h1m4 0h2m3 0h2m1 0h4m-31 1h1m1 0h1m1 0h1m3 0h2m3 0h1m5 0h3m2 0h3m2 0h1m-29 1h1m1 0h5m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-30 1h2m2 0h1m4 0h3m1 0h2m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-33 1h3m1 0h3m1 0h1m4 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-32 1h4m3 0h1m1 0h3m8 0h3m2 0h1m1 0h4m1 0h1m-32 1h1m1 0h4m2 0h4m1 0h2m1 0h1m1 0h1m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h6m1 0h1m1 0h1m1 0h1m4 0h1m2 0h5m2 0h1m2 0h1m2 0h1m-33 1h1m4 0h2m1 0h2m1 0h1m3 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m1 0h3m3 0h2m2 0h1m3 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h4m-33 1h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m2 0h1m4 0h7m3 0h1m-25 1h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m2 0h5m2 0h2m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m3 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h2m1 0h2m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h2m1 0h2m4 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m3 0h2m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg><div class="code">7B-PROB</div></div>
+<div class="deck" id="deck">
+
+<section class="slide on" data-phase="Probe · Abstimmung" data-ab="0" style="align-items:flex-start">
+<div class="kicker">Probe &middot; 7B</div><h1>Stimmt das Ger&auml;t<br>in eurer Hand?</h1><p class="muted lead frag" style="margin-top:.9em">Vier Fragen, die niemanden ins Schwitzen bringen. Es geht nicht darum, was ihr wisst, sondern darum, ob die Technik trägt.</p><div class="callout frag"><p><b>So läuft das:</b> Ich zeige eine Frage, ihr antwortet auf dem iPad. Dann sehen wir gemeinsam, wie die Klasse gestimmt hat — und erst danach, was richtig war.</p></div>
+</section>
+
+<section class="slide" data-phase="Probe · Abstimmung" data-ab="1" data-marke="QR">
+<div class="kicker">Einmal scannen — dann könnt ihr mitstimmen</div><h2 class="wt">Holt eure iPads heraus</h2><div class="qrfolie"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m3 0h2m1 0h1m2 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m2 0h4m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h1m2 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m1 0h2m2 0h1m1 0h4m-24 1h1m1 0h5m4 0h1m1 0h5m1 0h1m2 0h3m1 0h5m-31 1h1m2 0h3m1 0h2m1 0h3m3 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-27 1h4m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-22 1h2m2 0h2m2 0h1m1 0h3m1 0h1m3 0h3m-31 1h7m1 0h2m1 0h1m5 0h2m1 0h1m2 0h3m2 0h2m1 0h1m-32 1h1m2 0h2m4 0h7m2 0h2m1 0h3m2 0h1m2 0h4m-33 1h1m1 0h2m1 0h2m2 0h5m1 0h1m4 0h2m3 0h2m1 0h4m-31 1h1m1 0h1m1 0h1m3 0h2m3 0h1m5 0h3m2 0h3m2 0h1m-29 1h1m1 0h5m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-30 1h2m2 0h1m4 0h3m1 0h2m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-33 1h3m1 0h3m1 0h1m4 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-32 1h4m3 0h1m1 0h3m8 0h3m2 0h1m1 0h4m1 0h1m-32 1h1m1 0h4m2 0h4m1 0h2m1 0h1m1 0h1m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h6m1 0h1m1 0h1m1 0h1m4 0h1m2 0h5m2 0h1m2 0h1m2 0h1m-33 1h1m4 0h2m1 0h2m1 0h1m3 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m1 0h3m3 0h2m2 0h1m3 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h4m-33 1h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m2 0h1m4 0h7m3 0h1m-25 1h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m2 0h5m2 0h2m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m3 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h2m1 0h2m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h2m1 0h2m4 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m3 0h2m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg></div><div class="qrtext"><p class="lead weit">Kamera auf den Code halten und auf die Meldung tippen. Wer keine Kamera hat, tippt die Adresse ein:</p><p class="kurzadresse">mathematik-unterrichten.de/abstimmung/?raum=7b-prob</p><p class="lead weit">Die Seite bleibt die ganze Stunde offen. Sobald an der Wand eine Frage steht, könnt ihr antworten.</p></div></div><div class="callout frag"><p>Einmal scannen, dann bleibt die Seite offen. Ihr braucht sie für alle vier Fragen.</p></div><div class="randnotiz"><b>Diese Folie stehen lassen, bis alle verbunden sind</b> — erfahrungsgemäß eine Minute. Der Zähler oben links sagt Ihnen, wie viele Geräte mitmachen.<br><b>Danach klein in der Ecke:</b> Der Code bleibt unten links hängen, für Nachzügler und für Geräte, die sich verabschieden. <b>Q</b> blendet ihn aus und wieder ein.<br><b>Kein Dienst erreichbar?</b> Dann fehlt die Anzeige oben links. Diese Folie überspringen und die Stunde mit den Plickers-Karten halten — alle Abfragen funktionieren unverändert.</div>
+</section>
+
+<section class="slide abfrage plk stufig" data-phase="Probe · Abstimmung" data-ab="2" data-marke="P1" data-frage="Wie viel ist 2 + 3?" data-optionen="[&quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;23&quot;]" data-schluessel="p1">
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Zum Warmwerden</div><h2 class="wt">Wie viel ist <span class='term'>2 + 3</span>?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>4</span></div><div class="opt"><span class="bst">B</span><span>5</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>6</span></div><div class="opt"><span class="bst">D</span><span>23</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>5</b>. Die vierte Karte ist der Klassiker: <b>23</b> entsteht, wenn man die Ziffern nebeneinanderschreibt statt zu rechnen.</div><div class="randnotiz"><b>Dreimal klicken.</b> Erst die Verteilung, dann die richtige Karte, dann der Satz dazu. Solange die Folie steht, läuft die Abstimmung — in der Ecke unten links sehen Sie, wie viele schon abgegeben haben.</div>
+</section>
+
+<section class="slide abfrage plk stufig" data-phase="Probe · Abstimmung" data-ab="3" data-marke="P2" data-frage="Welche Zahl ist die größte?" data-optionen="[&quot;19&quot;, &quot;91&quot;, &quot;9&quot;, &quot;1&quot;]" data-schluessel="p2">
+<div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Immer noch einfach</div><h2 class="wt">Welche Zahl ist die größte?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>19</span></div><div class="opt"><span class="bst">B</span><span>91</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>9</span></div><div class="opt"><span class="bst">D</span><span>1</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>91</b>. Wer <b>19</b> gewählt hat, hat die Ziffern gelesen und nicht die Zahl.</div><div class="randnotiz"><b>Dreimal klicken.</b> Erst die Verteilung, dann die richtige Karte, dann der Satz dazu. Solange die Folie steht, läuft die Abstimmung — in der Ecke unten links sehen Sie, wie viele schon abgegeben haben.</div>
+</section>
+
+<section class="slide abfrage plk stufig" data-phase="Probe · Abstimmung" data-ab="4" data-marke="P3" data-frage="Wie viele Seiten hat ein Dreieck?" data-optionen="[&quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;kommt darauf an&quot;]" data-schluessel="p3">
+<div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Ein Blick genügt</div><h2 class="wt">Wie viele Seiten hat ein Dreieck?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>2</span></div><div class="opt"><span class="bst">B</span><span>3</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>4</span></div><div class="opt"><span class="bst">D</span><span>kommt darauf an</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>3</b>. „Kommt darauf an“ ist bei vielen Fragen richtig — bei dieser nicht.</div><div class="randnotiz"><b>Dreimal klicken.</b> Erst die Verteilung, dann die richtige Karte, dann der Satz dazu. Solange die Folie steht, läuft die Abstimmung — in der Ecke unten links sehen Sie, wie viele schon abgegeben haben.</div>
+</section>
+
+<section class="slide abfrage plk stufig" data-phase="Probe · Abstimmung" data-ab="5" data-marke="P4" data-frage="Was ist die Hälfte von 10?" data-optionen="[&quot;2&quot;, &quot;5&quot;, &quot;10&quot;, &quot;20&quot;]" data-schluessel="p4">
+<div class="kicker"><span class="marke plk">Plickers 4</span> &nbsp;Die letzte</div><h2 class="wt">Was ist die Hälfte von <span class='term'>10</span>?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>2</span></div><div class="opt"><span class="bst">B</span><span>5</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>10</span></div><div class="opt"><span class="bst">D</span><span>20</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>5</b>. Wer <b>20</b> gewählt hat, hat verdoppelt statt halbiert — der häufigste Griff daneben, wenn man zu schnell liest.</div><div class="randnotiz"><b>Dreimal klicken.</b> Erst die Verteilung, dann die richtige Karte, dann der Satz dazu. Solange die Folie steht, läuft die Abstimmung — in der Ecke unten links sehen Sie, wie viele schon abgegeben haben.</div>
+</section>
+
+<section class="slide" data-phase="Probe · Abstimmung" data-ab="6" data-marke="ENDE">
+<div class="kicker">Geschafft</div><div class="merk frag"><div class="satz">Die Technik trägt.</div><div class="zusatz">Ab jetzt gilt bei jeder Frage: <b>alle</b> antworten, nicht die Schnellsten. Wer sich nicht sicher ist, rät — auch das ist eine Antwort, und sie hilft mir mehr als keine.</div></div>
+</section>
+
+</div>
+
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
+<div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
+<div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
+
+<script>
+  // ---- Slide-Navigation mit schrittweisem Aufbau ----
+  // Wie in Projektion_k1-s*.html. Neu: Elemente mit der Klasse .hart bekommen
+  // KEINE Geist-Vorschau - eine halb durchscheinende Loesung waere in einer
+  // Whiteboard-Runde ein Spoiler.
+  const slides=[...document.querySelectorAll('.slide')];
+  const dotsBox=document.getElementById('dots');
+  let idx=0;
+  // Teil-Ansicht: ?folien=2-11 -> nur die zehn Fragen, ohne Uebersicht.
+  const QS=new URLSearchParams(location.search);
+  const FOLIEN=QS.get('folien');
+  const mF=FOLIEN&&FOLIEN.match(/^\s*(\d+)\s*(?:-\s*(\d+))?\s*$/);
+  const LO=mF?Math.max(0,Math.min(slides.length-1,+mF[1]-1)):0;
+  const HI=mF?Math.max(LO,Math.min(slides.length-1,+(mF[2]||mF[1])-1)):slides.length-1;
+  slides.forEach((s,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>{revealAll(i);go(i);};if(i<LO||i>HI)d.style.display='none';dotsBox.appendChild(d);});
+  const dots=[...document.querySelectorAll('.dot')];
+  const frags=i=>[...slides[i].querySelectorAll('.frag')];
+  function revealAll(i){ slides[i].dataset.step=frags(i).length; }
+  let GHOST=0.12;   // Deckkraft des naechsten Elements (per Regler); uebernaechstes = halb so stark
+  function paintFrags(i){ const f=frags(i); const step=+(slides[i].dataset.step||0);
+    f.forEach((el,k)=>{
+      let o;
+      if(el.classList.contains('hart')){ o = k<step?1:0; }
+      else { o = k<step?1 : (k===step?GHOST : (k===step+1?GHOST/2 : 0)); }
+      el.style.opacity=o; el.style.pointerEvents=(o===0?'none':''); }); }
+  function go(i){ idx=Math.max(LO,Math.min(HI,i));
+    if(slides[idx].dataset.step==null) slides[idx].dataset.step=0;
+    slides.forEach((s,k)=>s.classList.toggle('on',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    document.getElementById('counter').textContent=(idx-LO+1)+' / '+(HI-LO+1);
+    paintFrags(idx);
+  }
+  function next(){ const f=frags(idx); const step=+(slides[idx].dataset.step||0);
+    if(step<f.length){ slides[idx].dataset.step=step+1; paintFrags(idx); return; }
+    if(idx<HI){ slides[idx+1].dataset.step=0; go(idx+1); } }
+  function prev(){ const step=+(slides[idx].dataset.step||0);
+    if(step>0){ slides[idx].dataset.step=step-1; paintFrags(idx); return; }
+    if(idx>LO){ revealAll(idx-1); go(idx-1); } }
+  document.getElementById('next').onclick=next;
+  document.getElementById('prev').onclick=prev;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'){next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){prev();}
+    else if(e.key===' '){e.preventDefault();next();}
+    else if(e.key==='d'||e.key==='D'){document.body.classList.toggle('notizen');}
+    else if(e.key==='f'||e.key==='F'){toggleFs();}
+  });
+  function toggleFs(){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();} else {document.exitFullscreen&&document.exitFullscreen();} }
+  const ghostSlider=document.getElementById('ghost');
+  if(ghostSlider){ GHOST=(+ghostSlider.value)/100;
+    ghostSlider.addEventListener('input',()=>{ GHOST=(+ghostSlider.value)/100; paintFrags(idx); }); }
+  go(LO);
+
+  window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "7b-prob"};
+
+  /* ---- Selbsteinpassung ------------------------------------------------
+     Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
+     Hoehe. Auf einer flachen Anlage geht das nicht immer auf - und es
+     faellt erst im Klassenraum auf, wenn die Frage halb unter der
+     Bedienleiste liegt.
+
+     Deshalb misst jede Folie sich beim Aufblenden selbst: Passt ihr Inhalt
+     nicht zwischen die Leisten, wird er so weit verkleinert, dass er
+     passt. Weniger als 65 % waere unleserlich; dort ist Schluss, und dann
+     stimmt etwas mit der Folie nicht, nicht mit dem Bildschirm. */
+  /* Das freie Band zwischen den festen Leisten - gemessen, nicht geraten.
+     Der Eck-QR zaehlt nicht mit: Er sitzt in der Ecke, der Text laeuft
+     neben ihm vorbei (nur die Balken bekommen rechts Platz gemacht). */
+  window.leistenband = function(){
+    const sicht = w => w && getComputedStyle(w).display !== "none"
+                    && w.getBoundingClientRect().height > 0;
+    const ob = [".regie", ".counter", ".abstand", ".home"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().bottom);
+    const un = [".hintkey", ".nav", ".ghostctl"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().top);
+    return { oben: (ob.length ? Math.max(...ob) : 0) + 10,
+             unten: (un.length ? Math.min(...un) : innerHeight) - 10 };
+  };
+
+  window.einpassen = function(folie){
+    if(!folie) return 1;
+    let b = folie.querySelector(":scope > .buehne");
+    if(!b){
+      b = document.createElement("div");
+      b.className = "buehne";
+      [...folie.children].filter(e => !e.classList.contains("randnotiz"))
+        .forEach(k => b.appendChild(k));
+      folie.insertBefore(b, folie.firstChild);
+    }
+    /* Nur ueber style, NIE ueber eine Klasse: Der Beobachter unten horcht
+       auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
+       eine Schleife, die den Aufbau der Seite anhaelt. */
+    b.style.transform = "";
+    folie.style.justifyContent = "";
+    /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
+       mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
+       Die Titelfolie stellt align-items auf flex-start, um ihren Text
+       links zu setzen; ohne dieses align-self ruckte die skalierte
+       Flaeche dadurch seitlich aus dem Bild. Der Text bleibt trotzdem
+       links - er richtet sich INNERHALB der Flaeche aus. */
+    b.style.alignSelf = "center";
+    const B = window.leistenband();
+    const platz = B.unten - B.oben;
+    const breite = folie.clientWidth
+                 - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
+    const hoch = b.getBoundingClientRect().height;
+    if(platz <= 0 || hoch <= 0) return 1;
+    /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
+       von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
+       wuerde eine kurze Folie grotesk wirken. */
+    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    b.style.transform = "scale(" + k.toFixed(4) + ")";
+    /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
+       Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
+    const rest = Math.max(0, platz - hoch * k);
+    const soll = B.oben + rest / 2;
+    folie.style.justifyContent = "flex-start";
+    folie.style.paddingTop = Math.round(soll) + "px";
+    folie.style.paddingBottom = Math.round(innerHeight - B.unten + rest / 2) + "px";
+    /* Nachmessen statt vertrauen: Zwischen der gerechneten und der
+       wirklichen Lage lagen 8 px - die Flaeche stand unten aus dem freien
+       Band heraus. Woher der Versatz kommt (Polster, Ursprung der
+       Skalierung, Rundung), muss man nicht wissen, wenn man ihn misst. */
+    const ist = b.getBoundingClientRect().top;
+    if (Math.abs(ist - soll) > 0.5)
+      folie.style.paddingTop = Math.round(soll - (ist - soll)) + "px";
+    return k;
+  };
+
+  (function einpassenVerdrahten(){
+    const jetzt = () => window.einpassen(document.querySelector(".slide.on"));
+    new MutationObserver(jetzt).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    addEventListener("resize", jetzt);
+    addEventListener("load", jetzt);
+    jetzt();
+  })();
+
+  /* ---- Regieleiste: Phase, geplante Startminute, Stoppuhr -------------
+     Greift NICHT in go()/next()/prev() ein. Der Folienwechsel wird ueber
+     einen MutationObserver auf die Klasse .on beobachtet - so bleibt die
+     uebernommene Mechanik Zeile fuer Zeile die der anderen Projektionen. */
+  (function regie(){
+    const leiste = document.querySelector('.regie');
+    if(!leiste) return;
+    const nam  = leiste.querySelector('.pnam');
+    const plan = leiste.querySelector('.pplan');
+    const anz  = leiste.querySelector('.puhr');
+    let ms = 0, seit = null;                 // verstrichen / laeuft seit
+    const verstrichen = () => ms + (seit === null ? 0 : Date.now() - seit);
+    const aktiv = () => ms > 0 || seit !== null;
+
+    function zeige(){
+      const s = document.querySelector('.slide.on');
+      if(!s) return;
+      nam.textContent  = s.dataset.phase || '';
+      plan.textContent = s.dataset.ab ? ('ab Min. ' + s.dataset.ab) : '';
+      if(!aktiv()){
+        anz.textContent = '--:--';
+        document.body.classList.remove('spaet','sehrspaet');
+        return;
+      }
+      const min = verstrichen() / 60000;
+      const g = Math.floor(min), sek = Math.floor((min - g) * 60);
+      anz.textContent = (seit === null ? '\u23f8 ' : '') + g + ':' + String(sek).padStart(2,'0');
+      const rueck = s.dataset.ab ? min - (+s.dataset.ab) : 0;
+      document.body.classList.toggle('spaet', rueck > 3 && rueck <= 6);
+      document.body.classList.toggle('sehrspaet', rueck > 6);
+    }
+
+    new MutationObserver(zeige).observe(document.getElementById('deck'),
+      { subtree:true, attributes:true, attributeFilter:['class'] });
+    document.addEventListener('keydown', e => {
+      if(e.key === 't' || e.key === 'T'){
+        if(seit === null){ seit = Date.now(); }
+        else { ms += Date.now() - seit; seit = null; }
+        zeige();
+      } else if(e.key === 'r' || e.key === 'R'){
+        ms = 0; seit = null; zeige();
+      }
+    });
+    setInterval(zeige, 1000);
+    zeige();
+  })();
+
+  /* ---- Live-Abstimmung ------------------------------------------------
+     Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
+     Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
+     lokal geoeffnet -, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter. Nichts an dieser Mechanik ist Voraussetzung
+     fuer den Rest der Folien.
+
+     Verteilt wird nur, was die Wand ohnehin zeigt. Die Geraete erfahren
+     weder die richtige Antwort noch die Verteilung. */
+  (function abstimmung(){
+    const K = window.ABSTIMMUNG;
+    if (!K || !K.dienst) return;
+    /* ?dienst=… und ?raum=… ueberschreiben die eingebauten Werte. Damit
+       laesst sich dieselbe Datei auf den Notfall-Dienst im Klassenraum
+       umbiegen oder in einer Vertretungsstunde in einen anderen Raum
+       schicken - ohne sie neu zu bauen. */
+    const Q = new URLSearchParams(location.search);
+    const dienst = (Q.get("dienst") || K.dienst).replace(/\/+$/, "");
+    const raum = (Q.get("raum") || K.raum).toLowerCase()
+                   .replace(/[^a-z0-9-]/g, "").slice(0, 24);
+    /* Kennung DIESES Durchlaufs. Sie steckt im Fragenschluessel, damit die
+       Stimmen der Parallelklasse von heute Morgen nicht in der Abfrage von
+       heute Mittag stehen: Beim Aufschlagen der Wandfassung faengt jede
+       Frage bei null an. Dieselbe Frage waehrend der Stunde noch einmal
+       oeffnen (eine Folie zurueck) behaelt ihre Stimmen - der Schluessel
+       aendert sich dabei nicht. */
+    const sitzung = Math.random().toString(36).slice(2, 8);
+    const BST = ["A","B","C","D"];
+
+    const stand = document.createElement("div");
+    stand.className = "abstand zu";
+    stand.innerHTML = '<span class="punkt"></span><span class="text">Abstimmung</span>';
+    document.body.appendChild(stand);
+
+    const knopf = document.createElement("button");
+    knopf.className = "schluesselknopf";
+    knopf.textContent = "🔑 Lehrerschlüssel eintragen";
+    document.body.appendChild(knopf);
+
+    const holeSchluessel = () => { try { return localStorage.getItem("wand-lehrer") || ""; }
+                                   catch(e){ return ""; } };
+    const setzeSchluessel = v => { try { localStorage.setItem("wand-lehrer", v); } catch(e){} };
+    knopf.onclick = () => {
+      const v = prompt("Lehrerschlüssel für die Abstimmung:", holeSchluessel());
+      if (v !== null){ setzeSchluessel(v.trim()); document.body.classList.remove("schluesselfehlt"); pruefe(); }
+    };
+
+    const kopf = () => ({ "content-type":"application/json", "x-lehrer": holeSchluessel() });
+    let lebt = false, laufend = null, ticker = null;
+
+    async function pruefe(){
+      try {
+        const a = await fetch(dienst + "/v1/ping", { cache:"no-store" });
+        lebt = a.ok;
+      } catch(e){ lebt = false; }
+      document.body.classList.toggle("livean", lebt);
+      if (lebt){
+        document.body.classList.toggle("schluesselfehlt", !holeSchluessel());
+        document.body.classList.add("qrzeigen");
+      }
+    }
+
+    /* --- Die Karten fuer die Abstimmung herrichten ---
+       Jede Antwortkarte bekommt eine Fuellung hinter ihrem Text und eine
+       Zahl an den rechten Rand. Kein eigener Balkenblock mehr: Der
+       wiederholte die Buchstaben und machte die Folie flach. */
+    function balken(folie){
+      const karten = [...folie.querySelectorAll(".opt")];
+      if (!karten.length) return null;
+      karten.forEach(k => {
+        if (k.querySelector(".fuellung")) return;
+        /* Die richtige Karte wird hier vermerkt, aber noch nicht gefaerbt
+           - das geschieht erst beim Aufloesen (.plickers.gezeigt). */
+        if (k.querySelector(".haken")) k.classList.add("istrichtig");
+        const f = document.createElement("i");
+        f.className = "fuellung";
+        k.insertBefore(f, k.firstChild);
+        const z = document.createElement("span");
+        z.className = "zahl";
+        z.textContent = "0";
+        k.appendChild(z);
+      });
+      return folie.querySelector(".plickers");
+    }
+
+    function male(folie, zaehler, abgestimmt){
+      const wand = balken(folie); if (!wand) return;
+      const summe = zaehler.reduce((s,n)=>s+n, 0) || 1;
+      [...folie.querySelectorAll(".opt")].forEach((k, i) => {
+        const n = zaehler[i] || 0;
+        k.querySelector(".fuellung").style.width =
+          Math.round(n / summe * 100) + "%";
+        k.querySelector(".zahl").textContent = n;
+      });
+      stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+    }
+
+    async function oeffne(folie){
+      const frage = folie.dataset.frage || "";
+      let optionen = [];
+      try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
+      if (optionen.length < 2) return;
+      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ frage, optionen, schluessel }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+        if (!a.ok) return;
+        laufend = { folie, schluessel };
+        stand.classList.remove("zu");
+        const b = balken(folie);
+        if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
+        tick();
+        clearInterval(ticker); ticker = setInterval(tick, 1500);
+      } catch(e){}
+    }
+
+    async function schliesse(){
+      clearInterval(ticker); ticker = null;
+      if (!laufend) return;
+      const alt = laufend; laufend = null;
+      stand.classList.add("zu");
+      try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
+                        { method:"POST", headers: kopf() }); } catch(e){}
+      await zeichne(alt.folie);
+    }
+
+    async function zeichne(folie){
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/ergebnis",
+                              { headers: kopf(), cache:"no-store" });
+        const d = await a.json();
+        if (d.ok) male(folie, d.zaehler || [], d.abgestimmt || 0);
+      } catch(e){}
+    }
+
+    const tick = () => { if (laufend) zeichne(laufend.folie); };
+
+    /* --- Folienwechsel und Aufloesung beobachten --- */
+    function beobachte(){
+      const folie = document.querySelector(".slide.on");
+      if (!folie) return;
+      const istAbfrage = !!folie.dataset.frage;
+      if (!istAbfrage){ if (laufend) schliesse(); return; }
+      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
+      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      if (laufend && laufend.folie !== folie) return schliesse();
+      if (laufend && aufgeloest){
+        /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
+           Gefaerbt - und damit verraten - wird die richtige Karte erst beim
+           zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
+           waehrend die Klasse noch die Zahlen liest. */
+        const stufig = folie.classList.contains("stufig");
+        const stufe = +(folie.dataset.step || 0);
+        const b = folie.querySelector(".plickers");
+        if (b && (!stufig || stufe >= 2)) b.classList.add("gezeigt");
+        return schliesse();
+      }
+    }
+
+    new MutationObserver(beobachte).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    document.addEventListener("keydown", e => {
+      if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
+    });
+
+    pruefe().then(beobachte);
+    setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
+  })();
+
+  window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
+/* ===========================================================================
+   Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
+
+   Zwei Teile in einer Datei, weil sie dieselbe Adressierung brauchen:
+
+   1. ANWENDER - laeuft in jeder Anzeige, auch im Unterricht. Er liest
+      window.ANPASSUNGEN und legt die Aenderungen auf die erzeugte Seite.
+   2. EDITOR - laeuft nur, wenn er gerufen wird (Taste E). Er schreibt
+      genau die Eintraege, die der Anwender wieder liest.
+
+   WARUM NICHT IN DIE ERZEUGTE DATEI SCHREIBEN: Jede Anzeige entsteht aus
+   einem Bauskript. Wer die HTML-Datei bearbeitet, verliert die Aenderung
+   beim naechsten Bau - und merkt es erst im Unterricht. Deshalb liegt die
+   Aenderung in einer eigenen Datei neben dem Bauskript, und der Bau legt
+   sie jedes Mal wieder auf.
+
+   WARUM DIE ANWENDUNG IM BROWSER GESCHIEHT und nicht in Python: Es gibt
+   drei Bauwege (Wandfassung, Projektion, Selbstlernstunde) mit drei
+   verschiedenen Strukturen, aber nur EINEN Zustand, in dem alle drei
+   gleich aussehen - den fertigen DOM. Ein Anwender dort bedient alle drei;
+   drei Anwender in Python muessten dreimal gepflegt werden.
+
+   DIE HEIKLE STELLE ist das Wiederfinden eines Elements nach einem Neubau.
+   Ein Pfad allein genuegt nicht: Kommt eine Folie dazu, zeigt er auf das
+   falsche Element, und die Aenderung landet lautlos woanders. Deshalb
+   traegt jeder Eintrag zusaetzlich einen Fingerabdruck seines Inhalts.
+   Stimmt er nicht, wird NICHT geraten: Der Eintrag gilt als verwaist und
+   wird gemeldet - sichtbar, nicht nur in der Konsole.
+   =========================================================================== */
+(function () {
+  "use strict";
+
+  /* --- Fingerabdruck: kurz, stabil, nur aus dem sichtbaren Text ---------
+     Absichtlich nicht ueber das HTML: Ein geaenderter Umbruch oder ein
+     zusaetzliches <b> soll den Eintrag nicht verwaisen lassen. Der Text
+     traegt die Bedeutung. */
+  function fingerabdruck(el) {
+    var t = (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    var h = 5381;
+    for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }
+
+  /* --- Adressierung ----------------------------------------------------
+     Behaelter = Folie (.slide) oder Karte (.karte/.teil), je nach Anzeige.
+     Innerhalb davon adressiert eine Kette von Kind-Indizes. */
+  var BEHAELTER = ".slide, .karte, .teil";
+
+  function behaelterListe() {
+    return Array.prototype.slice.call(document.querySelectorAll(BEHAELTER))
+      .filter(function (b) { return !b.closest(".anp-leiste"); });
+  }
+
+  function behaelterName(b) {
+    if (b.dataset.marke) return b.dataset.marke;
+    var i = behaelterListe().indexOf(b);
+    return "#" + (i + 1);
+  }
+
+  function behaelterFinden(name) {
+    var liste = behaelterListe();
+    if (name.charAt(0) === "#") return liste[parseInt(name.slice(1), 10) - 1] || null;
+    for (var i = 0; i < liste.length; i++)
+      if (liste[i].dataset.marke === name) return liste[i];
+    return null;
+  }
+
+  /* window.einpassen zieht NACHTRAEGLICH ein <div class="buehne"> in die
+     Folie und haengt alle Kinder dort hinein, um sie als Block zu
+     skalieren. Damit aendert sich die Tiefe jedes Elements, je nachdem, ob
+     die Einpassung schon gelaufen ist: derselbe Kasten hiess erst „1" und
+     danach „0/1". Zwei Adressen fuer ein Element - und schon legt der
+     Editor beim zweiten Klick einen zweiten Eintrag an.
+
+     Die Buehne ist Technik, kein Inhalt. Deshalb ist sie hier die Wurzel,
+     wenn es sie gibt, und faellt aus dem Pfad heraus. */
+  function inhaltsWurzel(b) {
+    return b.querySelector(":scope > .buehne") || b;
+  }
+
+  function pfadVon(el, b) {
+    var w = inhaltsWurzel(b), teile = [];
+    while (el && el !== w) {
+      var p = el.parentNode;
+      if (!p) return null;
+      teile.unshift(Array.prototype.indexOf.call(p.children, el));
+      el = p;
+    }
+    return el === w ? teile.join("/") : null;
+  }
+
+  function elementAn(b, pfad) {
+    var el = inhaltsWurzel(b), teile = pfad === "" ? [] : pfad.split("/");
+    for (var i = 0; i < teile.length; i++) {
+      el = el.children[parseInt(teile[i], 10)];
+      if (!el) return null;
+    }
+    return el;
+  }
+
+  /* Erst am Pfad suchen, dann - wenn der Fingerabdruck widerspricht - im
+     ganzen Behaelter nach dem Fingerabdruck. So ueberlebt ein Eintrag das
+     Einfuegen eines Geschwisterelements, ohne je zu raten. */
+  function elementFinden(e) {
+    var b = behaelterFinden(e.behaelter);
+    if (!b) return null;
+    var el = elementAn(b, e.pfad);
+    if (el && fingerabdruck(el) === e.fp) return el;
+    var alle = b.querySelectorAll("*");
+    for (var i = 0; i < alle.length; i++)
+      if (fingerabdruck(alle[i]) === e.fp) return alle[i];
+    return null;
+  }
+
+  /* ==================== 1 · ANWENDER ==================== */
+
+  var VERWAIST = [];
+  /* Bleibt leer, wenn der Editor herausgeschnitten wurde - siehe die Marken
+     weiter unten. */
+  var EDITOR = {};
+
+  /* Der Urzustand jedes beruehrten Elternteils, damit anwenden() BELIEBIG
+     OFT laufen kann und immer dasselbe Ergebnis liefert. Ohne das wandert
+     ein Element beim Bearbeiten mit jedem Aufruf eine Stelle weiter: Der
+     Editor wendet nach jedem Klick neu an, und „eine Position nach oben"
+     waere nach dem dritten Klick drei Positionen. */
+  var URZUSTAND = new Map();
+
+  function merkeReihenfolge(p) {
+    if (p && !URZUSTAND.has(p)) URZUSTAND.set(p, Array.prototype.slice.call(p.children));
+  }
+
+  function urzustandHerstellen() {
+    URZUSTAND.forEach(function (kinder, p) {
+      kinder.forEach(function (k) { if (k.parentNode === p) p.appendChild(k); });
+    });
+    /* Eingesetzte Bilder wieder heraus und verdraengte SVG zurueck - sonst
+       bliebe ein zurueckgenommenes Bild stehen und die Zeichnung darunter
+       verborgen, bis jemand neu laedt. */
+    document.querySelectorAll("img[data-anp-bild]").forEach(function (b) { b.remove(); });
+    document.querySelectorAll("[data-anp-ersetzt]").forEach(function (s) {
+      s.style.display = ""; delete s.dataset.anpErsetzt;
+    });
+    document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
+      el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      delete el.dataset.anp; delete el.dataset.anpWeg;
+    });
+  }
+
+  /* Ein Bild einsetzen oder austauschen.
+
+     Drei Faelle, und nur der erste ist offensichtlich:
+
+     1. Das Element IST ein Bild - Quelle tauschen, fertig.
+     2. Es enthaelt ein <svg>. Das sind die gerechneten Koordinatensysteme
+        und der QR-Code. „Austauschen" heisst hier: das SVG verbergen und
+        das Bild an seine Stelle setzen - nicht danebenhaengen, sonst
+        stehen Zeichnung und Bild nebeneinander und niemand weiss, welches
+        gilt. Verborgen, nicht geloescht: Der Urzustand muss herstellbar
+        bleiben.
+     3. Sonst wird ein Bild angehaengt.
+
+     In allen Faellen als BLOCK mit eigener Zeile. Ein Bild ohne
+     display:block landet in der Textzeile und schiebt sich neben die
+     Ueberschrift - so gesehen bei der ersten Probe. */
+  function bildSetzen(el, quelle) {
+    if (el.tagName === "IMG") { el.src = quelle; return; }
+    var vorhanden = el.querySelector(":scope > img[data-anp-bild]");
+    if (!vorhanden) {
+      vorhanden = document.createElement("img");
+      vorhanden.dataset.anpBild = "1";
+      var svg = el.tagName === "svg" ? el : el.querySelector("svg");
+      if (svg) {
+        svg.dataset.anpErsetzt = "1";
+        svg.style.display = "none";
+        svg.parentNode.insertBefore(vorhanden, svg);
+      } else {
+        el.appendChild(vorhanden);
+      }
+    }
+    vorhanden.src = quelle;
+    vorhanden.style.display = "block";
+    vorhanden.style.maxWidth = "100%";
+    vorhanden.style.height = "auto";
+    vorhanden.style.margin = "0.6em auto 0";
+  }
+
+  function anwenden() {
+    var daten = window.ANPASSUNGEN;
+    urzustandHerstellen();
+    if (!daten || !daten.eintraege || !daten.eintraege.length) return;
+    VERWAIST = [];
+    document.querySelectorAll(".anp-warnung").forEach(function (w) { w.remove(); });
+
+    /* Von aussen nach innen: flache Pfade zuerst.
+
+       Wer ein Element UND eines seiner Kinder aendert, aendert mit dem Kind
+       auch den Textinhalt des Elternteils - und damit dessen Fingerabdruck.
+       Kam das Kind zuerst, erkannte der Elternteil sich selbst nicht mehr
+       und galt als verwaist: An der 7b-Wandfassung ging so ein ganzer
+       Absatz verloren, waehrend die Zeile darin ankam.
+
+       Der Elternteil setzt seinen Inhalt ohnehin als Ganzes; ihn zuerst zu
+       legen ist auch der Reihenfolge nach richtig. */
+    var reihe = daten.eintraege.slice().sort(function (a, b) {
+      return (a.pfad === "" ? 0 : a.pfad.split("/").length)
+           - (b.pfad === "" ? 0 : b.pfad.split("/").length);
+    });
+
+    /* Ein Eintrag, der UNTERHALB eines anderen liegt, welcher seinen Inhalt
+       als Ganzes setzt, ist wirkungslos: Der Elternteil bringt den Text des
+       Kindes schon mit. Das ist kein Fehler und darf nicht als verwaist
+       gemeldet werden - sonst steht eine rote Warnung an der Wand, obwohl
+       genau das dasteht, was gewollt war. */
+    function verdecktVon(e) {
+      return reihe.some(function (a) {
+        return a !== e && a.behaelter === e.behaelter
+            && typeof (a.was || {}).text === "string"
+            && a.pfad !== "" && e.pfad.indexOf(a.pfad + "/") === 0;
+      });
+    }
+
+    reihe.forEach(function (e) {
+      if (verdecktVon(e)) return;
+      var el = elementFinden(e);
+      if (!el) { VERWAIST.push(e); return; }
+      var w = e.was || {};
+
+      if (w.weg) { el.style.display = "none"; el.dataset.anpWeg = "1"; return; }
+      if (typeof w.text === "string") el.innerHTML = w.text;
+      if (w.groesse) {
+        /* Erst zuruecksetzen, dann messen, dann rechnen. Ein `em`-Wert waere
+           falsch: em zaehlt gegen die ELTERNgroesse, und die Ueberschrift
+           einer Folie steht bei 66 px in einem Koerper mit 16 px - aus
+           „1,18 mal so gross" wuerde 18,88 px. Gemessen wird die Groesse,
+           die das Blatt dem Element gibt; sie haengt am Format, also wird
+           bei jeder Fensteraenderung neu gemessen. */
+        el.style.fontSize = "";
+        var basis = parseFloat(getComputedStyle(el).fontSize) || 0;
+        if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
+      }
+      if (w.breite) {
+        el.style.maxWidth = "";
+        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
+        var ist = el.getBoundingClientRect().width;
+        if (voll > 0 && ist > 0)
+          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+      }
+      if (w.bild) bildSetzen(el, w.bild);
+      if (typeof w.rang === "number" && w.rang !== 0) {
+        var pp = el.parentNode;
+        merkeReihenfolge(pp);
+        var k = Array.prototype.slice.call(pp.children);
+        var von = k.indexOf(el), nach = Math.max(0, Math.min(k.length - 1, von + w.rang));
+        if (nach !== von) {
+          if (nach > von) pp.insertBefore(el, k[nach].nextSibling);
+          else pp.insertBefore(el, k[nach]);
+        }
+      }
+      el.dataset.anp = "1";
+    });
+
+    if (VERWAIST.length) melde();
+    /* Die Einpassung muss nach jeder Aenderung neu rechnen - sonst steht
+       die Folie in der Groesse da, die sie vor dem Loeschen hatte. */
+    if (typeof window.einpassen === "function") {
+      var on = document.querySelector(".slide.on");
+      if (on) window.einpassen(on);
+    }
+  }
+
+  /* Verwaiste Eintraege sind kein Randfall, sondern die eine Art, wie
+     dieses Verfahren schiefgeht. Deshalb stehen sie auf dem Bildschirm,
+     nicht in der Konsole, die im Unterricht niemand offen hat. */
+  function melde() {
+    var d = document.createElement("div");
+    d.className = "anp-warnung";
+    /* Kein Hinweis auf die Taste E: Auf der Website ist der Editor
+       herausgeschnitten, und ein Text, der zu einer Taste raet, die nichts
+       tut, schickt einen im Unterricht auf die falsche Faehrte. */
+    d.textContent = VERWAIST.length + " Anpassung" + (VERWAIST.length > 1 ? "en" : "")
+      + " findet ihr Element nicht mehr und wurde nicht angewandt.";
+    d.onclick = function () { d.remove(); };
+    document.body.appendChild(d);
+  }
+
+  /* ==================== 2 · EDITOR ====================
+     ALLES ZWISCHEN DEN BEIDEN MARKEN IST NUR FUER DEN EIGENEN RECHNER.
+
+     Beim Uebertragen auf die Website wird dieser Abschnitt herausgeschnitten
+     (`ohneEditor()` in Werkzeuge/github_dienst.mjs). Was oben steht - der
+     Anwender - bleibt: Die Anpassungen sollen im Netz ja wirken, sonst
+     waere das Bearbeiten sinnlos. Nur bearbeiten koennen soll dort niemand.
+
+     Deshalb darf der Anwender NICHTS aus diesem Abschnitt aufrufen. Wer
+     hier eine Funktion ergaenzt und sie oben benutzt, merkt es nicht auf
+     dem eigenen Rechner - sondern erst, wenn die Anzeige im Unterricht von
+     der Website geladen wird und mit einem Fehler stehenbleibt. */
+  
+
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", anwenden);
+  else anwenden();
+
+  /* Der Editor haengt sich hier an, WENN es ihn gibt. Auf der Website ist
+     EDITOR leer - dann fehlt `umschalten`, und die Taste E tut nichts. */
+  window.ANPASSEN = Object.assign({ anwenden: anwenden,
+                                    verwaist: function () { return VERWAIST; } },
+                                  EDITOR);
+})();
+</script></body>
+</html>
