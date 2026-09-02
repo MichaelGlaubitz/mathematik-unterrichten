@@ -84,6 +84,23 @@
   body.sehrspaet .regie{border-color:#fecaca;background:#fef2f2}
   body.sehrspaet .regie .puhr{color:var(--red)}
   @media print{.regie{display:none}}
+  /* --- Pause: ein kleiner Schalter in der Regieleiste ruft den Timer --- */
+  .regie .pause{font:inherit;font-size:11px;font-weight:800;color:var(--muted);
+    background:none;border:1px solid var(--line);border-radius:999px;
+    padding:1px 8px;cursor:pointer;line-height:1.3}
+  .regie .pause:hover{color:var(--ink);border-color:#94a3b8}
+  body.pause .regie .pause{color:#fff;background:var(--accent);border-color:var(--accent)}
+  /* Der Schirm liegt UNTER der Regieleiste (z 52), damit der Schalter
+     erreichbar bleibt, und ueber allem, was zur Folie gehoert. */
+  .pauseschirm{position:fixed;inset:0;z-index:51;background:#fff;display:none}
+  body.pause .pauseschirm{display:block}
+  .pauseschirm iframe{width:100%;height:100%;border:0}
+  /* !important, weil body.qrzeigen .qrecke weiter unten mit gleicher
+     Spezifitaet wieder einblendet - waehrend der Pause soll nur der
+     Timer zu sehen sein. */
+  body.pause .qrecke,body.pause .hintkey,body.pause .randnotiz,
+  body.pause .ghostctl,body.pause .nav{display:none!important}
+  @media print{.pauseschirm,.regie .pause{display:none}}
 
   /* --- Platz fuer die Leisten ------------------------------------------
      Die Vorlage laesst oben 4,5vh frei. Das genuegt fuer den blossen
@@ -546,7 +563,8 @@
 <a class="home" href="../Klassen/Mathe_11a.html">&larr; Mathe 11a</a>
 <div class="counter" id="counter"></div>
 <div class="notizmarke">Randnotizen sichtbar · D</div>
-<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span></div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span><button class="pause" type="button" aria-pressed="false" title="Zwei Minuten Pause ausrufen (P)">&#9208; 2 min</button></div>
+<div class="pauseschirm"></div>
 <div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m1 0h1m2 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m1 0h2m4 0h1m2 0h1m2 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m4 0h1m1 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m2 0h5m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h1m3 0h2m1 0h1m1 0h3m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m3 0h2m4 0h1m1 0h1m-25 1h1m1 0h2m1 0h3m1 0h3m2 0h1m2 0h2m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2m-33 1h4m3 0h2m1 0h1m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-30 1h2m1 0h1m2 0h3m1 0h1m3 0h1m3 0h3m1 0h5m1 0h2m-33 1h1m1 0h1m13 0h1m1 0h3m4 0h1m1 0h1m1 0h1m1 0h1m-29 1h2m1 0h1m2 0h2m3 0h1m2 0h1m2 0h1m2 0h3m2 0h2m1 0h1m-32 1h3m1 0h1m2 0h2m5 0h4m1 0h2m1 0h1m1 0h1m2 0h1m3 0h1m-32 1h3m1 0h4m1 0h4m5 0h3m1 0h1m1 0h1m1 0h2m1 0h1m-30 1h1m3 0h1m4 0h1m1 0h2m1 0h2m4 0h3m2 0h3m2 0h1m-29 1h1m3 0h4m1 0h1m6 0h2m1 0h3m1 0h2m1 0h3m-30 1h1m2 0h1m2 0h1m1 0h5m1 0h1m2 0h1m1 0h2m1 0h4m1 0h2m1 0h2m-33 1h2m4 0h2m1 0h1m5 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-32 1h2m1 0h1m5 0h4m1 0h2m1 0h2m3 0h5m1 0h1m-29 1h1m1 0h1m1 0h7m2 0h2m1 0h2m3 0h1m2 0h1m2 0h1m1 0h2m1 0h1m-33 1h2m1 0h2m3 0h1m1 0h2m4 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-28 1h2m1 0h1m1 0h1m2 0h2m1 0h1m5 0h4m2 0h1m1 0h3m-32 1h2m1 0h1m2 0h1m6 0h1m4 0h2m1 0h1m1 0h1m3 0h2m1 0h1m-32 1h1m1 0h3m1 0h2m1 0h3m3 0h1m1 0h1m4 0h7m2 0h2m-25 1h2m3 0h4m1 0h3m3 0h1m3 0h2m-30 1h7m1 0h1m3 0h2m4 0h7m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m1 0h1m4 0h3m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h2m1 0h2m1 0h8m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h1m2 0h1m1 0h4m3 0h1m4 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m10 0h1m2 0h1m1 0h4m1 0h2m3 0h1m-33 1h7m1 0h2m1 0h1m4 0h4m1 0h1m1 0h1m4 0h1m1 0h1"/></svg><div class="code">11A-QUAD</div></div>
 <div class="deck" id="deck">
 
@@ -684,7 +702,7 @@
 
 </div>
 
-<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
 <div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
 <div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
 
@@ -874,6 +892,37 @@
     });
     setInterval(zeige, 1000);
     zeige();
+  })();
+
+  /* ---- Pause: der Unterrichts-Timer der Website ueber der Folie -------
+     Der Schalter in der Regieleiste (oder P) legt den Timer mit einer
+     Zwei-Minuten-Phase ueber die Folie; der zweite Klick, P oder Escape
+     nimmt ihn weg, und die Folie steht noch da, wo sie war. Geladen wird
+     der Timer erst beim Ausrufen - ohne Netz fehlt nur dieser Schirm,
+     die Stunde laeuft weiter. Mit dem Schirm verschwindet auch der Gong. */
+  (function pause(){
+    const TIMER = 'https://mathematik-unterrichten.de/werkzeuge/unterrichts-timer.html'
+                + '?min=2&name=Pause&start=1&beamer=1';
+    const knopf  = document.querySelector('.regie .pause');
+    const schirm = document.querySelector('.pauseschirm');
+    if(!knopf || !schirm) return;
+    function um(){
+      const an = document.body.classList.toggle('pause');
+      if(an){
+        const f = document.createElement('iframe');
+        f.src = TIMER; f.title = 'Pause';
+        schirm.replaceChildren(f);
+      } else {
+        schirm.replaceChildren();
+      }
+      knopf.setAttribute('aria-pressed', an ? 'true' : 'false');
+    }
+    knopf.addEventListener('click', e => { e.stopPropagation(); um(); });
+    document.addEventListener('keydown', e => {
+      if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+      if(e.key === 'p' || e.key === 'P') um();
+      else if(e.key === 'Escape' && document.body.classList.contains('pause')) um();
+    });
   })();
 
   /* ---- Live-Abstimmung ------------------------------------------------
