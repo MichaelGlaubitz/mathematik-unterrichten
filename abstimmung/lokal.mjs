@@ -25,9 +25,15 @@ const PORT = Number(process.env.PORT || arg("port", 8740));
 const LEHRER = process.env.LEHRER || arg("lehrer", "probe");
 
 const raeume = new Map();
+const bilder = new Map();                     // "raum/geraet" -> data:-URL
 const speicher = {
   lies: async (code) => raeume.get(code) || null,
   schreib: async (code, z) => { raeume.set(code, z); },
+  liesBild: async (code, g) => bilder.get(code + "/" + g) || null,
+  schreibBild: async (code, g, daten) => { bilder.set(code + "/" + g, daten); },
+  loescheBilder: async (code) => {
+    for (const k of [...bilder.keys()]) if (k.startsWith(code + "/")) bilder.delete(k);
+  },
 };
 
 /* node:http -> Web-Request und zurueck. Node 18+ bringt Request/Response mit. */

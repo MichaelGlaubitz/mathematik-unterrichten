@@ -27,6 +27,15 @@ export class Raum {
     const speicher = {
       lies: async () => (await this.state.storage.get("z")) || null,
       schreib: async (_code, z) => { await this.state.storage.put("z", z); },
+      /* Die Bilder eines Zeichenauftrags liegen je Geraet unter einem
+         eigenen Schluessel - nicht im Zustand z, der bei jeder Stimme neu
+         geschrieben wird. */
+      liesBild: async (_code, g) => (await this.state.storage.get("bild:" + g)) || null,
+      schreibBild: async (_code, g, daten) => { await this.state.storage.put("bild:" + g, daten); },
+      loescheBilder: async () => {
+        const alte = await this.state.storage.list({ prefix: "bild:" });
+        if (alte.size) await this.state.storage.delete([...alte.keys()]);
+      },
     };
     return bearbeite(req, speicher, this.env.LEHRER);
   }

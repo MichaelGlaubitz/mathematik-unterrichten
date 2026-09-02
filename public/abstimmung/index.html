@@ -47,6 +47,20 @@
   body.ruhe h1{flex:1;display:flex;align-items:center;justify-content:center;
     text-align:center;font-size:clamp(30px,9vw,64px);color:var(--accent)}
   body.ruhe .karten,body.ruhe .hinweis{display:none}
+  /* Zeichenauftrag: ein Feld im Seitenverhaeltnis der Kacheln an der Wand
+     (4:3), dicke Linie, zwei Knoepfe. */
+  .zeichnen{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
+  body.zeichnen .zeichnen{display:flex}
+  body.zeichnen .karten{display:none}
+  canvas.feld{width:100%;max-height:62vh;aspect-ratio:4/3;background:#fff;
+    border:2px solid var(--line);border-radius:14px;touch-action:none;display:block;
+    margin:0 auto}
+  .werkzeuge{display:flex;gap:10px}
+  .werkzeuge button{flex:1;font:inherit;font-size:17px;font-weight:800;padding:14px;
+    border-radius:14px;border:2px solid var(--line);background:var(--panel);color:inherit;
+    cursor:pointer}
+  .werkzeuge button.haupt{flex:2;background:var(--accent);border-color:var(--accent);color:#fff}
+  .werkzeuge button:disabled{opacity:.5;cursor:default}
 </style>
 </head>
 <body>
@@ -58,6 +72,13 @@
 
 <h1 id="frage">Abstimmung</h1>
 <div class="karten" id="karten"></div>
+<div class="zeichnen" id="zeichnen">
+  <canvas class="feld" id="feld" width="640" height="480" aria-label="Zeichenfeld"></canvas>
+  <div class="werkzeuge">
+    <button type="button" id="loeschen">Alles löschen</button>
+    <button type="button" class="haupt" id="senden">Abschicken</button>
+  </div>
+</div>
 <div class="hinweis" id="hinweis"><span class="warte"></span>Verbinde …</div>
 
 <p class="fuss">
@@ -165,7 +186,8 @@ async function waehle(i){
 
 async function hole(){
   try {
-    const a = await fetch(DIENST + "/v1/raum/" + RAUM, { cache: "no-store" });
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "?geraet=" + encodeURIComponent(GERAET),
+                          { cache: "no-store" });
     const d = await a.json();
     fehlerAmStueck = 0;
     if (!d.ok) return;
@@ -175,8 +197,18 @@ async function hole(){
       stand.schluessel = d.schluessel;
       baueKarten(d.optionen || []);
       $("hinweis").hidden = true;
+      feldLeeren();
+      meinBildDa = false;
     }
     stand.offen = d.offen;
+    /* Zeichenauftrag statt Frage: Feld und Knoepfe statt Karten. */
+    const zeichnen = d.art === "zeichnen";
+    document.body.classList.toggle("zeichnen", zeichnen);
+    if (zeichnen && !d.hinweis){
+      if (d.meins) meinBildDa = true;
+      zeichnenStand(d);
+      return;
+    }
     /* Grundzustand: Die Wand hat „Blick nach vorn." ausgerufen. Dann steht
        nur dieser Satz da - keine Karten, kein Zaehler, kein Warten. Die
        Karten bleiben im Dokument, damit eine danach wieder geoeffnete
@@ -201,6 +233,85 @@ async function hole(){
     if (++fehlerAmStueck === 3)
       zeigeHinweis("Keine Verbindung zum Dienst.<br>Ist das WLAN an?", "fehler");
   }
+}
+
+/* ------------------------------------------------------------------
+   Zeichenauftrag. Das Feld hat 640 x 480 Bildpunkte, egal wie gross es
+   auf dem Schirm steht - so sehen alle Kacheln an der Wand gleich aus.
+   Die Linie ist dick, weil eine Kachel dort klein ist.
+   ------------------------------------------------------------------ */
+const feld = $("feld");
+const ctx = feld.getContext("2d");
+let malt = false, leerBild = true, meinBildDa = false;
+
+function feldLeeren(){
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, feld.width, feld.height);
+  ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.strokeStyle = "#0f172a";
+  leerBild = true;
+}
+function punkt(e){
+  const r = feld.getBoundingClientRect();
+  return [(e.clientX - r.left) * feld.width / r.width,
+          (e.clientY - r.top) * feld.height / r.height];
+}
+feld.addEventListener("pointerdown", e => {
+  if (!stand.offen) return;
+  malt = true;
+  feld.setPointerCapture(e.pointerId);
+  const [x, y] = punkt(e);
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 0.1, y); ctx.stroke();
+  leerBild = false;
+  e.preventDefault();
+});
+feld.addEventListener("pointermove", e => {
+  if (!malt) return;
+  const [x, y] = punkt(e);
+  ctx.lineTo(x, y); ctx.stroke();
+});
+const malEnde = () => { malt = false; };
+feld.addEventListener("pointerup", malEnde);
+feld.addEventListener("pointercancel", malEnde);
+$("loeschen").onclick = feldLeeren;
+
+$("senden").onclick = async () => {
+  if (!stand.offen){ zeigeHinweis("Der Auftrag ist <b>geschlossen</b>.", "fehler"); return; }
+  if (leerBild){ zeigeHinweis("Da ist noch nichts gezeichnet."); return; }
+  $("senden").disabled = true;
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/bild", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ geraet: GERAET, daten: feld.toDataURL("image/png"),
+                             schluessel: stand.schluessel }),
+    });
+    const d = await a.json();
+    if (d.ok){
+      meinBildDa = true;
+      zeigeHinweis("Dein Bild ist <b>angekommen</b>. Du kannst es ersetzen, "
+                   + "solange der Auftrag offen ist.");
+    } else {
+      zeigeHinweis(d.grund === "voll" ? "Die Wand ist voll — 32 Bilder sind schon da."
+                 : d.grund === "zu"   ? "Der Auftrag ist <b>geschlossen</b>."
+                 : "Das kam nicht an. Gleich noch einmal versuchen.", "fehler");
+    }
+  } catch (e){
+    zeigeHinweis("Keine Verbindung. Das Bild wurde <b>nicht</b> gesendet.", "fehler");
+  }
+  $("senden").disabled = false;
+};
+feldLeeren();
+
+function zeichnenStand(d){
+  $("frage").textContent = d.frage || "Zeichne";
+  $("stand").textContent = d.eingereicht
+    ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
+  $("loeschen").disabled = !d.offen;
+  $("senden").disabled = !d.offen;
+  if (d.meins && d.meins.frei) zeigeHinweis("Dein Bild <b>hängt an der Wand</b>.");
+  else if (!d.offen) zeigeHinweis(d.meins ? "Der Auftrag ist geschlossen. Dein Bild ist da."
+                                          : "Der Auftrag ist <b>geschlossen</b>.");
+  else if (!meinBildDa && $("hinweis").hidden) zeigeHinweis("Zeichne, dann <b>Abschicken</b>.");
 }
 
 if (!RAUM){

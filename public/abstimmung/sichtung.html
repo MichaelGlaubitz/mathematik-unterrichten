@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Sichtung</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#4f46e5; --green:#15803d; --gold:#d97706;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0b1220;--panel:#151d2e;--ink:#e8edf7;--muted:#94a3b8;--line:#26304a}
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);
+       padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));
+       display:flex;flex-direction:column;gap:12px;min-height:100%}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .raum{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .stand{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  h1{font-size:clamp(17px,4.6vw,24px);line-height:1.25;font-weight:800}
+  .knoepfe{display:flex;gap:10px}
+  .knoepfe button{flex:1;font:inherit;font-size:16px;font-weight:800;padding:12px;
+    border-radius:14px;border:2px solid var(--line);background:var(--panel);color:inherit;cursor:pointer}
+  .knoepfe button.haupt{background:var(--accent);border-color:var(--accent);color:#fff}
+  .galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .kachel{position:relative;aspect-ratio:4/3;background:#fff;border:3px solid var(--line);
+    border-radius:12px;overflow:hidden;cursor:pointer}
+  .kachel img{width:100%;height:100%;object-fit:contain;display:block}
+  .kachel.frei{border-color:var(--green)}
+  .kachel .nr{position:absolute;left:6px;top:4px;font-size:13px;font-weight:800;color:var(--muted);
+    background:rgba(255,255,255,.85);border-radius:6px;padding:1px 6px}
+  .kachel.frei .nr{background:var(--green);color:#fff}
+  .hinweis{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px;color:var(--muted);font-size:15px;line-height:1.45;text-align:center}
+  .hinweis b{color:var(--ink)}
+  .fehler{color:#b91c1c}
+  .fuss{font-size:12px;color:var(--muted);text-align:center;line-height:1.4;margin-top:auto}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="raum" id="raum">–</span>
+  <span class="stand" id="stand"></span>
+</header>
+
+<h1 id="auftrag">Sichtung</h1>
+<div class="knoepfe">
+  <button type="button" class="haupt" id="alle">Alle freigeben</button>
+  <button type="button" id="keine">Alle verbergen</button>
+</div>
+<div class="galerie" id="galerie"></div>
+<div class="hinweis" id="hinweis">Verbinde …</div>
+
+<p class="fuss">
+  Lehrerseite. Zeigt die eingereichten Bilder <b>vor</b> der Freigabe;
+  ein Tipp auf ein Bild gibt es an der Wand frei oder nimmt es zurück.
+</p>
+
+<script>
+"use strict";
+/* ------------------------------------------------------------------
+   Sichtung fuer die Lehrkraft - auf dem eigenen Geraet, nicht am Beamer.
+
+   Die Wand zeigt nur freigegebene Bilder. Hier sieht man alle, tippt
+   einzelne frei oder alle auf einmal. Der Lehrerschluessel ist derselbe
+   wie an der Wand; auf demselben Geraet und derselben Adresse ist er
+   schon da (localStorage "wand-lehrer").
+   ------------------------------------------------------------------ */
+const P = new URLSearchParams(location.search);
+const DIENST = (P.get("dienst") || "https://abstimmung.michaelglaubitz-barton.workers.dev")
+                 .replace(/\/+$/, "");
+const RAUM = (P.get("raum") || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
+const $ = id => document.getElementById(id);
+
+const holeSchluessel = () => { try { return localStorage.getItem("wand-lehrer") || ""; } catch(e){ return ""; } };
+const setzeSchluessel = v => { try { localStorage.setItem("wand-lehrer", v); } catch(e){} };
+const kopf = () => ({ "content-type": "application/json", "x-lehrer": holeSchluessel() });
+
+function zeigeHinweis(html, klasse){
+  $("hinweis").className = "hinweis" + (klasse ? " " + klasse : "");
+  $("hinweis").innerHTML = html;
+  $("hinweis").hidden = false;
+}
+
+const bilder = new Map();          // geraet -> { zeit, img }
+let letzterSchluessel = null;
+
+async function frei(koerper){
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/frei",
+                          { method: "POST", headers: kopf(), body: JSON.stringify(koerper) });
+    if (a.status === 403) return schluesselFragen();
+  } catch(e){}
+  hole();
+}
+
+function schluesselFragen(){
+  const v = prompt("Lehrerschlüssel:", holeSchluessel());
+  if (v !== null){ setzeSchluessel(v.trim()); hole(); }
+}
+
+async function holeBild(g, zeit){
+  const k = $("k-" + g); if (!k) return;
+  const alt = bilder.get(g);
+  if (alt && alt.zeit === zeit) return;
+  bilder.set(g, { zeit, img: null });
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/bild?geraet=" + encodeURIComponent(g),
+                          { headers: kopf(), cache: "no-store" });
+    const d = await a.json();
+    if (!d.ok) return;
+    let img = k.querySelector("img");
+    if (!img){ img = document.createElement("img"); img.alt = ""; k.appendChild(img); }
+    img.src = d.daten;
+  } catch(e){}
+}
+
+async function hole(){
+  if (!holeSchluessel()) return schluesselFragen();
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/ergebnis",
+                          { headers: kopf(), cache: "no-store" });
+    if (a.status === 403){ zeigeHinweis("Der Lehrerschlüssel stimmt nicht.", "fehler");
+                           setzeSchluessel(""); return; }
+    const d = await a.json();
+    if (!d.ok) return;
+    if (d.art !== "zeichnen"){
+      $("auftrag").textContent = "Gerade läuft kein Zeichenauftrag";
+      $("galerie").textContent = "";
+      bilder.clear();
+      zeigeHinweis(d.frage ? "An der Wand steht eine Abstimmung: <b>" + d.frage + "</b>"
+                           : "Sobald an der Wand ein Zeichenauftrag steht, erscheinen die Bilder hier.");
+      $("stand").textContent = "";
+      return;
+    }
+    if (d.schluessel !== letzterSchluessel){ letzterSchluessel = d.schluessel; $("galerie").textContent = ""; bilder.clear(); }
+    $("auftrag").textContent = d.frage || "Zeichenauftrag";
+    const liste = d.bilder || [];
+    const freiZahl = liste.filter(b => b.frei).length;
+    $("stand").textContent = liste.length + (liste.length === 1 ? " Bild" : " Bilder")
+                           + " · " + freiZahl + " an der Wand" + (d.offen ? "" : " · geschlossen");
+    const da = new Set(liste.map(b => b.geraet));
+    [...$("galerie").children].forEach(k => { if (!da.has(k.dataset.geraet)) { k.remove(); bilder.delete(k.dataset.geraet); } });
+    liste.forEach((b, i) => {
+      let k = $("k-" + b.geraet);
+      if (!k){
+        k = document.createElement("div");
+        k.className = "kachel"; k.id = "k-" + b.geraet; k.dataset.geraet = b.geraet;
+        k.innerHTML = '<span class="nr"></span>';
+        k.onclick = () => frei({ geraet: b.geraet, frei: !k.classList.contains("frei") });
+        $("galerie").appendChild(k);
+      }
+      k.querySelector(".nr").textContent = i + 1;
+      k.classList.toggle("frei", !!b.frei);
+      holeBild(b.geraet, b.zeit);
+    });
+    $("hinweis").hidden = liste.length > 0;
+    if (!liste.length) zeigeHinweis("Noch kein Bild da.");
+  } catch (e){
+    zeigeHinweis("Keine Verbindung zum Dienst.", "fehler");
+  }
+}
+
+$("alle").onclick = () => frei({ alle: true, frei: true });
+$("keine").onclick = () => frei({ alle: true, frei: false });
+
+if (!RAUM){
+  $("auftrag").textContent = "Kein Raum angegeben";
+  zeigeHinweis("Aufruf: <b>sichtung.html?raum=…</b> — der Raumcode steht unten rechts an der Wand.", "fehler");
+} else {
+  $("raum").textContent = "Raum " + RAUM.toUpperCase();
+  hole();
+  setInterval(hole, 2000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) hole(); });
+}
+</script>
+</body>
+</html>

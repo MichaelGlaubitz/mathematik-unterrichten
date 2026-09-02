@@ -94,6 +94,34 @@ den Lehrerschlüssel; ein leerer Text hebt den Grundzustand auf, und jede neu
 geöffnete Frage hebt ihn ebenfalls auf. Der Satz lässt sich je Stunde
 ersetzen: `…-wandfassung.html?ruhe=Heft%20zu.`
 
+## Zeichenauftrag — Bilder statt Karten
+
+Eine Folie der Wandfassung kann statt vier Karten einen **Zeichenauftrag**
+stellen (`zeichenfolie(…)` in `wandbau.py`). Die Geräte zeigen dann ein
+Zeichenfeld (640 × 480, 4:3, dicke Linie) und den Knopf **Abschicken**; das
+Bild geht als PNG an den Dienst, ein zweites ersetzt das erste. Höchstens
+32 Bilder je Auftrag — so viele Kacheln passen an die Wand.
+
+An der Wand erscheinen die Bilder als **graue, nummerierte Kacheln**. Erst
+die Freigabe zeigt sie:
+
+* **einzeln** — Klick auf die Kachel an der Wand (blind), oder mit Vorschau
+  auf dem eigenen Gerät: `…/abstimmung/sichtung.html?raum=<code>` zeigt alle
+  eingereichten Bilder, ein Tipp gibt frei oder nimmt zurück. Der
+  Lehrerschlüssel ist derselbe wie an der Wand.
+* **alle auf einmal** — „Alle zeigen“ / „Alle verbergen“ unter der Galerie
+  oder in der Sichtung.
+
+Ein Klick auf ein gezeigtes Bild zeigt es groß. Das Raster rechnet sich aus
+der Zahl der Bilder: 6 werden 3 × 2, 32 werden 7 × 5, immer so, dass alles
+ins Bild passt.
+
+Technisch: `POST …/frage` mit `art: "zeichnen"`, Geräte `POST …/bild`
+(`{ geraet, daten, schluessel }`), Lehrkraft `GET …/ergebnis` (Liste mit
+`frei`), `GET …/bild?geraet=…` und `POST …/frei`
+(`{ geraet, frei }` oder `{ alle: true, frei }`). Die Bilder liegen im
+Durable Object unter eigenen Schlüsseln und verfallen mit dem Raum.
+
 ## Wenn das Schul-WLAN streikt
 
 `lokal.mjs` ist derselbe Dienst als Node-Server für den Lehrer-Laptop:
