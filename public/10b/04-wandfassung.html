@@ -218,6 +218,13 @@
   .opt .zahl{margin-left:auto;padding-left:.7em;font-weight:800;
     font-variant-numeric:tabular-nums;display:none}
   .slide.abstimmt .opt .zahl{display:block}
+  /* Stufige Abstimmung: Waehrend gestimmt wird (Schritt 0), stehen die
+     Karten leer da. In der Ecke laeuft trotzdem mit, WIE VIELE schon
+     abgegeben haben - das beruhigt, ohne die Antwort zu verraten. */
+  .slide.stufig[data-step="0"] .opt .zahl,
+  .slide.stufig[data-step="0"] .opt .fuellung{opacity:0}
+  .slide.stufig .opt .zahl,
+  .slide.stufig .opt .fuellung{transition:opacity .3s ease}
   /* Solange nicht aufgeloest ist, verraet keine Fuellung, welche Karte
      stimmt - erst danach faerbt sich die richtige gruen. */
   .plickers.gezeigt .opt.istrichtig .fuellung{background:#bbf7d0}
@@ -514,6 +521,25 @@
   .randnotiz .weiche{display:block;margin-top:.55em;padding-top:.5em;
     border-top:1px dashed #e0b93c}
   .randnotiz .weiche i{font-style:normal;font-weight:800;color:#92400e}
+/* ===========================================================================
+   Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
+
+   Alles hier haengt an `body.anp-an` oder an `.anp-*`. Im Unterricht ist
+   der Editor aus, und dann darf keine einzige Regel greifen - eine Anzeige,
+   die im Bearbeitungszustand an der Wand haengt, waere schlimmer als gar
+   kein Editor.
+   =========================================================================== */
+
+/* --- Warnung bei verwaisten Eintraegen -------------------------------
+   Sichtbar, nicht in der Konsole: Im Unterricht hat niemand die Konsole
+   offen, und eine Anpassung, die ins Leere greift, muss auffallen. */
+.anp-warnung{position:fixed;left:50%;top:52px;transform:translateX(-50%);z-index:80;
+  background:#fef2f2;border:1px solid #fecaca;border-left:7px solid #dc2626;
+  color:#7f1d1d;border-radius:11px;padding:9px 15px;font-size:14px;font-weight:600;
+  max-width:70vw;cursor:pointer;box-shadow:0 3px 12px rgba(15,23,42,.18)}
+@media print{.anp-warnung{display:none}}
+
+
 </style>
 </head>
 <body>
@@ -1007,7 +1033,14 @@
       if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
       if (laufend && laufend.folie !== folie) return schliesse();
       if (laufend && aufgeloest){
-        const b = folie.querySelector(".plickers"); if (b) b.classList.add("gezeigt");
+        /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
+           Gefaerbt - und damit verraten - wird die richtige Karte erst beim
+           zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
+           waehrend die Klasse noch die Zahlen liest. */
+        const stufig = folie.classList.contains("stufig");
+        const stufe = +(folie.dataset.step || 0);
+        const b = folie.querySelector(".plickers");
+        if (b && (!stufig || stufe >= 2)) b.classList.add("gezeigt");
         return schliesse();
       }
     }
@@ -1021,6 +1054,317 @@
     pruefe().then(beobachte);
     setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
   })();
-</script>
-</body>
+
+  window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
+/* ===========================================================================
+   Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
+
+   Zwei Teile in einer Datei, weil sie dieselbe Adressierung brauchen:
+
+   1. ANWENDER - laeuft in jeder Anzeige, auch im Unterricht. Er liest
+      window.ANPASSUNGEN und legt die Aenderungen auf die erzeugte Seite.
+   2. EDITOR - laeuft nur, wenn er gerufen wird (Taste E). Er schreibt
+      genau die Eintraege, die der Anwender wieder liest.
+
+   WARUM NICHT IN DIE ERZEUGTE DATEI SCHREIBEN: Jede Anzeige entsteht aus
+   einem Bauskript. Wer die HTML-Datei bearbeitet, verliert die Aenderung
+   beim naechsten Bau - und merkt es erst im Unterricht. Deshalb liegt die
+   Aenderung in einer eigenen Datei neben dem Bauskript, und der Bau legt
+   sie jedes Mal wieder auf.
+
+   WARUM DIE ANWENDUNG IM BROWSER GESCHIEHT und nicht in Python: Es gibt
+   drei Bauwege (Wandfassung, Projektion, Selbstlernstunde) mit drei
+   verschiedenen Strukturen, aber nur EINEN Zustand, in dem alle drei
+   gleich aussehen - den fertigen DOM. Ein Anwender dort bedient alle drei;
+   drei Anwender in Python muessten dreimal gepflegt werden.
+
+   DIE HEIKLE STELLE ist das Wiederfinden eines Elements nach einem Neubau.
+   Ein Pfad allein genuegt nicht: Kommt eine Folie dazu, zeigt er auf das
+   falsche Element, und die Aenderung landet lautlos woanders. Deshalb
+   traegt jeder Eintrag zusaetzlich einen Fingerabdruck seines Inhalts.
+   Stimmt er nicht, wird NICHT geraten: Der Eintrag gilt als verwaist und
+   wird gemeldet - sichtbar, nicht nur in der Konsole.
+   =========================================================================== */
+(function () {
+  "use strict";
+
+  /* --- Fingerabdruck: kurz, stabil, nur aus dem sichtbaren Text ---------
+     Absichtlich nicht ueber das HTML: Ein geaenderter Umbruch oder ein
+     zusaetzliches <b> soll den Eintrag nicht verwaisen lassen. Der Text
+     traegt die Bedeutung. */
+  function fingerabdruck(el) {
+    var t = (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    var h = 5381;
+    for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }
+
+  /* --- Adressierung ----------------------------------------------------
+     Behaelter = Folie (.slide) oder Karte (.karte/.teil), je nach Anzeige.
+     Innerhalb davon adressiert eine Kette von Kind-Indizes. */
+  var BEHAELTER = ".slide, .karte, .teil";
+
+  function behaelterListe() {
+    return Array.prototype.slice.call(document.querySelectorAll(BEHAELTER))
+      .filter(function (b) { return !b.closest(".anp-leiste"); });
+  }
+
+  function behaelterName(b) {
+    if (b.dataset.marke) return b.dataset.marke;
+    var i = behaelterListe().indexOf(b);
+    return "#" + (i + 1);
+  }
+
+  function behaelterFinden(name) {
+    var liste = behaelterListe();
+    if (name.charAt(0) === "#") return liste[parseInt(name.slice(1), 10) - 1] || null;
+    for (var i = 0; i < liste.length; i++)
+      if (liste[i].dataset.marke === name) return liste[i];
+    return null;
+  }
+
+  /* window.einpassen zieht NACHTRAEGLICH ein <div class="buehne"> in die
+     Folie und haengt alle Kinder dort hinein, um sie als Block zu
+     skalieren. Damit aendert sich die Tiefe jedes Elements, je nachdem, ob
+     die Einpassung schon gelaufen ist: derselbe Kasten hiess erst „1" und
+     danach „0/1". Zwei Adressen fuer ein Element - und schon legt der
+     Editor beim zweiten Klick einen zweiten Eintrag an.
+
+     Die Buehne ist Technik, kein Inhalt. Deshalb ist sie hier die Wurzel,
+     wenn es sie gibt, und faellt aus dem Pfad heraus. */
+  function inhaltsWurzel(b) {
+    return b.querySelector(":scope > .buehne") || b;
+  }
+
+  function pfadVon(el, b) {
+    var w = inhaltsWurzel(b), teile = [];
+    while (el && el !== w) {
+      var p = el.parentNode;
+      if (!p) return null;
+      teile.unshift(Array.prototype.indexOf.call(p.children, el));
+      el = p;
+    }
+    return el === w ? teile.join("/") : null;
+  }
+
+  function elementAn(b, pfad) {
+    var el = inhaltsWurzel(b), teile = pfad === "" ? [] : pfad.split("/");
+    for (var i = 0; i < teile.length; i++) {
+      el = el.children[parseInt(teile[i], 10)];
+      if (!el) return null;
+    }
+    return el;
+  }
+
+  /* Erst am Pfad suchen, dann - wenn der Fingerabdruck widerspricht - im
+     ganzen Behaelter nach dem Fingerabdruck. So ueberlebt ein Eintrag das
+     Einfuegen eines Geschwisterelements, ohne je zu raten. */
+  function elementFinden(e) {
+    var b = behaelterFinden(e.behaelter);
+    if (!b) return null;
+    var el = elementAn(b, e.pfad);
+    if (el && fingerabdruck(el) === e.fp) return el;
+    var alle = b.querySelectorAll("*");
+    for (var i = 0; i < alle.length; i++)
+      if (fingerabdruck(alle[i]) === e.fp) return alle[i];
+    return null;
+  }
+
+  /* ==================== 1 · ANWENDER ==================== */
+
+  var VERWAIST = [];
+  /* Bleibt leer, wenn der Editor herausgeschnitten wurde - siehe die Marken
+     weiter unten. */
+  var EDITOR = {};
+
+  /* Der Urzustand jedes beruehrten Elternteils, damit anwenden() BELIEBIG
+     OFT laufen kann und immer dasselbe Ergebnis liefert. Ohne das wandert
+     ein Element beim Bearbeiten mit jedem Aufruf eine Stelle weiter: Der
+     Editor wendet nach jedem Klick neu an, und „eine Position nach oben"
+     waere nach dem dritten Klick drei Positionen. */
+  var URZUSTAND = new Map();
+
+  function merkeReihenfolge(p) {
+    if (p && !URZUSTAND.has(p)) URZUSTAND.set(p, Array.prototype.slice.call(p.children));
+  }
+
+  function urzustandHerstellen() {
+    URZUSTAND.forEach(function (kinder, p) {
+      kinder.forEach(function (k) { if (k.parentNode === p) p.appendChild(k); });
+    });
+    /* Eingesetzte Bilder wieder heraus und verdraengte SVG zurueck - sonst
+       bliebe ein zurueckgenommenes Bild stehen und die Zeichnung darunter
+       verborgen, bis jemand neu laedt. */
+    document.querySelectorAll("img[data-anp-bild]").forEach(function (b) { b.remove(); });
+    document.querySelectorAll("[data-anp-ersetzt]").forEach(function (s) {
+      s.style.display = ""; delete s.dataset.anpErsetzt;
+    });
+    document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
+      el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      delete el.dataset.anp; delete el.dataset.anpWeg;
+    });
+  }
+
+  /* Ein Bild einsetzen oder austauschen.
+
+     Drei Faelle, und nur der erste ist offensichtlich:
+
+     1. Das Element IST ein Bild - Quelle tauschen, fertig.
+     2. Es enthaelt ein <svg>. Das sind die gerechneten Koordinatensysteme
+        und der QR-Code. „Austauschen" heisst hier: das SVG verbergen und
+        das Bild an seine Stelle setzen - nicht danebenhaengen, sonst
+        stehen Zeichnung und Bild nebeneinander und niemand weiss, welches
+        gilt. Verborgen, nicht geloescht: Der Urzustand muss herstellbar
+        bleiben.
+     3. Sonst wird ein Bild angehaengt.
+
+     In allen Faellen als BLOCK mit eigener Zeile. Ein Bild ohne
+     display:block landet in der Textzeile und schiebt sich neben die
+     Ueberschrift - so gesehen bei der ersten Probe. */
+  function bildSetzen(el, quelle) {
+    if (el.tagName === "IMG") { el.src = quelle; return; }
+    var vorhanden = el.querySelector(":scope > img[data-anp-bild]");
+    if (!vorhanden) {
+      vorhanden = document.createElement("img");
+      vorhanden.dataset.anpBild = "1";
+      var svg = el.tagName === "svg" ? el : el.querySelector("svg");
+      if (svg) {
+        svg.dataset.anpErsetzt = "1";
+        svg.style.display = "none";
+        svg.parentNode.insertBefore(vorhanden, svg);
+      } else {
+        el.appendChild(vorhanden);
+      }
+    }
+    vorhanden.src = quelle;
+    vorhanden.style.display = "block";
+    vorhanden.style.maxWidth = "100%";
+    vorhanden.style.height = "auto";
+    vorhanden.style.margin = "0.6em auto 0";
+  }
+
+  function anwenden() {
+    var daten = window.ANPASSUNGEN;
+    urzustandHerstellen();
+    if (!daten || !daten.eintraege || !daten.eintraege.length) return;
+    VERWAIST = [];
+    document.querySelectorAll(".anp-warnung").forEach(function (w) { w.remove(); });
+
+    /* Von aussen nach innen: flache Pfade zuerst.
+
+       Wer ein Element UND eines seiner Kinder aendert, aendert mit dem Kind
+       auch den Textinhalt des Elternteils - und damit dessen Fingerabdruck.
+       Kam das Kind zuerst, erkannte der Elternteil sich selbst nicht mehr
+       und galt als verwaist: An der 7b-Wandfassung ging so ein ganzer
+       Absatz verloren, waehrend die Zeile darin ankam.
+
+       Der Elternteil setzt seinen Inhalt ohnehin als Ganzes; ihn zuerst zu
+       legen ist auch der Reihenfolge nach richtig. */
+    var reihe = daten.eintraege.slice().sort(function (a, b) {
+      return (a.pfad === "" ? 0 : a.pfad.split("/").length)
+           - (b.pfad === "" ? 0 : b.pfad.split("/").length);
+    });
+
+    /* Ein Eintrag, der UNTERHALB eines anderen liegt, welcher seinen Inhalt
+       als Ganzes setzt, ist wirkungslos: Der Elternteil bringt den Text des
+       Kindes schon mit. Das ist kein Fehler und darf nicht als verwaist
+       gemeldet werden - sonst steht eine rote Warnung an der Wand, obwohl
+       genau das dasteht, was gewollt war. */
+    function verdecktVon(e) {
+      return reihe.some(function (a) {
+        return a !== e && a.behaelter === e.behaelter
+            && typeof (a.was || {}).text === "string"
+            && a.pfad !== "" && e.pfad.indexOf(a.pfad + "/") === 0;
+      });
+    }
+
+    reihe.forEach(function (e) {
+      if (verdecktVon(e)) return;
+      var el = elementFinden(e);
+      if (!el) { VERWAIST.push(e); return; }
+      var w = e.was || {};
+
+      if (w.weg) { el.style.display = "none"; el.dataset.anpWeg = "1"; return; }
+      if (typeof w.text === "string") el.innerHTML = w.text;
+      if (w.groesse) {
+        /* Erst zuruecksetzen, dann messen, dann rechnen. Ein `em`-Wert waere
+           falsch: em zaehlt gegen die ELTERNgroesse, und die Ueberschrift
+           einer Folie steht bei 66 px in einem Koerper mit 16 px - aus
+           „1,18 mal so gross" wuerde 18,88 px. Gemessen wird die Groesse,
+           die das Blatt dem Element gibt; sie haengt am Format, also wird
+           bei jeder Fensteraenderung neu gemessen. */
+        el.style.fontSize = "";
+        var basis = parseFloat(getComputedStyle(el).fontSize) || 0;
+        if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
+      }
+      if (w.breite) {
+        el.style.maxWidth = "";
+        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
+        var ist = el.getBoundingClientRect().width;
+        if (voll > 0 && ist > 0)
+          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+      }
+      if (w.bild) bildSetzen(el, w.bild);
+      if (typeof w.rang === "number" && w.rang !== 0) {
+        var pp = el.parentNode;
+        merkeReihenfolge(pp);
+        var k = Array.prototype.slice.call(pp.children);
+        var von = k.indexOf(el), nach = Math.max(0, Math.min(k.length - 1, von + w.rang));
+        if (nach !== von) {
+          if (nach > von) pp.insertBefore(el, k[nach].nextSibling);
+          else pp.insertBefore(el, k[nach]);
+        }
+      }
+      el.dataset.anp = "1";
+    });
+
+    if (VERWAIST.length) melde();
+    /* Die Einpassung muss nach jeder Aenderung neu rechnen - sonst steht
+       die Folie in der Groesse da, die sie vor dem Loeschen hatte. */
+    if (typeof window.einpassen === "function") {
+      var on = document.querySelector(".slide.on");
+      if (on) window.einpassen(on);
+    }
+  }
+
+  /* Verwaiste Eintraege sind kein Randfall, sondern die eine Art, wie
+     dieses Verfahren schiefgeht. Deshalb stehen sie auf dem Bildschirm,
+     nicht in der Konsole, die im Unterricht niemand offen hat. */
+  function melde() {
+    var d = document.createElement("div");
+    d.className = "anp-warnung";
+    /* Kein Hinweis auf die Taste E: Auf der Website ist der Editor
+       herausgeschnitten, und ein Text, der zu einer Taste raet, die nichts
+       tut, schickt einen im Unterricht auf die falsche Faehrte. */
+    d.textContent = VERWAIST.length + " Anpassung" + (VERWAIST.length > 1 ? "en" : "")
+      + " findet ihr Element nicht mehr und wurde nicht angewandt.";
+    d.onclick = function () { d.remove(); };
+    document.body.appendChild(d);
+  }
+
+  /* ==================== 2 · EDITOR ====================
+     ALLES ZWISCHEN DEN BEIDEN MARKEN IST NUR FUER DEN EIGENEN RECHNER.
+
+     Beim Uebertragen auf die Website wird dieser Abschnitt herausgeschnitten
+     (`ohneEditor()` in Werkzeuge/github_dienst.mjs). Was oben steht - der
+     Anwender - bleibt: Die Anpassungen sollen im Netz ja wirken, sonst
+     waere das Bearbeiten sinnlos. Nur bearbeiten koennen soll dort niemand.
+
+     Deshalb darf der Anwender NICHTS aus diesem Abschnitt aufrufen. Wer
+     hier eine Funktion ergaenzt und sie oben benutzt, merkt es nicht auf
+     dem eigenen Rechner - sondern erst, wenn die Anzeige im Unterricht von
+     der Website geladen wird und mit einem Fehler stehenbleibt. */
+  
+
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", anwenden);
+  else anwenden();
+
+  /* Der Editor haengt sich hier an, WENN es ihn gibt. Auf der Website ist
+     EDITOR leer - dann fehlt `umschalten`, und die Taste E tut nichts. */
+  window.ANPASSEN = Object.assign({ anwenden: anwenden,
+                                    verwaist: function () { return VERWAIST; } },
+                                  EDITOR);
+})();
+</script></body>
 </html>
