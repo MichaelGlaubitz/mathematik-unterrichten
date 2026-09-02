@@ -85,11 +85,16 @@
   body.sehrspaet .regie .puhr{color:var(--red)}
   @media print{.regie{display:none}}
   /* --- Pause: ein kleiner Schalter in der Regieleiste ruft den Timer --- */
-  .regie .pause{font:inherit;font-size:11px;font-weight:800;color:var(--muted);
+  .regie .pause,.regie .ruhe{font:inherit;font-size:11px;font-weight:800;color:var(--muted);
     background:none;border:1px solid var(--line);border-radius:999px;
-    padding:1px 8px;cursor:pointer;line-height:1.3}
-  .regie .pause:hover{color:var(--ink);border-color:#94a3b8}
-  body.pause .regie .pause{color:#fff;background:var(--accent);border-color:var(--accent)}
+    padding:1px 8px;cursor:pointer;line-height:1.3;white-space:nowrap}
+  .regie .pause:hover,.regie .ruhe:hover{color:var(--ink);border-color:#94a3b8}
+  body.pause .regie .pause,body.ruhe .regie .ruhe{color:#fff;background:var(--accent);
+    border-color:var(--accent)}
+  /* „Blick nach vorn" wirkt auf die Geraete - ohne Dienst gibt es nichts
+     zu schalten, dann bleibt der Knopf weg. */
+  .regie .ruhe{display:none}
+  body.livean .regie .ruhe{display:inline-block}
   /* Der Schirm liegt UNTER der Regieleiste (z 52), damit der Schalter
      erreichbar bleibt, und ueber allem, was zur Folie gehoert. */
   .pauseschirm{position:fixed;inset:0;z-index:51;background:#fff;display:none}
@@ -563,7 +568,7 @@
 <a class="home" href="../Klassen/Mathe_10b.html">&larr; Mathe 10b</a>
 <div class="counter" id="counter"></div>
 <div class="notizmarke">Randnotizen sichtbar · D</div>
-<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span><button class="pause" type="button" aria-pressed="false" title="Zwei Minuten Pause ausrufen (P)">&#9208; 2 min</button></div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span><button class="ruhe" type="button" aria-pressed="false" title="Grundzustand auf den iPads: nur &bdquo;Blick nach vorn.&ldquo; (B)">&#128064; Blick nach vorn</button><button class="pause" type="button" aria-pressed="false" title="Zwei Minuten Pause ausrufen (P)">&#9208; 2 min</button></div>
 <div class="pauseschirm"></div>
 <div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m2 0h1m3 0h1m1 0h4m-24 1h1m1 0h5m4 0h4m1 0h2m1 0h1m2 0h3m1 0h5m-31 1h4m3 0h4m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h2m3 0h1m1 0h1m3 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-32 1h4m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h3m-27 1h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h3m2 0h2m1 0h1m-30 1h1m1 0h2m1 0h1m1 0h1m2 0h1m3 0h1m1 0h2m1 0h3m2 0h1m2 0h4m-31 1h1m2 0h3m5 0h1m1 0h1m4 0h2m3 0h2m1 0h4m-32 1h1m2 0h2m2 0h3m2 0h1m1 0h1m5 0h3m2 0h3m2 0h1m-31 1h1m1 0h2m1 0h3m3 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m2 0h2m6 0h1m4 0h1m2 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-32 1h1m2 0h4m1 0h2m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-31 1h2m2 0h1m2 0h1m4 0h1m4 0h1m1 0h3m2 0h1m1 0h4m1 0h1m-32 1h2m2 0h2m2 0h1m2 0h8m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h2m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m3 0h2m1 0h5m1 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m8 0h2m2 0h4m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m-31 1h1m1 0h3m1 0h2m1 0h2m4 0h1m1 0h1m4 0h7m2 0h2m-25 1h2m1 0h2m3 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m3 0h4m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m4 0h1m1 0h1m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h2m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg><div class="code">10B-WURZ</div></div>
 <div class="deck" id="deck">
@@ -710,7 +715,7 @@
 
 </div>
 
-<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
 <div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
 <div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
 
@@ -1072,10 +1077,41 @@
 
     const tick = () => { if (laufend) zeichne(laufend.folie); };
 
+    /* --- Grundzustand: „Blick nach vorn." ------------------------------
+       Der Schalter in der Regieleiste (oder B) nimmt den Geraeten die
+       Karten weg und stellt einen Satz hin. Solange er gedrueckt ist,
+       oeffnet die Wand keine Frage - auch nicht beim Blaettern auf eine
+       Abfragefolie. Wird er geloest, geht eine Frage, die gerade an der
+       Wand steht, von selbst wieder auf; ihre Stimmen sind noch da, weil
+       der Dienst beim Grundzustand nichts loescht. ?ruhe=… in der Adresse
+       ersetzt den Satz. */
+    const RUHETEXT = (Q.get("ruhe") || "Blick nach vorn.").slice(0, 120);
+    const ruheKnopf = document.querySelector(".regie .ruhe");
+    let ruhe = false;
+    async function ruheSetzen(an){
+      if (!lebt) return;
+      ruhe = an;
+      document.body.classList.toggle("ruhe", an);
+      if (ruheKnopf) ruheKnopf.setAttribute("aria-pressed", an ? "true" : "false");
+      clearInterval(ticker); ticker = null; laufend = null;
+      stand.classList.add("zu");
+      stand.querySelector(".text").textContent = an ? RUHETEXT : "Abstimmung";
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/hinweis", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ text: an ? RUHETEXT : "" }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+      } catch(e){}
+      if (!an) beobachte();
+    }
+    if (ruheKnopf)
+      ruheKnopf.addEventListener("click", e => { e.stopPropagation(); ruheSetzen(!ruhe); });
+
     /* --- Folienwechsel und Aufloesung beobachten --- */
     function beobachte(){
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
+      if (ruhe) return;                /* Grundzustand: nichts geht auf */
       const istAbfrage = !!folie.dataset.frage;
       if (!istAbfrage){ if (laufend) schliesse(); return; }
       const aufgeloest = (+(folie.dataset.step || 0)) > 0;
@@ -1097,7 +1133,9 @@
     new MutationObserver(beobachte).observe(document.getElementById("deck"),
       { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
     document.addEventListener("keydown", e => {
+      if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
       if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
+      else if (e.key === "b" || e.key === "B") ruheSetzen(!ruhe);
     });
 
     pruefe().then(beobachte);
