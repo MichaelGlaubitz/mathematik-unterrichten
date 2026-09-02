@@ -317,11 +317,28 @@
      Bild, und je weniger es sind, desto groesser ist jede. Kein
      display:none an der Galerie selbst - die Pruefung misst die Raender
      aller Kinder, und ein unsichtbares Kind laege bei 0. */
-  .galerie{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
-  .galerie .leer{grid-column:1/-1;margin:0;color:var(--muted)}
+  /* FESTE HOEHE, nicht mitwachsend: Die Einpassung misst die Folie beim
+     Aufblenden, nicht bei jedem Bild, das spaeter eintrifft. Wuechse die
+     Galerie mit, liefe die Folie mit dem zwanzigsten Bild unten hinaus.
+     Also bekommt die Galerie ihren Platz vorab, und das Raster (Spalten
+     UND Reihen, aus der Zahl der Bilder gerechnet) teilt ihn auf. */
+  .galerie{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;
+    height:600px}
+  .galerie[data-n="0"]{display:flex;align-items:center;justify-content:center}
+  .galerie .leer{margin:0;color:var(--muted);text-align:center}
   .galerie:not([data-n="0"]) .leer{display:none}
-  .kachel{position:relative;aspect-ratio:4/3;background:#f1f5f9;border:2px solid var(--line);
-    border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  /* In einer Whiteboard-Runde teilt sich die Galerie die Folie mit Frage
+     und Antwort - deshalb flacher. */
+  .slide.ipad .galerie{height:400px;margin-top:10px}
+  .slide.ipad .frage{max-width:none}
+  .slide.ipad .zeiknoepfe{margin-top:8px}
+  .slide.ipad .antwort{margin-top:10px}
+  .marke .mit{display:none}
+  body.livean .marke .mit{display:inline}
+  body.livean .marke .ohne{display:none}
+  .kachel{position:relative;min-height:0;min-width:0;background:#f1f5f9;
+    border:2px solid var(--line);border-radius:10px;overflow:hidden;display:flex;
+    align-items:center;justify-content:center;
     font-weight:800;font-size:26px;color:var(--muted);cursor:pointer}
   .kachel img{display:none;width:100%;height:100%;object-fit:contain;background:#fff}
   .kachel.frei img{display:block}
@@ -1022,8 +1039,15 @@
                              + (d.offen ? "" : " · geschlossen");
       stand.querySelector(".text").textContent = "Bilder: " + liste.length;
       g.dataset.n = liste.length;
-      const spalten = Math.max(2, Math.ceil(Math.sqrt(liste.length * 4 / 3)));
+      /* Spalten aus der Zahl der Bilder, Reihen aus den Spalten: Die
+         Galerie hat feste Hoehe, das Raster teilt sie auf. In einer
+         flachen Galerie (Whiteboard-Runde) eher mehr Spalten, damit die
+         Kacheln nicht hoeher als breit werden. */
+      const flach = folie.classList.contains("ipad");
+      const spalten = Math.max(2, Math.ceil(Math.sqrt(liste.length * (flach ? 2 : 4 / 3))));
+      const reihen = Math.max(1, Math.ceil(liste.length / spalten));
       g.style.gridTemplateColumns = "repeat(" + spalten + ",1fr)";
+      g.style.gridTemplateRows = "repeat(" + reihen + ",1fr)";
       const da = new Set(liste.map(b => b.geraet));
       [...g.querySelectorAll(".kachel")].forEach(k => {
         if (!da.has(k.dataset.geraet)) k.remove(); });
