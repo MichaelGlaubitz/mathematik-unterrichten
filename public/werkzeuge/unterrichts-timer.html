@@ -379,6 +379,34 @@
   vorlagenZeichnen();
   editorZeichnen();
   phaseLaden(0);
+
+  // --- Aufruf mit Parametern ----------------------------------------------
+  // ?sek=120 oder ?min=2 legt EINE Phase an, ohne die gespeicherte Kette zu
+  // überschreiben. &name=… und &hinweis=… beschriften sie, &start=1 lässt sie
+  // sofort laufen, &beamer=1 schaltet groß. So ruft eine Wandfassung eine
+  // Pause aus:  unterrichts-timer.html?min=2&name=Pause&start=1&beamer=1
+  (function ausAdresse() {
+    const Q = new URLSearchParams(location.search);
+    const sek = Q.has('sek') ? parseInt(Q.get('sek'), 10)
+              : Q.has('min') ? Math.round(parseFloat(Q.get('min').replace(',', '.')) * 60)
+              : NaN;
+    if (!isFinite(sek) || sek <= 0) return;
+    const ende = new Date(Date.now() + sek * 1000);
+    const uhr = ende.getHours() + ':' + String(ende.getMinutes()).padStart(2, '0');
+    phasen = [{
+      name: Q.get('name') || 'Pause',
+      sek: sek,
+      hinweis: Q.get('hinweis') || ('Um ' + uhr + ' Uhr geht es weiter.')
+    }];
+    anhalten();
+    phaseLaden(0);
+    editorZeichnen();
+    if (Q.get('beamer') === '1' && document.documentElement.getAttribute('data-beamer') !== 'an') {
+      const knopf = document.getElementById('wz-beamer-knopf');
+      if (knopf) knopf.click();
+    }
+    if (Q.get('start') === '1') starten();
+  })();
 })();
 </script>
 </body>
