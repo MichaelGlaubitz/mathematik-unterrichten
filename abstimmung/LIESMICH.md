@@ -81,12 +81,13 @@ austeilen, fertig.
 
 ## „Blick nach vorn.“ — der Grundzustand
 
-Der Schalter **👀 Blick nach vorn** in der Regieleiste der Wandfassung (oder
-die Taste **B**) nimmt den Geräten die Karten weg und stellt nur diesen einen
-Satz hin — groß, in der Mitte. Solange der Schalter gedrückt ist, öffnet die
-Wand keine Frage, auch nicht beim Blättern auf eine Abfragefolie. Wird er
-gelöst, geht eine Frage, die gerade an der Wand steht, von selbst wieder auf;
-die schon abgegebenen Stimmen sind noch da.
+Die Geräte zeigen normalerweise nur diesen einen Satz — groß, in der Mitte,
+keine Karten. Die Wandfassung schaltet das von selbst: Der Grundzustand ist
+an, solange keine Abfragefolie an der Wand steht; öffnet sich eine, geht die
+Frage auf, und die nächste Folie ohne Abfrage stellt den Satz wieder hin.
+Der Schalter **👀 Blick nach vorn** in der Regieleiste (oder die Taste **B**)
+überstimmt das bis zum nächsten Folienwechsel — etwa um eine Frage kurz
+zuzuhalten. Die schon abgegebenen Stimmen bleiben dabei erhalten.
 
 Technisch ist das `POST /v1/raum/<code>/hinweis` mit `{ "text": "…" }` gegen
 den Lehrerschlüssel; ein leerer Text hebt den Grundzustand auf, und jede neu
