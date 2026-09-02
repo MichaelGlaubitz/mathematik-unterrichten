@@ -49,9 +49,11 @@
   body.ruhe .karten,body.ruhe .hinweis{display:none}
   /* Zeichenauftrag: ein Feld im Seitenverhaeltnis der Kacheln an der Wand
      (4:3), dicke Linie, zwei Knoepfe. */
+  /* Die Klasse am body heisst anders als die am Feld - sonst traefe
+     .zeichnen{display:none} den body selbst, und die Seite waere leer. */
   .zeichnen{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
-  body.zeichnen .zeichnen{display:flex}
-  body.zeichnen .karten{display:none}
+  body.zeichenauftrag .zeichnen{display:flex}
+  body.zeichenauftrag .karten{display:none}
   canvas.feld{width:100%;max-height:62vh;aspect-ratio:4/3;background:#fff;
     border:2px solid var(--line);border-radius:14px;touch-action:none;display:block;
     margin:0 auto}
@@ -203,7 +205,7 @@ async function hole(){
     stand.offen = d.offen;
     /* Zeichenauftrag statt Frage: Feld und Knoepfe statt Karten. */
     const zeichnen = d.art === "zeichnen";
-    document.body.classList.toggle("zeichnen", zeichnen);
+    document.body.classList.toggle("zeichenauftrag", zeichnen);
     if (zeichnen && !d.hinweis){
       if (d.meins) meinBildDa = true;
       zeichnenStand(d);
