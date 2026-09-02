@@ -54,9 +54,13 @@
   .zeichnen{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
   body.zeichenauftrag .zeichnen{display:flex}
   body.zeichenauftrag .karten{display:none}
-  canvas.feld{width:100%;max-height:62vh;aspect-ratio:4/3;background:#fff;
-    border:2px solid var(--line);border-radius:14px;touch-action:none;display:block;
-    margin:0 auto}
+  /* Immer 4:3, hochkant wie quer: die Breite ist das Kleinere aus voller
+     Breite und dem, was 62 % der Hoehe bei 4:3 zulassen. Sonst wuerde das
+     Feld im Querformat breit und flach - und die Kachel an der Wand
+     zeigte ein gestauchtes Bild. */
+  canvas.feld{width:min(100%,calc(62vh * 4 / 3));aspect-ratio:4/3;height:auto;
+    background:#fff;border:2px solid var(--line);border-radius:14px;
+    touch-action:none;display:block;margin:0 auto}
   .werkzeuge{display:flex;gap:10px}
   .werkzeuge button{flex:1;font:inherit;font-size:17px;font-weight:800;padding:14px;
     border-radius:14px;border:2px solid var(--line);background:var(--panel);color:inherit;
