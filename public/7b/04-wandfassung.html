@@ -428,6 +428,32 @@
   .abgabe .lupe{position:fixed}
   .protokoll .abgabe,.pause .abgabe,html.pause .abgabe{display:none!important}
   @media print{.abgabe{display:none!important}}
+
+  /* --- QR bildschirmfuellend: der Pfeil am Eck-QR --- */
+  .qrecke{overflow:visible}
+  .qrecke .gross{position:absolute;top:-12px;left:-12px;width:28px;height:28px;
+    border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);
+    font:800 15px/26px system-ui,sans-serif;text-align:center;cursor:pointer;padding:0;
+    box-shadow:0 2px 6px rgba(15,23,42,.15)}
+  .qrecke .gross:hover{color:var(--ink);border-color:#94a3b8}
+  .qrgross{position:fixed;inset:0;z-index:70;background:#fff;display:none;
+    flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer}
+  .qrgross.an{display:flex}
+  .qrgross svg{width:min(78vh,78vw);height:auto;display:block}
+  .qrgross .adresse{font-size:clamp(24px,3.2vw,44px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .qrgross .code{font-size:22px;font-weight:800;color:var(--muted);letter-spacing:.14em}
+  @media print{.qrgross,.qrecke .gross{display:none!important}}
+
+  /* --- Bilder sichern: Diskette je Kachel, ZIP fuer alle --- */
+  .kachel .speichern{position:absolute;right:4px;top:4px;z-index:2;width:30px;height:30px;
+    border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.92);
+    font-size:16px;line-height:28px;text-align:center;padding:0;cursor:pointer;
+    opacity:.55}
+  .kachel:hover .speichern,.kachel .speichern:hover{opacity:1}
+  .zeiknoepfe .zip{margin-left:auto}
+  .zeiknoepfe .zip + .zaehler{margin-left:0}
+  @media print{.kachel .speichern{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -719,19 +745,19 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="3" data-frage="1 kg Äpfel kostet 1,20 €. Was kosten 3 kg?" data-optionen="[]" data-art="zeichnen" data-schluessel="w1">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;1 von 9 &middot; Vervielfachen</div><div class="frage">1 kg Äpfel kostet 1,20 €.<br>Was kosten <span class="term">3 kg</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">3,60 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> also <span class="tex" data-tex="3 \cdot 1{,}20\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">20</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div><div class="randnotiz"><b>Erste Frage des Tages, bewusst leicht.</b> Sie stellt den Takt her: auf dem iPad schreiben, abschicken, alle zugleich <span class="trenner">&#9656;</span> „Alle zeigen“ ist das Hochheben; ohne Dienst Whiteboard hoch. Wer zögert, schaut ab <span class="trenner">&#9656;</span> deshalb zählen Sie hörbar an: „drei, zwei, eins, hoch“.<br><b>Wenn falsch:</b> „4,20 €“ heißt addiert statt multipliziert (1,20 + 3). Diese Verwechslung trägt heute jede einzelne Aufgabe.<span class="weiche"><i>Weiche:</i> unter 80 % korrekt <span class="trenner">&#9656;</span> die Rechnung an der Tafel vorsprechen und Frage&nbsp;1 mit 2&nbsp;kg wiederholen. Das kostet 90 Sekunden und rettet die nächsten 80 Minuten.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;1 von 9 &middot; Vervielfachen</div><div class="frage">1 kg Äpfel kostet 1,20 €.<br>Was kosten <span class="term">3 kg</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">3,60 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> also <span class="tex" data-tex="3 \cdot 1{,}20\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">20</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div><div class="randnotiz"><b>Erste Frage des Tages, bewusst leicht.</b> Sie stellt den Takt her: auf dem iPad schreiben, abschicken, alle zugleich <span class="trenner">&#9656;</span> „Alle zeigen“ ist das Hochheben; ohne Dienst Whiteboard hoch. Wer zögert, schaut ab <span class="trenner">&#9656;</span> deshalb zählen Sie hörbar an: „drei, zwei, eins, hoch“.<br><b>Wenn falsch:</b> „4,20 €“ heißt addiert statt multipliziert (1,20 + 3). Diese Verwechslung trägt heute jede einzelne Aufgabe.<span class="weiche"><i>Weiche:</i> unter 80 % korrekt <span class="trenner">&#9656;</span> die Rechnung an der Tafel vorsprechen und Frage&nbsp;1 mit 2&nbsp;kg wiederholen. Das kostet 90 Sekunden und rettet die nächsten 80 Minuten.</span></div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="5" data-frage="4 kg kosten 3,60 €. Was kostet 1 kg?" data-optionen="[]" data-art="zeichnen" data-schluessel="w2">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;2 von 9 &middot; Zurückrechnen</div><div class="frage">4 kg kosten 3,60 €.<br>Was kostet <span class="term">1 kg</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">0,90 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> also <span class="tex" data-tex="3{,}60\ \text{€} : 4"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">60</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span></span></span></div><div class="randnotiz"><b>Die Gegenrichtung.</b> Wer nur vervielfachen kann, steckt heute in A1&nbsp;b) und in der Abschlussabfrage fest.<br><b>Wenn falsch:</b> Meist wird 3,60 : 4 als „ungefähr 1“ geschätzt. Verlangen Sie die Rechnung, nicht die Zahl.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;2 von 9 &middot; Zurückrechnen</div><div class="frage">4 kg kosten 3,60 €.<br>Was kostet <span class="term">1 kg</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">0,90 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> also <span class="tex" data-tex="3{,}60\ \text{€} : 4"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">60</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span></span></span></div><div class="randnotiz"><b>Die Gegenrichtung.</b> Wer nur vervielfachen kann, steckt heute in A1&nbsp;b) und in der Abschlussabfrage fest.<br><b>Wenn falsch:</b> Meist wird 3,60 : 4 als „ungefähr 1“ geschätzt. Verlangen Sie die Rechnung, nicht die Zahl.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="7" data-frage="Wie viel sind 500 g in Kilogramm?" data-optionen="[]" data-art="zeichnen" data-schluessel="w3">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;3 von 9 &middot; Einheiten</div><div class="frage">Wie viel sind <span class="term">500 g</span> in Kilogramm?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">0,5 kg</span> </div><div class="randnotiz"><b>Sieht nach Nebensache aus, ist keine.</b> Der Erdbeerstand gleich verkauft in 500-g-Schalen; wer 500 g nicht als halbes Kilogramm liest, kann die beiden Schilder nicht vergleichen.<br><b>Wenn falsch:</b> „5 kg“ oder „0,05 kg“ <span class="trenner">&#9656;</span> Kommaverschiebung. Einmal die Tausenderregel an der Tafel.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;3 von 9 &middot; Einheiten</div><div class="frage">Wie viel sind <span class="term">500 g</span> in Kilogramm?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">0,5 kg</span> </div><div class="randnotiz"><b>Sieht nach Nebensache aus, ist keine.</b> Der Erdbeerstand gleich verkauft in 500-g-Schalen; wer 500 g nicht als halbes Kilogramm liest, kann die beiden Schilder nicht vergleichen.<br><b>Wenn falsch:</b> „5 kg“ oder „0,05 kg“ <span class="trenner">&#9656;</span> Kommaverschiebung. Einmal die Tausenderregel an der Tafel.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="9" data-frage="2 kg Kirschen kosten 6 €. Was kostet 1 kg?" data-optionen="[]" data-art="zeichnen" data-schluessel="w4">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;4 von 9 &middot; Halbieren</div><div class="frage">2 kg Kirschen kosten 6 €.<br>Was kostet <span class="term">1 kg</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">3,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> halbe Menge, halber Preis</span></div><div class="randnotiz"><b>Der Satz „halbe Menge, halber Preis“ ist schon der Merksatz der Stunde</b> <span class="trenner">&#9656;</span> nur noch ohne Namen. Sprechen Sie ihn nach der Auflösung ausdrücklich aus und lassen Sie ihn stehen; in Phase 4 kommen Sie darauf zurück.<br>Diese Zahlen kehren morgen als Einstieg der zweiten Doppelstunde wieder.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;4 von 9 &middot; Halbieren</div><div class="frage">2 kg Kirschen kosten 6 €.<br>Was kostet <span class="term">1 kg</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">3,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> halbe Menge, halber Preis</span></div><div class="randnotiz"><b>Der Satz „halbe Menge, halber Preis“ ist schon der Merksatz der Stunde</b> <span class="trenner">&#9656;</span> nur noch ohne Namen. Sprechen Sie ihn nach der Auflösung ausdrücklich aus und lassen Sie ihn stehen; in Phase 4 kommen Sie darauf zurück.<br>Diese Zahlen kehren morgen als Einstieg der zweiten Doppelstunde wieder.</div>
 </section>
 
 <section class="slide" data-phase="2 · Der Konflikt" data-ab="11">
@@ -751,7 +777,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="3 · Ich zeige es" data-ab="21" data-frage="Was kosten 3 kg Kartoffeln?" data-optionen="[]" data-art="zeichnen" data-schluessel="w5">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Kartoffelstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Was kosten <span class="term">3 kg</span> Kartoffeln?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">2,70 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> <span class="tex" data-tex="3 \cdot 0{,}90\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">90</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch S. 16</div></div></div></div></div><div class="randnotiz"><b>Die Frage vom Anfang der Stunde, jetzt beantwortbar.</b> Sagen Sie das ausdrücklich: „Vor zwanzig Minuten stand kein Preis für 3 kg auf dem Schild. Jetzt könnt ihr ihn hinschreiben.“<br><b>Diese Abfrage steht bewusst zwischen den beiden Modellrechnungen</b>: erst anwenden, was ich vorgemacht habe, dann den Gegenfall sehen. Wer sie überspringt, hat elf Minuten am Stück geredet.<br><b>Wenn falsch:</b> 2,70 € verlangt 3 · 0,90 <span class="trenner">&#9656;</span> wer 1,80 + 0,90 rechnet, ist auch richtig, aber langsamer. Beides gelten lassen, den kurzen Weg zeigen.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % noch einmal an Folie 11 entlang, dann dieselbe Frage mit 5 kg.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Kartoffelstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Was kosten <span class="term">3 kg</span> Kartoffeln?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">2,70 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> <span class="tex" data-tex="3 \cdot 0{,}90\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">90</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch S. 16</div></div></div></div></div><div class="randnotiz"><b>Die Frage vom Anfang der Stunde, jetzt beantwortbar.</b> Sagen Sie das ausdrücklich: „Vor zwanzig Minuten stand kein Preis für 3 kg auf dem Schild. Jetzt könnt ihr ihn hinschreiben.“<br><b>Diese Abfrage steht bewusst zwischen den beiden Modellrechnungen</b>: erst anwenden, was ich vorgemacht habe, dann den Gegenfall sehen. Wer sie überspringt, hat elf Minuten am Stück geredet.<br><b>Wenn falsch:</b> 2,70 € verlangt 3 · 0,90 <span class="trenner">&#9656;</span> wer 1,80 + 0,90 rechnet, ist auch richtig, aber langsamer. Beides gelten lassen, den kurzen Weg zeigen.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % noch einmal an Folie 11 entlang, dann dieselbe Frage mit 5 kg.</span></div>
 </section>
 
 <section class="slide" data-phase="3 · Ich zeige es" data-ab="23" data-marke="M2">
@@ -759,7 +785,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="3 · Ich zeige es" data-ab="27" data-frage="500 g kosten 2,50 €. Was müssten 1 kg kosten, wenn man vervielfachen dürfte?" data-optionen="[]" data-art="zeichnen" data-schluessel="w6">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;6 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Erdbeerstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">500 g kosten 2,50 €.<br>Was müssten <span class="term">1 kg</span> kosten, <span class="muted">wenn</span> man vervielfachen dürfte?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">5,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> auf dem Schild stehen 4,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Das Wörtchen „müssten“ trägt die Frage.</b> Gefragt ist nicht der Preis, sondern die <i>Vorhersage</i> <span class="trenner">&#9656;</span> und die Klasse weiß bereits, dass sie nicht zutrifft. Wer 4,50 € schreibt, hat abgelesen statt gerechnet und die Frage nicht gelesen.<br>Diese Unterscheidung <span class="trenner">&#9656;</span> <i>was wäre</i> gegen <i>was ist</i> <span class="trenner">&#9656;</span> ist das ganze Prüfverfahren.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;6 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Erdbeerstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">500 g kosten 2,50 €.<br>Was müssten <span class="term">1 kg</span> kosten, <span class="muted">wenn</span> man vervielfachen dürfte?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">5,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> auf dem Schild stehen 4,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Das Wörtchen „müssten“ trägt die Frage.</b> Gefragt ist nicht der Preis, sondern die <i>Vorhersage</i> <span class="trenner">&#9656;</span> und die Klasse weiß bereits, dass sie nicht zutrifft. Wer 4,50 € schreibt, hat abgelesen statt gerechnet und die Frage nicht gelesen.<br>Diese Unterscheidung <span class="trenner">&#9656;</span> <i>was wäre</i> gegen <i>was ist</i> <span class="trenner">&#9656;</span> ist das ganze Prüfverfahren.</div>
 </section>
 
 <section class="slide" data-phase="4 · Merksatz" data-ab="30" data-marke="MERK">
@@ -787,7 +813,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="6 · Wir zusammen" data-ab="47" data-frage="1 kg Fruchtgummi kostet 3,50 €. Wie viel bekommt man für 21 €?" data-optionen="[]" data-art="zeichnen" data-schluessel="w7">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;7 von 9 &middot; A1 b) <span class="trenner">&#9656;</span> die Gegenrichtung</div><div class="frage">1 kg Fruchtgummi kostet 3,50 €.<br>Wie viel bekommt man für <span class="term">21 €</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">6 kg</span> <span class="muted neben"><span class="trenner">&#9656;</span> <span class="tex" data-tex="21\ \text{€} : 3{,}50\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">21</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div><div class="randnotiz"><b>Rückwärts ist schwerer.</b> Wer vorwärts sicher ist und hier scheitert, hat das Vervielfachen als Rezept, nicht als Verhältnis.<br><b>Hilfsfrage beim Herumgehen:</b> „Wie oft passt 3,50 € in 21 €?“ <span class="trenner">&#9656;</span> das ist dieselbe Frage, nur hörbar.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % gemeinsam an der Tafel: erst 2 kg = 7 €, dann 4 kg = 14 €, dann 6 kg = 21 €. Die Treppe macht das Teilen überflüssig.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;7 von 9 &middot; A1 b) <span class="trenner">&#9656;</span> die Gegenrichtung</div><div class="frage">1 kg Fruchtgummi kostet 3,50 €.<br>Wie viel bekommt man für <span class="term">21 €</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">6 kg</span> <span class="muted neben"><span class="trenner">&#9656;</span> <span class="tex" data-tex="21\ \text{€} : 3{,}50\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">21</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div><div class="randnotiz"><b>Rückwärts ist schwerer.</b> Wer vorwärts sicher ist und hier scheitert, hat das Vervielfachen als Rezept, nicht als Verhältnis.<br><b>Hilfsfrage beim Herumgehen:</b> „Wie oft passt 3,50 € in 21 €?“ <span class="trenner">&#9656;</span> das ist dieselbe Frage, nur hörbar.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % gemeinsam an der Tafel: erst 2 kg = 7 €, dann 4 kg = 14 €, dann 6 kg = 21 €. Die Treppe macht das Teilen überflüssig.</span></div>
 </section>
 
 <section class="slide" data-phase="6 · Wir zusammen" data-ab="51" data-marke="A2">
@@ -799,7 +825,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="6 · Wir zusammen" data-ab="58" data-frage="Obst: 2 kg für 5 €, 6 kg für 10 €. Proportional?" data-optionen="[]" data-art="zeichnen" data-schluessel="w8">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;8 von 9 &middot; A3 (1) <span class="trenner">&#9656;</span> das Urteil, kurz</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Obst: 2 kg für 5 €, 6 kg für 10 €.<br><span class="term">Proportional?</span></div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">nein</span> <span class="muted neben"><span class="trenner">&#9656;</span> das Dreifache von 5 € wären <span class="tex" data-tex="15\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">15</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div></div><div class="mwbild"><table class="wtab"><tr><th>Obst in kg</th><td>2</td><td>4</td><td>6</td></tr><tr><th>Preis in €</th><td>5,00</td><td>7,50</td><td>10,00</td></tr></table></div></div><div class="randnotiz"><b>Die Entscheidung getrennt vom Rechnen abfragen.</b> Auf dem iPad steht nur ja oder nein; die Rechnung liegt im Heft und wird beim Herumgehen angesehen. So bekommen Sie in zehn Sekunden ein Bild von der ganzen Klasse.<br><b>Wer „ja“ zeigt</b>, hat vermutlich nur gesehen, dass es teurer wird <span class="trenner">&#9656;</span> die Fehlvorstellung des Tages, jetzt an einer Buchaufgabe.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % die Rechnung gemeinsam an der Wand: 2 kg → 5 €, mal 3 wären 15 €, dort stehen 10 €. Danach dieselbe Frage für die Nägel.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;8 von 9 &middot; A3 (1) <span class="trenner">&#9656;</span> das Urteil, kurz</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Obst: 2 kg für 5 €, 6 kg für 10 €.<br><span class="term">Proportional?</span></div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">nein</span> <span class="muted neben"><span class="trenner">&#9656;</span> das Dreifache von 5 € wären <span class="tex" data-tex="15\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">15</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div></div><div class="mwbild"><table class="wtab"><tr><th>Obst in kg</th><td>2</td><td>4</td><td>6</td></tr><tr><th>Preis in €</th><td>5,00</td><td>7,50</td><td>10,00</td></tr></table></div></div><div class="randnotiz"><b>Die Entscheidung getrennt vom Rechnen abfragen.</b> Auf dem iPad steht nur ja oder nein; die Rechnung liegt im Heft und wird beim Herumgehen angesehen. So bekommen Sie in zehn Sekunden ein Bild von der ganzen Klasse.<br><b>Wer „ja“ zeigt</b>, hat vermutlich nur gesehen, dass es teurer wird <span class="trenner">&#9656;</span> die Fehlvorstellung des Tages, jetzt an einer Buchaufgabe.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % die Rechnung gemeinsam an der Wand: 2 kg → 5 €, mal 3 wären 15 €, dort stehen 10 €. Danach dieselbe Frage für die Nägel.</span></div>
 </section>
 
 <section class="slide" data-phase="6 · Wir zusammen" data-ab="61" data-marke="VERF">
@@ -811,7 +837,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="7 · Allein, kurz" data-ab="74" data-frage="A4 a): Was kosten 1,5 kg Erdbeeren?" data-optionen="[]" data-art="zeichnen" data-schluessel="w9">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;9 von 9 &middot; Bevor ich auflöse</div><div class="mwsplit"><div class="mwfrage"><div class="frage">A4 a): Was kosten <span class="term">1,5 kg</span> Erdbeeren?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> 1 kg für 4,50 € und 500 g für 2,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Erst zeigen lassen, dann auflösen <span class="trenner">&#9656;</span> nie umgekehrt.</b> Nach zehn Minuten stiller Arbeit weiß sonst niemand, wer wirklich gerechnet hat und wer nur zugesehen hat, wie die Lösung an die Wand kommt.<br><b>7,50 € ist nicht falsch gerechnet</b>, sondern der teurere von zwei richtigen Wegen (dreimal die 500-g-Schale). Beides gelten lassen und den Unterschied auf der nächsten Folie zeigen.<span class="weiche"><i>Weiche:</i> Diese Quote sagt Ihnen, wie die stille Phase gelaufen ist. Unter 50 % <span class="trenner">&#9656;</span> die nächsten drei Folien nicht vorzeigen, sondern gemeinsam rechnen.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;9 von 9 &middot; Bevor ich auflöse</div><div class="mwsplit"><div class="mwfrage"><div class="frage">A4 a): Was kosten <span class="term">1,5 kg</span> Erdbeeren?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> 1 kg für 4,50 € und 500 g für 2,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Erst zeigen lassen, dann auflösen <span class="trenner">&#9656;</span> nie umgekehrt.</b> Nach zehn Minuten stiller Arbeit weiß sonst niemand, wer wirklich gerechnet hat und wer nur zugesehen hat, wie die Lösung an die Wand kommt.<br><b>7,50 € ist nicht falsch gerechnet</b>, sondern der teurere von zwei richtigen Wegen (dreimal die 500-g-Schale). Beides gelten lassen und den Unterschied auf der nächsten Folie zeigen.<span class="weiche"><i>Weiche:</i> Diese Quote sagt Ihnen, wie die stille Phase gelaufen ist. Unter 50 % <span class="trenner">&#9656;</span> die nächsten drei Folien nicht vorzeigen, sondern gemeinsam rechnen.</span></div>
 </section>
 
 <section class="slide" data-phase="7 · Allein, kurz" data-ab="76">
@@ -1304,6 +1330,7 @@
                              + (d.offen ? "" : " · geschlossen");
       stand.querySelector(".text").textContent = "Bilder: " + liste.length;
       g.dataset.n = liste.length;
+      if (d.schluessel) g.dataset.schluessel = d.schluessel;
       /* Spalten aus der Zahl der Bilder, Reihen aus den Spalten: Die
          Galerie hat feste Hoehe, das Raster teilt sie auf. In einer
          flachen Galerie (Whiteboard-Runde) eher mehr Spalten, damit die
@@ -1321,8 +1348,11 @@
         if (!k){
           k = document.createElement("div");
           k.className = "kachel"; k.dataset.geraet = b.geraet;
-          k.innerHTML = '<span class="nr"></span>';
+          k.innerHTML = '<span class="nr"></span>'
+            + '<button type="button" class="speichern" title="Bild sichern">&#128190;</button>';
           k.addEventListener("click", e => { e.stopPropagation(); kachelKlick(folie, k); });
+          k.querySelector(".speichern").addEventListener("click", e => {
+            e.stopPropagation(); bildSichern(folie, k); });
           g.appendChild(k);
         }
         k.querySelector(".nr").textContent = i + 1;
@@ -1372,8 +1402,150 @@
       const b = e.target.closest(".zeiknoepfe button"); if (!b) return;
       e.stopPropagation();
       const folie = b.closest(".slide,.abgabe"); if (!folie) return;
+      if (b.classList.contains("zip")) return alleSichern(folie);
       freigeben(folie, { alle: true, frei: b.classList.contains("alle") });
     });
+
+    /* --- Bilder sichern ------------------------------------------------
+       Die Diskette an der Kachel legt das eine Bild als PNG in den
+       Downloads-Ordner, der Knopf unter der Galerie alle Bilder der Runde
+       als ZIP - auch die noch nicht freigegebenen, denn die Wand fragt
+       mit dem Lehrerschluessel. Dateiname: Raum, Rundenschluessel,
+       laufende Nummer. Das ZIP wird hier selbst geschrieben (nur
+       abgelegt, nicht komprimiert - PNG ist schon komprimiert), damit die
+       Datei ohne Bibliothek auskommt. */
+    async function bildDaten(b){
+      const a = await fetch(dienst + "/v1/raum/" + raum + "/bild?geraet="
+                            + encodeURIComponent(b.geraet),
+                            { headers: kopf(), cache:"no-store" });
+      if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return null; }
+      const d = await a.json();
+      return d.ok ? d.daten : null;
+    }
+    /* Dateiname: Datum, Raum, Rundenschluessel ohne die Sitzungskennung
+       (die sechs Zufallszeichen sagen niemandem etwas) - also etwa
+       2026-09-03-10b-wurz-w1.zip oder …-abgabe1-bild03.png. */
+    function kennung(folie){
+      const g = folie.querySelector(".galerie");
+      const s = (g && g.dataset.schluessel) || folie.dataset.schluessel || "bilder";
+      const j = new Date(), z2 = n => String(n).padStart(2, "0");
+      return (j.getFullYear() + "-" + z2(j.getMonth() + 1) + "-" + z2(j.getDate()) + "-"
+              + raum + "-" + s.replace(new RegExp("^" + raum + "-([a-z0-9]{6}-)?"), "")
+              .replace(/[^a-z0-9-]/gi, "-"));
+    }
+    function ablegen(blob, name){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+    const bytesAus = daten => {
+      const roh = atob(daten.split(",")[1] || "");
+      const b = new Uint8Array(roh.length);
+      for (let i = 0; i < roh.length; i++) b[i] = roh.charCodeAt(i);
+      return b;
+    };
+    async function bildSichern(folie, k){
+      const nr = k.querySelector(".nr").textContent || "0";
+      const img = k.querySelector("img");
+      let daten = img && img.src.startsWith("data:") ? img.src : null;
+      if (!daten) daten = await bildDaten({ geraet: k.dataset.geraet });
+      if (!daten) return;
+      ablegen(new Blob([bytesAus(daten)], { type:"image/png" }),
+              kennung(folie) + "-bild" + String(nr).padStart(2, "0") + ".png");
+    }
+    async function alleSichern(folie){
+      const knopf = folie.querySelector(".zeiknoepfe .zip");
+      const kacheln = [...folie.querySelectorAll(".kachel")];
+      if (!kacheln.length || !knopf) return;
+      knopf.disabled = true;
+      const alt = knopf.textContent; knopf.textContent = "… sichere";
+      const dateien = [];
+      for (const k of kacheln){
+        const img = k.querySelector("img");
+        let daten = img && img.src.startsWith("data:") ? img.src : null;
+        if (!daten) daten = await bildDaten({ geraet: k.dataset.geraet });
+        if (!daten) continue;
+        const nr = k.querySelector(".nr").textContent || "0";
+        dateien.push({ name: "bild" + String(nr).padStart(2, "0") + ".png",
+                       bytes: bytesAus(daten) });
+      }
+      knopf.disabled = false; knopf.textContent = alt;
+      if (dateien.length) ablegen(zipAus(dateien), kennung(folie) + ".zip");
+    }
+    /* ZIP ohne Kompression (Methode 0): lokale Koepfe, Zentralverzeichnis,
+       Endsatz. CRC-32 ueber eine Tabelle. */
+    const CRC = (() => { const T = new Uint32Array(256);
+      for (let n = 0; n < 256; n++){ let c = n;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+        T[n] = c >>> 0; } return T; })();
+    const crc32 = b => { let c = 0xFFFFFFFF;
+      for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0; };
+    function zipAus(dateien){
+      const j = new Date();
+      const zeit = (j.getHours() << 11) | (j.getMinutes() << 5) | (j.getSeconds() >> 1);
+      const datum = ((j.getFullYear() - 1980) << 9) | ((j.getMonth() + 1) << 5) | j.getDate();
+      const enc = new TextEncoder();
+      const teile = [], zentral = [];
+      let versatz = 0;
+      const u16 = n => [n & 255, (n >>> 8) & 255];
+      const u32 = n => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+      for (const f of dateien){
+        const name = enc.encode(f.name), crc = crc32(f.bytes), n = f.bytes.length;
+        const kopf = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0), ...u16(0),
+          ...u16(zeit), ...u16(datum), ...u32(crc), ...u32(n), ...u32(n),
+          ...u16(name.length), ...u16(0), ...name]);
+        teile.push(kopf, f.bytes);
+        zentral.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0),
+          ...u16(0), ...u16(zeit), ...u16(datum), ...u32(crc), ...u32(n), ...u32(n),
+          ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0),
+          ...u32(versatz), ...name]));
+        versatz += kopf.length + n;
+      }
+      const zgroesse = zentral.reduce((s, z) => s + z.length, 0);
+      const ende = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0),
+        ...u16(dateien.length), ...u16(dateien.length), ...u32(zgroesse), ...u32(versatz), ...u16(0)]);
+      return new Blob([...teile, ...zentral, ende], { type:"application/zip" });
+    }
+
+    /* --- QR bildschirmfuellend ----------------------------------------
+       Der kleine Pfeil am Eck-QR legt den Code gross ueber alles, mit
+       Adresse und Raumcode darunter - fuer die hinterste Reihe. Ein Klick
+       irgendwohin oder Escape nimmt ihn weg. */
+    const qrgross = document.createElement("div");
+    qrgross.className = "qrgross";
+    qrgross.addEventListener("click", e => { e.stopPropagation(); qrgross.classList.remove("an"); });
+    function qrGross(){
+      const ecke = document.querySelector(".qrecke svg"); if (!ecke) return;
+      const kurz = document.querySelector(".kurzadresse");
+      qrgross.innerHTML = "";
+      qrgross.appendChild(ecke.cloneNode(true));
+      const adr = document.createElement("div"); adr.className = "adresse";
+      adr.textContent = kurz ? kurz.textContent : "";
+      qrgross.appendChild(adr);
+      const code = document.createElement("div"); code.className = "code";
+      code.textContent = raum.toUpperCase();
+      qrgross.appendChild(code);
+      qrgross.classList.add("an");
+    }
+    function qrPfeilSetzen(){
+      const ecke = document.querySelector(".qrecke");
+      if (!ecke || ecke.querySelector(".gross")) return;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "gross"; b.title = "QR-Code bildschirmfüllend";
+      b.textContent = "⤢";
+      b.addEventListener("click", e => { e.stopPropagation(); qrGross(); });
+      ecke.appendChild(b);
+      document.body.appendChild(qrgross);
+    }
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded", qrPfeilSetzen);
+    else qrPfeilSetzen();
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && qrgross.classList.contains("an")){
+        qrgross.classList.remove("an"); e.stopPropagation(); }
+    }, true);
 
     /* --- Spontane Abgabe -------------------------------------------------
        Ein Klick auf den Eck-QR (oder A) oeffnet auf den Geraeten die
@@ -1397,6 +1569,7 @@
       + '<div class="zeiknoepfe">'
       + '<button type="button" class="alle">Alle zeigen</button>'
       + '<button type="button" class="keine">Alle verbergen</button>'
+      + '<button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button>'
       + '<span class="zaehler">0 Bilder</span></div>';
     /* Erst anhaengen, wenn der Koerper vollstaendig ist - sonst landet
        der Schirm je nach Ladezeitpunkt neben dem Koerper statt darin. */
