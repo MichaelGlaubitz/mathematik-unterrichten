@@ -396,6 +396,38 @@
   .lupe.an{display:flex}
   .lupe img{max-width:100%;max-height:100%}
   @media print{.zeiknoepfe,.lupe{display:none}}
+
+  /* --- Spontane Abgabe: ein Klick auf den Eck-QR ---
+     Kein Folieninhalt, sondern ein Schirm ueber dem Deck: Die Lehrkraft
+     sagt in der Situation, was abzugeben ist, die Geraete zeigen die
+     Zeichenflaeche, die Wand sammelt die Bilder als Kacheln. Der Schirm
+     liegt unter dem Eck-QR (z 54) und der Standanzeige (53), damit der
+     QR sichtbar bleibt und ein zweiter Klick den Schirm wieder schliesst.
+     Er ist NICHT eingepasst wie die Folien, also in echten Pixeln
+     gesetzt - deshalb die grossen Schriftgrade. */
+  body.livean .qrecke{cursor:pointer}
+  body.livean .qrecke:hover{border-color:#94a3b8}
+  /* Oben bleibt Platz fuer Regieleiste und Standanzeige, unten fuer die
+     Hinweiszeile - beide liegen ueber dem Schirm. */
+  .abgabe{position:fixed;inset:0;z-index:52;background:var(--bg);display:none;
+    flex-direction:column;gap:14px;padding:64px 40px 52px}
+  .abgabe.an{display:flex}
+  .abgabe .abkopf{display:flex;align-items:baseline;gap:26px;flex:0 0 auto}
+  .abgabe .abkopf h2{margin:0;font-size:44px;font-weight:800;color:var(--ink)}
+  .abgabe .abkopf p{margin:0;font-size:26px;color:var(--muted);flex:1 1 auto}
+  .abgabe .abkopf button{font:inherit;font-size:20px;font-weight:800;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:6px 18px;cursor:pointer}
+  .abgabe .abkopf button:hover{color:var(--ink);border-color:#94a3b8}
+  .abgabe .galerie{flex:1 1 auto;height:auto;min-height:0;margin-top:0}
+  .abgabe .galerie .leer{font-size:30px}
+  .abgabe .kachel{font-size:34px}
+  .abgabe .zeiknoepfe{flex:0 0 auto;margin-top:0;padding-right:120px}
+  .abgabe .zeiknoepfe button{font-size:22px;padding:6px 18px}
+  .abgabe .zeiknoepfe .zaehler{font-size:24px}
+  .abgabe .lupe{position:fixed}
+  .protokoll .abgabe,.pause .abgabe,html.pause .abgabe{display:none!important}
+  @media print{.abgabe{display:none!important}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -823,7 +855,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 
 </div>
 
-<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>F</b> Vollbild</div>
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>A</b> Abgabe &middot; <b>F</b> Vollbild</div>
 <div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
 <div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
 
@@ -1330,8 +1362,79 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
     document.addEventListener("click", e => {
       const b = e.target.closest(".zeiknoepfe button"); if (!b) return;
       e.stopPropagation();
-      const folie = b.closest(".slide"); if (!folie) return;
+      const folie = b.closest(".slide,.abgabe"); if (!folie) return;
       freigeben(folie, { alle: true, frei: b.classList.contains("alle") });
+    });
+
+    /* --- Spontane Abgabe -------------------------------------------------
+       Ein Klick auf den Eck-QR (oder A) oeffnet auf den Geraeten die
+       Zeichenflaeche mit der Ueberschrift „Abgabe" - was genau abzugeben
+       ist, sagt die Lehrkraft in der Situation. Die Wand legt einen
+       Schirm ueber das Deck und sammelt die Bilder dort als Kacheln; die
+       Freigabe laeuft wie auf einer Zeichenfolie (Kachel einzeln, Knoepfe
+       fuer alle). Der zweite Klick auf den QR (oder „Schliessen", oder A)
+       beendet die Abgabe und stellt die Regel der stehenden Folie wieder
+       her - Grundzustand oder deren eigene Abfrage. Jede Abgabe bekommt
+       einen neuen Schluessel, faengt also leer an. ?abgabe=… in der
+       Adresse ersetzt die Ueberschrift auf den Geraeten. */
+    const ABGABETEXT = (Q.get("abgabe") || "Abgabe").slice(0, 120);
+    const abgabe = document.createElement("div");
+    abgabe.className = "abgabe";
+    abgabe.innerHTML =
+      '<div class="abkopf"><h2>Abgabe</h2>'
+      + '<p>Zeichnet auf dem iPad und tippt auf <b>Abschicken</b>.</p>'
+      + '<button type="button" class="abzu">Schließen</button></div>'
+      + '<div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div>'
+      + '<div class="zeiknoepfe">'
+      + '<button type="button" class="alle">Alle zeigen</button>'
+      + '<button type="button" class="keine">Alle verbergen</button>'
+      + '<span class="zaehler">0 Bilder</span></div>';
+    /* Erst anhaengen, wenn der Koerper vollstaendig ist - sonst landet
+       der Schirm je nach Ladezeitpunkt neben dem Koerper statt darin. */
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded", () => document.body.appendChild(abgabe));
+    else document.body.appendChild(abgabe);
+    let abgabeAn = false, abgabeNr = 0;
+
+    async function abgabeOeffnen(){
+      if (!lebt) return;
+      if (!holeSchluessel()){ document.body.classList.add("schluesselfehlt"); return; }
+      abgabeAn = true;
+      abgabe.classList.add("an");
+      if (laufend) await schliesse();
+      if (ruhe) await ruheSetzen(false);     /* beobachte() schweigt, solange abgabeAn */
+      abgabeNr += 1;
+      const schluessel = raum + "-" + sitzung + "-abgabe" + abgabeNr;
+      [...abgabe.querySelectorAll(".kachel")].forEach(k => k.remove());
+      abgabe.querySelector(".galerie").dataset.n = 0;
+      abgabe.querySelector(".zaehler").textContent = "0 Bilder";
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ frage: ABGABETEXT, optionen: [], schluessel, art:"zeichnen" }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return abgabeSchliessen(); }
+        if (!a.ok) return abgabeSchliessen();
+        laufend = { folie: abgabe, schluessel };
+        stand.classList.remove("zu");
+        tick();
+        clearInterval(ticker); ticker = setInterval(tick, 1500);
+      } catch(e){ abgabeSchliessen(); }
+    }
+    async function abgabeSchliessen(){
+      abgabeAn = false;
+      abgabe.classList.remove("an");
+      const lupe = abgabe.querySelector(".lupe"); if (lupe) lupe.classList.remove("an");
+      if (laufend && laufend.folie === abgabe) await schliesse();
+      zuletzt = null;                  /* Regel der stehenden Folie neu anwenden */
+      beobachte();
+    }
+    const abgabeWechsel = () => abgabeAn ? abgabeSchliessen() : abgabeOeffnen();
+    abgabe.querySelector(".abzu").addEventListener("click", e => { e.stopPropagation(); abgabeSchliessen(); });
+    /* Der Eck-QR steht im Dokument hinter diesem Skript - deshalb ueber
+       das Dokument abgefangen, nicht am Element selbst. */
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".qrecke")) return;
+      e.stopPropagation(); abgabeWechsel();
     });
 
     /* --- Grundzustand: „Blick nach vorn." ------------------------------
@@ -1378,6 +1481,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 
     /* --- Folienwechsel und Aufloesung beobachten --- */
     function beobachte(){
+      if (abgabeAn) return;          /* der Abgabeschirm hat Vorrang */
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
       const istAbfrage = !!folie.dataset.frage;
@@ -1414,6 +1518,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
       if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
       else if (e.key === "b" || e.key === "B") ruheSetzen(!ruhe);
+      else if (e.key === "a" || e.key === "A") abgabeWechsel();
     });
 
     pruefe().then(beobachte);
