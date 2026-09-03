@@ -428,6 +428,32 @@
   .abgabe .lupe{position:fixed}
   .protokoll .abgabe,.pause .abgabe,html.pause .abgabe{display:none!important}
   @media print{.abgabe{display:none!important}}
+
+  /* --- QR bildschirmfuellend: der Pfeil am Eck-QR --- */
+  .qrecke{overflow:visible}
+  .qrecke .gross{position:absolute;top:-12px;left:-12px;width:28px;height:28px;
+    border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);
+    font:800 15px/26px system-ui,sans-serif;text-align:center;cursor:pointer;padding:0;
+    box-shadow:0 2px 6px rgba(15,23,42,.15)}
+  .qrecke .gross:hover{color:var(--ink);border-color:#94a3b8}
+  .qrgross{position:fixed;inset:0;z-index:70;background:#fff;display:none;
+    flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer}
+  .qrgross.an{display:flex}
+  .qrgross svg{width:min(78vh,78vw);height:auto;display:block}
+  .qrgross .adresse{font-size:clamp(24px,3.2vw,44px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .qrgross .code{font-size:22px;font-weight:800;color:var(--muted);letter-spacing:.14em}
+  @media print{.qrgross,.qrecke .gross{display:none!important}}
+
+  /* --- Bilder sichern: Diskette je Kachel, ZIP fuer alle --- */
+  .kachel .speichern{position:absolute;right:4px;top:4px;z-index:2;width:30px;height:30px;
+    border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.92);
+    font-size:16px;line-height:28px;text-align:center;padding:0;cursor:pointer;
+    opacity:.55}
+  .kachel:hover .speichern,.kachel .speichern:hover{opacity:1}
+  .zeiknoepfe .zip{margin-left:auto}
+  .zeiknoepfe .zip + .zaehler{margin-left:0}
+  @media print{.kachel .speichern{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -705,15 +731,15 @@
 </section>
 
 <section class="slide abfrage zei" data-phase="Probe · Zeichnen" data-ab="2" data-marke="Z1" data-frage="Zeichnet ein Dreieck — irgendeins." data-optionen="[]" data-art="zeichnen" data-schluessel="z1">
-<div class="kicker"><span class="marke zei">Zeichnen 1</span> &nbsp;Zum Warmwerden</div><h2 class="wt">Zeichnet ein Dreieck <span class="trenner">&#9656;</span> irgendeins.</h2><p class="lead weit">Mit dem Finger oder dem Stift, dann <b>Abschicken</b>. Wer sich vertan hat: <b>Alles löschen</b> und noch einmal.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="randnotiz"><b>Einzeln freigeben.</b> Die Bilder kommen als graue Kacheln an, nummeriert nach Eingang. Klicken Sie eine Kachel an <span class="trenner">&#9656;</span> erst dann sieht die Klasse das Bild. Noch ein Klick zeigt es groß, ein Klick auf das große Bild macht es wieder klein.<br><b>Zweites Bild vom selben Gerät:</b> ersetzt das erste und verliert dessen Freigabe <span class="trenner">&#9656;</span> die Kachel wird wieder grau.<span class="weiche"><i>Weiche:</i> Kommen keine Bilder an, fehlt entweder der grüne Punkt oben links (Dienst) oder die Geräte sind noch auf der Frage von vorhin <span class="trenner">&#9656;</span> einmal die Seite neu laden.</span></div>
+<div class="kicker"><span class="marke zei">Zeichnen 1</span> &nbsp;Zum Warmwerden</div><h2 class="wt">Zeichnet ein Dreieck <span class="trenner">&#9656;</span> irgendeins.</h2><p class="lead weit">Mit dem Finger oder dem Stift, dann <b>Abschicken</b>. Wer sich vertan hat: <b>Alles löschen</b> und noch einmal.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="randnotiz"><b>Einzeln freigeben.</b> Die Bilder kommen als graue Kacheln an, nummeriert nach Eingang. Klicken Sie eine Kachel an <span class="trenner">&#9656;</span> erst dann sieht die Klasse das Bild. Noch ein Klick zeigt es groß, ein Klick auf das große Bild macht es wieder klein.<br><b>Zweites Bild vom selben Gerät:</b> ersetzt das erste und verliert dessen Freigabe <span class="trenner">&#9656;</span> die Kachel wird wieder grau.<span class="weiche"><i>Weiche:</i> Kommen keine Bilder an, fehlt entweder der grüne Punkt oben links (Dienst) oder die Geräte sind noch auf der Frage von vorhin <span class="trenner">&#9656;</span> einmal die Seite neu laden.</span></div>
 </section>
 
 <section class="slide abfrage zei" data-phase="Probe · Zeichnen" data-ab="3" data-marke="Z2" data-frage="Zeichnet einen Kreis und setzt einen Punkt hinein." data-optionen="[]" data-art="zeichnen" data-schluessel="z2">
-<div class="kicker"><span class="marke zei">Zeichnen 2</span> &nbsp;Alle auf einmal</div><h2 class="wt">Zeichnet einen Kreis und setzt einen Punkt hinein.</h2><p class="lead weit">Abschicken, sobald ihr fertig seid. Diesmal zeige ich alle Bilder gleichzeitig.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="randnotiz"><b>„Alle zeigen“ unter der Galerie.</b> Das Raster richtet sich nach der Zahl der Bilder: sechs werden 3 × 2, dreißig werden 7 × 5. Dann „Alle verbergen“ <span class="trenner">&#9656;</span> die Kacheln werden wieder grau, die Bilder bleiben da.<br><b>Zählen lassen:</b> Der Zähler rechts unten nennt die Zahl der Bilder; stimmt sie mit der Klassenstärke überein?<span class="weiche"><i>Weiche:</i> Fehlen Bilder, hat jemand nicht abgeschickt <span class="trenner">&#9656;</span> das Feld allein sendet nichts. Kurz warten, dann weiter.</span></div>
+<div class="kicker"><span class="marke zei">Zeichnen 2</span> &nbsp;Alle auf einmal</div><h2 class="wt">Zeichnet einen Kreis und setzt einen Punkt hinein.</h2><p class="lead weit">Abschicken, sobald ihr fertig seid. Diesmal zeige ich alle Bilder gleichzeitig.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="randnotiz"><b>„Alle zeigen“ unter der Galerie.</b> Das Raster richtet sich nach der Zahl der Bilder: sechs werden 3 × 2, dreißig werden 7 × 5. Dann „Alle verbergen“ <span class="trenner">&#9656;</span> die Kacheln werden wieder grau, die Bilder bleiben da.<br><b>Zählen lassen:</b> Der Zähler rechts unten nennt die Zahl der Bilder; stimmt sie mit der Klassenstärke überein?<span class="weiche"><i>Weiche:</i> Fehlen Bilder, hat jemand nicht abgeschickt <span class="trenner">&#9656;</span> das Feld allein sendet nichts. Kurz warten, dann weiter.</span></div>
 </section>
 
 <section class="slide abfrage zei" data-phase="Probe · Zeichnen" data-ab="4" data-marke="Z3" data-frage="Schreibt eine Zahl zwischen 1 und 9 — so groß wie das Feld." data-optionen="[]" data-art="zeichnen" data-schluessel="z3">
-<div class="kicker"><span class="marke zei">Zeichnen 3</span> &nbsp;Mit Vorschau</div><h2 class="wt">Schreibt eine Zahl zwischen 1 und 9 <span class="trenner">&#9656;</span> so groß wie das Feld.</h2><p class="lead weit">Abschicken. Diesmal sehe ich mir die Bilder erst auf meinem Gerät an und zeige nur einige.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><span class="zaehler">0 Bilder</span></div><div class="randnotiz"><b>Die Sichtung auf dem eigenen Gerät:</b> <i>mathematik-unterrichten.de/abstimmung/sichtung.html?raum=&lt;Raumcode&gt;</i> öffnen <span class="trenner">&#9656;</span> der Raumcode steht unten rechts an der Wand. Dort stehen alle Bilder; ein Tipp gibt eines frei, noch ein Tipp nimmt es zurück. An der Wand erscheint genau das, was Sie freigeben.<br><b>Der Lehrerschlüssel</b> ist derselbe wie an der Wand; auf einem anderen Gerät fragt die Sichtung einmal danach.<br><b>Didaktisch ist das der Normalfall:</b> Vorher sehen, bewusst auswählen, in eigener Reihenfolge zeigen.<span class="weiche"><i>Weiche:</i> Ohne zweites Gerät geht es auch von der Wand aus <span class="trenner">&#9656;</span> dann eben blind, wie beim ersten Auftrag.</span></div>
+<div class="kicker"><span class="marke zei">Zeichnen 3</span> &nbsp;Mit Vorschau</div><h2 class="wt">Schreibt eine Zahl zwischen 1 und 9 <span class="trenner">&#9656;</span> so groß wie das Feld.</h2><p class="lead weit">Abschicken. Diesmal sehe ich mir die Bilder erst auf meinem Gerät an und zeige nur einige.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="randnotiz"><b>Die Sichtung auf dem eigenen Gerät:</b> <i>mathematik-unterrichten.de/abstimmung/sichtung.html?raum=&lt;Raumcode&gt;</i> öffnen <span class="trenner">&#9656;</span> der Raumcode steht unten rechts an der Wand. Dort stehen alle Bilder; ein Tipp gibt eines frei, noch ein Tipp nimmt es zurück. An der Wand erscheint genau das, was Sie freigeben.<br><b>Der Lehrerschlüssel</b> ist derselbe wie an der Wand; auf einem anderen Gerät fragt die Sichtung einmal danach.<br><b>Didaktisch ist das der Normalfall:</b> Vorher sehen, bewusst auswählen, in eigener Reihenfolge zeigen.<span class="weiche"><i>Weiche:</i> Ohne zweites Gerät geht es auch von der Wand aus <span class="trenner">&#9656;</span> dann eben blind, wie beim ersten Auftrag.</span></div>
 </section>
 
 <section class="slide" data-phase="Probe · Zeichnen" data-ab="5" data-marke="ENDE">
@@ -1162,6 +1188,7 @@
                              + (d.offen ? "" : " · geschlossen");
       stand.querySelector(".text").textContent = "Bilder: " + liste.length;
       g.dataset.n = liste.length;
+      if (d.schluessel) g.dataset.schluessel = d.schluessel;
       /* Spalten aus der Zahl der Bilder, Reihen aus den Spalten: Die
          Galerie hat feste Hoehe, das Raster teilt sie auf. In einer
          flachen Galerie (Whiteboard-Runde) eher mehr Spalten, damit die
@@ -1179,8 +1206,11 @@
         if (!k){
           k = document.createElement("div");
           k.className = "kachel"; k.dataset.geraet = b.geraet;
-          k.innerHTML = '<span class="nr"></span>';
+          k.innerHTML = '<span class="nr"></span>'
+            + '<button type="button" class="speichern" title="Bild sichern">&#128190;</button>';
           k.addEventListener("click", e => { e.stopPropagation(); kachelKlick(folie, k); });
+          k.querySelector(".speichern").addEventListener("click", e => {
+            e.stopPropagation(); bildSichern(folie, k); });
           g.appendChild(k);
         }
         k.querySelector(".nr").textContent = i + 1;
@@ -1230,8 +1260,150 @@
       const b = e.target.closest(".zeiknoepfe button"); if (!b) return;
       e.stopPropagation();
       const folie = b.closest(".slide,.abgabe"); if (!folie) return;
+      if (b.classList.contains("zip")) return alleSichern(folie);
       freigeben(folie, { alle: true, frei: b.classList.contains("alle") });
     });
+
+    /* --- Bilder sichern ------------------------------------------------
+       Die Diskette an der Kachel legt das eine Bild als PNG in den
+       Downloads-Ordner, der Knopf unter der Galerie alle Bilder der Runde
+       als ZIP - auch die noch nicht freigegebenen, denn die Wand fragt
+       mit dem Lehrerschluessel. Dateiname: Raum, Rundenschluessel,
+       laufende Nummer. Das ZIP wird hier selbst geschrieben (nur
+       abgelegt, nicht komprimiert - PNG ist schon komprimiert), damit die
+       Datei ohne Bibliothek auskommt. */
+    async function bildDaten(b){
+      const a = await fetch(dienst + "/v1/raum/" + raum + "/bild?geraet="
+                            + encodeURIComponent(b.geraet),
+                            { headers: kopf(), cache:"no-store" });
+      if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return null; }
+      const d = await a.json();
+      return d.ok ? d.daten : null;
+    }
+    /* Dateiname: Datum, Raum, Rundenschluessel ohne die Sitzungskennung
+       (die sechs Zufallszeichen sagen niemandem etwas) - also etwa
+       2026-09-03-10b-wurz-w1.zip oder …-abgabe1-bild03.png. */
+    function kennung(folie){
+      const g = folie.querySelector(".galerie");
+      const s = (g && g.dataset.schluessel) || folie.dataset.schluessel || "bilder";
+      const j = new Date(), z2 = n => String(n).padStart(2, "0");
+      return (j.getFullYear() + "-" + z2(j.getMonth() + 1) + "-" + z2(j.getDate()) + "-"
+              + raum + "-" + s.replace(new RegExp("^" + raum + "-([a-z0-9]{6}-)?"), "")
+              .replace(/[^a-z0-9-]/gi, "-"));
+    }
+    function ablegen(blob, name){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+    const bytesAus = daten => {
+      const roh = atob(daten.split(",")[1] || "");
+      const b = new Uint8Array(roh.length);
+      for (let i = 0; i < roh.length; i++) b[i] = roh.charCodeAt(i);
+      return b;
+    };
+    async function bildSichern(folie, k){
+      const nr = k.querySelector(".nr").textContent || "0";
+      const img = k.querySelector("img");
+      let daten = img && img.src.startsWith("data:") ? img.src : null;
+      if (!daten) daten = await bildDaten({ geraet: k.dataset.geraet });
+      if (!daten) return;
+      ablegen(new Blob([bytesAus(daten)], { type:"image/png" }),
+              kennung(folie) + "-bild" + String(nr).padStart(2, "0") + ".png");
+    }
+    async function alleSichern(folie){
+      const knopf = folie.querySelector(".zeiknoepfe .zip");
+      const kacheln = [...folie.querySelectorAll(".kachel")];
+      if (!kacheln.length || !knopf) return;
+      knopf.disabled = true;
+      const alt = knopf.textContent; knopf.textContent = "… sichere";
+      const dateien = [];
+      for (const k of kacheln){
+        const img = k.querySelector("img");
+        let daten = img && img.src.startsWith("data:") ? img.src : null;
+        if (!daten) daten = await bildDaten({ geraet: k.dataset.geraet });
+        if (!daten) continue;
+        const nr = k.querySelector(".nr").textContent || "0";
+        dateien.push({ name: "bild" + String(nr).padStart(2, "0") + ".png",
+                       bytes: bytesAus(daten) });
+      }
+      knopf.disabled = false; knopf.textContent = alt;
+      if (dateien.length) ablegen(zipAus(dateien), kennung(folie) + ".zip");
+    }
+    /* ZIP ohne Kompression (Methode 0): lokale Koepfe, Zentralverzeichnis,
+       Endsatz. CRC-32 ueber eine Tabelle. */
+    const CRC = (() => { const T = new Uint32Array(256);
+      for (let n = 0; n < 256; n++){ let c = n;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+        T[n] = c >>> 0; } return T; })();
+    const crc32 = b => { let c = 0xFFFFFFFF;
+      for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0; };
+    function zipAus(dateien){
+      const j = new Date();
+      const zeit = (j.getHours() << 11) | (j.getMinutes() << 5) | (j.getSeconds() >> 1);
+      const datum = ((j.getFullYear() - 1980) << 9) | ((j.getMonth() + 1) << 5) | j.getDate();
+      const enc = new TextEncoder();
+      const teile = [], zentral = [];
+      let versatz = 0;
+      const u16 = n => [n & 255, (n >>> 8) & 255];
+      const u32 = n => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+      for (const f of dateien){
+        const name = enc.encode(f.name), crc = crc32(f.bytes), n = f.bytes.length;
+        const kopf = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0), ...u16(0),
+          ...u16(zeit), ...u16(datum), ...u32(crc), ...u32(n), ...u32(n),
+          ...u16(name.length), ...u16(0), ...name]);
+        teile.push(kopf, f.bytes);
+        zentral.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0),
+          ...u16(0), ...u16(zeit), ...u16(datum), ...u32(crc), ...u32(n), ...u32(n),
+          ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0),
+          ...u32(versatz), ...name]));
+        versatz += kopf.length + n;
+      }
+      const zgroesse = zentral.reduce((s, z) => s + z.length, 0);
+      const ende = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0),
+        ...u16(dateien.length), ...u16(dateien.length), ...u32(zgroesse), ...u32(versatz), ...u16(0)]);
+      return new Blob([...teile, ...zentral, ende], { type:"application/zip" });
+    }
+
+    /* --- QR bildschirmfuellend ----------------------------------------
+       Der kleine Pfeil am Eck-QR legt den Code gross ueber alles, mit
+       Adresse und Raumcode darunter - fuer die hinterste Reihe. Ein Klick
+       irgendwohin oder Escape nimmt ihn weg. */
+    const qrgross = document.createElement("div");
+    qrgross.className = "qrgross";
+    qrgross.addEventListener("click", e => { e.stopPropagation(); qrgross.classList.remove("an"); });
+    function qrGross(){
+      const ecke = document.querySelector(".qrecke svg"); if (!ecke) return;
+      const kurz = document.querySelector(".kurzadresse");
+      qrgross.innerHTML = "";
+      qrgross.appendChild(ecke.cloneNode(true));
+      const adr = document.createElement("div"); adr.className = "adresse";
+      adr.textContent = kurz ? kurz.textContent : "";
+      qrgross.appendChild(adr);
+      const code = document.createElement("div"); code.className = "code";
+      code.textContent = raum.toUpperCase();
+      qrgross.appendChild(code);
+      qrgross.classList.add("an");
+    }
+    function qrPfeilSetzen(){
+      const ecke = document.querySelector(".qrecke");
+      if (!ecke || ecke.querySelector(".gross")) return;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "gross"; b.title = "QR-Code bildschirmfüllend";
+      b.textContent = "⤢";
+      b.addEventListener("click", e => { e.stopPropagation(); qrGross(); });
+      ecke.appendChild(b);
+      document.body.appendChild(qrgross);
+    }
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded", qrPfeilSetzen);
+    else qrPfeilSetzen();
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && qrgross.classList.contains("an")){
+        qrgross.classList.remove("an"); e.stopPropagation(); }
+    }, true);
 
     /* --- Spontane Abgabe -------------------------------------------------
        Ein Klick auf den Eck-QR (oder A) oeffnet auf den Geraeten die
@@ -1255,6 +1427,7 @@
       + '<div class="zeiknoepfe">'
       + '<button type="button" class="alle">Alle zeigen</button>'
       + '<button type="button" class="keine">Alle verbergen</button>'
+      + '<button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button>'
       + '<span class="zaehler">0 Bilder</span></div>';
     /* Erst anhaengen, wenn der Koerper vollstaendig ist - sonst landet
        der Schirm je nach Ladezeitpunkt neben dem Koerper statt darin. */
