@@ -97,21 +97,32 @@
      ab. Gedruckt werden die Folien 1 bis zur aktuellen, jede auf einer
      Seite, in dem Zustand, in dem sie verlassen wurden: aufgedeckte
      Schritte bleiben aufgedeckt, Stimmenbalken und Bilder bleiben stehen.
-     Die Vorschau des naechsten Schritts (halb durchsichtig) faellt weg. */
-  .protokollkopf{display:none}
+     Die Vorschau des naechsten Schritts (halb durchsichtig) faellt weg.
+     Die Folien laufen fortlaufend durch und brechen nur dort um, wo eine
+     nicht mehr ganz auf die Seite passt. Eine Folie je Querseite gab
+     zwanzig ueberwiegend weisse Seiten (10b, 03.09.2026) - eine Folie
+     der Wand fuellt auf Papier selten mehr als ein Drittel. */
+  .protokollkopf,.protokolltitel{display:none}
   @media print{
-    @page{size:A4 landscape;margin:8mm}
+    @page{size:A4 portrait;margin:8mm}
     body.protokoll{overflow:visible!important;height:auto!important;background:#fff}
     body.protokoll .deck{position:static;height:auto;width:auto;overflow:visible}
     body.protokoll .slide{display:none!important}
     body.protokoll .slide.im-protokoll{display:block!important;position:relative;inset:auto;
-      height:auto;min-height:0;padding:0!important;animation:none;overflow:visible;
-      background:#fff;break-after:page;page-break-after:always}
-    body.protokoll .slide.im-protokoll.letzte{break-after:auto;page-break-after:auto}
+      height:auto;min-height:0;padding:0 0 4mm!important;animation:none;overflow:visible;
+      background:#fff;break-inside:avoid;page-break-inside:avoid}
+    body.protokoll .slide.im-protokoll ~ .slide.im-protokoll{border-top:1.5px solid #cbd5e1;
+      padding-top:4mm!important}
     body.protokoll .slide.im-protokoll::before,
     body.protokoll .slide.im-protokoll::after{display:none!important}
+    /* 1200 px Entwurfsflaeche auf 194 mm nutzbare Breite (A4 hoch, 8 mm Rand).
+       Nichts darf breiter sein als die Seite, sonst verkleinert Chrome das
+       GANZE Dokument auf Seitenbreite - jede eingepasste Folie wuerde dann
+       doppelt geschrumpft. */
     body.protokoll .slide.im-protokoll .buehne{transform:none!important;width:1200px;
-      zoom:.66;margin:0 auto}
+      zoom:.6;margin:0 auto}
+    body.protokoll .protokolltitel{display:block;font-size:19px;font-weight:800;
+      color:var(--ink);margin:0 0 6px}
     /* Die Galerie einer Whiteboard-Runde ist an der Wand 400 px hoch,
        damit nichts springt; auf Papier braucht sie nur, was drin ist. */
     body.protokoll .slide.im-protokoll .galerie{height:auto;min-height:0;max-height:330px}
@@ -1455,17 +1466,33 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">鈥
       folien.forEach((s, i) => {
         const drin = i <= aktuell;
         s.classList.toggle('im-protokoll', drin);
-        s.classList.toggle('letzte', i === aktuell);
         if(!drin) return;
+        /* Verkleinert wird im Druck die Entwurfsflaeche (.buehne). Die legt
+           die Einpassung erst beim Aufblenden an - eine Folie, die nur im
+           Schnelldurchlauf beruehrt wurde, hat noch keine und stuende
+           sonst in voller Groesse im Protokoll. */
+        if(!s.querySelector(':scope > .buehne') && window.einpassen) window.einpassen(s);
+        const buehne = s.querySelector(':scope > .buehne') || s;
         let k = s.querySelector('.protokollkopf');
         if(!k){
           k = document.createElement('div');
           k.className = 'protokollkopf';
-          (s.querySelector(':scope > .buehne') || s).prepend(k);
+          buehne.prepend(k);
         }
-        k.textContent = TITEL + ' 路 Folie ' + (i + 1) + ' von ' + folien.length
-                      + (s.dataset.phase ? ' 路 ' + s.dataset.phase : '')
-                      + ' 路 Stand ' + stand;
+        /* Titel und Stand stehen einmal ueber allem; je Folie bleibt nur,
+           was sie unterscheidet. */
+        k.textContent = 'Folie ' + (i + 1) + ' von ' + folien.length
+                      + (s.dataset.phase ? ' 路 ' + s.dataset.phase : '');
+        if(i === 0){
+          let t = s.querySelector('.protokolltitel');
+          if(!t){
+            t = document.createElement('div');
+            t.className = 'protokolltitel';
+            buehne.prepend(t);
+          }
+          t.textContent = 'Protokoll 路 ' + TITEL + ' 路 Folien 1 bis ' + (aktuell + 1)
+                        + ' 路 Stand ' + stand;
+        }
       });
       document.body.classList.add('protokoll');
       document.title = 'Protokoll ' + TITEL + ' '
@@ -1476,9 +1503,8 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">鈥
       document.body.classList.remove('protokoll');
       document.title = TITEL;
       document.querySelectorAll('.slide').forEach(s => {
-        s.classList.remove('im-protokoll', 'letzte');
-        const k = s.querySelector('.protokollkopf');
-        if(k) k.remove();
+        s.classList.remove('im-protokoll');
+        s.querySelectorAll('.protokollkopf, .protokolltitel').forEach(k => k.remove());
       });
     };
     const knopf = document.querySelector('.regie .protokoll');
