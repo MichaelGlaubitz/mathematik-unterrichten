@@ -331,6 +331,19 @@ export const werkzeuge: Werkzeug[] = [
     schlagwoerter: ['exit ticket', 'stundenende', 'sicherung', 'klar', 'formatives assessment', 'ausgangskarte'],
     hintergrund: { text: 'Das KLAR-Konzept', href: '/konzept' },
   },
+  {
+    slug: 'abhaengigkeitskarte',
+    titel: 'Abhängigkeitskarte',
+    kurz: 'Was worauf aufbaut: 49 Themen der Sekundarstufen als Graph, zum Zoomen und Anklicken.',
+    beschreibung:
+      'Zeigt für jedes Thema der Schulmathematik, was vorher sitzen muss und was darauf ruht – mit der Stärke jeder Abhängigkeit, der Reichweite der Hebelthemen und den längsten Voraussetzungsketten. Für Fachkonferenz und Seminar gebaut: Wer ein schulinternes Curriculum ordnet oder eine Reihenfolge begründen muss, sieht hier, welche Umstellungen zulässig sind und welche eine Kette zerreißen.',
+    kategorie: 'Material',
+    stufe: 'Klasse 5 – Oberstufe',
+    rolle: 'Vorbereitung',
+    medium: 'Bildschirm',
+    schlagwoerter: ['curriculum', 'schulinterner lehrplan', 'reihenfolge', 'voraussetzungen', 'vorwissen', 'fachkonferenz', 'stoffverteilung', 'graph'],
+    hintergrund: { text: 'Spacing und Interleaving', href: '/blog/spacing-und-interleaving' },
+  },
 ];
 
 /** Reihenfolge, in der Kategorien auf der Hub-Seite erscheinen. */

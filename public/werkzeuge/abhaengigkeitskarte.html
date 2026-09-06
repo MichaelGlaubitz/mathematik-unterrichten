@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abhängigkeitskarte der Schulmathematik · mathematik-unterrichten.de</title>
+<meta name="description" content="49 Themen der Sekundarstufen I und II als Abhängigkeitsgraph: Was setzt was voraus, welche Themen tragen die halbe Oberstufe, wo hat ein Lehrplan Spielraum. Zum Zoomen und Anklicken.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="werkzeug.css">
+<script src="werkzeug.js"></script>
+<style>
+  /* Bereichsfarben und Kantenfarben ausschliesslich aus werkzeug.css */
+  .ak-buehne { display: grid; grid-template-columns: minmax(0,1fr) 290px; gap: 1rem; align-items: start; }
+  @media (max-width: 900px) { .ak-buehne { grid-template-columns: 1fr; } }
+
+  .ak-rahmen { position: relative; padding: 0; overflow: hidden; height: min(78vh, 860px); cursor: grab; touch-action: none; }
+  .ak-rahmen.zieht { cursor: grabbing; }
+  .ak-rahmen svg { display: block; width: 100%; height: 100%; }
+  .ak-zoom { position: absolute; right: .8rem; top: .8rem; z-index: 2; display: flex; flex-direction: column; gap: .3rem; }
+  .ak-zoom .wz-knopf { background: var(--flaeche); border-color: var(--linie); }
+
+  #rows text { font-family: var(--schrift-mono); font-size: 11px; fill: var(--text-schwach); }
+
+  /* Kanten */
+  .e { fill: none; stroke: var(--linie-stark); stroke-linecap: round; transition: stroke var(--tempo), opacity var(--tempo); }
+  .e.w3 { stroke-width: 3.4; }
+  .e.w2 { stroke-width: 1.5; }
+  .e.w1 { stroke-width: 1.1; stroke-dasharray: 5 4; }
+
+  /* Knoten */
+  .n { cursor: pointer; --c: var(--text-schwach); --soft: var(--flaeche); }
+  .n rect { fill: var(--soft); stroke: var(--c); stroke-width: 1.4; transition: opacity var(--tempo); }
+  .n text { font-family: var(--schrift); font-size: 12.5px; font-weight: 600; fill: var(--text); pointer-events: none; }
+  .n text.l2 { font-size: 11.5px; font-weight: 400; }
+  .n:hover rect { stroke-width: 2.6; }
+  .n:focus-visible rect { stroke: var(--akzent); stroke-width: 3; }
+
+  .n.a-alg { --c: var(--akzent); --soft: var(--akzent-hell); }
+  .n.a-geo { --c: var(--teal);   --soft: var(--teal-hell); }
+  .n.a-fun { --c: var(--gold);   --soft: var(--gold-hell); }
+  .n.a-sto { --c: var(--violett);--soft: var(--violett-hell); }
+
+  body.nach-ursprung .n { --soft: var(--flaeche); }
+  body.nach-ursprung .n rect { stroke-width: 2.4; }
+  body.nach-ursprung .n.r-urzeit   { --c: var(--text-schwach); }
+  body.nach-ursprung .n.r-orient   { --c: var(--gold); }
+  body.nach-ursprung .n.r-griech   { --c: var(--rot); }
+  body.nach-ursprung .n.r-indchina { --c: var(--gruen); }
+  body.nach-ursprung .n.r-islam    { --c: var(--teal); }
+  body.nach-ursprung .n.r-euro1    { --c: var(--akzent); }
+  body.nach-ursprung .n.r-euro2    { --c: var(--violett); }
+  body.nach-ursprung .n.r-euro3    { --c: var(--akzent-tief); }
+
+  /* Auswahl: blau = Voraussetzungen, gold = baut darauf auf */
+  svg.fokus .n { opacity: .18; }
+  svg.fokus .e { stroke: var(--linie); opacity: .5; }
+  svg.fokus .n.ist-vor, svg.fokus .n.ist-nach, svg.fokus .n.ist-gewaehlt { opacity: 1; }
+  svg.fokus .n.ist-vor rect { stroke: var(--akzent); stroke-width: 2.2; fill: var(--flaeche); }
+  svg.fokus .n.ist-nach rect { stroke: var(--gold); stroke-width: 2.2; fill: var(--flaeche); }
+  svg.fokus .n.ist-gewaehlt rect { stroke: var(--text); stroke-width: 2.8; }
+  svg.fokus .e.ist-vor { stroke: var(--akzent); opacity: 1; }
+  svg.fokus .e.ist-nach { stroke: var(--gold); opacity: 1; }
+  svg.fokus .e.w3.ist-vor, svg.fokus .e.w3.ist-nach { stroke-width: 4.2; }
+  svg.fokus .e.w1.ist-vor, svg.fokus .e.w1.ist-nach { stroke-width: 1.8; }
+
+  /* Legenden */
+  .ak-steuer { display: flex; flex-wrap: wrap; gap: .8rem 1.6rem; align-items: center; }
+  .ak-legende { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .84rem; color: var(--text-leise); }
+  .lg { display: inline-flex; align-items: center; gap: .4rem; }
+  .lg i { width: 11px; height: 11px; border-radius: 3px; background: var(--c); }
+  .lg.a-alg { --c: var(--akzent); } .lg.a-geo { --c: var(--teal); }
+  .lg.a-fun { --c: var(--gold); }   .lg.a-sto { --c: var(--violett); }
+  .lg.r-urzeit { --c: var(--text-schwach); } .lg.r-orient { --c: var(--gold); }
+  .lg.r-griech { --c: var(--rot); } .lg.r-indchina { --c: var(--gruen); }
+  .lg.r-islam { --c: var(--teal); } .lg.r-euro1 { --c: var(--akzent); }
+  .lg.r-euro2 { --c: var(--violett); } .lg.r-euro3 { --c: var(--akzent-tief); }
+  .lgw { display: inline-flex; align-items: center; gap: .4rem; }
+  .lgw i { width: 26px; height: 0; border-top: 1.5px solid var(--linie-stark); }
+  .lgw i.w3 { border-top-width: 3.4px; }
+  .lgw i.w1 { border-top-style: dashed; border-top-width: 1.1px; }
+  #legende-ursprung { display: none; }
+  body.nach-ursprung #legende-bereich { display: none; }
+  body.nach-ursprung #legende-ursprung { display: flex; }
+
+  /* Seitenfeld */
+  .ak-feld h2 { font-size: 1.15rem; }
+  .ak-feld .bereich { font-size: .8rem; font-weight: 600; color: var(--c, var(--text-schwach)); }
+  .ak-feld dl { margin: .8rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: .4rem .8rem; font-size: .86rem; }
+  .ak-feld dt { color: var(--text-schwach); font-weight: 400; }
+  .ak-feld dd { margin: 0; }
+  .ak-zahlen { display: flex; gap: 1.2rem; margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--linie); }
+  .ak-zahl { display: grid; gap: .1rem; }
+  .ak-zahl b { font-family: var(--schrift-mono); font-size: 1.5rem; font-weight: 600; line-height: 1; }
+  .ak-zahl span { font-size: .78rem; color: var(--text-schwach); }
+  .ak-zahl.vor b { color: var(--akzent); } .ak-zahl.nach b { color: var(--gold); }
+  .marke { display: inline-block; text-align: left; font-size: .8rem; padding: .1rem .45rem; border: 1px solid var(--linie-stark);
+           border-radius: var(--radius-klein); margin: .15rem .25rem .15rem 0; background: transparent; color: var(--text);
+           cursor: pointer; font-family: inherit; }
+  .marke:hover { border-color: var(--text); }
+  .marke.s3 { border-left: 3px solid var(--text); font-weight: 600; }
+  .marke.s1 { border-style: dashed; color: var(--text-schwach); }
+
+  /* Listen */
+  .ak-listen { display: grid; grid-template-columns: 1fr 1fr 1.15fr; gap: 1.2rem; margin-top: 1.2rem; }
+  @media (max-width: 1100px) { .ak-listen { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 760px) { .ak-listen { grid-template-columns: 1fr; } }
+  .ak-listen p.unter { color: var(--text-leise); font-size: .84rem; margin: .3rem 0 .8rem; }
+  ol.h { list-style: none; margin: 0; padding: 0; display: grid; gap: .25rem; }
+  .hb { display: grid; grid-template-columns: minmax(110px,180px) 1fr 30px; gap: .6rem; align-items: center; width: 100%;
+        background: transparent; border: 0; padding: .15rem 0; font: inherit; font-size: .85rem; color: var(--text);
+        cursor: pointer; text-align: left; }
+  .hb .hl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hbar { height: 12px; background: var(--flaeche-2, var(--grund)); border: 1px solid var(--linie); border-radius: 3px; overflow: hidden; }
+  .hbar i { display: block; height: 100%; background: var(--c); }
+  .hbar i.a-alg { --c: var(--akzent); } .hbar i.a-geo { --c: var(--teal); }
+  .hbar i.a-fun { --c: var(--gold); }   .hbar i.a-sto { --c: var(--violett); }
+  .hn { font-family: var(--schrift-mono); font-size: .82rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .hb:hover .hl { text-decoration: underline; }
+  ol.c { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+  .cb { display: block; width: 100%; text-align: left; background: transparent; border: 1px solid var(--linie);
+        border-radius: var(--radius-klein); padding: .5rem .6rem; font: inherit; color: var(--text); cursor: pointer; }
+  .cb:hover { border-color: var(--text); }
+  .cn { font-family: var(--schrift-mono); font-size: .78rem; color: var(--text-schwach); margin-left: .5rem; }
+  .cpath { display: block; font-size: .78rem; color: var(--text-leise); margin-top: .2rem; line-height: 1.45; }
+  @media (prefers-reduced-motion: reduce) { .e, .n rect { transition: none; } }
+</style>
+</head>
+<body>
+
+<main class="wz-huelle">
+  <h1 class="wz-nur-lesbar">Abhängigkeitskarte der Schulmathematik</h1>
+
+  <div class="wz-karte wz-nicht-drucken">
+    <div class="ak-steuer">
+      <div class="wz-reihe" role="group" aria-label="Färbung">
+        <button class="wz-knopf" id="bA" type="button" aria-pressed="true">Farbe: Bereich</button>
+        <button class="wz-knopf" id="bR" type="button" aria-pressed="false">Farbe: Ursprung</button>
+      </div>
+      <div class="ak-legende" id="legende-bereich"><span class="lg a-alg"><i></i>Zahlen & Algebra</span><span class="lg a-geo"><i></i>Geometrie</span><span class="lg a-fun"><i></i>Funktionen & Analysis</span><span class="lg a-sto"><i></i>Daten & Zufall</span></div>
+      <div class="ak-legende" id="legende-ursprung"><span class="lg r-urzeit"><i></i>Vorgeschichte</span><span class="lg r-orient"><i></i>Babylon / Ägypten</span><span class="lg r-griech"><i></i>Griechenland</span><span class="lg r-indchina"><i></i>Indien / China</span><span class="lg r-islam"><i></i>Islamische Welt</span><span class="lg r-euro1"><i></i>Europa 13.–17. Jh.</span><span class="lg r-euro2"><i></i>Europa 18.–19. Jh.</span><span class="lg r-euro3"><i></i>20. Jahrhundert</span></div>
+      <div class="ak-legende"><span class="lgw"><i class="w3"></i>tragend</span><span class="lgw"><i class="w2"></i>notwendig</span><span class="lgw"><i class="w1"></i>unterstützend</span></div>
+    </div>
+    <p class="wz-hinweis" style="margin-top:.6rem">
+      Jeder Pfeil führt von der Voraussetzung zum Thema, das darauf aufbaut. Die <b>Stufe</b> am linken Rand ist die Länge
+      des längsten Voraussetzungspfads ab dem Zählen. Die <b>Dicke</b> zeigt die Stärke der Abhängigkeit:
+      <b>tragend</b> (ohne die Voraussetzung nicht formulierbar), <b>notwendig</b>, <b>unterstützend</b> (gestrichelt).
+      Ein Thema anklicken hebt blau hervor, was vorher sitzen muss, und gold, was darauf ruht.
+      Mausrad zoomt, Ziehen verschiebt.
+    </p>
+  </div>
+
+  <div class="ak-buehne wz-abstand">
+    <div class="wz-karte ak-rahmen" id="rahmen">
+      <div class="ak-zoom wz-nicht-drucken">
+        <button class="wz-knopf wz-icon-knopf" id="zIn" type="button" title="Hineinzoomen (+)">＋</button>
+        <button class="wz-knopf wz-icon-knopf" id="zOut" type="button" title="Herauszoomen (−)">−</button>
+        <button class="wz-knopf wz-icon-knopf" id="zFit" type="button" title="Ganze Karte">⤢</button>
+      </div>
+      <svg id="dag" viewBox="0 0 2252 1354" role="img" aria-label="Abhängigkeitsgraph der Schulmathematik: Pfeile führen von der Voraussetzung zum darauf aufbauenden Thema, von oben nach unten.">
+<defs><marker id="ah" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="13" markerHeight="13" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L12 6L0 12z" fill="context-stroke"/></marker></defs>
+<g id="edges">
+<path class="e w3 a-alg" data-from="zaehlen" data-to="stellenwert" d="M543 76 L543 96 C543 105 417 104 417 113 L417 133" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="stellenwert" data-to="grundrechen" d="M428 180 L428 200 C428 209 730 208 730 217 L730 237" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="grundrechen" data-to="teilbarkeit" d="M697 284 L697 304 C697 313 607 312 607 321 L607 341" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="grundrechen" data-to="brueche" d="M719 284 L719 304 C719 338 716 331 716 365 C716 398 700 392 700 425 L700 445" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="teilbarkeit" data-to="brueche" d="M607 388 L607 408 C607 417 678 416 678 425 L678 445" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="brueche" data-to="dezimal" d="M656 492 L656 512 C656 521 311 520 311 529 L311 549" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="stellenwert" data-to="dezimal" d="M406 180 L406 200 C406 234 209 227 209 261 C209 318 211 308 211 365 C211 422 242 412 242 469 C242 502 289 496 289 529 L289 549" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="grundrechen" data-to="negativ" d="M763 284 L763 304 C763 313 1031 312 1031 321 L1031 341" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="grundrechen" data-to="groessen" d="M785 284 L785 304 C785 313 1217 312 1217 321 L1217 341" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="brueche" data-to="proportional" d="M722 492 L722 512 C722 521 1187 520 1187 529 L1187 549" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="groessen" data-to="proportional" d="M1206 388 L1206 408 C1206 442 1127 435 1127 469 C1127 502 1209 496 1209 529 L1209 549" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="proportional" data-to="prozent" d="M1176 596 L1176 616 C1176 625 559 624 559 633 L559 653" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="dezimal" data-to="prozent" d="M311 596 L311 616 C311 625 537 624 537 633 L537 653" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="grundrechen" data-to="potenzen" d="M741 284 L741 304 C741 338 880 331 880 365 C880 398 1007 392 1007 425 L1007 445" marker-end="url(#ah)"/>
+<path class="e w1 a-alg" data-from="negativ" data-to="potenzen" d="M1031 388 L1031 408 C1031 417 1029 416 1029 425 L1029 445" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="negativ" data-to="terme" d="M1009 388 L1009 408 C1009 442 909 435 909 469 C909 502 965 496 965 529 L965 549" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="brueche" data-to="terme" d="M700 492 L700 512 C700 521 943 520 943 529 L943 549" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="potenzen" data-to="terme" d="M1009 492 L1009 512 C1009 521 987 520 987 529 L987 549" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="terme" data-to="binom" d="M954 596 L954 616 C954 625 847 624 847 633 L847 653" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="terme" data-to="lingl" d="M976 596 L976 616 C976 625 1270 624 1270 633 L1270 653" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="lingl" data-to="lgs" d="M1281 700 L1281 720 C1281 729 1496 728 1496 737 L1496 757" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="binom" data-to="quadgl" d="M858 700 L858 720 C858 729 1113 728 1113 737 L1113 757" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="potenzen" data-to="quadgl" d="M1027 492 L1027 512 C1027 546 1074 539 1074 573 C1074 630 1125 620 1125 677 C1125 710 1135 704 1135 737 L1135 757" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="potenzen" data-to="irrational" d="M1064 492 L1064 512 C1064 521 1653 520 1653 529 L1653 549" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="brueche" data-to="irrational" d="M744 492 L744 512 C744 521 1631 520 1631 529 L1631 549" marker-end="url(#ah)"/>
+<path class="e w1 a-geo" data-from="zaehlen" data-to="figuren" d="M565 76 L565 96 C565 105 880 104 880 113 L880 133" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="figuren" data-to="kongruenz" d="M847 180 L847 200 C847 209 544 208 544 217 L544 237" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="figuren" data-to="winkel" d="M913 180 L913 200 C913 209 1324 208 1324 217 L1324 237" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="figuren" data-to="flaeche" d="M869 180 L869 200 C869 234 1124 227 1124 261 C1124 318 1326 308 1326 365 C1326 398 1460 392 1460 425 L1460 445" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="groessen" data-to="flaeche" d="M1228 388 L1228 408 C1228 417 1438 416 1438 425 L1438 445" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="flaeche" data-to="kreis" d="M1482 492 L1482 512 C1482 546 2006 539 2006 573 C2006 606 2150 600 2150 633 L2150 653" marker-end="url(#ah)"/>
+<path class="e w1 a-geo" data-from="irrational" data-to="kreis" d="M1653 596 L1653 616 C1653 625 2128 624 2128 633 L2128 653" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="flaeche" data-to="koerper" d="M1438 492 L1438 512 C1438 521 1427 520 1427 529 L1427 549" marker-end="url(#ah)"/>
+<path class="e w2 a-geo" data-from="potenzen" data-to="koerper" d="M1045 492 L1045 512 C1045 521 1405 520 1405 529 L1405 549" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="proportional" data-to="aehnlich" d="M1220 596 L1220 616 C1220 625 1878 624 1878 633 L1878 653" marker-end="url(#ah)"/>
+<path class="e w2 a-geo" data-from="winkel" data-to="aehnlich" d="M1324 284 L1324 304 C1324 338 1530 331 1530 365 C1530 422 1746 412 1746 469 C1746 526 1937 516 1937 573 C1937 606 1900 600 1900 633 L1900 653" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="flaeche" data-to="pythagoras" d="M1460 492 L1460 512 C1460 521 1839 520 1839 529 L1839 549" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="potenzen" data-to="pythagoras" d="M1082 492 L1082 512 C1082 521 1817 520 1817 529 L1817 549" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="aehnlich" data-to="trig" d="M1889 700 L1889 720 C1889 729 1921 728 1921 737 L1921 757" marker-end="url(#ah)"/>
+<path class="e w2 a-geo" data-from="pythagoras" data-to="trig" d="M1839 596 L1839 616 C1839 650 2030 643 2030 677 C2030 710 1943 704 1943 737 L1943 757" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="negativ" data-to="koord" d="M1053 388 L1053 408 C1053 417 1624 416 1624 425 L1624 445" marker-end="url(#ah)"/>
+<path class="e w2 a-geo" data-from="figuren" data-to="koord" d="M891 180 L891 200 C891 234 1215 227 1215 261 C1215 318 1442 308 1442 365 C1442 398 1646 392 1646 425 L1646 445" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="koord" data-to="zuordnung" d="M1624 492 L1624 512 C1624 546 1525 539 1525 573 C1525 606 1467 600 1467 633 L1467 653" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="proportional" data-to="zuordnung" d="M1198 596 L1198 616 C1198 625 1445 624 1445 633 L1445 653" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="zuordnung" data-to="linfun" d="M1445 700 L1445 720 C1445 729 1321 728 1321 737 L1321 757" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="lingl" data-to="linfun" d="M1259 700 L1259 720 C1259 729 1299 728 1299 737 L1299 757" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="linfun" data-to="quadfun" d="M1299 804 L1299 824 C1299 833 1034 832 1034 841 L1034 861" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="quadgl" data-to="quadfun" d="M1113 804 L1113 824 C1113 833 1012 832 1012 841 L1012 861" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="quadfun" data-to="potfun" d="M1023 908 L1023 928 C1023 937 760 936 760 945 L760 965" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="potenzen" data-to="potfun" d="M972 492 L972 512 C972 546 642 539 642 573 C642 630 657 620 657 677 C657 734 661 724 661 781 C661 838 696 828 696 885 C696 918 738 912 738 945 L738 965" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="potenzen" data-to="expfun" d="M991 492 L991 512 C991 546 708 539 708 573 C708 630 738 620 738 677 C738 710 770 704 770 737 L770 757" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="zuordnung" data-to="expfun" d="M1423 700 L1423 720 C1423 729 792 728 792 737 L792 757" marker-end="url(#ah)"/>
+<path class="e w1 a-fun" data-from="prozent" data-to="expfun" d="M559 700 L559 720 C559 729 748 728 748 737 L748 757" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="expfun" data-to="log" d="M781 804 L781 824 C781 833 805 832 805 841 L805 861" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="trig" data-to="trigfun" d="M1943 804 L1943 824 C1943 833 1746 832 1746 841 L1746 861" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="zuordnung" data-to="trigfun" d="M1489 700 L1489 720 C1489 754 2041 747 2041 781 C2041 814 1768 808 1768 841 L1768 861" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="kreis" data-to="trigfun" d="M2139 700 L2139 720 C2139 754 2073 747 2073 781 C2073 814 1790 808 1790 841 L1790 861" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="zuordnung" data-to="folgen" d="M1467 700 L1467 720 C1467 729 1671 728 1671 737 L1671 757" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="irrational" data-to="folgen" d="M1631 596 L1631 616 C1631 650 1565 643 1565 677 C1565 710 1693 704 1693 737 L1693 757" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="folgen" data-to="ableitung" d="M1682 804 L1682 824 C1682 858 1196 851 1196 885 C1196 942 922 932 922 989 C922 1022 690 1016 690 1049 L690 1069" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="linfun" data-to="ableitung" d="M1321 804 L1321 824 C1321 858 1164 851 1164 885 C1164 942 858 932 858 989 C858 1022 668 1016 668 1049 L668 1069" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="potfun" data-to="ableitung" d="M749 1012 L749 1032 C749 1041 646 1040 646 1049 L646 1069" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="ableitung" data-to="kurven" d="M679 1116 L679 1136 C679 1145 785 1144 785 1153 L785 1173" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="quadgl" data-to="kurven" d="M1135 804 L1135 824 C1135 858 1132 851 1132 885 C1132 942 890 932 890 989 C890 1046 791 1036 791 1093 C791 1126 807 1120 807 1153 L807 1173" marker-end="url(#ah)"/>
+<path class="e w3 a-fun" data-from="ableitung" data-to="integral" d="M657 1116 L657 1136 C657 1145 362 1144 362 1153 L362 1173" marker-end="url(#ah)"/>
+<path class="e w2 a-fun" data-from="flaeche" data-to="integral" d="M1416 492 L1416 512 C1416 546 1307 539 1307 573 C1307 630 1093 620 1093 677 C1093 734 1015 724 1015 781 C1015 838 914 828 914 885 C914 942 640 932 640 989 C640 1046 467 1036 467 1093 C467 1126 340 1120 340 1153 L340 1173" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="koord" data-to="vektoren" d="M1646 492 L1646 512 C1646 546 1969 539 1969 573 C1969 630 1998 620 1998 677 C1998 734 1791 724 1791 781 C1791 814 1427 808 1427 841 L1427 861" marker-end="url(#ah)"/>
+<path class="e w1 a-geo" data-from="lgs" data-to="vektoren" d="M1507 804 L1507 824 C1507 833 1405 832 1405 841 L1405 861" marker-end="url(#ah)"/>
+<path class="e w3 a-geo" data-from="vektoren" data-to="analytgeo" d="M1427 908 L1427 928 C1427 937 1465 936 1465 945 L1465 965" marker-end="url(#ah)"/>
+<path class="e w2 a-geo" data-from="pythagoras" data-to="analytgeo" d="M1817 596 L1817 616 C1817 650 1780 643 1780 677 C1780 734 1823 724 1823 781 C1823 838 1525 828 1525 885 C1525 918 1487 912 1487 945 L1487 965" marker-end="url(#ah)"/>
+<path class="e w1 a-geo" data-from="trig" data-to="analytgeo" d="M1921 804 L1921 824 C1921 858 1557 851 1557 885 C1557 918 1509 912 1509 945 L1509 965" marker-end="url(#ah)"/>
+<path class="e w3 a-alg" data-from="lgs" data-to="matrizen" d="M1485 804 L1485 824 C1485 858 1258 851 1258 885 C1258 918 1274 912 1274 945 L1274 965" marker-end="url(#ah)"/>
+<path class="e w2 a-alg" data-from="vektoren" data-to="matrizen" d="M1405 908 L1405 928 C1405 937 1296 936 1296 945 L1296 965" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="dezimal" data-to="daten" d="M289 596 L289 616 C289 625 125 624 125 633 L125 653" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="brueche" data-to="daten" d="M634 492 L634 512 C634 546 181 539 181 573 C181 606 103 600 103 633 L103 653" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="brueche" data-to="laplace" d="M678 492 L678 512 C678 546 409 539 409 573 C409 630 298 620 298 677 C298 710 288 704 288 737 L288 757" marker-end="url(#ah)"/>
+<path class="e w1 a-sto" data-from="prozent" data-to="laplace" d="M537 700 L537 720 C537 729 310 728 310 737 L310 757" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="grundrechen" data-to="kombinatorik" d="M675 284 L675 304 C675 338 406 331 406 365 C406 422 448 412 448 469 C448 502 507 496 507 529 L507 549" marker-end="url(#ah)"/>
+<path class="e w1 a-sto" data-from="potenzen" data-to="kombinatorik" d="M954 492 L954 512 C954 521 529 520 529 529 L529 549" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="laplace" data-to="mehrstufig" d="M299 804 L299 824 C299 833 292 832 292 841 L292 861" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="mehrstufig" data-to="bedingt" d="M292 908 L292 928 C292 937 313 936 313 945 L313 965" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="mehrstufig" data-to="binomial" d="M314 908 L314 928 C314 937 477 936 477 945 L477 965" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="kombinatorik" data-to="binomial" d="M518 596 L518 616 C518 650 439 643 439 677 C439 734 449 724 449 781 C449 838 460 828 460 885 C460 918 499 912 499 945 L499 965" marker-end="url(#ah)"/>
+<path class="e w1 a-sto" data-from="binom" data-to="binomial" d="M836 700 L836 720 C836 754 551 747 551 781 C551 838 512 828 512 885 C512 918 521 912 521 945 L521 965" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="mehrstufig" data-to="erwartung" d="M270 908 L270 928 C270 937 138 936 138 945 L138 965" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="daten" data-to="erwartung" d="M114 700 L114 720 C114 754 91 747 91 781 C91 838 96 828 96 885 C96 918 116 912 116 945 L116 965" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="binomial" data-to="normal" d="M510 1012 L510 1032 C510 1066 317 1059 317 1093 C317 1150 210 1140 210 1197 C210 1230 188 1224 188 1257 L188 1277" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="erwartung" data-to="normal" d="M116 1012 L116 1032 C116 1066 99 1059 99 1093 C99 1150 135 1140 135 1197 C135 1230 166 1224 166 1257 L166 1277" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="integral" data-to="normal" d="M351 1220 L351 1240 C351 1249 232 1248 232 1257 L232 1277" marker-end="url(#ah)"/>
+<path class="e w1 a-sto" data-from="expfun" data-to="normal" d="M759 804 L759 824 C759 858 624 851 624 885 C624 942 608 932 608 989 C608 1046 349 1036 349 1093 C349 1150 242 1140 242 1197 C242 1230 210 1224 210 1257 L210 1277" marker-end="url(#ah)"/>
+<path class="e w3 a-sto" data-from="binomial" data-to="test" d="M488 1012 L488 1032 C488 1041 219 1040 219 1049 L219 1069" marker-end="url(#ah)"/>
+<path class="e w2 a-sto" data-from="erwartung" data-to="test" d="M138 1012 L138 1032 C138 1041 197 1040 197 1049 L197 1069" marker-end="url(#ah)"/>
+</g><g id="nodes">
+<g class="n a-alg r-urzeit" data-id="zaehlen" tabindex="0" role="button" aria-label="Natürliche Zahlen, Zählen" transform="translate(470 30)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Natürliche Zahlen</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Zählen</text></g>
+<g class="n a-alg r-indchina" data-id="stellenwert" tabindex="0" role="button" aria-label="Dezimales Stellenwertsystem" transform="translate(333 134)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Dezimales Stellenwertsystem</text></g>
+<g class="n a-alg r-islam" data-id="grundrechen" tabindex="0" role="button" aria-label="Grundrechenarten, schriftliche Verfahren" transform="translate(646 238)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Grundrechenarten</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">schriftliche Verfahren</text></g>
+<g class="n a-alg r-griech" data-id="teilbarkeit" tabindex="0" role="button" aria-label="Teilbarkeit, Primzahlen, ggT" transform="translate(523 342)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Teilbarkeit</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Primzahlen, ggT</text></g>
+<g class="n a-alg r-orient" data-id="brueche" tabindex="0" role="button" aria-label="Bruchrechnung" transform="translate(605 446)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Bruchrechnung</text></g>
+<g class="n a-alg r-islam" data-id="dezimal" tabindex="0" role="button" aria-label="Dezimalbrüche" transform="translate(216 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Dezimalbrüche</text></g>
+<g class="n a-alg r-indchina" data-id="negativ" tabindex="0" role="button" aria-label="Negative und rationale Zahlen" transform="translate(947 342)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Negative und</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">rationale Zahlen</text></g>
+<g class="n a-alg r-orient" data-id="groessen" tabindex="0" role="button" aria-label="Größen, Einheiten, Messen" transform="translate(1133 342)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Größen</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Einheiten, Messen</text></g>
+<g class="n a-alg r-orient" data-id="proportional" tabindex="0" role="button" aria-label="Proportionalität, Dreisatz" transform="translate(1114 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Proportionalität</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Dreisatz</text></g>
+<g class="n a-alg r-euro1" data-id="prozent" tabindex="0" role="button" aria-label="Prozent- und Zinsrechnung" transform="translate(464 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Prozent- und</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Zinsrechnung</text></g>
+<g class="n a-alg r-orient" data-id="potenzen" tabindex="0" role="button" aria-label="Potenzen und Wurzeln" transform="translate(934 446)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Potenzen und Wurzeln</text></g>
+<g class="n a-alg r-islam" data-id="terme" tabindex="0" role="button" aria-label="Variable, Terme, Termumformung" transform="translate(881 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Variable</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Terme, Termumformung</text></g>
+<g class="n a-alg r-griech" data-id="binom" tabindex="0" role="button" aria-label="Binomische Formeln" transform="translate(763 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Binomische Formeln</text></g>
+<g class="n a-alg r-islam" data-id="lingl" tabindex="0" role="button" aria-label="Lineare Gleichungen" transform="translate(1186 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Lineare Gleichungen</text></g>
+<g class="n a-alg r-indchina" data-id="lgs" tabindex="0" role="button" aria-label="Lineare Gleichungssysteme" transform="translate(1412 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Lineare Gleichungssysteme</text></g>
+<g class="n a-alg r-islam" data-id="quadgl" tabindex="0" role="button" aria-label="Quadratische Gleichungen" transform="translate(1040 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Quadratische Gleichungen</text></g>
+<g class="n a-alg r-griech" data-id="irrational" tabindex="0" role="button" aria-label="Reelle Zahlen, Irrationalität" transform="translate(1558 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Reelle Zahlen</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Irrationalität</text></g>
+<g class="n a-geo r-griech" data-id="figuren" tabindex="0" role="button" aria-label="Ebene Figuren, Winkel, Symmetrie" transform="translate(796 134)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Ebene Figuren</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Winkel, Symmetrie</text></g>
+<g class="n a-geo r-griech" data-id="kongruenz" tabindex="0" role="button" aria-label="Kongruenz, Konstruktion" transform="translate(460 238)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Kongruenz</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Konstruktion</text></g>
+<g class="n a-geo r-griech" data-id="winkel" tabindex="0" role="button" aria-label="Winkelsätze, Winkelsumme" transform="translate(1240 238)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Winkelsätze</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Winkelsumme</text></g>
+<g class="n a-geo r-orient" data-id="flaeche" tabindex="0" role="button" aria-label="Flächeninhalt, Umfang" transform="translate(1365 446)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Flächeninhalt</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Umfang</text></g>
+<g class="n a-geo r-griech" data-id="kreis" tabindex="0" role="button" aria-label="Kreis und π" transform="translate(2055 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Kreis und π</text></g>
+<g class="n a-geo r-griech" data-id="koerper" tabindex="0" role="button" aria-label="Körper, Volumen, Oberfläche" transform="translate(1332 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Körper</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Volumen, Oberfläche</text></g>
+<g class="n a-geo r-griech" data-id="aehnlich" tabindex="0" role="button" aria-label="Ähnlichkeit, Strahlensätze" transform="translate(1805 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Ähnlichkeit</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Strahlensätze</text></g>
+<g class="n a-geo r-griech" data-id="pythagoras" tabindex="0" role="button" aria-label="Satz des Pythagoras" transform="translate(1744 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Satz des Pythagoras</text></g>
+<g class="n a-geo r-islam" data-id="trig" tabindex="0" role="button" aria-label="Trigonometrie am Dreieck" transform="translate(1848 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Trigonometrie am Dreieck</text></g>
+<g class="n a-geo r-euro1" data-id="koord" tabindex="0" role="button" aria-label="Koordinatensystem" transform="translate(1551 446)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Koordinatensystem</text></g>
+<g class="n a-fun r-euro2" data-id="zuordnung" tabindex="0" role="button" aria-label="Zuordnungen, Funktionsbegriff" transform="translate(1372 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Zuordnungen</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Funktionsbegriff</text></g>
+<g class="n a-fun r-euro1" data-id="linfun" tabindex="0" role="button" aria-label="Lineare Funktionen" transform="translate(1226 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Lineare Funktionen</text></g>
+<g class="n a-fun r-euro1" data-id="quadfun" tabindex="0" role="button" aria-label="Quadratische Funktionen, Parabel" transform="translate(939 862)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Quadratische Funktionen</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Parabel</text></g>
+<g class="n a-fun r-euro1" data-id="potfun" tabindex="0" role="button" aria-label="Potenz- und Wurzelfunktionen" transform="translate(665 966)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Potenz- und</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Wurzelfunktionen</text></g>
+<g class="n a-fun r-euro2" data-id="expfun" tabindex="0" role="button" aria-label="Exponentialfunktion, Wachstum" transform="translate(686 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Exponentialfunktion</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Wachstum</text></g>
+<g class="n a-fun r-euro1" data-id="log" tabindex="0" role="button" aria-label="Logarithmen" transform="translate(721 862)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Logarithmen</text></g>
+<g class="n a-fun r-euro2" data-id="trigfun" tabindex="0" role="button" aria-label="Trigonometrische Funktionen" transform="translate(1684 862)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Trigonometrische Funktionen</text></g>
+<g class="n a-fun r-euro2" data-id="folgen" tabindex="0" role="button" aria-label="Folgen, Grenzwert" transform="translate(1598 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Folgen</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Grenzwert</text></g>
+<g class="n a-fun r-euro1" data-id="ableitung" tabindex="0" role="button" aria-label="Differentialrechnung" transform="translate(584 1070)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Differentialrechnung</text></g>
+<g class="n a-fun r-euro1" data-id="kurven" tabindex="0" role="button" aria-label="Extremwerte, Kurvendiskussion" transform="translate(712 1174)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Extremwerte</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Kurvendiskussion</text></g>
+<g class="n a-fun r-euro1" data-id="integral" tabindex="0" role="button" aria-label="Integralrechnung" transform="translate(267 1174)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Integralrechnung</text></g>
+<g class="n a-geo r-euro2" data-id="vektoren" tabindex="0" role="button" aria-label="Vektoren" transform="translate(1332 862)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Vektoren</text></g>
+<g class="n a-geo r-euro2" data-id="analytgeo" tabindex="0" role="button" aria-label="Analytische Geometrie im Raum" transform="translate(1403 966)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Analytische Geometrie im Raum</text></g>
+<g class="n a-alg r-euro2" data-id="matrizen" tabindex="0" role="button" aria-label="Matrizen" transform="translate(1201 966)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Matrizen</text></g>
+<g class="n a-sto r-euro2" data-id="daten" tabindex="0" role="button" aria-label="Daten, Diagramme, Mittelwerte" transform="translate(30 654)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Daten</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Diagramme, Mittelwerte</text></g>
+<g class="n a-sto r-euro1" data-id="laplace" tabindex="0" role="button" aria-label="Wahrscheinlichkeit, Laplace-Regel" transform="translate(215 758)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Wahrscheinlichkeit</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Laplace-Regel</text></g>
+<g class="n a-sto r-indchina" data-id="kombinatorik" tabindex="0" role="button" aria-label="Kombinatorik, Zählprinzip" transform="translate(434 550)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Kombinatorik</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Zählprinzip</text></g>
+<g class="n a-sto r-euro1" data-id="mehrstufig" tabindex="0" role="button" aria-label="Mehrstufige Zufallsexperimente" transform="translate(208 862)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Mehrstufige Zufallsexperimente</text></g>
+<g class="n a-sto r-euro2" data-id="bedingt" tabindex="0" role="button" aria-label="Bedingte Wahrscheinlichkeit, Bayes" transform="translate(229 966)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Bedingte Wahrscheinlichkeit</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Bayes</text></g>
+<g class="n a-sto r-euro2" data-id="binomial" tabindex="0" role="button" aria-label="Binomialverteilung" transform="translate(415 966)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Binomialverteilung</text></g>
+<g class="n a-sto r-euro2" data-id="erwartung" tabindex="0" role="button" aria-label="Zufallsgröße, Erwartungswert, Streuung" transform="translate(43 966)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Zufallsgröße</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Erwartungswert, Streuung</text></g>
+<g class="n a-sto r-euro2" data-id="normal" tabindex="0" role="button" aria-label="Normalverteilung" transform="translate(115 1278)"><rect width="168" height="46" rx="6"/><text x="84.0" y="23.0" text-anchor="middle" dominant-baseline="central">Normalverteilung</text></g>
+<g class="n a-sto r-euro3" data-id="test" tabindex="0" role="button" aria-label="Hypothesentest, Konfidenzintervall" transform="translate(124 1070)"><rect width="168" height="46" rx="6"/><text x="84.0" y="16.0" text-anchor="middle" dominant-baseline="central">Hypothesentest</text><text class="l2" x="84.0" y="31.0" text-anchor="middle" dominant-baseline="central">Konfidenzintervall</text></g>
+</g><g id="rows"><text x="14" y="53.0" text-anchor="middle" dominant-baseline="central">0</text><text x="14" y="157.0" text-anchor="middle" dominant-baseline="central">1</text><text x="14" y="261.0" text-anchor="middle" dominant-baseline="central">2</text><text x="14" y="365.0" text-anchor="middle" dominant-baseline="central">3</text><text x="14" y="469.0" text-anchor="middle" dominant-baseline="central">4</text><text x="14" y="573.0" text-anchor="middle" dominant-baseline="central">5</text><text x="14" y="677.0" text-anchor="middle" dominant-baseline="central">6</text><text x="14" y="781.0" text-anchor="middle" dominant-baseline="central">7</text><text x="14" y="885.0" text-anchor="middle" dominant-baseline="central">8</text><text x="14" y="989.0" text-anchor="middle" dominant-baseline="central">9</text><text x="14" y="1093.0" text-anchor="middle" dominant-baseline="central">10</text><text x="14" y="1197.0" text-anchor="middle" dominant-baseline="central">11</text><text x="14" y="1301.0" text-anchor="middle" dominant-baseline="central">12</text></g></svg>
+    </div>
+
+    <aside class="wz-karte ak-feld" id="feld" aria-live="polite">
+      <p class="wz-hinweis" style="margin:0">Kein Thema gewählt. Klicken Sie in der Karte auf ein Thema oder unten auf ein Hebelthema.</p>
+    </aside>
+  </div>
+
+  <div class="ak-listen">
+    <div class="wz-karte">
+      <h2>Hebelthemen</h2>
+      <p class="unter">Wie viele der 49 Themen – direkt oder über Zwischenstufen – auf diesem Thema ruhen.</p>
+      <ol class="h"><li><button class="hb" data-id="zaehlen"><span class="hl">Natürliche Zahlen, Zählen</span><span class="hbar"><i class="a-alg" style="width:100%"></i></span><span class="hn">49</span></button></li><li><button class="hb" data-id="stellenwert"><span class="hl">Dezimales Stellenwertsystem</span><span class="hbar"><i class="a-alg" style="width:92%"></i></span><span class="hn">45</span></button></li><li><button class="hb" data-id="grundrechen"><span class="hl">Grundrechenarten, schriftliche Verfahren</span><span class="hbar"><i class="a-alg" style="width:90%"></i></span><span class="hn">44</span></button></li><li><button class="hb" data-id="teilbarkeit"><span class="hl">Teilbarkeit, Primzahlen, ggT</span><span class="hbar"><i class="a-alg" style="width:71%"></i></span><span class="hn">35</span></button></li><li><button class="hb" data-id="brueche"><span class="hl">Bruchrechnung</span><span class="hbar"><i class="a-alg" style="width:69%"></i></span><span class="hn">34</span></button></li><li><button class="hb" data-id="negativ"><span class="hl">Negative und rationale Zahlen</span><span class="hbar"><i class="a-alg" style="width:61%"></i></span><span class="hn">30</span></button></li><li><button class="hb" data-id="groessen"><span class="hl">Größen, Einheiten, Messen</span><span class="hbar"><i class="a-alg" style="width:55%"></i></span><span class="hn">27</span></button></li><li><button class="hb" data-id="potenzen"><span class="hl">Potenzen und Wurzeln</span><span class="hbar"><i class="a-alg" style="width:55%"></i></span><span class="hn">27</span></button></li><li><button class="hb" data-id="figuren"><span class="hl">Ebene Figuren, Winkel, Symmetrie</span><span class="hbar"><i class="a-geo" style="width:49%"></i></span><span class="hn">24</span></button></li><li><button class="hb" data-id="proportional"><span class="hl">Proportionalität, Dreisatz</span><span class="hbar"><i class="a-alg" style="width:45%"></i></span><span class="hn">22</span></button></li><li><button class="hb" data-id="terme"><span class="hl">Variable, Terme, Termumformung</span><span class="hbar"><i class="a-alg" style="width:33%"></i></span><span class="hn">16</span></button></li><li><button class="hb" data-id="koord"><span class="hl">Koordinatensystem</span><span class="hbar"><i class="a-geo" style="width:31%"></i></span><span class="hn">15</span></button></li></ol>
+    </div>
+    <div class="wz-karte">
+      <h2>Endstationen und Nebenäste</h2>
+      <p class="unter">Themen, auf denen höchstens drei weitere ruhen. Hier kann ein Loch nichts nach sich ziehen – und hier hat ein Lehrplan Spielraum.</p>
+      <ol class="h"><li><button class="hb" data-id="kongruenz"><span class="hl">Kongruenz, Konstruktion</span><span class="hbar"><i class="a-geo" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="koerper"><span class="hl">Körper, Volumen, Oberfläche</span><span class="hbar"><i class="a-geo" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="log"><span class="hl">Logarithmen</span><span class="hbar"><i class="a-fun" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="trigfun"><span class="hl">Trigonometrische Funktionen</span><span class="hbar"><i class="a-fun" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="analytgeo"><span class="hl">Analytische Geometrie im Raum</span><span class="hbar"><i class="a-geo" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="matrizen"><span class="hl">Matrizen</span><span class="hbar"><i class="a-alg" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="bedingt"><span class="hl">Bedingte Wahrscheinlichkeit, Bayes</span><span class="hbar"><i class="a-sto" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="test"><span class="hl">Hypothesentest, Konfidenzintervall</span><span class="hbar"><i class="a-sto" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="kurven"><span class="hl">Extremwerte, Kurvendiskussion</span><span class="hbar"><i class="a-fun" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="normal"><span class="hl">Normalverteilung</span><span class="hbar"><i class="a-sto" style="width:0%"></i></span><span class="hn">0</span></button></li><li><button class="hb" data-id="kreis"><span class="hl">Kreis und π</span><span class="hbar"><i class="a-geo" style="width:2%"></i></span><span class="hn">1</span></button></li><li><button class="hb" data-id="integral"><span class="hl">Integralrechnung</span><span class="hbar"><i class="a-fun" style="width:2%"></i></span><span class="hn">1</span></button></li><li><button class="hb" data-id="trig"><span class="hl">Trigonometrie am Dreieck</span><span class="hbar"><i class="a-geo" style="width:4%"></i></span><span class="hn">2</span></button></li><li><button class="hb" data-id="expfun"><span class="hl">Exponentialfunktion, Wachstum</span><span class="hbar"><i class="a-fun" style="width:4%"></i></span><span class="hn">2</span></button></li><li><button class="hb" data-id="vektoren"><span class="hl">Vektoren</span><span class="hbar"><i class="a-geo" style="width:4%"></i></span><span class="hn">2</span></button></li><li><button class="hb" data-id="binomial"><span class="hl">Binomialverteilung</span><span class="hbar"><i class="a-sto" style="width:4%"></i></span><span class="hn">2</span></button></li><li><button class="hb" data-id="erwartung"><span class="hl">Zufallsgröße, Erwartungswert, Streuung</span><span class="hbar"><i class="a-sto" style="width:4%"></i></span><span class="hn">2</span></button></li><li><button class="hb" data-id="pythagoras"><span class="hl">Satz des Pythagoras</span><span class="hbar"><i class="a-geo" style="width:6%"></i></span><span class="hn">3</span></button></li><li><button class="hb" data-id="kombinatorik"><span class="hl">Kombinatorik, Zählprinzip</span><span class="hbar"><i class="a-sto" style="width:6%"></i></span><span class="hn">3</span></button></li><li><button class="hb" data-id="aehnlich"><span class="hl">Ähnlichkeit, Strahlensätze</span><span class="hbar"><i class="a-geo" style="width:6%"></i></span><span class="hn">3</span></button></li><li><button class="hb" data-id="daten"><span class="hl">Daten, Diagramme, Mittelwerte</span><span class="hbar"><i class="a-sto" style="width:6%"></i></span><span class="hn">3</span></button></li><li><button class="hb" data-id="lgs"><span class="hl">Lineare Gleichungssysteme</span><span class="hbar"><i class="a-alg" style="width:6%"></i></span><span class="hn">3</span></button></li><li><button class="hb" data-id="ableitung"><span class="hl">Differentialrechnung</span><span class="hbar"><i class="a-fun" style="width:6%"></i></span><span class="hn">3</span></button></li></ol>
+    </div>
+    <div class="wz-karte">
+      <h2>Die längsten Ketten</h2>
+      <p class="unter">Jede Stufe ist eine Stelle, an der ein Verständnisloch die ganze Kette abreißen lässt. Anklicken hebt die Kette hervor.</p>
+      <ol class="c"><li><button class="cb" data-chain="zaehlen,stellenwert,grundrechen,teilbarkeit,brueche,proportional,zuordnung,linfun,quadfun,potfun,ableitung,integral,normal"><b>Normalverteilung</b> <span class="cn">12 Stufen</span><span class="cpath">Natürliche Zahlen → Dezimales Stellenwertsystem → Grundrechenarten → Teilbarkeit → Bruchrechnung → Proportionalität → Zuordnungen → Lineare Funktionen → Quadratische Funktionen → Potenz- und Wurzelfunktionen → Differentialrechnung → Integralrechnung → Normalverteilung</span></button></li><li><button class="cb" data-chain="zaehlen,stellenwert,grundrechen,teilbarkeit,brueche,proportional,zuordnung,linfun,quadfun,potfun,ableitung,integral"><b>Integralrechnung</b> <span class="cn">11 Stufen</span><span class="cpath">Natürliche Zahlen → Dezimales Stellenwertsystem → Grundrechenarten → Teilbarkeit → Bruchrechnung → Proportionalität → Zuordnungen → Lineare Funktionen → Quadratische Funktionen → Potenz- und Wurzelfunktionen → Differentialrechnung → Integralrechnung</span></button></li><li><button class="cb" data-chain="zaehlen,stellenwert,grundrechen,teilbarkeit,brueche,proportional,prozent,laplace,mehrstufig,binomial,test"><b>Hypothesentest</b> <span class="cn">10 Stufen</span><span class="cpath">Natürliche Zahlen → Dezimales Stellenwertsystem → Grundrechenarten → Teilbarkeit → Bruchrechnung → Proportionalität → Prozent- und Zinsrechnung → Wahrscheinlichkeit → Mehrstufige Zufallsexperimente → Binomialverteilung → Hypothesentest</span></button></li><li><button class="cb" data-chain="zaehlen,stellenwert,grundrechen,teilbarkeit,brueche,terme,lingl,lgs,vektoren,analytgeo"><b>Analytische Geometrie</b> <span class="cn">9 Stufen</span><span class="cpath">Natürliche Zahlen → Dezimales Stellenwertsystem → Grundrechenarten → Teilbarkeit → Bruchrechnung → Variable → Lineare Gleichungen → Lineare Gleichungssysteme → Vektoren → Analytische Geometrie im Raum</span></button></li></ol>
+    </div>
+  </div>
+
+  <div class="wz-karte wz-abstand">
+    <h2>Wozu die Karte taugt – und wozu nicht</h2>
+    <p style="font-size:.9rem;color:var(--text-leise);margin:.5rem 0 0">
+      Sie bildet <b>logische Abhängigkeit</b> ab, nicht kognitive Reife: Dass Grenzwerte auf Stufe 7 stehen, heißt nicht,
+      dass Zwölfjährige sie verstehen. Und die Pfeile sind Setzungen, keine Messwerte – ob die Binomialverteilung die
+      binomischen Formeln braucht, lässt sich anders sehen. Wer die Karte in einer Fachkonferenz oder im Seminar einsetzt,
+      stellt genau diese Pfeile zur Diskussion, statt sie als gegeben zu lesen.
+    </p>
+  </div>
+</main>
+
+<script>
+const DATA={"zaehlen": {"l": "Natürliche Zahlen, Zählen", "a": "alg", "o": "Vorgeschichte, ab ca. 20000 v. Chr.", "r": "urzeit", "p": [], "d": 0, "reach": 49, "anc": 0, "w": {}, "wo": {"stellenwert": 3, "figuren": 1}}, "stellenwert": {"l": "Dezimales Stellenwertsystem", "a": "alg", "o": "Indien, 5.–7. Jh.", "r": "indchina", "p": ["zaehlen"], "d": 1, "reach": 45, "anc": 1, "w": {"zaehlen": 3}, "wo": {"grundrechen": 3, "dezimal": 3}}, "grundrechen": {"l": "Grundrechenarten, schriftliche Verfahren", "a": "alg", "o": "Indien → islamische Welt → Rechenmeister, 9.–16. Jh.", "r": "islam", "p": ["stellenwert"], "d": 2, "reach": 44, "anc": 2, "w": {"stellenwert": 3}, "wo": {"teilbarkeit": 3, "brueche": 3, "negativ": 3, "groessen": 2, "potenzen": 3, "kombinatorik": 2}}, "teilbarkeit": {"l": "Teilbarkeit, Primzahlen, ggT", "a": "alg", "o": "Griechenland, 4.–3. Jh. v. Chr. (Euklid)", "r": "griech", "p": ["grundrechen"], "d": 3, "reach": 35, "anc": 3, "w": {"grundrechen": 3}, "wo": {"brueche": 2}}, "brueche": {"l": "Bruchrechnung", "a": "alg", "o": "Ägypten (Stammbrüche) → Indien, 2. Jt. v. Chr.–7. Jh.", "r": "orient", "p": ["grundrechen", "teilbarkeit"], "d": 4, "reach": 34, "anc": 4, "w": {"grundrechen": 3, "teilbarkeit": 2}, "wo": {"dezimal": 3, "proportional": 3, "terme": 2, "irrational": 2, "daten": 2, "laplace": 3}}, "dezimal": {"l": "Dezimalbrüche", "a": "alg", "o": "Islamische Welt (al-Uqlidisi 952, al-Kashi) → Stevin 1585", "r": "islam", "p": ["brueche", "stellenwert"], "d": 5, "reach": 11, "anc": 5, "w": {"brueche": 3, "stellenwert": 3}, "wo": {"prozent": 2, "daten": 2}}, "negativ": {"l": "Negative und rationale Zahlen", "a": "alg", "o": "China (Han-Zeit) und Indien (Brahmagupta 628)", "r": "indchina", "p": ["grundrechen"], "d": 3, "reach": 30, "anc": 3, "w": {"grundrechen": 3}, "wo": {"potenzen": 1, "terme": 3, "koord": 3}}, "groessen": {"l": "Größen, Einheiten, Messen", "a": "alg", "o": "Babylon und Ägypten, 2. Jt. v. Chr.", "r": "orient", "p": ["grundrechen"], "d": 3, "reach": 27, "anc": 3, "w": {"grundrechen": 2}, "wo": {"proportional": 2, "flaeche": 3}}, "proportional": {"l": "Proportionalität, Dreisatz", "a": "alg", "o": "Ägypten, China; Eudoxos (Proportionenlehre)", "r": "orient", "p": ["brueche", "groessen"], "d": 5, "reach": 22, "anc": 6, "w": {"brueche": 3, "groessen": 2}, "wo": {"prozent": 3, "aehnlich": 3, "zuordnung": 3}}, "prozent": {"l": "Prozent- und Zinsrechnung", "a": "alg", "o": "Babylon (Zins) → italienische Kaufleute, 14.–16. Jh.", "r": "euro1", "p": ["proportional", "dezimal"], "d": 6, "reach": 9, "anc": 8, "w": {"proportional": 3, "dezimal": 2}, "wo": {"expfun": 1, "laplace": 1}}, "potenzen": {"l": "Potenzen und Wurzeln", "a": "alg", "o": "Babylon (√2), Heron; Schreibweise Descartes 1637", "r": "orient", "p": ["grundrechen", "negativ"], "d": 4, "reach": 27, "anc": 4, "w": {"grundrechen": 3, "negativ": 1}, "wo": {"terme": 2, "quadgl": 3, "irrational": 3, "koerper": 2, "pythagoras": 3, "potfun": 3, "expfun": 3, "kombinatorik": 1}}, "terme": {"l": "Variable, Terme, Termumformung", "a": "alg", "o": "al-Chwarizmi 820 → Viète 1591", "r": "islam", "p": ["negativ", "brueche", "potenzen"], "d": 5, "reach": 16, "anc": 7, "w": {"negativ": 3, "brueche": 2, "potenzen": 2}, "wo": {"binom": 3, "lingl": 3}}, "binom": {"l": "Binomische Formeln", "a": "alg", "o": "Euklid (Buch II, geometrisch) → al-Karaji", "r": "griech", "p": ["terme"], "d": 6, "reach": 9, "anc": 8, "w": {"terme": 3}, "wo": {"quadgl": 3, "binomial": 1}}, "lingl": {"l": "Lineare Gleichungen", "a": "alg", "o": "Ägypten (falscher Ansatz) → al-Chwarizmi", "r": "islam", "p": ["terme"], "d": 6, "reach": 11, "anc": 8, "w": {"terme": 3}, "wo": {"lgs": 3, "linfun": 2}}, "lgs": {"l": "Lineare Gleichungssysteme", "a": "alg", "o": "China (Neun Kapitel, Han-Zeit); Gauß", "r": "indchina", "p": ["lingl"], "d": 7, "reach": 3, "anc": 9, "w": {"lingl": 3}, "wo": {"vektoren": 1, "matrizen": 3}}, "quadgl": {"l": "Quadratische Gleichungen", "a": "alg", "o": "Babylon → al-Chwarizmi 820 (quadratische Ergänzung)", "r": "islam", "p": ["binom", "potenzen"], "d": 7, "reach": 6, "anc": 9, "w": {"binom": 3, "potenzen": 3}, "wo": {"quadfun": 3, "kurven": 2}}, "irrational": {"l": "Reelle Zahlen, Irrationalität", "a": "alg", "o": "Pythagoreer, 5. Jh. v. Chr. → Dedekind 1872", "r": "griech", "p": ["potenzen", "brueche"], "d": 5, "reach": 7, "anc": 7, "w": {"potenzen": 3, "brueche": 2}, "wo": {"kreis": 1, "folgen": 2}}, "figuren": {"l": "Ebene Figuren, Winkel, Symmetrie", "a": "geo", "o": "Babylon (360°), Griechenland", "r": "griech", "p": ["zaehlen"], "d": 1, "reach": 24, "anc": 1, "w": {"zaehlen": 1}, "wo": {"kongruenz": 3, "winkel": 3, "flaeche": 3, "koord": 2}}, "kongruenz": {"l": "Kongruenz, Konstruktion", "a": "geo", "o": "Euklid, ca. 300 v. Chr.", "r": "griech", "p": ["figuren"], "d": 2, "reach": 0, "anc": 2, "w": {"figuren": 3}, "wo": {}}, "winkel": {"l": "Winkelsätze, Winkelsumme", "a": "geo", "o": "Griechenland, Thales bis Euklid", "r": "griech", "p": ["figuren"], "d": 2, "reach": 4, "anc": 2, "w": {"figuren": 3}, "wo": {"aehnlich": 2}}, "flaeche": {"l": "Flächeninhalt, Umfang", "a": "geo", "o": "Ägypten und Babylon, 2. Jt. v. Chr.", "r": "orient", "p": ["figuren", "groessen"], "d": 4, "reach": 8, "anc": 5, "w": {"figuren": 3, "groessen": 3}, "wo": {"kreis": 3, "koerper": 3, "pythagoras": 3, "integral": 2}}, "kreis": {"l": "Kreis und π", "a": "geo", "o": "Archimedes, 3. Jh. v. Chr.; Liu Hui, Zu Chongzhi", "r": "griech", "p": ["flaeche", "irrational"], "d": 6, "reach": 1, "anc": 11, "w": {"flaeche": 3, "irrational": 1}, "wo": {"trigfun": 2}}, "koerper": {"l": "Körper, Volumen, Oberfläche", "a": "geo", "o": "Ägypten (Pyramidenstumpf), Archimedes", "r": "griech", "p": ["flaeche", "potenzen"], "d": 5, "reach": 0, "anc": 8, "w": {"flaeche": 3, "potenzen": 2}, "wo": {}}, "aehnlich": {"l": "Ähnlichkeit, Strahlensätze", "a": "geo", "o": "Eudoxos/Euklid, 4. Jh. v. Chr.", "r": "griech", "p": ["proportional", "winkel"], "d": 6, "reach": 3, "anc": 9, "w": {"proportional": 3, "winkel": 2}, "wo": {"trig": 3}}, "pythagoras": {"l": "Satz des Pythagoras", "a": "geo", "o": "Babylon (Tripel) → Pythagoreer (Beweis) → Euklid", "r": "griech", "p": ["flaeche", "potenzen"], "d": 5, "reach": 3, "anc": 8, "w": {"flaeche": 3, "potenzen": 3}, "wo": {"trig": 2, "analytgeo": 2}}, "trig": {"l": "Trigonometrie am Dreieck", "a": "geo", "o": "Indien (Sinus, ~500) → islamische Welt, 10.–13. Jh.", "r": "islam", "p": ["aehnlich", "pythagoras"], "d": 7, "reach": 2, "anc": 14, "w": {"aehnlich": 3, "pythagoras": 2}, "wo": {"trigfun": 3, "analytgeo": 1}}, "koord": {"l": "Koordinatensystem", "a": "geo", "o": "Descartes und Fermat, 1637", "r": "euro1", "p": ["negativ", "figuren"], "d": 4, "reach": 15, "anc": 5, "w": {"negativ": 3, "figuren": 2}, "wo": {"zuordnung": 2, "vektoren": 3}}, "zuordnung": {"l": "Zuordnungen, Funktionsbegriff", "a": "fun", "o": "Euler 1748 → Dirichlet 1837", "r": "euro2", "p": ["koord", "proportional"], "d": 6, "reach": 11, "anc": 10, "w": {"koord": 2, "proportional": 3}, "wo": {"linfun": 3, "expfun": 3, "trigfun": 2, "folgen": 2}}, "linfun": {"l": "Lineare Funktionen", "a": "fun", "o": "Descartes 1637", "r": "euro1", "p": ["zuordnung", "lingl"], "d": 7, "reach": 6, "anc": 14, "w": {"zuordnung": 3, "lingl": 2}, "wo": {"quadfun": 2, "ableitung": 3}}, "quadfun": {"l": "Quadratische Funktionen, Parabel", "a": "fun", "o": "Apollonios (Kegelschnitt) → Descartes", "r": "euro1", "p": ["linfun", "quadgl"], "d": 8, "reach": 5, "anc": 17, "w": {"linfun": 2, "quadgl": 3}, "wo": {"potfun": 2}}, "potfun": {"l": "Potenz- und Wurzelfunktionen", "a": "fun", "o": "17. Jh. (Newton, Leibniz)", "r": "euro1", "p": ["quadfun", "potenzen"], "d": 9, "reach": 4, "anc": 18, "w": {"quadfun": 2, "potenzen": 3}, "wo": {"ableitung": 2}}, "expfun": {"l": "Exponentialfunktion, Wachstum", "a": "fun", "o": "Euler, 18. Jh.", "r": "euro2", "p": ["potenzen", "zuordnung", "prozent"], "d": 7, "reach": 2, "anc": 14, "w": {"potenzen": 3, "zuordnung": 3, "prozent": 1}, "wo": {"log": 3, "normal": 1}}, "log": {"l": "Logarithmen", "a": "fun", "o": "Napier und Bürgi, 1614–1620", "r": "euro1", "p": ["expfun"], "d": 8, "reach": 0, "anc": 15, "w": {"expfun": 3}, "wo": {}}, "trigfun": {"l": "Trigonometrische Funktionen", "a": "fun", "o": "Euler, 18. Jh. (Einheitskreis, Bogenmaß)", "r": "euro2", "p": ["trig", "zuordnung", "kreis"], "d": 8, "reach": 0, "anc": 19, "w": {"trig": 3, "zuordnung": 2, "kreis": 2}, "wo": {}}, "folgen": {"l": "Folgen, Grenzwert", "a": "fun", "o": "Cauchy 1821, Weierstraß", "r": "euro2", "p": ["zuordnung", "irrational"], "d": 7, "reach": 4, "anc": 13, "w": {"zuordnung": 2, "irrational": 2}, "wo": {"ableitung": 3}}, "ableitung": {"l": "Differentialrechnung", "a": "fun", "o": "Newton und Leibniz, 1665–1684", "r": "euro1", "p": ["folgen", "linfun", "potfun"], "d": 10, "reach": 3, "anc": 21, "w": {"folgen": 3, "linfun": 3, "potfun": 2}, "wo": {"kurven": 3, "integral": 3}}, "kurven": {"l": "Extremwerte, Kurvendiskussion", "a": "fun", "o": "Fermat, 17. Jh.", "r": "euro1", "p": ["ableitung", "quadgl"], "d": 11, "reach": 0, "anc": 22, "w": {"ableitung": 3, "quadgl": 2}, "wo": {}}, "integral": {"l": "Integralrechnung", "a": "fun", "o": "Archimedes (Exhaustion) → Newton/Leibniz", "r": "euro1", "p": ["ableitung", "flaeche"], "d": 11, "reach": 1, "anc": 23, "w": {"ableitung": 3, "flaeche": 2}, "wo": {"normal": 2}}, "vektoren": {"l": "Vektoren", "a": "geo", "o": "Grassmann 1844, Gibbs/Heaviside 1880er", "r": "euro2", "p": ["koord", "lgs"], "d": 8, "reach": 2, "anc": 12, "w": {"koord": 3, "lgs": 1}, "wo": {"analytgeo": 3, "matrizen": 2}}, "analytgeo": {"l": "Analytische Geometrie im Raum", "a": "geo", "o": "Descartes → 19. Jh.", "r": "euro2", "p": ["vektoren", "pythagoras", "trig"], "d": 9, "reach": 0, "anc": 20, "w": {"vektoren": 3, "pythagoras": 2, "trig": 1}, "wo": {}}, "matrizen": {"l": "Matrizen", "a": "alg", "o": "Cayley 1858", "r": "euro2", "p": ["lgs", "vektoren"], "d": 9, "reach": 0, "anc": 13, "w": {"lgs": 3, "vektoren": 2}, "wo": {}}, "daten": {"l": "Daten, Diagramme, Mittelwerte", "a": "sto", "o": "Playfair 1786, Quetelet 1830er", "r": "euro2", "p": ["dezimal", "brueche"], "d": 6, "reach": 3, "anc": 6, "w": {"dezimal": 2, "brueche": 2}, "wo": {"erwartung": 2}}, "laplace": {"l": "Wahrscheinlichkeit, Laplace-Regel", "a": "sto", "o": "Pascal/Fermat 1654 → Laplace 1812", "r": "euro1", "p": ["brueche", "prozent"], "d": 7, "reach": 6, "anc": 9, "w": {"brueche": 3, "prozent": 1}, "wo": {"mehrstufig": 3}}, "kombinatorik": {"l": "Kombinatorik, Zählprinzip", "a": "sto", "o": "Indien (Pingala) → Pascal", "r": "indchina", "p": ["grundrechen", "potenzen"], "d": 5, "reach": 3, "anc": 5, "w": {"grundrechen": 2, "potenzen": 1}, "wo": {"binomial": 3}}, "mehrstufig": {"l": "Mehrstufige Zufallsexperimente", "a": "sto", "o": "Huygens 1657, Bernoulli", "r": "euro1", "p": ["laplace"], "d": 8, "reach": 5, "anc": 10, "w": {"laplace": 3}, "wo": {"bedingt": 3, "binomial": 3, "erwartung": 3}}, "bedingt": {"l": "Bedingte Wahrscheinlichkeit, Bayes", "a": "sto", "o": "Bayes 1763, Laplace", "r": "euro2", "p": ["mehrstufig"], "d": 9, "reach": 0, "anc": 11, "w": {"mehrstufig": 3}, "wo": {}}, "binomial": {"l": "Binomialverteilung", "a": "sto", "o": "Jakob Bernoulli 1713", "r": "euro2", "p": ["mehrstufig", "kombinatorik", "binom"], "d": 9, "reach": 2, "anc": 16, "w": {"mehrstufig": 3, "kombinatorik": 3, "binom": 1}, "wo": {"normal": 3, "test": 3}}, "erwartung": {"l": "Zufallsgröße, Erwartungswert, Streuung", "a": "sto", "o": "Huygens 1657; Pearson 1893", "r": "euro2", "p": ["mehrstufig", "daten"], "d": 9, "reach": 2, "anc": 12, "w": {"mehrstufig": 3, "daten": 2}, "wo": {"normal": 2, "test": 2}}, "normal": {"l": "Normalverteilung", "a": "sto", "o": "de Moivre 1733, Gauß 1809", "r": "euro2", "p": ["binomial", "erwartung", "integral", "expfun"], "d": 12, "reach": 0, "anc": 33, "w": {"binomial": 3, "erwartung": 2, "integral": 2, "expfun": 1}, "wo": {}}, "test": {"l": "Hypothesentest, Konfidenzintervall", "a": "sto", "o": "Fisher 1925, Neyman/Pearson 1933–37", "r": "euro3", "p": ["binomial", "erwartung"], "d": 10, "reach": 0, "anc": 19, "w": {"binomial": 3, "erwartung": 2}, "wo": {}}};
+const AREANAME={"alg": "Zahlen & Algebra", "geo": "Geometrie", "fun": "Funktionen & Analysis", "sto": "Daten & Zufall"}, REGNAME={"urzeit": "Vorgeschichte", "orient": "Babylon / Ägypten", "griech": "Griechenland", "indchina": "Indien / China", "islam": "Islamische Welt", "euro1": "Europa 13.–17. Jh.", "euro2": "Europa 18.–19. Jh.", "euro3": "20. Jahrhundert"};
+const AREAVAR={alg:'var(--akzent)',geo:'var(--teal)',fun:'var(--gold)',sto:'var(--violett)'};
+const STAERKE={3:'tragend',2:'notwendig',1:'unterstützend'};
+const svg=document.getElementById('dag'), feld=document.getElementById('feld'), rahmen=document.getElementById('rahmen');
+const succ={}; for(const id in DATA) succ[id]=[];
+for(const id in DATA) for(const p of DATA[id].p) succ[p].push(id);
+
+function huelle(id,next){ const s=new Set(),st=[id]; while(st.length){ const x=st.pop(); for(const y of next(x)) if(!s.has(y)){ s.add(y); st.push(y);} } return s; }
+let aktuell=null;
+function zuruecksetzen(){ svg.classList.remove('fokus'); svg.querySelectorAll('.ist-vor,.ist-nach,.ist-gewaehlt').forEach(e=>e.classList.remove('ist-vor','ist-nach','ist-gewaehlt')); }
+function leerText(){ feld.innerHTML='<p class="wz-hinweis" style="margin:0">Kein Thema gewählt. Klicken Sie in der Karte auf ein Thema oder unten auf ein Hebelthema.</p>'; }
+
+function waehle(id){
+  zuruecksetzen(); aktuell=id;
+  if(!id){ leerText(); return; }
+  svg.classList.add('fokus');
+  const V=huelle(id,x=>DATA[x].p), N=huelle(id,x=>succ[x]);
+  svg.querySelectorAll('.n').forEach(n=>{ const k=n.dataset.id;
+    if(k===id) n.classList.add('ist-gewaehlt'); else if(V.has(k)) n.classList.add('ist-vor'); else if(N.has(k)) n.classList.add('ist-nach'); });
+  svg.querySelectorAll('.e').forEach(e=>{ const f=e.dataset.from,t=e.dataset.to;
+    if((V.has(f)||f===id)&&(V.has(t)||t===id)) e.classList.add('ist-vor');
+    else if((N.has(f)||f===id)&&(N.has(t)||t===id)) e.classList.add('ist-nach'); });
+  const d=DATA[id];
+  const marken=(ids,wm)=>ids.length?ids.map(k=>'<button class="marke s'+(wm[k]||2)+'" data-id="'+k+'" title="'+STAERKE[wm[k]||2]+'">'+DATA[k].l+'</button>').join(''):'<span style="color:var(--text-schwach)">—</span>';
+  feld.innerHTML='<h2>'+d.l+'</h2><div class="bereich" style="--c:'+AREAVAR[d.a]+'">'+AREANAME[d.a]+' · Stufe '+d.d+'</div>'+
+    '<dl><dt>Ausgeformt</dt><dd>'+d.o+'<br><span style="color:var(--text-schwach)">'+REGNAME[d.r]+'</span></dd>'+
+    '<dt>Setzt voraus</dt><dd>'+marken(d.p,d.w)+'</dd>'+
+    '<dt>Grundlage für</dt><dd>'+marken(succ[id],d.wo)+'</dd></dl>'+
+    '<div class="ak-zahlen"><div class="ak-zahl vor"><b>'+V.size+'</b><span>Themen müssen vorher sitzen</span></div>'+
+    '<div class="ak-zahl nach"><b>'+N.size+'</b><span>Themen ruhen darauf</span></div></div>';
+  feld.querySelectorAll('.marke').forEach(m=>m.addEventListener('click',()=>waehle(m.dataset.id)));
+}
+
+function zeigeKette(ids){
+  zuruecksetzen(); aktuell=null; svg.classList.add('fokus');
+  const S=new Set(ids);
+  svg.querySelectorAll('.n').forEach(n=>{ if(S.has(n.dataset.id)) n.classList.add('ist-vor'); });
+  svg.querySelectorAll('.e').forEach(e=>{ const i=ids.indexOf(e.dataset.from); if(i>=0&&ids[i+1]===e.dataset.to) e.classList.add('ist-vor'); });
+  svg.querySelector('.n[data-id="'+ids[ids.length-1]+'"]').classList.add('ist-gewaehlt');
+  feld.innerHTML='<h2>Kette bis '+DATA[ids[ids.length-1]].l+'</h2><div class="bereich">'+(ids.length-1)+' Stufen, '+ids.length+' Themen</div>'+
+    '<dl>'+ids.map((k,i)=>'<dt>'+i+'</dt><dd><button class="marke s2" data-id="'+k+'">'+DATA[k].l+'</button></dd>').join('')+'</dl>';
+  feld.querySelectorAll('.marke').forEach(m=>m.addEventListener('click',()=>waehle(m.dataset.id)));
+}
+
+// --- Zoom und Verschieben über die viewBox
+const VB0=svg.getAttribute('viewBox').split(' ').map(Number);
+let vb=VB0.slice();
+function setzeVB(){ svg.setAttribute('viewBox',vb.join(' ')); }
+function zoom(f,cx,cy){
+  const r=svg.getBoundingClientRect(), sc=Math.max(vb[2]/r.width,vb[3]/r.height);
+  const ux=vb[0]+(cx-r.left-(r.width-vb[2]/sc)/2)*sc, uy=vb[1]+(cy-r.top-(r.height-vb[3]/sc)/2)*sc;
+  const nw=Math.min(Math.max(vb[2]/f,VB0[2]*0.12),VB0[2]*1.6), nh=nw*vb[3]/vb[2];
+  vb=[ux-(ux-vb[0])*nw/vb[2], uy-(uy-vb[1])*nh/vb[3], nw, nh]; setzeVB();
+}
+function mitte(){ const r=svg.getBoundingClientRect(); return [r.left+r.width/2,r.top+r.height/2]; }
+document.getElementById('zIn').addEventListener('click',()=>zoom(1.35,...mitte()));
+document.getElementById('zOut').addEventListener('click',()=>zoom(1/1.35,...mitte()));
+document.getElementById('zFit').addEventListener('click',()=>{ vb=VB0.slice(); setzeVB(); });
+rahmen.addEventListener('wheel',e=>{ e.preventDefault(); zoom(Math.exp(-e.deltaY*0.0018),e.clientX,e.clientY); },{passive:false});
+rahmen.addEventListener('dblclick',e=>{ if(e.target.closest('.n')) return; zoom(1.6,e.clientX,e.clientY); });
+let zieh=null, klickUnterdruecken=false;
+rahmen.addEventListener('pointerdown',e=>{ if(e.target.closest('.ak-zoom')) return; zieh={x:e.clientX,y:e.clientY,vb:vb.slice(),bewegt:false}; });
+window.addEventListener('pointermove',e=>{ if(!zieh) return;
+  const r=svg.getBoundingClientRect(), sc=Math.max(vb[2]/r.width,vb[3]/r.height);
+  if(Math.abs(e.clientX-zieh.x)+Math.abs(e.clientY-zieh.y)>4){ zieh.bewegt=true; rahmen.classList.add('zieht'); }
+  vb=[zieh.vb[0]-(e.clientX-zieh.x)*sc, zieh.vb[1]-(e.clientY-zieh.y)*sc, vb[2], vb[3]]; setzeVB(); });
+window.addEventListener('pointerup',()=>{ if(zieh&&zieh.bewegt){ klickUnterdruecken=true; setTimeout(()=>klickUnterdruecken=false,0);} zieh=null; rahmen.classList.remove('zieht'); });
+let kneif=null;
+rahmen.addEventListener('touchstart',e=>{ if(e.touches.length===2) kneif={d:Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}; },{passive:true});
+rahmen.addEventListener('touchmove',e=>{ if(kneif&&e.touches.length===2){ const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  zoom(d/kneif.d,(e.touches[0].clientX+e.touches[1].clientX)/2,(e.touches[0].clientY+e.touches[1].clientY)/2); kneif.d=d; } },{passive:true});
+rahmen.addEventListener('touchend',()=>{ kneif=null; });
+
+svg.querySelectorAll('.n').forEach(n=>{
+  n.addEventListener('click',()=>{ if(klickUnterdruecken) return; waehle(aktuell===n.dataset.id?null:n.dataset.id); });
+  n.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); waehle(n.dataset.id); } });
+});
+document.querySelectorAll('.hb').forEach(b=>b.addEventListener('click',()=>{ waehle(b.dataset.id); rahmen.scrollIntoView({behavior:'smooth',block:'start'}); }));
+document.querySelectorAll('.cb').forEach(b=>b.addEventListener('click',()=>{ zeigeKette(b.dataset.chain.split(',')); rahmen.scrollIntoView({behavior:'smooth',block:'start'}); }));
+const bA=document.getElementById('bA'), bR=document.getElementById('bR');
+function faerbung(nachUrsprung){ document.body.classList.toggle('nach-ursprung',nachUrsprung);
+  bA.setAttribute('aria-pressed',String(!nachUrsprung)); bR.setAttribute('aria-pressed',String(nachUrsprung)); }
+bA.addEventListener('click',()=>faerbung(false)); bR.addEventListener('click',()=>faerbung(true));
+document.addEventListener('keydown',e=>{ if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==='Escape') waehle(null);
+  else if(e.key==='+') zoom(1.35,...mitte());
+  else if(e.key==='-') zoom(1/1.35,...mitte()); });
+
+WZ.kopf({ titel: 'Abhängigkeitskarte der Schulmathematik', rolle: 'Vorbereitung' });
+WZ.fuss('Die Pfeile sind fachdidaktische Setzungen, keine Messwerte — die Karte ist zum Widersprechen gebaut.', '<kbd>+</kbd>/<kbd>−</kbd> Zoom · <kbd>Esc</kbd> Auswahl lösen · <kbd>B</kbd> Beamer · <kbd>F</kbd> Vollbild');
+</script>
+</body>
+</html>
