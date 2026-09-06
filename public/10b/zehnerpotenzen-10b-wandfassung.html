@@ -314,6 +314,27 @@
   .haken b{background:var(--green);color:#fff;border-radius:999px;
     padding:.12em .75em;font-size:clamp(12px,1.25vw,18px);
     transform:translate(-.5em,-.65em)}
+  /* IM DRUCK liegt diese Markierung nicht ueber der Karte.
+     Chrome druckt in der Voreinstellung OHNE Hintergrundgrafiken. Das
+     absolut gesetzte .haken bleibt dann zwar als Rahmen stehen, verschluckt
+     aber Buchstabe und Text darunter - im Protokoll der 5a vom 04.09.2026
+     fehlte dadurch bei JEDER Kartenfrage ausgerechnet die richtige Antwort.
+     Gegenversuch: dieselbe Datei, dieselbe Folie, nur printBackground
+     verschieden (Werkzeuge/protokoll_pruefen.mjs --ohne-hintergrund).
+     Im Druck wird die Markierung deshalb aus Linien gebaut, die auch ohne
+     Hintergrundgrafiken gedruckt werden: ein Umriss an der Karte selbst,
+     und das Schild „richtig" laeuft im Text mit. */
+  @media print{
+    /* Der Rahmen bleibt, wo er ist - aber UNTER dem Text (z-index 0 statt 2)
+       und ohne den Farbschleier, der ohne Hintergrundgrafiken ohnehin nicht
+       gedruckt wird. Das Schild „richtig" wird aus einem gefuellten Feld zu
+       einer Umrandung, damit es auch ohne Hintergrund lesbar bleibt. */
+    .opt .haken{z-index:0;background:none}
+    .opt .haken b{background:none;color:var(--green);
+      border:2px solid var(--green);white-space:nowrap}
+    .opt.istrichtig,.opt:has(.haken){outline:3px solid var(--green);
+      outline-offset:-3px}
+  }
   .aufloesung{margin-top:1.8vh;background:#f0fdf4;border:1px solid #86efac;
     border-left:7px solid var(--green);border-radius:14px;padding:1.3vh 1.2vw;
     font-size:clamp(15px,1.75vw,25px);line-height:1.38}
