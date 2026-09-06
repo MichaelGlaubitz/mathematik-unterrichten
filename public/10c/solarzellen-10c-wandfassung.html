@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wandfassung · Die Diode, rückwärts betrieben (10c)</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#4f46e5; --accent2:#0ea5e9; --gold:#d97706; --green:#15803d; --red:#dc2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:4.5vh 5vw 9vh;animation:fade .35s ease}
+  .slide.on{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1{font-size:clamp(34px,5.5vw,76px);line-height:1.04;font-weight:800;letter-spacing:-.01em}
+  h2{font-size:clamp(26px,3.6vw,48px);font-weight:800;line-height:1.08;margin-bottom:.5em}
+  .kicker{font-size:clamp(13px,1.4vw,18px);font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em}
+  p,li{font-size:clamp(17px,2vw,28px);line-height:1.5}
+  .muted{color:var(--muted)} .accent{color:var(--accent)} .gold{color:var(--gold)} .green{color:var(--green)} .red{color:var(--red)}
+  .big{font-size:clamp(40px,7vw,110px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:.25em .9em;font-size:clamp(13px,1.4vw,18px);font-weight:700}
+  .callout{background:#eef2ff;border:1px solid #c7d2fe;border-left:7px solid var(--accent);border-radius:14px;padding:.8em 1.1em;margin-top:.7em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:2.2vh 2vw;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:50}
+  .nav button{border:1px solid var(--line);background:#fff;color:var(--ink);width:46px;height:46px;border-radius:12px;font-size:20px;cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .dots{display:flex;gap:8px}.dot{width:11px;height:11px;border-radius:50%;background:#cbd5e1;cursor:pointer}.dot.on{background:var(--accent);transform:scale(1.25)}
+  .counter{position:fixed;top:16px;right:20px;font-size:14px;font-weight:700;color:var(--muted);z-index:50}
+  .home{position:fixed;top:14px;left:18px;z-index:50;font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 11px}
+  .home:hover{color:var(--accent);border-color:var(--accent)}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:.6em 1.1em;font-size:clamp(15px,1.6vw,20px);font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btnrow{display:flex;gap:10px;margin-top:1em;flex-wrap:wrap}
+  .hintkey{position:fixed;bottom:74px;left:0;right:0;text-align:center;color:var(--muted);font-size:13px;z-index:40}
+  .frag{transition:opacity .3s ease}
+  .ghostctl{position:fixed;left:16px;bottom:18px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;z-index:60;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .ghostctl input{width:96px;accent-color:var(--accent)}
+  @media print{.ghostctl{display:none}}
+
+  /* --- Whiteboard-Runde --- */
+  .nr{font-variant-numeric:tabular-nums}
+  .frage{font-size:clamp(30px,5.2vw,84px);font-weight:800;line-height:1.14;letter-spacing:-.01em;max-width:22ch}
+  .frage .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .zusatz{font-size:clamp(16px,1.9vw,26px);color:var(--muted);margin-top:.9em}
+  .antwort{margin-top:3.4vh;display:flex;align-items:baseline;gap:1.1vw;flex-wrap:wrap}
+  .antwort .wert{font-size:clamp(34px,6vw,96px);font-weight:800;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
+  .antwort .neben{font-size:clamp(16px,1.8vw,26px)}
+  /* Randnotiz: nur fuer die Lehrkraft, Taste D */
+  .randnotiz{display:none;position:fixed;left:16px;bottom:120px;max-width:min(38ch,42vw);background:#fffbeb;border:1px solid #fcd34d;border-left:7px solid var(--gold);border-radius:12px;padding:.7em .9em;font-size:clamp(12px,1.05vw,15px);line-height:1.45;color:#4a3410;z-index:55;box-shadow:0 6px 20px rgba(15,23,42,.12)}
+  body.notizen .slide.on .randnotiz{display:block}
+  .randnotiz b{color:#92400e}
+  .notizmarke{position:fixed;top:16px;right:96px;z-index:56;display:none;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid #fcd34d;background:#fffbeb;border-radius:8px;padding:4px 9px}
+  body.notizen .notizmarke{display:block}
+  /* Uebersicht */
+  .tab{width:100%;border-collapse:collapse;margin-top:1.4vh}
+  .tab th,.tab td{border-bottom:1px solid var(--line);padding:.45em .6em;text-align:left;vertical-align:top}
+  .tab th{font-size:clamp(11px,1.1vw,15px);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800}
+  .tab td.nrz{width:2.4em;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .tab td.fr{font-size:clamp(13px,1.55vw,22px);line-height:1.3}
+  .tab td.an{font-size:clamp(14px,1.7vw,24px);font-weight:800;color:var(--green);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tab td.di,.tab th.di{display:none;font-size:clamp(11px,1.1vw,15px);color:#4a3410;line-height:1.35;max-width:44ch}
+  body.notizen .tab td.di,body.notizen .tab th.di{display:table-cell}
+  body.notizen .tab td.fr{font-size:clamp(12px,1.25vw,17px)}
+  body.notizen .tab td.an{font-size:clamp(12px,1.35vw,19px)}
+
+  /* ================= Wandfassung (Direct Instruction) ================= */
+
+  /* --- Regieleiste: Phase, Planminute, Stoppuhr --- */
+  .regie{position:fixed;top:13px;left:50%;transform:translateX(-50%);z-index:52;
+    display:flex;align-items:center;gap:12px;background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:5px 15px;
+    font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;
+    box-shadow:0 2px 6px rgba(15,23,42,.08)}
+  .regie .pnam{color:var(--ink)}
+  .regie .ptr{color:#cbd5e1}
+  .regie .puhr{font-variant-numeric:tabular-nums;color:var(--accent);min-width:4.2em;
+    text-align:right}
+  body.spaet .regie{border-color:#fcd34d;background:#fffbeb}
+  body.spaet .regie .puhr{color:var(--gold)}
+  body.sehrspaet .regie{border-color:#fecaca;background:#fef2f2}
+  body.sehrspaet .regie .puhr{color:var(--red)}
+  @media print{.regie{display:none}}
+  /* --- Pause: ein kleiner Schalter in der Regieleiste ruft den Timer --- */
+  .regie .pause,.regie .ruhe,.regie .protokoll{font:inherit;font-size:11px;font-weight:800;
+    color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;
+    padding:1px 8px;cursor:pointer;line-height:1.3;white-space:nowrap}
+  .regie .pause:hover,.regie .ruhe:hover,.regie .protokoll:hover{color:var(--ink);
+    border-color:#94a3b8}
+
+  /* --- Protokoll: alle Folien bis zur aktuellen als PDF ---
+     Der Knopf in der Regieleiste stellt die Seite auf „Protokoll" um und
+     ruft den Druckdialog; „Als PDF speichern" legt die Datei in Downloads
+     ab. Gedruckt werden die Folien 1 bis zur aktuellen, jede auf einer
+     Seite, in dem Zustand, in dem sie verlassen wurden: aufgedeckte
+     Schritte bleiben aufgedeckt, Stimmenbalken und Bilder bleiben stehen.
+     Die Vorschau des naechsten Schritts (halb durchsichtig) faellt weg.
+     Die Folien laufen fortlaufend durch und brechen nur dort um, wo eine
+     nicht mehr ganz auf die Seite passt. Eine Folie je Querseite gab
+     zwanzig ueberwiegend weisse Seiten (10b, 03.09.2026) - eine Folie
+     der Wand fuellt auf Papier selten mehr als ein Drittel. */
+  .protokollkopf,.protokolltitel{display:none}
+  @media print{
+    @page{size:A4 portrait;margin:8mm}
+    body.protokoll{overflow:visible!important;height:auto!important;background:#fff}
+    body.protokoll .deck{position:static;height:auto;width:auto;overflow:visible}
+    body.protokoll .slide{display:none!important}
+    body.protokoll .slide.im-protokoll{display:block!important;position:relative;inset:auto;
+      height:auto;min-height:0;padding:0 0 4mm!important;animation:none;overflow:visible;
+      background:#fff;break-inside:avoid;page-break-inside:avoid}
+    body.protokoll .slide.im-protokoll ~ .slide.im-protokoll{border-top:1.5px solid #cbd5e1;
+      padding-top:4mm!important}
+    body.protokoll .slide.im-protokoll::before,
+    body.protokoll .slide.im-protokoll::after{display:none!important}
+    /* 1200 px Entwurfsflaeche auf 194 mm nutzbare Breite (A4 hoch, 8 mm Rand).
+       Nichts darf breiter sein als die Seite, sonst verkleinert Chrome das
+       GANZE Dokument auf Seitenbreite - jede eingepasste Folie wuerde dann
+       doppelt geschrumpft. */
+    body.protokoll .slide.im-protokoll .buehne{transform:none!important;width:1200px;
+      zoom:.6;margin:0 auto}
+    body.protokoll .protokolltitel{display:block;font-size:19px;font-weight:800;
+      color:var(--ink);margin:0 0 6px}
+    /* Die Galerie einer Whiteboard-Runde ist an der Wand 400 px hoch,
+       damit nichts springt; auf Papier braucht sie nur, was drin ist. */
+    body.protokoll .slide.im-protokoll .galerie{height:auto;min-height:0;max-height:330px}
+    body.protokoll .slide.im-protokoll .galerie[data-n="0"]{height:70px}
+    body.protokoll .slide.im-protokoll .zeiknoepfe button{display:none}
+    body.protokoll .slide.im-protokoll .frag{opacity:0!important}
+    body.protokoll .slide.im-protokoll .frag[style*="opacity: 1"]{opacity:1!important}
+    body.protokoll .slide.im-protokoll .protokollkopf{display:block;font-size:15px;
+      color:#64748b;border-bottom:1px solid #e2e8f0;padding-bottom:5px;margin-bottom:12px}
+    body.protokoll .regie,body.protokoll .randnotiz,body.protokoll .qrecke,
+    body.protokoll .hintkey,body.protokoll .nav,body.protokoll #dots,body.protokoll .dots,
+    body.protokoll .ghostctl,body.protokoll .abstand,body.protokoll .schluesselknopf,
+    body.protokoll .home,body.protokoll .counter,body.protokoll .lupe,
+    body.protokoll .pauseschirm,body.protokoll .anp-leiste{display:none!important}
+  }
+  body.pause .regie .pause,body.ruhe .regie .ruhe{color:#fff;background:var(--accent);
+    border-color:var(--accent)}
+  /* „Blick nach vorn" wirkt auf die Geraete - ohne Dienst gibt es nichts
+     zu schalten, dann bleibt der Knopf weg. */
+  .regie .ruhe{display:none}
+  body.livean .regie .ruhe{display:inline-block}
+  /* Der Schirm liegt UNTER der Regieleiste (z 52), damit der Schalter
+     erreichbar bleibt, und ueber allem, was zur Folie gehoert. */
+  .pauseschirm{position:fixed;inset:0;z-index:51;background:#fff;display:none}
+  body.pause .pauseschirm{display:block}
+  .pauseschirm iframe{width:100%;height:100%;border:0}
+  /* !important, weil body.qrzeigen .qrecke weiter unten mit gleicher
+     Spezifitaet wieder einblendet - waehrend der Pause soll nur der
+     Timer zu sehen sein. */
+  body.pause .qrecke,body.pause .hintkey,body.pause .randnotiz,
+  body.pause .ghostctl,body.pause .nav{display:none!important}
+  @media print{.pauseschirm,.regie .pause{display:none}}
+
+  /* --- Platz fuer die Leisten ------------------------------------------
+     Die Vorlage laesst oben 4,5vh frei. Das genuegt fuer den blossen
+     Zurueck-Link, nicht fuer Regieleiste, Abstimmungsanzeige und
+     Foliennummer - die liegen sonst auf der ersten Zeile. Unten dasselbe
+     mit Tastenzeile und Blaetterknoepfen. Feste Mindestwerte, weil vh auf
+     einem flachen Fenster zu wenig ergibt. */
+  .slide{padding:max(7.5vh,66px) 5vw max(10vh,86px)}
+
+  /* --- Ueberschriften und Fliesstext der Lehrgangsfolien --- */
+  .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
+  .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* --- Ablauftabelle der zweiten Folie ---------------------------------
+     Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
+     steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
+     so hoch macht. Auf einem breiten Bildschirm laeuft die Folie damit
+     unten heraus. */
+  .tab td.nrz{width:auto;min-width:4.4em;white-space:nowrap;
+    font-size:clamp(13px,1.4vw,20px)}
+  .tab td.fr{font-size:clamp(13px,1.45vw,20px)}
+  .tab td.an{font-size:clamp(13px,1.5vw,21px)}
+  .tab th,.tab td{padding:.34em .55em}
+  .lead{font-size:clamp(17px,2.05vw,30px);line-height:1.4;max-width:44ch}
+  .weit{max-width:none}
+
+  /* --- Ich zeige es: Rechenschritte, einer nach dem anderen --- */
+  .schritte{display:flex;flex-direction:column;gap:1.15vh;margin-top:1.8vh}
+  .schritt{display:flex;gap:1vw;align-items:flex-start;background:var(--panel);
+    border:1px solid var(--line);border-left:7px solid var(--accent2);
+    border-radius:14px;padding:1.15vh 1.15vw}
+  .schritt .num{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:9px;
+    background:#e0f2fe;color:#075985;font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:clamp(15px,1.7vw,25px)}
+  .schritt .txt{font-size:clamp(16px,1.9vw,28px);line-height:1.33}
+  .schritt .rech{display:block;margin-top:.18em;font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .schritt.ergebnis{border-left-color:var(--green);background:#f0fdf4}
+  .schritt.ergebnis .num{background:#dcfce7;color:#14532d}
+  .schritt.ergebnis .rech{color:var(--green)}
+  .schritt.fehler{border-left-color:var(--red);background:#fef2f2}
+  .schritt.fehler .num{background:#fee2e2;color:#7f1d1d}
+  .schritt.fehler .rech{color:var(--red)}
+  /* Ab fuenf Schritten passt die Folie sonst nicht mehr auf 16:9 - dann
+     rueckt alles enger zusammen, statt oben aus dem Bild zu laufen. */
+  .schritte.eng{gap:.7vh}
+  .schritte.eng .schritt{padding:.8vh 1vw}
+  .schritte.eng .txt{font-size:clamp(14px,1.62vw,24px)}
+  .schritte.eng .num{width:1.6em;height:1.6em;font-size:clamp(13px,1.45vw,21px)}
+
+  /* --- Preisschilder --- */
+  .schilder{display:flex;gap:2vw;margin-top:1.8vh;flex-wrap:wrap;align-items:flex-start}
+  .schild{flex:1 1 300px;background:#fffdf3;border:2px solid #e6c34a;border-radius:16px;
+    padding:1.5vh 1.4vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .schild h3{font-size:clamp(18px,2.2vw,33px);font-weight:800;color:#8d6e00;
+    margin-bottom:.35em;line-height:1.15}
+  .schild table{width:100%;border-collapse:collapse}
+  .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
+    font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
+  .schild tr:last-child td{border-bottom:none}
+  .schild td.p{text-align:right;font-weight:800}
+  .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
+
+  /* --- Wertetabelle mit Vervielfachungspfeilen --- */
+  .wtab{border-collapse:collapse;margin-top:1.8vh}
+  .wtab td,.wtab th{border:2px solid #94a3b8;padding:.34em .75em;
+    font-size:clamp(15px,1.9vw,29px);text-align:center;font-variant-numeric:tabular-nums}
+  .wtab th{background:#eef2ff;font-weight:800;text-align:left;white-space:nowrap}
+  .wtab td.pf{border:none;background:none;color:var(--accent);font-weight:800;
+    font-size:clamp(13px,1.5vw,22px);padding:.34em .35em;white-space:nowrap}
+  .wtab td.hin{background:#f0fdf4;color:var(--green);font-weight:800}
+  .wtab td.raus{background:#fef2f2;color:var(--red);font-weight:800}
+  .wtab td.luecke{background:#fffbeb;color:var(--gold);font-weight:800}
+
+  /* --- Abfrage mit Beleg ---------------------------------------------
+     Wer ueber eine Tabelle abstimmt, muss die Tabelle sehen. Steht die
+     Frage auf einer eigenen Folie, ist der Beleg von der Vorfolie weg -
+     deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
+     Plickers ueber die vier Karten. */
+  .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
+  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
+  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
+  .mwsplit .antwort{margin-top:2.2vh}
+  .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
+  .mwsplit .wtab{margin-top:0}
+  .mwsplit .wtab td,.mwsplit .wtab th{font-size:clamp(13px,1.55vw,24px);
+    padding:.26em .55em}
+  .mwsplit .schilder{margin-top:0}
+  .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
+  .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+
+  /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
+     hoeher als das Bild, und die Einpassung muesste die ganze Folie
+     verkleinern - die Schrift ausgerechnet dort, wo der Beleg gelesen
+     werden muss. */
+  .plzeile{display:flex;gap:26px;align-items:center;margin-top:16px}
+  .plzeile .plbild{flex:0 0 auto;margin:0;max-width:52%}
+  .plzeile .plickers{flex:1 1 0;min-width:0;margin-top:0}
+  /* Zwei Schilder nebeneinander statt untereinander: Der Umbruch
+     verdoppelte die Hoehe des Belegs und verkleinerte darueber die
+     ganze Folie. */
+  .plzeile .schilder{flex-wrap:nowrap;gap:16px}
+  .plzeile .schilder .schild{min-width:0}
+  .plbild{margin:.7vh 0 .2vh}
+  .plbild .wtab{margin-top:0}
+  .plbild .wtab td,.plbild .wtab th{font-size:clamp(12px,1.42vw,21px);
+    padding:.2em .5em}
+  .plbild .schilder{margin-top:0}
+  .plbild .schild{padding:.9vh 1vw}
+  .plbild .schild td{font-size:clamp(13px,1.5vw,22px);padding:.16em .1em}
+  .plbild .schild h3{font-size:clamp(15px,1.7vw,25px)}
+  .plbild .graph{margin-top:0;width:min(46vw,560px)}
+  .slide.mitbild h2.wt{margin-bottom:.2em;max-width:38ch}
+
+  /* --- Plickers --- */
+  /* Eine Spalte, nicht zwei: siehe die Begruendung an der Entwurfsflaeche
+     weiter unten. Die Karte ist so breit wie die Folie, der Text wird
+     gross, und die vier Karten untereinander fuellen die Hoehe. */
+  .plickers{display:grid;grid-template-columns:1fr;gap:14px;margin-top:22px}
+  .opt{position:relative;display:flex;gap:18px;
+    align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:16px 20px;font-size:28px;line-height:1.3}
+  /* Alles Sichtbare liegt ueber der Fuellung ... */
+  .opt > *{position:relative;z-index:1}
+  /* ... und die Fuellung selbst darunter: Sie faerbt die Karte von links,
+     waehrend die Stimmen eingehen. Ein Balken, der die Antwort nicht mehr
+     verdeckt, sondern hinterlegt. */
+  .opt .fuellung{position:absolute;left:0;top:0;bottom:0;width:0;z-index:0;
+    background:#e6ebff;border-radius:13px;transition:width .35s ease}
+  .opt .zahl{margin-left:auto;padding-left:.7em;font-weight:800;
+    font-variant-numeric:tabular-nums;display:none}
+  .slide.abstimmt .opt .zahl{display:block}
+  /* Stufige Abstimmung: Waehrend gestimmt wird (Schritt 0), stehen die
+     Karten leer da. In der Ecke laeuft trotzdem mit, WIE VIELE schon
+     abgegeben haben - das beruhigt, ohne die Antwort zu verraten. */
+  .slide.stufig[data-step="0"] .opt .zahl,
+  .slide.stufig[data-step="0"] .opt .fuellung{opacity:0}
+  .slide.stufig .opt .zahl,
+  .slide.stufig .opt .fuellung{transition:opacity .3s ease}
+  /* Solange nicht aufgeloest ist, verraet keine Fuellung, welche Karte
+     stimmt - erst danach faerbt sich die richtige gruen. */
+  .plickers.gezeigt .opt.istrichtig .fuellung{background:#bbf7d0}
+  .opt .bst{flex:0 0 auto;width:1.75em;height:1.75em;border-radius:10px;
+    background:#eef2ff;color:var(--accent);font-weight:800;display:flex;
+    align-items:center;justify-content:center;font-size:.95em}
+  /* Die Markierung der richtigen Antwort ist ein eigenes .frag-Element:
+     Sie legt sich als gruener Rahmen ueber die Karte, sobald aufgeloest wird. */
+  .haken{position:absolute;inset:-3px;z-index:2;
+    border:3px solid var(--green);border-radius:17px;
+    /* Nur ein Hauch Farbe: Der Rahmen liegt UEBER dem Text, damit das
+       Schild nicht verdeckt wird - ein kraeftiger Schleier machte die
+       richtige Antwort blasser als die falschen. */
+    background:rgba(220,252,231,.16);display:flex;align-items:flex-start;
+    justify-content:flex-end;pointer-events:none}
+  .haken b{background:var(--green);color:#fff;border-radius:999px;
+    padding:.12em .75em;font-size:clamp(12px,1.25vw,18px);
+    transform:translate(-.5em,-.65em)}
+  .aufloesung{margin-top:1.8vh;background:#f0fdf4;border:1px solid #86efac;
+    border-left:7px solid var(--green);border-radius:14px;padding:1.3vh 1.2vw;
+    font-size:clamp(15px,1.75vw,25px);line-height:1.38}
+  .aufloesung .loesungswert{color:var(--green);font-variant-numeric:tabular-nums}
+  .marke{display:inline-block;background:var(--accent);color:#fff;border-radius:8px;
+    padding:.1em .55em;font-size:clamp(12px,1.25vw,17px);font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;vertical-align:.12em}
+  .marke.mwb{background:#0f766e}
+  .marke.plk{background:#7c3aed}
+  .marke.zei{background:#b45309}
+  /* --- Trenner statt Gedankenstrich (siehe trenner_setzen) --- */
+  .trenner{color:var(--accent);font-size:.62em;vertical-align:.12em;margin:0 .12em}
+
+  /* --- Wenn eine Abfrage dran ist --------------------------------------
+     Die kleine Marke oben genuegt nicht: Sie sagt der Lehrkraft, was
+     kommt, aber sie holt niemanden aus dem Heft hoch. Deshalb traegt jede
+     Folie, auf der die ganze Klasse antwortet, zweierlei - ein
+     dreimaliges Aufblinken im Moment des Wechsels und danach eine
+     getoente Flaeche, die stehen bleibt. Das Blinken holt den Blick, die
+     Farbe traegt ihn: Wer erst nach zehn Sekunden aufsieht, erkennt immer
+     noch, dass geantwortet wird und womit.
+
+     Alles in CSS, nichts in JS. Der Beobachter der Einpassung horcht auf
+     Klassenwechsel; wer den Hinweis per Skript an- und abmeldet, loest ihn
+     dabei aus und passt die Folie mitten in der Animation neu ein.
+     Die Animation haengt stattdessen an `.abfrage.on` - beim Blaettern
+     faellt `.on` weg und kommt wieder, und damit laeuft sie von selbst
+     neu an, auch beim Zurueckblaettern. */
+  .slide.abfrage.mwb{background:linear-gradient(178deg,#ecfdf5 0%,#ccfbf1 100%)}
+  .slide.abfrage.plk{background:linear-gradient(178deg,#f5f3ff 0%,#e9e3ff 100%)}
+  .slide.abfrage.zei{background:linear-gradient(178deg,#fffbeb 0%,#fdf0c8 100%)}
+  /* Der Balken sitzt unter den Leisten (z-index 52) und ueber der Folie. */
+  .slide.abfrage::before{content:"";position:absolute;left:0;right:0;top:0;
+    height:11px;z-index:3}
+  .slide.abfrage.mwb::before{background:#0f766e}
+  .slide.abfrage.plk::before{background:#7c3aed}
+  .slide.abfrage.zei::before{background:#b45309}
+
+  @keyframes blitzen{0%,100%{opacity:0}44%{opacity:.82}}
+  .slide.abfrage.on::after{content:"";position:absolute;inset:0;opacity:0;
+    pointer-events:none;z-index:4;animation:blitzen .42s ease-in-out 3}
+  .slide.abfrage.mwb.on::after{
+    background:radial-gradient(ellipse at 50% 45%,rgba(20,184,166,.30),rgba(15,118,110,.60))}
+  .slide.abfrage.plk.on::after{
+    background:radial-gradient(ellipse at 50% 45%,rgba(167,139,250,.30),rgba(124,58,237,.60))}
+  .slide.abfrage.zei.on::after{
+    background:radial-gradient(ellipse at 50% 45%,rgba(251,191,36,.30),rgba(180,83,9,.60))}
+
+  /* --- Zeichenauftrag: die Galerie --- */
+  /* Ein Raster, dessen Spaltenzahl das Skript aus der Zahl der Bilder
+     rechnet (siehe galerie() in ABSTIMMUNG_JS): alle Kacheln passen ins
+     Bild, und je weniger es sind, desto groesser ist jede. Kein
+     display:none an der Galerie selbst - die Pruefung misst die Raender
+     aller Kinder, und ein unsichtbares Kind laege bei 0. */
+  /* FESTE HOEHE, nicht mitwachsend: Die Einpassung misst die Folie beim
+     Aufblenden, nicht bei jedem Bild, das spaeter eintrifft. Wuechse die
+     Galerie mit, liefe die Folie mit dem zwanzigsten Bild unten hinaus.
+     Also bekommt die Galerie ihren Platz vorab, und das Raster (Spalten
+     UND Reihen, aus der Zahl der Bilder gerechnet) teilt ihn auf. */
+  .galerie{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;
+    height:600px}
+  .galerie[data-n="0"]{display:flex;align-items:center;justify-content:center}
+  .galerie .leer{margin:0;color:var(--muted);text-align:center}
+  .galerie:not([data-n="0"]) .leer{display:none}
+  /* In einer Whiteboard-Runde teilt sich die Galerie die Folie mit Frage
+     und Antwort - deshalb flacher. */
+  .slide.ipad .galerie{height:400px;margin-top:10px}
+  .slide.ipad .frage{max-width:none}
+  .slide.ipad .zeiknoepfe{margin-top:8px}
+  .slide.ipad .antwort{margin-top:10px}
+  .marke .mit{display:none}
+  body.livean .marke .mit{display:inline}
+  body.livean .marke .ohne{display:none}
+  .kachel{position:relative;min-height:0;min-width:0;background:#f1f5f9;
+    border:2px solid var(--line);border-radius:10px;overflow:hidden;display:flex;
+    align-items:center;justify-content:center;
+    font-weight:800;font-size:26px;color:var(--muted);cursor:pointer}
+  .kachel img{display:none;width:100%;height:100%;object-fit:contain;background:#fff}
+  .kachel.frei img{display:block}
+  .kachel.frei .nr{display:none}
+  .kachel.frei{border-color:var(--green)}
+  .zeiknoepfe{display:flex;gap:10px;align-items:center;margin-top:12px}
+  .zeiknoepfe button{font:inherit;font-size:16px;font-weight:800;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:4px 14px;cursor:pointer}
+  .zeiknoepfe button:hover{color:var(--ink);border-color:#94a3b8}
+  .zeiknoepfe .zaehler{margin-left:auto;font-weight:800;color:var(--muted);font-size:18px}
+  /* Ein Bild gross: legt sich ueber die Folie, ein Klick nimmt es weg. */
+  .lupe{position:absolute;inset:0;z-index:6;background:#fff;display:none;
+    align-items:center;justify-content:center;cursor:pointer}
+  .lupe.an{display:flex}
+  .lupe img{max-width:100%;max-height:100%}
+  @media print{.zeiknoepfe,.lupe{display:none}}
+
+  /* --- Spontane Abgabe: ein Klick auf den Eck-QR ---
+     Kein Folieninhalt, sondern ein Schirm ueber dem Deck: Die Lehrkraft
+     sagt in der Situation, was abzugeben ist, die Geraete zeigen die
+     Zeichenflaeche, die Wand sammelt die Bilder als Kacheln. Der Schirm
+     liegt unter dem Eck-QR (z 54) und der Standanzeige (53), damit der
+     QR sichtbar bleibt und ein zweiter Klick den Schirm wieder schliesst.
+     Er ist NICHT eingepasst wie die Folien, also in echten Pixeln
+     gesetzt - deshalb die grossen Schriftgrade. */
+  body.livean .qrecke{cursor:pointer}
+  body.livean .qrecke:hover{border-color:#94a3b8}
+  /* Oben bleibt Platz fuer Regieleiste und Standanzeige, unten fuer die
+     Hinweiszeile - beide liegen ueber dem Schirm. */
+  .abgabe{position:fixed;inset:0;z-index:52;background:var(--bg);display:none;
+    flex-direction:column;gap:14px;padding:64px 40px 52px}
+  .abgabe.an{display:flex}
+  .abgabe .abkopf{display:flex;align-items:baseline;gap:26px;flex:0 0 auto}
+  .abgabe .abkopf h2{margin:0;font-size:44px;font-weight:800;color:var(--ink)}
+  .abgabe .abkopf p{margin:0;font-size:26px;color:var(--muted);flex:1 1 auto}
+  .abgabe .abkopf button{font:inherit;font-size:20px;font-weight:800;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:6px 18px;cursor:pointer}
+  .abgabe .abkopf button:hover{color:var(--ink);border-color:#94a3b8}
+  .abgabe .galerie{flex:1 1 auto;height:auto;min-height:0;margin-top:0}
+  .abgabe .galerie .leer{font-size:30px}
+  .abgabe .kachel{font-size:34px}
+  .abgabe .zeiknoepfe{flex:0 0 auto;margin-top:0;padding-right:120px}
+  .abgabe .zeiknoepfe button{font-size:22px;padding:6px 18px}
+  .abgabe .zeiknoepfe .zaehler{font-size:24px}
+  .abgabe .lupe{position:fixed}
+  .protokoll .abgabe,.pause .abgabe,html.pause .abgabe{display:none!important}
+  @media print{.abgabe{display:none!important}}
+
+  /* --- QR bildschirmfuellend: der Pfeil am Eck-QR --- */
+  .qrecke{overflow:visible}
+  .qrecke .gross{position:absolute;top:-12px;left:-12px;width:28px;height:28px;
+    border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);
+    font:800 15px/26px system-ui,sans-serif;text-align:center;cursor:pointer;padding:0;
+    box-shadow:0 2px 6px rgba(15,23,42,.15)}
+  .qrecke .gross:hover{color:var(--ink);border-color:#94a3b8}
+  .qrgross{position:fixed;inset:0;z-index:70;background:#fff;display:none;
+    flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer}
+  .qrgross.an{display:flex}
+  .qrgross svg{width:min(78vh,78vw);height:auto;display:block}
+  .qrgross .adresse{font-size:clamp(24px,3.2vw,44px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums}
+  .qrgross .code{font-size:22px;font-weight:800;color:var(--muted);letter-spacing:.14em}
+  @media print{.qrgross,.qrecke .gross{display:none!important}}
+
+  /* --- Bilder sichern: Diskette je Kachel, ZIP fuer alle --- */
+  .kachel .speichern{position:absolute;right:4px;top:4px;z-index:2;width:30px;height:30px;
+    border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.92);
+    font-size:16px;line-height:28px;text-align:center;padding:0;cursor:pointer;
+    opacity:.55}
+  .kachel:hover .speichern,.kachel .speichern:hover{opacity:1}
+  .zeiknoepfe .zip{margin-left:auto}
+  .zeiknoepfe .zip + .zaehler{margin-left:0}
+  @media print{.kachel .speichern{display:none}}
+  /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
+  @media print{
+    .slide.abfrage{background:none}
+    .slide.abfrage.on::after{animation:none;display:none}
+  }
+
+  /* --- Kleines Koordinatensystem --- */
+  .graph{width:min(52vw,640px);height:auto;margin-top:1.4vh}
+  .graphpaar{display:flex;gap:2vw;align-items:flex-start;flex-wrap:wrap}
+  .graphpaar .graph{width:min(38vw,470px)}
+  /* Vier Skizzen nebeneinander, je eine je Antwortkarte - damit man ueber
+     Graphen abstimmen kann, ohne sie sich vorstellen zu muessen. */
+  .graphreihe{display:flex;gap:1.1vw;align-items:flex-start;justify-content:center}
+  .graphreihe figure{margin:0;text-align:center;flex:1 1 0;min-width:0}
+  .graphreihe figcaption{font-size:clamp(13px,1.5vw,21px);font-weight:800;
+    color:var(--accent);margin-bottom:.15em}
+  .graphreihe .graph{width:100%;max-width:230px;margin-top:0}
+
+  /* --- Merksatz --- */
+  .merk{background:#fffbeb;border:2px solid #fcd34d;border-left:9px solid var(--gold);
+    border-radius:18px;padding:2.1vh 1.9vw;margin-top:1.6vh}
+  .merk .satz{font-size:clamp(20px,2.75vw,42px);font-weight:800;line-height:1.24}
+  .merk .zusatz{font-size:clamp(15px,1.7vw,25px);color:#7a5c10;margin-top:.65em;
+    line-height:1.4}
+
+  /* --- Arbeitsauftrag der kurzen Eigenphase --- */
+  .auftrag{background:var(--panel);border:1px solid var(--line);
+    border-left:9px solid var(--accent);border-radius:18px;padding:2vh 1.9vw;
+    margin-top:1.6vh;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+  .auftrag ol{margin:.4em 0 0 1.3em}
+  .auftrag li{margin:.34em 0;font-size:clamp(16px,1.9vw,28px);line-height:1.35}
+  .zeitschild{display:inline-block;background:var(--accent);color:#fff;
+    border-radius:999px;padding:.18em .95em;font-size:clamp(14px,1.5vw,22px);
+    font-weight:800}
+
+  /* --- Zwei Spalten nebeneinander (Vorhersage gegen Schild) --- */
+  .paar{display:grid;grid-template-columns:1fr 1fr;gap:1.6vw;margin-top:1.8vh}
+  @media (max-width:900px){.paar{grid-template-columns:1fr}}
+  .paar .halb{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:1.4vh 1.2vw}
+  .paar .halb h4{font-size:clamp(14px,1.5vw,21px);text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);font-weight:800;margin-bottom:.5em}
+  .paar .halb.gut{border-color:#86efac;background:#f0fdf4}
+  .paar .halb.schlecht{border-color:#fecaca;background:#fef2f2}
+  .paar .halb p{font-size:clamp(15px,1.8vw,26px)}
+
+  /* --- Reservefolien: liegen hinter dem Durchlauf und werden nur bei
+         Bedarf angesprungen. Der bernsteinfarbene Rahmen sagt sofort, dass
+         der geplante Weg gerade verlassen ist - und legt sich, anders als
+         ein Streifen am oberen Rand, nicht ueber die Regieleiste. --- */
+  .slide.reserve{box-shadow:inset 0 0 0 7px var(--gold)}
+
+  /* --- Live-Abstimmung ------------------------------------------------
+     Nur sichtbar, wenn ein Abstimmungsdienst erreichbar ist. Ist er es
+     nicht, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter - genau wie ohne diese Zeilen. */
+  .qrfolie{display:flex;gap:3vw;align-items:center;margin-top:1.6vh}
+  .qrfolie .qrbild{flex:0 0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:1.6vh 1.6vw;box-shadow:0 8px 30px rgba(15,23,42,.07)}
+  .qrfolie .qrbild svg{width:min(30vw,340px);height:auto;display:block}
+  .qrfolie .qrtext{flex:1 1 auto;min-width:0}
+  .kurzadresse{font-size:clamp(19px,2.6vw,38px);font-weight:800;color:var(--accent);
+    font-variant-numeric:tabular-nums;word-break:break-all;margin:.3em 0 .5em}
+  /* Rechts unten, nicht links: links liegen der Vorschau-Regler und die
+     Randnotiz, und die Balken brauchen die volle Breite. */
+  .qrecke{position:fixed;right:14px;bottom:14px;z-index:54;background:#fff;
+    border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 4px 14px rgba(15,23,42,.12);display:none}
+  .qrecke svg{width:88px;height:88px;display:block}
+  .qrecke .code{font-size:11px;font-weight:800;color:var(--muted);text-align:center;
+    letter-spacing:.1em;margin-top:3px}
+  body.qrzeigen .qrecke{display:block}
+  @media print{.qrecke{display:none}}
+
+  .abstand{position:fixed;top:16px;left:18px;z-index:53;display:none;
+    align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:5px 10px}
+  body.livean .abstand{display:flex}
+  .abstand .punkt{width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .abstand.zu .punkt{background:#cbd5e1}
+  body.livean .home{display:none}
+
+  /* Die frueheren Balkenzeilen unter den Karten sind entfallen: Sie
+     wiederholten die Buchstaben und machten die Folie breiter und
+     flacher. Der Balken steckt jetzt in der Karte (.opt .fuellung). */
+
+  /* Waehrend abgestimmt wird, aendert sich an den Groessen NICHTS mehr.
+     Frueher stand hier eine Reihe von Verkleinerungen; sie stammten aus
+     der Zeit vor der Entwurfsflaeche und haben die Schrift ausgerechnet
+     dann zusammenfallen lassen, wenn die ganze Klasse hinsieht. */
+
+  .schluesselknopf{position:fixed;top:16px;left:18px;z-index:57;font-size:12px;
+    background:#fffbeb;border:1px solid #fcd34d;color:#8d6e00;border-radius:9px;
+    padding:5px 11px;cursor:pointer;font-weight:700;display:none}
+  body.schluesselfehlt .schluesselknopf{display:block}
+  body.schluesselfehlt .abstand{display:none}
+
+  /* ====================================================================
+     Feste Entwurfsflaeche
+     --------------------------------------------------------------------
+     Jede Folie wird auf 1200 Punkte Breite gesetzt und als GANZES auf den
+     Bildschirm skaliert (window.einpassen). Deshalb stehen hier feste
+     Punktgroessen und keine vw-Rechnungen mehr.
+
+     Der Grund: vw-Groessen mit Hoechstwert sind auf einem grossen Bild
+     doppelt schaedlich - der Deckel greift, die Schrift bleibt klein,
+     und die untere Bildhaelfte bleibt leer. Wer stattdessen die ganze
+     Flaeche skaliert, bekommt auf 1920 x 1080 eine um ein Viertel
+     groessere Schrift als auf 1600 x 900, ohne dass sich das Layout
+     aendert. Eine Folie sieht ueberall gleich aus, nur groesser.
+
+     Die Zahlen sind fuer die letzte Reihe gewaehlt: Fliesstext 30 px auf
+     1500 px Breite entspricht auf einer 3 m breiten Projektion rund
+     6 cm Zeilenhoehe.
+     ==================================================================== */
+  /* Hochgestelltes: klein, aber ohne die Zeile aufzureissen.
+     line-height:0 haelt die Zeilenhoehe fest - sonst waere eine
+     Formelzeile hoeher als die anderen, und die Einpassung
+     rechnete mit einer zu hohen Folie. */
+  .slide sup{font-size:.62em;line-height:0;vertical-align:super;
+    font-weight:inherit}
+  .slide h1{font-size:74px;line-height:1.05}
+  .slide h2{font-size:50px}
+  /* 26 Zeichen waren aus der alten, schmaleren Fassung uebrig: Die Frage
+     stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
+     420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
+     verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
+  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  .slide p,.slide li{font-size:30px;line-height:1.45}
+  .kicker{font-size:21px}
+  .lead{font-size:31px;max-width:46ch}
+  .callout{padding:.75em 1.05em}
+  .frage{font-size:66px;max-width:22ch}
+  .antwort .wert{font-size:78px}
+  .antwort .neben{font-size:28px}
+  .pill{font-size:20px}
+  .marke{font-size:19px}
+  .opt{font-size:28px;padding:16px 18px}
+  .opt .bst{font-size:26px}
+  .aufloesung{font-size:29px;padding:16px 19px}
+  .schritt{padding:14px 16px}
+  .schritt .txt{font-size:31px}
+  .schritt .num{font-size:27px}
+  .schilder .schild{padding:18px 20px}
+  .schilder .schild td{font-size:32px;padding:.24em .1em}
+  .schilder .schild h3{font-size:35px}
+  .schilder .schild .fuss{font-size:20px}
+  .wtab td,.wtab th{font-size:31px;padding:.3em .7em}
+  .wtab td.pf{font-size:24px}
+  .merk{padding:26px 28px}
+  .merk .satz{font-size:46px}
+  .merk .zusatz{font-size:27px}
+  .auftrag{padding:24px 26px}
+  .auftrag li{font-size:31px}
+  .zeitschild{font-size:24px}
+  .paar .halb{padding:18px 20px}
+  .paar .halb h4{font-size:22px}
+  .paar .halb p{font-size:28px}
+  .tab td.nrz,.tab td.fr{font-size:22px}
+  .tab td.an{font-size:23px}
+  .tab th{font-size:17px}
+  .opt .zahl{font-size:27px}
+  .kurzadresse{font-size:40px}
+  .qrfolie .qrbild svg{width:330px}
+  .graph{width:620px}
+  .graphpaar .graph{width:450px}
+  .graphreihe .graph{max-width:250px}
+  .graphreihe figcaption{font-size:22px}
+  .plbild .schild td{font-size:26px}
+  .plbild .schild h3{font-size:29px}
+  .plbild .wtab td,.plbild .wtab th{font-size:26px;padding:.22em .55em}
+  .plbild .graph{width:520px}
+  .mwsplit .frage{font-size:54px;max-width:none}
+  .mwsplit .antwort .wert{font-size:66px}
+
+  /* Die dichteste Folie - Beleg, vier Karten, Aufloesung - behaelt ihre
+     Groessen. Passt sie nicht, verkleinert die Einpassung die ganze
+     Flaeche; das faellt kaum auf, weil alles gleichmaessig mitgeht. Eine
+     eigene, kleinere Schrift fuer die Abstimmung gibt es nicht mehr:
+     Sie war der Grund, warum die Folie unlesbar wurde, sobald die Klasse
+     zu antworten begann. */
+
+  /* --- Die Entwurfsflaeche selbst --------------------------------------
+     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
+     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
+     nach oben. */
+  .buehne{width:1200px;transform-origin:top center}
+  /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
+     skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
+     Titelfolie richtet ihren Text ueber ein eigenes style-Attribut links
+     aus - das gewinnt gegen diese Regel.
+     (Kein Selektor auf [style*="flex-start"]: Der prueft die ZEICHENKETTE
+     des Attributs und traf auch das justify-content, das die Einpassung
+     dort setzt. Die Flaeche rutschte dadurch um 40 Pixel nach links aus
+     dem Bild.) */
+  .slide{align-items:center}
+
+  /* --- Randnotiz: die Weiche der Lehrkraft ---
+     Sie liegt wie in allen Projektionsseiten ueber der Folie; auf einer
+     Plickers-Folie mit vier Karten ist das eng. Deshalb hier schmaler,
+     tiefer angesetzt und bei sehr langen Notizen scrollbar. Der volle
+     Wortlaut steht ohnehin auf dem Lehrerblatt. */
+  /* ====================================================================
+     Bedienleisten: eine Zeile statt dreier Etagen
+     --------------------------------------------------------------------
+     Gemessen kosteten Hinweiszeile, Punktreihe und Regler zusammen rund
+     102 px am unteren Rand - Platz, der der Folie fehlt und damit der
+     Schrift, weil die Flaeche als Ganzes eingepasst wird.
+
+     Jetzt sitzt alles auf einer Hoehe: links der Vorschau-Regler, mittig
+     Pfeile und Punkte, rechts der Tastenhinweis. Kleiner, aber sichtbar
+     - ein Bedienelement, das sich wegblendet, sucht man genau dann,
+     wenn die Klasse wartet.
+     ==================================================================== */
+  /* Die Punktreihe zentriert sich zwischen Regler (links) und Hinweis
+     (rechts), nicht mehr im ganzen Bild - sonst stiess sie bei vielen
+     Folien in den Hinweis hinein (gemessen: 129 px Ueberlappung). */
+  .nav{bottom:12px;gap:10px;left:215px;right:300px}
+  .dots{flex-wrap:wrap;justify-content:center;max-width:100%}
+  .nav button{width:32px;height:32px;font-size:15px;border-radius:9px}
+  .dots{gap:6px}
+  .dot{width:8px;height:8px}
+  .hintkey{bottom:17px;left:auto;right:20px;width:auto;max-width:42vw;
+    text-align:right;font-size:12px;line-height:1.2}
+  /* Haengt der Eck-QR unten rechts, macht ihm der Hinweis Platz. */
+  body.qrzeigen .hintkey{right:126px}
+  .ghostctl{bottom:15px;padding:4px 9px;font-size:11px}
+  .ghostctl input{width:110px}
+  /* Oben dasselbe in klein: Die Regieleiste braucht keine 13 px Schrift,
+     sie steht fuer die Lehrkraft da, nicht fuer die letzte Reihe. */
+  .regie{top:9px;padding:4px 13px;font-size:12px;gap:10px}
+
+  .randnotiz{max-width:min(38ch,30vw);bottom:100px;max-height:56vh;overflow:auto}
+  .randnotiz .weiche{display:block;margin-top:.55em;padding-top:.5em;
+    border-top:1px dashed #e0b93c}
+  .randnotiz .weiche i{font-style:normal;font-weight:800;color:#92400e}
+
+  /* ---- Plan A / Plan B ------------------------------------------------
+     Folien, die nur zu einem Weg gehoeren (data-plan), tragen im Kicker
+     ein Schild; in der Regieleiste steht der Schalter. Beides erscheint
+     nur, wenn die Stunde ueberhaupt zwei Wege hat (Skript `planwahl`). */
+  .planschild{float:right;font-size:15px;font-weight:800;letter-spacing:.04em;
+    padding:4px 12px;border-radius:9px;border:1px solid #fcd34d;background:#fffbeb;
+    color:#92400e;margin-left:16px}
+  .slide[data-plan="B"] .planschild{border-color:#93c5fd;background:#eff6ff;color:#1e40af}
+  .regie .plan{display:none;font:inherit;font-size:11px;font-weight:800;
+    color:var(--muted);background:var(--panel);border:1px solid var(--line);
+    border-radius:7px;padding:2px 8px;cursor:pointer}
+  body.hatplan .regie .plan{display:inline-block}
+  body[data-plan="A"] .regie .plan{color:#92400e;background:#fffbeb;border-color:#fcd34d}
+  body.planoffen .regie .plan{color:#1e40af;background:#eff6ff;border-color:#93c5fd}
+  /* Abbruch: nur in Stunden mit Abbruchfolie (data-abbruch), nur in Plan A
+     sichtbar - in Plan B gibt es nichts abzubrechen. */
+  .regie .abbruch{display:none;font:inherit;font-size:11px;font-weight:800;
+    color:#991b1b;background:#fef2f2;border:1px solid #fecaca;
+    border-radius:7px;padding:2px 8px;cursor:pointer}
+  body.hatabbruch[data-plan="A"] .regie .abbruch{display:inline-block}
+  .slide.abbruchfolie{box-shadow:inset 0 0 0 7px var(--red)}
+  .slide.abbruchfolie .auftrag ol li{margin-bottom:.55em}
+  .slide.abbruchfolie .kicker{color:var(--red)}
+  .planwahl{display:flex;gap:26px;margin-top:22px}
+  .planwahl button{flex:1 1 0;font:inherit;font-size:30px;font-weight:800;padding:20px 24px;
+    border-radius:16px;border:2px solid var(--line);background:#fff;color:var(--ink);
+    cursor:pointer;text-align:left;line-height:1.3}
+  .planwahl button small{display:block;font-size:22px;font-weight:600;color:var(--muted);margin-top:6px}
+  .planwahl button[data-plan="A"]{border-color:#fcd34d}
+  .planwahl button[data-plan="B"]{border-color:#93c5fd}
+  .planwahl button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .planwahl button[aria-pressed="true"] small{color:#cbd5e1}
+  .planmaterial{margin-top:14px}
+  .planmaterial ul{margin:.2em 0 0 1.1em;padding:0}
+  .planmaterial li{font-size:27px;line-height:1.35}
+
+  /* ---- Videofolie: eingebetteter Player ------------------------------
+     Der Player laedt erst, wenn die Folie steht (Skript `videos`). Ohne
+     Netz bleibt der Rahmen dunkel; die Adresse steht darunter. */
+  .videorahmen{width:1000px;height:562px;margin:14px auto 0;background:#0f172a;
+    border-radius:14px;overflow:hidden;box-shadow:0 10px 34px rgba(15,23,42,.18)}
+  .videorahmen iframe{width:100%;height:100%;border:0;display:block}
+  .videoquelle{font-size:22px;color:var(--muted);margin:10px 0 0;text-align:center}
+
+  /* ---- Versuchsfolie: Schaltung links, Schritte rechts --------------- */
+  .versuch{display:flex;gap:30px;align-items:flex-start;margin-top:8px}
+  .versuch .vbild{flex:0 0 500px}
+  .versuch .vbild svg{width:100%;height:auto;display:block}
+  .versuch .vtext{flex:1 1 auto;min-width:0}
+  .versuch .auftrag{margin-top:0}
+  .vsicher{margin-top:12px;padding:12px 16px;border-radius:12px;background:#fef2f2;
+    border:1px solid #fecaca;color:#991b1b;font-size:24px;font-weight:700;line-height:1.35}
+  @media print{.planschild,.regie .plan{display:none!important}
+    .videorahmen{height:auto;background:none;box-shadow:none}
+    .videorahmen iframe{display:none}}
+/* ===========================================================================
+   Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
+
+   Alles hier haengt an `body.anp-an` oder an `.anp-*`. Im Unterricht ist
+   der Editor aus, und dann darf keine einzige Regel greifen - eine Anzeige,
+   die im Bearbeitungszustand an der Wand haengt, waere schlimmer als gar
+   kein Editor.
+   =========================================================================== */
+
+/* --- Warnung bei verwaisten Eintraegen -------------------------------
+   Sichtbar, nicht in der Konsole: Im Unterricht hat niemand die Konsole
+   offen, und eine Anpassung, die ins Leere greift, muss auffallen. */
+.anp-warnung{position:fixed;left:50%;top:52px;transform:translateX(-50%);z-index:80;
+  background:#fef2f2;border:1px solid #fecaca;border-left:7px solid #dc2626;
+  color:#7f1d1d;border-radius:11px;padding:9px 15px;font-size:14px;font-weight:600;
+  max-width:70vw;cursor:pointer;box-shadow:0 3px 12px rgba(15,23,42,.18)}
+@media print{.anp-warnung{display:none}}
+
+
+</style>
+</head>
+<body>
+<a class="home" href="../Klassen/Physik_10c.html">&larr; Physik 10c</a>
+<div class="counter" id="counter"></div>
+<div class="notizmarke">Randnotizen sichtbar · D</div>
+<div class="regie"><span class="pnam"></span><span class="ptr">&middot;</span><span class="pplan"></span><span class="ptr">&middot;</span><span class="puhr">--:--</span><button class="protokoll" type="button" title="Protokoll: alle Folien bis hierher als PDF &ndash; Drucken, dann &bdquo;Als PDF speichern&ldquo; (landet in Downloads)">&#128196; Protokoll</button><button class="ruhe" type="button" aria-pressed="false" title="Grundzustand auf den iPads: nur &bdquo;Blick nach vorn.&ldquo; (B)">&#128064; Blick nach vorn</button><button class="pause" type="button" aria-pressed="false" title="Zwei Minuten Pause ausrufen (P)">&#9208; 2 min</button><button class="plan" type="button" title="Plan A (echter Versuch) oder Plan B (am Bildschirm) &ndash; gilt f&uuml;r die Folien, die nur zu einem Weg geh&ouml;ren">Plan &#8644;</button><button class="abbruch" type="button" title="Versuch abbrechen: Material weg, Plan B ab hier &ndash; die Abbruchfolie sagt der Klasse, wie es weitergeht">&#9940; Abbruch</button></div>
+<div class="pauseschirm"></div>
+<div class="qrecke"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h5m2 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m3 0h3m3 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m3 0h2m2 0h1m1 0h4m-24 1h1m1 0h5m5 0h6m1 0h1m2 0h3m1 0h5m-30 1h4m2 0h4m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-31 1h3m3 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h3m-31 1h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h3m2 0h2m1 0h1m-31 1h2m1 0h2m1 0h4m5 0h1m1 0h2m1 0h3m2 0h1m2 0h4m-31 1h2m1 0h2m4 0h1m1 0h1m1 0h1m4 0h2m3 0h2m1 0h4m-32 1h1m1 0h3m2 0h1m1 0h1m1 0h2m1 0h3m3 0h3m2 0h3m2 0h1m-31 1h1m1 0h2m1 0h3m4 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m2 0h1m7 0h1m4 0h1m2 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-33 1h2m3 0h3m1 0h2m4 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-32 1h1m1 0h1m2 0h1m2 0h1m4 0h1m6 0h3m2 0h1m1 0h4m1 0h1m-32 1h2m2 0h2m5 0h1m2 0h1m1 0h3m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h2m1 0h2m3 0h1m1 0h2m4 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m2 0h1m2 0h1m1 0h6m1 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m1 0h1m4 0h4m2 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m-31 1h1m2 0h2m1 0h2m1 0h2m6 0h1m4 0h7m2 0h2m-25 1h1m2 0h3m2 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h1m1 0h2m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m4 0h3m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m6 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m2 0h1m1 0h1m3 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m1 0h4m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg><div class="code">10C-SOLA</div></div>
+<div class="deck" id="deck">
+
+<section class="slide on" data-phase="0 · Ankommen" data-ab="0" style="align-items:flex-start">
+<div class="kicker">Physik 10c · Fr 11.09.2026 · 09:40–11:10 · E234</div><h1>Die Diode,<br><span class="accent">rückwärts betrieben</span></h1><p class="muted lead frag" style="margin-top:.9em">Eine Leuchtdiode macht aus Strom Licht. Heute geht es um ein Bauteil, das genau das Gegenteil tut <span class="trenner">&#9656;</span> und dabei etwas Überraschendes: Mehr Licht macht <b>nicht</b> mehr Spannung.</p><div class="callout frag"><p><b>So läuft das heute:</b> 60 Minuten eng geführt, danach 30 Minuten Einstein-Zeit am iPad. Kein Aufbau, keine Kiste. Plickers-Karten und iPad bereitlegen. Bei jeder Frage antworten <b>alle</b>.</p></div>
+</section>
+
+<section class="slide" data-phase="0 · Ankommen" data-ab="1">
+<div class="kicker">So l&auml;uft die Doppelstunde</div><table class="tab"><tr><th>Min</th><th>Was</th><th>Wie</th></tr><tr><td class="nrz">0–8</td><td class="fr">Rückblick: die Diode und P = U · I</td><td class="an">alle schreiben</td></tr><tr><td class="nrz">8–15</td><td class="fr">Die Umkehrung: aus Licht wird Strom</td><td class="an">Plickers</td></tr><tr><td class="nrz">15–18</td><td class="fr">Merksatz 1</td><td class="an">abschreiben</td></tr><tr><td class="nrz">18–27</td><td class="fr">Die Kennlinie bei zwei Helligkeiten</td><td class="an">Plickers</td></tr><tr><td class="nrz">27–30</td><td class="fr">Merksatz 2 <span class="trenner">&#9656;</span> der überraschende</td><td class="an">abschreiben</td></tr><tr><td class="nrz">30–40</td><td class="fr">Wir rechnen: wo liegt die größte Leistung?</td><td class="an">Whiteboard</td></tr><tr><td class="nrz">40–50</td><td class="fr">Allein: die Messreihe zu Ende rechnen</td><td class="an">still</td></tr><tr><td class="nrz">52–60</td><td class="fr">Auflösung, Abfrage und Exit-Ticket</td><td class="an">Plickers</td></tr></table><div class="callout frag"><p><b>Ziel:</b> Ihr könnt am Ende sagen, was in einer Solarzelle passiert, warum ihre Spannung bei etwa 0,6 V bleibt <span class="trenner">&#9656;</span> und wo auf der Kennlinie die größte Leistung liegt.</p></div>
+</section>
+
+<section class="slide" data-phase="0 · Ankommen" data-ab="2" data-marke="QR">
+<div class="kicker">Einmal scannen <span class="trenner">&#9656;</span> dann könnt ihr mitstimmen</div><h2 class="wt">Holt eure iPads heraus</h2><div class="qrfolie"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h1m1 0h4m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h5m2 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m3 0h3m3 0h3m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m3 0h2m2 0h1m1 0h4m-24 1h1m1 0h5m5 0h6m1 0h1m2 0h3m1 0h5m-30 1h4m2 0h4m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-31 1h3m3 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h3m-31 1h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h3m2 0h2m1 0h1m-31 1h2m1 0h2m1 0h4m5 0h1m1 0h2m1 0h3m2 0h1m2 0h4m-31 1h2m1 0h2m4 0h1m1 0h1m1 0h1m4 0h2m3 0h2m1 0h4m-32 1h1m1 0h3m2 0h1m1 0h1m1 0h2m1 0h3m3 0h3m2 0h3m2 0h1m-31 1h1m1 0h2m1 0h3m4 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h2m3 0h1m-33 1h1m2 0h1m7 0h1m4 0h1m2 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-33 1h2m3 0h3m1 0h2m4 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m-32 1h1m1 0h1m2 0h1m2 0h1m4 0h1m6 0h3m2 0h1m1 0h4m1 0h1m-32 1h2m2 0h2m5 0h1m2 0h1m1 0h3m2 0h1m2 0h1m2 0h2m1 0h2m-33 1h2m1 0h2m3 0h1m1 0h2m4 0h1m1 0h6m2 0h1m2 0h1m2 0h1m-33 1h1m2 0h1m2 0h1m1 0h6m1 0h4m1 0h3m2 0h5m1 0h1m-32 1h1m1 0h1m4 0h4m2 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m-31 1h1m2 0h2m1 0h2m1 0h2m6 0h1m4 0h7m2 0h2m-25 1h1m2 0h3m2 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h1m1 0h2m3 0h1m2 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m4 0h3m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m6 0h1m2 0h2m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h5m1 0h2m2 0h1m1 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m2 0h1m1 0h1m3 0h1m2 0h2m2 0h2m1 0h3m-31 1h7m1 0h1m1 0h4m1 0h1m1 0h1m4 0h4m1 0h1m3 0h1"/></svg></div><div class="qrtext"><p class="lead weit">Kamera auf den Code halten und auf die Meldung tippen. Wer keine Kamera hat, tippt die Adresse ein:</p><p class="kurzadresse">mathematik-unterrichten.de/abstimmung/?raum=10c-sola</p><p class="lead weit">Die Seite bleibt die ganze Stunde offen. Sobald an der Wand eine Frage steht, könnt ihr antworten.</p></div></div><div class="callout frag"><p>Keine Namen, keine Anmeldung. Euer Gerät bekommt eine Zufallsnummer, damit jede Stimme einmal zählt <span class="trenner">&#9656;</span> mehr wird nicht gespeichert.</p></div><div class="randnotiz"><b>Diese Folie stehen lassen, bis alle verbunden sind</b> <span class="trenner">&#9656;</span> erfahrungsgemäß eine Minute. Der Zähler oben links sagt Ihnen, wie viele Geräte mitmachen.<br><b>Danach klein in der Ecke:</b> Der Code bleibt unten links hängen, für Nachzügler und für Geräte, die sich verabschieden. <b>Q</b> blendet ihn aus und wieder ein.<br><b>Kein Dienst erreichbar?</b> Dann fehlt die Anzeige oben links. Diese Folie überspringen und die Stunde mit den Plickers-Karten halten <span class="trenner">&#9656;</span> alle Abfragen funktionieren unverändert.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="3" data-frage="Ab welcher Spannung leitet eine Silicium-Diode?" data-optionen="[]" data-art="zeichnen" data-schluessel="w1">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;1 von 7 &middot; Aus der letzten Stunde</div><div class="frage">Ab welcher Spannung leitet eine <span class="term">Silicium-Diode</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">etwa 0,7 V</span> <span class="muted neben"><span class="trenner">&#9656;</span> Buch S. 144, B6</span></div><div class="randnotiz"><b>Steht im Buch auf S. 144</b> und stand vorige Woche an der Wand. Keine Ratefrage <span class="trenner">&#9656;</span> wer es nicht weiß, schlägt nach.<br><b>Diese Zahl wird heute gebraucht:</b> 0,7 V für die Diode, 0,6 V für die Solarzelle. Zwei ähnliche Zahlen, zwei verschiedene Dinge <span class="trenner">&#9656;</span> das gehört auseinandergehalten.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="5" data-frage="Wie berechnet man die elektrische Leistung?" data-optionen="[]" data-art="zeichnen" data-schluessel="w2">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;2 von 7 &middot; Die Formel</div><div class="frage">Wie berechnet man die elektrische <span class="term">Leistung</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">P = U · I</span> </div><div class="randnotiz"><b>Das Werkzeug der zweiten Stundenhälfte.</b> Ohne sie ist Phase 6 nicht zu machen.<br><b>Unter 80 %:</b> die Einheit dazuschreiben lassen <span class="trenner">&#9656;</span> V · A = W. Das kostet eine Minute und trägt den Rest.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="7" data-frage="Eine LED wandelt Energie um. Von welcher Form in welche?" data-optionen="[]" data-art="zeichnen" data-schluessel="w3">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;3 von 7 &middot; Was die Diode tut</div><div class="frage">Eine LED wandelt Energie um.<br><span class="term">Von welcher Form in welche?</span></div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">elektrisch → Strahlung</span> <span class="muted neben"><span class="trenner">&#9656;</span> Buch S. 146, B1</span></div><div class="randnotiz"><b>Die Brücke zur heutigen Stunde</b>, und sie kommt aus dem Buch: B1 zeigt genau dieses Diagramm.<br><b>Lassen Sie den Pfeil sprechen:</b> „elektrisch, Pfeil, Strahlung.“ Gleich wird er umgedreht.</div>
+</section>
+
+<section class="slide" data-phase="2 · Die Umkehrung" data-ab="9" data-marke="UMKEHR">
+<div class="kicker">Buch S. 146, B1 &middot; zwei Diagramme</div><h2 class="wt">Dasselbe Bild, einmal umgedreht</h2><div class="paar"><div class="halb >"><h4><</h4>b</div><div class="halb >"><h4><</h4>b</div></div><p class="lead weit frag" style="margin-top:1.6vh">Das Buch sagt es in einem Satz: <b>Solarzellen sind speziell konstruierte Leuchtdioden, die die Wirkung von LEDs umkehren.</b></p><div class="randnotiz"><b>Wörtlich aus dem Buch (S. 146).</b> Die beiden Diagramme stehen dort übereinander; hier nebeneinander, damit die Umkehrung ins Auge fällt.<br><b>Nicht erklären, zeigen.</b> Der Satz darunter ist die Erklärung <span class="trenner">&#9656;</span> er steht im Buch rot gesetzt.</div>
+</section>
+
+<section class="slide abfrage plk stufig" data-phase="2 · Die Umkehrung" data-ab="12" data-marke="P1" data-frage="In der Solarzelle trifft Licht auf die Sperrschicht. Was entsteht dort?" data-optionen="[&quot;freie Elektronen und Elektronenfehlstellen&quot;, &quot;nur freie Elektronen&quot;, &quot;Wärme, sonst nichts&quot;, &quot;eine breitere Sperrschicht&quot;]" data-schluessel="p1">
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Was im Kristall passiert</div><h2 class="wt">In der Solarzelle trifft Licht auf die Sperrschicht.<br><span class="accent">Was entsteht dort?</span></h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>freie Elektronen und Elektronenfehlstellen</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">B</span><span>nur freie Elektronen</span></div><div class="opt"><span class="bst">C</span><span>Wärme, sonst nichts</span></div><div class="opt"><span class="bst">D</span><span>eine breitere Sperrschicht</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Freie Elektronen und Elektronenfehlstellen.</b> Das Licht kehrt die Rekombination um <span class="trenner">&#9656;</span> genau umgekehrt zur LED, wo die Rekombination das Licht erzeugt.</div><div class="randnotiz"><b>Keine Ratefrage:</b> Der Vorgang steht auf S. 146 im zweiten Absatz und war eben an der Wand. Wer nicht zugehört hat, kann nachschlagen <span class="trenner">&#9656;</span> das ist erlaubt und gewollt.<br><b>B (nur Elektronen)</b> ist die häufigste Verkürzung. Fragen Sie zurück: „Und was bleibt dort, wo das Elektron war?“<br><b>D</b> verwechselt es mit der gesperrten Diode aus S. 144.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % Reservefolie 23, kostet drei Minuten.</span></div>
+</section>
+
+<section class="slide" data-phase="3 · Merksatz" data-ab="14" data-marke="MERK1">
+<div class="kicker">Merksatz 1</div><div class="merk frag"><div class="satz">Eine <b>Solarzelle</b> überführt <b>Lichtenergie in elektrische Energie</b>. Sie ist eine umgekehrt betriebene Leuchtdiode.</div><div class="zusatz">Das Licht erzeugt in der Sperrschicht freie Ladungsträger. An den Metallelektroden entstehen dadurch die Pole.</div></div><div class="randnotiz"><b>Abschreiben lassen, zwei Minuten.</b> Der Satz kommt ausdrücklich <i>vor</i> der Kennlinie <span class="trenner">&#9656;</span> die Klasse soll wissen, was das Bauteil tut, bevor sie sieht, was es nicht tut.<br><b>Erste Hälfte des roten Buchsatzes</b> (S. 146). Die zweite Hälfte folgt in Phase 5; das ist Absicht.</div>
+</section>
+
+<section class="slide" data-phase="4 · Die Kennlinie" data-ab="17" data-marke="KENN">
+<div class="kicker">Buch S. 146, B2 &middot; eine Zelle, zwei Helligkeiten</div><h2 class="wt">Dieselbe Zelle, einmal hell und einmal heller</h2><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg><p class="lead weit" style="margin-top:1vh">Orange: zwei Lampen. Blau: eine Lampe. <span class="muted">Modellkurven nach Buch B2 <span class="trenner">&#9656;</span> die Form, nicht gemessene Werte.</span></p><div class="randnotiz"><b>Zwei Kurven, ein Schnittpunkt mit der U-Achse.</b> Genau darauf zielt die Stunde: Die beiden Kurven starten oben verschieden hoch und enden unten am <i>selben</i> Punkt.<br><b>Zeigen Sie mit dem Finger die U-Achse entlang</b>, nicht die Kurven. Was gleich bleibt, sieht man nur dort.<br><b>Ehrlich bleiben:</b> Sagen Sie, dass es Modellkurven sind. Das Buch zeigt dieselbe Form ohne Zahlen.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="4 · Die Kennlinie" data-ab="20" data-frage="Bei welcher Spannung erreichen beide Kurven die U-Achse?" data-optionen="[]" data-art="zeichnen" data-schluessel="w4">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;4 von 7 &middot; Ablesen, nicht rechnen</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Bei welcher Spannung erreichen <span class="term">beide</span> Kurven die U-Achse?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">etwa 0,6 V</span> <span class="muted neben"><span class="trenner">&#9656;</span> dort ist die Stromstärke null</span></div></div><div class="mwbild"><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg></div></div><div class="randnotiz"><b>Reines Ablesen.</b> Die Zahl steht auch im Buchtext: „Sie beträgt bei allen Silicium-Solarzellen etwa 0,6 V.“<br><b>Der Fachbegriff kommt danach:</b> Leerlaufspannung U₀ <span class="trenner">&#9656;</span> die Spannung ohne angeschlossenes Gerät.</div>
+</section>
+
+<section class="slide abfrage plk mitbild stufig" data-phase="4 · Die Kennlinie" data-ab="23" data-marke="P2" data-frage="Man schaltet die zweite Lampe dazu. Was ändert sich an der Kennlinie?" data-optionen="[&quot;Die Spannung wird größer.&quot;, &quot;Die Stromstärke wird größer.&quot;, &quot;Beides wird größer.&quot;, &quot;Nichts, es wird nur heller.&quot;]" data-schluessel="p2">
+<div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Was die zweite Lampe ändert</div><h2 class="wt">Man schaltet die <span class="accent">zweite Lampe</span> dazu.<br>Was ändert sich an der Kennlinie?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plzeile"><div class="plbild"><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Die Spannung wird größer.</span></div><div class="opt"><span class="bst">B</span><span>Die Stromstärke wird größer.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Beides wird größer.</span></div><div class="opt"><span class="bst">D</span><span>Nichts, es wird nur heller.</span></div></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Die Stromstärke wird größer.</b> Die Kurve rückt nach oben, trifft die U-Achse aber an derselben Stelle. Die Leerlaufspannung bleibt bei etwa 0,6 V.</div><div class="randnotiz"><b>Das ist die Frage des Tages</b>, und sie ist keine Ratefrage: Das Bild steht daneben, die Antwort ist ablesbar.<br><b>A und C sind die Alltagsvorstellung:</b> mehr Licht, mehr von allem. Erwartung: zusammen 40–60 %. Das ist kein Versagen <span class="trenner">&#9656;</span> es ist der Grund, warum das Buch den Satz rot setzt.<br><b>Beim Auflösen an der U-Achse bleiben.</b> Nicht erklären, warum <span class="trenner">&#9656;</span> nur zeigen, dass es so ist. Das Warum steht in der Reservefolie 24 für die, die fragen.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % zurück zu Folie 10 und beide Kurven bis zur Achse nachfahren lassen.</span></div>
+</section>
+
+<section class="slide" data-phase="5 · Der zweite Satz" data-ab="26" data-marke="MERK2">
+<div class="kicker">Merksatz 2</div><div class="merk frag"><div class="satz">Bei gleicher Lichtquelle hängt die <b>Spannung</b> der Solarzelle <b>nicht</b> von deren Helligkeit ab.</div><div class="zusatz">Mehr Licht bedeutet mehr <b>Stromstärke</b> <span class="trenner">&#9656;</span> die Leerlaufspannung bleibt bei etwa 0,6 V je Zelle.</div></div><div class="randnotiz"><b>Der zweite Teil des roten Buchsatzes.</b> Neben Merksatz 1 an die Tafel <span class="trenner">&#9656;</span> beide gehören zusammen und werden zusammen abgefragt.<br><b>Der Satz ist kontraintuitiv</b> und wird es bleiben. Er braucht keine Begründung an dieser Stelle, sondern Wiederholung: Er kommt im Exit-Ticket wieder.</div>
+</section>
+
+<section class="slide" data-phase="6 · Wir rechnen" data-ab="28" data-marke="MESS">
+<div class="kicker">Buch S. 147, V2 &middot; eine fertige Messreihe</div><h2 class="wt">Ein <span class="accent">Solarmodul</span>, sieben Wertepaare</h2><p class="lead weit">Diese Zahlen stehen im Buch. Wir müssen sie nicht messen <span class="trenner">&#9656;</span> wir müssen sie <b>auswerten</b>.</p><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr></table><div class="randnotiz"><b>Wichtig zu benennen:</b> Das ist ein <i>Modul</i>, keine einzelne Zelle <span class="trenner">&#9656;</span> deshalb geht die Spannung bis 4,5 V und nicht nur bis 0,6 V. Wer das nicht hört, hält Merksatz 2 für widerlegt.<br><b>Die Zahlen sind wortgleich aus V2</b> (S. 147). Kein Aufbau nötig <span class="trenner">&#9656;</span> das ist der Grund, warum diese Stunde ohne Kiste auskommt.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="6 · Wir rechnen" data-ab="31" data-frage="Rechne für U = 2,3 V und I = 42 mA die Leistung aus." data-optionen="[]" data-art="zeichnen" data-schluessel="w5">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 7 &middot; Eine Zeile rechnen</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Rechne für <span class="term">U = 2,3 V</span> und <span class="term">I = 42 mA</span> die Leistung aus.</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">96,6 mW</span> <span class="muted neben"><span class="trenner">&#9656;</span> 2,3 · 42</span></div></div><div class="mwbild"><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr></table></div></div><div class="randnotiz"><b>Erst eine Zeile gemeinsam</b>, dann die anderen. Die Einheit mW ergibt sich aus V · mA <span class="trenner">&#9656;</span> darauf hinweisen, sonst schreibt die Hälfte W.<br><b>Wer 966 rechnet</b>, hat das Komma verloren. Das ist der häufigste Fehler und keine Frage des Verstehens.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="6 · Wir rechnen" data-ab="34" data-frage="Und für U = 3,5 V und I = 35 mA?" data-optionen="[]" data-art="zeichnen" data-schluessel="w6">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;6 von 7 &middot; Und noch eine</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Und für <span class="term">U = 3,5 V</span> und <span class="term">I = 35 mA</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">122,5 mW</span> <span class="muted neben"><span class="trenner">&#9656;</span> 3,5 · 35</span></div></div><div class="mwbild"><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr></table></div></div><div class="randnotiz"><b>Diese Zeile ist das Maximum</b> <span class="trenner">&#9656;</span> sagen Sie es noch nicht. Die Klasse soll es in der Eigenphase selbst finden.<br><b>Beim Herumgehen</b> nur auf das Komma sehen, nicht auf den Rechenweg.</div>
+</section>
+
+<section class="slide" data-phase="7 · Allein, kurz" data-ab="38">
+<div class="kicker">Jetzt allein &middot; in Stille</div><h2 class="wt">Die Messreihe zu Ende <span class="zeitschild">10 Minuten</span></h2><div class="auftrag"><ol><li><b>A1</b> <span class="trenner">&#9656;</span> Rechne die <b>fehlenden fünf</b> Zeilen der Tabelle aus: P = U · I für 0,05 V; 0,55 V; 1,9 V; 3,7 V und 4,5 V.</li><li><b>A2</b> <span class="trenner">&#9656;</span> Bei welchem Wertepaar ist die Leistung am <b>größten</b>? Schreib U, I und P hin.</li><li>★ <b>Wer fertig ist:</b> Warum ist die Leistung ganz links (0,05 V) und ganz rechts (4,5 V) so klein? Ein Satz zu jeder Seite.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Taschenrechner erlaubt. Auf das Komma achten.</p></div><div class="randnotiz"><b>Zehn Minuten, Stoppuhr sichtbar (T).</b> Zwei Zeilen sind gemeinsam gerechnet, fünf bleiben <span class="trenner">&#9656;</span> das ist knapp, aber machbar.<br><b>A2 ist das Ziel der Stunde:</b> das Wertepaar mit dem größten Produkt. Buch S. 147 nennt genau das die Kenngrößen der maximalen Leistung.<br><b>Der Sternschritt</b> ist die Begründung des Buches: Bei U = 0 und bei I = 0 ist die Leistung null <span class="trenner">&#9656;</span> dazwischen liegt das Maximum. Wer ihn schafft, liest ihn in Phase 8 vor.</div>
+</section>
+
+<section class="slide abfrage mwb ipad" data-phase="8 · Abschluss" data-ab="50" data-frage="Bei welchem U ist die Leistung am größten?" data-optionen="[]" data-art="zeichnen" data-schluessel="w7">
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;7 von 7 &middot; Bevor ich auflöse</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Bei welchem <span class="term">U</span> ist die Leistung am größten?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">3,5 V</span> <span class="muted neben"><span class="trenner">&#9656;</span> dort sind es 122,5 mW</span></div></div><div class="mwbild"><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr></table></div></div><div class="randnotiz"><b>Erst zeigen lassen.</b> Nach zehn Minuten stiller Arbeit weiß sonst niemand, wer gerechnet hat.</div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="52" data-marke="AUFL">
+<div class="kicker">Auflösung &middot; alle sieben Zeilen</div><h2 class="wt">Die Leistung, ausgerechnet</h2><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr><tr><th>P = U · I in mW</th><td>2,4</td><td>25,9</td><td>81,7</td><td>96,6</td><td>122,5</td><td>114,7</td><td>18</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Am größten bei <b>3,5 V und 35 mA</b>: <b>122,5 mW</b>. Links und rechts davon fällt sie ab.</p><div class="randnotiz"><b>Die dritte Zeile ist neu</b> und wird beim Aufdecken gelesen, nicht erklärt.<br><b>Der Bogen zum Buch:</b> S. 147 zeigt dasselbe als Rechteckfläche unter der Kennlinie (B5). Wenn Zeit ist, das Buch aufschlagen lassen <span class="trenner">&#9656;</span> das Bild sagt es besser als jede Tabelle.</div>
+</section>
+
+<section class="slide abfrage plk stufig" data-phase="8 · Abschluss" data-ab="54" data-marke="P3" data-frage="Eine Solarzelle wird doppelt so hell beleuchtet. Was gilt?" data-optionen="[&quot;Die Leerlaufspannung verdoppelt sich.&quot;, &quot;Die Leerlaufspannung bleibt etwa gleich.&quot;, &quot;Die Stromstärke bleibt gleich.&quot;, &quot;Beide Größen verdoppeln sich.&quot;]" data-schluessel="p3">
+<div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Abschluss <span class="trenner">&#9656;</span> sitzen beide Sätze?</div><h2 class="wt">Eine Solarzelle wird <span class="accent">doppelt so hell</span> beleuchtet. Was gilt?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>Die Leerlaufspannung verdoppelt sich.</span></div><div class="opt"><span class="bst">B</span><span>Die Leerlaufspannung bleibt etwa gleich.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Die Stromstärke bleibt gleich.</span></div><div class="opt"><span class="bst">D</span><span>Beide Größen verdoppeln sich.</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Die Leerlaufspannung bleibt etwa gleich</b> <span class="trenner">&#9656;</span> bei rund 0,6 V. Was steigt, ist die Kurzschluss-Stromstärke.</div><div class="randnotiz"><b>Dieselbe Frage wie Plickers 2, ohne Bild.</b> Der Vergleich beider Quoten sagt, ob der Satz ohne die Kennlinie trägt <span class="trenner">&#9656;</span> und genau so steht er in der Klassenarbeit.<br><b>Unter 70 %:</b> Merksatz 2 gehört in die nächste Stunde wiederholt, bevor etwas Neues kommt.<span class="weiche"><i>Weiche:</i> ab 70 % zum Exit-Ticket · unter 70 % zuerst Folie 13 noch einmal, von einem Schüler vorgelesen.</span></div>
+</section>
+
+<section class="slide" data-phase="8 · Abschluss" data-ab="56" data-marke="EXIT">
+<div class="kicker">Exit-Ticket</div><h2 class="wt">Auf einen Zettel, Name drauf</h2><p class="lead weit" style="margin-top:1.2vh"><b>1.</b> Eine Solarzelle liefert 0,5 V bei 100 mA. Wie groß ist die Leistung?</p><p class="lead weit" style="margin-top:.8vh"><b>2.</b> Warum wird eine Solarzelle im Sommer nicht „stärker“ in der Spannung? Ein Satz.</p><div class="randnotiz"><b>Frage 1 prüft das Handwerk</b> (50 mW), <b>Frage 2 das Verstehen.</b> Wer bei 2 „weil die Sonne gleich ist“ schreibt, hat die Frage nicht gelesen <span class="trenner">&#9656;</span> gemeint ist die Helligkeit.<br><b>Einsammeln, nicht besprechen.</b> Die Auswertung gehört an den Anfang der nächsten Stunde.<br><b>Danach die Einstein-Zeit</b> <span class="trenner">&#9656;</span> dreißig Minuten am iPad, eigene Stunde, zwei Wege.</div>
+</section>
+
+<section class="slide" data-phase="9 · Einstein-Zeit" data-ab="60" data-marke="EINSTEIN">
+<div class="kicker">Einstein-Zeit &middot; 30 Minuten, Fach frei &middot; Physik-Aufgabe: Pflicht, Abgabe bis Fr 18.09.</div><h2 class="wt">Selbstlernstunde „Solarzellen <span class="trenner">&#9656;</span> zwei Wege“ <span class="zeitschild">30 min</span></h2><div class="versuch"><div class="vtext"><div class="auftrag"><ol><li><b>Klassenseite öffnen</b> (QR rechts), Kachel <b>„Solarzellen <span class="trenner">&#9656;</span> zwei Wege“</b>. Tafelzahl eingeben.</li><li><b>Weg 1 <span class="trenner">&#9656;</span> die Grundlagen sichern:</b> U, I, R und P noch einmal, als Simulation zum Anklicken. Kein Aufbau, keine Kiste.</li><li><b>Weg 2 <span class="trenner">&#9656;</span> weiter als die Stunde:</b> Reihen- und Parallelschaltung von Solarzellen, dazu Aufgabe A1 des Buches (S. 147). Auch das vollständig am Bildschirm.</li><li><b>Welcher Weg?</b> Das sagt euch der kurze Selbsttest am Anfang. Ratet dort nicht <span class="trenner">&#9656;</span> sonst übt ihr das Falsche.</li><li><b>Am Ende:</b> Abgabe per Protokoll. <b>Bis Fr 18.09.</b></li></ol><p class="muted" style="margin-top:.8em;font-size:22px">Einstein-Zeit heißt: Ihr wählt das Fach. Die Physik-Aufgabe ist trotzdem Pflicht <span class="trenner">&#9656;</span> heute oder bis Freitag.</p></div></div><div class="vbild" style="flex:0 0 300px"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m4 0h2m2 0h2m1 0h2m2 0h7m-29 1h1m5 0h1m1 0h6m1 0h5m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m3 0h1m1 0h1m5 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h3m2 0h2m2 0h1m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m2 0h1m-21 1h1m1 0h1m1 0h1m1 0h1m3 0h1m2 0h5m1 0h2m3 0h1m2 0h1m-27 1h1m2 0h1m2 0h3m1 0h2m4 0h2m1 0h3m2 0h1m2 0h1m-28 1h1m1 0h1m2 0h1m3 0h2m1 0h1m3 0h2m2 0h2m1 0h1m1 0h3m-29 1h2m3 0h1m3 0h3m1 0h5m1 0h2m2 0h2m2 0h1m-28 1h1m1 0h1m1 0h3m1 0h2m4 0h1m1 0h2m3 0h2m2 0h1m1 0h2m-27 1h2m4 0h1m4 0h1m2 0h1m3 0h3m2 0h1m2 0h1m-28 1h3m1 0h5m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h2m-28 1h4m3 0h2m1 0h1m1 0h1m1 0h6m4 0h1m1 0h1m-28 1h2m4 0h2m3 0h2m1 0h1m1 0h2m1 0h5m1 0h1m1 0h2m-26 1h2m4 0h1m1 0h2m3 0h2m3 0h2m2 0h2m1 0h1m-29 1h1m2 0h1m1 0h2m1 0h3m1 0h2m2 0h3m3 0h3m2 0h2m-28 1h1m2 0h2m1 0h1m1 0h2m1 0h1m3 0h3m4 0h1m1 0h1m1 0h1m-28 1h1m1 0h1m2 0h4m6 0h3m1 0h6m-17 1h4m1 0h1m5 0h2m3 0h1m1 0h3m-29 1h7m3 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h2m1 0h2m-29 1h1m5 0h1m2 0h1m1 0h4m1 0h2m2 0h1m3 0h2m2 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h4m2 0h5m2 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m1 0h3m4 0h2m1 0h3m-29 1h1m1 0h3m1 0h1m1 0h4m2 0h1m6 0h1m1 0h3m2 0h1m-29 1h1m5 0h1m2 0h1m1 0h1m3 0h3m1 0h2m6 0h1m-28 1h7m1 0h4m1 0h2m1 0h2m1 0h2m1 0h2m3 0h2"/></svg></div><p class="videoquelle">mathematik-unterrichten.de/10c</p></div></div><div class="randnotiz"><b>Kein Material, kein Aufbau <span class="trenner">&#9656;</span> auch hier nicht.</b> Beide Wege sind vollständig anklickbar; das ist die Vorgabe für diese Lerngruppe und nicht dasselbe wie bei der Diodenstunde, wo Weg A noch gemessen hat.<br><b>Der Selbsttest ist die Weiche</b>, nicht die Tafelzahl. Wer die Grundlagen nicht hat, übt sie; wer sie hat, bekommt die Reihen- und Parallelschaltung, die aus dieser Stunde herausgenommen wurde.<br><b>Herumgehen und auf den Selbsttest sehen.</b> Wer dort rät, landet auf dem falschen Weg <span class="trenner">&#9656;</span> das ist die einzige Stelle, an der diese halbe Stunde scheitern kann.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R1">
+<div class="kicker">Reserve &middot; zu Plickers 1</div><h2 class="wt">LED und Solarzelle <span class="trenner">&#9656;</span> derselbe Vorgang, zwei Richtungen</h2><div class="paar"><div class="halb >"><h4><</h4>b</div><div class="halb >"><h4><</h4>b</div></div><p class="lead weit frag" style="margin-top:1.6vh">Dasselbe Paar, einmal zusammen und einmal auseinander. Buch S. 144 (B5) und S. 146.</p><div class="randnotiz"><b>Einzusetzen, wenn Plickers 1 unter 70 % bleibt.</b> Die Gegenüberstellung macht aus zwei Merksätzen einen Vorgang.<br><b>Danach zurück zu Folie 7.</b></div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R2">
+<div class="kicker">Reserve &middot; die Frage, die kommt</div><h2 class="wt">„Warum bleibt die Spannung gleich?“</h2><p class="lead weit" style="margin-top:1.2vh">Die Spannung entsteht am <b>p-n-Übergang</b> <span class="trenner">&#9656;</span> sie hängt vom <b>Material</b> ab, nicht davon, wie viele Ladungsträger unterwegs sind.</p><p class="lead weit" style="margin-top:.8vh">Mehr Licht erzeugt <b>mehr</b> Ladungsträger. Mehr Ladungsträger je Sekunde sind <b>mehr Strom</b> <span class="trenner">&#9656;</span> nicht mehr Spannung.</p><p class="lead weit frag" style="margin-top:1.2vh">Bei allen Silicium-Zellen sind es deshalb etwa dieselben 0,6 V <span class="trenner">&#9656;</span> egal wie groß die Zelle ist und wie hell es ist.</p><div class="randnotiz"><b>Diese Frage kommt fast sicher</b>, und sie ist berechtigt. Die Folie gibt die kurze Antwort, ohne in die Bändertheorie zu gehen.<br><b>Der letzte Satz ist der brauchbare:</b> Die Zellengröße ändert die Spannung nicht <span class="trenner">&#9656;</span> nur den Strom. Das erklärt auch, warum Module in Reihe geschaltet werden.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R3">
+<div class="kicker">Reserve &middot; für die Schnellen</div><h2 class="wt">Die Rechteckfläche</h2><svg class="graph" style="width:100%" viewBox="0 0 640 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="546.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="552.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="147.2" y1="314.0" x2="147.2" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="147.2" y1="308.0" x2="147.2" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="147.2" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1</text><line x1="240.4" y1="314.0" x2="240.4" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="240.4" y1="308.0" x2="240.4" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="240.4" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2</text><line x1="333.6" y1="314.0" x2="333.6" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="333.6" y1="308.0" x2="333.6" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="333.6" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">3</text><line x1="426.8" y1="314.0" x2="426.8" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="426.8" y1="308.0" x2="426.8" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="426.8" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">4</text><line x1="520.0" y1="314.0" x2="520.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="520.0" y1="308.0" x2="520.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="520.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">5</text><line x1="54.0" y1="260.9" x2="540.0" y2="260.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="260.9" x2="60.0" y2="260.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="266.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="207.8" x2="540.0" y2="207.8" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="207.8" x2="60.0" y2="207.8" stroke="#64748b" stroke-width="2"/><text x="44.0" y="213.8" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="154.7" x2="540.0" y2="154.7" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="154.7" x2="60.0" y2="154.7" stroke="#64748b" stroke-width="2"/><text x="44.0" y="160.7" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="101.6" x2="540.0" y2="101.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="101.6" x2="60.0" y2="101.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="107.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><line x1="54.0" y1="48.5" x2="540.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">50</text><polyline points="58.7,59.2 105.3,64.5 231.1,85.7 268.4,91.0 380.2,128.2 398.8,149.4 473.4,292.8" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="483.4" y="298.8" fill="#dc2626" font-size="18" font-weight="800">Solarmodul</text></svg><p class="lead weit" style="margin-top:1vh">Zeichne für <b>drei</b> Wertepaare das Rechteck bis zu den Achsen. Welches hat die größte Fläche? <span class="muted">Buch S. 147, B5.</span></p><div class="randnotiz"><b>Die Kennlinie des Moduls aus den Messwerten gezeichnet.</b> Das Rechteck U · I ist die Leistung <span class="trenner">&#9656;</span> dieselbe Rechnung wie in Phase 6, nur als Bild.<br><b>Wertvoll, weil es das Maximum sichtbar macht:</b> Ganz links ist das Rechteck flach, ganz rechts schmal. In der Mitte ist es am größten.</div>
+</section>
+
+<section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R4">
+<div class="kicker">Reserve &middot; wenn viel Zeit bleibt</div><h2 class="wt">Solar Impulse 2</h2><div class="schild"><h3>Solar Impulse 2</h3><table><tr><td>erste Weltumrundung</td><td class="p">26.07.2016</td></tr><tr><td>Antrieb</td><td class="p">nur Sonnenenergie</td></tr><tr><td>Spannweite</td><td class="p">größer als ein Jumbo Jet B747</td></tr></table><div class="fuss">Buch S. 146</div></div><p class="lead weit" style="margin-top:1.2vh">Das Flugzeug steigt tagsüber auf 10 000 m und sinkt nachts auf 2 000 m. <b>Warum?</b></p><p class="lead weit frag" style="margin-top:.8vh">Tagsüber laden die Solarzellen die Akkus <span class="trenner">&#9656;</span> und die Höhe ist gespeicherte Energie für die Nacht. <span class="muted">Buch S. 146 und A3.</span></p><div class="randnotiz"><b>Der Einstieg des Buches, ans Ende gestellt.</b> Er ist schön, aber nicht tragend <span class="trenner">&#9656;</span> deshalb Reserve und nicht Phase 0.<br><b>Die Antwort ist Energieerhaltung</b>, nicht Halbleiterphysik: Höhe ist Lageenergie. Wer das sagt, hat mehr verstanden als die Stunde verlangt.</div>
+</section>
+
+</div>
+
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>A</b> Abgabe &middot; <b>F</b> Vollbild</div>
+<div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
+<div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
+
+<script>
+  // ---- Slide-Navigation mit schrittweisem Aufbau ----
+  // Wie in Projektion_k1-s*.html. Neu: Elemente mit der Klasse .hart bekommen
+  // KEINE Geist-Vorschau - eine halb durchscheinende Loesung waere in einer
+  // Whiteboard-Runde ein Spoiler.
+  const slides=[...document.querySelectorAll('.slide')];
+  const dotsBox=document.getElementById('dots');
+  let idx=0;
+  // Teil-Ansicht: ?folien=2-11 -> nur die zehn Fragen, ohne Uebersicht.
+  const QS=new URLSearchParams(location.search);
+  const FOLIEN=QS.get('folien');
+  const mF=FOLIEN&&FOLIEN.match(/^\s*(\d+)\s*(?:-\s*(\d+))?\s*$/);
+  const LO=mF?Math.max(0,Math.min(slides.length-1,+mF[1]-1)):0;
+  const HI=mF?Math.max(LO,Math.min(slides.length-1,+(mF[2]||mF[1])-1)):slides.length-1;
+  slides.forEach((s,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>{revealAll(i);go(i);};if(i<LO||i>HI)d.style.display='none';dotsBox.appendChild(d);});
+  const dots=[...document.querySelectorAll('.dot')];
+  const frags=i=>[...slides[i].querySelectorAll('.frag')];
+  function revealAll(i){ slides[i].dataset.step=frags(i).length; }
+  let GHOST=0.12;   // Deckkraft des naechsten Elements (per Regler); uebernaechstes = halb so stark
+  function paintFrags(i){ const f=frags(i); const step=+(slides[i].dataset.step||0);
+    f.forEach((el,k)=>{
+      let o;
+      if(el.classList.contains('hart')){ o = k<step?1:0; }
+      else { o = k<step?1 : (k===step?GHOST : (k===step+1?GHOST/2 : 0)); }
+      el.style.opacity=o; el.style.pointerEvents=(o===0?'none':''); }); }
+  function go(i){ idx=Math.max(LO,Math.min(HI,i));
+    if(slides[idx].dataset.step==null) slides[idx].dataset.step=0;
+    slides.forEach((s,k)=>s.classList.toggle('on',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    document.getElementById('counter').textContent=(idx-LO+1)+' / '+(HI-LO+1);
+    paintFrags(idx);
+  }
+  function next(){ const f=frags(idx); const step=+(slides[idx].dataset.step||0);
+    if(step<f.length){ slides[idx].dataset.step=step+1; paintFrags(idx); return; }
+    if(idx<HI){ slides[idx+1].dataset.step=0; go(idx+1); } }
+  function prev(){ const step=+(slides[idx].dataset.step||0);
+    if(step>0){ slides[idx].dataset.step=step-1; paintFrags(idx); return; }
+    if(idx>LO){ revealAll(idx-1); go(idx-1); } }
+  document.getElementById('next').onclick=next;
+  document.getElementById('prev').onclick=prev;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'){next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){prev();}
+    else if(e.key===' '){e.preventDefault();next();}
+    else if(e.key==='d'||e.key==='D'){document.body.classList.toggle('notizen');}
+    else if(e.key==='f'||e.key==='F'){toggleFs();}
+  });
+  function toggleFs(){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();} else {document.exitFullscreen&&document.exitFullscreen();} }
+  const ghostSlider=document.getElementById('ghost');
+  if(ghostSlider){ GHOST=(+ghostSlider.value)/100;
+    ghostSlider.addEventListener('input',()=>{ GHOST=(+ghostSlider.value)/100; paintFrags(idx); }); }
+  go(LO);
+
+  window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "10c-sola"};
+
+  /* ---- Selbsteinpassung ------------------------------------------------
+     Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
+     Hoehe. Auf einer flachen Anlage geht das nicht immer auf - und es
+     faellt erst im Klassenraum auf, wenn die Frage halb unter der
+     Bedienleiste liegt.
+
+     Deshalb misst jede Folie sich beim Aufblenden selbst: Passt ihr Inhalt
+     nicht zwischen die Leisten, wird er so weit verkleinert, dass er
+     passt. Weniger als 65 % waere unleserlich; dort ist Schluss, und dann
+     stimmt etwas mit der Folie nicht, nicht mit dem Bildschirm. */
+  /* Das freie Band zwischen den festen Leisten - gemessen, nicht geraten.
+     Der Eck-QR zaehlt nicht mit: Er sitzt in der Ecke, der Text laeuft
+     neben ihm vorbei (nur die Balken bekommen rechts Platz gemacht). */
+  window.leistenband = function(){
+    const sicht = w => w && getComputedStyle(w).display !== "none"
+                    && w.getBoundingClientRect().height > 0;
+    const ob = [".regie", ".counter", ".abstand", ".home"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().bottom);
+    const un = [".hintkey", ".nav", ".ghostctl"]
+      .map(s => document.querySelector(s)).filter(sicht)
+      .map(e => e.getBoundingClientRect().top);
+    return { oben: (ob.length ? Math.max(...ob) : 0) + 10,
+             unten: (un.length ? Math.min(...un) : innerHeight) - 10 };
+  };
+
+  window.einpassen = function(folie){
+    if(!folie) return 1;
+    let b = folie.querySelector(":scope > .buehne");
+    if(!b){
+      b = document.createElement("div");
+      b.className = "buehne";
+      [...folie.children].filter(e => !e.classList.contains("randnotiz"))
+        .forEach(k => b.appendChild(k));
+      folie.insertBefore(b, folie.firstChild);
+    }
+    /* Nur ueber style, NIE ueber eine Klasse: Der Beobachter unten horcht
+       auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
+       eine Schleife, die den Aufbau der Seite anhaelt. */
+    b.style.transform = "";
+    folie.style.justifyContent = "";
+    /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
+       mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
+       Die Titelfolie stellt align-items auf flex-start, um ihren Text
+       links zu setzen; ohne dieses align-self ruckte die skalierte
+       Flaeche dadurch seitlich aus dem Bild. Der Text bleibt trotzdem
+       links - er richtet sich INNERHALB der Flaeche aus. */
+    b.style.alignSelf = "center";
+    const B = window.leistenband();
+    const platz = B.unten - B.oben;
+    const breite = folie.clientWidth
+                 - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
+    const hoch = b.getBoundingClientRect().height;
+    if(platz <= 0 || hoch <= 0) return 1;
+    /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
+       von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
+       wuerde eine kurze Folie grotesk wirken. */
+    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    b.style.transform = "scale(" + k.toFixed(4) + ")";
+    /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
+       Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
+    const rest = Math.max(0, platz - hoch * k);
+    const soll = B.oben + rest / 2;
+    folie.style.justifyContent = "flex-start";
+    folie.style.paddingTop = Math.round(soll) + "px";
+    folie.style.paddingBottom = Math.round(innerHeight - B.unten + rest / 2) + "px";
+    /* Nachmessen statt vertrauen: Zwischen der gerechneten und der
+       wirklichen Lage lagen 8 px - die Flaeche stand unten aus dem freien
+       Band heraus. Woher der Versatz kommt (Polster, Ursprung der
+       Skalierung, Rundung), muss man nicht wissen, wenn man ihn misst. */
+    const ist = b.getBoundingClientRect().top;
+    if (Math.abs(ist - soll) > 0.5)
+      folie.style.paddingTop = Math.round(soll - (ist - soll)) + "px";
+    return k;
+  };
+
+  (function einpassenVerdrahten(){
+    const jetzt = () => window.einpassen(document.querySelector(".slide.on"));
+    new MutationObserver(jetzt).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    addEventListener("resize", jetzt);
+    addEventListener("load", jetzt);
+    jetzt();
+  })();
+
+  /* ---- Regieleiste: Phase, geplante Startminute, Stoppuhr -------------
+     Greift NICHT in go()/next()/prev() ein. Der Folienwechsel wird ueber
+     einen MutationObserver auf die Klasse .on beobachtet - so bleibt die
+     uebernommene Mechanik Zeile fuer Zeile die der anderen Projektionen. */
+  (function regie(){
+    const leiste = document.querySelector('.regie');
+    if(!leiste) return;
+    const nam  = leiste.querySelector('.pnam');
+    const plan = leiste.querySelector('.pplan');
+    const anz  = leiste.querySelector('.puhr');
+    let ms = 0, seit = null;                 // verstrichen / laeuft seit
+    const verstrichen = () => ms + (seit === null ? 0 : Date.now() - seit);
+    const aktiv = () => ms > 0 || seit !== null;
+
+    function zeige(){
+      const s = document.querySelector('.slide.on');
+      if(!s) return;
+      nam.textContent  = s.dataset.phase || '';
+      plan.textContent = s.dataset.ab ? ('ab Min. ' + s.dataset.ab) : '';
+      if(!aktiv()){
+        anz.textContent = '--:--';
+        document.body.classList.remove('spaet','sehrspaet');
+        return;
+      }
+      const min = verstrichen() / 60000;
+      const g = Math.floor(min), sek = Math.floor((min - g) * 60);
+      anz.textContent = (seit === null ? '\u23f8 ' : '') + g + ':' + String(sek).padStart(2,'0');
+      const rueck = s.dataset.ab ? min - (+s.dataset.ab) : 0;
+      document.body.classList.toggle('spaet', rueck > 3 && rueck <= 6);
+      document.body.classList.toggle('sehrspaet', rueck > 6);
+    }
+
+    new MutationObserver(zeige).observe(document.getElementById('deck'),
+      { subtree:true, attributes:true, attributeFilter:['class'] });
+    document.addEventListener('keydown', e => {
+      if(e.key === 't' || e.key === 'T'){
+        if(seit === null){ seit = Date.now(); }
+        else { ms += Date.now() - seit; seit = null; }
+        zeige();
+      } else if(e.key === 'r' || e.key === 'R'){
+        ms = 0; seit = null; zeige();
+      }
+    });
+    setInterval(zeige, 1000);
+    zeige();
+  })();
+
+  /* ---- Protokoll: alle Folien bis zur aktuellen als PDF ---------------
+     Umgestellt wird nur fuer den Druck: Klassen am body und an den
+     Folien, eine Kopfzeile je Folie. Danach kommt alles wieder weg, die
+     Stunde laeuft weiter, wo sie war. Die beiden Funktionen haengen am
+     window, damit die Pruefung sie ohne Druckdialog aufrufen kann. */
+  (function protokoll(){
+    const TITEL = document.title;
+    window.protokollVorbereiten = function(){
+      const folien = [...document.querySelectorAll('.slide')];
+      const aktuell = folien.findIndex(s => s.classList.contains('on'));
+      const jetzt = new Date();
+      const stand = jetzt.toLocaleDateString('de-DE')
+                  + ', ' + jetzt.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+      folien.forEach((s, i) => {
+        /* Folien des nicht gewaehlten Weges (data-plan) gehoeren nicht ins
+           Protokoll - sie wurden nie gezeigt. */
+        const fremd = s.dataset.plan && document.body.dataset.plan
+                      && s.dataset.plan !== document.body.dataset.plan;
+        const drin = i <= aktuell && !fremd;
+        s.classList.toggle('im-protokoll', drin);
+        if(!drin) return;
+        /* Verkleinert wird im Druck die Entwurfsflaeche (.buehne). Die legt
+           die Einpassung erst beim Aufblenden an - eine Folie, die nur im
+           Schnelldurchlauf beruehrt wurde, hat noch keine und stuende
+           sonst in voller Groesse im Protokoll. */
+        if(!s.querySelector(':scope > .buehne') && window.einpassen) window.einpassen(s);
+        const buehne = s.querySelector(':scope > .buehne') || s;
+        let k = s.querySelector('.protokollkopf');
+        if(!k){
+          k = document.createElement('div');
+          k.className = 'protokollkopf';
+          buehne.prepend(k);
+        }
+        /* Titel und Stand stehen einmal ueber allem; je Folie bleibt nur,
+           was sie unterscheidet. */
+        k.textContent = 'Folie ' + (i + 1) + ' von ' + folien.length
+                      + (s.dataset.phase ? ' · ' + s.dataset.phase : '');
+        if(i === 0){
+          let t = s.querySelector('.protokolltitel');
+          if(!t){
+            t = document.createElement('div');
+            t.className = 'protokolltitel';
+            buehne.prepend(t);
+          }
+          t.textContent = 'Protokoll · ' + TITEL + ' · Folien 1 bis ' + (aktuell + 1)
+                        + ' · Stand ' + stand;
+        }
+      });
+      document.body.classList.add('protokoll');
+      document.title = 'Protokoll ' + TITEL + ' '
+                     + jetzt.toISOString().slice(0, 16).replace('T', ' ').replace(':', '-');
+      return aktuell + 1;
+    };
+    window.protokollBeenden = function(){
+      document.body.classList.remove('protokoll');
+      document.title = TITEL;
+      document.querySelectorAll('.slide').forEach(s => {
+        s.classList.remove('im-protokoll');
+        s.querySelectorAll('.protokollkopf, .protokolltitel').forEach(k => k.remove());
+      });
+    };
+    const knopf = document.querySelector('.regie .protokoll');
+    if(!knopf) return;
+    knopf.addEventListener('click', e => {
+      e.stopPropagation();
+      window.protokollVorbereiten();
+      const fertig = () => { window.removeEventListener('afterprint', fertig);
+                             window.protokollBeenden(); };
+      window.addEventListener('afterprint', fertig);
+      window.print();
+      setTimeout(fertig, 1500);      /* falls afterprint ausbleibt */
+    });
+  })();
+
+  /* ---- Pause: der Unterrichts-Timer der Website ueber der Folie -------
+     Der Schalter in der Regieleiste (oder P) legt den Timer mit einer
+     Zwei-Minuten-Phase ueber die Folie; der zweite Klick, P oder Escape
+     nimmt ihn weg, und die Folie steht noch da, wo sie war. Geladen wird
+     der Timer erst beim Ausrufen - ohne Netz fehlt nur dieser Schirm,
+     die Stunde laeuft weiter. Mit dem Schirm verschwindet auch der Gong. */
+  (function pause(){
+    const TIMER = 'https://mathematik-unterrichten.de/werkzeuge/unterrichts-timer.html'
+                + '?min=2&name=Pause&start=1&beamer=1';
+    const knopf  = document.querySelector('.regie .pause');
+    const schirm = document.querySelector('.pauseschirm');
+    if(!knopf || !schirm) return;
+    function um(){
+      const an = document.body.classList.toggle('pause');
+      if(an){
+        const f = document.createElement('iframe');
+        f.src = TIMER; f.title = 'Pause';
+        schirm.replaceChildren(f);
+      } else {
+        schirm.replaceChildren();
+      }
+      knopf.setAttribute('aria-pressed', an ? 'true' : 'false');
+    }
+    knopf.addEventListener('click', e => { e.stopPropagation(); um(); });
+    document.addEventListener('keydown', e => {
+      if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+      if(e.key === 'p' || e.key === 'P') um();
+      else if(e.key === 'Escape' && document.body.classList.contains('pause')) um();
+    });
+  })();
+
+  /* ---- Plan A / Plan B: ein Schalter in derselben Datei ---------------
+     Folien mit data-plan="A" gehoeren nur zum Weg mit Experiment, "B" nur
+     zum Weg am Bildschirm; ohne Attribut gelten sie fuer beide. Beim
+     Blaettern werden fremde Folien uebersprungen, ihre Punkte verschwinden.
+     Gewaehlt wird auf der Planfolie (zwei Knoepfe) oder jederzeit in der
+     Regieleiste; die Wahl ueberlebt das Neuladen (sessionStorage). Vor der
+     ersten Wahl gilt B - der Weg ohne Material braucht nichts.
+
+     next/prev der Vorlage werden umhuellt: Funktionsdeklarationen im
+     selben Skript lassen sich neu binden, und Tastatur wie Pfeilknoepfe
+     rufen den NAMEN auf, nicht die alte Funktion. Die Pruefung ruft go(i)
+     direkt und sieht deshalb weiterhin jede Folie. */
+  (function planwahl(){
+    const alle = [...document.querySelectorAll('.slide')];
+    const knopf = document.querySelector('.regie .plan');
+    const abknopf = document.querySelector('.regie .abbruch');
+    if(!alle.some(s => s.dataset.plan)){
+      if(knopf) knopf.remove(); if(abknopf) abknopf.remove(); return; }
+    document.body.classList.add('hatplan');
+    /* Abbruch des Versuchs: EIN Klick stellt Plan B ein und zeigt die
+       Abbruchfolie (data-abbruch, liegt bei der Reserve). Der Pfeil fuehrt
+       von dort an die Stelle, an der Weg B den abgebrochenen Versuch
+       weiterfuehrt: die erste Folie ab der abgebrochenen, die in B gilt. */
+    const abIndex = alle.findIndex(s => s.dataset.abbruch);
+    let abZiel = null;
+    if(abIndex >= 0) document.body.classList.add('hatabbruch');
+    else if(abknopf) abknopf.remove();
+    const KEY = 'wandplan:' + document.title;
+    let plan = null;
+    try { plan = sessionStorage.getItem(KEY) || null; } catch(e){}
+    const aktuell = () => plan || 'B';
+    const gilt = s => !s.dataset.plan || s.dataset.plan === aktuell();
+    const wo = () => alle.findIndex(s => s.classList.contains('on'));
+    function zeige(){
+      document.body.dataset.plan = aktuell();
+      document.body.classList.toggle('planoffen', !plan);
+      if(knopf) knopf.textContent = (plan ? 'Plan ' + plan : 'Plan offen (B)') + ' ⇄';
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        if(alle[i]) d.style.display = gilt(alle[i]) ? '' : 'none'; });
+      document.querySelectorAll('.planwahl button').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.plan === plan ? 'true' : 'false'));
+    }
+    window.planSetzen = function(p){
+      if(p !== 'A' && p !== 'B') return;
+      plan = p;
+      try { sessionStorage.setItem(KEY, p); } catch(e){}
+      zeige();
+      /* Steht gerade eine Folie des anderen Weges, weiter zur naechsten. */
+      const i = wo();
+      if(i >= 0 && !gilt(alle[i])){
+        let j = i + 1; while(j < alle.length && !gilt(alle[j])) j++;
+        if(j < alle.length){ alle[j].dataset.step = 0; go(j); }
+      }
+    };
+    window.planAktuell = aktuell;
+    window.abbruch = function(){
+      if(abIndex < 0) return;
+      const i = Math.max(wo(), 0);
+      plan = 'B';
+      try { sessionStorage.setItem(KEY, 'B'); } catch(e){}
+      zeige();
+      let j = i; while(j < alle.length && !gilt(alle[j])) j++;
+      abZiel = j < alle.length ? j : null;
+      alle[abIndex].dataset.step = 0;
+      go(abIndex);
+    };
+    const altNext = next, altPrev = prev;
+    next = function(){
+      const i = wo(); if(i < 0) return altNext();
+      if(alle[i].dataset.abbruch && abZiel != null){
+        const z = abZiel; abZiel = null;
+        alle[z].dataset.step = 0; go(z); return;
+      }
+      const f = alle[i].querySelectorAll('.frag').length;
+      if(+(alle[i].dataset.step || 0) < f) return altNext();
+      let j = i + 1; while(j < alle.length && !gilt(alle[j])) j++;
+      if(j < alle.length){ alle[j].dataset.step = 0; go(j); }
+    };
+    prev = function(){
+      const i = wo(); if(i < 0) return altPrev();
+      if(+(alle[i].dataset.step || 0) > 0) return altPrev();
+      let j = i - 1; while(j >= 0 && !gilt(alle[j])) j--;
+      if(j >= 0){ revealAll(j); go(j); }
+    };
+    document.getElementById('next').onclick = () => next();
+    document.getElementById('prev').onclick = () => prev();
+    if(knopf) knopf.addEventListener('click', e => {
+      e.stopPropagation(); window.planSetzen(aktuell() === 'A' ? 'B' : 'A'); });
+    if(abknopf && abIndex >= 0) abknopf.addEventListener('click', e => {
+      e.stopPropagation(); window.abbruch(); });
+    document.addEventListener('click', e => {
+      const b = e.target.closest('.planwahl button'); if(!b) return;
+      e.stopPropagation(); window.planSetzen(b.dataset.plan); });
+    zeige();
+  })();
+
+  /* ---- Videofolien: der Player laedt erst, wenn die Folie steht --------
+     Vorher steht nur die Adresse im Rahmen (data-src). Verlaesst die Folie
+     die Wand, wird der Player geleert - sonst laeuft der Ton weiter. */
+  (function videos(){
+    const rahmen = [...document.querySelectorAll('.videorahmen iframe[data-src]')];
+    if(!rahmen.length) return;
+    function lauf(){
+      rahmen.forEach(f => {
+        const an = f.closest('.slide').classList.contains('on');
+        if(an){ if(f.getAttribute('src') !== f.dataset.src) f.setAttribute('src', f.dataset.src); }
+        else if(f.getAttribute('src')) f.setAttribute('src', 'about:blank');
+      });
+    }
+    new MutationObserver(lauf).observe(document.getElementById('deck'),
+      { subtree:true, attributes:true, attributeFilter:['class'] });
+    lauf();
+  })();
+
+  /* ---- Live-Abstimmung ------------------------------------------------
+     Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
+     Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
+     lokal geoeffnet -, bleibt alles verborgen und die Stunde laeuft mit
+     Plickers-Karten weiter. Nichts an dieser Mechanik ist Voraussetzung
+     fuer den Rest der Folien.
+
+     Verteilt wird nur, was die Wand ohnehin zeigt. Die Geraete erfahren
+     weder die richtige Antwort noch die Verteilung. */
+  (function abstimmung(){
+    const K = window.ABSTIMMUNG;
+    if (!K || !K.dienst) return;
+    /* ?dienst=… und ?raum=… ueberschreiben die eingebauten Werte. Damit
+       laesst sich dieselbe Datei auf den Notfall-Dienst im Klassenraum
+       umbiegen oder in einer Vertretungsstunde in einen anderen Raum
+       schicken - ohne sie neu zu bauen. */
+    const Q = new URLSearchParams(location.search);
+    const dienst = (Q.get("dienst") || K.dienst).replace(/\/+$/, "");
+    const raum = (Q.get("raum") || K.raum).toLowerCase()
+                   .replace(/[^a-z0-9-]/g, "").slice(0, 24);
+    /* Kennung DIESES Durchlaufs. Sie steckt im Fragenschluessel, damit die
+       Stimmen der Parallelklasse von heute Morgen nicht in der Abfrage von
+       heute Mittag stehen: Beim Aufschlagen der Wandfassung faengt jede
+       Frage bei null an. Dieselbe Frage waehrend der Stunde noch einmal
+       oeffnen (eine Folie zurueck) behaelt ihre Stimmen - der Schluessel
+       aendert sich dabei nicht. */
+    const sitzung = Math.random().toString(36).slice(2, 8);
+    const BST = ["A","B","C","D"];
+
+    const stand = document.createElement("div");
+    stand.className = "abstand zu";
+    stand.innerHTML = '<span class="punkt"></span><span class="text">Abstimmung</span>';
+    document.body.appendChild(stand);
+
+    const knopf = document.createElement("button");
+    knopf.className = "schluesselknopf";
+    knopf.textContent = "🔑 Lehrerschlüssel eintragen";
+    document.body.appendChild(knopf);
+
+    const holeSchluessel = () => { try { return localStorage.getItem("wand-lehrer") || ""; }
+                                   catch(e){ return ""; } };
+    const setzeSchluessel = v => { try { localStorage.setItem("wand-lehrer", v); } catch(e){} };
+    knopf.onclick = () => {
+      const v = prompt("Lehrerschlüssel für die Abstimmung:", holeSchluessel());
+      if (v !== null){ setzeSchluessel(v.trim()); document.body.classList.remove("schluesselfehlt"); pruefe(); }
+    };
+
+    const kopf = () => ({ "content-type":"application/json", "x-lehrer": holeSchluessel() });
+    let lebt = false, laufend = null, ticker = null;
+
+    async function pruefe(){
+      try {
+        const a = await fetch(dienst + "/v1/ping", { cache:"no-store" });
+        lebt = a.ok;
+      } catch(e){ lebt = false; }
+      document.body.classList.toggle("livean", lebt);
+      if (lebt){
+        document.body.classList.toggle("schluesselfehlt", !holeSchluessel());
+        document.body.classList.add("qrzeigen");
+        /* Kommt der Dienst (oder der Schluessel) erst jetzt, holt das
+           die Regel fuer die Folie nach, die gerade steht. */
+        beobachte();
+      }
+    }
+
+    /* --- Die Karten fuer die Abstimmung herrichten ---
+       Jede Antwortkarte bekommt eine Fuellung hinter ihrem Text und eine
+       Zahl an den rechten Rand. Kein eigener Balkenblock mehr: Der
+       wiederholte die Buchstaben und machte die Folie flach. */
+    function balken(folie){
+      const karten = [...folie.querySelectorAll(".opt")];
+      if (!karten.length) return null;
+      karten.forEach(k => {
+        if (k.querySelector(".fuellung")) return;
+        /* Die richtige Karte wird hier vermerkt, aber noch nicht gefaerbt
+           - das geschieht erst beim Aufloesen (.plickers.gezeigt). */
+        if (k.querySelector(".haken")) k.classList.add("istrichtig");
+        const f = document.createElement("i");
+        f.className = "fuellung";
+        k.insertBefore(f, k.firstChild);
+        const z = document.createElement("span");
+        z.className = "zahl";
+        z.textContent = "0";
+        k.appendChild(z);
+      });
+      return folie.querySelector(".plickers");
+    }
+
+    function male(folie, zaehler, abgestimmt){
+      const wand = balken(folie); if (!wand) return;
+      const summe = zaehler.reduce((s,n)=>s+n, 0) || 1;
+      [...folie.querySelectorAll(".opt")].forEach((k, i) => {
+        const n = zaehler[i] || 0;
+        k.querySelector(".fuellung").style.width =
+          Math.round(n / summe * 100) + "%";
+        k.querySelector(".zahl").textContent = n;
+      });
+      stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+    }
+
+    async function oeffne(folie){
+      const frage = folie.dataset.frage || "";
+      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+      let optionen = [];
+      try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
+      if (art === "wahl" && optionen.length < 2) return;
+      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ frage, optionen, schluessel, art }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+        if (!a.ok) return;
+        laufend = { folie, schluessel };
+        stand.classList.remove("zu");
+        const b = balken(folie);
+        if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
+        tick();
+        clearInterval(ticker); ticker = setInterval(tick, 1500);
+      } catch(e){}
+    }
+
+    async function schliesse(){
+      clearInterval(ticker); ticker = null;
+      if (!laufend) return;
+      const alt = laufend; laufend = null;
+      stand.classList.add("zu");
+      try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
+                        { method:"POST", headers: kopf() }); } catch(e){}
+      await zeichne(alt.folie);
+    }
+
+    async function zeichne(folie){
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/ergebnis",
+                              { headers: kopf(), cache:"no-store" });
+        const d = await a.json();
+        if (!d.ok) return;
+        if (d.art === "zeichnen") galerie(folie, d);
+        else male(folie, d.zaehler || [], d.abgestimmt || 0);
+      } catch(e){}
+    }
+
+    const tick = () => { if (laufend) zeichne(laufend.folie); };
+
+    /* --- Zeichenauftrag: die Galerie an der Wand ----------------------
+       Jedes eingereichte Bild ist eine Kachel. Nicht freigegebene sind
+       grau und tragen nur eine Nummer; freigegebene zeigen das Bild. Ein
+       Klick auf eine graue Kachel gibt sie frei - blind; wer vorher sehen
+       will, nimmt die Sichtung auf dem eigenen Geraet
+       (abstimmung/sichtung.html?raum=…). Ein Klick auf ein Bild zeigt es
+       gross. Das Raster richtet sich nach der Zahl der Bilder, damit alle
+       ins Bild passen: Spalten = Wurzel aus (Bilder mal 4/3), mindestens
+       zwei - bei 32 sind das sieben Spalten in fuenf Reihen. */
+    function galerie(folie, d){
+      const g = folie.querySelector(".galerie"); if (!g) return;
+      const liste = d.bilder || [];
+      const z = folie.querySelector(".zaehler");
+      if (z) z.textContent = liste.length + (liste.length === 1 ? " Bild" : " Bilder")
+                             + (d.offen ? "" : " · geschlossen");
+      stand.querySelector(".text").textContent = "Bilder: " + liste.length;
+      g.dataset.n = liste.length;
+      if (d.schluessel) g.dataset.schluessel = d.schluessel;
+      /* Spalten aus der Zahl der Bilder, Reihen aus den Spalten: Die
+         Galerie hat feste Hoehe, das Raster teilt sie auf. In einer
+         flachen Galerie (Whiteboard-Runde) eher mehr Spalten, damit die
+         Kacheln nicht hoeher als breit werden. */
+      const flach = folie.classList.contains("ipad");
+      const spalten = Math.max(2, Math.ceil(Math.sqrt(liste.length * (flach ? 2 : 4 / 3))));
+      const reihen = Math.max(1, Math.ceil(liste.length / spalten));
+      g.style.gridTemplateColumns = "repeat(" + spalten + ",1fr)";
+      g.style.gridTemplateRows = "repeat(" + reihen + ",1fr)";
+      const da = new Set(liste.map(b => b.geraet));
+      [...g.querySelectorAll(".kachel")].forEach(k => {
+        if (!da.has(k.dataset.geraet)) k.remove(); });
+      liste.forEach((b, i) => {
+        let k = g.querySelector('.kachel[data-geraet="' + b.geraet + '"]');
+        if (!k){
+          k = document.createElement("div");
+          k.className = "kachel"; k.dataset.geraet = b.geraet;
+          k.innerHTML = '<span class="nr"></span>'
+            + '<button type="button" class="speichern" title="Bild sichern">&#128190;</button>';
+          k.addEventListener("click", e => { e.stopPropagation(); kachelKlick(folie, k); });
+          k.querySelector(".speichern").addEventListener("click", e => {
+            e.stopPropagation(); bildSichern(folie, k); });
+          g.appendChild(k);
+        }
+        k.querySelector(".nr").textContent = i + 1;
+        k.classList.toggle("frei", !!b.frei);
+        /* Ein ersetztes Bild traegt eine neue Zeit - dann noch einmal holen. */
+        if (b.frei && k.dataset.geladen !== String(b.zeit)) holeBild(k, b);
+      });
+    }
+    async function holeBild(k, b){
+      if (k.dataset.laedt === String(b.zeit)) return;
+      k.dataset.laedt = String(b.zeit);
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/bild?geraet="
+                              + encodeURIComponent(b.geraet),
+                              { headers: kopf(), cache:"no-store" });
+        const d = await a.json();
+        if (!d.ok) return;
+        let img = k.querySelector("img");
+        if (!img){ img = document.createElement("img"); img.alt = ""; k.appendChild(img); }
+        img.src = d.daten;
+        k.dataset.geladen = String(b.zeit);
+      } catch(e){}
+    }
+    async function freigeben(folie, koerper){
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frei",
+                              { method:"POST", headers: kopf(), body: JSON.stringify(koerper) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
+      } catch(e){}
+      zeichne(folie);
+    }
+    function kachelKlick(folie, k){
+      if (!k.classList.contains("frei"))
+        return freigeben(folie, { geraet: k.dataset.geraet, frei: true });
+      const img = k.querySelector("img"); if (!img) return;
+      let lupe = folie.querySelector(".lupe");
+      if (!lupe){
+        lupe = document.createElement("div"); lupe.className = "lupe";
+        lupe.innerHTML = '<img alt="">';
+        lupe.addEventListener("click", e => { e.stopPropagation(); lupe.classList.remove("an"); });
+        folie.appendChild(lupe);
+      }
+      lupe.querySelector("img").src = img.src;
+      lupe.classList.add("an");
+    }
+    document.addEventListener("click", e => {
+      const b = e.target.closest(".zeiknoepfe button"); if (!b) return;
+      e.stopPropagation();
+      const folie = b.closest(".slide,.abgabe"); if (!folie) return;
+      if (b.classList.contains("zip")) return alleSichern(folie);
+      freigeben(folie, { alle: true, frei: b.classList.contains("alle") });
+    });
+
+    /* --- Bilder sichern ------------------------------------------------
+       Die Diskette an der Kachel legt das eine Bild als PNG in den
+       Downloads-Ordner, der Knopf unter der Galerie alle Bilder der Runde
+       als ZIP - auch die noch nicht freigegebenen, denn die Wand fragt
+       mit dem Lehrerschluessel. Dateiname: Raum, Rundenschluessel,
+       laufende Nummer. Das ZIP wird hier selbst geschrieben (nur
+       abgelegt, nicht komprimiert - PNG ist schon komprimiert), damit die
+       Datei ohne Bibliothek auskommt. */
+    async function bildDaten(b){
+      const a = await fetch(dienst + "/v1/raum/" + raum + "/bild?geraet="
+                            + encodeURIComponent(b.geraet),
+                            { headers: kopf(), cache:"no-store" });
+      if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return null; }
+      const d = await a.json();
+      return d.ok ? d.daten : null;
+    }
+    /* Dateiname: Datum, Raum, Rundenschluessel ohne die Sitzungskennung
+       (die sechs Zufallszeichen sagen niemandem etwas) - also etwa
+       2026-09-03-10b-wurz-w1.zip oder …-abgabe1-bild03.png. */
+    function kennung(folie){
+      const g = folie.querySelector(".galerie");
+      const s = (g && g.dataset.schluessel) || folie.dataset.schluessel || "bilder";
+      const j = new Date(), z2 = n => String(n).padStart(2, "0");
+      return (j.getFullYear() + "-" + z2(j.getMonth() + 1) + "-" + z2(j.getDate()) + "-"
+              + raum + "-" + s.replace(new RegExp("^" + raum + "-([a-z0-9]{6}-)?"), "")
+              .replace(/[^a-z0-9-]/gi, "-"));
+    }
+    function ablegen(blob, name){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+    const bytesAus = daten => {
+      const roh = atob(daten.split(",")[1] || "");
+      const b = new Uint8Array(roh.length);
+      for (let i = 0; i < roh.length; i++) b[i] = roh.charCodeAt(i);
+      return b;
+    };
+    async function bildSichern(folie, k){
+      const nr = k.querySelector(".nr").textContent || "0";
+      const img = k.querySelector("img");
+      let daten = img && img.src.startsWith("data:") ? img.src : null;
+      if (!daten) daten = await bildDaten({ geraet: k.dataset.geraet });
+      if (!daten) return;
+      ablegen(new Blob([bytesAus(daten)], { type:"image/png" }),
+              kennung(folie) + "-bild" + String(nr).padStart(2, "0") + ".png");
+    }
+    async function alleSichern(folie){
+      const knopf = folie.querySelector(".zeiknoepfe .zip");
+      const kacheln = [...folie.querySelectorAll(".kachel")];
+      if (!kacheln.length || !knopf) return;
+      knopf.disabled = true;
+      const alt = knopf.textContent; knopf.textContent = "… sichere";
+      const dateien = [];
+      for (const k of kacheln){
+        const img = k.querySelector("img");
+        let daten = img && img.src.startsWith("data:") ? img.src : null;
+        if (!daten) daten = await bildDaten({ geraet: k.dataset.geraet });
+        if (!daten) continue;
+        const nr = k.querySelector(".nr").textContent || "0";
+        dateien.push({ name: "bild" + String(nr).padStart(2, "0") + ".png",
+                       bytes: bytesAus(daten) });
+      }
+      knopf.disabled = false; knopf.textContent = alt;
+      if (dateien.length) ablegen(zipAus(dateien), kennung(folie) + ".zip");
+    }
+    /* ZIP ohne Kompression (Methode 0): lokale Koepfe, Zentralverzeichnis,
+       Endsatz. CRC-32 ueber eine Tabelle. */
+    const CRC = (() => { const T = new Uint32Array(256);
+      for (let n = 0; n < 256; n++){ let c = n;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+        T[n] = c >>> 0; } return T; })();
+    const crc32 = b => { let c = 0xFFFFFFFF;
+      for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0; };
+    function zipAus(dateien){
+      const j = new Date();
+      const zeit = (j.getHours() << 11) | (j.getMinutes() << 5) | (j.getSeconds() >> 1);
+      const datum = ((j.getFullYear() - 1980) << 9) | ((j.getMonth() + 1) << 5) | j.getDate();
+      const enc = new TextEncoder();
+      const teile = [], zentral = [];
+      let versatz = 0;
+      const u16 = n => [n & 255, (n >>> 8) & 255];
+      const u32 = n => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+      for (const f of dateien){
+        const name = enc.encode(f.name), crc = crc32(f.bytes), n = f.bytes.length;
+        const kopf = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0), ...u16(0),
+          ...u16(zeit), ...u16(datum), ...u32(crc), ...u32(n), ...u32(n),
+          ...u16(name.length), ...u16(0), ...name]);
+        teile.push(kopf, f.bytes);
+        zentral.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0),
+          ...u16(0), ...u16(zeit), ...u16(datum), ...u32(crc), ...u32(n), ...u32(n),
+          ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0),
+          ...u32(versatz), ...name]));
+        versatz += kopf.length + n;
+      }
+      const zgroesse = zentral.reduce((s, z) => s + z.length, 0);
+      const ende = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0),
+        ...u16(dateien.length), ...u16(dateien.length), ...u32(zgroesse), ...u32(versatz), ...u16(0)]);
+      return new Blob([...teile, ...zentral, ende], { type:"application/zip" });
+    }
+
+    /* --- QR bildschirmfuellend ----------------------------------------
+       Der kleine Pfeil am Eck-QR legt den Code gross ueber alles, mit
+       Adresse und Raumcode darunter - fuer die hinterste Reihe. Ein Klick
+       irgendwohin oder Escape nimmt ihn weg. */
+    const qrgross = document.createElement("div");
+    qrgross.className = "qrgross";
+    qrgross.addEventListener("click", e => { e.stopPropagation(); qrgross.classList.remove("an"); });
+    function qrGross(){
+      const ecke = document.querySelector(".qrecke svg"); if (!ecke) return;
+      const kurz = document.querySelector(".kurzadresse");
+      qrgross.innerHTML = "";
+      qrgross.appendChild(ecke.cloneNode(true));
+      const adr = document.createElement("div"); adr.className = "adresse";
+      adr.textContent = kurz ? kurz.textContent : "";
+      qrgross.appendChild(adr);
+      const code = document.createElement("div"); code.className = "code";
+      code.textContent = raum.toUpperCase();
+      qrgross.appendChild(code);
+      qrgross.classList.add("an");
+    }
+    function qrPfeilSetzen(){
+      const ecke = document.querySelector(".qrecke");
+      if (!ecke || ecke.querySelector(".gross")) return;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "gross"; b.title = "QR-Code bildschirmfüllend";
+      b.textContent = "⤢";
+      b.addEventListener("click", e => { e.stopPropagation(); qrGross(); });
+      ecke.appendChild(b);
+      document.body.appendChild(qrgross);
+    }
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded", qrPfeilSetzen);
+    else qrPfeilSetzen();
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && qrgross.classList.contains("an")){
+        qrgross.classList.remove("an"); e.stopPropagation(); }
+    }, true);
+
+    /* --- Spontane Abgabe -------------------------------------------------
+       Ein Klick auf den Eck-QR (oder A) oeffnet auf den Geraeten die
+       Zeichenflaeche mit der Ueberschrift „Abgabe" - was genau abzugeben
+       ist, sagt die Lehrkraft in der Situation. Die Wand legt einen
+       Schirm ueber das Deck und sammelt die Bilder dort als Kacheln; die
+       Freigabe laeuft wie auf einer Zeichenfolie (Kachel einzeln, Knoepfe
+       fuer alle). Der zweite Klick auf den QR (oder „Schliessen", oder A)
+       beendet die Abgabe und stellt die Regel der stehenden Folie wieder
+       her - Grundzustand oder deren eigene Abfrage. Jede Abgabe bekommt
+       einen neuen Schluessel, faengt also leer an. ?abgabe=… in der
+       Adresse ersetzt die Ueberschrift auf den Geraeten. */
+    const ABGABETEXT = (Q.get("abgabe") || "Abgabe").slice(0, 120);
+    const abgabe = document.createElement("div");
+    abgabe.className = "abgabe";
+    abgabe.innerHTML =
+      '<div class="abkopf"><h2>Abgabe</h2>'
+      + '<p>Zeichnet auf dem iPad und tippt auf <b>Abschicken</b>.</p>'
+      + '<button type="button" class="abzu">Schließen</button></div>'
+      + '<div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div>'
+      + '<div class="zeiknoepfe">'
+      + '<button type="button" class="alle">Alle zeigen</button>'
+      + '<button type="button" class="keine">Alle verbergen</button>'
+      + '<button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button>'
+      + '<span class="zaehler">0 Bilder</span></div>';
+    /* Erst anhaengen, wenn der Koerper vollstaendig ist - sonst landet
+       der Schirm je nach Ladezeitpunkt neben dem Koerper statt darin. */
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded", () => document.body.appendChild(abgabe));
+    else document.body.appendChild(abgabe);
+    let abgabeAn = false, abgabeNr = 0;
+
+    async function abgabeOeffnen(){
+      if (!lebt) return;
+      if (!holeSchluessel()){ document.body.classList.add("schluesselfehlt"); return; }
+      abgabeAn = true;
+      abgabe.classList.add("an");
+      if (laufend) await schliesse();
+      if (ruhe) await ruheSetzen(false);     /* beobachte() schweigt, solange abgabeAn */
+      abgabeNr += 1;
+      const schluessel = raum + "-" + sitzung + "-abgabe" + abgabeNr;
+      [...abgabe.querySelectorAll(".kachel")].forEach(k => k.remove());
+      abgabe.querySelector(".galerie").dataset.n = 0;
+      abgabe.querySelector(".zaehler").textContent = "0 Bilder";
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ frage: ABGABETEXT, optionen: [], schluessel, art:"zeichnen" }) });
+        if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return abgabeSchliessen(); }
+        if (!a.ok) return abgabeSchliessen();
+        laufend = { folie: abgabe, schluessel };
+        stand.classList.remove("zu");
+        tick();
+        clearInterval(ticker); ticker = setInterval(tick, 1500);
+      } catch(e){ abgabeSchliessen(); }
+    }
+    async function abgabeSchliessen(){
+      abgabeAn = false;
+      abgabe.classList.remove("an");
+      const lupe = abgabe.querySelector(".lupe"); if (lupe) lupe.classList.remove("an");
+      if (laufend && laufend.folie === abgabe) await schliesse();
+      zuletzt = null;                  /* Regel der stehenden Folie neu anwenden */
+      beobachte();
+    }
+    const abgabeWechsel = () => abgabeAn ? abgabeSchliessen() : abgabeOeffnen();
+    abgabe.querySelector(".abzu").addEventListener("click", e => { e.stopPropagation(); abgabeSchliessen(); });
+    /* Der Eck-QR steht im Dokument hinter diesem Skript - deshalb ueber
+       das Dokument abgefangen, nicht am Element selbst. */
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".qrecke")) return;
+      e.stopPropagation(); abgabeWechsel();
+    });
+
+    /* --- Grundzustand: „Blick nach vorn." ------------------------------
+       Die Geraete zeigen normalerweise nur diesen Satz - keine Karten,
+       keine Frage. Nur waehrend eine Abfragefolie an der Wand steht, ist
+       der Grundzustand aus und die Frage offen; die naechste Folie ohne
+       Abfrage schaltet ihn wieder ein, eine weitere Abfragefolie nicht.
+       Das geschieht von selbst beim Folienwechsel (beobachte). Der
+       Schalter in der Regieleiste (oder B) ueberstimmt das bis zum
+       naechsten Folienwechsel - etwa um eine Frage kurz zuzuhalten.
+       Die Stimmen bleiben dabei erhalten, weil der Dienst beim
+       Grundzustand nichts loescht. ?ruhe=… in der Adresse ersetzt den
+       Satz. */
+    const RUHETEXT = (Q.get("ruhe") || "Blick nach vorn.").slice(0, 120);
+    const ruheKnopf = document.querySelector(".regie .ruhe");
+    let ruhe = false, zuletzt = null;     /* zuletzt: Folie der letzten Regel */
+    async function ruheSetzen(an){
+      if (!lebt) return;
+      ruhe = an;
+      document.body.classList.toggle("ruhe", an);
+      if (ruheKnopf) ruheKnopf.setAttribute("aria-pressed", an ? "true" : "false");
+      clearInterval(ticker); ticker = null; laufend = null;
+      stand.classList.add("zu");
+      stand.querySelector(".text").textContent = an ? RUHETEXT : "Abstimmung";
+      try {
+        const a = await fetch(dienst + "/v1/raum/" + raum + "/hinweis", {
+          method:"POST", headers: kopf(),
+          body: JSON.stringify({ text: an ? RUHETEXT : "" }) });
+        if (a.status === 403){
+          /* Ohne gueltigen Schluessel hat der Dienst nichts gesetzt - dann
+             darf die Wand es auch nicht behaupten. */
+          document.body.classList.add("schluesselfehlt");
+          ruhe = false;
+          document.body.classList.remove("ruhe");
+          if (ruheKnopf) ruheKnopf.setAttribute("aria-pressed", "false");
+          stand.querySelector(".text").textContent = "Abstimmung";
+          return;
+        }
+      } catch(e){}
+      if (!an) beobachte();
+    }
+    if (ruheKnopf)
+      ruheKnopf.addEventListener("click", e => { e.stopPropagation(); ruheSetzen(!ruhe); });
+
+    /* --- Folienwechsel und Aufloesung beobachten --- */
+    function beobachte(){
+      if (abgabeAn) return;          /* der Abgabeschirm hat Vorrang */
+      const folie = document.querySelector(".slide.on");
+      if (!folie) return;
+      const istAbfrage = !!folie.dataset.frage;
+      /* Die Regel beim Folienwechsel: Grundzustand ueberall, nur nicht
+         auf einer Abfragefolie. Einmal je Folie - danach darf der
+         Schalter von Hand anders entscheiden. */
+      if (folie !== zuletzt && lebt && holeSchluessel()){
+        zuletzt = folie;
+        if (ruhe !== !istAbfrage) return ruheSetzen(!istAbfrage);
+      }
+      if (ruhe) return;                /* Grundzustand: nichts geht auf */
+      if (!istAbfrage){ if (laufend) schliesse(); return; }
+      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
+      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      /* Von einer Abfragefolie direkt auf die naechste: erst die alte
+         schliessen, dann noch einmal hinsehen, damit die neue aufgeht. */
+      if (laufend && laufend.folie !== folie) return schliesse().then(beobachte);
+      if (laufend && aufgeloest){
+        /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
+           Gefaerbt - und damit verraten - wird die richtige Karte erst beim
+           zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
+           waehrend die Klasse noch die Zahlen liest. */
+        const stufig = folie.classList.contains("stufig");
+        const stufe = +(folie.dataset.step || 0);
+        const b = folie.querySelector(".plickers");
+        if (b && (!stufig || stufe >= 2)) b.classList.add("gezeigt");
+        return schliesse();
+      }
+    }
+
+    new MutationObserver(beobachte).observe(document.getElementById("deck"),
+      { subtree:true, attributes:true, attributeFilter:["class","data-step"] });
+    document.addEventListener("keydown", e => {
+      if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+      if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
+      else if (e.key === "b" || e.key === "B") ruheSetzen(!ruhe);
+      else if (e.key === "a" || e.key === "A") abgabeWechsel();
+    });
+
+    pruefe().then(beobachte);
+    setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
+  })();
+
+  window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
+/* ===========================================================================
+   Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
+
+   Zwei Teile in einer Datei, weil sie dieselbe Adressierung brauchen:
+
+   1. ANWENDER - laeuft in jeder Anzeige, auch im Unterricht. Er liest
+      window.ANPASSUNGEN und legt die Aenderungen auf die erzeugte Seite.
+   2. EDITOR - laeuft nur, wenn er gerufen wird (Taste E). Er schreibt
+      genau die Eintraege, die der Anwender wieder liest.
+
+   WARUM NICHT IN DIE ERZEUGTE DATEI SCHREIBEN: Jede Anzeige entsteht aus
+   einem Bauskript. Wer die HTML-Datei bearbeitet, verliert die Aenderung
+   beim naechsten Bau - und merkt es erst im Unterricht. Deshalb liegt die
+   Aenderung in einer eigenen Datei neben dem Bauskript, und der Bau legt
+   sie jedes Mal wieder auf.
+
+   WARUM DIE ANWENDUNG IM BROWSER GESCHIEHT und nicht in Python: Es gibt
+   drei Bauwege (Wandfassung, Projektion, Selbstlernstunde) mit drei
+   verschiedenen Strukturen, aber nur EINEN Zustand, in dem alle drei
+   gleich aussehen - den fertigen DOM. Ein Anwender dort bedient alle drei;
+   drei Anwender in Python muessten dreimal gepflegt werden.
+
+   DIE HEIKLE STELLE ist das Wiederfinden eines Elements nach einem Neubau.
+   Ein Pfad allein genuegt nicht: Kommt eine Folie dazu, zeigt er auf das
+   falsche Element, und die Aenderung landet lautlos woanders. Deshalb
+   traegt jeder Eintrag zusaetzlich einen Fingerabdruck seines Inhalts.
+   Stimmt er nicht, wird NICHT geraten: Der Eintrag gilt als verwaist und
+   wird gemeldet - sichtbar, nicht nur in der Konsole.
+   =========================================================================== */
+(function () {
+  "use strict";
+
+  /* --- Fingerabdruck: kurz, stabil, nur aus dem sichtbaren Text ---------
+     Absichtlich nicht ueber das HTML: Ein geaenderter Umbruch oder ein
+     zusaetzliches <b> soll den Eintrag nicht verwaisen lassen. Der Text
+     traegt die Bedeutung. */
+  function fingerabdruck(el) {
+    var t = (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    var h = 5381;
+    for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }
+
+  /* --- Adressierung ----------------------------------------------------
+     Behaelter = Folie (.slide) oder Karte (.karte/.teil), je nach Anzeige.
+     Innerhalb davon adressiert eine Kette von Kind-Indizes. */
+  var BEHAELTER = ".slide, .karte, .teil";
+
+  function behaelterListe() {
+    return Array.prototype.slice.call(document.querySelectorAll(BEHAELTER))
+      .filter(function (b) { return !b.closest(".anp-leiste"); });
+  }
+
+  function behaelterName(b) {
+    if (b.dataset.marke) return b.dataset.marke;
+    var i = behaelterListe().indexOf(b);
+    return "#" + (i + 1);
+  }
+
+  function behaelterFinden(name) {
+    var liste = behaelterListe();
+    if (name.charAt(0) === "#") return liste[parseInt(name.slice(1), 10) - 1] || null;
+    for (var i = 0; i < liste.length; i++)
+      if (liste[i].dataset.marke === name) return liste[i];
+    return null;
+  }
+
+  /* window.einpassen zieht NACHTRAEGLICH ein <div class="buehne"> in die
+     Folie und haengt alle Kinder dort hinein, um sie als Block zu
+     skalieren. Damit aendert sich die Tiefe jedes Elements, je nachdem, ob
+     die Einpassung schon gelaufen ist: derselbe Kasten hiess erst „1" und
+     danach „0/1". Zwei Adressen fuer ein Element - und schon legt der
+     Editor beim zweiten Klick einen zweiten Eintrag an.
+
+     Die Buehne ist Technik, kein Inhalt. Deshalb ist sie hier die Wurzel,
+     wenn es sie gibt, und faellt aus dem Pfad heraus. */
+  function inhaltsWurzel(b) {
+    return b.querySelector(":scope > .buehne") || b;
+  }
+
+  function pfadVon(el, b) {
+    var w = inhaltsWurzel(b), teile = [];
+    while (el && el !== w) {
+      var p = el.parentNode;
+      if (!p) return null;
+      teile.unshift(Array.prototype.indexOf.call(p.children, el));
+      el = p;
+    }
+    return el === w ? teile.join("/") : null;
+  }
+
+  function elementAn(b, pfad) {
+    var el = inhaltsWurzel(b), teile = pfad === "" ? [] : pfad.split("/");
+    for (var i = 0; i < teile.length; i++) {
+      el = el.children[parseInt(teile[i], 10)];
+      if (!el) return null;
+    }
+    return el;
+  }
+
+  /* Erst am Pfad suchen, dann - wenn der Fingerabdruck widerspricht - im
+     ganzen Behaelter nach dem Fingerabdruck. So ueberlebt ein Eintrag das
+     Einfuegen eines Geschwisterelements, ohne je zu raten. */
+  function elementFinden(e) {
+    var b = behaelterFinden(e.behaelter);
+    if (!b) return null;
+    var el = elementAn(b, e.pfad);
+    if (el && fingerabdruck(el) === e.fp) return el;
+    var alle = b.querySelectorAll("*");
+    for (var i = 0; i < alle.length; i++)
+      if (fingerabdruck(alle[i]) === e.fp) return alle[i];
+    return null;
+  }
+
+  /* ==================== 1 · ANWENDER ==================== */
+
+  var VERWAIST = [];
+  /* Bleibt leer, wenn der Editor herausgeschnitten wurde - siehe die Marken
+     weiter unten. */
+  var EDITOR = {};
+
+  /* Der Urzustand jedes beruehrten Elternteils, damit anwenden() BELIEBIG
+     OFT laufen kann und immer dasselbe Ergebnis liefert. Ohne das wandert
+     ein Element beim Bearbeiten mit jedem Aufruf eine Stelle weiter: Der
+     Editor wendet nach jedem Klick neu an, und „eine Position nach oben"
+     waere nach dem dritten Klick drei Positionen. */
+  var URZUSTAND = new Map();
+
+  function merkeReihenfolge(p) {
+    if (p && !URZUSTAND.has(p)) URZUSTAND.set(p, Array.prototype.slice.call(p.children));
+  }
+
+  function urzustandHerstellen() {
+    URZUSTAND.forEach(function (kinder, p) {
+      kinder.forEach(function (k) { if (k.parentNode === p) p.appendChild(k); });
+    });
+    /* Eingesetzte Bilder wieder heraus und verdraengte SVG zurueck - sonst
+       bliebe ein zurueckgenommenes Bild stehen und die Zeichnung darunter
+       verborgen, bis jemand neu laedt. */
+    document.querySelectorAll("img[data-anp-bild]").forEach(function (b) { b.remove(); });
+    document.querySelectorAll("[data-anp-ersetzt]").forEach(function (s) {
+      s.style.display = ""; delete s.dataset.anpErsetzt;
+    });
+    document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
+      el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      delete el.dataset.anp; delete el.dataset.anpWeg;
+    });
+  }
+
+  /* Ein Bild einsetzen oder austauschen.
+
+     Drei Faelle, und nur der erste ist offensichtlich:
+
+     1. Das Element IST ein Bild - Quelle tauschen, fertig.
+     2. Es enthaelt ein <svg>. Das sind die gerechneten Koordinatensysteme
+        und der QR-Code. „Austauschen" heisst hier: das SVG verbergen und
+        das Bild an seine Stelle setzen - nicht danebenhaengen, sonst
+        stehen Zeichnung und Bild nebeneinander und niemand weiss, welches
+        gilt. Verborgen, nicht geloescht: Der Urzustand muss herstellbar
+        bleiben.
+     3. Sonst wird ein Bild angehaengt.
+
+     In allen Faellen als BLOCK mit eigener Zeile. Ein Bild ohne
+     display:block landet in der Textzeile und schiebt sich neben die
+     Ueberschrift - so gesehen bei der ersten Probe. */
+  function bildSetzen(el, quelle) {
+    if (el.tagName === "IMG") { el.src = quelle; return; }
+    var vorhanden = el.querySelector(":scope > img[data-anp-bild]");
+    if (!vorhanden) {
+      vorhanden = document.createElement("img");
+      vorhanden.dataset.anpBild = "1";
+      var svg = el.tagName === "svg" ? el : el.querySelector("svg");
+      if (svg) {
+        svg.dataset.anpErsetzt = "1";
+        svg.style.display = "none";
+        svg.parentNode.insertBefore(vorhanden, svg);
+      } else {
+        el.appendChild(vorhanden);
+      }
+    }
+    vorhanden.src = quelle;
+    vorhanden.style.display = "block";
+    vorhanden.style.maxWidth = "100%";
+    vorhanden.style.height = "auto";
+    vorhanden.style.margin = "0.6em auto 0";
+  }
+
+  function anwenden() {
+    var daten = window.ANPASSUNGEN;
+    urzustandHerstellen();
+    if (!daten || !daten.eintraege || !daten.eintraege.length) return;
+    VERWAIST = [];
+    document.querySelectorAll(".anp-warnung").forEach(function (w) { w.remove(); });
+
+    /* Von aussen nach innen: flache Pfade zuerst.
+
+       Wer ein Element UND eines seiner Kinder aendert, aendert mit dem Kind
+       auch den Textinhalt des Elternteils - und damit dessen Fingerabdruck.
+       Kam das Kind zuerst, erkannte der Elternteil sich selbst nicht mehr
+       und galt als verwaist: An der 7b-Wandfassung ging so ein ganzer
+       Absatz verloren, waehrend die Zeile darin ankam.
+
+       Der Elternteil setzt seinen Inhalt ohnehin als Ganzes; ihn zuerst zu
+       legen ist auch der Reihenfolge nach richtig. */
+    var reihe = daten.eintraege.slice().sort(function (a, b) {
+      return (a.pfad === "" ? 0 : a.pfad.split("/").length)
+           - (b.pfad === "" ? 0 : b.pfad.split("/").length);
+    });
+
+    /* Ein Eintrag, der UNTERHALB eines anderen liegt, welcher seinen Inhalt
+       als Ganzes setzt, ist wirkungslos: Der Elternteil bringt den Text des
+       Kindes schon mit. Das ist kein Fehler und darf nicht als verwaist
+       gemeldet werden - sonst steht eine rote Warnung an der Wand, obwohl
+       genau das dasteht, was gewollt war. */
+    function verdecktVon(e) {
+      return reihe.some(function (a) {
+        return a !== e && a.behaelter === e.behaelter
+            && typeof (a.was || {}).text === "string"
+            && a.pfad !== "" && e.pfad.indexOf(a.pfad + "/") === 0;
+      });
+    }
+
+    reihe.forEach(function (e) {
+      if (verdecktVon(e)) return;
+      var el = elementFinden(e);
+      if (!el) { VERWAIST.push(e); return; }
+      var w = e.was || {};
+
+      if (w.weg) { el.style.display = "none"; el.dataset.anpWeg = "1"; return; }
+      if (typeof w.text === "string") el.innerHTML = w.text;
+      if (w.groesse) {
+        /* Erst zuruecksetzen, dann messen, dann rechnen. Ein `em`-Wert waere
+           falsch: em zaehlt gegen die ELTERNgroesse, und die Ueberschrift
+           einer Folie steht bei 66 px in einem Koerper mit 16 px - aus
+           „1,18 mal so gross" wuerde 18,88 px. Gemessen wird die Groesse,
+           die das Blatt dem Element gibt; sie haengt am Format, also wird
+           bei jeder Fensteraenderung neu gemessen. */
+        el.style.fontSize = "";
+        var basis = parseFloat(getComputedStyle(el).fontSize) || 0;
+        if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
+      }
+      if (w.breite) {
+        el.style.maxWidth = "";
+        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
+        var ist = el.getBoundingClientRect().width;
+        if (voll > 0 && ist > 0)
+          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+      }
+      if (w.bild) bildSetzen(el, w.bild);
+      if (typeof w.rang === "number" && w.rang !== 0) {
+        var pp = el.parentNode;
+        merkeReihenfolge(pp);
+        var k = Array.prototype.slice.call(pp.children);
+        var von = k.indexOf(el), nach = Math.max(0, Math.min(k.length - 1, von + w.rang));
+        if (nach !== von) {
+          if (nach > von) pp.insertBefore(el, k[nach].nextSibling);
+          else pp.insertBefore(el, k[nach]);
+        }
+      }
+      el.dataset.anp = "1";
+    });
+
+    if (VERWAIST.length) melde();
+    /* Die Einpassung muss nach jeder Aenderung neu rechnen - sonst steht
+       die Folie in der Groesse da, die sie vor dem Loeschen hatte. */
+    if (typeof window.einpassen === "function") {
+      var on = document.querySelector(".slide.on");
+      if (on) window.einpassen(on);
+    }
+  }
+
+  /* Verwaiste Eintraege sind kein Randfall, sondern die eine Art, wie
+     dieses Verfahren schiefgeht. Deshalb stehen sie auf dem Bildschirm,
+     nicht in der Konsole, die im Unterricht niemand offen hat. */
+  function melde() {
+    var d = document.createElement("div");
+    d.className = "anp-warnung";
+    /* Kein Hinweis auf die Taste E: Auf der Website ist der Editor
+       herausgeschnitten, und ein Text, der zu einer Taste raet, die nichts
+       tut, schickt einen im Unterricht auf die falsche Faehrte. */
+    d.textContent = VERWAIST.length + " Anpassung" + (VERWAIST.length > 1 ? "en" : "")
+      + " findet ihr Element nicht mehr und wurde nicht angewandt.";
+    d.onclick = function () { d.remove(); };
+    document.body.appendChild(d);
+  }
+
+  /* ==================== 2 · EDITOR ====================
+     ALLES ZWISCHEN DEN BEIDEN MARKEN IST NUR FUER DEN EIGENEN RECHNER.
+
+     Beim Uebertragen auf die Website wird dieser Abschnitt herausgeschnitten
+     (`ohneEditor()` in Werkzeuge/github_dienst.mjs). Was oben steht - der
+     Anwender - bleibt: Die Anpassungen sollen im Netz ja wirken, sonst
+     waere das Bearbeiten sinnlos. Nur bearbeiten koennen soll dort niemand.
+
+     Deshalb darf der Anwender NICHTS aus diesem Abschnitt aufrufen. Wer
+     hier eine Funktion ergaenzt und sie oben benutzt, merkt es nicht auf
+     dem eigenen Rechner - sondern erst, wenn die Anzeige im Unterricht von
+     der Website geladen wird und mit einem Fehler stehenbleibt. */
+  
+
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", anwenden);
+  else anwenden();
+
+  /* Der Editor haengt sich hier an, WENN es ihn gibt. Auf der Website ist
+     EDITOR leer - dann fehlt `umschalten`, und die Taste E tut nichts. */
+  window.ANPASSEN = Object.assign({ anwenden: anwenden,
+                                    verwaist: function () { return VERWAIST; } },
+                                  EDITOR);
+})();
+</script></body>
+</html>
