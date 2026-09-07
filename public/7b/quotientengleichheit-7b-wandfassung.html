@@ -486,6 +486,37 @@
   .zeiknoepfe .zip{margin-left:auto}
   .zeiknoepfe .zip + .zaehler{margin-left:0}
   @media print{.kachel .speichern{display:none}}
+  /* --- Die Weiche als Angebot -----------------------------------------
+     Erscheint nach einer Abstimmung, wenn die Quote in ein Band faellt,
+     das die Randnotiz selbst benannt hat. Sie verdeckt bewusst die
+     Bedienleiste unten und nicht die Folie. */
+  /* Feste Breite, nicht max-width: Sonst schnuert der Flexkasten den
+     Satz auf eine handbreite Spalte zusammen und bricht ihn sechsmal. */
+  .weichenangebot{position:fixed;left:50%;bottom:16px;transform:translateX(-50%)
+    translateY(140%);z-index:70;display:flex;align-items:center;gap:18px;
+    width:min(1240px,96vw);padding:13px 20px;border-radius:14px;
+    background:#0f172a;color:#e2e8f0;border:2px solid #f59e0b;
+    box-shadow:0 14px 40px rgba(15,23,42,.5);
+    font-size:clamp(15px,1.3vw,20px);transition:transform .35s}
+  body.weicheoffen .weichenangebot{transform:translateX(-50%) translateY(0)}
+  .weichenangebot .quote{flex:0 0 auto;font-weight:800;color:#fbbf24;
+    white-space:nowrap}
+  .weichenangebot .satz{flex:1 1 auto;min-width:0;line-height:1.3}
+  .weichenangebot button{border:0;border-radius:9px;padding:9px 15px;
+    font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}
+  .weichenangebot .ja{background:#f59e0b;color:#1c1917}
+  .weichenangebot .ja:hover{background:#fbbf24}
+  .weichenangebot .nein{background:#1e293b;color:#cbd5e1;border:1px solid #334155}
+  .weichenangebot .nein:hover{background:#334155}
+  /* Der Rueckweg: liegt auf der angesprungenen Folie oben rechts, damit
+     man ihn sieht, ohne ihn zu suchen. */
+  .weicherueck{position:fixed;right:16px;top:60px;z-index:70;display:none;
+    border:0;border-radius:10px;padding:10px 15px;background:#0f766e;
+    color:#f0fdfa;font:inherit;font-weight:800;font-size:clamp(14px,1.2vw,19px);
+    cursor:pointer;box-shadow:0 8px 24px rgba(15,118,110,.4)}
+  .weicherueck:hover{background:#0d9488}
+  body.weichezurueck .weicherueck{display:block}
+  @media print{.weichenangebot,.weicherueck{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -864,7 +895,7 @@
 <div class="kicker">Ich zeige es &mdash; laut mitgedacht</div><h2 class="wt">Ein zweites Prüfverfahren: in jeder Zeile teilen</h2><p class="lead weit">Kirschen, Buch S. 20: 3 kg für 12 €, 1 kg für 4 €, 7 kg für 28 €.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Das Buch nennt drei Zeilen. Ich nehme die erste und teile den Preis durch die Menge:<span class="rech"><span class="tex" data-tex="12\ \text{€} : 3\ \text{kg} = 4"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">12</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mspace"> </span><span class="mord text"><span class="mord">kg</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Zweite Zeile, dieselbe Rechnung:<span class="rech"><span class="tex" data-tex="4\ \text{€} : 1\ \text{kg} = 4"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mspace"> </span><span class="mord text"><span class="mord">kg</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Dritte Zeile:<span class="rech"><span class="tex" data-tex="28\ \text{€} : 7\ \text{kg} = 4"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">28</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mspace"> </span><span class="mord text"><span class="mord">kg</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span></span></span></span></div><div class="schritt ergebnis frag"><span class="num">4</span><span class="txt">Überall dieselbe Zahl. <b>Also proportional</b> <span class="trenner">&#9656;</span> und ich musste keine einzige Zeile mit einer anderen vergleichen.<span class="rech"><span class="tex" data-tex="4 = 4 = 4"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span></span> ✓</span></span></div></div><div class="randnotiz"><b>Der Fortschritt gegenüber letzter Woche gehört ausgesprochen.</b> Letzte Woche musste man ein <i>Paar</i> von Zeilen aussuchen, bei dem die eine Zahl ein Vielfaches der anderen ist <span class="trenner">&#9656;</span> bei krummen Zahlen geht das nicht. Heute rechnet man jede Zeile für sich. Das funktioniert immer.<br><b>Chorantwort:</b> „Was teile ich wodurch?“ <span class="trenner">&#9656;</span> <i>y durch x</i>. Zweimal fragen. Die Reihenfolge ist die häufigste Fehlerquelle der Stunde.</div>
 </section>
 
-<section class="slide abfrage mwb ipad" data-phase="3 · Ich zeige es" data-ab="22" data-frage="7 kg Kirschen kosten 28 €. Wie groß ist der Quotient $\text{Preis}: \text{Menge}$?" data-optionen="[]" data-art="zeichnen" data-schluessel="w5">
+<section class="slide abfrage mwb ipad" data-phase="3 · Ich zeige es" data-ab="22" data-frage="7 kg Kirschen kosten 28 €. Wie groß ist der Quotient $\text{Preis}: \text{Menge}$?" data-optionen="[]" data-art="zeichnen" data-schluessel="w5" data-weiche="[{&quot;bis&quot;: 79, &quot;ziel&quot;: &quot;M1&quot;}]">
 <div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Kirschen</div><div class="frage">7 kg Kirschen kosten 28 €.<br>Wie groß ist der Quotient <span class="tex" data-tex="\text{Preis} : \text{Menge}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord">Preis</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Menge</span></span></span></span></span></span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">4</span> <span class="muted neben"><span class="trenner">&#9656;</span> also <span class="tex" data-tex="28\ \text{€} : 7\ \text{kg}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">28</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mspace"> </span><span class="mord text"><span class="mord">kg</span></span></span></span></span></span></span></div><div class="randnotiz"><b>Bewusst die Zeile mit der größten Zahl.</b> Wer 7 : 28 rechnet und 0,25 schreibt, hat die Reihenfolge gedreht <span class="trenner">&#9656;</span> das ist der Fehler, den Plickers 2 gleich noch einmal abfragt.<br><b>Diese Abfrage steht zwischen den beiden Modellrechnungen</b>: erst anwenden, was ich vorgemacht habe, dann den Gegenfall sehen. Ohne sie reden Sie dreizehn Minuten am Stück.<br><b>Nachfassen:</b> „Was bedeutet die 4?“ <span class="trenner">&#9656;</span> Der Preis für ein Kilogramm. Diese Frage jedes Mal stellen; sie ist der Übergang zu Phase 5.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % zurück zu Folie 11 und die drei Zeilen noch einmal laut rechnen.</span></div>
 </section>
 
@@ -880,7 +911,7 @@
 <div class="kicker">Sicherung <span class="trenner">&#9656;</span> ins Heft</div><table class="wtab"><tr><th>Menge in kg</th><td>3</td><td>1</td><td>7</td></tr><tr><th>Preis in €</th><td>12</td><td>4</td><td>28</td></tr><tr><th>Preis : Menge</th><td>4</td><td>4</td><td>4</td></tr></table><div class="merk frag"><div class="satz">Eine Zuordnung ist genau dann proportional, wenn <span class='gold'>jedes</span> Wertepaar denselben Quotienten <span class='gold'><span class="tex" data-tex="y : x"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span></span> hat.</div><div class="zusatz">Diese Zahl heißt <b>Proportionalitätsfaktor</b>. Bei den Kirschen ist sie 4 <span class="trenner">&#9656;</span> der Preis für <i>ein</i> Kilogramm.<br><br>Und damit gilt: <b><span class="tex" data-tex="y = \text{Faktor} \cdot x"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Faktor</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span></b>. Ein Wertepaar genügt, und man kann jeden anderen Wert ausrechnen.</div></div><div class="randnotiz"><b>Die dritte Tabellenzeile ist neu und trägt den Satz.</b> Sie ist die Rechnung, die gerade dreimal gemacht wurde <span class="trenner">&#9656;</span> jetzt als eigene Zeile. Lassen Sie sie ins Heft übernehmen: Ab heute gehört unter jede Wertetabelle eine Quotientenzeile.<br><b>Das Wort <i>jedes</i> unterstreichen lassen.</b> Es trägt den ganzen Satz, und A2 in Phase 6 handelt von nichts anderem.<br><b>Zwei Minuten Schreibzeit, in Stille.</b> Danach den Merksatz von letzter Woche daneben schreiben <span class="trenner">&#9656;</span> beide gelten, beide prüfen dasselbe.</div>
 </section>
 
-<section class="slide abfrage plk stufig" data-phase="4 · Merksatz" data-ab="35" data-marke="P2" data-frage="Welche Aussage ist richtig?" data-optionen="[&quot;Der Proportionalitätsfaktor ist die Zahl, die man erhält, wenn man $x$ durch $y$ teilt.&quot;, &quot;Bei einer proportionalen Zuordnung hat jedes Wertepaar denselben Quotienten $y: x$.&quot;, &quot;Der Graph einer proportionalen Zuordnung ist immer eine steigende Linie.&quot;, &quot;Je größer der Proportionalitätsfaktor, desto weiter rechts liegt die Halbgerade.&quot;]" data-schluessel="p2">
+<section class="slide abfrage plk stufig" data-phase="4 · Merksatz" data-ab="35" data-marke="P2" data-frage="Welche Aussage ist richtig?" data-optionen="[&quot;Der Proportionalitätsfaktor ist die Zahl, die man erhält, wenn man $x$ durch $y$ teilt.&quot;, &quot;Bei einer proportionalen Zuordnung hat jedes Wertepaar denselben Quotienten $y: x$.&quot;, &quot;Der Graph einer proportionalen Zuordnung ist immer eine steigende Linie.&quot;, &quot;Je größer der Proportionalitätsfaktor, desto weiter rechts liegt die Halbgerade.&quot;]" data-schluessel="p2" data-weiche="[{&quot;bis&quot;: 49, &quot;ziel&quot;: &quot;MERK&quot;}, {&quot;bis&quot;: 74, &quot;ziel&quot;: &quot;R2&quot;}]">
 <div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Selbstcheck <span class="trenner">&#9656;</span> was steht da eigentlich?</div><h2 class="wt">Welche Aussage ist <span class='accent'>richtig</span>?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>Der Proportionalitätsfaktor ist die Zahl, die man erhält, wenn man <span class="tex" data-tex="x"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span> durch <span class="tex" data-tex="y"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span></span></span></span> teilt.</span></div><div class="opt"><span class="bst">B</span><span>Bei einer proportionalen Zuordnung hat jedes Wertepaar denselben Quotienten <span class="tex" data-tex="y : x"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span>.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Der Graph einer proportionalen Zuordnung ist immer eine steigende Linie.</span></div><div class="opt"><span class="bst">D</span><span>Je größer der Proportionalitätsfaktor, desto weiter rechts liegt die Halbgerade.</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>B</b>. <b>A</b> dreht die Reihenfolge um <span class="trenner">&#9656;</span> es ist <b class='loesungswert'><span class="tex" data-tex="y : x"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span></b>. <b>C</b> ist zu wenig: Eine steigende Linie kann über dem Ursprung beginnen. <b>D</b> verwechselt steiler mit weiter rechts.</div><div class="randnotiz"><b>A ist die häufigste Wahl nach B</b> und derselbe Fehler wie „7 : 28“ auf dem Whiteboard. Gegenmittel ist die Einheit: 12 € je 3 kg sind <b>Euro je Kilogramm</b>, also Euro durch Kilogramm. Wer die Einheit mitspricht, dreht nichts mehr um.<br><b>C und D greifen dem Graphen vor</b> <span class="trenner">&#9656;</span> beide werden in Phase 5 beantwortet. Wenn viele dort liegen, ist das kein Problem, sondern der Anlass für die nächsten zehn Minuten.<br><b>Vorher 30 Sekunden mit dem Nachbarn.</b><span class="weiche"><i>Weiche:</i> ab 75 % weiter · 50–74 % Reservefolie 32 (y : x mit Einheiten, zwei Minuten) · unter 50 % zurück zu Folie 15, Quotientenzeile Spalte für Spalte nachrechnen, dann diese Frage erneut.</span></div>
 </section>
 
@@ -1017,6 +1048,9 @@
   go(LO);
 
   window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "7b-quot"};
+
+  window.gehe = i => { revealAll(i); go(i); };
+  window.geheFrisch = i => { const s = document.querySelectorAll('.slide')[i]; if (s) s.dataset.step = 0; go(i); };
 
   /* ---- Selbsteinpassung ------------------------------------------------
      Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
@@ -1351,6 +1385,114 @@
     zeige();
   })();
 
+  /* ---- Die Weiche: auswerten und anbieten ------------------------------
+     Die Randnotiz jeder Abfrage sagt seit jeher, was bei welcher Quote zu
+     tun ist. Beim Bauen wird daraus data-weiche - eine Liste von Baendern
+     mit oberer Grenze und Ziel. Hier wird gerechnet und ANGEBOTEN.
+
+     Angesprungen wird nichts von selbst. Eine Quote ist ein Hinweis, kein
+     Urteil; wer im Raum steht, weiss mehr als die Zahl. Deshalb zwei
+     Knoepfe und keine Automatik.
+
+     Ohne Abstimmungsdienst gibt es keine Zahlen - dann bleibt die Weiche,
+     was sie war: ein Satz in der Randnotiz. */
+  (function weiche(){
+    const leiste = document.createElement("div");
+    leiste.className = "weichenangebot";
+    leiste.innerHTML = '<span class="quote"></span><span class="satz"></span>'
+      + '<button type="button" class="ja"></button>'
+      + '<button type="button" class="nein">weiter im Plan</button>';
+    document.body.appendChild(leiste);
+
+    const rueck = document.createElement("button");
+    rueck.type = "button";
+    rueck.className = "weicherueck";
+    rueck.textContent = "↩ dieselbe Frage noch einmal";
+    document.body.appendChild(rueck);
+
+    /* Eine Frage, die noch einmal gestellt wird, muss aussehen wie beim
+       ersten Mal: keine Fuellung, keine Zahlen, keine gefaerbte Karte.
+       Sonst steht die Loesung schon da, waehrend die Klasse antwortet. */
+    function frischmachen(folie){
+      if (!folie) return;
+      delete folie.dataset.zaehler;
+      folie.classList.remove("abstimmt");
+      const b = folie.querySelector(".plickers");
+      if (b) b.classList.remove("gezeigt");
+      folie.querySelectorAll(".opt").forEach(k => {
+        const f = k.querySelector(".fuellung"); if (f) f.style.width = "0%";
+        const z = k.querySelector(".zahl"); if (z) z.textContent = "0";
+      });
+    }
+
+    const alle = () => [...document.querySelectorAll(".slide")];
+    let zurueck = null;          // Folienindex, zu dem der Rueckweg fuehrt
+
+    function zu(){ document.body.classList.remove("weicheoffen"); }
+
+    function springe(ziel){
+      const liste = alle();
+      const z = liste.findIndex(s => s.dataset.marke === ziel);
+      if (z < 0) return zu();
+      /* Zurueck geht es AUF die Abfrage, nicht an ihr vorbei. Der Umweg
+         soll den Irrtum aufklaeren; ob er das getan hat, zeigt nur
+         dieselbe Frage noch einmal. Genau so steht es auch in den
+         Weichentexten: „…, dann diese Frage erneut." */
+      zurueck = liste.findIndex(s => s.classList.contains("on"));
+      if (zurueck < 0) zurueck = null;
+      zu();
+      liste[z].dataset.step = 0;
+      if (window.gehe) window.gehe(z);
+      document.body.classList.toggle("weichezurueck", zurueck != null);
+    }
+
+    rueck.onclick = () => {
+      if (zurueck == null) return;
+      const z = zurueck; zurueck = null;
+      document.body.classList.remove("weichezurueck");
+      frischmachen(alle()[z]);
+      if (window.geheFrisch) window.geheFrisch(z);
+    };
+    leiste.querySelector(".nein").onclick = zu;
+
+    window.WEICHE = {
+      /* Fuer die Probe: dieselbe Rechnung, ohne Dienst. */
+      pruefe(folie){
+        if (!folie) return;
+        let baender = [];
+        try { baender = JSON.parse(folie.dataset.weiche || "[]"); } catch(e){}
+        if (!baender.length) return zu();
+        const zaehler = (folie.dataset.zaehler || "").split(",").map(Number);
+        const summe = zaehler.reduce((a, b) => a + (b || 0), 0);
+        if (!summe) return zu();
+        const karten = [...folie.querySelectorAll(".opt")];
+        const richtig = karten.findIndex(k => k.classList.contains("istrichtig")
+                                          || k.querySelector(".haken"));
+        if (richtig < 0) return zu();
+        const quote = Math.round((zaehler[richtig] || 0) / summe * 100);
+        /* Das erste Band, dessen obere Grenze die Quote nicht
+           unterschreitet - bei mehrstufigen Weichen also das richtige. */
+        const band = baender.find(b => quote <= b.bis);
+        if (!band) return zu();
+        const liste = alle();
+        const z = liste.findIndex(s => s.dataset.marke === band.ziel);
+        const nr = z >= 0 ? (z + 1) : null;
+        leiste.querySelector(".quote").textContent =
+          quote + " % richtig (" + (zaehler[richtig] || 0) + " von " + summe + ")";
+        leiste.querySelector(".satz").innerHTML =
+          nr ? ("Die Randnotiz sieht dafür <b>Folie " + nr + "</b> vor"
+                + (band.kostet ? " — kostet " + band.kostet : "") + ".")
+             : "Das Ziel der Weiche ist in diesem Deck nicht zu finden.";
+        const ja = leiste.querySelector(".ja");
+        ja.textContent = nr ? ("→ Folie " + nr + " anspringen") : "";
+        ja.style.display = nr ? "" : "none";
+        ja.onclick = () => springe(band.ziel);
+        document.body.classList.add("weicheoffen");
+      },
+      zu: zu,
+    };
+  })();
+
   /* ---- Videofolien: der Player laedt erst, wenn die Folie steht --------
      Vorher steht nur die Adresse im Rahmen (data-src). Verlaesst die Folie
      die Wand, wird der Player geleert - sonst laeuft der Ton weiter. */
@@ -1467,6 +1609,9 @@
         k.querySelector(".zahl").textContent = n;
       });
       stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+      /* Fuer die Weiche: Wie die Abstimmung ausging, muss die Folie
+         selbst wissen - der Zaehler lebt sonst nur in diesem Aufruf. */
+      folie.dataset.zaehler = zaehler.join(",");
     }
 
     async function oeffne(folie){
@@ -1499,6 +1644,7 @@
       try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
                         { method:"POST", headers: kopf() }); } catch(e){}
       await zeichne(alt.folie);
+      if (window.WEICHE) window.WEICHE.pruefe(alt.folie);
     }
 
     async function zeichne(folie){
