@@ -486,6 +486,37 @@
   .zeiknoepfe .zip{margin-left:auto}
   .zeiknoepfe .zip + .zaehler{margin-left:0}
   @media print{.kachel .speichern{display:none}}
+  /* --- Die Weiche als Angebot -----------------------------------------
+     Erscheint nach einer Abstimmung, wenn die Quote in ein Band faellt,
+     das die Randnotiz selbst benannt hat. Sie verdeckt bewusst die
+     Bedienleiste unten und nicht die Folie. */
+  /* Feste Breite, nicht max-width: Sonst schnuert der Flexkasten den
+     Satz auf eine handbreite Spalte zusammen und bricht ihn sechsmal. */
+  .weichenangebot{position:fixed;left:50%;bottom:16px;transform:translateX(-50%)
+    translateY(140%);z-index:70;display:flex;align-items:center;gap:18px;
+    width:min(1240px,96vw);padding:13px 20px;border-radius:14px;
+    background:#0f172a;color:#e2e8f0;border:2px solid #f59e0b;
+    box-shadow:0 14px 40px rgba(15,23,42,.5);
+    font-size:clamp(15px,1.3vw,20px);transition:transform .35s}
+  body.weicheoffen .weichenangebot{transform:translateX(-50%) translateY(0)}
+  .weichenangebot .quote{flex:0 0 auto;font-weight:800;color:#fbbf24;
+    white-space:nowrap}
+  .weichenangebot .satz{flex:1 1 auto;min-width:0;line-height:1.3}
+  .weichenangebot button{border:0;border-radius:9px;padding:9px 15px;
+    font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}
+  .weichenangebot .ja{background:#f59e0b;color:#1c1917}
+  .weichenangebot .ja:hover{background:#fbbf24}
+  .weichenangebot .nein{background:#1e293b;color:#cbd5e1;border:1px solid #334155}
+  .weichenangebot .nein:hover{background:#334155}
+  /* Der Rueckweg: liegt auf der angesprungenen Folie oben rechts, damit
+     man ihn sieht, ohne ihn zu suchen. */
+  .weicherueck{position:fixed;right:16px;top:60px;z-index:70;display:none;
+    border:0;border-radius:10px;padding:10px 15px;background:#0f766e;
+    color:#f0fdfa;font:inherit;font-weight:800;font-size:clamp(14px,1.2vw,19px);
+    cursor:pointer;box-shadow:0 8px 24px rgba(15,118,110,.4)}
+  .weicherueck:hover{background:#0d9488}
+  body.weichezurueck .weicherueck{display:block}
+  @media print{.weichenangebot,.weicherueck{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -838,7 +869,7 @@
 <div class="kicker">Buch S. 146, B1 &middot; zwei Diagramme</div><h2 class="wt">Dasselbe Bild, einmal umgedreht</h2><div class="paar"><div class="halb >"><h4><</h4>b</div><div class="halb >"><h4><</h4>b</div></div><p class="lead weit frag" style="margin-top:1.6vh">Das Buch sagt es in einem Satz: <b>Solarzellen sind speziell konstruierte Leuchtdioden, die die Wirkung von LEDs umkehren.</b></p><div class="randnotiz"><b>Wörtlich aus dem Buch (S. 146).</b> Die beiden Diagramme stehen dort übereinander; hier nebeneinander, damit die Umkehrung ins Auge fällt.<br><b>Nicht erklären, zeigen.</b> Der Satz darunter ist die Erklärung <span class="trenner">&#9656;</span> er steht im Buch rot gesetzt.</div>
 </section>
 
-<section class="slide abfrage plk stufig" data-phase="2 · Die Umkehrung" data-ab="10" data-marke="P1" data-frage="In der Solarzelle trifft Licht auf die Sperrschicht. Was entsteht dort?" data-optionen="[&quot;freie Elektronen und Elektronenfehlstellen&quot;, &quot;nur freie Elektronen&quot;, &quot;Wärme, sonst nichts&quot;, &quot;eine breitere Sperrschicht&quot;]" data-schluessel="p1">
+<section class="slide abfrage plk stufig" data-phase="2 · Die Umkehrung" data-ab="10" data-marke="P1" data-frage="In der Solarzelle trifft Licht auf die Sperrschicht. Was entsteht dort?" data-optionen="[&quot;freie Elektronen und Elektronenfehlstellen&quot;, &quot;nur freie Elektronen&quot;, &quot;Wärme, sonst nichts&quot;, &quot;eine breitere Sperrschicht&quot;]" data-schluessel="p1" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;R1&quot;, &quot;kostet&quot;: &quot;drei Minuten&quot;}]">
 <div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Was im Kristall passiert</div><h2 class="wt">In der Solarzelle trifft Licht auf die Sperrschicht.<br><span class="accent">Was entsteht dort?</span></h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>freie Elektronen und Elektronenfehlstellen</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">B</span><span>nur freie Elektronen</span></div><div class="opt"><span class="bst">C</span><span>Wärme, sonst nichts</span></div><div class="opt"><span class="bst">D</span><span>eine breitere Sperrschicht</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Freie Elektronen und Elektronenfehlstellen.</b> Das Licht kehrt die Rekombination um <span class="trenner">&#9656;</span> genau umgekehrt zur LED, wo die Rekombination das Licht erzeugt.</div><div class="randnotiz"><b>Keine Ratefrage:</b> Der Vorgang steht auf S. 146 im zweiten Absatz und war eben an der Wand. Wer nicht zugehört hat, kann nachschlagen <span class="trenner">&#9656;</span> das ist erlaubt und gewollt.<br><b>B (nur Elektronen)</b> ist die häufigste Verkürzung. Fragen Sie zurück: „Und was bleibt dort, wo das Elektron war?“<br><b>D</b> verwechselt es mit der gesperrten Diode aus S. 144.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % Reservefolie 21, kostet drei Minuten.</span></div>
 </section>
 
@@ -850,7 +881,7 @@
 <div class="kicker">Buch S. 146, B2 &middot; eine Zelle, zwei Helligkeiten</div><h2 class="wt">Dieselbe Zelle, einmal hell und einmal heller</h2><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg><p class="lead weit" style="margin-top:1vh">Orange: zwei Lampen. Blau: eine Lampe. <span class="muted">Modellkurven nach Buch B2 <span class="trenner">&#9656;</span> die Form, nicht gemessene Werte.</span></p><div class="randnotiz"><b>Zwei Kurven, ein Schnittpunkt mit der U-Achse.</b> Genau darauf zielt die Stunde: Die beiden Kurven starten oben verschieden hoch und enden unten am <i>selben</i> Punkt.<br><b>Zeigen Sie mit dem Finger die U-Achse entlang</b>, nicht die Kurven. Was gleich bleibt, sieht man nur dort.<br><b>Ehrlich bleiben:</b> Sagen Sie, dass es Modellkurven sind. Das Buch zeigt dieselbe Form ohne Zahlen.</div>
 </section>
 
-<section class="slide abfrage plk mitbild stufig" data-phase="4 · Die Kennlinie" data-ab="18" data-marke="P2" data-frage="Man schaltet die zweite Lampe dazu. Was ändert sich an der Kennlinie?" data-optionen="[&quot;Die Spannung wird größer.&quot;, &quot;Die Stromstärke wird größer.&quot;, &quot;Beides wird größer.&quot;, &quot;Nichts, es wird nur heller.&quot;]" data-schluessel="p2">
+<section class="slide abfrage plk mitbild stufig" data-phase="4 · Die Kennlinie" data-ab="18" data-marke="P2" data-frage="Man schaltet die zweite Lampe dazu. Was ändert sich an der Kennlinie?" data-optionen="[&quot;Die Spannung wird größer.&quot;, &quot;Die Stromstärke wird größer.&quot;, &quot;Beides wird größer.&quot;, &quot;Nichts, es wird nur heller.&quot;]" data-schluessel="p2" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;KENN&quot;}]">
 <div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Was die zweite Lampe ändert</div><h2 class="wt">Man schaltet die <span class="accent">zweite Lampe</span> dazu.<br>Was ändert sich an der Kennlinie?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plzeile"><div class="plbild"><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Die Spannung wird größer.</span></div><div class="opt"><span class="bst">B</span><span>Die Stromstärke wird größer.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Beides wird größer.</span></div><div class="opt"><span class="bst">D</span><span>Nichts, es wird nur heller.</span></div></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Die Stromstärke wird größer.</b> Die Kurve rückt nach oben, trifft die U-Achse aber an derselben Stelle. Die Leerlaufspannung bleibt bei etwa 0,6 V.</div><div class="randnotiz"><b>Das ist die Frage des Tages</b>, und sie ist keine Ratefrage: Das Bild steht daneben, die Antwort ist ablesbar.<br><b>A und C sind die Alltagsvorstellung:</b> mehr Licht, mehr von allem. Erwartung: zusammen 40–60 %. Das ist kein Versagen <span class="trenner">&#9656;</span> es ist der Grund, warum das Buch den Satz rot setzt.<br><b>Beim Auflösen an der U-Achse bleiben.</b> Nicht erklären, warum <span class="trenner">&#9656;</span> nur zeigen, dass es so ist. Das Warum steht in der Reservefolie 22 für die, die fragen.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % zurück zu Folie 10 und beide Kurven bis zur Achse nachfahren lassen.</span></div>
 </section>
 
@@ -882,7 +913,7 @@
 <div class="kicker">Auflösung &middot; alle sieben Zeilen</div><h2 class="wt">Die Leistung, ausgerechnet</h2><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr><tr><th>P = U · I in mW</th><td>2,4</td><td>25,9</td><td>81,7</td><td>96,6</td><td>122,5</td><td>114,7</td><td>18</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Am größten bei <b>3,5 V und 35 mA</b>: <b>122,5 mW</b>. Links und rechts davon fällt sie ab.</p><div class="randnotiz"><b>Die dritte Zeile ist neu</b> und wird beim Aufdecken gelesen, nicht erklärt.<br><b>Der Bogen zum Buch:</b> S. 147 zeigt dasselbe als Rechteckfläche unter der Kennlinie (B5). Wenn Zeit ist, das Buch aufschlagen lassen <span class="trenner">&#9656;</span> das Bild sagt es besser als jede Tabelle.</div>
 </section>
 
-<section class="slide abfrage plk stufig" data-phase="8 · Abschluss" data-ab="47" data-marke="P3" data-frage="Eine Solarzelle wird doppelt so hell beleuchtet. Was gilt?" data-optionen="[&quot;Die Leerlaufspannung verdoppelt sich.&quot;, &quot;Die Leerlaufspannung bleibt etwa gleich.&quot;, &quot;Die Stromstärke bleibt gleich.&quot;, &quot;Beide Größen verdoppeln sich.&quot;]" data-schluessel="p3">
+<section class="slide abfrage plk stufig" data-phase="8 · Abschluss" data-ab="47" data-marke="P3" data-frage="Eine Solarzelle wird doppelt so hell beleuchtet. Was gilt?" data-optionen="[&quot;Die Leerlaufspannung verdoppelt sich.&quot;, &quot;Die Leerlaufspannung bleibt etwa gleich.&quot;, &quot;Die Stromstärke bleibt gleich.&quot;, &quot;Beide Größen verdoppeln sich.&quot;]" data-schluessel="p3" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;MERK2&quot;}]">
 <div class="kicker"><span class="marke plk">Plickers 3</span> &nbsp;Abschluss <span class="trenner">&#9656;</span> sitzen beide Sätze?</div><h2 class="wt">Eine Solarzelle wird <span class="accent">doppelt so hell</span> beleuchtet. Was gilt?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>Die Leerlaufspannung verdoppelt sich.</span></div><div class="opt"><span class="bst">B</span><span>Die Leerlaufspannung bleibt etwa gleich.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Die Stromstärke bleibt gleich.</span></div><div class="opt"><span class="bst">D</span><span>Beide Größen verdoppeln sich.</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Die Leerlaufspannung bleibt etwa gleich</b> <span class="trenner">&#9656;</span> bei rund 0,6 V. Was steigt, ist die Kurzschluss-Stromstärke.</div><div class="randnotiz"><b>Dieselbe Frage wie Plickers 2, ohne Bild.</b> Der Vergleich beider Quoten sagt, ob der Satz ohne die Kennlinie trägt <span class="trenner">&#9656;</span> und genau so steht er in der Klassenarbeit.<br><b>Unter 70 %:</b> Merksatz 2 gehört in die nächste Stunde wiederholt, bevor etwas Neues kommt.<span class="weiche"><i>Weiche:</i> ab 70 % zum Exit-Ticket · unter 70 % zuerst Folie 12 noch einmal, von einem Schüler vorgelesen.</span></div>
 </section>
 
@@ -967,6 +998,9 @@
   go(LO);
 
   window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "10c-sola"};
+
+  window.gehe = i => { revealAll(i); go(i); };
+  window.geheFrisch = i => { const s = document.querySelectorAll('.slide')[i]; if (s) s.dataset.step = 0; go(i); };
 
   /* ---- Selbsteinpassung ------------------------------------------------
      Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
@@ -1301,6 +1335,114 @@
     zeige();
   })();
 
+  /* ---- Die Weiche: auswerten und anbieten ------------------------------
+     Die Randnotiz jeder Abfrage sagt seit jeher, was bei welcher Quote zu
+     tun ist. Beim Bauen wird daraus data-weiche - eine Liste von Baendern
+     mit oberer Grenze und Ziel. Hier wird gerechnet und ANGEBOTEN.
+
+     Angesprungen wird nichts von selbst. Eine Quote ist ein Hinweis, kein
+     Urteil; wer im Raum steht, weiss mehr als die Zahl. Deshalb zwei
+     Knoepfe und keine Automatik.
+
+     Ohne Abstimmungsdienst gibt es keine Zahlen - dann bleibt die Weiche,
+     was sie war: ein Satz in der Randnotiz. */
+  (function weiche(){
+    const leiste = document.createElement("div");
+    leiste.className = "weichenangebot";
+    leiste.innerHTML = '<span class="quote"></span><span class="satz"></span>'
+      + '<button type="button" class="ja"></button>'
+      + '<button type="button" class="nein">weiter im Plan</button>';
+    document.body.appendChild(leiste);
+
+    const rueck = document.createElement("button");
+    rueck.type = "button";
+    rueck.className = "weicherueck";
+    rueck.textContent = "↩ dieselbe Frage noch einmal";
+    document.body.appendChild(rueck);
+
+    /* Eine Frage, die noch einmal gestellt wird, muss aussehen wie beim
+       ersten Mal: keine Fuellung, keine Zahlen, keine gefaerbte Karte.
+       Sonst steht die Loesung schon da, waehrend die Klasse antwortet. */
+    function frischmachen(folie){
+      if (!folie) return;
+      delete folie.dataset.zaehler;
+      folie.classList.remove("abstimmt");
+      const b = folie.querySelector(".plickers");
+      if (b) b.classList.remove("gezeigt");
+      folie.querySelectorAll(".opt").forEach(k => {
+        const f = k.querySelector(".fuellung"); if (f) f.style.width = "0%";
+        const z = k.querySelector(".zahl"); if (z) z.textContent = "0";
+      });
+    }
+
+    const alle = () => [...document.querySelectorAll(".slide")];
+    let zurueck = null;          // Folienindex, zu dem der Rueckweg fuehrt
+
+    function zu(){ document.body.classList.remove("weicheoffen"); }
+
+    function springe(ziel){
+      const liste = alle();
+      const z = liste.findIndex(s => s.dataset.marke === ziel);
+      if (z < 0) return zu();
+      /* Zurueck geht es AUF die Abfrage, nicht an ihr vorbei. Der Umweg
+         soll den Irrtum aufklaeren; ob er das getan hat, zeigt nur
+         dieselbe Frage noch einmal. Genau so steht es auch in den
+         Weichentexten: „…, dann diese Frage erneut." */
+      zurueck = liste.findIndex(s => s.classList.contains("on"));
+      if (zurueck < 0) zurueck = null;
+      zu();
+      liste[z].dataset.step = 0;
+      if (window.gehe) window.gehe(z);
+      document.body.classList.toggle("weichezurueck", zurueck != null);
+    }
+
+    rueck.onclick = () => {
+      if (zurueck == null) return;
+      const z = zurueck; zurueck = null;
+      document.body.classList.remove("weichezurueck");
+      frischmachen(alle()[z]);
+      if (window.geheFrisch) window.geheFrisch(z);
+    };
+    leiste.querySelector(".nein").onclick = zu;
+
+    window.WEICHE = {
+      /* Fuer die Probe: dieselbe Rechnung, ohne Dienst. */
+      pruefe(folie){
+        if (!folie) return;
+        let baender = [];
+        try { baender = JSON.parse(folie.dataset.weiche || "[]"); } catch(e){}
+        if (!baender.length) return zu();
+        const zaehler = (folie.dataset.zaehler || "").split(",").map(Number);
+        const summe = zaehler.reduce((a, b) => a + (b || 0), 0);
+        if (!summe) return zu();
+        const karten = [...folie.querySelectorAll(".opt")];
+        const richtig = karten.findIndex(k => k.classList.contains("istrichtig")
+                                          || k.querySelector(".haken"));
+        if (richtig < 0) return zu();
+        const quote = Math.round((zaehler[richtig] || 0) / summe * 100);
+        /* Das erste Band, dessen obere Grenze die Quote nicht
+           unterschreitet - bei mehrstufigen Weichen also das richtige. */
+        const band = baender.find(b => quote <= b.bis);
+        if (!band) return zu();
+        const liste = alle();
+        const z = liste.findIndex(s => s.dataset.marke === band.ziel);
+        const nr = z >= 0 ? (z + 1) : null;
+        leiste.querySelector(".quote").textContent =
+          quote + " % richtig (" + (zaehler[richtig] || 0) + " von " + summe + ")";
+        leiste.querySelector(".satz").innerHTML =
+          nr ? ("Die Randnotiz sieht dafür <b>Folie " + nr + "</b> vor"
+                + (band.kostet ? " — kostet " + band.kostet : "") + ".")
+             : "Das Ziel der Weiche ist in diesem Deck nicht zu finden.";
+        const ja = leiste.querySelector(".ja");
+        ja.textContent = nr ? ("→ Folie " + nr + " anspringen") : "";
+        ja.style.display = nr ? "" : "none";
+        ja.onclick = () => springe(band.ziel);
+        document.body.classList.add("weicheoffen");
+      },
+      zu: zu,
+    };
+  })();
+
   /* ---- Videofolien: der Player laedt erst, wenn die Folie steht --------
      Vorher steht nur die Adresse im Rahmen (data-src). Verlaesst die Folie
      die Wand, wird der Player geleert - sonst laeuft der Ton weiter. */
@@ -1417,6 +1559,9 @@
         k.querySelector(".zahl").textContent = n;
       });
       stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+      /* Fuer die Weiche: Wie die Abstimmung ausging, muss die Folie
+         selbst wissen - der Zaehler lebt sonst nur in diesem Aufruf. */
+      folie.dataset.zaehler = zaehler.join(",");
     }
 
     async function oeffne(folie){
@@ -1449,6 +1594,7 @@
       try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
                         { method:"POST", headers: kopf() }); } catch(e){}
       await zeichne(alt.folie);
+      if (window.WEICHE) window.WEICHE.pruefe(alt.folie);
     }
 
     async function zeichne(folie){
