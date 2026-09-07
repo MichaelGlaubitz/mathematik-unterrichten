@@ -486,6 +486,37 @@
   .zeiknoepfe .zip{margin-left:auto}
   .zeiknoepfe .zip + .zaehler{margin-left:0}
   @media print{.kachel .speichern{display:none}}
+  /* --- Die Weiche als Angebot -----------------------------------------
+     Erscheint nach einer Abstimmung, wenn die Quote in ein Band faellt,
+     das die Randnotiz selbst benannt hat. Sie verdeckt bewusst die
+     Bedienleiste unten und nicht die Folie. */
+  /* Feste Breite, nicht max-width: Sonst schnuert der Flexkasten den
+     Satz auf eine handbreite Spalte zusammen und bricht ihn sechsmal. */
+  .weichenangebot{position:fixed;left:50%;bottom:16px;transform:translateX(-50%)
+    translateY(140%);z-index:70;display:flex;align-items:center;gap:18px;
+    width:min(1240px,96vw);padding:13px 20px;border-radius:14px;
+    background:#0f172a;color:#e2e8f0;border:2px solid #f59e0b;
+    box-shadow:0 14px 40px rgba(15,23,42,.5);
+    font-size:clamp(15px,1.3vw,20px);transition:transform .35s}
+  body.weicheoffen .weichenangebot{transform:translateX(-50%) translateY(0)}
+  .weichenangebot .quote{flex:0 0 auto;font-weight:800;color:#fbbf24;
+    white-space:nowrap}
+  .weichenangebot .satz{flex:1 1 auto;min-width:0;line-height:1.3}
+  .weichenangebot button{border:0;border-radius:9px;padding:9px 15px;
+    font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}
+  .weichenangebot .ja{background:#f59e0b;color:#1c1917}
+  .weichenangebot .ja:hover{background:#fbbf24}
+  .weichenangebot .nein{background:#1e293b;color:#cbd5e1;border:1px solid #334155}
+  .weichenangebot .nein:hover{background:#334155}
+  /* Der Rueckweg: liegt auf der angesprungenen Folie oben rechts, damit
+     man ihn sieht, ohne ihn zu suchen. */
+  .weicherueck{position:fixed;right:16px;top:60px;z-index:70;display:none;
+    border:0;border-radius:10px;padding:10px 15px;background:#0f766e;
+    color:#f0fdfa;font:inherit;font-weight:800;font-size:clamp(14px,1.2vw,19px);
+    cursor:pointer;box-shadow:0 8px 24px rgba(15,118,110,.4)}
+  .weicherueck:hover{background:#0d9488}
+  body.weichezurueck .weicherueck{display:block}
+  @media print{.weichenangebot,.weicherueck{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -953,7 +984,7 @@ c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
 M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2397em;"><span></span></span></span></span></span></span></span></span></span></span></div><div class="zusatz">Für jede positive Zahl <span class="tex" data-tex="a"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span></span> und jede natürliche Zahl <span class="tex" data-tex="n \neq 0"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span class="mspace nobreak"></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></span>.<br>Der <b>Nenner</b> des Exponenten sagt, <b>welche Wurzel</b>.</div></div><div class="randnotiz"><b>Buch S. 27, Basiswissen, Formel (1).</b> Wortgleich.<br><b>Der zweite Satz ist die Merkhilfe, auf die es ankommt:</b> Nenner → Wurzel. Er beugt genau dem Fehler vor, der gleich abgefragt wird.<br><b>Zwei Minuten abschreiben lassen.</b> Diese Formel steht in der Klassenarbeit am 15.09.</div>
 </section>
 
-<section class="slide abfrage plk stufig" data-phase="4 · Merksatz" data-ab="32" data-marke="P2" data-frage="Wie viel ist $16^{\frac{1}{2}}$?" data-optionen="[&quot;8&quot;, &quot;4&quot;, &quot;32&quot;, &quot;256&quot;]" data-schluessel="p2">
+<section class="slide abfrage plk stufig" data-phase="4 · Merksatz" data-ab="32" data-marke="P2" data-frage="Wie viel ist $16^{\frac{1}{2}}$?" data-optionen="[&quot;8&quot;, &quot;4&quot;, &quot;32&quot;, &quot;256&quot;]" data-schluessel="p2" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;R1&quot;, &quot;kostet&quot;: &quot;vier Minuten&quot;}]">
 <div class="kicker"><span class="marke plk">Plickers 2</span> &nbsp;Selbstcheck <span class="trenner">&#9656;</span> sitzt der Nenner?</div><h2 class="wt">Wie viel ist <span class='accent'><span class="tex" data-tex="16^{\frac{1}{2}}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.954em;"></span><span class="mord">1</span><span class="mord"><span class="mord">6</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.954em;"><span style="top:-3.363em;margin-right:0.05em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8443em;"><span style="top:-2.656em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.2255em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line mtight" style="border-bottom-width:0.049em;"></span></span><span style="top:-3.384em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.344em;"><span></span></span></span></span></span><span class="mclose nulldelimiter sizing reset-size3 size6"></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>8</span></div><div class="opt"><span class="bst">B</span><span>4</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>32</span></div><div class="opt"><span class="bst">D</span><span>256</span></div></div><div class="aufloesung frag hart">Richtig ist <b class='loesungswert'>4</b>, denn <span class="tex" data-tex="4 \cdot 4 = 16"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">16</span></span></span></span></span>. <b>8</b> ist <span class="tex" data-tex="16 : 2"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">16</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span></span> <span class="trenner">&#9656;</span> der häufigste Fehler überhaupt: Der Exponent wird als Divisor gelesen. <b>32</b> ist <span class="tex" data-tex="16 \cdot 2"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">16</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span></span>, <b>256</b> ist <span class="tex" data-tex="16^{2}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">6</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></span>.</div><div class="randnotiz"><b>Die wichtigste Abfrage der Stunde.</b> Hier entscheidet sich, ob der Merksatz mehr ist als eine abgeschriebene Formel.<br><b>Erwartung:</b> 60–80 % auf B. Erfahrungsgemäß wählen 15–25 % die A <span class="trenner">&#9656;</span> 16 : 2 = 8.<br><b>Bei A nachfragen, nicht korrigieren:</b> „Mach die Probe: 8 · 8 <span class="trenner">&#9656;</span> ist das 16?“ Die Probe erledigt den Fehler von selbst, und sie ist das Werkzeug, das bleibt.<span class="weiche"><i>Weiche:</i> unter 70 % richtig <span class="trenner">&#9656;</span> Reservefolie 26 (vier Potenzen, jede mit Probe). Das kostet vier Minuten. Über 85 % <span class="trenner">&#9656;</span> Whiteboard 7 überspringen und gleich mit Phase 5 weitermachen.</span></div>
 </section>
 
@@ -1228,6 +1259,9 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
   go(LO);
 
   window.ABSTIMMUNG = {"dienst": "https://abstimmung.michaelglaubitz-barton.workers.dev", "raum": "10b-wurz"};
+
+  window.gehe = i => { revealAll(i); go(i); };
+  window.geheFrisch = i => { const s = document.querySelectorAll('.slide')[i]; if (s) s.dataset.step = 0; go(i); };
 
   /* ---- Selbsteinpassung ------------------------------------------------
      Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
@@ -1562,6 +1596,114 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
     zeige();
   })();
 
+  /* ---- Die Weiche: auswerten und anbieten ------------------------------
+     Die Randnotiz jeder Abfrage sagt seit jeher, was bei welcher Quote zu
+     tun ist. Beim Bauen wird daraus data-weiche - eine Liste von Baendern
+     mit oberer Grenze und Ziel. Hier wird gerechnet und ANGEBOTEN.
+
+     Angesprungen wird nichts von selbst. Eine Quote ist ein Hinweis, kein
+     Urteil; wer im Raum steht, weiss mehr als die Zahl. Deshalb zwei
+     Knoepfe und keine Automatik.
+
+     Ohne Abstimmungsdienst gibt es keine Zahlen - dann bleibt die Weiche,
+     was sie war: ein Satz in der Randnotiz. */
+  (function weiche(){
+    const leiste = document.createElement("div");
+    leiste.className = "weichenangebot";
+    leiste.innerHTML = '<span class="quote"></span><span class="satz"></span>'
+      + '<button type="button" class="ja"></button>'
+      + '<button type="button" class="nein">weiter im Plan</button>';
+    document.body.appendChild(leiste);
+
+    const rueck = document.createElement("button");
+    rueck.type = "button";
+    rueck.className = "weicherueck";
+    rueck.textContent = "↩ dieselbe Frage noch einmal";
+    document.body.appendChild(rueck);
+
+    /* Eine Frage, die noch einmal gestellt wird, muss aussehen wie beim
+       ersten Mal: keine Fuellung, keine Zahlen, keine gefaerbte Karte.
+       Sonst steht die Loesung schon da, waehrend die Klasse antwortet. */
+    function frischmachen(folie){
+      if (!folie) return;
+      delete folie.dataset.zaehler;
+      folie.classList.remove("abstimmt");
+      const b = folie.querySelector(".plickers");
+      if (b) b.classList.remove("gezeigt");
+      folie.querySelectorAll(".opt").forEach(k => {
+        const f = k.querySelector(".fuellung"); if (f) f.style.width = "0%";
+        const z = k.querySelector(".zahl"); if (z) z.textContent = "0";
+      });
+    }
+
+    const alle = () => [...document.querySelectorAll(".slide")];
+    let zurueck = null;          // Folienindex, zu dem der Rueckweg fuehrt
+
+    function zu(){ document.body.classList.remove("weicheoffen"); }
+
+    function springe(ziel){
+      const liste = alle();
+      const z = liste.findIndex(s => s.dataset.marke === ziel);
+      if (z < 0) return zu();
+      /* Zurueck geht es AUF die Abfrage, nicht an ihr vorbei. Der Umweg
+         soll den Irrtum aufklaeren; ob er das getan hat, zeigt nur
+         dieselbe Frage noch einmal. Genau so steht es auch in den
+         Weichentexten: „…, dann diese Frage erneut." */
+      zurueck = liste.findIndex(s => s.classList.contains("on"));
+      if (zurueck < 0) zurueck = null;
+      zu();
+      liste[z].dataset.step = 0;
+      if (window.gehe) window.gehe(z);
+      document.body.classList.toggle("weichezurueck", zurueck != null);
+    }
+
+    rueck.onclick = () => {
+      if (zurueck == null) return;
+      const z = zurueck; zurueck = null;
+      document.body.classList.remove("weichezurueck");
+      frischmachen(alle()[z]);
+      if (window.geheFrisch) window.geheFrisch(z);
+    };
+    leiste.querySelector(".nein").onclick = zu;
+
+    window.WEICHE = {
+      /* Fuer die Probe: dieselbe Rechnung, ohne Dienst. */
+      pruefe(folie){
+        if (!folie) return;
+        let baender = [];
+        try { baender = JSON.parse(folie.dataset.weiche || "[]"); } catch(e){}
+        if (!baender.length) return zu();
+        const zaehler = (folie.dataset.zaehler || "").split(",").map(Number);
+        const summe = zaehler.reduce((a, b) => a + (b || 0), 0);
+        if (!summe) return zu();
+        const karten = [...folie.querySelectorAll(".opt")];
+        const richtig = karten.findIndex(k => k.classList.contains("istrichtig")
+                                          || k.querySelector(".haken"));
+        if (richtig < 0) return zu();
+        const quote = Math.round((zaehler[richtig] || 0) / summe * 100);
+        /* Das erste Band, dessen obere Grenze die Quote nicht
+           unterschreitet - bei mehrstufigen Weichen also das richtige. */
+        const band = baender.find(b => quote <= b.bis);
+        if (!band) return zu();
+        const liste = alle();
+        const z = liste.findIndex(s => s.dataset.marke === band.ziel);
+        const nr = z >= 0 ? (z + 1) : null;
+        leiste.querySelector(".quote").textContent =
+          quote + " % richtig (" + (zaehler[richtig] || 0) + " von " + summe + ")";
+        leiste.querySelector(".satz").innerHTML =
+          nr ? ("Die Randnotiz sieht dafür <b>Folie " + nr + "</b> vor"
+                + (band.kostet ? " — kostet " + band.kostet : "") + ".")
+             : "Das Ziel der Weiche ist in diesem Deck nicht zu finden.";
+        const ja = leiste.querySelector(".ja");
+        ja.textContent = nr ? ("→ Folie " + nr + " anspringen") : "";
+        ja.style.display = nr ? "" : "none";
+        ja.onclick = () => springe(band.ziel);
+        document.body.classList.add("weicheoffen");
+      },
+      zu: zu,
+    };
+  })();
+
   /* ---- Videofolien: der Player laedt erst, wenn die Folie steht --------
      Vorher steht nur die Adresse im Rahmen (data-src). Verlaesst die Folie
      die Wand, wird der Player geleert - sonst laeuft der Ton weiter. */
@@ -1678,6 +1820,9 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
         k.querySelector(".zahl").textContent = n;
       });
       stand.querySelector(".text").textContent = "abgestimmt: " + abgestimmt;
+      /* Fuer die Weiche: Wie die Abstimmung ausging, muss die Folie
+         selbst wissen - der Zaehler lebt sonst nur in diesem Aufruf. */
+      folie.dataset.zaehler = zaehler.join(",");
     }
 
     async function oeffne(folie){
@@ -1710,6 +1855,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       try { await fetch(dienst + "/v1/raum/" + raum + "/zu",
                         { method:"POST", headers: kopf() }); } catch(e){}
       await zeichne(alt.folie);
+      if (window.WEICHE) window.WEICHE.pruefe(alt.folie);
     }
 
     async function zeichne(folie){
