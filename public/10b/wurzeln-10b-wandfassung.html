@@ -168,6 +168,45 @@
   .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
   .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
 
+  /* --- Wenn schon umbrechen, dann gleichmaessig ------------------------
+     Bleibt eine Zeile uebrig, faellt sie unangenehm auf: Folie 23 der 7b
+     zeigte „Der Faktor der ersten beiden Zeilen ist" und darunter allein
+     „1,5.". text-wrap:balance verteilt die Woerter auf gleich lange
+     Zeilen, ohne eine Zeile hinzuzufuegen - die Zahl der Zeilen bleibt
+     genau die, die oben ausgerechnet wurde. Zwischen erzwungenen
+     Umbruechen (<br>) wird jeder Teil fuer sich ausgeglichen, die
+     gesetzte Gliederung Situation / Frage bleibt also stehen. */
+  h1,.slide h2.wt,.frage,.lead,.geraetetext{text-wrap:balance}
+
+  /* --- Mathematik in einer Ueberschrift -------------------------------
+     Gemessen: Die Tafelschrift steht auf font-weight 800, KaTeX auf 400.
+     Nebeneinander in EINER Zeile ist das ein Bruch, den man sofort sieht -
+     „Wie gross ist der Quotient Preis : Menge?" sah aus wie zwei Folien.
+
+     font-weight hilft nicht: KaTeX bringt eigene Schnitte mit (KaTeX_Main,
+     KaTeX_Math), und der Browser hat davon nur den mageren geladen. Also
+     wird die Kontur verstaerkt - das aendert die Buchstabenform nicht und
+     verschiebt keine Formel, macht den Strich aber so dick wie nebenan.
+     Nur in Ueberschriften; im Fliesstext passt das magere KaTeX.
+
+     Die Staerke ist gemessen, nicht geraten - mit
+     Werkzeuge/strichstaerke.py an Folie 12 der 7b, quer durch die Zeile
+     „Wie gross ist der Quotient Preis : Menge?". Verglichen werden die
+     Staemme (oberes Viertel der dunklen Stuecke), nicht der Median: der
+     Serifenschnitt bringt Haarstriche mit, die es in der Tafelschrift
+     nicht gibt, und die den Median druecken, ohne dass der Strich
+     duenner waere.
+
+       Tafelschrift 19 px, KaTeX 18 px - 95 %, ausgeglichen.
+
+     Der erste Versuch mit .028em war viel zu zaghaft: dort standen 16 px
+     gegen 9 px im Median, und der Bruch war weiter zu sehen.
+
+     Weiter hinauf geht es nicht: ab etwa .1em laufen die Punzen von e, a
+     und s zu, und die Formel wird schwerer lesbar statt kraeftiger. */
+  h1 .katex,.slide h2.wt .katex,.frage .katex,.antwort .wert .katex{
+    -webkit-text-stroke:.08em currentColor}
+
   /* --- Ablauftabelle der zweiten Folie ---------------------------------
      Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
      steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
@@ -215,7 +254,10 @@
   .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
     font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
   .schild tr:last-child td{border-bottom:none}
-  .schild td.p{text-align:right;font-weight:800}
+  /* Ein Preis bricht nicht um: „0,35 €" darf nicht zu „0,35" und darunter
+     „€" werden. In einer schmalen Spalte - etwa als Rueckblende neben dem
+     Text - passierte genau das. */
+  .schild td.p{text-align:right;font-weight:800;white-space:nowrap}
   .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
 
   /* --- Wertetabelle mit Vervielfachungspfeilen --- */
@@ -235,8 +277,13 @@
      deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
      Plickers ueber die vier Karten. */
   .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
-  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
-  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  /* Die Bildspalte bekommt, was ihr Inhalt braucht - nicht die Haelfte.
+     Gemessen an Folie 23 der 7b: die Tabelle war 524 px breit und sass in
+     einer 818-px-Spalte, waehrend die Frage daneben auf vier Zeilen
+     umbrach. Ein Umbruch ist nur dann zu rechtfertigen, wenn seitlich
+     wirklich etwas steht. */
+  .mwsplit .mwfrage{flex:1 1 auto;min-width:0}
+  .mwsplit .mwbild{flex:0 1 auto;min-width:0}
   .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
   .mwsplit .antwort{margin-top:2.2vh}
   .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
@@ -246,7 +293,14 @@
   .mwsplit .schilder{margin-top:0}
   .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
   .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
-  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+  /* --- Federzeichnung neben der Aufgabe --------------------------------
+     Die Motive liegen als LA-PNG vor: schwarze Tinte, Deckkraft aus der
+     Helligkeit. Sie tragen also KEINEN eigenen Grund und sitzen auf jeder
+     Folienfarbe richtig - deshalb hier auch kein background. */
+  .wandbild{margin:0}
+  .wandbild img{display:block;width:100%;height:auto}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}
+    .wandbild{width:auto;max-width:60vw;margin:0 auto}}
 
   /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
      hoeher als das Bild, und die Einpassung muesste die ganze Folie
@@ -422,6 +476,72 @@
     padding:4px 14px;cursor:pointer}
   .zeiknoepfe button:hover{color:var(--ink);border-color:#94a3b8}
   .zeiknoepfe .zaehler{margin-left:auto;font-weight:800;color:var(--muted);font-size:18px}
+  /* --- Hefteintrag ------------------------------------------------------
+     Was ins Heft soll, steht an der Wand SO, wie es ins Heft gehoert -
+     handgeschrieben auf kariertem Papier. Zwei Gruende:
+
+     1. Die Klasse schreibt ab, was sie sieht. Steht der Satz in
+        Druckschrift auf farbigem Grund, entsteht im Heft irgendetwas;
+        steht er handgeschrieben da, entsteht ein Hefteintrag.
+     2. Wer mit GoodNotes auf dem iPad schreibt, hat damit eine Vorlage
+        bis in die Zeilenaufteilung.
+
+     Das Karo ist gerechnet, kein Bild: zwei Farbverlaeufe im Abstand von
+     40 px. Die Handschrift ist Caveat, zugeschnitten und eingebettet -
+     siehe handschrift_css(). */
+  .heft{background:#fff;border:1px solid #d5d9e0;border-radius:6px;
+    box-shadow:0 10px 30px rgba(15,23,42,.13);
+    background-image:
+      linear-gradient(to right,rgba(80,120,190,.16) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(80,120,190,.16) 1px,transparent 1px);
+    background-size:40px 40px;background-position:-1px -1px;
+    color:#12305e;font-family:Handschrift,"Segoe Print","Comic Sans MS",cursive;
+    padding:28px 34px 30px}
+  /* Der rote Rand des Heftes - links, wie im Rechenheft. */
+  .heft{border-left:3px solid rgba(203,60,60,.55)}
+  .heft .htitel{font-weight:700;display:inline-block;
+    border-bottom:3px solid rgba(203,60,60,.6);padding-bottom:2px;
+    margin-bottom:.35em}
+  .heft p{margin:.18em 0}
+  .heft .gold,.heft b{font-weight:700;color:#0b7a5a}
+  .heft .fehler{color:#b42318}
+  /* Auch die Tabelle im Heft ist handgeschrieben - mit dem blassen Stift
+     gezogen, nicht mit dem Kastenrahmen der Wandfassung. */
+  .heft .wtab{margin:.5em 0 .2em}
+  .heft .wtab td,.heft .wtab th{border-color:rgba(80,120,190,.5);
+    background:transparent;color:inherit;font-family:inherit;font-weight:700}
+  .heft .wtab th{color:#12305e}
+  /* Mathematik im Hefteintrag: KaTeX bringt seine eigene Type mit und
+     stuende mitten im Handgeschriebenen als Druck. Im Heft gilt daher die
+     Handschrift auch fuer die Formel. */
+  .heft .katex,.heft .katex *{font-family:inherit!important;
+    -webkit-text-stroke:0}
+
+  /* --- Rueckblende ------------------------------------------------------
+     Bezieht sich eine Folie auf etwas Frueheres - „die Tabelle, die nicht
+     passt", „das Taxi von letzter Woche" -, dann steht dieses Fruehere
+     hier daneben und nicht nur im Gedaechtnis. Verkleinert, damit es die
+     Folie nicht beherrscht; ein Klick legt es gross darueber.
+
+     zoom statt transform:scale: zoom veraendert auch den Platzbedarf, die
+     Nachbarn ruecken also richtig nach. Ein scale haette einen Kasten in
+     voller Groesse stehen lassen, in dem etwas Kleines sitzt. */
+  .rueckblende{margin:0;cursor:zoom-in;border-left:4px solid var(--line);
+    padding-left:14px}
+  .rueckblende > figcaption{font-weight:800;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .rueckblende .rbinhalt{zoom:.62}
+  .rueckblende:hover{border-left-color:var(--blue)}
+  .rbgross{position:fixed;inset:0;z-index:60;background:rgba(255,255,255,.97);
+    display:flex;align-items:center;justify-content:center;cursor:zoom-out;
+    padding:6vh 6vw}
+  /* Gross heisst gross: die Verkleinerung von nebenan wird aufgehoben und
+     noch einmal ein Drittel draufgelegt - die Rueckblende soll aus der
+     letzten Reihe lesbar sein. */
+  .rbgross .rbinhalt{zoom:1.35}
+  .rbgross figcaption{display:none}
+  @media print{.rbgross{display:none}}
+
   /* Ein Bild gross: legt sich ueber die Folie, ein Klick nimmt es weg. */
   .lupe{position:absolute;inset:0;z-index:6;background:#fff;display:none;
     align-items:center;justify-content:center;cursor:pointer}
@@ -577,6 +697,21 @@
     border-radius:11px;background:#0f172a;color:#94a3b8;font:inherit;
     cursor:pointer}
   @media print{.quotewahl{display:none}}
+  /* --- Titelfolie mit Bild ---------------------------------------------
+     Der Titel steht links und behaelt seine Breite; das Strichbild rechts
+     nimmt, was uebrig ist. Es ist Schmuck und Anker, kein Traeger von
+     Information - deshalb darf es schrumpfen, der Text nicht. */
+  .titelzeile{display:flex;align-items:center;gap:2.4vw;width:100%}
+  .titeltext{flex:1 1 auto;min-width:0}
+  .titelbild{flex:0 0 30%;max-width:30%;display:flex;justify-content:center}
+  /* Kein mix-blend-mode: Die Buehne traegt ein transform und damit einen
+     eigenen Stapelkontext - die Blendung liefe ins Leere. Das Bild bringt
+     sein Alpha selbst mit (Werkzeuge/bild_fuer_wand.py). */
+  .titelbild img{max-width:100%;max-height:74vh;object-fit:contain}
+  @media (max-width:1100px){
+    .titelbild{flex-basis:26%;max-width:26%}
+  }
+
   /* --- Kontrollfrage auf einer Reservefolie ---------------------------- */
   /* Kompakt: Auf einer Folie, die schon Video oder Graph traegt, drueckt
      ein hoher Block die ganze Folie zusammen - gemessen sank die
@@ -714,12 +849,17 @@
      stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
      420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
      verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
-  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  /* Gemessen am 07.09.: 18 von 31 Ueberschriften brachen um und nutzten
+     dabei im Mittel 58 % der Breite - bei 34ch stand die Zeile auf 1018
+     von 1500 px, und rechts blieb ein Drittel leer, OHNE dass dort etwas
+     stand. Ein Umbruch ist nur dann richtig, wenn daneben ein Bild sitzt;
+     dafuer gibt es .mitbild. */
+  .slide h2.wt{font-size:50px;max-width:46ch;margin-bottom:.3em}
   .slide p,.slide li{font-size:30px;line-height:1.45}
   .kicker{font-size:21px}
   .lead{font-size:31px;max-width:46ch}
   .callout{padding:.75em 1.05em}
-  .frage{font-size:66px;max-width:22ch}
+  .frage{font-size:66px;max-width:40ch}
   .antwort .wert{font-size:78px}
   .antwort .neben{font-size:28px}
   .pill{font-size:20px}
@@ -739,6 +879,18 @@
   .merk{padding:26px 28px}
   .merk .satz{font-size:46px}
   .merk .zusatz{font-size:27px}
+  /* 430 px auf der 1200er Flaeche: gross genug, dass die Schraffur an der
+     Wand traegt, klein genug, dass der Frage ueber 700 px bleiben. */
+  .wandbild{width:430px}
+  /* Handschrift traegt kleiner als eine Groteske: Caveat hat eine kurze
+     x-Hoehe, deshalb hier deutlich groesser als der Fliesstext. */
+  /* Ein Heft ist so breit wie ein Heft. Ohne diese Schranke lief das
+     Karopapier bis an den Folienrand und sah nach Tapete aus, nicht nach
+     einer Seite, die man abschreibt. */
+  .heft{padding:30px 38px 34px;max-width:1150px}
+  .heft .htitel{font-size:46px}
+  .heft p{font-size:40px;line-height:1.45}
+  .heft .wtab td,.heft .wtab th{font-size:36px}
   .auftrag{padding:24px 26px}
   .auftrag li{font-size:31px}
   .zeitschild{font-size:24px}
@@ -770,10 +922,13 @@
      zu antworten begann. */
 
   /* --- Die Entwurfsflaeche selbst --------------------------------------
-     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
-     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     Vorgegebene Breite, damit der Umbruch nicht vom Beamer abhaengt; die
+     Hoehe ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
      sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
      nach oben. */
+  /* 1200 px ist die Ausgangsbreite, nicht die endgueltige: wo die Hoehe
+     die bindende Schranke ist, verbreitert window.einpassen die Flaeche
+     ueber ein style-Attribut bis auf 1600 px (Begruendung dort). */
   .buehne{width:1200px;transform-origin:top center}
   /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
      skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
@@ -1394,6 +1549,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
        auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
        eine Schleife, die den Aufbau der Seite anhaelt. */
     b.style.transform = "";
+    b.style.width = "";
     folie.style.justifyContent = "";
     /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
        mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
@@ -1406,12 +1562,41 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
     const platz = B.unten - B.oben;
     const breite = folie.clientWidth
                  - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
-    const hoch = b.getBoundingClientRect().height;
+    let flaeche = 1200;
+    let hoch = b.getBoundingClientRect().height;
     if(platz <= 0 || hoch <= 0) return 1;
     /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
        von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
        wuerde eine kurze Folie grotesk wirken. */
-    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    let kH = (platz - 20) / hoch, kB = breite / flaeche;
+    /* Wo die HOEHE die bindende Schranke ist, liegt seitlich Platz brach,
+       den der Text nicht nutzen darf. Gemessen an der 7b: 18 der 34
+       Folien sind hoehenbegrenzt, und genau darunter sind alle acht
+       Sachaufgaben, die auf drei und vier Zeilen umbrachen - waehrend
+       neben ihnen 180 px leer blieben. Die 16 breitenbegrenzten Folien
+       duerfen dagegen NICHT verbreitert werden: dort ginge Schrift
+       verloren.
+
+       Wo die Hoehe bindet, darf die Flaeche so weit wachsen, dass die
+       Breite gerade zur bindenden Schranke wird. Das ist beweisbar ohne
+       Verlust: mit W = breite/kH ist danach kB' = kH, und weil der Text
+       durch die groessere Breite nur kuerzer werden kann, ist kH' >= kH.
+       Der Massstab min(kH', kB') ist also genau der von vorher -
+       dieselbe Schriftgroesse, weniger Zeilen, mehr Luft. Gedeckelt bei
+       1600 px, damit die Zeile lesbar kurz bleibt. */
+    if(kH < kB){
+      const sollBreite = Math.min(1600, Math.round(breite / kH));
+      if(sollBreite > flaeche){
+        b.style.width = sollBreite + "px";
+        const nachher = b.getBoundingClientRect().height;
+        /* Breiter darf nie hoeher heissen; wenn doch, zurueck. */
+        if(nachher > 0 && nachher <= hoch){
+          flaeche = sollBreite; hoch = nachher;
+          kH = (platz - 20) / hoch; kB = breite / flaeche;
+        } else b.style.width = "";
+      }
+    }
+    const k = Math.max(0.55, Math.min(2.4, kH, kB));
     b.style.transform = "scale(" + k.toFixed(4) + ")";
     /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
        Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
@@ -1954,6 +2139,32 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
     lauf();
   })();
 
+  /* ---- Rueckblende gross ----------------------------------------------
+     Eine Rueckblende steht verkleinert neben dem Text; ein Klick legt sie
+     gross ueber die Folie. Die vorhandene .lupe taugt dafuer nicht - sie
+     zeigt nur <img>, eine Rueckblende ist aber meist eine Tabelle oder
+     ein Preisschild, also gewoehnliches HTML. Deshalb wird der Inhalt
+     geklont statt abgebildet: So bleibt er scharf, egal wie gross die
+     Wand ist. */
+  (function rueckblendeGross(){
+    let schirm = null;
+    function zu(){ if(schirm){ schirm.remove(); schirm = null; } }
+    document.addEventListener('click', e => {
+      if(schirm && schirm.contains(e.target)) return zu();
+      const rb = e.target.closest && e.target.closest('.rueckblende');
+      if(!rb) return;
+      zu();
+      schirm = document.createElement('div');
+      schirm.className = 'rbgross';
+      const innen = document.createElement('div');
+      innen.className = 'rbbuehne';
+      innen.innerHTML = rb.innerHTML;
+      schirm.appendChild(innen);
+      document.body.appendChild(schirm);
+    });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') zu(); });
+  })();
+
   /* ---- Live-Abstimmung ------------------------------------------------
      Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
      Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
@@ -2057,20 +2268,47 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       folie.dataset.zaehler = zaehler.join(",");
     }
 
-    async function oeffne(folie){
-      const frage = folie.dataset.frage || "";
-      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+    /* Welche Runde soll auf dieser Folie gerade laufen - oder keine?
+       Zwei Faelle:
+
+       Eine gewoehnliche Abfragefolie hat genau EINE Runde, und die laeuft
+       bis zum ersten Aufdecken.
+
+       Eine Tabellenfolie mit data-runden hat eine Runde JE VERDECKTER
+       ZELLE: erst rechnet die Klasse Spalte 1 und schickt ab, dann wird
+       Spalte 1 aufgedeckt und Spalte 2 gefragt, und so fort. Die Stufe
+       sagt, wie viele Zellen schon offen sind - also ist sie zugleich die
+       Nummer der Runde, die jetzt drankommt. */
+    function rundeVon(folie){
+      const stufe = +(folie.dataset.step || 0);
+      let liste = null;
+      try { liste = JSON.parse(folie.dataset.runden || "null"); } catch(e){}
+      if (liste && liste.length)
+        return stufe < liste.length
+          ? { frage: liste[stufe].frage, marke: liste[stufe].schluessel,
+              art: "zeichnen", optionen: [] }
+          : null;
+      if (!folie.dataset.frage || stufe > 0) return null;
       let optionen = [];
       try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
-      if (art === "wahl" && optionen.length < 2) return;
-      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+      if (art === "wahl" && optionen.length < 2) return null;
+      return { frage: folie.dataset.frage, marke: folie.dataset.schluessel,
+               art, optionen };
+    }
+
+    async function oeffne(folie, r){
+      r = r || rundeVon(folie);
+      if (!r) return;
+      const frage = r.frage, art = r.art, optionen = r.optionen;
+      const schluessel = raum + "-" + sitzung + "-" + r.marke;
       try {
         const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
           method:"POST", headers: kopf(),
           body: JSON.stringify({ frage, optionen, schluessel, art }) });
         if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
         if (!a.ok) return;
-        laufend = { folie, schluessel };
+        laufend = { folie, schluessel, marke: r.marke };
         stand.classList.remove("zu");
         const b = balken(folie);
         if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
@@ -2456,7 +2694,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       if (abgabeAn) return;          /* der Abgabeschirm hat Vorrang */
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
-      const istAbfrage = !!folie.dataset.frage;
+      const istAbfrage = !!(folie.dataset.frage || folie.dataset.runden);
       /* Die Regel beim Folienwechsel: Grundzustand ueberall, nur nicht
          auf einer Abfragefolie. Einmal je Folie - danach darf der
          Schalter von Hand anders entscheiden. */
@@ -2466,12 +2704,16 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
       }
       if (ruhe) return;                /* Grundzustand: nichts geht auf */
       if (!istAbfrage){ if (laufend) schliesse(); return; }
-      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
-      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      const soll = rundeVon(folie);
+      if (!laufend && soll && lebt && holeSchluessel()) return oeffne(folie, soll);
       /* Von einer Abfragefolie direkt auf die naechste: erst die alte
          schliessen, dann noch einmal hinsehen, damit die neue aufgeht. */
       if (laufend && laufend.folie !== folie) return schliesse().then(beobachte);
-      if (laufend && aufgeloest){
+      /* Dieselbe Folie, aber die naechste Spalte ist dran: alte Runde zu,
+         dann noch einmal hinsehen - so geht die neue von selbst auf. */
+      if (laufend && soll && laufend.marke !== soll.marke)
+        return schliesse().then(beobachte);
+      if (laufend && !soll){
         /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
            Gefaerbt - und damit verraten - wird die richtige Karte erst beim
            zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
