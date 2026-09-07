@@ -511,11 +511,25 @@
   .heft .wtab td,.heft .wtab th{border-color:rgba(80,120,190,.5);
     background:transparent;color:inherit;font-family:inherit;font-weight:700}
   .heft .wtab th{color:#12305e}
-  /* Mathematik im Hefteintrag: KaTeX bringt seine eigene Type mit und
-     stuende mitten im Handgeschriebenen als Druck. Im Heft gilt daher die
-     Handschrift auch fuer die Formel. */
-  .heft .katex,.heft .katex *{font-family:inherit!important;
-    -webkit-text-stroke:0}
+  /* Mathematik im Hefteintrag behaelt KaTeX.
+
+     Der erste Versuch zwang der Formel die Handschrift auf, damit sie
+     nicht als Druck im Handgeschriebenen steht. Das ging schief, und
+     zwar nicht kosmetisch: KaTeX setzt zusammengesetzte Zeichen aus
+     mehreren Kaesten mit eigenen Massen. In der Wurzelstunde stand
+     danach „n = 0" statt „n ≠ 0" - der Schraegstrich war weg - und dem
+     Wurzelzeichen fehlte der Strich ueber dem Radikanden. Eine falsche
+     Formel ist schlimmer als zwei Schriften.
+
+     Die Formel bekommt stattdessen die Tinte des Heftes und denselben
+     Strichausgleich wie in den Ueberschriften; damit steht sie neben der
+     Handschrift, ohne blass zu wirken.
+
+     Der kleine Seitenrand ist noetig, weil die Handschrift schmal
+     auslaeuft und die verstaerkte Formel sonst am Wort davor klebte
+     („Zahl a"). */
+  .heft .katex{color:inherit;-webkit-text-stroke:.045em currentColor;
+    margin:0 .12em}
 
   /* --- Rueckblende ------------------------------------------------------
      Bezieht sich eine Folie auf etwas Frueheres - „die Tabelle, die nicht
