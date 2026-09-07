@@ -544,6 +544,39 @@
   .reteach .weg{margin-top:14px;border-color:#475569;background:#0f172a;
     color:#94a3b8;text-align:center}
   @media print{.reteach,.reteachschirm{display:none}}
+  /* --- Quote von Hand (Taste Z) ---------------------------------------- */
+  .quotewahl{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+    z-index:80;width:min(760px,92vw);padding:22px 24px;border-radius:16px;
+    background:#0f172a;color:#e2e8f0;border:2px solid #fbbf24;
+    box-shadow:0 24px 70px rgba(15,23,42,.6);
+    opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+  body.quoteoffen .quotewahl{opacity:1;pointer-events:auto;
+    transform:translate(-50%,-50%) scale(1)}
+  .quotewahl h3{margin:0 0 4px;font-size:clamp(19px,1.7vw,26px);color:#fbbf24}
+  .quotewahl .wozu{margin:0 0 16px;color:#94a3b8;
+    font-size:clamp(14px,1.15vw,18px);line-height:1.4}
+  .quotewahl .reihe{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .quotewahl .reihe button{flex:1 1 auto;min-width:74px;padding:13px 0;
+    border:1px solid #334155;border-radius:11px;background:#1e293b;
+    color:#e2e8f0;font:inherit;font-weight:800;
+    font-size:clamp(17px,1.5vw,24px);cursor:pointer}
+  .quotewahl .reihe button:hover{background:#334155;border-color:#fbbf24}
+  .quotewahl .genau{display:flex;align-items:center;gap:10px;
+    font-size:clamp(15px,1.2vw,19px)}
+  .quotewahl input{width:104px;padding:10px;border-radius:10px;
+    border:1px solid #334155;background:#1e293b;color:#f1f5f9;
+    font:inherit;font-weight:800;font-size:clamp(17px,1.5vw,24px);
+    text-align:center}
+  /* Ohne eigene Regel bleibt der Knopf im Systemgrau des Browsers und
+     sieht aus, als gehoere er nicht dazu. */
+  .quotewahl .ok{padding:11px 18px;border:0;border-radius:10px;
+    background:#fbbf24;color:#1c1917;font:inherit;font-weight:800;
+    font-size:clamp(15px,1.25vw,20px);cursor:pointer}
+  .quotewahl .ok:hover{background:#fcd34d}
+  .quotewahl .weg{margin-top:14px;width:100%;padding:11px;border:1px solid #475569;
+    border-radius:11px;background:#0f172a;color:#94a3b8;font:inherit;
+    cursor:pointer}
+  @media print{.quotewahl{display:none}}
   /* --- Kontrollfrage auf einer Reservefolie ---------------------------- */
   .kontrolle{display:flex;align-items:baseline;gap:.7em;margin-top:1.1vh;
     padding:1vh 1.1vw;border-radius:12px;background:#fffbeb;
@@ -972,7 +1005,7 @@
 
 </div>
 
-<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>A</b> Abgabe &middot; <b>W</b> Re-Teach &middot; <b>F</b> Vollbild</div>
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>A</b> Abgabe &middot; <b>W</b> Re-Teach &middot; <b>Z</b> Quote &middot; <b>F</b> Vollbild</div>
 <div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
 <div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
 
@@ -1502,6 +1535,65 @@
     }
     window.RETEACH = wahlAuf;
 
+    /* ---- Quote von Hand -----------------------------------------------
+       Wo keine Abstimmung laeuft (die 5a stimmt mit Karten ab), sieht die
+       Lehrkraft die Quote auf dem Handy. Hier wird sie eingetippt - und
+       dieselbe Pruefung entscheidet wie ueberall. */
+    const qwahl = document.createElement("div");
+    qwahl.className = "quotewahl";
+    qwahl.innerHTML = '<h3>Quote eintragen</h3>'
+      + '<p class="wozu">Wie viel Prozent haben die <b>richtige Karte</b>? '
+      + 'Die Zahl steht auf Ihrem Ger\u00e4t. Danach entscheidet dieselbe '
+      + 'Weiche wie bei einer Abstimmung an der Wand.</p>'
+      + '<div class="reihe"></div>'
+      + '<div class="genau">oder genau: <input type="number" min="0" max="100" '
+      + 'step="1" value="70"> % <button type="button" class="ok">'
+      + '\u00fcbernehmen</button></div>'
+      + '<button type="button" class="weg">abbrechen (Esc)</button>';
+    document.body.appendChild(qwahl);
+
+    function qZu(){
+      document.body.classList.remove("quoteoffen");
+      schirm.style.display = "none";
+    }
+    function qNimm(p){
+      qZu();
+      const folie = document.querySelector(".slide.on");
+      window.WEICHE.pruefe(folie, p);
+    }
+    [30, 40, 50, 60, 70, 80, 90].forEach(p => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = p + " %";
+      b.onclick = () => qNimm(p);
+      qwahl.querySelector(".reihe").appendChild(b);
+    });
+    qwahl.querySelector(".ok").onclick = () => {
+      const v = +qwahl.querySelector("input").value;
+      if (v >= 0 && v <= 100) qNimm(v);
+    };
+    qwahl.querySelector("input").addEventListener("keydown", e => {
+      if (e.key === "Enter") qwahl.querySelector(".ok").click();
+      e.stopPropagation();
+    });
+    qwahl.querySelector(".weg").onclick = qZu;
+
+    function qAuf(){
+      const folie = document.querySelector(".slide.on");
+      if (!folie || !folie.querySelectorAll(".opt").length) return;
+      schirm.style.display = "";
+      document.body.classList.add("quoteoffen");
+      setTimeout(() => qwahl.querySelector("input").select(), 60);
+    }
+    window.QUOTE = qAuf;
+
+    document.addEventListener("keydown", e => {
+      if (e.target.closest("input,textarea,[contenteditable]")) return;
+      if (e.key === "z" || e.key === "Z"){ e.preventDefault();
+        document.body.classList.contains("quoteoffen") ? qZu() : qAuf(); }
+      else if (e.key === "Escape"
+               && document.body.classList.contains("quoteoffen")) qZu();
+    });
+
     document.addEventListener("keydown", e => {
       if (e.target.closest("input,textarea,[contenteditable]")) return;
       if (e.key === "w" || e.key === "W"){ e.preventDefault();
@@ -1512,19 +1604,29 @@
 
     window.WEICHE = {
       /* Fuer die Probe: dieselbe Rechnung, ohne Dienst. */
-      pruefe(folie){
+      /* `quoteVorgabe` kommt von der Handeingabe (Taste Z). Ohne
+         sie wird gezaehlt wie bisher - eine Rechnung, zwei Wege
+         hinein. */
+      pruefe(folie, quoteVorgabe){
         if (!folie) return;
         let baender = [];
         try { baender = JSON.parse(folie.dataset.weiche || "[]"); } catch(e){}
         if (!baender.length) return zu();
-        const zaehler = (folie.dataset.zaehler || "").split(",").map(Number);
-        const summe = zaehler.reduce((a, b) => a + (b || 0), 0);
-        if (!summe) return zu();
         const karten = [...folie.querySelectorAll(".opt")];
         const richtig = karten.findIndex(k => k.classList.contains("istrichtig")
                                           || k.querySelector(".haken"));
-        if (richtig < 0) return zu();
-        const quote = Math.round((zaehler[richtig] || 0) / summe * 100);
+        if (richtig < 0 && quoteVorgabe == null) return zu();
+        let quote, woher = "";
+        if (quoteVorgabe != null){
+          quote = Math.max(0, Math.min(100, Math.round(quoteVorgabe)));
+          woher = " (von Hand eingetragen)";
+        } else {
+          const zaehler = (folie.dataset.zaehler || "").split(",").map(Number);
+          const summe = zaehler.reduce((a, b) => a + (b || 0), 0);
+          if (!summe) return zu();
+          quote = Math.round((zaehler[richtig] || 0) / summe * 100);
+          woher = " (" + (zaehler[richtig] || 0) + " von " + summe + ")";
+        }
         /* Das erste Band, dessen obere Grenze die Quote nicht
            unterschreitet - bei mehrstufigen Weichen also das richtige. */
         const band = baender.find(b => quote <= b.bis);
@@ -1533,7 +1635,7 @@
         const z = liste.findIndex(s => s.dataset.marke === band.ziel);
         const nr = z >= 0 ? (z + 1) : null;
         leiste.querySelector(".quote").textContent =
-          quote + " % richtig (" + (zaehler[richtig] || 0) + " von " + summe + ")";
+          quote + " % richtig" + woher;
         leiste.querySelector(".satz").innerHTML =
           nr ? ("Die Randnotiz sieht daf\u00fcr <b>Folie " + nr + "</b> vor"
                 + (band.kostet ? " \u2014 kostet " + band.kostet : "") + ".")
