@@ -517,6 +517,39 @@
   .weicherueck:hover{background:#0d9488}
   body.weichezurueck .weicherueck{display:block}
   @media print{.weichenangebot,.weicherueck{display:none}}
+  /* --- Re-Teach von Hand (Taste W) -------------------------------------
+     Eine Liste, kein Menue: Die Ueberschriften der Reservefolien sind das
+     Einzige, wonach man im Unterricht auswaehlt. */
+  .reteach{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+    z-index:80;width:min(880px,92vw);max-height:82vh;overflow:auto;
+    padding:22px 24px;border-radius:16px;background:#0f172a;color:#e2e8f0;
+    border:2px solid #38bdf8;box-shadow:0 24px 70px rgba(15,23,42,.6);
+    opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+  body.reteachoffen .reteach{opacity:1;pointer-events:auto;
+    transform:translate(-50%,-50%) scale(1)}
+  body.reteachoffen .reteachschirm{position:fixed;inset:0;z-index:79;
+    background:rgba(15,23,42,.55)}
+  .reteach h3{margin:0 0 4px;font-size:clamp(19px,1.7vw,26px);color:#7dd3fc}
+  .reteach .wozu{margin:0 0 16px;color:#94a3b8;
+    font-size:clamp(14px,1.15vw,18px);line-height:1.4}
+  .reteach button{display:block;width:100%;text-align:left;margin-bottom:9px;
+    padding:12px 15px;border:1px solid #334155;border-radius:11px;
+    background:#1e293b;color:#e2e8f0;font:inherit;
+    font-size:clamp(15px,1.25vw,20px);cursor:pointer;line-height:1.3}
+  .reteach button:hover{background:#334155;border-color:#38bdf8}
+  .reteach button .nr{display:inline-block;min-width:2.9em;font-weight:800;
+    color:#7dd3fc}
+  .reteach button .empfohlen{float:right;font-size:.78em;font-weight:800;
+    color:#fbbf24;letter-spacing:.04em}
+  .reteach .weg{margin-top:14px;border-color:#475569;background:#0f172a;
+    color:#94a3b8;text-align:center}
+  @media print{.reteach,.reteachschirm{display:none}}
+  /* --- Kontrollfrage auf einer Reservefolie ---------------------------- */
+  .kontrolle{display:flex;align-items:baseline;gap:.7em;margin-top:1.1vh;
+    padding:1vh 1.1vw;border-radius:12px;background:#fffbeb;
+    border-left:6px solid var(--gold);
+    font-size:clamp(17px,1.75vw,27px);line-height:1.3}
+  .kontrolle .marke{flex:0 0 auto}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -1009,7 +1042,7 @@
 
 </div>
 
-<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>A</b> Abgabe &middot; <b>F</b> Vollbild</div>
+<div class="hintkey"><b>D</b> Randnotizen &middot; <b>T</b> Stoppuhr &middot; <b>R</b> zur&uuml;ck &middot; <b>P</b> Pause &middot; <b>B</b> Blick nach vorn &middot; <b>Q</b> QR &middot; <b>A</b> Abgabe &middot; <b>W</b> Re-Teach &middot; <b>F</b> Vollbild</div>
 <div class="ghostctl"><span>Vorschau</span><input type="range" id="ghost" min="0" max="40" value="12" title="Stärke der Geist-Vorschau"></div>
 <div class="nav"><button id="prev">◀</button><div class="dots" id="dots"></div><button id="next">▶</button></div>
 
@@ -1183,7 +1216,11 @@
       }
       const min = verstrichen() / 60000;
       const g = Math.floor(min), sek = Math.floor((min - g) * 60);
-      anz.textContent = (seit === null ? '\u23f8 ' : '') + g + ':' + String(sek).padStart(2,'0');
+      /* Ein Backslash, nicht zwei: Seit EIGENES_JS eine rohe
+         Zeichenkette ist, reicht Python die Folge unveraendert durch und
+         JavaScript loest sie auf. Mit zwei staende hier der Text
+         ⏸ an der Wand statt des Pausenzeichens. */
+      anz.textContent = (seit === null ? '⏸ ' : '') + g + ':' + String(sek).padStart(2,'0');
       const rueck = s.dataset.ab ? min - (+s.dataset.ab) : 0;
       document.body.classList.toggle('spaet', rueck > 3 && rueck <= 6);
       document.body.classList.toggle('sehrspaet', rueck > 6);
@@ -1345,7 +1382,7 @@
     function zeige(){
       document.body.dataset.plan = aktuell();
       document.body.classList.toggle('planoffen', !plan);
-      if(knopf) knopf.textContent = (plan ? 'Plan ' + plan : 'Plan offen (B)') + ' ⇄';
+      if(knopf) knopf.textContent = (plan ? 'Plan ' + plan : 'Plan offen (B)') + ' \u21c4';
       document.querySelectorAll('.dot').forEach((d, i) => {
         if(alle[i]) d.style.display = gilt(alle[i]) ? '' : 'none'; });
       document.querySelectorAll('.planwahl button').forEach(b =>
@@ -1427,7 +1464,7 @@
     const rueck = document.createElement("button");
     rueck.type = "button";
     rueck.className = "weicherueck";
-    rueck.textContent = "↩ dieselbe Frage noch einmal";
+    rueck.textContent = "\u21a9 dieselbe Frage noch einmal";
     document.body.appendChild(rueck);
 
     /* Eine Frage, die noch einmal gestellt wird, muss aussehen wie beim
@@ -1475,6 +1512,74 @@
     };
     leiste.querySelector(".nein").onclick = zu;
 
+    /* ---- Re-Teach von Hand ------------------------------------------
+       Nach einer Whiteboard-Runde gibt es keine Quote - die Wand hat
+       Bilder. Also waehlt die Lehrkraft selbst. Taste W, oder der
+       Schalter in der Regieleiste. */
+    const schirm = document.createElement("div");
+    schirm.className = "reteachschirm";
+    schirm.style.display = "none";
+    document.body.appendChild(schirm);
+
+    const wahl = document.createElement("div");
+    wahl.className = "reteach";
+    wahl.innerHTML = '<h3>Re-Teach \u2014 welche Reservefolie?</h3>'
+      + '<p class="wozu">Danach kommen Sie mit <b>\u21a9 dieselbe Frage noch '
+      + 'einmal</b> hierher zur\u00fcck, und die Frage steht unaufgel\u00f6st da.</p>'
+      + '<div class="liste"></div>'
+      + '<button type="button" class="weg">abbrechen (Esc)</button>';
+    document.body.appendChild(wahl);
+
+    function wahlZu(){
+      document.body.classList.remove("reteachoffen");
+      schirm.style.display = "none";
+    }
+    wahl.querySelector(".weg").onclick = wahlZu;
+    schirm.onclick = wahlZu;
+
+    function wahlAuf(){
+      const liste = alle();
+      const jetzt = liste.findIndex(s => s.classList.contains("on"));
+      if (jetzt < 0) return;
+      let empfohlen = [];
+      try {
+        empfohlen = JSON.parse(liste[jetzt].dataset.weiche || "[]")
+                      .map(b => b.ziel);
+      } catch(e){}
+      const reserven = liste.map((s, i) => ({ s, i }))
+        .filter(x => x.s.classList.contains("reserve"));
+      if (!reserven.length) return;
+      /* Was die Randnotiz nennt, steht oben. */
+      reserven.sort((a, b) =>
+        (empfohlen.includes(b.s.dataset.marke) ? 1 : 0)
+        - (empfohlen.includes(a.s.dataset.marke) ? 1 : 0));
+      const kasten = wahl.querySelector(".liste");
+      kasten.innerHTML = "";
+      reserven.forEach(({ s, i }) => {
+        const h = s.querySelector("h2");
+        const titel = (h ? h.textContent : "").replace(/\s+/g, " ").trim();
+        const b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = '<span class="nr">' + (i + 1) + "</span>"
+          + (titel || "(ohne \u00dcberschrift)")
+          + (empfohlen.includes(s.dataset.marke)
+             ? '<span class="empfohlen">aus der Randnotiz</span>' : "");
+        b.onclick = () => { wahlZu(); springe(s.dataset.marke); };
+        kasten.appendChild(b);
+      });
+      schirm.style.display = "";
+      document.body.classList.add("reteachoffen");
+    }
+    window.RETEACH = wahlAuf;
+
+    document.addEventListener("keydown", e => {
+      if (e.target.closest("input,textarea,[contenteditable]")) return;
+      if (e.key === "w" || e.key === "W"){ e.preventDefault();
+        document.body.classList.contains("reteachoffen") ? wahlZu() : wahlAuf(); }
+      else if (e.key === "Escape"
+               && document.body.classList.contains("reteachoffen")) wahlZu();
+    });
+
     window.WEICHE = {
       /* Fuer die Probe: dieselbe Rechnung, ohne Dienst. */
       pruefe(folie){
@@ -1500,11 +1605,11 @@
         leiste.querySelector(".quote").textContent =
           quote + " % richtig (" + (zaehler[richtig] || 0) + " von " + summe + ")";
         leiste.querySelector(".satz").innerHTML =
-          nr ? ("Die Randnotiz sieht dafür <b>Folie " + nr + "</b> vor"
-                + (band.kostet ? " — kostet " + band.kostet : "") + ".")
+          nr ? ("Die Randnotiz sieht daf\u00fcr <b>Folie " + nr + "</b> vor"
+                + (band.kostet ? " \u2014 kostet " + band.kostet : "") + ".")
              : "Das Ziel der Weiche ist in diesem Deck nicht zu finden.";
         const ja = leiste.querySelector(".ja");
-        ja.textContent = nr ? ("→ Folie " + nr + " anspringen") : "";
+        ja.textContent = nr ? ("\u2192 Folie " + nr + " anspringen") : "";
         ja.style.display = nr ? "" : "none";
         ja.onclick = () => springe(band.ziel);
         document.body.classList.add("weicheoffen");
