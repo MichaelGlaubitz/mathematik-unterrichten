@@ -486,6 +486,37 @@
   .zeiknoepfe .zip{margin-left:auto}
   .zeiknoepfe .zip + .zaehler{margin-left:0}
   @media print{.kachel .speichern{display:none}}
+  /* --- Die Weiche als Angebot -----------------------------------------
+     Erscheint nach einer Abstimmung, wenn die Quote in ein Band faellt,
+     das die Randnotiz selbst benannt hat. Sie verdeckt bewusst die
+     Bedienleiste unten und nicht die Folie. */
+  /* Feste Breite, nicht max-width: Sonst schnuert der Flexkasten den
+     Satz auf eine handbreite Spalte zusammen und bricht ihn sechsmal. */
+  .weichenangebot{position:fixed;left:50%;bottom:16px;transform:translateX(-50%)
+    translateY(140%);z-index:70;display:flex;align-items:center;gap:18px;
+    width:min(1240px,96vw);padding:13px 20px;border-radius:14px;
+    background:#0f172a;color:#e2e8f0;border:2px solid #f59e0b;
+    box-shadow:0 14px 40px rgba(15,23,42,.5);
+    font-size:clamp(15px,1.3vw,20px);transition:transform .35s}
+  body.weicheoffen .weichenangebot{transform:translateX(-50%) translateY(0)}
+  .weichenangebot .quote{flex:0 0 auto;font-weight:800;color:#fbbf24;
+    white-space:nowrap}
+  .weichenangebot .satz{flex:1 1 auto;min-width:0;line-height:1.3}
+  .weichenangebot button{border:0;border-radius:9px;padding:9px 15px;
+    font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}
+  .weichenangebot .ja{background:#f59e0b;color:#1c1917}
+  .weichenangebot .ja:hover{background:#fbbf24}
+  .weichenangebot .nein{background:#1e293b;color:#cbd5e1;border:1px solid #334155}
+  .weichenangebot .nein:hover{background:#334155}
+  /* Der Rueckweg: liegt auf der angesprungenen Folie oben rechts, damit
+     man ihn sieht, ohne ihn zu suchen. */
+  .weicherueck{position:fixed;right:16px;top:60px;z-index:70;display:none;
+    border:0;border-radius:10px;padding:10px 15px;background:#0f766e;
+    color:#f0fdfa;font:inherit;font-weight:800;font-size:clamp(14px,1.2vw,19px);
+    cursor:pointer;box-shadow:0 8px 24px rgba(15,118,110,.4)}
+  .weicherueck:hover{background:#0d9488}
+  body.weichezurueck .weicherueck{display:block}
+  @media print{.weichenangebot,.weicherueck{display:none}}
   /* Auf Papier weder Blitz noch Flaeche - der Ausdruck soll lesbar sein. */
   @media print{
     .slide.abfrage{background:none}
@@ -1005,6 +1036,9 @@
     ghostSlider.addEventListener('input',()=>{ GHOST=(+ghostSlider.value)/100; paintFrags(idx); }); }
   go(LO);
 
+  window.gehe = i => { revealAll(i); go(i); };
+  window.geheFrisch = i => { const s = document.querySelectorAll('.slide')[i]; if (s) s.dataset.step = 0; go(i); };
+
   /* ---- Selbsteinpassung ------------------------------------------------
      Die Schriftgroessen haengen an der Fensterbreite, der Platz an der
      Hoehe. Auf einer flachen Anlage geht das nicht immer auf - und es
@@ -1336,6 +1370,114 @@
       const b = e.target.closest('.planwahl button'); if(!b) return;
       e.stopPropagation(); window.planSetzen(b.dataset.plan); });
     zeige();
+  })();
+
+  /* ---- Die Weiche: auswerten und anbieten ------------------------------
+     Die Randnotiz jeder Abfrage sagt seit jeher, was bei welcher Quote zu
+     tun ist. Beim Bauen wird daraus data-weiche - eine Liste von Baendern
+     mit oberer Grenze und Ziel. Hier wird gerechnet und ANGEBOTEN.
+
+     Angesprungen wird nichts von selbst. Eine Quote ist ein Hinweis, kein
+     Urteil; wer im Raum steht, weiss mehr als die Zahl. Deshalb zwei
+     Knoepfe und keine Automatik.
+
+     Ohne Abstimmungsdienst gibt es keine Zahlen - dann bleibt die Weiche,
+     was sie war: ein Satz in der Randnotiz. */
+  (function weiche(){
+    const leiste = document.createElement("div");
+    leiste.className = "weichenangebot";
+    leiste.innerHTML = '<span class="quote"></span><span class="satz"></span>'
+      + '<button type="button" class="ja"></button>'
+      + '<button type="button" class="nein">weiter im Plan</button>';
+    document.body.appendChild(leiste);
+
+    const rueck = document.createElement("button");
+    rueck.type = "button";
+    rueck.className = "weicherueck";
+    rueck.textContent = "↩ dieselbe Frage noch einmal";
+    document.body.appendChild(rueck);
+
+    /* Eine Frage, die noch einmal gestellt wird, muss aussehen wie beim
+       ersten Mal: keine Fuellung, keine Zahlen, keine gefaerbte Karte.
+       Sonst steht die Loesung schon da, waehrend die Klasse antwortet. */
+    function frischmachen(folie){
+      if (!folie) return;
+      delete folie.dataset.zaehler;
+      folie.classList.remove("abstimmt");
+      const b = folie.querySelector(".plickers");
+      if (b) b.classList.remove("gezeigt");
+      folie.querySelectorAll(".opt").forEach(k => {
+        const f = k.querySelector(".fuellung"); if (f) f.style.width = "0%";
+        const z = k.querySelector(".zahl"); if (z) z.textContent = "0";
+      });
+    }
+
+    const alle = () => [...document.querySelectorAll(".slide")];
+    let zurueck = null;          // Folienindex, zu dem der Rueckweg fuehrt
+
+    function zu(){ document.body.classList.remove("weicheoffen"); }
+
+    function springe(ziel){
+      const liste = alle();
+      const z = liste.findIndex(s => s.dataset.marke === ziel);
+      if (z < 0) return zu();
+      /* Zurueck geht es AUF die Abfrage, nicht an ihr vorbei. Der Umweg
+         soll den Irrtum aufklaeren; ob er das getan hat, zeigt nur
+         dieselbe Frage noch einmal. Genau so steht es auch in den
+         Weichentexten: „…, dann diese Frage erneut." */
+      zurueck = liste.findIndex(s => s.classList.contains("on"));
+      if (zurueck < 0) zurueck = null;
+      zu();
+      liste[z].dataset.step = 0;
+      if (window.gehe) window.gehe(z);
+      document.body.classList.toggle("weichezurueck", zurueck != null);
+    }
+
+    rueck.onclick = () => {
+      if (zurueck == null) return;
+      const z = zurueck; zurueck = null;
+      document.body.classList.remove("weichezurueck");
+      frischmachen(alle()[z]);
+      if (window.geheFrisch) window.geheFrisch(z);
+    };
+    leiste.querySelector(".nein").onclick = zu;
+
+    window.WEICHE = {
+      /* Fuer die Probe: dieselbe Rechnung, ohne Dienst. */
+      pruefe(folie){
+        if (!folie) return;
+        let baender = [];
+        try { baender = JSON.parse(folie.dataset.weiche || "[]"); } catch(e){}
+        if (!baender.length) return zu();
+        const zaehler = (folie.dataset.zaehler || "").split(",").map(Number);
+        const summe = zaehler.reduce((a, b) => a + (b || 0), 0);
+        if (!summe) return zu();
+        const karten = [...folie.querySelectorAll(".opt")];
+        const richtig = karten.findIndex(k => k.classList.contains("istrichtig")
+                                          || k.querySelector(".haken"));
+        if (richtig < 0) return zu();
+        const quote = Math.round((zaehler[richtig] || 0) / summe * 100);
+        /* Das erste Band, dessen obere Grenze die Quote nicht
+           unterschreitet - bei mehrstufigen Weichen also das richtige. */
+        const band = baender.find(b => quote <= b.bis);
+        if (!band) return zu();
+        const liste = alle();
+        const z = liste.findIndex(s => s.dataset.marke === band.ziel);
+        const nr = z >= 0 ? (z + 1) : null;
+        leiste.querySelector(".quote").textContent =
+          quote + " % richtig (" + (zaehler[richtig] || 0) + " von " + summe + ")";
+        leiste.querySelector(".satz").innerHTML =
+          nr ? ("Die Randnotiz sieht dafür <b>Folie " + nr + "</b> vor"
+                + (band.kostet ? " — kostet " + band.kostet : "") + ".")
+             : "Das Ziel der Weiche ist in diesem Deck nicht zu finden.";
+        const ja = leiste.querySelector(".ja");
+        ja.textContent = nr ? ("→ Folie " + nr + " anspringen") : "";
+        ja.style.display = nr ? "" : "none";
+        ja.onclick = () => springe(band.ziel);
+        document.body.classList.add("weicheoffen");
+      },
+      zu: zu,
+    };
   })();
 
   /* ---- Videofolien: der Player laedt erst, wenn die Folie steht --------
