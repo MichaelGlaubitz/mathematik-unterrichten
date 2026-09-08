@@ -1087,6 +1087,8 @@
 body,.slide p,.slide li,.lead,.auftrag{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.opt .bst{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .heft,.heft p,.heft .htitel{font-family:Handschrift,"Segoe Print",cursive}
+
+
 /* ===========================================================================
    Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
 
@@ -1371,6 +1373,18 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
     const platz = B.unten - B.oben;
     const breite = folie.clientWidth
                  - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
+    /* Die Breitenschranken der Ueberschriften auf den Ausgangswert
+       zuruecksetzen; entschieden wird ueber sie erst weiter unten, wenn
+       die Breite der Flaeche feststeht.
+
+       Eine im Editor gesetzte BREITE bleibt unangetastet - sonst
+       loeschte die Automatik sie beim naechsten Folienwechsel lautlos
+       weg. Ausschlaggebend ist `data-anp-breite`, das der Anwender nur
+       fuer eine Breite setzt; das allgemeine `data-anp` waere zu grob:
+       Dann liesse schon eine geaenderte Schriftgroesse die
+       Zeilenersparnis mit ausfallen. */
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead"))
+      if (!t.dataset.anpBreite) t.style.maxWidth = "";
     let flaeche = 1200;
     let hoch = b.getBoundingClientRect().height;
     if(platz <= 0 || hoch <= 0) return 1;
@@ -1434,6 +1448,40 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
        wieder breiter ist - ein Durchgang reicht nicht, und mehrere
        schwingen. Die verbleibenden Ueberstaende gehoeren in die
        betroffenen Stunden, nicht in diese Schleife. */
+    /* JETZT, wo die Breite der Flaeche feststeht: Eine Breitenschranke,
+       die eine ZEILE kostet, bringt nichts.
+
+       Die Ueberschriften sind auf 46ch gedeckelt - eine gute Zeilenlaenge
+       fuer Fliesstext, aber an der Wand liest niemand Absaetze. Gemessen
+       auf Folie 9 der 7b: Flaeche 1347 px, Deckel 1138 px, und der Text
+       brach deshalb auf VIER Zeilen statt auf drei.
+
+       Je Element wird nachgesehen: wie viele Zeilen mit Deckel, wie viele
+       ohne? Nur wenn es ohne WENIGER werden, faellt er. Sonst bleibt er,
+       denn dann waere die lange Zeile nur lang.
+
+       Die Reihenfolge ist der Punkt. Zuerst stand diese Pruefung oben,
+       vor der Verbreiterung - und lief ins Leere: Bei 1200 px sparte das
+       Fallenlassen keine Zeile, bei den spaeteren 1347 px haette es eine
+       gespart. Danach kann die Flaeche nur kuerzer werden, nie laenger;
+       ein zweiter Durchgang ist also nicht noetig. */
+    let gespart = false;
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead")){
+      if (t.dataset.anpBreite) continue;    /* Breite von Hand gesetzt */
+      const cs = getComputedStyle(t);
+      const zh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+      if (!zh) continue;
+      const mit = Math.round(t.getBoundingClientRect().height / zh);
+      if (mit < 2) continue;
+      t.style.maxWidth = "none";
+      if (Math.round(t.getBoundingClientRect().height / zh) >= mit)
+        t.style.maxWidth = "";
+      else gespart = true;
+    }
+    if (gespart){
+      hoch = b.getBoundingClientRect().height || hoch;
+      kH = (platz - 20) / hoch;
+    }
     const k = Math.max(0.55, Math.min(2.4, kH, kB));
     b.style.transform = "scale(" + k.toFixed(4) + ")";
     /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
@@ -2577,7 +2625,9 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
     setInterval(pruefe, 30000);      /* WLAN kommt und geht - das darf es */
   })();
 
-  window.ANPASSUNGEN = {"fassung": 1, "anzeige": "quotientengleichheit-7b-wandfassung.html", "eintraege": [{"behaelter": "#1", "pfad": "0/1/0", "fp": "45h", "was": {"groesse": 1.6479610959999997, "breite": 0.82, "rang": -2}}, {"behaelter": "#1", "pfad": "0/0/1", "fp": "ewyrlo", "was": {"text": "Die Zahl, die in jeder Zeile<br><span class=\"accent\" contenteditable=\"false\">gleich bleibt</span>", "groesse": 0.7224999999999999}}, {"behaelter": "#1", "pfad": "0/0/1/1", "fp": "1ovkd9f", "was": {"text": "gleich bleibt"}}, {"behaelter": "#1", "pfad": "0/0/3/0", "fp": "n3isll", "was": {"text": "<b>So läuft das heute:</b> wie letzte Woche. Ich zeige, wir rechnen gemeinsam, ihr nutzt die iPads. Und: Bei jeder Frage antworten <b>alle</b>."}}]};
+  window.ANPASSUNGEN = {"fassung": 1, "anzeige": "quotientengleichheit-7b-wandfassung.html", "eintraege": [{"behaelter": "#1", "pfad": "0/1/0", "fp": "45h", "was": {"groesse": 2.2946210300703993, "rang": -2}}, {"behaelter": "#1", "pfad": "0/0/1", "fp": "ewyrlo", "was": {"text": "Die Zahl, die in jeder Zeile<br><span class=\"accent\" contenteditable=\"false\">gleich bleibt</span>", "groesse": 0.7224999999999999}}, {"behaelter": "#1", "pfad": "0/0/1/1", "fp": "1ovkd9f", "was": {"text": "gleich bleibt"}}, {"behaelter": "#1", "pfad": "0/0/3/0", "fp": "n3isll", "was": {"text": "<b class=\"\" contenteditable=\"false\">Wir arbeiten</b> wie letzte Woche. Ich mache es vor, wir rechnen gemeinsam, und ihr nutzt dafür die iPads. Und: Bei jeder Frage antworten <b>alle</b>."}}, {"behaelter": "QR", "pfad": "2/1/1", "fp": "1m1ymu6", "was": {"groesse": 0.85}}, {"behaelter": "QR", "pfad": "1", "fp": "1in3mee", "was": {"text": "Nehmt eure iPads"}}, {"behaelter": "#6", "pfad": "1/1/0/0", "fp": "45h", "was": {"rang": 3, "groesse": 1.3923999999999999}}, {"behaelter": "#6", "pfad": "1/0/0", "fp": "18k44s9", "was": {"groesse": 0.8525499999999999, "text": "3 kg Kirschen kosten 12 €.&nbsp;Was kostet <span class=\"term\">1 kg</span>?"}}, {"behaelter": "#6", "pfad": "1/0/3/1", "fp": "10qd3v5", "was": {"groesse": 0.85}}, {"behaelter": "#6", "pfad": "1/0/3/0", "fp": "169o5f8", "was": {"rang": -2}}, {"behaelter": "#7", "pfad": "1/0/0", "fp": "187540q", "was": {"text": "Erdbeeren: 500 g kosten 2,50 €, 1 kg kostet 4,50 €.<br><span class=\"term\">Proportional?</span>"}}, {"behaelter": "#1", "pfad": "0/0/2", "fp": "pbdr9w", "was": {"text": "Letzte Woche habt ihr in Tabellen von einer Zeile Zeile zur nächsten die Werte vervielfacht. Heute lernt ihr ein anderes Verfahren kennen, um zu prüfen, ob eine&nbsp;Zuordnung proportional ist.", "groesse": 1.3923999999999999}}, {"behaelter": "#1", "pfad": "0/0/3/0/0", "fp": "1dsjker", "was": {"text": "Wir arbeiten"}}, {"behaelter": "#2", "pfad": "2/0", "fp": "cds5tc", "was": {"text": "<b>Ziel:</b> Ihr könnt am Ende an <b>jeder</b> Tabelle entscheiden, ob sie eine proportionale Zuordnung beschreibt&nbsp;<span class=\"trenner\">▸</span> durch Teilen, ohne Probieren —, und ihr wisst, was die Zahl bedeutet, die dabei immer gleich bleibt."}}]};
+
+  window.HAUSSTIL_SCHRIFTEN = [{"schluessel": "system", "name": "Systemschrift (wie bisher)", "familie": "-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "fredoka", "name": "Fredoka — rundes Sans, sehr gut lesbar", "familie": "HausFredoka,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "baloo", "name": "Baloo 2 — kräftig und rund", "familie": "HausBaloo,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "marcellus", "name": "Marcellus — ruhige Antiqua", "familie": "HausMarcellus,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "patrick", "name": "Patrick Hand — sachliche Handschrift", "familie": "HausPatrick,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "architekt", "name": "Architects Daughter — technische Schrift", "familie": "HausArchitekt,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}];
 
   
 /* ===========================================================================
@@ -2725,7 +2775,9 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
     });
     document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
       el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      el.style.transform = ""; el.style.fontFamily = "";
       delete el.dataset.anp; delete el.dataset.anpWeg;
+      delete el.dataset.anpBreite;
     });
   }
 
@@ -2822,11 +2874,49 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
         if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
       }
       if (w.breite) {
-        el.style.maxWidth = "";
-        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
-        var ist = el.getBoundingClientRect().width;
-        if (voll > 0 && ist > 0)
-          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+        /* `breite` ist der ANTEIL an der Breite des Eltern-Kastens -
+           0,6 heisst „sechs Zehntel der Folienbreite". Ablesbar, stabil
+           und unabhaengig von Schriftgroesse und CSS-Deckel.
+
+           Frueher war es ein Faktor der „natuerlichen" Breite. Die haengt
+           aber selbst an der Schrift und am Deckel: Wer die Schrift
+           aenderte, verschob damit auch die Breite, und der gespeicherte
+           Wert passte nicht mehr zu dem, was man sah (0,966 bei sichtbar
+           82 %). Drei bewegliche Teile fuer eine Zahl sind zwei zu viel.
+
+           Marke fuer window.einpassen: Diese Breite ist von Hand gesetzt
+           und wird von der Automatik nicht angefasst. Nur DIESE Marke,
+           nicht das allgemeine data-anp - sonst liesse eine blosse
+           Schriftgroesse die Zeilenersparnis mit ausfallen. */
+        el.dataset.anpBreite = "1";
+        el.style.maxWidth = Math.max(5, w.breite * 100).toFixed(2) + "%";
+      }
+      if (w.schrift) {
+        /* Die Familie steht in window.HAUSSTIL_SCHRIFTEN - dieselbe
+           Liste, aus der der Editor auswaehlen laesst, und sie liegt
+           AUSSERHALB der Editor-Marken, damit die Wahl auch in der
+           veroeffentlichten Fassung wirkt. Der Schnitt selbst ist beim
+           Bauen eingebettet worden, weil dieser Eintrag hier steht. */
+        var liste = window.HAUSSTIL_SCHRIFTEN || [];
+        for (var si = 0; si < liste.length; si++)
+          if (liste[si].schluessel === w.schrift) {
+            el.style.fontFamily = liste[si].familie;
+            break;
+          }
+      }
+      if (w.verschoben) {
+        /* Verschoben wird ueber transform, NICHT ueber position:absolute.
+           Der Unterschied ist wesentlich: Ein transform nimmt dem Element
+           seinen Platz im Fluss nicht weg, also rueckt nichts anderes
+           nach. Wer eine Ueberschrift beiseite schiebt, will die
+           Ueberschrift woanders haben - nicht die halbe Folie neu
+           sortiert. Ueberlappungen sind damit ausdruecklich moeglich.
+
+           Die Werte stehen in den Koordinaten der Entwurfsflaeche (1200
+           px breit), nicht in Bildschirmpixeln: Sonst saesse dieselbe
+           Verschiebung am Beamer woanders als am Notebook. */
+        el.style.transform = "translate(" + w.verschoben.x + "px,"
+                           + w.verschoben.y + "px)";
       }
       if (w.bild) bildSetzen(el, w.bild);
       if (typeof w.rang === "number" && w.rang !== 0) {
