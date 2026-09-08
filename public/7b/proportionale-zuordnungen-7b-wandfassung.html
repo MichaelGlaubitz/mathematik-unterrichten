@@ -168,6 +168,45 @@
   .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
   .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
 
+  /* --- Wenn schon umbrechen, dann gleichmaessig ------------------------
+     Bleibt eine Zeile uebrig, faellt sie unangenehm auf: Folie 23 der 7b
+     zeigte „Der Faktor der ersten beiden Zeilen ist" und darunter allein
+     „1,5.". text-wrap:balance verteilt die Woerter auf gleich lange
+     Zeilen, ohne eine Zeile hinzuzufuegen - die Zahl der Zeilen bleibt
+     genau die, die oben ausgerechnet wurde. Zwischen erzwungenen
+     Umbruechen (<br>) wird jeder Teil fuer sich ausgeglichen, die
+     gesetzte Gliederung Situation / Frage bleibt also stehen. */
+  h1,.slide h2.wt,.frage,.lead,.geraetetext{text-wrap:balance}
+
+  /* --- Mathematik in einer Ueberschrift -------------------------------
+     Gemessen: Die Tafelschrift steht auf font-weight 800, KaTeX auf 400.
+     Nebeneinander in EINER Zeile ist das ein Bruch, den man sofort sieht -
+     „Wie gross ist der Quotient Preis : Menge?" sah aus wie zwei Folien.
+
+     font-weight hilft nicht: KaTeX bringt eigene Schnitte mit (KaTeX_Main,
+     KaTeX_Math), und der Browser hat davon nur den mageren geladen. Also
+     wird die Kontur verstaerkt - das aendert die Buchstabenform nicht und
+     verschiebt keine Formel, macht den Strich aber so dick wie nebenan.
+     Nur in Ueberschriften; im Fliesstext passt das magere KaTeX.
+
+     Die Staerke ist gemessen, nicht geraten - mit
+     Werkzeuge/strichstaerke.py an Folie 12 der 7b, quer durch die Zeile
+     „Wie gross ist der Quotient Preis : Menge?". Verglichen werden die
+     Staemme (oberes Viertel der dunklen Stuecke), nicht der Median: der
+     Serifenschnitt bringt Haarstriche mit, die es in der Tafelschrift
+     nicht gibt, und die den Median druecken, ohne dass der Strich
+     duenner waere.
+
+       Tafelschrift 19 px, KaTeX 18 px - 95 %, ausgeglichen.
+
+     Der erste Versuch mit .028em war viel zu zaghaft: dort standen 16 px
+     gegen 9 px im Median, und der Bruch war weiter zu sehen.
+
+     Weiter hinauf geht es nicht: ab etwa .1em laufen die Punzen von e, a
+     und s zu, und die Formel wird schwerer lesbar statt kraeftiger. */
+  h1 .katex,.slide h2.wt .katex,.frage .katex,.antwort .wert .katex{
+    -webkit-text-stroke:.08em currentColor}
+
   /* --- Ablauftabelle der zweiten Folie ---------------------------------
      Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
      steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
@@ -215,7 +254,10 @@
   .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
     font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
   .schild tr:last-child td{border-bottom:none}
-  .schild td.p{text-align:right;font-weight:800}
+  /* Ein Preis bricht nicht um: „0,35 €" darf nicht zu „0,35" und darunter
+     „€" werden. In einer schmalen Spalte - etwa als Rueckblende neben dem
+     Text - passierte genau das. */
+  .schild td.p{text-align:right;font-weight:800;white-space:nowrap}
   .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
 
   /* --- Wertetabelle mit Vervielfachungspfeilen --- */
@@ -235,8 +277,13 @@
      deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
      Plickers ueber die vier Karten. */
   .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
-  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
-  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  /* Die Bildspalte bekommt, was ihr Inhalt braucht - nicht die Haelfte.
+     Gemessen an Folie 23 der 7b: die Tabelle war 524 px breit und sass in
+     einer 818-px-Spalte, waehrend die Frage daneben auf vier Zeilen
+     umbrach. Ein Umbruch ist nur dann zu rechtfertigen, wenn seitlich
+     wirklich etwas steht. */
+  .mwsplit .mwfrage{flex:1 1 auto;min-width:0}
+  .mwsplit .mwbild{flex:0 1 auto;min-width:0}
   .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
   .mwsplit .antwort{margin-top:2.2vh}
   .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
@@ -246,7 +293,35 @@
   .mwsplit .schilder{margin-top:0}
   .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
   .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
-  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+  /* --- Federzeichnung neben der Aufgabe --------------------------------
+     Die Motive liegen als LA-PNG vor: schwarze Tinte, Deckkraft aus der
+     Helligkeit. Sie tragen also KEINEN eigenen Grund und sitzen auf jeder
+     Folienfarbe richtig - deshalb hier auch kein background. */
+  /* Eine Buchseite ist anklickbar - unaufdringlich, aber erkennbar:
+     gestrichelt unterstrichen, damit die Lehrkraft im Vorbeigehen sieht,
+     dass sie die Seite mit einem Griff gross an die Wand holen kann. */
+  .buchseite{color:inherit;text-decoration:underline dotted;
+    text-underline-offset:.18em;cursor:zoom-in}
+  .buchseite:hover{color:var(--accent);text-decoration-style:solid}
+  .randnotiz .buchseite{color:inherit}
+  @media print{.buchseite{text-decoration:none}}
+
+  /* Tabelle links, eingereichte Bilder rechts. Beide Spalten tragen,
+     keine bleibt leer. */
+  .tabsplit{display:flex;gap:2.4vw;align-items:flex-start;margin-top:.6vh}
+  .tabsplit .tabseite{flex:0 1 auto;min-width:0}
+  .tabsplit .galseite{flex:1 1 44%;min-width:0}
+  .tabsplit .galerie[data-n="0"]{min-height:26vh}
+  @media (max-width:900px){.tabsplit{flex-direction:column}}
+
+  /* max-width: Die Spalte darf schmaler werden als die Zeichnung breit
+     ist - dann schrumpft die Zeichnung mit. Ohne diese Zeile stand sie
+     starr auf ihren 430 px und lief auf der Kassenbon-Folie 140 px aus
+     dem Bild heraus (gemessen). */
+  .wandbild{margin:0;max-width:100%}
+  .wandbild img{display:block;width:100%;height:auto}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}
+    .wandbild{width:auto;max-width:60vw;margin:0 auto}}
 
   /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
      hoeher als das Bild, und die Einpassung muesste die ganze Folie
@@ -422,6 +497,86 @@
     padding:4px 14px;cursor:pointer}
   .zeiknoepfe button:hover{color:var(--ink);border-color:#94a3b8}
   .zeiknoepfe .zaehler{margin-left:auto;font-weight:800;color:var(--muted);font-size:18px}
+  /* --- Hefteintrag ------------------------------------------------------
+     Was ins Heft soll, steht an der Wand SO, wie es ins Heft gehoert -
+     handgeschrieben auf kariertem Papier. Zwei Gruende:
+
+     1. Die Klasse schreibt ab, was sie sieht. Steht der Satz in
+        Druckschrift auf farbigem Grund, entsteht im Heft irgendetwas;
+        steht er handgeschrieben da, entsteht ein Hefteintrag.
+     2. Wer mit GoodNotes auf dem iPad schreibt, hat damit eine Vorlage
+        bis in die Zeilenaufteilung.
+
+     Das Karo ist gerechnet, kein Bild: zwei Farbverlaeufe im Abstand von
+     40 px. Die Handschrift ist Caveat, zugeschnitten und eingebettet -
+     siehe handschrift_css(). */
+  .heft{background:#fff;border:1px solid #d5d9e0;border-radius:6px;
+    box-shadow:0 10px 30px rgba(15,23,42,.13);
+    background-image:
+      linear-gradient(to right,rgba(80,120,190,.16) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(80,120,190,.16) 1px,transparent 1px);
+    background-size:40px 40px;background-position:-1px -1px;
+    color:#12305e;font-family:Handschrift,"Segoe Print","Comic Sans MS",cursive;
+    padding:28px 34px 30px}
+  /* Der rote Rand des Heftes - links, wie im Rechenheft. */
+  .heft{border-left:3px solid rgba(203,60,60,.55)}
+  .heft .htitel{font-weight:700;display:inline-block;
+    border-bottom:3px solid rgba(203,60,60,.6);padding-bottom:2px;
+    margin-bottom:.35em}
+  .heft p{margin:.18em 0}
+  .heft .gold,.heft b{font-weight:700;color:#0b7a5a}
+  .heft .fehler{color:#b42318}
+  /* Auch die Tabelle im Heft ist handgeschrieben - mit dem blassen Stift
+     gezogen, nicht mit dem Kastenrahmen der Wandfassung. */
+  .heft .wtab{margin:.5em 0 .2em}
+  .heft .wtab td,.heft .wtab th{border-color:rgba(80,120,190,.5);
+    background:transparent;color:inherit;font-family:inherit;font-weight:700}
+  .heft .wtab th{color:#12305e}
+  /* Mathematik im Hefteintrag behaelt KaTeX.
+
+     Der erste Versuch zwang der Formel die Handschrift auf, damit sie
+     nicht als Druck im Handgeschriebenen steht. Das ging schief, und
+     zwar nicht kosmetisch: KaTeX setzt zusammengesetzte Zeichen aus
+     mehreren Kaesten mit eigenen Massen. In der Wurzelstunde stand
+     danach „n = 0" statt „n ≠ 0" - der Schraegstrich war weg - und dem
+     Wurzelzeichen fehlte der Strich ueber dem Radikanden. Eine falsche
+     Formel ist schlimmer als zwei Schriften.
+
+     Die Formel bekommt stattdessen die Tinte des Heftes und denselben
+     Strichausgleich wie in den Ueberschriften; damit steht sie neben der
+     Handschrift, ohne blass zu wirken.
+
+     Der kleine Seitenrand ist noetig, weil die Handschrift schmal
+     auslaeuft und die verstaerkte Formel sonst am Wort davor klebte
+     („Zahl a"). */
+  .heft .katex{color:inherit;-webkit-text-stroke:.045em currentColor;
+    margin:0 .12em}
+
+  /* --- Rueckblende ------------------------------------------------------
+     Bezieht sich eine Folie auf etwas Frueheres - „die Tabelle, die nicht
+     passt", „das Taxi von letzter Woche" -, dann steht dieses Fruehere
+     hier daneben und nicht nur im Gedaechtnis. Verkleinert, damit es die
+     Folie nicht beherrscht; ein Klick legt es gross darueber.
+
+     zoom statt transform:scale: zoom veraendert auch den Platzbedarf, die
+     Nachbarn ruecken also richtig nach. Ein scale haette einen Kasten in
+     voller Groesse stehen lassen, in dem etwas Kleines sitzt. */
+  .rueckblende{margin:0;cursor:zoom-in;border-left:4px solid var(--line);
+    padding-left:14px}
+  .rueckblende > figcaption{font-weight:800;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .rueckblende .rbinhalt{zoom:.62}
+  .rueckblende:hover{border-left-color:var(--accent)}
+  .rbgross{position:fixed;inset:0;z-index:60;background:rgba(255,255,255,.97);
+    display:flex;align-items:center;justify-content:center;cursor:zoom-out;
+    padding:6vh 6vw}
+  /* Gross heisst gross: die Verkleinerung von nebenan wird aufgehoben und
+     noch einmal ein Drittel draufgelegt - die Rueckblende soll aus der
+     letzten Reihe lesbar sein. */
+  .rbgross .rbinhalt{zoom:1.35}
+  .rbgross figcaption{display:none}
+  @media print{.rbgross{display:none}}
+
   /* Ein Bild gross: legt sich ueber die Folie, ein Klick nimmt es weg. */
   .lupe{position:absolute;inset:0;z-index:6;background:#fff;display:none;
     align-items:center;justify-content:center;cursor:pointer}
@@ -577,6 +732,21 @@
     border-radius:11px;background:#0f172a;color:#94a3b8;font:inherit;
     cursor:pointer}
   @media print{.quotewahl{display:none}}
+  /* --- Titelfolie mit Bild ---------------------------------------------
+     Der Titel steht links und behaelt seine Breite; das Strichbild rechts
+     nimmt, was uebrig ist. Es ist Schmuck und Anker, kein Traeger von
+     Information - deshalb darf es schrumpfen, der Text nicht. */
+  .titelzeile{display:flex;align-items:center;gap:2.4vw;width:100%}
+  .titeltext{flex:1 1 auto;min-width:0}
+  .titelbild{flex:0 0 30%;max-width:30%;display:flex;justify-content:center}
+  /* Kein mix-blend-mode: Die Buehne traegt ein transform und damit einen
+     eigenen Stapelkontext - die Blendung liefe ins Leere. Das Bild bringt
+     sein Alpha selbst mit (Werkzeuge/bild_fuer_wand.py). */
+  .titelbild img{max-width:100%;max-height:74vh;object-fit:contain}
+  @media (max-width:1100px){
+    .titelbild{flex-basis:26%;max-width:26%}
+  }
+
   /* --- Kontrollfrage auf einer Reservefolie ---------------------------- */
   /* Kompakt: Auf einer Folie, die schon Video oder Graph traegt, drueckt
      ein hoher Block die ganze Folie zusammen - gemessen sank die
@@ -714,12 +884,17 @@
      stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
      420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
      verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
-  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  /* Gemessen am 07.09.: 18 von 31 Ueberschriften brachen um und nutzten
+     dabei im Mittel 58 % der Breite - bei 34ch stand die Zeile auf 1018
+     von 1500 px, und rechts blieb ein Drittel leer, OHNE dass dort etwas
+     stand. Ein Umbruch ist nur dann richtig, wenn daneben ein Bild sitzt;
+     dafuer gibt es .mitbild. */
+  .slide h2.wt{font-size:50px;max-width:46ch;margin-bottom:.3em}
   .slide p,.slide li{font-size:30px;line-height:1.45}
   .kicker{font-size:21px}
   .lead{font-size:31px;max-width:46ch}
   .callout{padding:.75em 1.05em}
-  .frage{font-size:66px;max-width:22ch}
+  .frage{font-size:66px;max-width:40ch}
   .antwort .wert{font-size:78px}
   .antwort .neben{font-size:28px}
   .pill{font-size:20px}
@@ -739,6 +914,18 @@
   .merk{padding:26px 28px}
   .merk .satz{font-size:46px}
   .merk .zusatz{font-size:27px}
+  /* 430 px auf der 1200er Flaeche: gross genug, dass die Schraffur an der
+     Wand traegt, klein genug, dass der Frage ueber 700 px bleiben. */
+  .wandbild{width:430px}
+  /* Handschrift traegt kleiner als eine Groteske: Caveat hat eine kurze
+     x-Hoehe, deshalb hier deutlich groesser als der Fliesstext. */
+  /* Ein Heft ist so breit wie ein Heft. Ohne diese Schranke lief das
+     Karopapier bis an den Folienrand und sah nach Tapete aus, nicht nach
+     einer Seite, die man abschreibt. */
+  .heft{padding:30px 38px 34px;max-width:1150px}
+  .heft .htitel{font-size:46px}
+  .heft p{font-size:40px;line-height:1.45}
+  .heft .wtab td,.heft .wtab th{font-size:36px}
   .auftrag{padding:24px 26px}
   .auftrag li{font-size:31px}
   .zeitschild{font-size:24px}
@@ -770,10 +957,13 @@
      zu antworten begann. */
 
   /* --- Die Entwurfsflaeche selbst --------------------------------------
-     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
-     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     Vorgegebene Breite, damit der Umbruch nicht vom Beamer abhaengt; die
+     Hoehe ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
      sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
      nach oben. */
+  /* 1200 px ist die Ausgangsbreite, nicht die endgueltige: wo die Hoehe
+     die bindende Schranke ist, verbreitert window.einpassen die Flaeche
+     ueber ein style-Attribut bis auf 1600 px (Begruendung dort). */
   .buehne{width:1200px;transform-origin:top center}
   /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
      skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
@@ -890,6 +1080,13 @@
   .tex.disp{display:block;margin:.3em 0}
   .tex.disp .katex-display{margin:0}
   .frage .tex .katex,.wt .tex .katex,.satz .tex .katex{font-size:1em}
+
+:root{--accent:#4f46e5;--accent2:#0ea5e9;--bg:#f6f7fb;--gold:#d97706;--green:#15803d;--ink:#0f172a;--line:#e2e8f0;--muted:#64748b;--panel:#ffffff;--red:#dc2626}
+body,.slide p,.slide li,.lead,.auftrag{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.opt .bst{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.heft,.heft p,.heft .htitel{font-family:Handschrift,"Segoe Print",cursive}
+
+
 /* ===========================================================================
    Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
 
@@ -949,11 +1146,11 @@
 </section>
 
 <section class="slide" data-phase="2 · Der Konflikt" data-ab="11">
-<div class="kicker">Zwei Stände auf demselben Markt</div><h2 class="wt">An beiden wird es teurer, je mehr man nimmt.</h2><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch S. 16</div></div><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div><p class="lead weit frag" style="margin-top:1.4vh">Ihr wollt 3 kg Kartoffeln. Auf dem Schild steht kein Preis dafür. <b>Darf man ihn ausrechnen?</b></p><div class="randnotiz"><b>Erst lesen lassen, nichts erklären.</b> 30 Sekunden: „Schaut euch beide Schilder an. Was fällt euch auf?“ Sammeln Sie zwei Beobachtungen, ohne sie zu bewerten <span class="trenner">&#9656;</span> auch die falschen. Die Prognosefrage kommt gleich, und sie ist mehr wert, wenn die Klasse vorher geraten hat.</div>
+<div class="kicker">Zwei Stände auf demselben Markt</div><h2 class="wt">An beiden wird es teurer, je mehr man nimmt.</h2><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a></div></div><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a> Nr. 3 a)</div></div></div><p class="lead weit frag" style="margin-top:1.4vh">Ihr wollt 3 kg Kartoffeln. Auf dem Schild steht kein Preis dafür. <b>Darf man ihn ausrechnen?</b></p><div class="randnotiz"><b>Erst lesen lassen, nichts erklären.</b> 30 Sekunden: „Schaut euch beide Schilder an. Was fällt euch auf?“ Sammeln Sie zwei Beobachtungen, ohne sie zu bewerten <span class="trenner">&#9656;</span> auch die falschen. Die Prognosefrage kommt gleich, und sie ist mehr wert, wenn die Klasse vorher geraten hat.</div>
 </section>
 
 <section class="slide abfrage plk mitbild stufig" data-phase="2 · Der Konflikt" data-ab="13" data-marke="P1" data-frage="Bei welchem Stand darf man den Preis ausrechnen, statt ihn abzulesen?" data-optionen="[&quot;Bei beiden Ständen — mehr Ware kostet immer mehr Geld.&quot;, &quot;Nur beim Kartoffelstand.&quot;, &quot;Nur beim Erdbeerstand, weil dort drei Preise angegeben sind.&quot;, &quot;Bei keinem — Preise muss man immer vom Schild ablesen.&quot;]" data-schluessel="p1">
-<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Prognose <span class="trenner">&#9656;</span> vor jeder Rechnung</div><h2 class="wt">Bei welchem Stand darf man den Preis <span class='accent'>ausrechnen</span>, statt ihn abzulesen?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plzeile"><div class="plbild"><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch S. 16</div></div><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Bei beiden Ständen <span class="trenner">&#9656;</span> mehr Ware kostet immer mehr Geld.</span></div><div class="opt"><span class="bst">B</span><span>Nur beim Kartoffelstand.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Nur beim Erdbeerstand, weil dort drei Preise angegeben sind.</span></div><div class="opt"><span class="bst">D</span><span>Bei keinem <span class="trenner">&#9656;</span> Preise muss man immer vom Schild ablesen.</span></div></div></div><div class="aufloesung frag hart">Richtig ist <b class='loesungswert'>nur beim Kartoffelstand</b>. Dort gilt: doppelte Menge, doppelter Preis. Beim Erdbeerstand wird jedes weitere Kilogramm billiger <span class="trenner">&#9656;</span> dort passt das Vervielfachen nicht.</div><div class="randnotiz"><b>A ist die Mehrheitsfalle</b> und genau die Fehlvorstellung, gegen die die ganze Stunde arbeitet: „je mehr, desto mehr“ wird mit „proportional“ verwechselt. Erwarten Sie 50–70 % auf A.<br><b>Nicht erschrecken <span class="trenner">&#9656;</span> das ist der Plan.</b> Rufen Sie nach dem Balken jemanden auf, der <i>A</i> gewählt hat, nicht jemanden mit B: „Was hat dich zu A gebracht?“ Die Antwort („es wird ja teurer“) ist der Satz, den Sie in Phase 4 widerlegen. Schreiben Sie ihn an den Rand der Tafel und lassen Sie ihn 80 Minuten stehen.<span class="weiche"><i>Weiche:</i> Hier wird <b>nicht</b> nach Trefferquote verzweigt <span class="trenner">&#9656;</span> eine niedrige Quote ist erwünscht. Weiter zur Auflösung, egal wie der Balken aussieht.</span></div>
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Prognose <span class="trenner">&#9656;</span> vor jeder Rechnung</div><h2 class="wt">Bei welchem Stand darf man den Preis <span class='accent'>ausrechnen</span>, statt ihn abzulesen?</h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plzeile"><div class="plbild"><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a></div></div><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a> Nr. 3 a)</div></div></div></div><div class="plickers"><div class="opt"><span class="bst">A</span><span>Bei beiden Ständen <span class="trenner">&#9656;</span> mehr Ware kostet immer mehr Geld.</span></div><div class="opt"><span class="bst">B</span><span>Nur beim Kartoffelstand.</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">C</span><span>Nur beim Erdbeerstand, weil dort drei Preise angegeben sind.</span></div><div class="opt"><span class="bst">D</span><span>Bei keinem <span class="trenner">&#9656;</span> Preise muss man immer vom Schild ablesen.</span></div></div></div><div class="aufloesung frag hart">Richtig ist <b class='loesungswert'>nur beim Kartoffelstand</b>. Dort gilt: doppelte Menge, doppelter Preis. Beim Erdbeerstand wird jedes weitere Kilogramm billiger <span class="trenner">&#9656;</span> dort passt das Vervielfachen nicht.</div><div class="randnotiz"><b>A ist die Mehrheitsfalle</b> und genau die Fehlvorstellung, gegen die die ganze Stunde arbeitet: „je mehr, desto mehr“ wird mit „proportional“ verwechselt. Erwarten Sie 50–70 % auf A.<br><b>Nicht erschrecken <span class="trenner">&#9656;</span> das ist der Plan.</b> Rufen Sie nach dem Balken jemanden auf, der <i>A</i> gewählt hat, nicht jemanden mit B: „Was hat dich zu A gebracht?“ Die Antwort („es wird ja teurer“) ist der Satz, den Sie in Phase 4 widerlegen. Schreiben Sie ihn an den Rand der Tafel und lassen Sie ihn 80 Minuten stehen.<span class="weiche"><i>Weiche:</i> Hier wird <b>nicht</b> nach Trefferquote verzweigt <span class="trenner">&#9656;</span> eine niedrige Quote ist erwünscht. Weiter zur Auflösung, egal wie der Balken aussieht.</span></div>
 </section>
 
 <section class="slide" data-phase="2 · Der Konflikt" data-ab="16">
@@ -965,7 +1162,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="3 · Ich zeige es" data-ab="21" data-frage="Was kosten 3 kg Kartoffeln?" data-optionen="[]" data-art="zeichnen" data-schluessel="w5" data-weiche="[{&quot;bis&quot;: 79, &quot;ziel&quot;: &quot;M1&quot;}]">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Kartoffelstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Was kosten <span class='term'>3 kg</span> Kartoffeln?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">2,70 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> <span class="tex" data-tex="3 \cdot 0{,}90\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">90</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch S. 16</div></div></div></div></div><div class="randnotiz"><b>Die Frage vom Anfang der Stunde, jetzt beantwortbar.</b> Sagen Sie das ausdrücklich: „Vor zwanzig Minuten stand kein Preis für 3 kg auf dem Schild. Jetzt könnt ihr ihn hinschreiben.“<br><b>Diese Abfrage steht bewusst zwischen den beiden Modellrechnungen</b>: erst anwenden, was ich vorgemacht habe, dann den Gegenfall sehen. Wer sie überspringt, hat elf Minuten am Stück geredet.<br><b>Wenn falsch:</b> 2,70 € verlangt 3 · 0,90 <span class="trenner">&#9656;</span> wer 1,80 + 0,90 rechnet, ist auch richtig, aber langsamer. Beides gelten lassen, den kurzen Weg zeigen.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % noch einmal an Folie 11 entlang, dann dieselbe Frage mit 5 kg.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Kartoffelstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Was kosten <span class='term'>3 kg</span> Kartoffeln?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">2,70 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> <span class="tex" data-tex="3 \cdot 0{,}90\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">90</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Kartoffeln</h3><table><tr><td>1 kg</td><td class="p">0,90 €</td></tr><tr><td>2 kg</td><td class="p">1,80 €</td></tr><tr><td>4 kg</td><td class="p">3,60 €</td></tr><tr><td>6 kg</td><td class="p">5,40 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a></div></div></div></div></div><div class="randnotiz"><b>Die Frage vom Anfang der Stunde, jetzt beantwortbar.</b> Sagen Sie das ausdrücklich: „Vor zwanzig Minuten stand kein Preis für 3 kg auf dem Schild. Jetzt könnt ihr ihn hinschreiben.“<br><b>Diese Abfrage steht bewusst zwischen den beiden Modellrechnungen</b>: erst anwenden, was ich vorgemacht habe, dann den Gegenfall sehen. Wer sie überspringt, hat elf Minuten am Stück geredet.<br><b>Wenn falsch:</b> 2,70 € verlangt 3 · 0,90 <span class="trenner">&#9656;</span> wer 1,80 + 0,90 rechnet, ist auch richtig, aber langsamer. Beides gelten lassen, den kurzen Weg zeigen.<span class="weiche"><i>Weiche:</i> ab 80 % weiter · unter 80 % noch einmal an Folie 11 entlang, dann dieselbe Frage mit 5 kg.</span></div>
 </section>
 
 <section class="slide" data-phase="3 · Ich zeige es" data-ab="23" data-marke="M2">
@@ -973,7 +1170,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="3 · Ich zeige es" data-ab="27" data-frage="500 g kosten 2,50 €. Was müssten 1 kg kosten, wenn man vervielfachen dürfte?" data-optionen="[]" data-art="zeichnen" data-schluessel="w6">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;6 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Erdbeerstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">500 g kosten 2,50 €.<br>Was müssten <span class='term'>1 kg</span> kosten, <span class='muted'>wenn</span> man vervielfachen dürfte?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">5,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> auf dem Schild stehen 4,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Das Wörtchen „müssten“ trägt die Frage.</b> Gefragt ist nicht der Preis, sondern die <i>Vorhersage</i> <span class="trenner">&#9656;</span> und die Klasse weiß bereits, dass sie nicht zutrifft. Wer 4,50 € schreibt, hat abgelesen statt gerechnet und die Frage nicht gelesen.<br>Diese Unterscheidung <span class="trenner">&#9656;</span> <i>was wäre</i> gegen <i>was ist</i> <span class="trenner">&#9656;</span> ist das ganze Prüfverfahren.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;6 von 9 &middot; Jetzt ihr <span class="trenner">&#9656;</span> Erdbeerstand</div><div class="mwsplit"><div class="mwfrage"><div class="frage">500 g kosten 2,50 €.<br>Was müssten <span class='term'>1 kg</span> kosten, <span class='muted'>wenn</span> man vervielfachen dürfte?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">5,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> auf dem Schild stehen 4,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a> Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Das Wörtchen „müssten“ trägt die Frage.</b> Gefragt ist nicht der Preis, sondern die <i>Vorhersage</i> <span class="trenner">&#9656;</span> und die Klasse weiß bereits, dass sie nicht zutrifft. Wer 4,50 € schreibt, hat abgelesen statt gerechnet und die Frage nicht gelesen.<br>Diese Unterscheidung <span class="trenner">&#9656;</span> <i>was wäre</i> gegen <i>was ist</i> <span class="trenner">&#9656;</span> ist das ganze Prüfverfahren.</div>
 </section>
 
 <section class="slide" data-phase="4 · Merksatz" data-ab="30" data-marke="MERK">
@@ -985,7 +1182,7 @@
 </section>
 
 <section class="slide" data-phase="5 · Der zweite Fall" data-ab="37">
-<div class="kicker">Ein ganz anderer Fall</div><h2 class="wt">Ein Kind wird gemessen</h2><p class="lead weit">Hier gibt es keinen Marktstand, keinen Rabatt und niemanden, der sich etwas ausgedacht hat. Es ist einfach so gemessen.</p><table class="wtab"><tr><th>Alter in Jahren</th><td>1</td><td>3</td><td>4</td></tr><tr><th>Größe in cm</th><td>75</td><td>97</td><td>104</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Das Kind wird eindeutig größer. <b>Ist die Zuordnung Alter&nbsp;→&nbsp;Größe proportional?</b></p><div class="randnotiz"><b>Warum dieser zweite Fall unverzichtbar ist:</b> Wer nur den Erdbeerstand kennt, schreibt in der Klassenarbeit „nicht proportional, weil es Rabatt gibt“ <span class="trenner">&#9656;</span> und steht bei jeder anderen Sachlage still. Hier gibt es keinen Grund, den man erzählen könnte. Es passt schlicht nicht.<br>Buch S. 17 Nr. 5 (3). <b>Nicht auflösen</b> <span class="trenner">&#9656;</span> erst die Karten.</div>
+<div class="kicker">Ein ganz anderer Fall</div><h2 class="wt">Ein Kind wird gemessen</h2><p class="lead weit">Hier gibt es keinen Marktstand, keinen Rabatt und niemanden, der sich etwas ausgedacht hat. Es ist einfach so gemessen.</p><table class="wtab"><tr><th>Alter in Jahren</th><td>1</td><td>3</td><td>4</td></tr><tr><th>Größe in cm</th><td>75</td><td>97</td><td>104</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Das Kind wird eindeutig größer. <b>Ist die Zuordnung Alter&nbsp;→&nbsp;Größe proportional?</b></p><div class="randnotiz"><b>Warum dieser zweite Fall unverzichtbar ist:</b> Wer nur den Erdbeerstand kennt, schreibt in der Klassenarbeit „nicht proportional, weil es Rabatt gibt“ <span class="trenner">&#9656;</span> und steht bei jeder anderen Sachlage still. Hier gibt es keinen Grund, den man erzählen könnte. Es passt schlicht nicht.<br>Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 5 (3). <b>Nicht auflösen</b> <span class="trenner">&#9656;</span> erst die Karten.</div>
 </section>
 
 <section class="slide abfrage plk mitbild stufig" data-phase="5 · Der zweite Fall" data-ab="39" data-marke="P3" data-frage="Ist die Zuordnung Alter → Größe proportional?" data-optionen="[&quot;Ja — das Kind wird ja immer größer.&quot;, &quot;Nein — viermal so alt heißt nicht viermal so groß.&quot;, &quot;Nein, weil die Größe irgendwann aufhört zu wachsen.&quot;, &quot;Doch, man kann es an zwei Zeilen nicht entscheiden.&quot;]" data-schluessel="p3" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;R3&quot;}]">
@@ -997,7 +1194,7 @@
 </section>
 
 <section class="slide" data-phase="6 · Wir zusammen" data-ab="44">
-<div class="kicker">Wir zusammen &middot; A1 = Buch S. 16 Nr. 1</div><h2 class="wt">Fruchtgummi: 1 kg kostet 3,50 €. Was kosten 3 kg?</h2><p class="lead weit">Ich schreibe, ihr sagt mir jeden Schritt an. Die drei Nummern stehen an der Tafel.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Welche Zeile kenne ich?<span class="rech"><span class="tex" data-tex="1\ \text{kg} \;\to\; 3{,}50\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mspace"> </span><span class="mord text"><span class="mord">kg</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Mit welcher Zahl komme ich von 1 kg auf 3 kg?<span class="rech"><span class="tex" data-tex="\cdot\; 3"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">⋅</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">3</span></span></span></span></span></span></span></div><div class="schritt ergebnis frag"><span class="num">3</span><span class="txt">Dieselbe Zahl beim Preis:<span class="rech"><span class="tex" data-tex="3 \cdot 3{,}50\ \text{€} = 10{,}50\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">10</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></span></div></div><div class="randnotiz"><b>Umkehrung des Vormachens:</b> Sie halten die Kreide, die Klasse diktiert. Fragen Sie strikt in der Reihenfolge der drei Schritte und schreiben Sie auch einen falschen Zuruf hin <span class="trenner">&#9656;</span> dann fällt beim Vergleich mit dem Schild auf, dass er falsch ist.<br><b>Tempo:</b> höchstens drei Minuten. Das ist geführtes Üben, keine Erarbeitung.</div>
+<div class="kicker">Wir zusammen &middot; A1 = Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a> Nr. 1</div><h2 class="wt">Fruchtgummi: 1 kg kostet 3,50 €. Was kosten 3 kg?</h2><p class="lead weit">Ich schreibe, ihr sagt mir jeden Schritt an. Die drei Nummern stehen an der Tafel.</p><div class="schritte"><div class="schritt  frag"><span class="num">1</span><span class="txt">Welche Zeile kenne ich?<span class="rech"><span class="tex" data-tex="1\ \text{kg} \;\to\; 3{,}50\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mspace"> </span><span class="mord text"><span class="mord">kg</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Mit welcher Zahl komme ich von 1 kg auf 3 kg?<span class="rech"><span class="tex" data-tex="\cdot\; 3"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">⋅</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">3</span></span></span></span></span></span></span></div><div class="schritt ergebnis frag"><span class="num">3</span><span class="txt">Dieselbe Zahl beim Preis:<span class="rech"><span class="tex" data-tex="3 \cdot 3{,}50\ \text{€} = 10{,}50\ \text{€}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">10</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">50</span><span class="mspace"> </span><span class="mord text"><span class="mord">€</span></span></span></span></span></span></span></span></div></div><div class="randnotiz"><b>Umkehrung des Vormachens:</b> Sie halten die Kreide, die Klasse diktiert. Fragen Sie strikt in der Reihenfolge der drei Schritte und schreiben Sie auch einen falschen Zuruf hin <span class="trenner">&#9656;</span> dann fällt beim Vergleich mit dem Schild auf, dass er falsch ist.<br><b>Tempo:</b> höchstens drei Minuten. Das ist geführtes Üben, keine Erarbeitung.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="6 · Wir zusammen" data-ab="47" data-frage="1 kg Fruchtgummi kostet 3,50 €. Wie viel bekommt man für 21 €?" data-optionen="[]" data-art="zeichnen" data-schluessel="w7">
@@ -1005,11 +1202,11 @@
 </section>
 
 <section class="slide" data-phase="6 · Wir zusammen" data-ab="51" data-marke="A2">
-<div class="kicker">Wir zusammen &middot; A2 = Buch S. 17 Nr. 4 a)</div><h2 class="wt">Füllt die Lücken <span class="trenner">&#9656;</span> eine nach der anderen</h2><p class="lead weit">Nur die erste Spalte ist gegeben. Der Rest ist eure Arbeit <span class="trenner">&#9656;</span> <b>eine Spalte, dann abschicken</b>, dann decke ich auf.</p><table class="wtab"><tr><th>Menge in kg</th><td>1</td><td class="luecke">2</td><td class="luecke">4</td><td class="luecke">12</td><td class="luecke">20</td></tr><tr><th>Preis in €</th><td>4,00</td><td class="luecke"><span class="frag hart">8,00</span></td><td class="luecke"><span class="frag hart">16,00</span></td><td class="luecke"><span class="frag hart">48,00</span></td><td class="luecke"><span class="frag hart">80,00</span></td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Merkt euch den Weg: Ihr braucht <b>eine</b> bekannte Zeile, dann geht jede andere.</p><div class="randnotiz"><b>Die vier Preise sind verdeckt und erscheinen einzeln auf Tastendruck.</b> Reihenfolge: Frage stellen <span class="trenner">&#9656;</span> alle schreiben <span class="trenner">&#9656;</span> zeigen <span class="trenner">&#9656;</span> dann erst aufdecken. Das sind vier kurze Abfragen in vier Minuten, und niemand kann abschreiben, was noch nicht dasteht.<br><b>Beobachten Sie den Weg, nicht das Ergebnis:</b> Wer von 4 kg auf 12 kg mit · 3 geht, hat verstanden. Wer jedes Mal bei 1 kg neu anfängt, rechnet richtig und denkt noch nicht in Verhältnissen <span class="trenner">&#9656;</span> das ist in Ordnung, aber sagen Sie es ihm.</div>
+<div class="kicker">Wir zusammen &middot; A2 = Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 4 a)</div><h2 class="wt">Füllt die Lücken <span class="trenner">&#9656;</span> eine nach der anderen</h2><p class="lead weit">Nur die erste Spalte ist gegeben. Der Rest ist eure Arbeit <span class="trenner">&#9656;</span> <b>eine Spalte, dann abschicken</b>, dann decke ich auf.</p><table class="wtab"><tr><th>Menge in kg</th><td>1</td><td class="luecke">2</td><td class="luecke">4</td><td class="luecke">12</td><td class="luecke">20</td></tr><tr><th>Preis in €</th><td>4,00</td><td class="luecke"><span class="frag hart">8,00</span></td><td class="luecke"><span class="frag hart">16,00</span></td><td class="luecke"><span class="frag hart">48,00</span></td><td class="luecke"><span class="frag hart">80,00</span></td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Merkt euch den Weg: Ihr braucht <b>eine</b> bekannte Zeile, dann geht jede andere.</p><div class="randnotiz"><b>Die vier Preise sind verdeckt und erscheinen einzeln auf Tastendruck.</b> Reihenfolge: Frage stellen <span class="trenner">&#9656;</span> alle schreiben <span class="trenner">&#9656;</span> zeigen <span class="trenner">&#9656;</span> dann erst aufdecken. Das sind vier kurze Abfragen in vier Minuten, und niemand kann abschreiben, was noch nicht dasteht.<br><b>Beobachten Sie den Weg, nicht das Ergebnis:</b> Wer von 4 kg auf 12 kg mit · 3 geht, hat verstanden. Wer jedes Mal bei 1 kg neu anfängt, rechnet richtig und denkt noch nicht in Verhältnissen <span class="trenner">&#9656;</span> das ist in Ordnung, aber sagen Sie es ihm.</div>
 </section>
 
 <section class="slide" data-phase="6 · Wir zusammen" data-ab="55">
-<div class="kicker">Wir zusammen &middot; A3 = Buch S. 17 Nr. 5</div><h2 class="wt">Zwei Tabellen <span class="trenner">&#9656;</span> welche ist proportional?</h2><p class="lead weit">Prüft <b>beide</b>. Auf dem iPad steht am Ende nur: <i>(1) ja/nein, (2) ja/nein</i> <span class="trenner">&#9656;</span> die Rechnung dazu im Heft.</p><table class="wtab"><tr><th>(1) Obst in kg</th><td>2</td><td>4</td><td>6</td></tr><tr><th>Preis in €</th><td>5,00</td><td>7,50</td><td>10,00</td></tr></table><div style="height:1.6vh"></div><table class="wtab"><tr><th>(2) Nägel, Anzahl</th><td>4</td><td>8</td><td>12</td></tr><tr><th>Preis in €</th><td>2,00</td><td>4,00</td><td>6,00</td></tr></table><div class="randnotiz"><b>Hier wird das Stundenziel gemessen.</b> Verlangt ist nicht das Urteil, sondern die <i>Prüfung</i>. Wer „(2) proportional“ hinschreibt, ohne zeigen zu können, welche Zeilen er verglichen hat, hat womöglich geraten.<br><b>(1):</b> das Dreifache von 2 kg wären 15,00 €, dort stehen 10,00 € <span class="trenner">&#9656;</span> nicht proportional.<br><b>(2):</b> das Dreifache von 4 Nägeln sind 12 Nägel, das Dreifache von 2,00 € sind 6,00 € <span class="trenner">&#9656;</span> passt, proportional.<br><b>Aufrufen, wer Nummer (1) richtig hat</b>, und die Rechnung vorsprechen lassen. Nicht Sie.</div>
+<div class="kicker">Wir zusammen &middot; A3 = Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 5</div><h2 class="wt">Zwei Tabellen <span class="trenner">&#9656;</span> welche ist proportional?</h2><p class="lead weit">Prüft <b>beide</b>. Auf dem iPad steht am Ende nur: <i>(1) ja/nein, (2) ja/nein</i> <span class="trenner">&#9656;</span> die Rechnung dazu im Heft.</p><table class="wtab"><tr><th>(1) Obst in kg</th><td>2</td><td>4</td><td>6</td></tr><tr><th>Preis in €</th><td>5,00</td><td>7,50</td><td>10,00</td></tr></table><div style="height:1.6vh"></div><table class="wtab"><tr><th>(2) Nägel, Anzahl</th><td>4</td><td>8</td><td>12</td></tr><tr><th>Preis in €</th><td>2,00</td><td>4,00</td><td>6,00</td></tr></table><div class="randnotiz"><b>Hier wird das Stundenziel gemessen.</b> Verlangt ist nicht das Urteil, sondern die <i>Prüfung</i>. Wer „(2) proportional“ hinschreibt, ohne zeigen zu können, welche Zeilen er verglichen hat, hat womöglich geraten.<br><b>(1):</b> das Dreifache von 2 kg wären 15,00 €, dort stehen 10,00 € <span class="trenner">&#9656;</span> nicht proportional.<br><b>(2):</b> das Dreifache von 4 Nägeln sind 12 Nägel, das Dreifache von 2,00 € sind 6,00 € <span class="trenner">&#9656;</span> passt, proportional.<br><b>Aufrufen, wer Nummer (1) richtig hat</b>, und die Rechnung vorsprechen lassen. Nicht Sie.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="6 · Wir zusammen" data-ab="58" data-frage="Obst: 2 kg für 5 €, 6 kg für 10 €. Proportional?" data-optionen="[]" data-art="zeichnen" data-schluessel="w8">
@@ -1021,11 +1218,11 @@
 </section>
 
 <section class="slide" data-phase="7 · Allein, kurz" data-ab="64">
-<div class="kicker">Jetzt allein &middot; in Stille</div><h2 class="wt">Zwei Aufgaben aus dem Buch <span class="zeitschild">10 Minuten</span></h2><div class="auftrag"><ol><li><b>A4</b> <span class="trenner">&#9656;</span> Buch S. 16 Nr. 3: Erdbeeren und Tiefkühlpizza. Warum ist das nicht proportional? <b>Rechnet es, schreibt es hin.</b></li><li><b>A5 ★</b> <span class="trenner">&#9656;</span> Buch S. 17 Nr. 9: die Passstraße. Freiwillig, aber lohnend.</li><li>Wer fertig ist: noch einmal A3 (1), diesmal mit <b>allen drei</b> Zeilen geprüft.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Wer nicht weiterkommt, hebt die Hand <span class="trenner">&#9656;</span> und schaut vorher auf die vier Sätze von eben.</p></div><div class="randnotiz"><b>Kurz und still.</b> Zwölf Minuten sind absichtlich knapp; die Aufgaben sind nicht der Ertrag der Stunde, sondern ihre Probe.<br><b>Beim Herumgehen <span class="trenner">&#9656;</span> was zu fragen ist:</b><br>· „Welche zwei Zeilen hast du verglichen?“<br>· bei A4 b): „Was hätte der Doppelpack kosten müssen?“<br>· <b>Nicht</b> vorrechnen. Auf Folie 25 zeigen genügt.<br><b>Wenn die Zeit fehlt:</b> A5 als Hausaufgabe, A4 bleibt.</div>
+<div class="kicker">Jetzt allein &middot; in Stille</div><h2 class="wt">Zwei Aufgaben aus dem Buch <span class="zeitschild">10 Minuten</span></h2><div class="mwsplit"><div class="mwfrage"><div class="auftrag"><ol><li><b>A4</b> <span class="trenner">&#9656;</span> Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a> Nr. 3: Erdbeeren und Tiefkühlpizza. Warum ist das nicht proportional? <b>Rechnet es, schreibt es hin.</b></li><li><b>A5 ★</b> <span class="trenner">&#9656;</span> Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 9: die Passstraße. Freiwillig, aber lohnend.</li><li>Wer fertig ist: noch einmal A3 (1), diesmal mit <b>allen drei</b> Zeilen geprüft.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Wer nicht weiterkommt, hebt die Hand <span class="trenner">&#9656;</span> und schaut vorher auf die vier Sätze von eben.</p></div></div><div class="mwbild"><figure class="rueckblende" title="Klick: gross zeigen"><figcaption>A3 (1) von vorhin</figcaption><div class="rbinhalt"><table class="wtab"><tr><th>(1) Obst in kg</th><td>2</td><td>4</td><td>6</td></tr><tr><th>Preis in €</th><td>5,00</td><td>7,50</td><td>10,00</td></tr></table></div></figure></div></div><div class="randnotiz"><b>Kurz und still.</b> Zwölf Minuten sind absichtlich knapp; die Aufgaben sind nicht der Ertrag der Stunde, sondern ihre Probe.<br><b>Beim Herumgehen <span class="trenner">&#9656;</span> was zu fragen ist:</b><br>· „Welche zwei Zeilen hast du verglichen?“<br>· bei A4 b): „Was hätte der Doppelpack kosten müssen?“<br>· <b>Nicht</b> vorrechnen. Auf Folie 25 zeigen genügt.<br><b>Wenn die Zeit fehlt:</b> A5 als Hausaufgabe, A4 bleibt.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="7 · Allein, kurz" data-ab="74" data-frage="A4 a): Was kosten 1,5 kg Erdbeeren?" data-optionen="[]" data-art="zeichnen" data-schluessel="w9">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;9 von 9 &middot; Bevor ich auflöse</div><div class="mwsplit"><div class="mwfrage"><div class="frage">A4 a): Was kosten <span class='term'>1,5 kg</span> Erdbeeren?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> 1 kg für 4,50 € und 500 g für 2,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch S. 16 Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Erst zeigen lassen, dann auflösen <span class="trenner">&#9656;</span> nie umgekehrt.</b> Nach zehn Minuten stiller Arbeit weiß sonst niemand, wer wirklich gerechnet hat und wer nur zugesehen hat, wie die Lösung an die Wand kommt.<br><b>7,50 € ist nicht falsch gerechnet</b>, sondern der teurere von zwei richtigen Wegen (dreimal die 500-g-Schale). Beides gelten lassen und den Unterschied auf der nächsten Folie zeigen.<span class="weiche"><i>Weiche:</i> Diese Quote sagt Ihnen, wie die stille Phase gelaufen ist. Unter 50 % <span class="trenner">&#9656;</span> die nächsten drei Folien nicht vorzeigen, sondern gemeinsam rechnen.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;9 von 9 &middot; Bevor ich auflöse</div><div class="mwsplit"><div class="mwfrage"><div class="frage">A4 a): Was kosten <span class='term'>1,5 kg</span> Erdbeeren?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">7,00 €</span> <span class="muted neben"><span class="trenner">&#9656;</span> 1 kg für 4,50 € und 500 g für 2,50 €</span></div></div><div class="mwbild"><div class="schilder"><div class="schild"><h3>Erdbeeren</h3><table><tr><td>500 g</td><td class="p">2,50 €</td></tr><tr><td>1 kg</td><td class="p">4,50 €</td></tr><tr><td>2 kg</td><td class="p">8,00 €</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=16&amp;bis=16" title="Buchseite 16 im Viewer öffnen — blätterbar und skalierbar">S. 16</a> Nr. 3 a)</div></div></div></div></div><div class="randnotiz"><b>Erst zeigen lassen, dann auflösen <span class="trenner">&#9656;</span> nie umgekehrt.</b> Nach zehn Minuten stiller Arbeit weiß sonst niemand, wer wirklich gerechnet hat und wer nur zugesehen hat, wie die Lösung an die Wand kommt.<br><b>7,50 € ist nicht falsch gerechnet</b>, sondern der teurere von zwei richtigen Wegen (dreimal die 500-g-Schale). Beides gelten lassen und den Unterschied auf der nächsten Folie zeigen.<span class="weiche"><i>Weiche:</i> Diese Quote sagt Ihnen, wie die stille Phase gelaufen ist. Unter 50 % <span class="trenner">&#9656;</span> die nächsten drei Folien nicht vorzeigen, sondern gemeinsam rechnen.</span></div>
 </section>
 
 <section class="slide" data-phase="7 · Allein, kurz" data-ab="76">
@@ -1053,7 +1250,7 @@
 </section>
 
 <section class="slide ipad abfrage zei" data-phase="8 · Abschluss" data-ab="86" data-frage="1. Ein Stand verkauft 3 kg fuer 6 Euro und 6 kg fuer 11 Euro. Proportional? Schreibe die Rechnung dazu, nicht nur ja oder nein. 2. Erklaere einem Mitschueler, der heute gefehlt hat, in einem Satz, was proportional heisst. Kein Name noetig." data-optionen="[]" data-art="zeichnen" data-schluessel="z1">
-<div class="kicker"><span class="marke zei">Zeichnen 1</span> &nbsp;Exit-Ticket &middot; zwei Fragen, drei Minuten</div><h2 class="wt">Schreibt auf dem iPad <span class="trenner">&#9656;</span> ohne Namen</h2><p class="lead weit"><b>1.</b> Ein Stand verkauft <b>3 kg für 6 €</b> und <b>6 kg für 11 €</b>. Proportional? Mit Rechnung, nicht nur ja oder nein.<br><b>2.</b> Erkläre in <b>einem Satz</b>, was „proportional“ heißt <span class="trenner">&#9656;</span> für jemanden, der heute gefehlt hat.<br>Beides steht auch auf eurem iPad. Dann <b>Abschicken</b>.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="callout frag"><p><b>Hausaufgabe:</b> Buch S. 17 Nr. 7. Wer mag: Nr. 10 (Windbeutel).<br><b>Morgen:</b> Wir teilen statt zu vervielfachen <span class="trenner">&#9656;</span> und bekommen jedes Mal dieselbe Zahl heraus. Warum das kein Zufall ist, ist die Stunde am Mittwoch.</p></div><div class="randnotiz"><b>Frage 1 verlangt das Erkennen, Frage 2 das Benutzen.</b> Wer nur Frage 1 kann, hat den Begriff als Prüfregel, aber noch nicht als Sprache <span class="trenner">&#9656;</span> und braucht am Mittwoch einen Blick mehr.<br><b>Zur ersten Frage:</b> 3 kg für 6 € heißt 2 € je Kilogramm, 6 kg müssten also 12 € kosten. Sie kosten 11 € <span class="trenner">&#9656;</span> nicht proportional. Die Zahlen sind absichtlich neu.<br><b>Nicht besprechen, nur zählen:</b> „Alle zeigen“, dann durchsehen <span class="trenner">&#9656;</span> wie viele haben die zweite Frage <i>mit Begründung</i>? Diese Zahl gehört in die nächste Stunde.<br><b>Die Abgabe ist anonym</b>, wie alles auf diesem Weg. Sie sehen den Stand der Lerngruppe, nicht den einzelnen Namen <span class="trenner">&#9656;</span> wer ihn braucht, findet ihn in der Eigenphase, nicht hier.<br><b>Ohne Dienst</b> bleibt die Galerie leer <span class="trenner">&#9656;</span> dann doch auf Papier, die beiden Fragen stehen ja an der Wand.</div>
+<div class="kicker"><span class="marke zei">Zeichnen 1</span> &nbsp;Exit-Ticket &middot; zwei Fragen, drei Minuten</div><h2 class="wt">Schreibt auf dem iPad <span class="trenner">&#9656;</span> ohne Namen</h2><p class="lead weit"><b>1.</b> Ein Stand verkauft <b>3 kg für 6 €</b> und <b>6 kg für 11 €</b>. Proportional? Mit Rechnung, nicht nur ja oder nein.<br><b>2.</b> Erkläre in <b>einem Satz</b>, was „proportional“ heißt <span class="trenner">&#9656;</span> für jemanden, der heute gefehlt hat.<br>Beides steht auch auf eurem iPad. Dann <b>Abschicken</b>.</p><div class="galerie" data-n="0"><p class="lead leer">Noch kein Bild da.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="callout frag"><p><b>Hausaufgabe:</b> Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 7. Wer mag: Nr. 10 (Windbeutel).<br><b>Morgen:</b> Wir teilen statt zu vervielfachen <span class="trenner">&#9656;</span> und bekommen jedes Mal dieselbe Zahl heraus. Warum das kein Zufall ist, ist die Stunde am Mittwoch.</p></div><div class="randnotiz"><b>Frage 1 verlangt das Erkennen, Frage 2 das Benutzen.</b> Wer nur Frage 1 kann, hat den Begriff als Prüfregel, aber noch nicht als Sprache <span class="trenner">&#9656;</span> und braucht am Mittwoch einen Blick mehr.<br><b>Zur ersten Frage:</b> 3 kg für 6 € heißt 2 € je Kilogramm, 6 kg müssten also 12 € kosten. Sie kosten 11 € <span class="trenner">&#9656;</span> nicht proportional. Die Zahlen sind absichtlich neu.<br><b>Nicht besprechen, nur zählen:</b> „Alle zeigen“, dann durchsehen <span class="trenner">&#9656;</span> wie viele haben die zweite Frage <i>mit Begründung</i>? Diese Zahl gehört in die nächste Stunde.<br><b>Die Abgabe ist anonym</b>, wie alles auf diesem Weg. Sie sehen den Stand der Lerngruppe, nicht den einzelnen Namen <span class="trenner">&#9656;</span> wer ihn braucht, findet ihn in der Eigenphase, nicht hier.<br><b>Ohne Dienst</b> bleibt die Galerie leer <span class="trenner">&#9656;</span> dann doch auf Papier, die beiden Fragen stehen ja an der Wand.</div>
 </section>
 
 <section class="slide" data-phase="8 · Abschluss" data-ab="89">
@@ -1073,7 +1270,7 @@
 </section>
 
 <section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R4">
-<div class="kicker">Reserve &middot; für die Schnellen</div><h2 class="wt">Wer früher fertig ist</h2><div class="auftrag"><ol><li><b>Buch S. 17 Nr. 8</b> <span class="trenner">&#9656;</span> eine Tabelle, in der zwei Zeilen nicht passen. Finde beide.</li><li><b>Buch S. 17 Nr. 10</b> (Windbeutel) <span class="trenner">&#9656;</span> und dann die Zusatzfrage: Wie viel kostet <i>ein</i> Windbeutel? Schreib die Zahl auf und behalte sie für morgen.</li><li><b>Selbst erfinden:</b> Baue eine Tabelle mit vier Zeilen, die „je mehr, desto mehr“ erfüllt und <b>nicht</b> proportional ist. Gib sie deinem Nachbarn zum Prüfen.</li></ol></div><div class="randnotiz"><b>Aufgabe 3 ist die wertvollste.</b> Wer ein Gegenbeispiel <i>bauen</i> kann, hat den Begriff <span class="trenner">&#9656;</span> das ist ein höheres Anforderungsniveau als jede Prüfaufgabe und kostet Sie keine Vorbereitung.<br>Der Preis für einen Windbeutel ist der Proportionalitätsfaktor. Am Mittwoch bekommt er seinen Namen; wer ihn heute schon ausgerechnet hat, steigt schneller ein.</div>
+<div class="kicker">Reserve &middot; für die Schnellen</div><h2 class="wt">Wer früher fertig ist</h2><div class="auftrag"><ol><li><b>Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 8</b> <span class="trenner">&#9656;</span> eine Tabelle, in der zwei Zeilen nicht passen. Finde beide.</li><li><b>Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=EdM7&amp;von=17&amp;bis=17" title="Buchseite 17 im Viewer öffnen — blätterbar und skalierbar">S. 17</a> Nr. 10</b> (Windbeutel) <span class="trenner">&#9656;</span> und dann die Zusatzfrage: Wie viel kostet <i>ein</i> Windbeutel? Schreib die Zahl auf und behalte sie für morgen.</li><li><b>Selbst erfinden:</b> Baue eine Tabelle mit vier Zeilen, die „je mehr, desto mehr“ erfüllt und <b>nicht</b> proportional ist. Gib sie deinem Nachbarn zum Prüfen.</li></ol></div><div class="randnotiz"><b>Aufgabe 3 ist die wertvollste.</b> Wer ein Gegenbeispiel <i>bauen</i> kann, hat den Begriff <span class="trenner">&#9656;</span> das ist ein höheres Anforderungsniveau als jede Prüfaufgabe und kostet Sie keine Vorbereitung.<br>Der Preis für einen Windbeutel ist der Proportionalitätsfaktor. Am Mittwoch bekommt er seinen Namen; wer ihn heute schon ausgerechnet hat, steigt schneller ein.</div>
 </section>
 
 </div>
@@ -1181,6 +1378,7 @@
        auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
        eine Schleife, die den Aufbau der Seite anhaelt. */
     b.style.transform = "";
+    b.style.width = "";
     folie.style.justifyContent = "";
     /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
        mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
@@ -1193,12 +1391,116 @@
     const platz = B.unten - B.oben;
     const breite = folie.clientWidth
                  - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
-    const hoch = b.getBoundingClientRect().height;
+    /* Die Breitenschranken der Ueberschriften auf den Ausgangswert
+       zuruecksetzen; entschieden wird ueber sie erst weiter unten, wenn
+       die Breite der Flaeche feststeht.
+
+       Eine im Editor gesetzte BREITE bleibt unangetastet - sonst
+       loeschte die Automatik sie beim naechsten Folienwechsel lautlos
+       weg. Ausschlaggebend ist `data-anp-breite`, das der Anwender nur
+       fuer eine Breite setzt; das allgemeine `data-anp` waere zu grob:
+       Dann liesse schon eine geaenderte Schriftgroesse die
+       Zeilenersparnis mit ausfallen. */
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead"))
+      if (!t.dataset.anpBreite) t.style.maxWidth = "";
+    let flaeche = 1200;
+    let hoch = b.getBoundingClientRect().height;
     if(platz <= 0 || hoch <= 0) return 1;
     /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
        von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
        wuerde eine kurze Folie grotesk wirken. */
-    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    let kH = (platz - 20) / hoch, kB = breite / flaeche;
+    /* Wo die HOEHE die bindende Schranke ist, liegt seitlich Platz brach,
+       den der Text nicht nutzen darf. Gemessen an der 7b: 18 der 34
+       Folien sind hoehenbegrenzt, und genau darunter sind alle acht
+       Sachaufgaben, die auf drei und vier Zeilen umbrachen - waehrend
+       neben ihnen 180 px leer blieben. Die 16 breitenbegrenzten Folien
+       duerfen dagegen NICHT verbreitert werden: dort ginge Schrift
+       verloren.
+
+       Wo die Hoehe bindet, darf die Flaeche so weit wachsen, dass die
+       Breite gerade zur bindenden Schranke wird. Das ist beweisbar ohne
+       Verlust: mit W = breite/kH ist danach kB' = kH, und weil der Text
+       durch die groessere Breite nur kuerzer werden kann, ist kH' >= kH.
+       Der Massstab min(kH', kB') ist also genau der von vorher -
+       dieselbe Schriftgroesse, weniger Zeilen, mehr Luft. Gedeckelt bei
+       1600 px, damit die Zeile lesbar kurz bleibt. */
+    /* Wie weit reicht der Inhalt wirklich nach rechts? Eine feste
+       Tabelle wird von einer breiteren Flaeche nicht breiter - sie
+       bekaeme nur eine leere Haelfte daneben. Also wird nachgemessen. */
+    const genutzt = () => {
+      let rechts = 0;
+      const l = b.getBoundingClientRect().left;
+      for (const k of b.querySelectorAll("*")){
+        const r = k.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) rechts = Math.max(rechts, r.right - l);
+      }
+      return rechts;
+    };
+    if(kH < kB){
+      const sollBreite = Math.min(1600, Math.round(breite / kH));
+      if(sollBreite > flaeche){
+        const vorherBreit = genutzt();
+        b.style.width = sollBreite + "px";
+        const nachher = b.getBoundingClientRect().height;
+        /* Zwei Bedingungen, beide gemessen: Breiter darf nie hoeher
+           heissen, und die gewonnene Breite muss auch gefuellt werden.
+           Ohne die zweite stand die Tabellenfolie der 7b in einer
+           1600 px breiten Flaeche, von der sie 800 nutzte - eine leere
+           Haelfte, die es vorher nicht gab. */
+        /* Und drittens: Der Inhalt muss in die Flaeche passen. Eine
+           Spalte mit fester Breite (etwa eine Zeichnung) schrumpft nicht
+           mit; sie stand dann rechts aus dem Bild heraus - auf drei
+           Folien der 7b um 33, 75 und 140 px. */
+        if(nachher > 0 && nachher <= hoch && genutzt() > vorherBreit + 8
+           && genutzt() <= sollBreite + 2){
+          flaeche = sollBreite; hoch = nachher;
+          kH = (platz - 20) / hoch; kB = breite / flaeche;
+        } else b.style.width = "";
+      }
+    }
+    /* Hier stand einmal der Versuch, die Flaeche einem zu breiten Inhalt
+       NACHZUZIEHEN, damit nichts aus dem Bild laeuft. Er ist gemessen
+       gescheitert: Die Beanstandungen stiegen von 13 auf 44, weil das
+       Verbreitern die Flexspalten neu umbricht und der Inhalt danach oft
+       wieder breiter ist - ein Durchgang reicht nicht, und mehrere
+       schwingen. Die verbleibenden Ueberstaende gehoeren in die
+       betroffenen Stunden, nicht in diese Schleife. */
+    /* JETZT, wo die Breite der Flaeche feststeht: Eine Breitenschranke,
+       die eine ZEILE kostet, bringt nichts.
+
+       Die Ueberschriften sind auf 46ch gedeckelt - eine gute Zeilenlaenge
+       fuer Fliesstext, aber an der Wand liest niemand Absaetze. Gemessen
+       auf Folie 9 der 7b: Flaeche 1347 px, Deckel 1138 px, und der Text
+       brach deshalb auf VIER Zeilen statt auf drei.
+
+       Je Element wird nachgesehen: wie viele Zeilen mit Deckel, wie viele
+       ohne? Nur wenn es ohne WENIGER werden, faellt er. Sonst bleibt er,
+       denn dann waere die lange Zeile nur lang.
+
+       Die Reihenfolge ist der Punkt. Zuerst stand diese Pruefung oben,
+       vor der Verbreiterung - und lief ins Leere: Bei 1200 px sparte das
+       Fallenlassen keine Zeile, bei den spaeteren 1347 px haette es eine
+       gespart. Danach kann die Flaeche nur kuerzer werden, nie laenger;
+       ein zweiter Durchgang ist also nicht noetig. */
+    let gespart = false;
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead")){
+      if (t.dataset.anpBreite) continue;    /* Breite von Hand gesetzt */
+      const cs = getComputedStyle(t);
+      const zh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+      if (!zh) continue;
+      const mit = Math.round(t.getBoundingClientRect().height / zh);
+      if (mit < 2) continue;
+      t.style.maxWidth = "none";
+      if (Math.round(t.getBoundingClientRect().height / zh) >= mit)
+        t.style.maxWidth = "";
+      else gespart = true;
+    }
+    if (gespart){
+      hoch = b.getBoundingClientRect().height || hoch;
+      kH = (platz - 20) / hoch;
+    }
+    const k = Math.max(0.55, Math.min(2.4, kH, kB));
     b.style.transform = "scale(" + k.toFixed(4) + ")";
     /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
        Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
@@ -1741,6 +2043,32 @@
     lauf();
   })();
 
+  /* ---- Rueckblende gross ----------------------------------------------
+     Eine Rueckblende steht verkleinert neben dem Text; ein Klick legt sie
+     gross ueber die Folie. Die vorhandene .lupe taugt dafuer nicht - sie
+     zeigt nur <img>, eine Rueckblende ist aber meist eine Tabelle oder
+     ein Preisschild, also gewoehnliches HTML. Deshalb wird der Inhalt
+     geklont statt abgebildet: So bleibt er scharf, egal wie gross die
+     Wand ist. */
+  (function rueckblendeGross(){
+    let schirm = null;
+    function zu(){ if(schirm){ schirm.remove(); schirm = null; } }
+    document.addEventListener('click', e => {
+      if(schirm && schirm.contains(e.target)) return zu();
+      const rb = e.target.closest && e.target.closest('.rueckblende');
+      if(!rb) return;
+      zu();
+      schirm = document.createElement('div');
+      schirm.className = 'rbgross';
+      const innen = document.createElement('div');
+      innen.className = 'rbbuehne';
+      innen.innerHTML = rb.innerHTML;
+      schirm.appendChild(innen);
+      document.body.appendChild(schirm);
+    });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') zu(); });
+  })();
+
   /* ---- Live-Abstimmung ------------------------------------------------
      Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
      Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
@@ -1844,20 +2172,47 @@
       folie.dataset.zaehler = zaehler.join(",");
     }
 
-    async function oeffne(folie){
-      const frage = folie.dataset.frage || "";
-      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+    /* Welche Runde soll auf dieser Folie gerade laufen - oder keine?
+       Zwei Faelle:
+
+       Eine gewoehnliche Abfragefolie hat genau EINE Runde, und die laeuft
+       bis zum ersten Aufdecken.
+
+       Eine Tabellenfolie mit data-runden hat eine Runde JE VERDECKTER
+       ZELLE: erst rechnet die Klasse Spalte 1 und schickt ab, dann wird
+       Spalte 1 aufgedeckt und Spalte 2 gefragt, und so fort. Die Stufe
+       sagt, wie viele Zellen schon offen sind - also ist sie zugleich die
+       Nummer der Runde, die jetzt drankommt. */
+    function rundeVon(folie){
+      const stufe = +(folie.dataset.step || 0);
+      let liste = null;
+      try { liste = JSON.parse(folie.dataset.runden || "null"); } catch(e){}
+      if (liste && liste.length)
+        return stufe < liste.length
+          ? { frage: liste[stufe].frage, marke: liste[stufe].schluessel,
+              art: "zeichnen", optionen: [] }
+          : null;
+      if (!folie.dataset.frage || stufe > 0) return null;
       let optionen = [];
       try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
-      if (art === "wahl" && optionen.length < 2) return;
-      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+      if (art === "wahl" && optionen.length < 2) return null;
+      return { frage: folie.dataset.frage, marke: folie.dataset.schluessel,
+               art, optionen };
+    }
+
+    async function oeffne(folie, r){
+      r = r || rundeVon(folie);
+      if (!r) return;
+      const frage = r.frage, art = r.art, optionen = r.optionen;
+      const schluessel = raum + "-" + sitzung + "-" + r.marke;
       try {
         const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
           method:"POST", headers: kopf(),
           body: JSON.stringify({ frage, optionen, schluessel, art }) });
         if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
         if (!a.ok) return;
-        laufend = { folie, schluessel };
+        laufend = { folie, schluessel, marke: r.marke };
         stand.classList.remove("zu");
         const b = balken(folie);
         if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
@@ -2243,7 +2598,7 @@
       if (abgabeAn) return;          /* der Abgabeschirm hat Vorrang */
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
-      const istAbfrage = !!folie.dataset.frage;
+      const istAbfrage = !!(folie.dataset.frage || folie.dataset.runden);
       /* Die Regel beim Folienwechsel: Grundzustand ueberall, nur nicht
          auf einer Abfragefolie. Einmal je Folie - danach darf der
          Schalter von Hand anders entscheiden. */
@@ -2253,12 +2608,16 @@
       }
       if (ruhe) return;                /* Grundzustand: nichts geht auf */
       if (!istAbfrage){ if (laufend) schliesse(); return; }
-      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
-      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      const soll = rundeVon(folie);
+      if (!laufend && soll && lebt && holeSchluessel()) return oeffne(folie, soll);
       /* Von einer Abfragefolie direkt auf die naechste: erst die alte
          schliessen, dann noch einmal hinsehen, damit die neue aufgeht. */
       if (laufend && laufend.folie !== folie) return schliesse().then(beobachte);
-      if (laufend && aufgeloest){
+      /* Dieselbe Folie, aber die naechste Spalte ist dran: alte Runde zu,
+         dann noch einmal hinsehen - so geht die neue von selbst auf. */
+      if (laufend && soll && laufend.marke !== soll.marke)
+        return schliesse().then(beobachte);
+      if (laufend && !soll){
         /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
            Gefaerbt - und damit verraten - wird die richtige Karte erst beim
            zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
@@ -2285,6 +2644,10 @@
   })();
 
   window.ANPASSUNGEN = {"fassung": 1, "anzeige": "proportionale-zuordnungen-7b-wandfassung.html", "eintraege": [{"behaelter": "#1", "pfad": "3/0", "fp": "ibqylh", "was": {"text": "<b>So läuft das heute:</b> Ich zeige etwas vor, dann rechnen wir es gemeinsam, dann fragt ihr euch selbst ab. Wir verwenden das Mini-Whiteboard und probieren Clickers aus. Bei jeder Frage antworten <b>alle</b> — nicht bloß die Schnellsten."}}, {"behaelter": "#2", "pfad": "1/0/2/2", "fp": "1ixt05e", "was": {"text": "Clickers"}}, {"behaelter": "#2", "pfad": "1/0/4/2", "fp": "1ixt05e", "was": {"text": "Clickers"}}, {"behaelter": "A2", "pfad": "4", "fp": "2erd5l", "was": {"text": "Merkt euch den Weg: Ihr braucht <b>eine</b> bekannte Zeile oder Spalte, dann geht jede andere."}}, {"behaelter": "#23", "pfad": "2", "fp": "1r7dd2w", "was": {"text": "Prüft <b>beide</b>. Auf dem Whiteboard steht am Ende nur: <br><i>ja oder nein</i> — die Rechnung dazu im Heft."}}, {"behaelter": "VERF", "pfad": "3/0/1", "fp": "1g6qck5", "was": {"text": "Sucht eine Zeile, die ihr vollständig kennt."}}, {"behaelter": "#34", "pfad": "3/0/2", "fp": "f1n0zr", "was": {"text": "Nächste Stunde:"}}, {"behaelter": "#34", "pfad": "3/0", "fp": "19lcibw", "was": {"text": "<b>Hausaufgabe:</b> Buch S. 17 Nr. 7. Wer mag: Nr. 10 (Windbeutel).<br><b class=\"\" contenteditable=\"false\">Nächste Stunde:</b> Wir teilen statt zu vervielfachen — und bekommen jedes Mal dieselbe Zahl heraus. Warum das kein Zufall ist, klärt die nächste Stunde."}}]};
+
+  window.HAUSSTIL_SCHRIFTEN = [{"schluessel": "system", "name": "Systemschrift (wie bisher)", "familie": "-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "fredoka", "name": "Fredoka — rundes Sans, sehr gut lesbar", "familie": "HausFredoka,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "baloo", "name": "Baloo 2 — kräftig und rund", "familie": "HausBaloo,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "marcellus", "name": "Marcellus — ruhige Antiqua", "familie": "HausMarcellus,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "patrick", "name": "Patrick Hand — sachliche Handschrift", "familie": "HausPatrick,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "architekt", "name": "Architects Daughter — technische Schrift", "familie": "HausArchitekt,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}];
+
+  
 /* ===========================================================================
    Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
 
@@ -2430,7 +2793,9 @@
     });
     document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
       el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      el.style.transform = ""; el.style.fontFamily = "";
       delete el.dataset.anp; delete el.dataset.anpWeg;
+      delete el.dataset.anpBreite;
     });
   }
 
@@ -2527,11 +2892,49 @@
         if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
       }
       if (w.breite) {
-        el.style.maxWidth = "";
-        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
-        var ist = el.getBoundingClientRect().width;
-        if (voll > 0 && ist > 0)
-          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+        /* `breite` ist der ANTEIL an der Breite des Eltern-Kastens -
+           0,6 heisst „sechs Zehntel der Folienbreite". Ablesbar, stabil
+           und unabhaengig von Schriftgroesse und CSS-Deckel.
+
+           Frueher war es ein Faktor der „natuerlichen" Breite. Die haengt
+           aber selbst an der Schrift und am Deckel: Wer die Schrift
+           aenderte, verschob damit auch die Breite, und der gespeicherte
+           Wert passte nicht mehr zu dem, was man sah (0,966 bei sichtbar
+           82 %). Drei bewegliche Teile fuer eine Zahl sind zwei zu viel.
+
+           Marke fuer window.einpassen: Diese Breite ist von Hand gesetzt
+           und wird von der Automatik nicht angefasst. Nur DIESE Marke,
+           nicht das allgemeine data-anp - sonst liesse eine blosse
+           Schriftgroesse die Zeilenersparnis mit ausfallen. */
+        el.dataset.anpBreite = "1";
+        el.style.maxWidth = Math.max(5, w.breite * 100).toFixed(2) + "%";
+      }
+      if (w.schrift) {
+        /* Die Familie steht in window.HAUSSTIL_SCHRIFTEN - dieselbe
+           Liste, aus der der Editor auswaehlen laesst, und sie liegt
+           AUSSERHALB der Editor-Marken, damit die Wahl auch in der
+           veroeffentlichten Fassung wirkt. Der Schnitt selbst ist beim
+           Bauen eingebettet worden, weil dieser Eintrag hier steht. */
+        var liste = window.HAUSSTIL_SCHRIFTEN || [];
+        for (var si = 0; si < liste.length; si++)
+          if (liste[si].schluessel === w.schrift) {
+            el.style.fontFamily = liste[si].familie;
+            break;
+          }
+      }
+      if (w.verschoben) {
+        /* Verschoben wird ueber transform, NICHT ueber position:absolute.
+           Der Unterschied ist wesentlich: Ein transform nimmt dem Element
+           seinen Platz im Fluss nicht weg, also rueckt nichts anderes
+           nach. Wer eine Ueberschrift beiseite schiebt, will die
+           Ueberschrift woanders haben - nicht die halbe Folie neu
+           sortiert. Ueberlappungen sind damit ausdruecklich moeglich.
+
+           Die Werte stehen in den Koordinaten der Entwurfsflaeche (1200
+           px breit), nicht in Bildschirmpixeln: Sonst saesse dieselbe
+           Verschiebung am Beamer woanders als am Notebook. */
+        el.style.transform = "translate(" + w.verschoben.x + "px,"
+                           + w.verschoben.y + "px)";
       }
       if (w.bild) bildSetzen(el, w.bild);
       if (typeof w.rang === "number" && w.rang !== 0) {
