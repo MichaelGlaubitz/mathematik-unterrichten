@@ -1717,6 +1717,32 @@ body.anp-an [data-anp-weg]{display:block !important;opacity:.28;
     return k;
   };
 
+  /* ---- Buchseiten: der Verweis traegt nur von der Platte --------------
+     _buchlinks() macht aus jeder genannten Buchseite einen Verweis auf
+     ../Buchviewer_2026-27.html. Der Viewer holt die Scans aus
+     file:///C:/dev/Geogebra/buecher/seiten/ - er kann sie also NUR
+     zeigen, wenn er selbst ueber file:// geoeffnet ist.
+
+     Im Unterricht laeuft aber die Fassung aus dem NETZ; nur sie darf mit
+     dem Abstimmungsdienst sprechen. Dort ging der Verweis doppelt ins
+     Leere: erst 404 auf den Viewer, der nicht mitgeliefert wird - und
+     selbst mit Viewer blieben die Seiten leer, weil eine https-Seite
+     keine file://-Bilder laden darf. Auf localhost genauso.
+
+     Reparieren laesst sich das nicht, ohne die Scans auf eine
+     erreichbare Adresse zu legen, und dort gehoeren sie nicht hin. Also
+     faellt der Verweis weg und der Text bleibt stehen - ein Text, der
+     nichts verspricht, ist besser als ein Verweis, der 404 liefert.
+     (Gefunden am 08.09.2026 an einer fertigen Stunde.) */
+  if(location.protocol !== "file:"){
+    document.querySelectorAll("a.buchseite").forEach(a => {
+      const t = document.createElement("span");
+      t.textContent = a.textContent;
+      t.title = "Buchseite - anklickbar nur in der oertlichen Fassung";
+      a.replaceWith(t);
+    });
+  }
+
   (function einpassenVerdrahten(){
     const jetzt = () => window.einpassen(document.querySelector(".slide.on"));
     new MutationObserver(jetzt).observe(document.getElementById("deck"),
