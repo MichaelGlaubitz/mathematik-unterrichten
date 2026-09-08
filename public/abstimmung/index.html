@@ -364,9 +364,58 @@ if (!RAUM){
                + "Scanne ihn noch einmal.", "fehler");
 } else {
   $("raum").textContent = "Raum " + RAUM.toUpperCase();
-  hole();
-  setInterval(hole, 1500);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) hole(); });
+
+  /* --- Wie oft gefragt wird --------------------------------------------
+     Hier stand einmal setInterval(hole, 1500) - unbedingt, rund um die
+     Uhr. EIN Geraet macht damit 2400 Anfragen je Stunde; dreissig iPads
+     machen 72 000. Der Dienst laeuft auf dem freien Cloudflare-Kontingent
+     von 100 000 Anfragen an das Durable Object je Tag, und am 08.09.2026
+     war es um 10:46 Uhr aufgebraucht - danach antwortete der Dienst den
+     Rest des Tages mit Fehlern. Es war kein Absturz, es war die Rechnung.
+
+     Drei Regeln, die zusammen aus 2400 Anfragen je Stunde einige hundert
+     machen:
+
+       Bildschirm aus, anderer Tab   gar nicht fragen. Das ist der groesste
+                                     Posten - ein iPad liegt die meiste
+                                     Zeit gesperrt in der Tasche, und die
+                                     alte Fassung fragte trotzdem weiter.
+       Frage offen                   alle 5 Sekunden
+       nichts offen                  alle 8 Sekunden; nach 10 Minuten Ruhe
+                                     alle 30, nach einer halben Stunde alle
+                                     zwei Minuten
+
+     Die Ruhe-Staffel faengt den Fall auf, dass eine Seite nach der Stunde
+     offen liegen bleibt. Wer das iPad anfasst, ist sofort zurueck im
+     schnellen Takt (visibilitychange) - darauf laeuft es in der Stunde
+     ohnehin immer hinaus. */
+  const TAKT_OFFEN = 5000, TAKT_RUHE = 8000;
+  let zuletztOffen = Date.now(), taktUhr = null, laeuft = false;
+
+  function takt(){
+    if (stand.offen) return TAKT_OFFEN;
+    const ruhe = Date.now() - zuletztOffen;
+    if (ruhe < 10 * 60 * 1000) return TAKT_RUHE;
+    if (ruhe < 30 * 60 * 1000) return 30000;
+    return 120000;
+  }
+
+  async function schleife(){
+    if (laeuft) return;                       /* keine zwei Ketten nebeneinander */
+    laeuft = true;
+    clearTimeout(taktUhr); taktUhr = null;
+    try { await hole(); if (stand.offen) zuletztOffen = Date.now(); }
+    finally {
+      laeuft = false;
+      if (!document.hidden) taktUhr = setTimeout(schleife, takt());
+    }
+  }
+
+  schleife();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden){ clearTimeout(taktUhr); taktUhr = null; }
+    else schleife();                          /* sofort, nicht erst im Takt */
+  });
 }
 </script>
 </body>
