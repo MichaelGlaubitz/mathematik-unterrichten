@@ -168,6 +168,45 @@
   .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
   .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
 
+  /* --- Wenn schon umbrechen, dann gleichmaessig ------------------------
+     Bleibt eine Zeile uebrig, faellt sie unangenehm auf: Folie 23 der 7b
+     zeigte „Der Faktor der ersten beiden Zeilen ist" und darunter allein
+     „1,5.". text-wrap:balance verteilt die Woerter auf gleich lange
+     Zeilen, ohne eine Zeile hinzuzufuegen - die Zahl der Zeilen bleibt
+     genau die, die oben ausgerechnet wurde. Zwischen erzwungenen
+     Umbruechen (<br>) wird jeder Teil fuer sich ausgeglichen, die
+     gesetzte Gliederung Situation / Frage bleibt also stehen. */
+  h1,.slide h2.wt,.frage,.lead,.geraetetext{text-wrap:balance}
+
+  /* --- Mathematik in einer Ueberschrift -------------------------------
+     Gemessen: Die Tafelschrift steht auf font-weight 800, KaTeX auf 400.
+     Nebeneinander in EINER Zeile ist das ein Bruch, den man sofort sieht -
+     „Wie gross ist der Quotient Preis : Menge?" sah aus wie zwei Folien.
+
+     font-weight hilft nicht: KaTeX bringt eigene Schnitte mit (KaTeX_Main,
+     KaTeX_Math), und der Browser hat davon nur den mageren geladen. Also
+     wird die Kontur verstaerkt - das aendert die Buchstabenform nicht und
+     verschiebt keine Formel, macht den Strich aber so dick wie nebenan.
+     Nur in Ueberschriften; im Fliesstext passt das magere KaTeX.
+
+     Die Staerke ist gemessen, nicht geraten - mit
+     Werkzeuge/strichstaerke.py an Folie 12 der 7b, quer durch die Zeile
+     „Wie gross ist der Quotient Preis : Menge?". Verglichen werden die
+     Staemme (oberes Viertel der dunklen Stuecke), nicht der Median: der
+     Serifenschnitt bringt Haarstriche mit, die es in der Tafelschrift
+     nicht gibt, und die den Median druecken, ohne dass der Strich
+     duenner waere.
+
+       Tafelschrift 19 px, KaTeX 18 px - 95 %, ausgeglichen.
+
+     Der erste Versuch mit .028em war viel zu zaghaft: dort standen 16 px
+     gegen 9 px im Median, und der Bruch war weiter zu sehen.
+
+     Weiter hinauf geht es nicht: ab etwa .1em laufen die Punzen von e, a
+     und s zu, und die Formel wird schwerer lesbar statt kraeftiger. */
+  h1 .katex,.slide h2.wt .katex,.frage .katex,.antwort .wert .katex{
+    -webkit-text-stroke:.08em currentColor}
+
   /* --- Ablauftabelle der zweiten Folie ---------------------------------
      Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
      steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
@@ -215,7 +254,10 @@
   .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
     font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
   .schild tr:last-child td{border-bottom:none}
-  .schild td.p{text-align:right;font-weight:800}
+  /* Ein Preis bricht nicht um: „0,35 €" darf nicht zu „0,35" und darunter
+     „€" werden. In einer schmalen Spalte - etwa als Rueckblende neben dem
+     Text - passierte genau das. */
+  .schild td.p{text-align:right;font-weight:800;white-space:nowrap}
   .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
 
   /* --- Wertetabelle mit Vervielfachungspfeilen --- */
@@ -235,8 +277,13 @@
      deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
      Plickers ueber die vier Karten. */
   .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
-  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
-  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  /* Die Bildspalte bekommt, was ihr Inhalt braucht - nicht die Haelfte.
+     Gemessen an Folie 23 der 7b: die Tabelle war 524 px breit und sass in
+     einer 818-px-Spalte, waehrend die Frage daneben auf vier Zeilen
+     umbrach. Ein Umbruch ist nur dann zu rechtfertigen, wenn seitlich
+     wirklich etwas steht. */
+  .mwsplit .mwfrage{flex:1 1 auto;min-width:0}
+  .mwsplit .mwbild{flex:0 1 auto;min-width:0}
   .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
   .mwsplit .antwort{margin-top:2.2vh}
   .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
@@ -246,7 +293,35 @@
   .mwsplit .schilder{margin-top:0}
   .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
   .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
-  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+  /* --- Federzeichnung neben der Aufgabe --------------------------------
+     Die Motive liegen als LA-PNG vor: schwarze Tinte, Deckkraft aus der
+     Helligkeit. Sie tragen also KEINEN eigenen Grund und sitzen auf jeder
+     Folienfarbe richtig - deshalb hier auch kein background. */
+  /* Eine Buchseite ist anklickbar - unaufdringlich, aber erkennbar:
+     gestrichelt unterstrichen, damit die Lehrkraft im Vorbeigehen sieht,
+     dass sie die Seite mit einem Griff gross an die Wand holen kann. */
+  .buchseite{color:inherit;text-decoration:underline dotted;
+    text-underline-offset:.18em;cursor:zoom-in}
+  .buchseite:hover{color:var(--accent);text-decoration-style:solid}
+  .randnotiz .buchseite{color:inherit}
+  @media print{.buchseite{text-decoration:none}}
+
+  /* Tabelle links, eingereichte Bilder rechts. Beide Spalten tragen,
+     keine bleibt leer. */
+  .tabsplit{display:flex;gap:2.4vw;align-items:flex-start;margin-top:.6vh}
+  .tabsplit .tabseite{flex:0 1 auto;min-width:0}
+  .tabsplit .galseite{flex:1 1 44%;min-width:0}
+  .tabsplit .galerie[data-n="0"]{min-height:26vh}
+  @media (max-width:900px){.tabsplit{flex-direction:column}}
+
+  /* max-width: Die Spalte darf schmaler werden als die Zeichnung breit
+     ist - dann schrumpft die Zeichnung mit. Ohne diese Zeile stand sie
+     starr auf ihren 430 px und lief auf der Kassenbon-Folie 140 px aus
+     dem Bild heraus (gemessen). */
+  .wandbild{margin:0;max-width:100%}
+  .wandbild img{display:block;width:100%;height:auto}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}
+    .wandbild{width:auto;max-width:60vw;margin:0 auto}}
 
   /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
      hoeher als das Bild, und die Einpassung muesste die ganze Folie
@@ -422,6 +497,86 @@
     padding:4px 14px;cursor:pointer}
   .zeiknoepfe button:hover{color:var(--ink);border-color:#94a3b8}
   .zeiknoepfe .zaehler{margin-left:auto;font-weight:800;color:var(--muted);font-size:18px}
+  /* --- Hefteintrag ------------------------------------------------------
+     Was ins Heft soll, steht an der Wand SO, wie es ins Heft gehoert -
+     handgeschrieben auf kariertem Papier. Zwei Gruende:
+
+     1. Die Klasse schreibt ab, was sie sieht. Steht der Satz in
+        Druckschrift auf farbigem Grund, entsteht im Heft irgendetwas;
+        steht er handgeschrieben da, entsteht ein Hefteintrag.
+     2. Wer mit GoodNotes auf dem iPad schreibt, hat damit eine Vorlage
+        bis in die Zeilenaufteilung.
+
+     Das Karo ist gerechnet, kein Bild: zwei Farbverlaeufe im Abstand von
+     40 px. Die Handschrift ist Caveat, zugeschnitten und eingebettet -
+     siehe handschrift_css(). */
+  .heft{background:#fff;border:1px solid #d5d9e0;border-radius:6px;
+    box-shadow:0 10px 30px rgba(15,23,42,.13);
+    background-image:
+      linear-gradient(to right,rgba(80,120,190,.16) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(80,120,190,.16) 1px,transparent 1px);
+    background-size:40px 40px;background-position:-1px -1px;
+    color:#12305e;font-family:Handschrift,"Segoe Print","Comic Sans MS",cursive;
+    padding:28px 34px 30px}
+  /* Der rote Rand des Heftes - links, wie im Rechenheft. */
+  .heft{border-left:3px solid rgba(203,60,60,.55)}
+  .heft .htitel{font-weight:700;display:inline-block;
+    border-bottom:3px solid rgba(203,60,60,.6);padding-bottom:2px;
+    margin-bottom:.35em}
+  .heft p{margin:.18em 0}
+  .heft .gold,.heft b{font-weight:700;color:#0b7a5a}
+  .heft .fehler{color:#b42318}
+  /* Auch die Tabelle im Heft ist handgeschrieben - mit dem blassen Stift
+     gezogen, nicht mit dem Kastenrahmen der Wandfassung. */
+  .heft .wtab{margin:.5em 0 .2em}
+  .heft .wtab td,.heft .wtab th{border-color:rgba(80,120,190,.5);
+    background:transparent;color:inherit;font-family:inherit;font-weight:700}
+  .heft .wtab th{color:#12305e}
+  /* Mathematik im Hefteintrag behaelt KaTeX.
+
+     Der erste Versuch zwang der Formel die Handschrift auf, damit sie
+     nicht als Druck im Handgeschriebenen steht. Das ging schief, und
+     zwar nicht kosmetisch: KaTeX setzt zusammengesetzte Zeichen aus
+     mehreren Kaesten mit eigenen Massen. In der Wurzelstunde stand
+     danach „n = 0" statt „n ≠ 0" - der Schraegstrich war weg - und dem
+     Wurzelzeichen fehlte der Strich ueber dem Radikanden. Eine falsche
+     Formel ist schlimmer als zwei Schriften.
+
+     Die Formel bekommt stattdessen die Tinte des Heftes und denselben
+     Strichausgleich wie in den Ueberschriften; damit steht sie neben der
+     Handschrift, ohne blass zu wirken.
+
+     Der kleine Seitenrand ist noetig, weil die Handschrift schmal
+     auslaeuft und die verstaerkte Formel sonst am Wort davor klebte
+     („Zahl a"). */
+  .heft .katex{color:inherit;-webkit-text-stroke:.045em currentColor;
+    margin:0 .12em}
+
+  /* --- Rueckblende ------------------------------------------------------
+     Bezieht sich eine Folie auf etwas Frueheres - „die Tabelle, die nicht
+     passt", „das Taxi von letzter Woche" -, dann steht dieses Fruehere
+     hier daneben und nicht nur im Gedaechtnis. Verkleinert, damit es die
+     Folie nicht beherrscht; ein Klick legt es gross darueber.
+
+     zoom statt transform:scale: zoom veraendert auch den Platzbedarf, die
+     Nachbarn ruecken also richtig nach. Ein scale haette einen Kasten in
+     voller Groesse stehen lassen, in dem etwas Kleines sitzt. */
+  .rueckblende{margin:0;cursor:zoom-in;border-left:4px solid var(--line);
+    padding-left:14px}
+  .rueckblende > figcaption{font-weight:800;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .rueckblende .rbinhalt{zoom:.62}
+  .rueckblende:hover{border-left-color:var(--accent)}
+  .rbgross{position:fixed;inset:0;z-index:60;background:rgba(255,255,255,.97);
+    display:flex;align-items:center;justify-content:center;cursor:zoom-out;
+    padding:6vh 6vw}
+  /* Gross heisst gross: die Verkleinerung von nebenan wird aufgehoben und
+     noch einmal ein Drittel draufgelegt - die Rueckblende soll aus der
+     letzten Reihe lesbar sein. */
+  .rbgross .rbinhalt{zoom:1.35}
+  .rbgross figcaption{display:none}
+  @media print{.rbgross{display:none}}
+
   /* Ein Bild gross: legt sich ueber die Folie, ein Klick nimmt es weg. */
   .lupe{position:absolute;inset:0;z-index:6;background:#fff;display:none;
     align-items:center;justify-content:center;cursor:pointer}
@@ -577,6 +732,21 @@
     border-radius:11px;background:#0f172a;color:#94a3b8;font:inherit;
     cursor:pointer}
   @media print{.quotewahl{display:none}}
+  /* --- Titelfolie mit Bild ---------------------------------------------
+     Der Titel steht links und behaelt seine Breite; das Strichbild rechts
+     nimmt, was uebrig ist. Es ist Schmuck und Anker, kein Traeger von
+     Information - deshalb darf es schrumpfen, der Text nicht. */
+  .titelzeile{display:flex;align-items:center;gap:2.4vw;width:100%}
+  .titeltext{flex:1 1 auto;min-width:0}
+  .titelbild{flex:0 0 30%;max-width:30%;display:flex;justify-content:center}
+  /* Kein mix-blend-mode: Die Buehne traegt ein transform und damit einen
+     eigenen Stapelkontext - die Blendung liefe ins Leere. Das Bild bringt
+     sein Alpha selbst mit (Werkzeuge/bild_fuer_wand.py). */
+  .titelbild img{max-width:100%;max-height:74vh;object-fit:contain}
+  @media (max-width:1100px){
+    .titelbild{flex-basis:26%;max-width:26%}
+  }
+
   /* --- Kontrollfrage auf einer Reservefolie ---------------------------- */
   /* Kompakt: Auf einer Folie, die schon Video oder Graph traegt, drueckt
      ein hoher Block die ganze Folie zusammen - gemessen sank die
@@ -714,12 +884,17 @@
      stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
      420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
      verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
-  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  /* Gemessen am 07.09.: 18 von 31 Ueberschriften brachen um und nutzten
+     dabei im Mittel 58 % der Breite - bei 34ch stand die Zeile auf 1018
+     von 1500 px, und rechts blieb ein Drittel leer, OHNE dass dort etwas
+     stand. Ein Umbruch ist nur dann richtig, wenn daneben ein Bild sitzt;
+     dafuer gibt es .mitbild. */
+  .slide h2.wt{font-size:50px;max-width:46ch;margin-bottom:.3em}
   .slide p,.slide li{font-size:30px;line-height:1.45}
   .kicker{font-size:21px}
   .lead{font-size:31px;max-width:46ch}
   .callout{padding:.75em 1.05em}
-  .frage{font-size:66px;max-width:22ch}
+  .frage{font-size:66px;max-width:40ch}
   .antwort .wert{font-size:78px}
   .antwort .neben{font-size:28px}
   .pill{font-size:20px}
@@ -739,6 +914,18 @@
   .merk{padding:26px 28px}
   .merk .satz{font-size:46px}
   .merk .zusatz{font-size:27px}
+  /* 430 px auf der 1200er Flaeche: gross genug, dass die Schraffur an der
+     Wand traegt, klein genug, dass der Frage ueber 700 px bleiben. */
+  .wandbild{width:430px}
+  /* Handschrift traegt kleiner als eine Groteske: Caveat hat eine kurze
+     x-Hoehe, deshalb hier deutlich groesser als der Fliesstext. */
+  /* Ein Heft ist so breit wie ein Heft. Ohne diese Schranke lief das
+     Karopapier bis an den Folienrand und sah nach Tapete aus, nicht nach
+     einer Seite, die man abschreibt. */
+  .heft{padding:30px 38px 34px;max-width:1150px}
+  .heft .htitel{font-size:46px}
+  .heft p{font-size:40px;line-height:1.45}
+  .heft .wtab td,.heft .wtab th{font-size:36px}
   .auftrag{padding:24px 26px}
   .auftrag li{font-size:31px}
   .zeitschild{font-size:24px}
@@ -770,10 +957,13 @@
      zu antworten begann. */
 
   /* --- Die Entwurfsflaeche selbst --------------------------------------
-     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
-     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     Vorgegebene Breite, damit der Umbruch nicht vom Beamer abhaengt; die
+     Hoehe ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
      sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
      nach oben. */
+  /* 1200 px ist die Ausgangsbreite, nicht die endgueltige: wo die Hoehe
+     die bindende Schranke ist, verbreitert window.einpassen die Flaeche
+     ueber ein style-Attribut bis auf 1600 px (Begruendung dort). */
   .buehne{width:1200px;transform-origin:top center}
   /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
      skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
@@ -880,6 +1070,13 @@
   @media print{.planschild,.regie .plan{display:none!important}
     .videorahmen{height:auto;background:none;box-shadow:none}
     .videorahmen iframe{display:none}}
+
+:root{--accent:#4f46e5;--accent2:#0ea5e9;--bg:#f6f7fb;--gold:#d97706;--green:#15803d;--ink:#0f172a;--line:#e2e8f0;--muted:#64748b;--panel:#ffffff;--red:#dc2626}
+body,.slide p,.slide li,.lead,.auftrag{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.opt .bst{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.heft,.heft p,.heft .htitel{font-family:Handschrift,"Segoe Print",cursive}
+
+
 /* ===========================================================================
    Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
 
@@ -915,7 +1112,7 @@
 </section>
 
 <section class="slide" data-phase="Vorab · Einstein-Zeit" data-ab="0" data-marke="EINSTEIN">
-<div class="kicker">Zuerst &middot; Einstein-Zeit, 30 Minuten, Fach frei &middot; Physik-Aufgabe: Pflicht, Abgabe bis Fr 18.09.</div><h2 class="wt">Selbstlernstunde „Solarzellen <span class="trenner">&#9656;</span> zwei Wege“ <span class="zeitschild">30 min</span></h2><div class="versuch"><div class="vtext"><div class="auftrag"><ol><li><b>Klassenseite öffnen</b> (QR rechts), Kachel <b>„Solarzellen <span class="trenner">&#9656;</span> zwei Wege“</b>. Tafelzahl eingeben.</li><li><b>Weg 1 <span class="trenner">&#9656;</span> die Grundlagen sichern:</b> U, I, R und P noch einmal, als Simulation zum Anklicken. Kein Aufbau, keine Kiste.</li><li><b>Weg 2 <span class="trenner">&#9656;</span> weiter als die Stunde:</b> Reihen- und Parallelschaltung von Solarzellen, dazu Aufgabe A1 des Buches (S. 147). Auch das vollständig am Bildschirm.</li><li><b>Welcher Weg?</b> Das sagt euch der kurze Selbsttest am Anfang. Ratet dort nicht <span class="trenner">&#9656;</span> sonst übt ihr das Falsche.</li><li><b>Am Ende:</b> Abgabe per Protokoll. <b>Bis Fr 18.09.</b></li></ol><p class="muted" style="margin-top:.8em;font-size:22px">Einstein-Zeit heißt: Ihr wählt das Fach. Die Physik-Aufgabe ist trotzdem Pflicht <span class="trenner">&#9656;</span> heute oder bis Freitag.</p></div></div><div class="vbild" style="flex:0 0 300px"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m4 0h2m2 0h2m1 0h2m2 0h7m-29 1h1m5 0h1m1 0h6m1 0h5m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m3 0h1m1 0h1m5 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h3m2 0h2m2 0h1m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m2 0h1m-21 1h1m1 0h1m1 0h1m1 0h1m3 0h1m2 0h5m1 0h2m3 0h1m2 0h1m-27 1h1m2 0h1m2 0h3m1 0h2m4 0h2m1 0h3m2 0h1m2 0h1m-28 1h1m1 0h1m2 0h1m3 0h2m1 0h1m3 0h2m2 0h2m1 0h1m1 0h3m-29 1h2m3 0h1m3 0h3m1 0h5m1 0h2m2 0h2m2 0h1m-28 1h1m1 0h1m1 0h3m1 0h2m4 0h1m1 0h2m3 0h2m2 0h1m1 0h2m-27 1h2m4 0h1m4 0h1m2 0h1m3 0h3m2 0h1m2 0h1m-28 1h3m1 0h5m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h2m-28 1h4m3 0h2m1 0h1m1 0h1m1 0h6m4 0h1m1 0h1m-28 1h2m4 0h2m3 0h2m1 0h1m1 0h2m1 0h5m1 0h1m1 0h2m-26 1h2m4 0h1m1 0h2m3 0h2m3 0h2m2 0h2m1 0h1m-29 1h1m2 0h1m1 0h2m1 0h3m1 0h2m2 0h3m3 0h3m2 0h2m-28 1h1m2 0h2m1 0h1m1 0h2m1 0h1m3 0h3m4 0h1m1 0h1m1 0h1m-28 1h1m1 0h1m2 0h4m6 0h3m1 0h6m-17 1h4m1 0h1m5 0h2m3 0h1m1 0h3m-29 1h7m3 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h2m1 0h2m-29 1h1m5 0h1m2 0h1m1 0h4m1 0h2m2 0h1m3 0h2m2 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h4m2 0h5m2 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m1 0h3m4 0h2m1 0h3m-29 1h1m1 0h3m1 0h1m1 0h4m2 0h1m6 0h1m1 0h3m2 0h1m-29 1h1m5 0h1m2 0h1m1 0h1m3 0h3m1 0h2m6 0h1m-28 1h7m1 0h4m1 0h2m1 0h2m1 0h2m1 0h2m3 0h2"/></svg></div><p class="videoquelle">mathematik-unterrichten.de/10c</p></div></div><div class="randnotiz"><b>Diese Folie kommt ZUERST</b> <span class="trenner">&#9656;</span> in der 3./4. Stunde liegt die Einstein-Zeit vor dem Unterricht. Erst danach beginnen die sechzig Minuten am Deck.<br><b>Kein Material, kein Aufbau <span class="trenner">&#9656;</span> auch hier nicht.</b> Beide Wege sind vollständig anklickbar; das ist die Vorgabe für diese Lerngruppe und nicht dasselbe wie bei der Diodenstunde, wo Weg A noch gemessen hat.<br><b>Der Selbsttest ist die Weiche</b>, nicht die Tafelzahl. Wer die Grundlagen nicht hat, übt sie; wer sie hat, bekommt die Reihen- und Parallelschaltung, die aus dieser Stunde herausgenommen wurde.<br><b>Herumgehen und auf den Selbsttest sehen.</b> Wer dort rät, landet auf dem falschen Weg <span class="trenner">&#9656;</span> das ist die einzige Stelle, an der diese halbe Stunde scheitern kann.</div>
+<div class="kicker">Zuerst &middot; Einstein-Zeit, 30 Minuten, Fach frei &middot; Physik-Aufgabe: Pflicht, Abgabe bis Fr 18.09.</div><h2 class="wt">Selbstlernstunde „Solarzellen <span class="trenner">&#9656;</span> zwei Wege“ <span class="zeitschild">30 min</span></h2><div class="versuch"><div class="vtext"><div class="auftrag"><ol><li><b>Klassenseite öffnen</b> (QR rechts), Kachel <b>„Solarzellen <span class="trenner">&#9656;</span> zwei Wege“</b>. Tafelzahl eingeben.</li><li><b>Weg 1 <span class="trenner">&#9656;</span> die Grundlagen sichern:</b> U, I, R und P noch einmal, als Simulation zum Anklicken. Kein Aufbau, keine Kiste.</li><li><b>Weg 2 <span class="trenner">&#9656;</span> weiter als die Stunde:</b> Reihen- und Parallelschaltung von Solarzellen, dazu Aufgabe A1 des Buches (<a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=147&amp;bis=147" title="Buchseite 147 im Viewer öffnen — blätterbar und skalierbar">S. 147</a>). Auch das vollständig am Bildschirm.</li><li><b>Welcher Weg?</b> Das sagt euch der kurze Selbsttest am Anfang. Ratet dort nicht <span class="trenner">&#9656;</span> sonst übt ihr das Falsche.</li><li><b>Am Ende:</b> Abgabe per Protokoll. <b>Bis Fr 18.09.</b></li></ol><p class="muted" style="margin-top:.8em;font-size:22px">Einstein-Zeit heißt: Ihr wählt das Fach. Die Physik-Aufgabe ist trotzdem Pflicht <span class="trenner">&#9656;</span> heute oder bis Freitag.</p></div></div><div class="vbild" style="flex:0 0 300px"><div class="qrbild"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" class="segno"><path class="qrline" stroke="#0f172a" d="M2 2.5h7m4 0h2m2 0h2m1 0h2m2 0h7m-29 1h1m5 0h1m1 0h6m1 0h5m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m3 0h1m1 0h1m5 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h3m2 0h2m2 0h1m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m2 0h1m-21 1h1m1 0h1m1 0h1m1 0h1m3 0h1m2 0h5m1 0h2m3 0h1m2 0h1m-27 1h1m2 0h1m2 0h3m1 0h2m4 0h2m1 0h3m2 0h1m2 0h1m-28 1h1m1 0h1m2 0h1m3 0h2m1 0h1m3 0h2m2 0h2m1 0h1m1 0h3m-29 1h2m3 0h1m3 0h3m1 0h5m1 0h2m2 0h2m2 0h1m-28 1h1m1 0h1m1 0h3m1 0h2m4 0h1m1 0h2m3 0h2m2 0h1m1 0h2m-27 1h2m4 0h1m4 0h1m2 0h1m3 0h3m2 0h1m2 0h1m-28 1h3m1 0h5m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h2m-28 1h4m3 0h2m1 0h1m1 0h1m1 0h6m4 0h1m1 0h1m-28 1h2m4 0h2m3 0h2m1 0h1m1 0h2m1 0h5m1 0h1m1 0h2m-26 1h2m4 0h1m1 0h2m3 0h2m3 0h2m2 0h2m1 0h1m-29 1h1m2 0h1m1 0h2m1 0h3m1 0h2m2 0h3m3 0h3m2 0h2m-28 1h1m2 0h2m1 0h1m1 0h2m1 0h1m3 0h3m4 0h1m1 0h1m1 0h1m-28 1h1m1 0h1m2 0h4m6 0h3m1 0h6m-17 1h4m1 0h1m5 0h2m3 0h1m1 0h3m-29 1h7m3 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h2m1 0h2m-29 1h1m5 0h1m2 0h1m1 0h4m1 0h2m2 0h1m3 0h2m2 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h4m2 0h5m2 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m1 0h3m4 0h2m1 0h3m-29 1h1m1 0h3m1 0h1m1 0h4m2 0h1m6 0h1m1 0h3m2 0h1m-29 1h1m5 0h1m2 0h1m1 0h1m3 0h3m1 0h2m6 0h1m-28 1h7m1 0h4m1 0h2m1 0h2m1 0h2m1 0h2m3 0h2"/></svg></div><p class="videoquelle">mathematik-unterrichten.de/10c</p></div></div><div class="randnotiz"><b>Diese Folie kommt ZUERST</b> <span class="trenner">&#9656;</span> in der 3./4. Stunde liegt die Einstein-Zeit vor dem Unterricht. Erst danach beginnen die sechzig Minuten am Deck.<br><b>Kein Material, kein Aufbau <span class="trenner">&#9656;</span> auch hier nicht.</b> Beide Wege sind vollständig anklickbar; das ist die Vorgabe für diese Lerngruppe und nicht dasselbe wie bei der Diodenstunde, wo Weg A noch gemessen hat.<br><b>Der Selbsttest ist die Weiche</b>, nicht die Tafelzahl. Wer die Grundlagen nicht hat, übt sie; wer sie hat, bekommt die Reihen- und Parallelschaltung, die aus dieser Stunde herausgenommen wurde.<br><b>Herumgehen und auf den Selbsttest sehen.</b> Wer dort rät, landet auf dem falschen Weg <span class="trenner">&#9656;</span> das ist die einzige Stelle, an der diese halbe Stunde scheitern kann.</div>
 </section>
 
 <section class="slide" data-phase="0 · Ankommen" data-ab="1">
@@ -927,7 +1124,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="3" data-frage="Ab welcher Spannung leitet eine Silicium-Diode?" data-optionen="[]" data-art="zeichnen" data-schluessel="w1">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;1 von 5 &middot; Aus der letzten Stunde</div><div class="frage">Ab welcher Spannung leitet eine <span class="term">Silicium-Diode</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">etwa 0,7 V</span> <span class="muted neben"><span class="trenner">&#9656;</span> Buch S. 144, B6</span></div><div class="randnotiz"><b>Steht im Buch auf S. 144</b> und stand vorige Woche an der Wand. Keine Ratefrage <span class="trenner">&#9656;</span> wer es nicht weiß, schlägt nach.<br><b>Diese Zahl wird heute gebraucht:</b> 0,7 V für die Diode, 0,6 V für die Solarzelle. Zwei ähnliche Zahlen, zwei verschiedene Dinge <span class="trenner">&#9656;</span> das gehört auseinandergehalten.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;1 von 5 &middot; Aus der letzten Stunde</div><div class="frage">Ab welcher Spannung leitet eine <span class="term">Silicium-Diode</span>?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">etwa 0,7 V</span> <span class="muted neben"><span class="trenner">&#9656;</span> Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=144&amp;bis=144" title="Buchseite 144 im Viewer öffnen — blätterbar und skalierbar">S. 144</a>, B6</span></div><div class="randnotiz"><b>Steht im Buch auf <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=144&amp;bis=144" title="Buchseite 144 im Viewer öffnen — blätterbar und skalierbar">S. 144</a></b> und stand vorige Woche an der Wand. Keine Ratefrage <span class="trenner">&#9656;</span> wer es nicht weiß, schlägt nach.<br><b>Diese Zahl wird heute gebraucht:</b> 0,7 V für die Diode, 0,6 V für die Solarzelle. Zwei ähnliche Zahlen, zwei verschiedene Dinge <span class="trenner">&#9656;</span> das gehört auseinandergehalten.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Rückblick" data-ab="5" data-frage="Wie berechnet man die elektrische Leistung?" data-optionen="[]" data-art="zeichnen" data-schluessel="w2">
@@ -935,19 +1132,19 @@
 </section>
 
 <section class="slide" data-phase="2 · Die Umkehrung" data-ab="7" data-marke="UMKEHR">
-<div class="kicker">Buch S. 146, B1 &middot; zwei Diagramme</div><h2 class="wt">Dasselbe Bild, einmal umgedreht</h2><div class="paar"><div class="halb >"><h4><</h4>b</div><div class="halb >"><h4><</h4>b</div></div><p class="lead weit frag" style="margin-top:1.6vh">Das Buch sagt es in einem Satz: <b>Solarzellen sind speziell konstruierte Leuchtdioden, die die Wirkung von LEDs umkehren.</b></p><div class="randnotiz"><b>Wörtlich aus dem Buch (S. 146).</b> Die beiden Diagramme stehen dort übereinander; hier nebeneinander, damit die Umkehrung ins Auge fällt.<br><b>Nicht erklären, zeigen.</b> Der Satz darunter ist die Erklärung <span class="trenner">&#9656;</span> er steht im Buch rot gesetzt.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a>, B1 &middot; zwei Diagramme</div><h2 class="wt">Dasselbe Bild, einmal umgedreht</h2><div class="paar"><div class="halb "><h4>Leuchtdiode</h4><p><span class="gold">E<sub>el</sub></span> → LED → <span class="gold">E<sub>Strahl</sub></span></p><p class="muted">Strom hinein, Licht heraus.</p></div><div class="halb gut"><h4>Solarzelle</h4><p><span class="gold">E<sub>Strahl</sub></span> → Solarzelle → <span class="gold">E<sub>el</sub></span></p><p class="muted">Licht hinein, Strom heraus.</p></div></div><p class="lead weit frag" style="margin-top:1.6vh">Das Buch sagt es in einem Satz: <b>Solarzellen sind speziell konstruierte Leuchtdioden, die die Wirkung von LEDs umkehren.</b></p><div class="randnotiz"><b>Wörtlich aus dem Buch (<a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a>).</b> Die beiden Diagramme stehen dort übereinander; hier nebeneinander, damit die Umkehrung ins Auge fällt.<br><b>Nicht erklären, zeigen.</b> Der Satz darunter ist die Erklärung <span class="trenner">&#9656;</span> er steht im Buch rot gesetzt.</div>
 </section>
 
 <section class="slide abfrage plk stufig" data-phase="2 · Die Umkehrung" data-ab="10" data-marke="P1" data-frage="In der Solarzelle trifft Licht auf die Sperrschicht. Was entsteht dort?" data-optionen="[&quot;freie Elektronen und Elektronenfehlstellen&quot;, &quot;nur freie Elektronen&quot;, &quot;Wärme, sonst nichts&quot;, &quot;eine breitere Sperrschicht&quot;]" data-schluessel="p1" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;R1&quot;, &quot;kostet&quot;: &quot;drei Minuten&quot;}]">
-<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Was im Kristall passiert</div><h2 class="wt">In der Solarzelle trifft Licht auf die Sperrschicht.<br><span class="accent">Was entsteht dort?</span></h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>freie Elektronen und Elektronenfehlstellen</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">B</span><span>nur freie Elektronen</span></div><div class="opt"><span class="bst">C</span><span>Wärme, sonst nichts</span></div><div class="opt"><span class="bst">D</span><span>eine breitere Sperrschicht</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Freie Elektronen und Elektronenfehlstellen.</b> Das Licht kehrt die Rekombination um <span class="trenner">&#9656;</span> genau umgekehrt zur LED, wo die Rekombination das Licht erzeugt.</div><div class="randnotiz"><b>Keine Ratefrage:</b> Der Vorgang steht auf S. 146 im zweiten Absatz und war eben an der Wand. Wer nicht zugehört hat, kann nachschlagen <span class="trenner">&#9656;</span> das ist erlaubt und gewollt.<br><b>B (nur Elektronen)</b> ist die häufigste Verkürzung. Fragen Sie zurück: „Und was bleibt dort, wo das Elektron war?“<br><b>D</b> verwechselt es mit der gesperrten Diode aus S. 144.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % Reservefolie 21, kostet drei Minuten.</span></div>
+<div class="kicker"><span class="marke plk">Plickers 1</span> &nbsp;Was im Kristall passiert</div><h2 class="wt">In der Solarzelle trifft Licht auf die Sperrschicht.<br><span class="accent">Was entsteht dort?</span></h2><i class="frag stufenhalt" aria-hidden="true"></i><div class="plickers"><div class="opt"><span class="bst">A</span><span>freie Elektronen und Elektronenfehlstellen</span><span class="haken frag hart"><b>richtig</b></span></div><div class="opt"><span class="bst">B</span><span>nur freie Elektronen</span></div><div class="opt"><span class="bst">C</span><span>Wärme, sonst nichts</span></div><div class="opt"><span class="bst">D</span><span>eine breitere Sperrschicht</span></div></div><div class="aufloesung frag hart"><b class='loesungswert'>Freie Elektronen und Elektronenfehlstellen.</b> Das Licht kehrt die Rekombination um <span class="trenner">&#9656;</span> genau umgekehrt zur LED, wo die Rekombination das Licht erzeugt.</div><div class="randnotiz"><b>Keine Ratefrage:</b> Der Vorgang steht auf <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a> im zweiten Absatz und war eben an der Wand. Wer nicht zugehört hat, kann nachschlagen <span class="trenner">&#9656;</span> das ist erlaubt und gewollt.<br><b>B (nur Elektronen)</b> ist die häufigste Verkürzung. Fragen Sie zurück: „Und was bleibt dort, wo das Elektron war?“<br><b>D</b> verwechselt es mit der gesperrten Diode aus <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=144&amp;bis=144" title="Buchseite 144 im Viewer öffnen — blätterbar und skalierbar">S. 144</a>.<span class="weiche"><i>Weiche:</i> ab 70 % weiter · unter 70 % Reservefolie 21, kostet drei Minuten.</span></div>
 </section>
 
 <section class="slide" data-phase="3 · Merksatz" data-ab="12" data-marke="MERK1">
-<div class="kicker">Merksatz 1</div><div class="merk frag"><div class="satz">Eine <b>Solarzelle</b> überführt <b>Lichtenergie in elektrische Energie</b>. Sie ist eine umgekehrt betriebene Leuchtdiode.</div><div class="zusatz">Das Licht erzeugt in der Sperrschicht freie Ladungsträger. An den Metallelektroden entstehen dadurch die Pole.</div></div><div class="randnotiz"><b>Abschreiben lassen, zwei Minuten.</b> Der Satz kommt ausdrücklich <i>vor</i> der Kennlinie <span class="trenner">&#9656;</span> die Klasse soll wissen, was das Bauteil tut, bevor sie sieht, was es nicht tut.<br><b>Erste Hälfte des roten Buchsatzes</b> (S. 146). Die zweite Hälfte folgt in Phase 5; das ist Absicht.</div>
+<div class="kicker">Merksatz 1</div><div class="merk frag"><div class="satz">Eine <b>Solarzelle</b> überführt <b>Lichtenergie in elektrische Energie</b>. Sie ist eine umgekehrt betriebene Leuchtdiode.</div><div class="zusatz">Das Licht erzeugt in der Sperrschicht freie Ladungsträger. An den Metallelektroden entstehen dadurch die Pole.</div></div><div class="randnotiz"><b>Abschreiben lassen, zwei Minuten.</b> Der Satz kommt ausdrücklich <i>vor</i> der Kennlinie <span class="trenner">&#9656;</span> die Klasse soll wissen, was das Bauteil tut, bevor sie sieht, was es nicht tut.<br><b>Erste Hälfte des roten Buchsatzes</b> (<a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a>). Die zweite Hälfte folgt in Phase 5; das ist Absicht.</div>
 </section>
 
 <section class="slide" data-phase="4 · Die Kennlinie" data-ab="15" data-marke="KENN">
-<div class="kicker">Buch S. 146, B2 &middot; eine Zelle, zwei Helligkeiten</div><h2 class="wt">Dieselbe Zelle, einmal hell und einmal heller</h2><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg><p class="lead weit" style="margin-top:1vh">Orange: zwei Lampen. Blau: eine Lampe. <span class="muted">Modellkurven nach Buch B2 <span class="trenner">&#9656;</span> die Form, nicht gemessene Werte.</span></p><div class="randnotiz"><b>Zwei Kurven, ein Schnittpunkt mit der U-Achse.</b> Genau darauf zielt die Stunde: Die beiden Kurven starten oben verschieden hoch und enden unten am <i>selben</i> Punkt.<br><b>Zeigen Sie mit dem Finger die U-Achse entlang</b>, nicht die Kurven. Was gleich bleibt, sieht man nur dort.<br><b>Ehrlich bleiben:</b> Sagen Sie, dass es Modellkurven sind. Das Buch zeigt dieselbe Form ohne Zahlen.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a>, B2 &middot; eine Zelle, zwei Helligkeiten</div><h2 class="wt">Dieselbe Zelle, einmal hell und einmal heller</h2><svg class="graph" style="width:100%" viewBox="0 0 660 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="556.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="562.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="190.0" y1="314.0" x2="190.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="190.0" y1="308.0" x2="190.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="190.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,2</text><line x1="326.0" y1="314.0" x2="326.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="326.0" y1="308.0" x2="326.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="326.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,4</text><line x1="462.0" y1="314.0" x2="462.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="462.0" y1="308.0" x2="462.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="462.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,6</text><line x1="54.0" y1="249.1" x2="550.0" y2="249.1" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="249.1" x2="60.0" y2="249.1" stroke="#64748b" stroke-width="2"/><text x="44.0" y="255.1" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="184.2" x2="550.0" y2="184.2" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="184.2" x2="60.0" y2="184.2" stroke="#64748b" stroke-width="2"/><text x="44.0" y="190.2" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="119.3" x2="550.0" y2="119.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="119.3" x2="60.0" y2="119.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="125.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="54.4" x2="550.0" y2="54.4" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="54.4" x2="60.0" y2="54.4" stroke="#64748b" stroke-width="2"/><text x="44.0" y="60.4" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><polyline points="54.0,54.4 258.0,60.9 360.0,73.9 428.0,119.3 462.0,314.0" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#ea580c" font-size="18" font-weight="800">zwei Lampen</text><polyline points="54.0,184.2 258.0,187.5 360.0,194.0 428.0,216.7 462.0,314.0" fill="none" stroke="#4f46e5" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="472.0" y="320.0" fill="#4f46e5" font-size="18" font-weight="800">eine Lampe</text></svg><p class="lead weit" style="margin-top:1vh">Orange: zwei Lampen. Blau: eine Lampe. <span class="muted">Modellkurven nach Buch B2 <span class="trenner">&#9656;</span> die Form, nicht gemessene Werte.</span></p><div class="randnotiz"><b>Zwei Kurven, ein Schnittpunkt mit der U-Achse.</b> Genau darauf zielt die Stunde: Die beiden Kurven starten oben verschieden hoch und enden unten am <i>selben</i> Punkt.<br><b>Zeigen Sie mit dem Finger die U-Achse entlang</b>, nicht die Kurven. Was gleich bleibt, sieht man nur dort.<br><b>Ehrlich bleiben:</b> Sagen Sie, dass es Modellkurven sind. Das Buch zeigt dieselbe Form ohne Zahlen.</div>
 </section>
 
 <section class="slide abfrage plk mitbild stufig" data-phase="4 · Die Kennlinie" data-ab="18" data-marke="P2" data-frage="Man schaltet die zweite Lampe dazu. Was ändert sich an der Kennlinie?" data-optionen="[&quot;Die Spannung wird größer.&quot;, &quot;Die Stromstärke wird größer.&quot;, &quot;Beides wird größer.&quot;, &quot;Nichts, es wird nur heller.&quot;]" data-schluessel="p2" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;KENN&quot;}]">
@@ -959,7 +1156,7 @@
 </section>
 
 <section class="slide" data-phase="6 · Wir rechnen" data-ab="23" data-marke="MESS">
-<div class="kicker">Buch S. 147, V2 &middot; eine fertige Messreihe</div><h2 class="wt">Ein <span class="accent">Solarmodul</span>, sieben Wertepaare</h2><p class="lead weit">Diese Zahlen stehen im Buch. Wir müssen sie nicht messen <span class="trenner">&#9656;</span> wir müssen sie <b>auswerten</b>.</p><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr></table><div class="randnotiz"><b>Wichtig zu benennen:</b> Das ist ein <i>Modul</i>, keine einzelne Zelle <span class="trenner">&#9656;</span> deshalb geht die Spannung bis 4,5 V und nicht nur bis 0,6 V. Wer das nicht hört, hält Merksatz 2 für widerlegt.<br><b>Die Zahlen sind wortgleich aus V2</b> (S. 147). Kein Aufbau nötig <span class="trenner">&#9656;</span> das ist der Grund, warum diese Stunde ohne Kiste auskommt.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=147&amp;bis=147" title="Buchseite 147 im Viewer öffnen — blätterbar und skalierbar">S. 147</a>, V2 &middot; eine fertige Messreihe</div><h2 class="wt">Ein <span class="accent">Solarmodul</span>, sieben Wertepaare</h2><p class="lead weit">Diese Zahlen stehen im Buch. Wir müssen sie nicht messen <span class="trenner">&#9656;</span> wir müssen sie <b>auswerten</b>.</p><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr></table><div class="randnotiz"><b>Wichtig zu benennen:</b> Das ist ein <i>Modul</i>, keine einzelne Zelle <span class="trenner">&#9656;</span> deshalb geht die Spannung bis 4,5 V und nicht nur bis 0,6 V. Wer das nicht hört, hält Merksatz 2 für widerlegt.<br><b>Die Zahlen sind wortgleich aus V2</b> (<a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=147&amp;bis=147" title="Buchseite 147 im Viewer öffnen — blätterbar und skalierbar">S. 147</a>). Kein Aufbau nötig <span class="trenner">&#9656;</span> das ist der Grund, warum diese Stunde ohne Kiste auskommt.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="6 · Wir rechnen" data-ab="26" data-frage="Rechne für U = 2,3 V und I = 42 mA die Leistung aus." data-optionen="[]" data-art="zeichnen" data-schluessel="w3">
@@ -971,7 +1168,7 @@
 </section>
 
 <section class="slide" data-phase="7 · Allein, kurz" data-ab="33">
-<div class="kicker">Jetzt allein &middot; in Stille</div><h2 class="wt">Die Messreihe zu Ende <span class="zeitschild">8 Minuten</span></h2><div class="auftrag"><ol><li><b>A1</b> <span class="trenner">&#9656;</span> Rechne die <b>fehlenden fünf</b> Zeilen der Tabelle aus: P = U · I für 0,05 V; 0,55 V; 1,9 V; 3,7 V und 4,5 V.</li><li><b>A2</b> <span class="trenner">&#9656;</span> Bei welchem Wertepaar ist die Leistung am <b>größten</b>? Schreib U, I und P hin.</li><li>★ <b>Wer fertig ist:</b> Warum ist die Leistung ganz links (0,05 V) und ganz rechts (4,5 V) so klein? Ein Satz zu jeder Seite.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Taschenrechner erlaubt. Auf das Komma achten.</p></div><div class="randnotiz"><b>Acht Minuten, Stoppuhr sichtbar (T).</b> Zwei Zeilen sind gemeinsam gerechnet, fünf bleiben <span class="trenner">&#9656;</span> das ist knapp, aber machbar.<br><b>A2 ist das Ziel der Stunde:</b> das Wertepaar mit dem größten Produkt. Buch S. 147 nennt genau das die Kenngrößen der maximalen Leistung.<br><b>Der Sternschritt</b> ist die Begründung des Buches: Bei U = 0 und bei I = 0 ist die Leistung null <span class="trenner">&#9656;</span> dazwischen liegt das Maximum. Wer ihn schafft, liest ihn in Phase 8 vor.</div>
+<div class="kicker">Jetzt allein &middot; in Stille</div><h2 class="wt">Die Messreihe zu Ende <span class="zeitschild">8 Minuten</span></h2><div class="auftrag"><ol><li><b>A1</b> <span class="trenner">&#9656;</span> Rechne die <b>fehlenden fünf</b> Zeilen der Tabelle aus: P = U · I für 0,05 V; 0,55 V; 1,9 V; 3,7 V und 4,5 V.</li><li><b>A2</b> <span class="trenner">&#9656;</span> Bei welchem Wertepaar ist die Leistung am <b>größten</b>? Schreib U, I und P hin.</li><li>★ <b>Wer fertig ist:</b> Warum ist die Leistung ganz links (0,05 V) und ganz rechts (4,5 V) so klein? Ein Satz zu jeder Seite.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Ich gehe herum. Taschenrechner erlaubt. Auf das Komma achten.</p></div><div class="randnotiz"><b>Acht Minuten, Stoppuhr sichtbar (T).</b> Zwei Zeilen sind gemeinsam gerechnet, fünf bleiben <span class="trenner">&#9656;</span> das ist knapp, aber machbar.<br><b>A2 ist das Ziel der Stunde:</b> das Wertepaar mit dem größten Produkt. Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=147&amp;bis=147" title="Buchseite 147 im Viewer öffnen — blätterbar und skalierbar">S. 147</a> nennt genau das die Kenngrößen der maximalen Leistung.<br><b>Der Sternschritt</b> ist die Begründung des Buches: Bei U = 0 und bei I = 0 ist die Leistung null <span class="trenner">&#9656;</span> dazwischen liegt das Maximum. Wer ihn schafft, liest ihn in Phase 8 vor.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="8 · Abschluss" data-ab="43" data-frage="Bei welchem U ist die Leistung am größten?" data-optionen="[]" data-art="zeichnen" data-schluessel="w5">
@@ -979,7 +1176,7 @@
 </section>
 
 <section class="slide" data-phase="8 · Abschluss" data-ab="45" data-marke="AUFL">
-<div class="kicker">Auflösung &middot; alle sieben Zeilen</div><h2 class="wt">Die Leistung, ausgerechnet</h2><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr><tr><th>P = U · I in mW</th><td>2,4</td><td>25,9</td><td>81,7</td><td>96,6</td><td>122,5</td><td>114,7</td><td>18</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Am größten bei <b>3,5 V und 35 mA</b>: <b>122,5 mW</b>. Links und rechts davon fällt sie ab.</p><div class="randnotiz"><b>Die dritte Zeile ist neu</b> und wird beim Aufdecken gelesen, nicht erklärt.<br><b>Der Bogen zum Buch:</b> S. 147 zeigt dasselbe als Rechteckfläche unter der Kennlinie (B5). Wenn Zeit ist, das Buch aufschlagen lassen <span class="trenner">&#9656;</span> das Bild sagt es besser als jede Tabelle.</div>
+<div class="kicker">Auflösung &middot; alle sieben Zeilen</div><h2 class="wt">Die Leistung, ausgerechnet</h2><table class="wtab"><tr><th>U in V</th><td>0,05</td><td>0,55</td><td>1,9</td><td>2,3</td><td>3,5</td><td>3,7</td><td>4,5</td></tr><tr><th>I in mA</th><td>48</td><td>47</td><td>43</td><td>42</td><td>35</td><td>31</td><td>4</td></tr><tr><th>P = U · I in mW</th><td>2,4</td><td>25,9</td><td>81,7</td><td>96,6</td><td>122,5</td><td>114,7</td><td>18</td></tr></table><p class="lead weit frag" style="margin-top:1.4vh">Am größten bei <b>3,5 V und 35 mA</b>: <b>122,5 mW</b>. Links und rechts davon fällt sie ab.</p><div class="randnotiz"><b>Die dritte Zeile ist neu</b> und wird beim Aufdecken gelesen, nicht erklärt.<br><b>Der Bogen zum Buch:</b> <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=147&amp;bis=147" title="Buchseite 147 im Viewer öffnen — blätterbar und skalierbar">S. 147</a> zeigt dasselbe als Rechteckfläche unter der Kennlinie (B5). Wenn Zeit ist, das Buch aufschlagen lassen <span class="trenner">&#9656;</span> das Bild sagt es besser als jede Tabelle.</div>
 </section>
 
 <section class="slide abfrage plk stufig" data-phase="8 · Abschluss" data-ab="47" data-marke="P3" data-frage="Eine Solarzelle wird doppelt so hell beleuchtet. Was gilt?" data-optionen="[&quot;Die Leerlaufspannung verdoppelt sich.&quot;, &quot;Die Leerlaufspannung bleibt etwa gleich.&quot;, &quot;Die Stromstärke bleibt gleich.&quot;, &quot;Beide Größen verdoppeln sich.&quot;]" data-schluessel="p3" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;MERK2&quot;}]">
@@ -991,7 +1188,7 @@
 </section>
 
 <section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R1">
-<div class="kicker">Reserve &middot; zu Plickers 1</div><h2 class="wt">LED und Solarzelle <span class="trenner">&#9656;</span> derselbe Vorgang, zwei Richtungen</h2><div class="paar"><div class="halb >"><h4><</h4>b</div><div class="halb >"><h4><</h4>b</div></div><p class="lead weit frag" style="margin-top:1.6vh">Dasselbe Paar, einmal zusammen und einmal auseinander. Buch S. 144 (B5) und S. 146.</p><div class="kontrolle frag"><span class="marke mwb">Kontrollfrage</span><span>In der Solarzelle <b>trennt</b> das Licht Ladungen. Was tut die LED mit denselben Ladungen?</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">sie führt sie zusammen</span> <span class="klein">Rekombination <span class="trenner">&#9656;</span> dabei wird die Energie als Licht frei</span></div><div class="randnotiz"><b>Einzusetzen, wenn Plickers 1 unter 70 % bleibt.</b> Die Gegenüberstellung macht aus zwei Merksätzen einen Vorgang.<br><b>Danach zurück zu Folie 7.</b></div>
+<div class="kicker">Reserve &middot; zu Plickers 1</div><h2 class="wt">LED und Solarzelle <span class="trenner">&#9656;</span> derselbe Vorgang, zwei Richtungen</h2><div class="paar"><div class="halb "><h4>Leuchtdiode</h4><p>Elektron und Fehlstelle treffen sich.</p><p><span class="gold">Rekombination setzt Energie frei</span> → Licht.</p></div><div class="halb gut"><h4>Solarzelle</h4><p>Licht trifft die Sperrschicht.</p><p><span class="gold">Die Energie trennt Ladungen</span> → Elektron und Fehlstelle.</p></div></div><p class="lead weit frag" style="margin-top:1.6vh">Dasselbe Paar, einmal zusammen und einmal auseinander. Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=144&amp;bis=144" title="Buchseite 144 im Viewer öffnen — blätterbar und skalierbar">S. 144</a> (B5) und <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a>.</p><div class="kontrolle frag"><span class="marke mwb">Kontrollfrage</span><span>In der Solarzelle <b>trennt</b> das Licht Ladungen. Was tut die LED mit denselben Ladungen?</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">sie führt sie zusammen</span> <span class="klein">Rekombination <span class="trenner">&#9656;</span> dabei wird die Energie als Licht frei</span></div><div class="randnotiz"><b>Einzusetzen, wenn Plickers 1 unter 70 % bleibt.</b> Die Gegenüberstellung macht aus zwei Merksätzen einen Vorgang.<br><b>Danach zurück zu Folie 7.</b></div>
 </section>
 
 <section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R2">
@@ -999,11 +1196,11 @@
 </section>
 
 <section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R3">
-<div class="kicker">Reserve &middot; für die Schnellen</div><h2 class="wt">Die Rechteckfläche</h2><svg class="graph" style="width:100%" viewBox="0 0 640 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="546.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="552.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="147.2" y1="314.0" x2="147.2" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="147.2" y1="308.0" x2="147.2" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="147.2" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1</text><line x1="240.4" y1="314.0" x2="240.4" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="240.4" y1="308.0" x2="240.4" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="240.4" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2</text><line x1="333.6" y1="314.0" x2="333.6" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="333.6" y1="308.0" x2="333.6" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="333.6" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">3</text><line x1="426.8" y1="314.0" x2="426.8" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="426.8" y1="308.0" x2="426.8" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="426.8" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">4</text><line x1="520.0" y1="314.0" x2="520.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="520.0" y1="308.0" x2="520.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="520.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">5</text><line x1="54.0" y1="260.9" x2="540.0" y2="260.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="260.9" x2="60.0" y2="260.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="266.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="207.8" x2="540.0" y2="207.8" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="207.8" x2="60.0" y2="207.8" stroke="#64748b" stroke-width="2"/><text x="44.0" y="213.8" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="154.7" x2="540.0" y2="154.7" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="154.7" x2="60.0" y2="154.7" stroke="#64748b" stroke-width="2"/><text x="44.0" y="160.7" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="101.6" x2="540.0" y2="101.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="101.6" x2="60.0" y2="101.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="107.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><line x1="54.0" y1="48.5" x2="540.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">50</text><polyline points="58.7,59.2 105.3,64.5 231.1,85.7 268.4,91.0 380.2,128.2 398.8,149.4 473.4,292.8" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="483.4" y="298.8" fill="#dc2626" font-size="18" font-weight="800">Solarmodul</text></svg><p class="lead weit" style="margin-top:1vh">Zeichne für <b>drei</b> Wertepaare das Rechteck bis zu den Achsen. Welches hat die größte Fläche? <span class="muted">Buch S. 147, B5.</span></p><div class="randnotiz"><b>Die Kennlinie des Moduls aus den Messwerten gezeichnet.</b> Das Rechteck U · I ist die Leistung <span class="trenner">&#9656;</span> dieselbe Rechnung wie in Phase 6, nur als Bild.<br><b>Wertvoll, weil es das Maximum sichtbar macht:</b> Ganz links ist das Rechteck flach, ganz rechts schmal. In der Mitte ist es am größten.</div>
+<div class="kicker">Reserve &middot; für die Schnellen</div><h2 class="wt">Die Rechteckfläche</h2><svg class="graph" style="width:100%" viewBox="0 0 640 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="546.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="552.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="147.2" y1="314.0" x2="147.2" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="147.2" y1="308.0" x2="147.2" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="147.2" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1</text><line x1="240.4" y1="314.0" x2="240.4" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="240.4" y1="308.0" x2="240.4" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="240.4" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2</text><line x1="333.6" y1="314.0" x2="333.6" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="333.6" y1="308.0" x2="333.6" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="333.6" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">3</text><line x1="426.8" y1="314.0" x2="426.8" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="426.8" y1="308.0" x2="426.8" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="426.8" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">4</text><line x1="520.0" y1="314.0" x2="520.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="520.0" y1="308.0" x2="520.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="520.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">5</text><line x1="54.0" y1="260.9" x2="540.0" y2="260.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="260.9" x2="60.0" y2="260.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="266.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="207.8" x2="540.0" y2="207.8" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="207.8" x2="60.0" y2="207.8" stroke="#64748b" stroke-width="2"/><text x="44.0" y="213.8" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><line x1="54.0" y1="154.7" x2="540.0" y2="154.7" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="154.7" x2="60.0" y2="154.7" stroke="#64748b" stroke-width="2"/><text x="44.0" y="160.7" fill="#475569" font-size="16" font-weight="700" text-anchor="end">30</text><line x1="54.0" y1="101.6" x2="540.0" y2="101.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="101.6" x2="60.0" y2="101.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="107.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">40</text><line x1="54.0" y1="48.5" x2="540.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">50</text><polyline points="58.7,59.2 105.3,64.5 231.1,85.7 268.4,91.0 380.2,128.2 398.8,149.4 473.4,292.8" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="483.4" y="298.8" fill="#dc2626" font-size="18" font-weight="800">Solarmodul</text></svg><p class="lead weit" style="margin-top:1vh">Zeichne für <b>drei</b> Wertepaare das Rechteck bis zu den Achsen. Welches hat die größte Fläche? <span class="muted">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=147&amp;bis=147" title="Buchseite 147 im Viewer öffnen — blätterbar und skalierbar">S. 147</a>, B5.</span></p><div class="randnotiz"><b>Die Kennlinie des Moduls aus den Messwerten gezeichnet.</b> Das Rechteck U · I ist die Leistung <span class="trenner">&#9656;</span> dieselbe Rechnung wie in Phase 6, nur als Bild.<br><b>Wertvoll, weil es das Maximum sichtbar macht:</b> Ganz links ist das Rechteck flach, ganz rechts schmal. In der Mitte ist es am größten.</div>
 </section>
 
 <section class="slide reserve" data-phase="Reserve" data-ab="0" data-marke="R4">
-<div class="kicker">Reserve &middot; wenn viel Zeit bleibt</div><h2 class="wt">Solar Impulse 2</h2><div class="schild"><h3>Solar Impulse 2</h3><table><tr><td>erste Weltumrundung</td><td class="p">26.07.2016</td></tr><tr><td>Antrieb</td><td class="p">nur Sonnenenergie</td></tr><tr><td>Spannweite</td><td class="p">größer als ein Jumbo Jet B747</td></tr></table><div class="fuss">Buch S. 146</div></div><p class="lead weit" style="margin-top:1.2vh">Das Flugzeug steigt tagsüber auf 10 000 m und sinkt nachts auf 2 000 m. <b>Warum?</b></p><p class="lead weit frag" style="margin-top:.8vh">Tagsüber laden die Solarzellen die Akkus <span class="trenner">&#9656;</span> und die Höhe ist gespeicherte Energie für die Nacht. <span class="muted">Buch S. 146 und A3.</span></p><div class="randnotiz"><b>Der Einstieg des Buches, ans Ende gestellt.</b> Er ist schön, aber nicht tragend <span class="trenner">&#9656;</span> deshalb Reserve und nicht Phase 0.<br><b>Die Antwort ist Energieerhaltung</b>, nicht Halbleiterphysik: Höhe ist Lageenergie. Wer das sagt, hat mehr verstanden als die Stunde verlangt.</div>
+<div class="kicker">Reserve &middot; wenn viel Zeit bleibt</div><h2 class="wt">Solar Impulse 2</h2><div class="schild"><h3>Solar Impulse 2</h3><table><tr><td>erste Weltumrundung</td><td class="p">26.07.2016</td></tr><tr><td>Antrieb</td><td class="p">nur Sonnenenergie</td></tr><tr><td>Spannweite</td><td class="p">größer als ein Jumbo Jet B747</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a></div></div><p class="lead weit" style="margin-top:1.2vh">Das Flugzeug steigt tagsüber auf 10 000 m und sinkt nachts auf 2 000 m. <b>Warum?</b></p><p class="lead weit frag" style="margin-top:.8vh">Tagsüber laden die Solarzellen die Akkus <span class="trenner">&#9656;</span> und die Höhe ist gespeicherte Energie für die Nacht. <span class="muted">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=146&amp;bis=146" title="Buchseite 146 im Viewer öffnen — blätterbar und skalierbar">S. 146</a> und A3.</span></p><div class="randnotiz"><b>Der Einstieg des Buches, ans Ende gestellt.</b> Er ist schön, aber nicht tragend <span class="trenner">&#9656;</span> deshalb Reserve und nicht Phase 0.<br><b>Die Antwort ist Energieerhaltung</b>, nicht Halbleiterphysik: Höhe ist Lageenergie. Wer das sagt, hat mehr verstanden als die Stunde verlangt.</div>
 </section>
 
 </div>
@@ -1111,6 +1308,7 @@
        auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
        eine Schleife, die den Aufbau der Seite anhaelt. */
     b.style.transform = "";
+    b.style.width = "";
     folie.style.justifyContent = "";
     /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
        mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
@@ -1123,12 +1321,116 @@
     const platz = B.unten - B.oben;
     const breite = folie.clientWidth
                  - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
-    const hoch = b.getBoundingClientRect().height;
+    /* Die Breitenschranken der Ueberschriften auf den Ausgangswert
+       zuruecksetzen; entschieden wird ueber sie erst weiter unten, wenn
+       die Breite der Flaeche feststeht.
+
+       Eine im Editor gesetzte BREITE bleibt unangetastet - sonst
+       loeschte die Automatik sie beim naechsten Folienwechsel lautlos
+       weg. Ausschlaggebend ist `data-anp-breite`, das der Anwender nur
+       fuer eine Breite setzt; das allgemeine `data-anp` waere zu grob:
+       Dann liesse schon eine geaenderte Schriftgroesse die
+       Zeilenersparnis mit ausfallen. */
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead"))
+      if (!t.dataset.anpBreite) t.style.maxWidth = "";
+    let flaeche = 1200;
+    let hoch = b.getBoundingClientRect().height;
     if(platz <= 0 || hoch <= 0) return 1;
     /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
        von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
        wuerde eine kurze Folie grotesk wirken. */
-    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    let kH = (platz - 20) / hoch, kB = breite / flaeche;
+    /* Wo die HOEHE die bindende Schranke ist, liegt seitlich Platz brach,
+       den der Text nicht nutzen darf. Gemessen an der 7b: 18 der 34
+       Folien sind hoehenbegrenzt, und genau darunter sind alle acht
+       Sachaufgaben, die auf drei und vier Zeilen umbrachen - waehrend
+       neben ihnen 180 px leer blieben. Die 16 breitenbegrenzten Folien
+       duerfen dagegen NICHT verbreitert werden: dort ginge Schrift
+       verloren.
+
+       Wo die Hoehe bindet, darf die Flaeche so weit wachsen, dass die
+       Breite gerade zur bindenden Schranke wird. Das ist beweisbar ohne
+       Verlust: mit W = breite/kH ist danach kB' = kH, und weil der Text
+       durch die groessere Breite nur kuerzer werden kann, ist kH' >= kH.
+       Der Massstab min(kH', kB') ist also genau der von vorher -
+       dieselbe Schriftgroesse, weniger Zeilen, mehr Luft. Gedeckelt bei
+       1600 px, damit die Zeile lesbar kurz bleibt. */
+    /* Wie weit reicht der Inhalt wirklich nach rechts? Eine feste
+       Tabelle wird von einer breiteren Flaeche nicht breiter - sie
+       bekaeme nur eine leere Haelfte daneben. Also wird nachgemessen. */
+    const genutzt = () => {
+      let rechts = 0;
+      const l = b.getBoundingClientRect().left;
+      for (const k of b.querySelectorAll("*")){
+        const r = k.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) rechts = Math.max(rechts, r.right - l);
+      }
+      return rechts;
+    };
+    if(kH < kB){
+      const sollBreite = Math.min(1600, Math.round(breite / kH));
+      if(sollBreite > flaeche){
+        const vorherBreit = genutzt();
+        b.style.width = sollBreite + "px";
+        const nachher = b.getBoundingClientRect().height;
+        /* Zwei Bedingungen, beide gemessen: Breiter darf nie hoeher
+           heissen, und die gewonnene Breite muss auch gefuellt werden.
+           Ohne die zweite stand die Tabellenfolie der 7b in einer
+           1600 px breiten Flaeche, von der sie 800 nutzte - eine leere
+           Haelfte, die es vorher nicht gab. */
+        /* Und drittens: Der Inhalt muss in die Flaeche passen. Eine
+           Spalte mit fester Breite (etwa eine Zeichnung) schrumpft nicht
+           mit; sie stand dann rechts aus dem Bild heraus - auf drei
+           Folien der 7b um 33, 75 und 140 px. */
+        if(nachher > 0 && nachher <= hoch && genutzt() > vorherBreit + 8
+           && genutzt() <= sollBreite + 2){
+          flaeche = sollBreite; hoch = nachher;
+          kH = (platz - 20) / hoch; kB = breite / flaeche;
+        } else b.style.width = "";
+      }
+    }
+    /* Hier stand einmal der Versuch, die Flaeche einem zu breiten Inhalt
+       NACHZUZIEHEN, damit nichts aus dem Bild laeuft. Er ist gemessen
+       gescheitert: Die Beanstandungen stiegen von 13 auf 44, weil das
+       Verbreitern die Flexspalten neu umbricht und der Inhalt danach oft
+       wieder breiter ist - ein Durchgang reicht nicht, und mehrere
+       schwingen. Die verbleibenden Ueberstaende gehoeren in die
+       betroffenen Stunden, nicht in diese Schleife. */
+    /* JETZT, wo die Breite der Flaeche feststeht: Eine Breitenschranke,
+       die eine ZEILE kostet, bringt nichts.
+
+       Die Ueberschriften sind auf 46ch gedeckelt - eine gute Zeilenlaenge
+       fuer Fliesstext, aber an der Wand liest niemand Absaetze. Gemessen
+       auf Folie 9 der 7b: Flaeche 1347 px, Deckel 1138 px, und der Text
+       brach deshalb auf VIER Zeilen statt auf drei.
+
+       Je Element wird nachgesehen: wie viele Zeilen mit Deckel, wie viele
+       ohne? Nur wenn es ohne WENIGER werden, faellt er. Sonst bleibt er,
+       denn dann waere die lange Zeile nur lang.
+
+       Die Reihenfolge ist der Punkt. Zuerst stand diese Pruefung oben,
+       vor der Verbreiterung - und lief ins Leere: Bei 1200 px sparte das
+       Fallenlassen keine Zeile, bei den spaeteren 1347 px haette es eine
+       gespart. Danach kann die Flaeche nur kuerzer werden, nie laenger;
+       ein zweiter Durchgang ist also nicht noetig. */
+    let gespart = false;
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead")){
+      if (t.dataset.anpBreite) continue;    /* Breite von Hand gesetzt */
+      const cs = getComputedStyle(t);
+      const zh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+      if (!zh) continue;
+      const mit = Math.round(t.getBoundingClientRect().height / zh);
+      if (mit < 2) continue;
+      t.style.maxWidth = "none";
+      if (Math.round(t.getBoundingClientRect().height / zh) >= mit)
+        t.style.maxWidth = "";
+      else gespart = true;
+    }
+    if (gespart){
+      hoch = b.getBoundingClientRect().height || hoch;
+      kH = (platz - 20) / hoch;
+    }
+    const k = Math.max(0.55, Math.min(2.4, kH, kB));
     b.style.transform = "scale(" + k.toFixed(4) + ")";
     /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
        Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
@@ -1671,6 +1973,32 @@
     lauf();
   })();
 
+  /* ---- Rueckblende gross ----------------------------------------------
+     Eine Rueckblende steht verkleinert neben dem Text; ein Klick legt sie
+     gross ueber die Folie. Die vorhandene .lupe taugt dafuer nicht - sie
+     zeigt nur <img>, eine Rueckblende ist aber meist eine Tabelle oder
+     ein Preisschild, also gewoehnliches HTML. Deshalb wird der Inhalt
+     geklont statt abgebildet: So bleibt er scharf, egal wie gross die
+     Wand ist. */
+  (function rueckblendeGross(){
+    let schirm = null;
+    function zu(){ if(schirm){ schirm.remove(); schirm = null; } }
+    document.addEventListener('click', e => {
+      if(schirm && schirm.contains(e.target)) return zu();
+      const rb = e.target.closest && e.target.closest('.rueckblende');
+      if(!rb) return;
+      zu();
+      schirm = document.createElement('div');
+      schirm.className = 'rbgross';
+      const innen = document.createElement('div');
+      innen.className = 'rbbuehne';
+      innen.innerHTML = rb.innerHTML;
+      schirm.appendChild(innen);
+      document.body.appendChild(schirm);
+    });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') zu(); });
+  })();
+
   /* ---- Live-Abstimmung ------------------------------------------------
      Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
      Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
@@ -1774,20 +2102,47 @@
       folie.dataset.zaehler = zaehler.join(",");
     }
 
-    async function oeffne(folie){
-      const frage = folie.dataset.frage || "";
-      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+    /* Welche Runde soll auf dieser Folie gerade laufen - oder keine?
+       Zwei Faelle:
+
+       Eine gewoehnliche Abfragefolie hat genau EINE Runde, und die laeuft
+       bis zum ersten Aufdecken.
+
+       Eine Tabellenfolie mit data-runden hat eine Runde JE VERDECKTER
+       ZELLE: erst rechnet die Klasse Spalte 1 und schickt ab, dann wird
+       Spalte 1 aufgedeckt und Spalte 2 gefragt, und so fort. Die Stufe
+       sagt, wie viele Zellen schon offen sind - also ist sie zugleich die
+       Nummer der Runde, die jetzt drankommt. */
+    function rundeVon(folie){
+      const stufe = +(folie.dataset.step || 0);
+      let liste = null;
+      try { liste = JSON.parse(folie.dataset.runden || "null"); } catch(e){}
+      if (liste && liste.length)
+        return stufe < liste.length
+          ? { frage: liste[stufe].frage, marke: liste[stufe].schluessel,
+              art: "zeichnen", optionen: [] }
+          : null;
+      if (!folie.dataset.frage || stufe > 0) return null;
       let optionen = [];
       try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
-      if (art === "wahl" && optionen.length < 2) return;
-      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+      if (art === "wahl" && optionen.length < 2) return null;
+      return { frage: folie.dataset.frage, marke: folie.dataset.schluessel,
+               art, optionen };
+    }
+
+    async function oeffne(folie, r){
+      r = r || rundeVon(folie);
+      if (!r) return;
+      const frage = r.frage, art = r.art, optionen = r.optionen;
+      const schluessel = raum + "-" + sitzung + "-" + r.marke;
       try {
         const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
           method:"POST", headers: kopf(),
           body: JSON.stringify({ frage, optionen, schluessel, art }) });
         if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
         if (!a.ok) return;
-        laufend = { folie, schluessel };
+        laufend = { folie, schluessel, marke: r.marke };
         stand.classList.remove("zu");
         const b = balken(folie);
         if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
@@ -2173,7 +2528,7 @@
       if (abgabeAn) return;          /* der Abgabeschirm hat Vorrang */
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
-      const istAbfrage = !!folie.dataset.frage;
+      const istAbfrage = !!(folie.dataset.frage || folie.dataset.runden);
       /* Die Regel beim Folienwechsel: Grundzustand ueberall, nur nicht
          auf einer Abfragefolie. Einmal je Folie - danach darf der
          Schalter von Hand anders entscheiden. */
@@ -2183,12 +2538,16 @@
       }
       if (ruhe) return;                /* Grundzustand: nichts geht auf */
       if (!istAbfrage){ if (laufend) schliesse(); return; }
-      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
-      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      const soll = rundeVon(folie);
+      if (!laufend && soll && lebt && holeSchluessel()) return oeffne(folie, soll);
       /* Von einer Abfragefolie direkt auf die naechste: erst die alte
          schliessen, dann noch einmal hinsehen, damit die neue aufgeht. */
       if (laufend && laufend.folie !== folie) return schliesse().then(beobachte);
-      if (laufend && aufgeloest){
+      /* Dieselbe Folie, aber die naechste Spalte ist dran: alte Runde zu,
+         dann noch einmal hinsehen - so geht die neue von selbst auf. */
+      if (laufend && soll && laufend.marke !== soll.marke)
+        return schliesse().then(beobachte);
+      if (laufend && !soll){
         /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
            Gefaerbt - und damit verraten - wird die richtige Karte erst beim
            zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
@@ -2215,6 +2574,10 @@
   })();
 
   window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
+
+  window.HAUSSTIL_SCHRIFTEN = [{"schluessel": "system", "name": "Systemschrift (wie bisher)", "familie": "-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "fredoka", "name": "Fredoka — rundes Sans, sehr gut lesbar", "familie": "HausFredoka,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "baloo", "name": "Baloo 2 — kräftig und rund", "familie": "HausBaloo,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "marcellus", "name": "Marcellus — ruhige Antiqua", "familie": "HausMarcellus,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "patrick", "name": "Patrick Hand — sachliche Handschrift", "familie": "HausPatrick,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "architekt", "name": "Architects Daughter — technische Schrift", "familie": "HausArchitekt,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}];
+
+  
 /* ===========================================================================
    Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
 
@@ -2360,7 +2723,9 @@
     });
     document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
       el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      el.style.transform = ""; el.style.fontFamily = "";
       delete el.dataset.anp; delete el.dataset.anpWeg;
+      delete el.dataset.anpBreite;
     });
   }
 
@@ -2457,11 +2822,49 @@
         if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
       }
       if (w.breite) {
-        el.style.maxWidth = "";
-        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
-        var ist = el.getBoundingClientRect().width;
-        if (voll > 0 && ist > 0)
-          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+        /* `breite` ist der ANTEIL an der Breite des Eltern-Kastens -
+           0,6 heisst „sechs Zehntel der Folienbreite". Ablesbar, stabil
+           und unabhaengig von Schriftgroesse und CSS-Deckel.
+
+           Frueher war es ein Faktor der „natuerlichen" Breite. Die haengt
+           aber selbst an der Schrift und am Deckel: Wer die Schrift
+           aenderte, verschob damit auch die Breite, und der gespeicherte
+           Wert passte nicht mehr zu dem, was man sah (0,966 bei sichtbar
+           82 %). Drei bewegliche Teile fuer eine Zahl sind zwei zu viel.
+
+           Marke fuer window.einpassen: Diese Breite ist von Hand gesetzt
+           und wird von der Automatik nicht angefasst. Nur DIESE Marke,
+           nicht das allgemeine data-anp - sonst liesse eine blosse
+           Schriftgroesse die Zeilenersparnis mit ausfallen. */
+        el.dataset.anpBreite = "1";
+        el.style.maxWidth = Math.max(5, w.breite * 100).toFixed(2) + "%";
+      }
+      if (w.schrift) {
+        /* Die Familie steht in window.HAUSSTIL_SCHRIFTEN - dieselbe
+           Liste, aus der der Editor auswaehlen laesst, und sie liegt
+           AUSSERHALB der Editor-Marken, damit die Wahl auch in der
+           veroeffentlichten Fassung wirkt. Der Schnitt selbst ist beim
+           Bauen eingebettet worden, weil dieser Eintrag hier steht. */
+        var liste = window.HAUSSTIL_SCHRIFTEN || [];
+        for (var si = 0; si < liste.length; si++)
+          if (liste[si].schluessel === w.schrift) {
+            el.style.fontFamily = liste[si].familie;
+            break;
+          }
+      }
+      if (w.verschoben) {
+        /* Verschoben wird ueber transform, NICHT ueber position:absolute.
+           Der Unterschied ist wesentlich: Ein transform nimmt dem Element
+           seinen Platz im Fluss nicht weg, also rueckt nichts anderes
+           nach. Wer eine Ueberschrift beiseite schiebt, will die
+           Ueberschrift woanders haben - nicht die halbe Folie neu
+           sortiert. Ueberlappungen sind damit ausdruecklich moeglich.
+
+           Die Werte stehen in den Koordinaten der Entwurfsflaeche (1200
+           px breit), nicht in Bildschirmpixeln: Sonst saesse dieselbe
+           Verschiebung am Beamer woanders als am Notebook. */
+        el.style.transform = "translate(" + w.verschoben.x + "px,"
+                           + w.verschoben.y + "px)";
       }
       if (w.bild) bildSetzen(el, w.bild);
       if (typeof w.rang === "number" && w.rang !== 0) {
