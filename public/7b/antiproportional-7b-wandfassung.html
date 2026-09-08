@@ -600,6 +600,37 @@
      noch einmal ein Drittel draufgelegt - die Rueckblende soll aus der
      letzten Reihe lesbar sein. */
   .rbgross .rbinhalt{zoom:1.35}
+
+  /* --- Bildmarke: eine Figur, die erst auf Klick erscheint -------------
+     Eine Rueckblende zeigt ihr Bild klein neben der Folie. Manchmal ist
+     dafuer kein Platz und das Bild soll auch gar nicht dauernd dastehen -
+     etwa die drei Belege der Sachstandsfolie, die nur auf Zuruf gebraucht
+     werden. Dann bleibt nur die Marke stehen, und das Bild kommt gross
+     darueber. Dieselbe Mechanik, dieselbe Taste Escape.
+
+     Die Marke ist ein Knopf und sieht auch so aus - wer sie an der Wand
+     sieht, soll wissen, dass dahinter etwas liegt. */
+  .bildmarken{display:flex;flex-wrap:wrap;gap:.5em;margin-top:.35em}
+  .rueckblende.nurmarke{border-left:none;padding-left:0;
+    display:inline-block;cursor:zoom-in}
+  .rueckblende.nurmarke .rbinhalt{display:none}
+  .rueckblende.nurmarke > figcaption{display:inline-flex;align-items:center;
+    gap:.45em;margin:0;color:var(--accent);border:1px solid #c7d2fe;
+    border-radius:999px;padding:.2em .9em;background:#eef2ff;
+    text-transform:none;letter-spacing:0;font-weight:800;
+    font-size:clamp(12px,1.35vw,20px)}
+  .rueckblende.nurmarke:hover > figcaption{border-color:var(--accent);
+    background:#e0e7ff}
+  /* Das Zeichen als Buchstabe, nicht als CSS-Escape: "95" wurde vom
+     Blatt als  plus "95" gelesen und stand als Kaestchen mit 95
+     daneben an der Wand. Das ⤢ ist ausserdem dasselbe Zeichen wie am
+     Eck-QR - es heisst im Haus schon "gross zeigen". */
+  .rueckblende.nurmarke > figcaption::before{content:"⤢";
+    font-size:1.05em;line-height:1}
+  /* Im Ueberblendschirm traegt die Figur ihre eigene Ueberschrift. */
+  .rbgross .figkopf{font-size:clamp(15px,1.7vw,26px);font-weight:800;
+    color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+    text-align:center;margin-bottom:1.2vh}
   .rbgross figcaption{display:none}
   @media print{.rbgross{display:none}}
 
@@ -787,6 +818,21 @@
     .slide.abfrage{background:none}
     .slide.abfrage.on::after{animation:none;display:none}
   }
+
+  /* --- Dreisatz-Schema ---
+     Die Schrift steht IM SVG und wird mit ihm skaliert; deshalb hier
+     keine px-Ausnahme fuer die 1200er Flaeche. */
+  .dreisatz{width:100%;height:auto;display:block}
+  .dreisatz .dskopf{font-size:26px;font-weight:800;fill:var(--muted);
+    text-anchor:middle;text-transform:uppercase;letter-spacing:.06em}
+  .dreisatz .dsstrich{stroke:var(--ink);stroke-width:3}
+  .dreisatz .dswert{font-size:40px;font-weight:800;fill:var(--ink);
+    text-anchor:middle}
+  .dreisatz .dswert.dsziel{fill:var(--accent)}
+  .dreisatz .dspfeil{fill:none;stroke:var(--muted);stroke-width:2.6}
+  .dreisatz .dsspitze{fill:var(--muted);stroke:none}
+  .dreisatz .dsfaktor{font-size:28px;font-weight:800;fill:var(--gold);
+    text-anchor:middle}
 
   /* --- Kleines Koordinatensystem --- */
   .graph{width:min(52vw,640px);height:auto;margin-top:1.4vh}
@@ -1023,6 +1069,8 @@
   .stolper{padding:18px 22px}
   .stolper h4{font-size:21px}
   .stolper p{font-size:28px}
+  .rueckblende.nurmarke > figcaption{font-size:20px}
+  .rbgross .figkopf{font-size:26px}
   .tab td.nrz,.tab td.fr{font-size:22px}
   .tab td.an{font-size:23px}
   .tab th{font-size:17px}
@@ -1338,7 +1386,7 @@ body.anp-an [data-anp-weg]{display:block !important;opacity:.28;
 </section>
 
 <section class="slide" data-phase="1 · Wo wir stehen" data-ab="4" data-marke="STAND">
-<div class="kicker">Was gestern herauskam</div><h2 class="wt">Das könnt ihr seit gestern</h2><div class="sachstand"><div class="kann"><span class="kannhaken">&check;</span><span class="kwas">In jeder Zeile <b>teilen</b> <span class="trenner">&#9656;</span> kommt überall dieselbe Zahl heraus, ist die Zuordnung proportional.<span class="kbeleg">Brötchen: 1,40 € : 4 = 0,35 €, aber 2,00 € : 6 ≈ 0,33 € <span class="trenner">&#9656;</span> also nicht proportional</span></span></div><div class="kann"><span class="kannhaken">&check;</span><span class="kwas">Ihr wisst, <b>was diese Zahl bedeutet</b>: den Preis für ein Stück.<span class="kbeleg">Birnen: 2,97 € : 1,5 kg = 1,98 € je Kilogramm</span></span></div><div class="kann"><span class="kannhaken">&check;</span><span class="kwas">Und ihr habt gesehen, dass ein Modell genauer rechnet, als bezahlt werden kann.<span class="kbeleg">750 g wären 1,485 € <span class="trenner">&#9656;</span> die Kasse rundet auf 1,49 €</span></span></div></div><div class="stolper frag"><h4>Die Karte, die gestern zur Wahl stand</h4><p>Bei der letzten Frage <span class="trenner">&#9656;</span> <b>120 cm³ wiegen 180 g, wie schwer sind 200 cm³?</b> <span class="trenner">&#9656;</span> hieß Karte A: <b>260 g</b>. Da wurden 80 <i>dazugezählt</i>, weil 200 cm³ eben 80 cm³ mehr sind. Richtig sind <b>300 g</b>: Ein Kubikzentimeter wiegt 1,5 g, also wiegen 200 cm³ zusammen 200 · 1,5 g.<br>Der Fehler heißt <b>plus statt mal</b> <span class="trenner">&#9656;</span> und heute kommt er noch einmal, in neuem Gewand.</p></div><div class="randnotiz"><b>Das ist der wichtigste Satz des Auftakts</b>, und er ist keine Wiederholung, sondern eine Warnung: Die Fehlvorstellung des heutigen Tages steckte gestern schon in einer Antwortkarte.<br><b>An der Wand heißt der Fehler „plus statt mal“</b>, auf dem Lehrerblatt „Differenz statt Faktor“. Die kurze Fassung ist die, die eine siebte Klasse behält <span class="trenner">&#9656;</span> benutzen Sie in der Klasse nur sie, sonst hat die Stunde zwei Namen für dieselbe Sache.<br><b>Die Folie sagt nur, was auf der Karte STAND</b> <span class="trenner">&#9656;</span> nicht, wer sie genommen hat. Das Protokoll hält die Verteilung nicht fest, und eine erfundene Zahl wäre schlimmer als keine. Wenn Sie die Quote notiert haben, nennen Sie sie mündlich.<br><b>Nicht ausführlich besprechen.</b> Eine Minute; der Fehler kommt bei Plickers 2 von selbst wieder hoch.</div>
+<div class="kicker">Was gestern herauskam</div><h2 class="wt">Das könnt ihr seit gestern</h2><div class="sachstand"><div class="kann"><span class="kannhaken">&check;</span><div class="kwas">In jeder Zeile <b>teilen</b> <span class="trenner">&#9656;</span> kommt überall dieselbe Zahl heraus, ist die Zuordnung proportional.<span class="kbeleg">Brötchen: 1,40 € : 4 = 0,35 €, aber 2,00 € : 6 ≈ 0,33 € <span class="trenner">&#9656;</span> also nicht proportional</span><figure class="rueckblende nurmarke" title="Klick: gross zeigen"><figcaption>Die Brötchen von gestern</figcaption><div class="rbinhalt"><div class="figkopf">In jeder Zeile teilen <span class="trenner">&#9656;</span> kommt überall dasselbe heraus?</div><table class="wtab"><tr><th>Anzahl Brötchen</th><td>4</td><td>6</td></tr><tr><th>Preis in €</th><td>1,40</td><td>2,00</td></tr><tr><th>Preis je Brötchen in €</th><td>0,35</td><td>0,33…</td></tr></table></div></figure></div></div><div class="kann"><span class="kannhaken">&check;</span><div class="kwas">Ihr wisst, <b>was diese Zahl bedeutet</b>: den Preis für ein Stück.<span class="kbeleg">Birnen: 2,97 € : 1,5 kg = 1,98 € je Kilogramm</span><figure class="rueckblende nurmarke" title="Klick: gross zeigen"><figcaption>Der Weg über die Eins</figcaption><div class="rbinhalt"><div class="figkopf">Erst auf eins herunter, dann hinauf</div><svg class="dreisatz" viewBox="0 0 720 346" xmlns="http://www.w3.org/2000/svg" role="img"><text x="230.4" y="34" class="dskopf">Menge (kg)</text><text x="547.2" y="34" class="dskopf">Preis (€)</text><line x1="16" y1="54" x2="704" y2="54" class="dsstrich"/><line x1="374.4" y1="10" x2="374.4" y2="336" class="dsstrich"/><text x="230.4" y="116" class="dswert">1,5</text><text x="547.2" y="116" class="dswert">2,97</text><text x="230.4" y="208" class="dswert">1</text><text x="547.2" y="208" class="dswert">1,98</text><text x="230.4" y="300" class="dswert dsziel">2</text><text x="547.2" y="300" class="dswert dsziel">3,96</text><path d="M 118.8 130 Q 84.24 156 118.8 173" class="dspfeil"/><path d="M 110.8 169 L 126.8 169 L 118.8 182 z" class="dsspitze"/><text x="64.8" y="165" class="dsfaktor" text-anchor="end">: 1,5</text><path d="M 615.6 130 Q 650.16 156 615.6 173" class="dspfeil"/><path d="M 607.6 169 L 623.6 169 L 615.6 182 z" class="dsspitze"/><text x="669.6" y="165" class="dsfaktor" text-anchor="start">: 1,5</text><path d="M 118.8 222 Q 84.24 248 118.8 265" class="dspfeil"/><path d="M 110.8 261 L 126.8 261 L 118.8 274 z" class="dsspitze"/><text x="64.8" y="257" class="dsfaktor" text-anchor="end">· 2</text><path d="M 615.6 222 Q 650.16 248 615.6 265" class="dspfeil"/><path d="M 607.6 261 L 623.6 261 L 615.6 274 z" class="dsspitze"/><text x="669.6" y="257" class="dsfaktor" text-anchor="start">· 2</text></svg></div></figure></div></div><div class="kann"><span class="kannhaken">&check;</span><div class="kwas">Und ihr habt gesehen, dass ein Modell genauer rechnet, als bezahlt werden kann.<span class="kbeleg">750 g wären 1,485 € <span class="trenner">&#9656;</span> die Kasse rundet auf 1,49 €</span></div></div></div><div class="stolper frag"><h4>Die Karte, die gestern zur Wahl stand</h4><p>Bei der letzten Frage <span class="trenner">&#9656;</span> <b>120 cm³ wiegen 180 g, wie schwer sind 200 cm³?</b> <span class="trenner">&#9656;</span> hieß Karte A: <b>260 g</b>. Da wurden 80 <i>dazugezählt</i>, weil 200 cm³ eben 80 cm³ mehr sind. Richtig sind <b>300 g</b>: Ein Kubikzentimeter wiegt 1,5 g, also wiegen 200 cm³ zusammen 200 · 1,5 g.<br>Der Fehler heißt <b>plus statt mal</b> <span class="trenner">&#9656;</span> und heute kommt er noch einmal, in neuem Gewand.</p></div><div class="randnotiz"><b>Das ist der wichtigste Satz des Auftakts</b>, und er ist keine Wiederholung, sondern eine Warnung: Die Fehlvorstellung des heutigen Tages steckte gestern schon in einer Antwortkarte.<br><b>An der Wand heißt der Fehler „plus statt mal“</b>, auf dem Lehrerblatt „Differenz statt Faktor“. Die kurze Fassung ist die, die eine siebte Klasse behält <span class="trenner">&#9656;</span> benutzen Sie in der Klasse nur sie, sonst hat die Stunde zwei Namen für dieselbe Sache.<br><b>Die Folie sagt nur, was auf der Karte STAND</b> <span class="trenner">&#9656;</span> nicht, wer sie genommen hat. Das Protokoll hält die Verteilung nicht fest, und eine erfundene Zahl wäre schlimmer als keine. Wenn Sie die Quote notiert haben, nennen Sie sie mündlich.<br><b>Nicht ausführlich besprechen.</b> Eine Minute; der Fehler kommt bei Plickers 2 von selbst wieder hoch.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="1 · Wo wir stehen" data-ab="5" data-frage="Auf dem Bon: 1,5 kg Birnen für 2,97 €. Was kostet 1 kg?" data-optionen="[]" data-art="zeichnen" data-schluessel="w1">
