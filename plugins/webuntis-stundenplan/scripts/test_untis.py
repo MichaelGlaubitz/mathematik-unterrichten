@@ -62,6 +62,29 @@ def main():
         untis.stunden_ausgeben(stunden, attrappe, nur_aenderungen=True)
     alles_gut &= pruefe(puffer.getvalue().count("08:00") == 0, "stunden_ausgeben filtert Normalstunden")
 
+    # Erreichbarkeitspruefung ohne Netz: die Antworten werden untergeschoben
+    urspruenglich = untis._rpc_roh
+    try:
+        untis._rpc_roh = lambda *a, **k: {"error": {"code": -8520, "message": "not authenticated"}}
+        offen, _ = untis.erreichbarkeit_pruefen("https://aeghm.webuntis.com", "aeghm")
+        alles_gut &= pruefe(offen, "erreichbar: -8520 heisst offen")
+
+        untis._rpc_roh = lambda *a, **k: {"error": {"code": -8998, "message": "unknown school"}}
+        offen, meldung = untis.erreichbarkeit_pruefen("https://aeghm.webuntis.com", "falsch")
+        alles_gut &= pruefe(not offen and "Schulkuerzel" in meldung, "erreichbar: -8998 heisst Kuerzel falsch")
+
+        untis._rpc_roh = lambda *a, **k: {"result": []}
+        offen, _ = untis.erreichbarkeit_pruefen("https://aeghm.webuntis.com", "aeghm")
+        alles_gut &= pruefe(offen, "erreichbar: Antwort ohne Fehler heisst offen")
+
+        def wirft_404(*a, **k):
+            raise untis.urllib.error.HTTPError("u", 404, "Not Found", None, None)
+        untis._rpc_roh = wirft_404
+        offen, meldung = untis.erreichbarkeit_pruefen("https://aeghm.webuntis.com", "falsch")
+        alles_gut &= pruefe(not offen and "suche-schule" in meldung, "erreichbar: 404 verweist auf die Schulsuche")
+    finally:
+        untis._rpc_roh = urspruenglich
+
     print("\nAlle Pruefungen bestanden." if alles_gut else "\nEs gab Fehler.")
     return 0 if alles_gut else 1
 

@@ -13,18 +13,28 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/untis.py" <befehl> [optionen]
 
 ## Vor der ersten Abfrage
 
-Pruefe die Anmeldung mit `test`. Meldet das Skript fehlende Zugangsdaten, gib dem Nutzer den
-Einrichtungsblock aus der Fehlermeldung weiter (Datei `~/.config/schul-plugins/webuntis.env`)
-und frage nach Server, Schulkuerzel, Benutzername und Passwort. Lege die Datei nur an, wenn der
-Nutzer die Werte selbst nennt - rate sie nie.
+Zwei Befehle kommen ohne jedes Passwort aus - nutze sie bei der Einrichtung und
+bei jeder Stoerungssuche, bevor du nach Zugangsdaten fragst:
 
-Das Schulkuerzel steht in der WebUntis-Adresse hinter `?school=`. Der Server ist der Anfang
-derselben Adresse, z. B. `https://ajax.webuntis.com` oder `https://herakles.webuntis.com`.
+- `suche-schule "<Name oder Ort>"` findet Server und Schulkuerzel ueber die
+  oeffentliche Schulsuche von WebUntis.
+- `erreichbar --server … --schule …` prueft, ob die Schnittstelle dieser Schule
+  ueberhaupt offen ist. Es wird dabei kein Anmeldeversuch unternommen.
+
+Erst danach `test`, das die Anmeldung prueft. Meldet das Skript fehlende Zugangsdaten,
+gib dem Nutzer den Einrichtungsblock aus der Fehlermeldung weiter (Datei
+`~/.config/schul-plugins/webuntis.env`). Lege die Datei nur an, wenn der Nutzer die
+Werte selbst nennt - rate sie nie, und schreibe das Passwort in keine andere Datei.
+
+Server und Schulkuerzel stehen auch in der Adresse, mit der man sich sonst anmeldet:
+`https://ajax.webuntis.com/WebUntis/?school=kurzname`.
 
 ## Befehle
 
 | Befehl | Zweck |
 |---|---|
+| `suche-schule "Name"` | Server und Schulkuerzel finden (ohne Zugangsdaten) |
+| `erreichbar` | Schnittstelle pruefen (ohne Zugangsdaten) |
 | `test` | Anmeldung und Rolle pruefen |
 | `plan --woche` | Eigener Stundenplan Montag bis Freitag dieser Woche |
 | `plan --von morgen` | Ein einzelner Tag |
@@ -58,6 +68,9 @@ Nutzer ist die Tabellenausgabe gedacht.
 
 - Das Konto sieht nur, was WebUntis ihm freigibt. Meldet das Skript Fehler -8509,
   fehlt dem Konto das Recht; das ist kein Programmfehler.
+- Nicht jede Schule laesst die JSON-RPC-Schnittstelle offen. Sagt `erreichbar`,
+  dass sie zu ist, hilft nur die Freigabe durch die WebUntis-Administration der
+  Schule - probiere dann keine Zugangsdaten durch.
 - Schuelerbezogene Daten (Namen in Gruppen, Abwesenheiten) gehoeren nicht in
   Dateien, Mails oder Webseiten, die den Rechner verlassen. Frage nach, bevor du
   solche Daten weiterverarbeitest.

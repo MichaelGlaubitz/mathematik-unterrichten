@@ -78,6 +78,70 @@ def konfig_lesen():
     return werte
 
 
+# ---------------------------------------------------------------- Ohne Anmeldung
+
+SCHULSUCHE = "https://mobile.webuntis.com/ms/schoolquery2"
+
+
+def _rpc_roh(ziel, methode, params):
+    """Ein JSON-RPC-Aufruf ohne Sitzung. Gibt die geparste Antwort zurueck."""
+    rumpf = json.dumps({"id": CLIENT, "method": methode, "params": params,
+                        "jsonrpc": "2.0"}).encode("utf-8")
+    anfrage = urllib.request.Request(
+        ziel, data=rumpf, method="POST",
+        headers={"Content-Type": "application/json", "User-Agent": CLIENT})
+    with urllib.request.urlopen(anfrage, timeout=30) as antwort:
+        return json.loads(antwort.read().decode("utf-8"))
+
+
+def schule_suchen(suchwort):
+    """Oeffentliche Schulsuche von WebUntis - liefert Server und Schulkuerzel."""
+    try:
+        antwort = _rpc_roh(SCHULSUCHE, "searchSchool", [{"search": suchwort}])
+    except urllib.error.URLError as fehler:
+        raise SystemExit(f"Die Schulsuche ist nicht erreichbar: {fehler.reason}")
+    ergebnis = antwort.get("result") or {}
+    if antwort.get("error"):
+        hinweis = antwort["error"].get("message", "")
+        if "too many" in hinweis.lower():
+            raise SystemExit("Die Suche liefert zu viele Treffer - gib den Schulnamen genauer an.")
+        raise SystemExit(f"Die Schulsuche meldet: {hinweis}")
+    return ergebnis.get("schools", [])
+
+
+def erreichbarkeit_pruefen(server, schule):
+    """Prueft ohne Zugangsdaten, ob die JSON-RPC-Schnittstelle antwortet.
+
+    Ein Aufruf ohne Sitzung muss mit 'nicht angemeldet' (-8520) beantwortet
+    werden - genau das zeigt, dass Server und Schulkuerzel stimmen und die
+    Schnittstelle offen ist. Es wird kein Anmeldeversuch unternommen.
+    """
+    server = server.rstrip("/")
+    if not server.startswith("http"):
+        server = "https://" + server
+    ziel = f"{server}/WebUntis/jsonrpc.do?school={urllib.parse.quote(schule)}"
+    try:
+        antwort = _rpc_roh(ziel, "getTeachers", {})
+    except urllib.error.HTTPError as fehler:
+        if fehler.code == 404:
+            return False, (f"Der Server antwortet mit 404. Meist stimmt das Schulkuerzel "
+                           f"'{schule}' nicht, seltener der Server '{server}'. "
+                           f"Finde beides mit: suche-schule \"<Name der Schule>\"")
+        return False, f"HTTP {fehler.code} ({fehler.reason}) - stimmt der Server '{server}'?"
+    except urllib.error.URLError as fehler:
+        return False, f"Server nicht erreichbar: {fehler.reason}"
+
+    code = (antwort.get("error") or {}).get("code")
+    if code == -8520:
+        return True, "Die Schnittstelle antwortet, Server und Schulkuerzel stimmen."
+    if code == -8998:
+        return False, "Diese Schule kennt der Server nicht - pruefe das Schulkuerzel."
+    if code is None:
+        return True, "Die Schnittstelle antwortet sogar ohne Anmeldung."
+    return False, (f"Unerwartete Antwort ({code}): "
+                   + FEHLERTEXTE.get(code, (antwort.get("error") or {}).get("message", "")))
+
+
 # ---------------------------------------------------------------- JSON-RPC
 
 class Untis:
@@ -334,6 +398,12 @@ def main():
         p.add_argument("--json", action="store_true", help="Rohdaten statt Tabelle")
 
     unter.add_parser("test", help="Anmeldung pruefen")
+    p = unter.add_parser("suche-schule", help="Server und Schulkuerzel finden (ohne Zugangsdaten)")
+    p.add_argument("suchwort", help="Name oder Ort der Schule")
+    p.add_argument("--json", action="store_true")
+    p = unter.add_parser("erreichbar", help="Schnittstelle pruefen (ohne Zugangsdaten)")
+    p.add_argument("--server", help="z. B. https://ajax.webuntis.com")
+    p.add_argument("--schule", help="Schulkuerzel aus der Adresse")
     zeitraum_argumente(unter.add_parser("plan", help="Stundenplan anzeigen"))
     zeitraum_argumente(unter.add_parser("vertretungen", help="Nur Ausfaelle und Vertretungen"))
     for name, hilfe in (("klassen", "Klassen auflisten"), ("lehrer", "Lehrkraefte auflisten"),
@@ -343,6 +413,38 @@ def main():
     unter.add_parser("raster", help="Stundenraster der Schule").add_argument("--json", action="store_true")
 
     args = zerleger.parse_args()
+
+    if args.befehl == "suche-schule":
+        treffer = schule_suchen(args.suchwort)
+        if args.json:
+            print(json.dumps(treffer, ensure_ascii=False, indent=2))
+            return
+        if not treffer:
+            print(f"Keine Schule zu '{args.suchwort}' gefunden.")
+            return
+        print(f"Treffer zu '{args.suchwort}'")
+        print("-" * 70)
+        for schule in treffer:
+            print(f"{schule.get('displayName', '')}")
+            print(f"  Ort:            {schule.get('address', '')}")
+            print(f"  Server:         https://{schule.get('server', '')}")
+            print(f"  Schulkuerzel:   {schule.get('loginName', '')}")
+        print(f"\n{len(treffer)} Treffer. Server und Schulkuerzel kommen so in die "
+              f"Datei webuntis.env.")
+        return
+
+    if args.befehl == "erreichbar":
+        server, schule = args.server, args.schule
+        if not server or not schule:
+            konfig = konfig_lesen()
+            server = server or konfig["WEBUNTIS_SERVER"]
+            schule = schule or konfig["WEBUNTIS_SCHULE"]
+        offen, meldung = erreichbarkeit_pruefen(server, schule)
+        print(("Alles bereit: " if offen else "Noch nicht nutzbar: ") + meldung)
+        if offen:
+            print("Als naechstes Benutzername und Passwort eintragen und 'test' aufrufen.")
+        raise SystemExit(0 if offen else 1)
+
     untis = Untis(konfig_lesen())
 
     try:

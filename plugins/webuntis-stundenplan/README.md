@@ -5,7 +5,26 @@ Lehrkraft oder eines Raums — und beantwortet Fragen dazu im Gespräch.
 
 ## Einrichten
 
-`/untis-einrichten` oder von Hand `~/.config/schul-plugins/webuntis.env` anlegen:
+`/untis-einrichten` führt durch die vier Schritte. Von Hand geht es so:
+
+**Schritt 1 — Schule finden** (ohne Zugangsdaten):
+
+```bash
+python3 scripts/untis.py suche-schule "Hameln"
+```
+
+Liefert Server und Schulkürzel jeder Schule, die WebUntis unter dem Namen kennt.
+
+**Schritt 2 — Schnittstelle prüfen** (ohne Zugangsdaten, ohne Anmeldeversuch):
+
+```bash
+python3 scripts/untis.py erreichbar --server https://aeghm.webuntis.com --schule aeghm
+```
+
+Antwortet die Schnittstelle nicht, muss die WebUntis-Administration der Schule
+sie freigeben — Zugangsdaten helfen dann nicht weiter.
+
+**Schritt 3 — Zugangsdaten anlegen.** `~/.config/schul-plugins/webuntis.env`:
 
 ```
 WEBUNTIS_SERVER=https://ajax.webuntis.com
@@ -14,8 +33,10 @@ WEBUNTIS_USER=vorname.nachname
 WEBUNTIS_PASSWORT=…
 ```
 
-Server und Schulkürzel stehen in der Adresse, mit der man sich sonst anmeldet:
-`https://ajax.webuntis.com/WebUntis/?school=kurzname`.
+Server und Schulkürzel stehen auch in der Adresse, mit der man sich sonst anmeldet:
+`https://ajax.webuntis.com/WebUntis/?school=kurzname`. Danach `chmod 600` setzen.
+
+**Schritt 4 — prüfen:** `python3 scripts/untis.py test`
 
 ## Benutzen
 
@@ -48,7 +69,7 @@ nach WebUntis zurück.
 | Fehler -8504 | Benutzername oder Passwort falsch |
 | Fehler -8998 | Schulkürzel stimmt nicht |
 | Fehler -8509 | Das Konto darf diese Abfrage in WebUntis nicht stellen |
-| HTTP 404 | Falscher Server in `WEBUNTIS_SERVER` |
+| HTTP 404 | Falsches Schulkürzel, seltener falscher Server |
 
 Schulen können die JSON-RPC-Schnittstelle abschalten. Dann hilft nur die
 Freigabe durch die WebUntis-Administration der Schule.
