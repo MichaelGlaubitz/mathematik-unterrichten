@@ -2324,8 +2324,32 @@ body.anp-an [data-anp-weg]{display:block !important;opacity:.28;
        heute Mittag stehen: Beim Aufschlagen der Wandfassung faengt jede
        Frage bei null an. Dieselbe Frage waehrend der Stunde noch einmal
        oeffnen (eine Folie zurueck) behaelt ihre Stimmen - der Schluessel
-       aendert sich dabei nicht. */
-    const sitzung = Math.random().toString(36).slice(2, 8);
+       aendert sich dabei nicht.
+
+       SIE UEBERLEBT DAS NEULADEN, und das ist der Punkt. Bis zum
+       08.09.2026 stand hier Math.random() bei jedem Laden. Damit aenderte
+       JEDES Neuladen der Wand saemtliche Fragenschluessel - und der Dienst
+       wirft beim Oeffnen einer Frage mit neuem Schluessel die schon
+       abgegebenen Stimmen weg (kern.mjs: „Neue Frage heisst frische
+       Stimmen"). An diesem Tag setzte der Abstimmungsdienst im Unterricht
+       kurz aus, die Wand wurde neu geladen, und danach waren alle Stimmen
+       fort. Nicht der Dienst hatte sie verloren, die Wand hatte sie
+       loeschen lassen.
+
+       sessionStorage trifft die gemeinte Regel genau: Dieselbe
+       Registerkarte behaelt ihre Sitzung ueber Neuladen und
+       Absturzwiederherstellung hinweg; eine neu aufgeschlagene
+       Wandfassung faengt frisch an. Wer waehrend der Stunde absichtlich
+       bei null anfangen will, nimmt die Taste N. */
+    let sitzung = (function(){
+      const platz = "abstimmung-sitzung:" + raum;
+      const frisch = () => Math.random().toString(36).slice(2, 8);
+      try {
+        let s = sessionStorage.getItem(platz);
+        if (!s) { s = frisch(); sessionStorage.setItem(platz, s); }
+        return s;
+      } catch(e) { return frisch(); }   /* Speicher gesperrt: wie bisher */
+    })();
     const BST = ["A","B","C","D"];
 
     const stand = document.createElement("div");
@@ -2474,6 +2498,30 @@ body.anp-an [data-anp-weg]{display:block !important;opacity:.28;
     }
 
     const tick = () => { if (laufend) zeichne(laufend.folie); };
+
+    /* --- Absichtlich bei null anfangen (Taste N) -------------------------
+       Bis zum 08.09.2026 tat das jedes Neuladen - unfreiwillig und
+       unbemerkt. Jetzt ueberlebt die Sitzung das Neuladen, und wer wirklich
+       zuruecksetzen will (nach einem Probelauf, oder wenn die Vorstunde
+       denselben Raum benutzt hat), braucht dafuer einen eigenen Griff.
+
+       Es fragt nach: Die Stimmen sind danach fort, und im Unterricht drueckt
+       man leicht eine Taste zu viel. */
+    async function sitzungNeu(){
+      if (!confirm("Alle bisherigen Stimmen dieses Raums verwerfen "
+                   + "und neu anfangen?")) return;
+      sitzung = Math.random().toString(36).slice(2, 8);
+      try { sessionStorage.setItem("abstimmung-sitzung:" + raum, sitzung); } catch(e){}
+      clearInterval(ticker); ticker = null;
+      laufend = null;
+      stand.classList.add("zu");
+      try { await fetch(dienst + "/v1/raum/" + raum + "/leeren",
+                        { method:"POST", headers: kopf() }); } catch(e){}
+      /* Steht gerade eine Abfrage an der Wand, wird sie sofort wieder
+         geoeffnet - sonst warten die Geraete auf etwas, das es nicht gibt. */
+      const folie = document.querySelector(".slide.on");
+      if (folie) oeffne(folie);
+    }
 
     /* --- Zeichenauftrag: die Galerie an der Wand ----------------------
        Jedes eingereichte Bild ist eine Kachel. Nicht freigegebene sind
@@ -2867,6 +2915,7 @@ body.anp-an [data-anp-weg]{display:block !important;opacity:.28;
       if (e.key === "q" || e.key === "Q") document.body.classList.toggle("qrzeigen");
       else if (e.key === "b" || e.key === "B") ruheSetzen(!ruhe);
       else if (e.key === "a" || e.key === "A") abgabeWechsel();
+      else if (e.key === "n" || e.key === "N") sitzungNeu();
     });
 
     pruefe().then(beobachte);
