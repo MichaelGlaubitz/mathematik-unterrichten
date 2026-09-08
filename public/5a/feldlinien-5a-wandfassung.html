@@ -600,6 +600,37 @@
      noch einmal ein Drittel draufgelegt - die Rueckblende soll aus der
      letzten Reihe lesbar sein. */
   .rbgross .rbinhalt{zoom:1.35}
+
+  /* --- Bildmarke: eine Figur, die erst auf Klick erscheint -------------
+     Eine Rueckblende zeigt ihr Bild klein neben der Folie. Manchmal ist
+     dafuer kein Platz und das Bild soll auch gar nicht dauernd dastehen -
+     etwa die drei Belege der Sachstandsfolie, die nur auf Zuruf gebraucht
+     werden. Dann bleibt nur die Marke stehen, und das Bild kommt gross
+     darueber. Dieselbe Mechanik, dieselbe Taste Escape.
+
+     Die Marke ist ein Knopf und sieht auch so aus - wer sie an der Wand
+     sieht, soll wissen, dass dahinter etwas liegt. */
+  .bildmarken{display:flex;flex-wrap:wrap;gap:.5em;margin-top:.35em}
+  .rueckblende.nurmarke{border-left:none;padding-left:0;
+    display:inline-block;cursor:zoom-in}
+  .rueckblende.nurmarke .rbinhalt{display:none}
+  .rueckblende.nurmarke > figcaption{display:inline-flex;align-items:center;
+    gap:.45em;margin:0;color:var(--accent);border:1px solid #c7d2fe;
+    border-radius:999px;padding:.2em .9em;background:#eef2ff;
+    text-transform:none;letter-spacing:0;font-weight:800;
+    font-size:clamp(12px,1.35vw,20px)}
+  .rueckblende.nurmarke:hover > figcaption{border-color:var(--accent);
+    background:#e0e7ff}
+  /* Das Zeichen als Buchstabe, nicht als CSS-Escape: "95" wurde vom
+     Blatt als  plus "95" gelesen und stand als Kaestchen mit 95
+     daneben an der Wand. Das ⤢ ist ausserdem dasselbe Zeichen wie am
+     Eck-QR - es heisst im Haus schon "gross zeigen". */
+  .rueckblende.nurmarke > figcaption::before{content:"⤢";
+    font-size:1.05em;line-height:1}
+  /* Im Ueberblendschirm traegt die Figur ihre eigene Ueberschrift. */
+  .rbgross .figkopf{font-size:clamp(15px,1.7vw,26px);font-weight:800;
+    color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+    text-align:center;margin-bottom:1.2vh}
   .rbgross figcaption{display:none}
   @media print{.rbgross{display:none}}
 
@@ -787,6 +818,21 @@
     .slide.abfrage{background:none}
     .slide.abfrage.on::after{animation:none;display:none}
   }
+
+  /* --- Dreisatz-Schema ---
+     Die Schrift steht IM SVG und wird mit ihm skaliert; deshalb hier
+     keine px-Ausnahme fuer die 1200er Flaeche. */
+  .dreisatz{width:100%;height:auto;display:block}
+  .dreisatz .dskopf{font-size:26px;font-weight:800;fill:var(--muted);
+    text-anchor:middle;text-transform:uppercase;letter-spacing:.06em}
+  .dreisatz .dsstrich{stroke:var(--ink);stroke-width:3}
+  .dreisatz .dswert{font-size:40px;font-weight:800;fill:var(--ink);
+    text-anchor:middle}
+  .dreisatz .dswert.dsziel{fill:var(--accent)}
+  .dreisatz .dspfeil{fill:none;stroke:var(--muted);stroke-width:2.6}
+  .dreisatz .dsspitze{fill:var(--muted);stroke:none}
+  .dreisatz .dsfaktor{font-size:28px;font-weight:800;fill:var(--gold);
+    text-anchor:middle}
 
   /* --- Kleines Koordinatensystem --- */
   .graph{width:min(52vw,640px);height:auto;margin-top:1.4vh}
@@ -1023,6 +1069,8 @@
   .stolper{padding:18px 22px}
   .stolper h4{font-size:21px}
   .stolper p{font-size:28px}
+  .rueckblende.nurmarke > figcaption{font-size:20px}
+  .rbgross .figkopf{font-size:26px}
   .tab td.nrz,.tab td.fr{font-size:22px}
   .tab td.an{font-size:23px}
   .tab th{font-size:17px}
