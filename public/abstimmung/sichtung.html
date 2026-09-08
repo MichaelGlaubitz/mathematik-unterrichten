@@ -185,9 +185,16 @@ if (!RAUM){
   zeigeHinweis("Aufruf: <b>sichtung.html?raum=…</b> — der Raumcode steht unten rechts an der Wand.", "fehler");
 } else {
   $("raum").textContent = "Raum " + RAUM.toUpperCase();
-  hole();
-  setInterval(hole, 2000);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) hole(); });
+  /* Nicht fragen, solange niemand hinsieht. Der Dienst laeuft auf dem
+     freien Cloudflare-Kontingent (100 000 Anfragen je Tag); eine
+     vergessene offene Sichtung kostet sonst 1800 Anfragen je Stunde.
+     Siehe den langen Vermerk in index.html. */
+  let uhr = null;
+  const anhalten = () => { clearInterval(uhr); uhr = null; };
+  const anlaufen = () => { if (!uhr){ hole(); uhr = setInterval(hole, 2000); } };
+  anlaufen();
+  document.addEventListener("visibilitychange",
+    () => { if (document.hidden) anhalten(); else anlaufen(); });
 }
 </script>
 </body>
