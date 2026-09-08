@@ -168,6 +168,45 @@
   .slide h2.wt{font-size:clamp(27px,4.1vw,60px);max-width:26ch;margin-bottom:.35em}
   .wt .term{font-variant-numeric:tabular-nums;white-space:nowrap}
 
+  /* --- Wenn schon umbrechen, dann gleichmaessig ------------------------
+     Bleibt eine Zeile uebrig, faellt sie unangenehm auf: Folie 23 der 7b
+     zeigte „Der Faktor der ersten beiden Zeilen ist" und darunter allein
+     „1,5.". text-wrap:balance verteilt die Woerter auf gleich lange
+     Zeilen, ohne eine Zeile hinzuzufuegen - die Zahl der Zeilen bleibt
+     genau die, die oben ausgerechnet wurde. Zwischen erzwungenen
+     Umbruechen (<br>) wird jeder Teil fuer sich ausgeglichen, die
+     gesetzte Gliederung Situation / Frage bleibt also stehen. */
+  h1,.slide h2.wt,.frage,.lead,.geraetetext{text-wrap:balance}
+
+  /* --- Mathematik in einer Ueberschrift -------------------------------
+     Gemessen: Die Tafelschrift steht auf font-weight 800, KaTeX auf 400.
+     Nebeneinander in EINER Zeile ist das ein Bruch, den man sofort sieht -
+     „Wie gross ist der Quotient Preis : Menge?" sah aus wie zwei Folien.
+
+     font-weight hilft nicht: KaTeX bringt eigene Schnitte mit (KaTeX_Main,
+     KaTeX_Math), und der Browser hat davon nur den mageren geladen. Also
+     wird die Kontur verstaerkt - das aendert die Buchstabenform nicht und
+     verschiebt keine Formel, macht den Strich aber so dick wie nebenan.
+     Nur in Ueberschriften; im Fliesstext passt das magere KaTeX.
+
+     Die Staerke ist gemessen, nicht geraten - mit
+     Werkzeuge/strichstaerke.py an Folie 12 der 7b, quer durch die Zeile
+     „Wie gross ist der Quotient Preis : Menge?". Verglichen werden die
+     Staemme (oberes Viertel der dunklen Stuecke), nicht der Median: der
+     Serifenschnitt bringt Haarstriche mit, die es in der Tafelschrift
+     nicht gibt, und die den Median druecken, ohne dass der Strich
+     duenner waere.
+
+       Tafelschrift 19 px, KaTeX 18 px - 95 %, ausgeglichen.
+
+     Der erste Versuch mit .028em war viel zu zaghaft: dort standen 16 px
+     gegen 9 px im Median, und der Bruch war weiter zu sehen.
+
+     Weiter hinauf geht es nicht: ab etwa .1em laufen die Punzen von e, a
+     und s zu, und die Formel wird schwerer lesbar statt kraeftiger. */
+  h1 .katex,.slide h2.wt .katex,.frage .katex,.antwort .wert .katex{
+    -webkit-text-stroke:.08em currentColor}
+
   /* --- Ablauftabelle der zweiten Folie ---------------------------------
      Die Minutenspalte der Vorlage ist 2,4em breit - fuer eine Zahl. Hier
      steht eine Spanne („64–74"), die darin umbricht und jede Zeile doppelt
@@ -215,7 +254,10 @@
   .schild td{font-size:clamp(16px,2vw,30px);padding:.24em .1em;
     font-variant-numeric:tabular-nums;border-bottom:1px dotted #e6c34a}
   .schild tr:last-child td{border-bottom:none}
-  .schild td.p{text-align:right;font-weight:800}
+  /* Ein Preis bricht nicht um: „0,35 €" darf nicht zu „0,35" und darunter
+     „€" werden. In einer schmalen Spalte - etwa als Rueckblende neben dem
+     Text - passierte genau das. */
+  .schild td.p{text-align:right;font-weight:800;white-space:nowrap}
   .schild .fuss{font-size:clamp(12px,1.25vw,18px);color:#8d6e00;margin-top:.5em}
 
   /* --- Wertetabelle mit Vervielfachungspfeilen --- */
@@ -235,8 +277,13 @@
      deshalb wandert er mit: beim Mini-Whiteboard neben die Frage, bei
      Plickers ueber die vier Karten. */
   .mwsplit{display:flex;gap:2.6vw;align-items:center;margin-top:.8vh}
-  .mwsplit .mwfrage{flex:1 1 48%;min-width:0}
-  .mwsplit .mwbild{flex:1 1 46%;min-width:0}
+  /* Die Bildspalte bekommt, was ihr Inhalt braucht - nicht die Haelfte.
+     Gemessen an Folie 23 der 7b: die Tabelle war 524 px breit und sass in
+     einer 818-px-Spalte, waehrend die Frage daneben auf vier Zeilen
+     umbrach. Ein Umbruch ist nur dann zu rechtfertigen, wenn seitlich
+     wirklich etwas steht. */
+  .mwsplit .mwfrage{flex:1 1 auto;min-width:0}
+  .mwsplit .mwbild{flex:0 1 auto;min-width:0}
   .mwsplit .frage{font-size:clamp(23px,3.5vw,52px);max-width:none}
   .mwsplit .antwort{margin-top:2.2vh}
   .mwsplit .antwort .wert{font-size:clamp(27px,4.3vw,66px)}
@@ -246,7 +293,35 @@
   .mwsplit .schilder{margin-top:0}
   .mwsplit .schild td{font-size:clamp(14px,1.6vw,24px)}
   .mwsplit .schild h3{font-size:clamp(16px,1.85vw,27px)}
-  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}}
+  /* --- Federzeichnung neben der Aufgabe --------------------------------
+     Die Motive liegen als LA-PNG vor: schwarze Tinte, Deckkraft aus der
+     Helligkeit. Sie tragen also KEINEN eigenen Grund und sitzen auf jeder
+     Folienfarbe richtig - deshalb hier auch kein background. */
+  /* Eine Buchseite ist anklickbar - unaufdringlich, aber erkennbar:
+     gestrichelt unterstrichen, damit die Lehrkraft im Vorbeigehen sieht,
+     dass sie die Seite mit einem Griff gross an die Wand holen kann. */
+  .buchseite{color:inherit;text-decoration:underline dotted;
+    text-underline-offset:.18em;cursor:zoom-in}
+  .buchseite:hover{color:var(--accent);text-decoration-style:solid}
+  .randnotiz .buchseite{color:inherit}
+  @media print{.buchseite{text-decoration:none}}
+
+  /* Tabelle links, eingereichte Bilder rechts. Beide Spalten tragen,
+     keine bleibt leer. */
+  .tabsplit{display:flex;gap:2.4vw;align-items:flex-start;margin-top:.6vh}
+  .tabsplit .tabseite{flex:0 1 auto;min-width:0}
+  .tabsplit .galseite{flex:1 1 44%;min-width:0}
+  .tabsplit .galerie[data-n="0"]{min-height:26vh}
+  @media (max-width:900px){.tabsplit{flex-direction:column}}
+
+  /* max-width: Die Spalte darf schmaler werden als die Zeichnung breit
+     ist - dann schrumpft die Zeichnung mit. Ohne diese Zeile stand sie
+     starr auf ihren 430 px und lief auf der Kassenbon-Folie 140 px aus
+     dem Bild heraus (gemessen). */
+  .wandbild{margin:0;max-width:100%}
+  .wandbild img{display:block;width:100%;height:auto}
+  @media (max-width:900px){.mwsplit{flex-direction:column;align-items:stretch}
+    .wandbild{width:auto;max-width:60vw;margin:0 auto}}
 
   /* Beleg links, Karten rechts. Uebereinander waeren beide zusammen
      hoeher als das Bild, und die Einpassung muesste die ganze Folie
@@ -422,6 +497,86 @@
     padding:4px 14px;cursor:pointer}
   .zeiknoepfe button:hover{color:var(--ink);border-color:#94a3b8}
   .zeiknoepfe .zaehler{margin-left:auto;font-weight:800;color:var(--muted);font-size:18px}
+  /* --- Hefteintrag ------------------------------------------------------
+     Was ins Heft soll, steht an der Wand SO, wie es ins Heft gehoert -
+     handgeschrieben auf kariertem Papier. Zwei Gruende:
+
+     1. Die Klasse schreibt ab, was sie sieht. Steht der Satz in
+        Druckschrift auf farbigem Grund, entsteht im Heft irgendetwas;
+        steht er handgeschrieben da, entsteht ein Hefteintrag.
+     2. Wer mit GoodNotes auf dem iPad schreibt, hat damit eine Vorlage
+        bis in die Zeilenaufteilung.
+
+     Das Karo ist gerechnet, kein Bild: zwei Farbverlaeufe im Abstand von
+     40 px. Die Handschrift ist Caveat, zugeschnitten und eingebettet -
+     siehe handschrift_css(). */
+  .heft{background:#fff;border:1px solid #d5d9e0;border-radius:6px;
+    box-shadow:0 10px 30px rgba(15,23,42,.13);
+    background-image:
+      linear-gradient(to right,rgba(80,120,190,.16) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(80,120,190,.16) 1px,transparent 1px);
+    background-size:40px 40px;background-position:-1px -1px;
+    color:#12305e;font-family:Handschrift,"Segoe Print","Comic Sans MS",cursive;
+    padding:28px 34px 30px}
+  /* Der rote Rand des Heftes - links, wie im Rechenheft. */
+  .heft{border-left:3px solid rgba(203,60,60,.55)}
+  .heft .htitel{font-weight:700;display:inline-block;
+    border-bottom:3px solid rgba(203,60,60,.6);padding-bottom:2px;
+    margin-bottom:.35em}
+  .heft p{margin:.18em 0}
+  .heft .gold,.heft b{font-weight:700;color:#0b7a5a}
+  .heft .fehler{color:#b42318}
+  /* Auch die Tabelle im Heft ist handgeschrieben - mit dem blassen Stift
+     gezogen, nicht mit dem Kastenrahmen der Wandfassung. */
+  .heft .wtab{margin:.5em 0 .2em}
+  .heft .wtab td,.heft .wtab th{border-color:rgba(80,120,190,.5);
+    background:transparent;color:inherit;font-family:inherit;font-weight:700}
+  .heft .wtab th{color:#12305e}
+  /* Mathematik im Hefteintrag behaelt KaTeX.
+
+     Der erste Versuch zwang der Formel die Handschrift auf, damit sie
+     nicht als Druck im Handgeschriebenen steht. Das ging schief, und
+     zwar nicht kosmetisch: KaTeX setzt zusammengesetzte Zeichen aus
+     mehreren Kaesten mit eigenen Massen. In der Wurzelstunde stand
+     danach „n = 0" statt „n ≠ 0" - der Schraegstrich war weg - und dem
+     Wurzelzeichen fehlte der Strich ueber dem Radikanden. Eine falsche
+     Formel ist schlimmer als zwei Schriften.
+
+     Die Formel bekommt stattdessen die Tinte des Heftes und denselben
+     Strichausgleich wie in den Ueberschriften; damit steht sie neben der
+     Handschrift, ohne blass zu wirken.
+
+     Der kleine Seitenrand ist noetig, weil die Handschrift schmal
+     auslaeuft und die verstaerkte Formel sonst am Wort davor klebte
+     („Zahl a"). */
+  .heft .katex{color:inherit;-webkit-text-stroke:.045em currentColor;
+    margin:0 .12em}
+
+  /* --- Rueckblende ------------------------------------------------------
+     Bezieht sich eine Folie auf etwas Frueheres - „die Tabelle, die nicht
+     passt", „das Taxi von letzter Woche" -, dann steht dieses Fruehere
+     hier daneben und nicht nur im Gedaechtnis. Verkleinert, damit es die
+     Folie nicht beherrscht; ein Klick legt es gross darueber.
+
+     zoom statt transform:scale: zoom veraendert auch den Platzbedarf, die
+     Nachbarn ruecken also richtig nach. Ein scale haette einen Kasten in
+     voller Groesse stehen lassen, in dem etwas Kleines sitzt. */
+  .rueckblende{margin:0;cursor:zoom-in;border-left:4px solid var(--line);
+    padding-left:14px}
+  .rueckblende > figcaption{font-weight:800;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .rueckblende .rbinhalt{zoom:.62}
+  .rueckblende:hover{border-left-color:var(--accent)}
+  .rbgross{position:fixed;inset:0;z-index:60;background:rgba(255,255,255,.97);
+    display:flex;align-items:center;justify-content:center;cursor:zoom-out;
+    padding:6vh 6vw}
+  /* Gross heisst gross: die Verkleinerung von nebenan wird aufgehoben und
+     noch einmal ein Drittel draufgelegt - die Rueckblende soll aus der
+     letzten Reihe lesbar sein. */
+  .rbgross .rbinhalt{zoom:1.35}
+  .rbgross figcaption{display:none}
+  @media print{.rbgross{display:none}}
+
   /* Ein Bild gross: legt sich ueber die Folie, ein Klick nimmt es weg. */
   .lupe{position:absolute;inset:0;z-index:6;background:#fff;display:none;
     align-items:center;justify-content:center;cursor:pointer}
@@ -577,6 +732,21 @@
     border-radius:11px;background:#0f172a;color:#94a3b8;font:inherit;
     cursor:pointer}
   @media print{.quotewahl{display:none}}
+  /* --- Titelfolie mit Bild ---------------------------------------------
+     Der Titel steht links und behaelt seine Breite; das Strichbild rechts
+     nimmt, was uebrig ist. Es ist Schmuck und Anker, kein Traeger von
+     Information - deshalb darf es schrumpfen, der Text nicht. */
+  .titelzeile{display:flex;align-items:center;gap:2.4vw;width:100%}
+  .titeltext{flex:1 1 auto;min-width:0}
+  .titelbild{flex:0 0 30%;max-width:30%;display:flex;justify-content:center}
+  /* Kein mix-blend-mode: Die Buehne traegt ein transform und damit einen
+     eigenen Stapelkontext - die Blendung liefe ins Leere. Das Bild bringt
+     sein Alpha selbst mit (Werkzeuge/bild_fuer_wand.py). */
+  .titelbild img{max-width:100%;max-height:74vh;object-fit:contain}
+  @media (max-width:1100px){
+    .titelbild{flex-basis:26%;max-width:26%}
+  }
+
   /* --- Kontrollfrage auf einer Reservefolie ---------------------------- */
   /* Kompakt: Auf einer Folie, die schon Video oder Graph traegt, drueckt
      ein hoher Block die ganze Folie zusammen - gemessen sank die
@@ -714,12 +884,17 @@
      stand auf 779 von 1200 px und brauchte vier Zeilen, waehrend rechts
      420 px leer blieben - und weil die Folie dadurch zu hoch wurde,
      verkleinerte die Einpassung ALLES. Breiter heisst hier groesser. */
-  .slide h2.wt{font-size:50px;max-width:34ch;margin-bottom:.3em}
+  /* Gemessen am 07.09.: 18 von 31 Ueberschriften brachen um und nutzten
+     dabei im Mittel 58 % der Breite - bei 34ch stand die Zeile auf 1018
+     von 1500 px, und rechts blieb ein Drittel leer, OHNE dass dort etwas
+     stand. Ein Umbruch ist nur dann richtig, wenn daneben ein Bild sitzt;
+     dafuer gibt es .mitbild. */
+  .slide h2.wt{font-size:50px;max-width:46ch;margin-bottom:.3em}
   .slide p,.slide li{font-size:30px;line-height:1.45}
   .kicker{font-size:21px}
   .lead{font-size:31px;max-width:46ch}
   .callout{padding:.75em 1.05em}
-  .frage{font-size:66px;max-width:22ch}
+  .frage{font-size:66px;max-width:40ch}
   .antwort .wert{font-size:78px}
   .antwort .neben{font-size:28px}
   .pill{font-size:20px}
@@ -739,6 +914,18 @@
   .merk{padding:26px 28px}
   .merk .satz{font-size:46px}
   .merk .zusatz{font-size:27px}
+  /* 430 px auf der 1200er Flaeche: gross genug, dass die Schraffur an der
+     Wand traegt, klein genug, dass der Frage ueber 700 px bleiben. */
+  .wandbild{width:430px}
+  /* Handschrift traegt kleiner als eine Groteske: Caveat hat eine kurze
+     x-Hoehe, deshalb hier deutlich groesser als der Fliesstext. */
+  /* Ein Heft ist so breit wie ein Heft. Ohne diese Schranke lief das
+     Karopapier bis an den Folienrand und sah nach Tapete aus, nicht nach
+     einer Seite, die man abschreibt. */
+  .heft{padding:30px 38px 34px;max-width:1150px}
+  .heft .htitel{font-size:46px}
+  .heft p{font-size:40px;line-height:1.45}
+  .heft .wtab td,.heft .wtab th{font-size:36px}
   .auftrag{padding:24px 26px}
   .auftrag li{font-size:31px}
   .zeitschild{font-size:24px}
@@ -770,10 +957,13 @@
      zu antworten begann. */
 
   /* --- Die Entwurfsflaeche selbst --------------------------------------
-     Feste Breite, damit der Umbruch ueberall derselbe ist; die Hoehe
-     ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
+     Vorgegebene Breite, damit der Umbruch nicht vom Beamer abhaengt; die
+     Hoehe ergibt sich aus dem Inhalt. window.einpassen skaliert sie so, dass
      sie den freien Platz zwischen den Leisten ausfuellt - nach unten wie
      nach oben. */
+  /* 1200 px ist die Ausgangsbreite, nicht die endgueltige: wo die Hoehe
+     die bindende Schranke ist, verbreitert window.einpassen die Flaeche
+     ueber ein style-Attribut bis auf 1600 px (Begruendung dort). */
   .buehne{width:1200px;transform-origin:top center}
   /* Waagerecht immer mittig: Die Flaeche wird um ihre eigene Mitte
      skaliert, und nur so bleibt sie danach innerhalb der Folie. Die
@@ -890,6 +1080,13 @@
   .tex.disp{display:block;margin:.3em 0}
   .tex.disp .katex-display{margin:0}
   .frage .tex .katex,.wt .tex .katex,.satz .tex .katex{font-size:1em}
+
+:root{--accent:#4f46e5;--accent2:#0ea5e9;--bg:#f6f7fb;--gold:#d97706;--green:#15803d;--ink:#0f172a;--line:#e2e8f0;--muted:#64748b;--panel:#ffffff;--red:#dc2626}
+body,.slide p,.slide li,.lead,.auftrag{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.opt .bst{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.heft,.heft p,.heft .htitel{font-family:Handschrift,"Segoe Print",cursive}
+
+
 /* ===========================================================================
    Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
 
@@ -949,7 +1146,7 @@
 </section>
 
 <section class="slide" data-phase="2 · Die Frage des Buches" data-ab="10" data-marke="EINSTIEG">
-<div class="kicker">Buch S. 142 &mdash; die Frage über dem Kapitel</div><h2 class="wt">„Wieso flackert der Scheinwerfer bei einigen Fahrrädern beim Langsamfahren?“</h2><p class="lead weit">Im Scheinwerfer sitzt eine <b>Leuchtdiode</b>. Das Buch zeigt zwei Schaltzeichen <span class="trenner">&#9656;</span> und einen Pfeil, der eine Richtung hat.</p><svg viewBox="0 0 620 170" style="width:640px;height:auto;margin:6px 0" role="img" aria-label="Schaltzeichen von Diode und Leuchtdiode"><defs><marker id="pf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs><polyline points="40,70 100,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><polygon points="100,46 100,94 144,70" fill="#0f172a"/><line x1="144" y1="46" x2="144" y2="94" stroke="#0f172a" stroke-width="4"/><polyline points="144,70 210,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><text x="125" y="130" font-size="22" font-weight="800" fill="#0f172a" text-anchor="middle">Diode</text><text x="125" y="156" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">Strom nur in Pfeilrichtung: von + nach −</text><text x="48" y="60" font-size="20" font-weight="800" fill="#dc2626" text-anchor="middle">+</text><text x="202" y="60" font-size="20" font-weight="800" fill="#2563eb" text-anchor="middle">−</text><polyline points="340,70 400,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><polygon points="400,46 400,94 444,70" fill="#dc2626"/><line x1="444" y1="46" x2="444" y2="94" stroke="#dc2626" stroke-width="4"/><polyline points="444,70 510,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><line x1="412" y1="44" x2="432" y2="18" stroke="#dc2626" stroke-width="3" marker-end="url(#pf)"/><line x1="428" y1="44" x2="448" y2="18" stroke="#dc2626" stroke-width="3" marker-end="url(#pf)"/><text x="425" y="130" font-size="22" font-weight="800" fill="#0f172a" text-anchor="middle">Leuchtdiode (LED)</text><text x="425" y="156" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">Strom nur in Pfeilrichtung: von + nach −</text><text x="348" y="60" font-size="20" font-weight="800" fill="#dc2626" text-anchor="middle">+</text><text x="502" y="60" font-size="20" font-weight="800" fill="#2563eb" text-anchor="middle">−</text></svg><div class="callout frag"><p><b>Die Diode ist ein elektrisches Ventil</b> (Buch S. 142): Bei einer Polung lässt sie Strom durch, bei der anderen sperrt sie. Das Dreieck ist der Pfeil: Strom nur in Pfeilrichtung, Plus am breiten Ende. Der Strich ist die Sperre.</p></div><div class="randnotiz"><b>Die Frage vorlesen, wörtlich.</b> Sie steht über dem Kapitel und kostet zehn Sekunden. Nicht beantworten <span class="trenner">&#9656;</span> das Exit-Ticket ist die Antwort, in Minute 57.<br><b>Das Schaltzeichen erklären, nicht raten lassen:</b> Dreieck = Pfeil = Richtung, in der Strom möglich ist; Strich = Sperre; Plus am breiten Ende. Das ist der Stoff der nächsten Whiteboard-Runde.<br><b>Noch nicht erklären, was bei steigender Spannung passiert</b> <span class="trenner">&#9656;</span> das zeigt das Video.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a> &mdash; die Frage über dem Kapitel</div><h2 class="wt">„Wieso flackert der Scheinwerfer bei einigen Fahrrädern beim Langsamfahren?“</h2><p class="lead weit">Im Scheinwerfer sitzt eine <b>Leuchtdiode</b>. Das Buch zeigt zwei Schaltzeichen <span class="trenner">&#9656;</span> und einen Pfeil, der eine Richtung hat.</p><svg viewBox="0 0 620 170" style="width:640px;height:auto;margin:6px 0" role="img" aria-label="Schaltzeichen von Diode und Leuchtdiode"><defs><marker id="pf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs><polyline points="40,70 100,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><polygon points="100,46 100,94 144,70" fill="#0f172a"/><line x1="144" y1="46" x2="144" y2="94" stroke="#0f172a" stroke-width="4"/><polyline points="144,70 210,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><text x="125" y="130" font-size="22" font-weight="800" fill="#0f172a" text-anchor="middle">Diode</text><text x="125" y="156" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">Strom nur in Pfeilrichtung: von + nach −</text><text x="48" y="60" font-size="20" font-weight="800" fill="#dc2626" text-anchor="middle">+</text><text x="202" y="60" font-size="20" font-weight="800" fill="#2563eb" text-anchor="middle">−</text><polyline points="340,70 400,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><polygon points="400,46 400,94 444,70" fill="#dc2626"/><line x1="444" y1="46" x2="444" y2="94" stroke="#dc2626" stroke-width="4"/><polyline points="444,70 510,70" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/><line x1="412" y1="44" x2="432" y2="18" stroke="#dc2626" stroke-width="3" marker-end="url(#pf)"/><line x1="428" y1="44" x2="448" y2="18" stroke="#dc2626" stroke-width="3" marker-end="url(#pf)"/><text x="425" y="130" font-size="22" font-weight="800" fill="#0f172a" text-anchor="middle">Leuchtdiode (LED)</text><text x="425" y="156" font-size="16" font-weight="600" fill="#64748b" text-anchor="middle">Strom nur in Pfeilrichtung: von + nach −</text><text x="348" y="60" font-size="20" font-weight="800" fill="#dc2626" text-anchor="middle">+</text><text x="502" y="60" font-size="20" font-weight="800" fill="#2563eb" text-anchor="middle">−</text></svg><div class="callout frag"><p><b>Die Diode ist ein elektrisches Ventil</b> (Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a>): Bei einer Polung lässt sie Strom durch, bei der anderen sperrt sie. Das Dreieck ist der Pfeil: Strom nur in Pfeilrichtung, Plus am breiten Ende. Der Strich ist die Sperre.</p></div><div class="randnotiz"><b>Die Frage vorlesen, wörtlich.</b> Sie steht über dem Kapitel und kostet zehn Sekunden. Nicht beantworten <span class="trenner">&#9656;</span> das Exit-Ticket ist die Antwort, in Minute 57.<br><b>Das Schaltzeichen erklären, nicht raten lassen:</b> Dreieck = Pfeil = Richtung, in der Strom möglich ist; Strich = Sperre; Plus am breiten Ende. Das ist der Stoff der nächsten Whiteboard-Runde.<br><b>Noch nicht erklären, was bei steigender Spannung passiert</b> <span class="trenner">&#9656;</span> das zeigt das Video.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="2 · Die Frage des Buches" data-ab="13" data-frage="Zeichnet das Schaltzeichen der Diode. Markiert mit + und −, wie sie gepolt sein muss, damit Strom fließt." data-optionen="[]" data-art="zeichnen" data-schluessel="w4" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;EINSTIEG&quot;}]">
@@ -961,7 +1158,7 @@
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="3 · Die Kennlinie" data-ab="21" data-marke="TAB" data-frage="Bei 1,9 V fließen 4,1 mA. Was fließt laut Tabelle bei 2,0 V?" data-optionen="[]" data-art="zeichnen" data-schluessel="w5">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Die Messreihe des Buches &mdash; S. 143, V3</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Bei 1,9 V fließen 4,1 mA. Was fließt laut Tabelle bei 2,0 V?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">9,0 mA</span> <span class="muted neben"><span class="trenner">&#9656;</span> mehr als doppelt so viel für 0,1 V mehr</span></div></div><div class="mwbild"><table class="wtab"><tr><th>U in V</th><td>0</td><td>1,6</td><td>1,7</td><td>1,8</td><td>1,9</td><td>2,0</td><td>2,1</td><td>2,2</td></tr><tr><th>I in mA</th><td>0</td><td>0</td><td>0,5</td><td>2,0</td><td>4,1</td><td>9,0</td><td>13</td><td>20</td></tr></table></div></div><div class="randnotiz"><b>Die Tabelle steht neben der Frage <span class="trenner">&#9656;</span> abgelesen, nicht geraten.</b> Sie ist die Messreihe V3 des Buches, wortgleich; das Video hat sie gerade bestätigt.<br><b>Wer 4,3 schreibt,</b> hat proportional weitergedacht statt hinzusehen <span class="trenner">&#9656;</span> genau der Fehler, der in Plickers 1 wiederkommt.<br><b>Wenn falsch:</b> „Woher kommt deine Zahl?“ Dann auf die Tabelle zeigen.</div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;5 von 9 &middot; Die Messreihe des Buches &mdash; <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a>, V3</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Bei 1,9 V fließen 4,1 mA. Was fließt laut Tabelle bei 2,0 V?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">9,0 mA</span> <span class="muted neben"><span class="trenner">&#9656;</span> mehr als doppelt so viel für 0,1 V mehr</span></div></div><div class="mwbild"><table class="wtab"><tr><th>U in V</th><td>0</td><td>1,6</td><td>1,7</td><td>1,8</td><td>1,9</td><td>2,0</td><td>2,1</td><td>2,2</td></tr><tr><th>I in mA</th><td>0</td><td>0</td><td>0,5</td><td>2,0</td><td>4,1</td><td>9,0</td><td>13</td><td>20</td></tr></table></div></div><div class="randnotiz"><b>Die Tabelle steht neben der Frage <span class="trenner">&#9656;</span> abgelesen, nicht geraten.</b> Sie ist die Messreihe V3 des Buches, wortgleich; das Video hat sie gerade bestätigt.<br><b>Wer 4,3 schreibt,</b> hat proportional weitergedacht statt hinzusehen <span class="trenner">&#9656;</span> genau der Fehler, der in Plickers 1 wiederkommt.<br><b>Wenn falsch:</b> „Woher kommt deine Zahl?“ Dann auf die Tabelle zeigen.</div>
 </section>
 
 <section class="slide abfrage zei" data-phase="3 · Die Kennlinie" data-ab="23" data-frage="Zeichnet die Kennlinie aus der Tabelle: U waagerecht (0–2,5 V), I senkrecht (0–20 mA)." data-optionen="[]" data-art="zeichnen" data-schluessel="z1">
@@ -969,7 +1166,7 @@
 </section>
 
 <section class="slide" data-phase="3 · Die Kennlinie" data-ab="27" data-marke="M1">
-<div class="kicker">Die Kennlinie lesen &mdash; Buch S. 143, V3 und V4</div><h2 class="wt">Keine Gerade: erst nichts, dann fast alles</h2><div class="mwsplit"><div class="mwfrage"><div class="schritte"><div class="schritt frag"><span class="num">1</span><span class="txt">Bis <b>1,6 V</b>: kein messbarer Strom. Die LED ist dunkel.</span></div><div class="schritt frag"><span class="num">2</span><span class="txt">Ab etwa <b>1,7 V</b> beginnt es <span class="trenner">&#9656;</span> das ist die <b>Schwellenspannung</b>.</span></div><div class="schritt frag"><span class="num">3</span><span class="txt">Von 1,9 auf 2,2 V: <b>0,3 V mehr, fünfmal so viel Strom</b> (4,1 → 20 mA).</span></div><div class="schritt ergebnis frag"><span class="num">4</span><span class="txt">Das ist <b>keine Gerade</b>. Das Ohmsche Gesetz gilt hier nicht.</span></div></div></div><div class="mwbild"><svg class="graph" style="width:100%" viewBox="0 0 640 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="566.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="572.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="151.2" y1="314.0" x2="151.2" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="151.2" y1="308.0" x2="151.2" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="151.2" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,5</text><line x1="248.4" y1="314.0" x2="248.4" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="248.4" y1="308.0" x2="248.4" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="248.4" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1</text><line x1="345.6" y1="314.0" x2="345.6" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="345.6" y1="308.0" x2="345.6" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="345.6" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1,5</text><line x1="442.8" y1="314.0" x2="442.8" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="442.8" y1="308.0" x2="442.8" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="442.8" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2</text><line x1="540.0" y1="314.0" x2="540.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="540.0" y1="308.0" x2="540.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="540.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2,5</text><line x1="54.0" y1="247.6" x2="560.0" y2="247.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="247.6" x2="60.0" y2="247.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="253.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">5</text><line x1="54.0" y1="181.3" x2="560.0" y2="181.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="181.3" x2="60.0" y2="181.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="187.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="114.9" x2="560.0" y2="114.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="114.9" x2="60.0" y2="114.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="120.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">15</text><line x1="54.0" y1="48.5" x2="560.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><polyline points="54.0,314.0 365.0,314.0 384.5,307.4 403.9,287.5 423.4,259.6 442.8,194.5 462.2,141.5 481.7,48.5" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="491.7" y="54.5" fill="#dc2626" font-size="18" font-weight="800">rote LED</text></svg></div></div><div class="randnotiz"><b>Die Kurve steht neben den Schritten <span class="trenner">&#9656;</span> aufdecken, einen nach dem anderen.</b> Bei Schritt 3 mit dem Finger die Steigung nachfahren: Beim Widerstand wäre das eine Gerade durch den Ursprung.<br><b>Das Wort „Schwellenspannung“ an die Tafel</b> <span class="trenner">&#9656;</span> das Buch sagt auch „Einsatzspannung“. Beides ist richtig, beides steht in der Klassenarbeit.</div>
+<div class="kicker">Die Kennlinie lesen &mdash; Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a>, V3 und V4</div><h2 class="wt">Keine Gerade: erst nichts, dann fast alles</h2><div class="mwsplit"><div class="mwfrage"><div class="schritte"><div class="schritt frag"><span class="num">1</span><span class="txt">Bis <b>1,6 V</b>: kein messbarer Strom. Die LED ist dunkel.</span></div><div class="schritt frag"><span class="num">2</span><span class="txt">Ab etwa <b>1,7 V</b> beginnt es <span class="trenner">&#9656;</span> das ist die <b>Schwellenspannung</b>.</span></div><div class="schritt frag"><span class="num">3</span><span class="txt">Von 1,9 auf 2,2 V: <b>0,3 V mehr, fünfmal so viel Strom</b> (4,1 → 20 mA).</span></div><div class="schritt ergebnis frag"><span class="num">4</span><span class="txt">Das ist <b>keine Gerade</b>. Das Ohmsche Gesetz gilt hier nicht.</span></div></div></div><div class="mwbild"><svg class="graph" style="width:100%" viewBox="0 0 640 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="566.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="572.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="151.2" y1="314.0" x2="151.2" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="151.2" y1="308.0" x2="151.2" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="151.2" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">0,5</text><line x1="248.4" y1="314.0" x2="248.4" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="248.4" y1="308.0" x2="248.4" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="248.4" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1</text><line x1="345.6" y1="314.0" x2="345.6" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="345.6" y1="308.0" x2="345.6" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="345.6" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">1,5</text><line x1="442.8" y1="314.0" x2="442.8" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="442.8" y1="308.0" x2="442.8" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="442.8" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2</text><line x1="540.0" y1="314.0" x2="540.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="540.0" y1="308.0" x2="540.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="540.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">2,5</text><line x1="54.0" y1="247.6" x2="560.0" y2="247.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="247.6" x2="60.0" y2="247.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="253.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">5</text><line x1="54.0" y1="181.3" x2="560.0" y2="181.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="181.3" x2="60.0" y2="181.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="187.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">10</text><line x1="54.0" y1="114.9" x2="560.0" y2="114.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="114.9" x2="60.0" y2="114.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="120.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">15</text><line x1="54.0" y1="48.5" x2="560.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">20</text><polyline points="54.0,314.0 365.0,314.0 384.5,307.4 403.9,287.5 423.4,259.6 442.8,194.5 462.2,141.5 481.7,48.5" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="491.7" y="54.5" fill="#dc2626" font-size="18" font-weight="800">rote LED</text></svg></div></div><div class="randnotiz"><b>Die Kurve steht neben den Schritten <span class="trenner">&#9656;</span> aufdecken, einen nach dem anderen.</b> Bei Schritt 3 mit dem Finger die Steigung nachfahren: Beim Widerstand wäre das eine Gerade durch den Ursprung.<br><b>Das Wort „Schwellenspannung“ an die Tafel</b> <span class="trenner">&#9656;</span> das Buch sagt auch „Einsatzspannung“. Beides ist richtig, beides steht in der Klassenarbeit.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="3 · Die Kennlinie" data-ab="30" data-frage="Von 1,9 V auf 2,1 V: Wird die Stromstärke etwa gleich, etwa doppelt oder mehr als dreimal so groß?" data-optionen="[]" data-art="zeichnen" data-schluessel="w6">
@@ -977,7 +1174,7 @@
 </section>
 
 <section class="slide" data-phase="4 · Merksatz" data-ab="32" data-marke="MERK">
-<div class="kicker">Das ist der Satz &mdash; Buch S. 142</div><div class="merk frag"><div class="satz"><span class="gold">Eine Diode lässt Strom nur bei geeigneter Polung zu. Ab einer bestimmten Spannung steigt die Stromstärke stark an.</span></div><div class="zusatz">Diese Spannung heißt <b>Schwellenspannung</b>. Rote LED: etwa 1,7 V. Unter der Schwelle: nichts. Darüber: fast alles.</div></div><div class="randnotiz"><b>Wortgleich der rote Kasten auf S. 142.</b> Zwei Minuten abschreiben lassen <span class="trenner">&#9656;</span> beides steht in der Klassenarbeit.<br><b>Der Zusatz ist die Merkhilfe:</b> „unter der Schwelle nichts, darüber fast alles“. Er beugt dem Fehler vor, der gleich abgefragt wird.<br><b>Die erste Hälfte (Polung)</b> hat Whiteboard 4 geprüft; wackelt sie noch, Reservefolie 31 (80 Sekunden Video).</div>
+<div class="kicker">Das ist der Satz &mdash; Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a></div><div class="merk frag"><div class="satz"><span class="gold">Eine Diode lässt Strom nur bei geeigneter Polung zu. Ab einer bestimmten Spannung steigt die Stromstärke stark an.</span></div><div class="zusatz">Diese Spannung heißt <b>Schwellenspannung</b>. Rote LED: etwa 1,7 V. Unter der Schwelle: nichts. Darüber: fast alles.</div></div><div class="randnotiz"><b>Wortgleich der rote Kasten auf <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a>.</b> Zwei Minuten abschreiben lassen <span class="trenner">&#9656;</span> beides steht in der Klassenarbeit.<br><b>Der Zusatz ist die Merkhilfe:</b> „unter der Schwelle nichts, darüber fast alles“. Er beugt dem Fehler vor, der gleich abgefragt wird.<br><b>Die erste Hälfte (Polung)</b> hat Whiteboard 4 geprüft; wackelt sie noch, Reservefolie 31 (80 Sekunden Video).</div>
 </section>
 
 <section class="slide abfrage plk stufig" data-phase="4 · Merksatz" data-ab="34" data-marke="P1" data-frage="Bei 1,8 V fließen durch die rote LED 2,0 mA. Wie viel bei 3,6 V, doppelter Spannung?" data-optionen="[&quot;4,0 mA — doppelte Spannung, doppelter Strom.&quot;, &quot;2,0 mA — die Diode begrenzt den Strom.&quot;, &quot;Viel mehr — die LED wird zerstört.&quot;, &quot;0 mA — über der Schwelle sperrt sie wieder.&quot;]" data-schluessel="p1" data-weiche="[{&quot;bis&quot;: 69, &quot;ziel&quot;: &quot;R1&quot;, &quot;kostet&quot;: &quot;vier Minuten&quot;}]">
@@ -993,11 +1190,11 @@
 </section>
 
 <section class="slide" data-phase="5 · Metall gegen Halbleiter" data-ab="41" data-marke="VERGLEICH">
-<div class="kicker">Buch S. 136 (Stunde S1) und heute &mdash; drei Bauteile, drei Kurven</div><h2 class="wt">Metall gegen Halbleiter: dieselbe Spannung, drei Kurven</h2><div class="mwsplit"><div class="mwfrage"><div class="schritte"><div class="schritt frag"><span class="num">1</span><span class="txt"><b>Konstantan:</b> eine Gerade <span class="trenner">&#9656;</span> der Widerstand bleibt, das Ohmsche Gesetz gilt.</span></div><div class="schritt frag"><span class="num">2</span><span class="txt"><b>Glühdraht (Metall):</b> Er wird heiß, sein Widerstand <b>wächst</b> <span class="trenner">&#9656;</span> die Kurve knickt nach <b>rechts</b>.</span></div><div class="schritt frag"><span class="num">3</span><span class="txt"><b>Halbleiter (NTC):</b> Er wird warm, sein Widerstand <b>fällt</b> <span class="trenner">&#9656;</span> die Kurve knickt nach <b>oben</b>.</span></div><div class="schritt ergebnis frag"><span class="num">4</span><span class="txt">Die Diode ist der Halbleiter-Fall im Extrem: unter der Schwelle nichts, darüber fast alles.</span></div></div></div><div class="mwbild"><svg class="graph" style="width:100%" viewBox="0 0 600 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="506.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="512.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="160.5" y1="314.0" x2="160.5" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="160.5" y1="308.0" x2="160.5" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="160.5" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">3</text><line x1="267.0" y1="314.0" x2="267.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="267.0" y1="308.0" x2="267.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="267.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">6</text><line x1="373.5" y1="314.0" x2="373.5" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="373.5" y1="308.0" x2="373.5" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="373.5" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">9</text><line x1="480.0" y1="314.0" x2="480.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="480.0" y1="308.0" x2="480.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="480.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">12</text><line x1="54.0" y1="247.6" x2="500.0" y2="247.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="247.6" x2="60.0" y2="247.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="253.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">25</text><line x1="54.0" y1="181.3" x2="500.0" y2="181.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="181.3" x2="60.0" y2="181.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="187.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">50</text><line x1="54.0" y1="114.9" x2="500.0" y2="114.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="114.9" x2="60.0" y2="114.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="120.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">75</text><line x1="54.0" y1="48.5" x2="500.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">100</text><polyline points="54.0,314.0 71.8,302.9 89.5,291.9 107.2,280.8 125.0,269.8 142.8,258.7 160.5,247.6 178.2,236.6 196.0,225.5 213.8,214.5 231.5,203.4 249.2,192.3 267.0,181.3 284.8,170.2 302.5,159.2 320.2,148.1 338.0,137.0 355.8,126.0 373.5,114.9 391.2,103.8 409.0,92.8 426.8,81.7 444.5,70.7 462.2,59.6 480.0,48.5" fill="none" stroke="#64748b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="490.0" y="54.5" fill="#64748b" font-size="18" font-weight="800">Konstantan</text><polyline points="54.0,314.0 71.8,274.6 89.5,254.2 107.2,237.8 125.0,223.4 142.8,210.4 160.5,198.5 178.2,187.3 196.0,176.7 213.8,166.6 231.5,157.0 249.2,147.8 267.0,138.9 284.8,130.2 302.5,121.9 320.2,113.8 338.0,105.9 355.8,98.2 373.5,90.6 391.2,83.3 409.0,76.1 426.8,69.0 444.5,62.0 462.2,55.2 480.0,48.5" fill="none" stroke="#b45309" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="490.0" y="54.5" fill="#b45309" font-size="18" font-weight="800">Glühdraht</text><polyline points="54.0,314.0 71.8,313.3 89.5,312.6 107.2,311.7 125.0,310.6 142.8,309.4 160.5,308.0 178.2,306.4 196.0,304.6 213.8,302.5 231.5,300.1 249.2,297.4 267.0,294.3 284.8,290.8 302.5,286.9 320.2,282.4 338.0,277.4 355.8,271.7 373.5,265.3 391.2,258.2 409.0,250.1 426.8,241.1 444.5,231.0 462.2,219.7 480.0,207.0" fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="490.0" y="213.0" fill="#2563eb" font-size="18" font-weight="800">Halbleiter</text></svg><p class="muted" style="font-size:20px;margin:4px 0 0">Modellkurven <span class="trenner">&#9656;</span> die Form, nicht die Messwerte aus dem Video.</p></div></div><div class="randnotiz"><b>Aufdecken, einen Schritt nach dem anderen; die Kurven stehen daneben.</b> Schritt 1 ist der Maßstab aus Video 2, Schritt 2 die Lampe aus Video 2, Schritt 3 der NTC aus Stunde S1 <span class="trenner">&#9656;</span> nur der Vollständigkeit halber, ohne Messung.<br><b>Der Satz, der bleiben soll:</b> Metalle werden beim Erwärmen schlechter, Halbleiter besser. Die Diode treibt das auf die Spitze.<br><b>Die Kurven sind Modellkurven</b> <span class="trenner">&#9656;</span> das steht auf der Folie und auf dem Lehrerblatt.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=136&amp;bis=136" title="Buchseite 136 im Viewer öffnen — blätterbar und skalierbar">S. 136</a> (Stunde S1) und heute &mdash; drei Bauteile, drei Kurven</div><h2 class="wt">Metall gegen Halbleiter: dieselbe Spannung, drei Kurven</h2><div class="mwsplit"><div class="mwfrage"><div class="schritte"><div class="schritt frag"><span class="num">1</span><span class="txt"><b>Konstantan:</b> eine Gerade <span class="trenner">&#9656;</span> der Widerstand bleibt, das Ohmsche Gesetz gilt.</span></div><div class="schritt frag"><span class="num">2</span><span class="txt"><b>Glühdraht (Metall):</b> Er wird heiß, sein Widerstand <b>wächst</b> <span class="trenner">&#9656;</span> die Kurve knickt nach <b>rechts</b>.</span></div><div class="schritt frag"><span class="num">3</span><span class="txt"><b>Halbleiter (NTC):</b> Er wird warm, sein Widerstand <b>fällt</b> <span class="trenner">&#9656;</span> die Kurve knickt nach <b>oben</b>.</span></div><div class="schritt ergebnis frag"><span class="num">4</span><span class="txt">Die Diode ist der Halbleiter-Fall im Extrem: unter der Schwelle nichts, darüber fast alles.</span></div></div></div><div class="mwbild"><svg class="graph" style="width:100%" viewBox="0 0 600 360" role="img" aria-label="Koordinatensystem"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/></marker></defs><line x1="54.0" y1="314.0" x2="506.0" y2="314.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><line x1="54.0" y1="314.0" x2="54.0" y2="8.0" stroke="#64748b" stroke-width="2.2" marker-end="url(#sp)"/><text x="512.0" y="320.0" fill="#64748b" font-size="17" font-weight="700">U in V</text><text x="54.0" y="0.0" fill="#64748b" font-size="17" font-weight="700" text-anchor="middle">I in mA</text><line x1="160.5" y1="314.0" x2="160.5" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="160.5" y1="308.0" x2="160.5" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="160.5" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">3</text><line x1="267.0" y1="314.0" x2="267.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="267.0" y1="308.0" x2="267.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="267.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">6</text><line x1="373.5" y1="314.0" x2="373.5" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="373.5" y1="308.0" x2="373.5" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="373.5" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">9</text><line x1="480.0" y1="314.0" x2="480.0" y2="22.0" stroke="#e2e8f0" stroke-width="1.5"/><line x1="480.0" y1="308.0" x2="480.0" y2="320.0" stroke="#64748b" stroke-width="2"/><text x="480.0" y="340.0" fill="#475569" font-size="16" font-weight="700" text-anchor="middle">12</text><line x1="54.0" y1="247.6" x2="500.0" y2="247.6" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="247.6" x2="60.0" y2="247.6" stroke="#64748b" stroke-width="2"/><text x="44.0" y="253.6" fill="#475569" font-size="16" font-weight="700" text-anchor="end">25</text><line x1="54.0" y1="181.3" x2="500.0" y2="181.3" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="181.3" x2="60.0" y2="181.3" stroke="#64748b" stroke-width="2"/><text x="44.0" y="187.3" fill="#475569" font-size="16" font-weight="700" text-anchor="end">50</text><line x1="54.0" y1="114.9" x2="500.0" y2="114.9" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="114.9" x2="60.0" y2="114.9" stroke="#64748b" stroke-width="2"/><text x="44.0" y="120.9" fill="#475569" font-size="16" font-weight="700" text-anchor="end">75</text><line x1="54.0" y1="48.5" x2="500.0" y2="48.5" stroke="#e2e8f0" stroke-width="1.5"/><line x1="48.0" y1="48.5" x2="60.0" y2="48.5" stroke="#64748b" stroke-width="2"/><text x="44.0" y="54.5" fill="#475569" font-size="16" font-weight="700" text-anchor="end">100</text><polyline points="54.0,314.0 71.8,302.9 89.5,291.9 107.2,280.8 125.0,269.8 142.8,258.7 160.5,247.6 178.2,236.6 196.0,225.5 213.8,214.5 231.5,203.4 249.2,192.3 267.0,181.3 284.8,170.2 302.5,159.2 320.2,148.1 338.0,137.0 355.8,126.0 373.5,114.9 391.2,103.8 409.0,92.8 426.8,81.7 444.5,70.7 462.2,59.6 480.0,48.5" fill="none" stroke="#64748b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="490.0" y="54.5" fill="#64748b" font-size="18" font-weight="800">Konstantan</text><polyline points="54.0,314.0 71.8,274.6 89.5,254.2 107.2,237.8 125.0,223.4 142.8,210.4 160.5,198.5 178.2,187.3 196.0,176.7 213.8,166.6 231.5,157.0 249.2,147.8 267.0,138.9 284.8,130.2 302.5,121.9 320.2,113.8 338.0,105.9 355.8,98.2 373.5,90.6 391.2,83.3 409.0,76.1 426.8,69.0 444.5,62.0 462.2,55.2 480.0,48.5" fill="none" stroke="#b45309" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="490.0" y="54.5" fill="#b45309" font-size="18" font-weight="800">Glühdraht</text><polyline points="54.0,314.0 71.8,313.3 89.5,312.6 107.2,311.7 125.0,310.6 142.8,309.4 160.5,308.0 178.2,306.4 196.0,304.6 213.8,302.5 231.5,300.1 249.2,297.4 267.0,294.3 284.8,290.8 302.5,286.9 320.2,282.4 338.0,277.4 355.8,271.7 373.5,265.3 391.2,258.2 409.0,250.1 426.8,241.1 444.5,231.0 462.2,219.7 480.0,207.0" fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><text x="490.0" y="213.0" fill="#2563eb" font-size="18" font-weight="800">Halbleiter</text></svg><p class="muted" style="font-size:20px;margin:4px 0 0">Modellkurven <span class="trenner">&#9656;</span> die Form, nicht die Messwerte aus dem Video.</p></div></div><div class="randnotiz"><b>Aufdecken, einen Schritt nach dem anderen; die Kurven stehen daneben.</b> Schritt 1 ist der Maßstab aus Video 2, Schritt 2 die Lampe aus Video 2, Schritt 3 der NTC aus Stunde S1 <span class="trenner">&#9656;</span> nur der Vollständigkeit halber, ohne Messung.<br><b>Der Satz, der bleiben soll:</b> Metalle werden beim Erwärmen schlechter, Halbleiter besser. Die Diode treibt das auf die Spitze.<br><b>Die Kurven sind Modellkurven</b> <span class="trenner">&#9656;</span> das steht auf der Folie und auf dem Lehrerblatt.</div>
 </section>
 
 <section class="slide" data-phase="6 · Farbe und Vorwiderstand" data-ab="43" data-marke="FARBEN">
-<div class="kicker">Buch S. 142 (Text, B5) und S. 143 (V4, abgelesen)</div><h2 class="wt">Jede Farbe hat ihre Schwelle</h2><div class="schilder"><div class="schild"><h3>Ab welcher Spannung fließt Strom?</h3><table><tr><td>Silicium-Diode</td><td class="p">≈ 0,7 V</td></tr><tr><td>Infrarot-LED</td><td class="p">≈ 1,2 V</td></tr><tr><td>rote LED</td><td class="p">≈ 1,7 V</td></tr><tr><td>blaue LED</td><td class="p">≈ 3 V</td></tr><tr><td>weiße LED</td><td class="p">≈ 3 V (blau + Leuchtstoff)</td></tr></table><div class="fuss">Buch S. 142 (Text, B5), S. 143 (Diagramm V4)</div></div></div><p class="lead weit frag" style="margin-top:1.4vh">Das Buch (B5): „Zwischen der Farbe und der Spannung, ab der ein Strom einsetzt, besteht ein Zusammenhang.“ Je kurzwelliger das Licht, desto höher die Schwelle <span class="trenner">&#9656;</span> und Weiß ist eine blaue LED mit einer Leuchtstoffschicht.</p><div class="randnotiz"><b>Erst die Tabelle, dann die Abfrage <span class="trenner">&#9656;</span> nichts wird geraten.</b> Die Werte: 0,7 V und 1,7 V aus dem Text, Infrarot und Blau aus dem Diagramm V4 abgelesen (steht so auf dem Lehrerblatt).<br><b>Die weiße LED ist der Schlüssel zur nächsten Frage:</b> Buch S. 142 unten <span class="trenner">&#9656;</span> blaue LED plus Phosphor, ein Sechstel der Energie einer Glühlampe. Das ist der Fahrradscheinwerfer.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a> (Text, B5) und <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a> (V4, abgelesen)</div><h2 class="wt">Jede Farbe hat ihre Schwelle</h2><div class="schilder"><div class="schild"><h3>Ab welcher Spannung fließt Strom?</h3><table><tr><td>Silicium-Diode</td><td class="p">≈ 0,7 V</td></tr><tr><td>Infrarot-LED</td><td class="p">≈ 1,2 V</td></tr><tr><td>rote LED</td><td class="p">≈ 1,7 V</td></tr><tr><td>blaue LED</td><td class="p">≈ 3 V</td></tr><tr><td>weiße LED</td><td class="p">≈ 3 V (blau + Leuchtstoff)</td></tr></table><div class="fuss">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a> (Text, B5), <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a> (Diagramm V4)</div></div></div><p class="lead weit frag" style="margin-top:1.4vh">Das Buch (B5): „Zwischen der Farbe und der Spannung, ab der ein Strom einsetzt, besteht ein Zusammenhang.“ Je kurzwelliger das Licht, desto höher die Schwelle <span class="trenner">&#9656;</span> und Weiß ist eine blaue LED mit einer Leuchtstoffschicht.</p><div class="randnotiz"><b>Erst die Tabelle, dann die Abfrage <span class="trenner">&#9656;</span> nichts wird geraten.</b> Die Werte: 0,7 V und 1,7 V aus dem Text, Infrarot und Blau aus dem Diagramm V4 abgelesen (steht so auf dem Lehrerblatt).<br><b>Die weiße LED ist der Schlüssel zur nächsten Frage:</b> Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=142&amp;bis=142" title="Buchseite 142 im Viewer öffnen — blätterbar und skalierbar">S. 142</a> unten <span class="trenner">&#9656;</span> blaue LED plus Phosphor, ein Sechstel der Energie einer Glühlampe. Das ist der Fahrradscheinwerfer.</div>
 </section>
 
 <section class="slide abfrage plk stufig" data-phase="6 · Farbe und Vorwiderstand" data-ab="45" data-marke="P2" data-frage="Eine weiße LED wird an 1,7 V angeschlossen — die Schwelle der roten. Was passiert?" data-optionen="[&quot;Sie leuchtet rot — 1,7 V ist die rote Schwelle.&quot;, &quot;Sie leuchtet weiß, aber schwach.&quot;, &quot;Sie bleibt dunkel — ihre Schwelle liegt bei etwa 3 V.&quot;, &quot;Sie leuchtet blau, der Leuchtstoff bleibt aus.&quot;]" data-schluessel="p2" data-weiche="[{&quot;bis&quot;: 59, &quot;ziel&quot;: &quot;R2&quot;}]">
@@ -1005,15 +1202,15 @@
 </section>
 
 <section class="slide" data-phase="6 · Farbe und Vorwiderstand" data-ab="47" data-marke="M2">
-<div class="kicker">Ich zeige es &middot; Buch S. 143, Aufgabe A4</div><h2 class="wt">Warum die LED einen Vorwiderstand braucht</h2><p class="lead weit">Die Schwelle ist auch eine Gefahr: Über ihr wächst der Strom mit jedem Zehntelvolt. Der Widerstand hält ihn fest.</p><div class="schritte eng"><div class="schritt  frag"><span class="num">1</span><span class="txt">Eine <b>blaue LED</b> soll im Auto an <b>12 V</b> betrieben werden, mit <b>20 mA</b>. Ihre Schwelle: etwa 3 V <span class="trenner">&#9656;</span> mehr darf an ihr nicht abfallen, sonst steigt der Strom ins Unermessliche.</span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Der Rest der Spannung muss <b>am Widerstand</b> abfallen.<span class="rech"><span class="tex" data-tex="U_R = 12\,\text{V} - 3\,\text{V} = 9\,\text{V}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">12</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">9</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Durch beide fließt <b>derselbe Strom</b> <span class="trenner">&#9656;</span> Reihenschaltung.<span class="rech"><span class="tex" data-tex="I = 20\,\text{mA} = 0{,}02\,\text{A}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">20</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">mA</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">02</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">A</span></span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">4</span><span class="txt">Das Ohmsche Gesetz gilt <b>für den Widerstand</b> <span class="trenner">&#9656;</span> dort darf man es benutzen.<span class="rech"><span class="tex" data-tex="R = \frac{U_R}{I} = \frac{9\,\text{V}}{0{,}02\,\text{A}} = 450\,\Omega"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2336em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0785em;">I</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.109em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3534em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8723em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight"><span class="mpunct mtight">,</span></span><span class="mord mtight">02</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord text mtight"><span class="mord mtight">A</span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">9</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord text mtight"><span class="mord mtight">V</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">450</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Ω</span></span></span></span></span></span></span></div><div class="schritt ergebnis frag"><span class="num">5</span><span class="txt">Aus dem Kasten: <b>470 Ω</b>. Etwas mehr ist erlaubt (etwas weniger Strom), weniger nicht.</span></div></div><div class="randnotiz"><b>Buch A4, mit den Zahlen des Buches.</b> Die 3 V sind aus V4 abgelesen <span class="trenner">&#9656;</span> sagen Sie das.<br><b>Schritt 4 ist der Kern:</b> Das Ohmsche Gesetz gilt weiter <span class="trenner">&#9656;</span> nur nicht für die Diode. Für den Widerstand daneben schon. Wer das trennt, hat beide Bauteile verstanden.<br><b>Schritt 5 nicht weglassen:</b> „aus dem Kasten“ ist die Verbindung zur Einstein-Zeit. 470 Ω liegt im ELO-Kasten.</div>
+<div class="kicker">Ich zeige es &middot; Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a>, Aufgabe A4</div><h2 class="wt">Warum die LED einen Vorwiderstand braucht</h2><p class="lead weit">Die Schwelle ist auch eine Gefahr: Über ihr wächst der Strom mit jedem Zehntelvolt. Der Widerstand hält ihn fest.</p><div class="schritte eng"><div class="schritt  frag"><span class="num">1</span><span class="txt">Eine <b>blaue LED</b> soll im Auto an <b>12 V</b> betrieben werden, mit <b>20 mA</b>. Ihre Schwelle: etwa 3 V <span class="trenner">&#9656;</span> mehr darf an ihr nicht abfallen, sonst steigt der Strom ins Unermessliche.</span></div><div class="schritt  frag"><span class="num">2</span><span class="txt">Der Rest der Spannung muss <b>am Widerstand</b> abfallen.<span class="rech"><span class="tex" data-tex="U_R = 12\,\text{V} - 3\,\text{V} = 9\,\text{V}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">12</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">9</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">3</span><span class="txt">Durch beide fließt <b>derselbe Strom</b> <span class="trenner">&#9656;</span> Reihenschaltung.<span class="rech"><span class="tex" data-tex="I = 20\,\text{mA} = 0{,}02\,\text{A}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">20</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">mA</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">02</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">A</span></span></span></span></span></span></span></span></div><div class="schritt  frag"><span class="num">4</span><span class="txt">Das Ohmsche Gesetz gilt <b>für den Widerstand</b> <span class="trenner">&#9656;</span> dort darf man es benutzen.<span class="rech"><span class="tex" data-tex="R = \frac{U_R}{I} = \frac{9\,\text{V}}{0{,}02\,\text{A}} = 450\,\Omega"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2336em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0785em;">I</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.109em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3534em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8723em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight"><span class="mpunct mtight">,</span></span><span class="mord mtight">02</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord text mtight"><span class="mord mtight">A</span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">9</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord text mtight"><span class="mord mtight">V</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">450</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Ω</span></span></span></span></span></span></span></div><div class="schritt ergebnis frag"><span class="num">5</span><span class="txt">Aus dem Kasten: <b>470 Ω</b>. Etwas mehr ist erlaubt (etwas weniger Strom), weniger nicht.</span></div></div><div class="randnotiz"><b>Buch A4, mit den Zahlen des Buches.</b> Die 3 V sind aus V4 abgelesen <span class="trenner">&#9656;</span> sagen Sie das.<br><b>Schritt 4 ist der Kern:</b> Das Ohmsche Gesetz gilt weiter <span class="trenner">&#9656;</span> nur nicht für die Diode. Für den Widerstand daneben schon. Wer das trennt, hat beide Bauteile verstanden.<br><b>Schritt 5 nicht weglassen:</b> „aus dem Kasten“ ist die Verbindung zur Einstein-Zeit. 470 Ω liegt im ELO-Kasten.</div>
 </section>
 
 <section class="slide abfrage mwb ipad" data-phase="6 · Farbe und Vorwiderstand" data-ab="50" data-frage="Eine rote LED (Schwelle 1,7 V, 20 mA) an 9 V. Welcher Vorwiderstand?" data-optionen="[]" data-art="zeichnen" data-schluessel="w8" data-weiche="[{&quot;bis&quot;: 59, &quot;ziel&quot;: &quot;M2&quot;}]">
-<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;8 von 9 &middot; Dieselbe Rechnung, andere Zahlen</div><div class="frage">Eine rote LED (Schwelle 1,7 V, 20 mA) an 9 V. Welcher Vorwiderstand?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">365 Ω</span> <span class="muted neben"><span class="trenner">&#9656;</span> (9 V − 1,7 V) : 0,02 A; aus dem Kasten: 470 Ω</span></div><div class="randnotiz"><b>Buch A4 mit anderen Zahlen <span class="trenner">&#9656;</span> die Rechnung von Folie 22 selbst.</b><br><b>Wenn falsch:</b> „450 Ω“ heißt, die Schwelle wurde nicht abgezogen (9 : 0,02). „0,146“ heißt 7,3 V : 50 <span class="trenner">&#9656;</span> Einheiten. Beides an die Tafel: „Was fällt am Widerstand ab?“<br><b>Die Kastenfrage stellen:</b> 470 Ω oder 1 kΩ? 470 (etwas weniger Strom als 20 mA: 15,5 mA). 1 kΩ gäbe 7,3 mA <span class="trenner">&#9656;</span> leuchtet, aber schwach.<span class="weiche"><i>Weiche:</i> unter 60 % <span class="trenner">&#9656;</span> Folie 22 noch einmal, Schritt 2 und 4 mit 9 V und 1,7 V an der Tafel. Zwei Minuten.</span></div>
+<div class="kicker"><span class="marke mwb"><span class="ohne">Mini-Whiteboard</span><span class="mit">Auf dem iPad</span></span> &nbsp;8 von 9 &middot; Dieselbe Rechnung, andere Zahlen</div><div class="mwsplit"><div class="mwfrage"><div class="frage">Eine rote LED (Schwelle 1,7 V, 20 mA) an 9 V. Welcher Vorwiderstand?</div><div class="galerie" data-n="0"><p class="lead leer">Zeichnet die Antwort auf dem iPad und tippt auf <b>Abschicken</b>.</p></div><div class="zeiknoepfe"><button type="button" class="alle">Alle zeigen</button><button type="button" class="keine">Alle verbergen</button><button type="button" class="zip" title="Alle Bilder als ZIP sichern">&#128190; Alle als ZIP</button><span class="zaehler">0 Bilder</span></div><div class="antwort frag hart"><span class="pill">Antwort</span> <span class="wert">365 Ω</span> <span class="muted neben"><span class="trenner">&#9656;</span> (9 V − 1,7 V) : 0,02 A; aus dem Kasten: 470 Ω</span></div></div><div class="mwbild"><figure class="rueckblende" title="Klick: gross zeigen"><figcaption>die Rechnung von eben</figcaption><div class="rbinhalt"><p><b>Blaue LED an 12 V</b>, 20 mA, Schwelle 3 V</p><p><span class="tex" data-tex="U_R = 12\,\text{V} - 3\,\text{V} = 9\,\text{V}"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">12</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">9</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span></span></span></span></span></p><p><span class="tex" data-tex="R = 9\,\text{V} : 0{,}02\,\text{A} = 450\,\Omega"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">9</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">V</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">02</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">A</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">450</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Ω</span></span></span></span></span></p><p>Aus dem Kasten: <b>470 Ω</b></p></div></figure></div></div><div class="randnotiz"><b>Buch A4 mit anderen Zahlen <span class="trenner">&#9656;</span> die Rechnung von Folie 22 selbst.</b><br><b>Wenn falsch:</b> „450 Ω“ heißt, die Schwelle wurde nicht abgezogen (9 : 0,02). „0,146“ heißt 7,3 V : 50 <span class="trenner">&#9656;</span> Einheiten. Beides an die Tafel: „Was fällt am Widerstand ab?“<br><b>Die Kastenfrage stellen:</b> 470 Ω oder 1 kΩ? 470 (etwas weniger Strom als 20 mA: 15,5 mA). 1 kΩ gäbe 7,3 mA <span class="trenner">&#9656;</span> leuchtet, aber schwach.<span class="weiche"><i>Weiche:</i> unter 60 % <span class="trenner">&#9656;</span> Folie 22 noch einmal, Schritt 2 und 4 mit 9 V und 1,7 V an der Tafel. Zwei Minuten.</span></div>
 </section>
 
 <section class="slide" data-phase="7 · Gleichrichter" data-ab="52" data-marke="HALB">
-<div class="kicker">Buch S. 143, V1 &mdash; Diode und Gl&uuml;hlampe an Wechselspannung</div><h2 class="wt">Was die Diode mit Wechselstrom macht</h2><p class="lead weit">Bei Wechselstrom ändern die Elektronen ständig ihre Richtung. Die Diode lässt nur eine davon durch.</p><svg viewBox="0 0 760 250" style="width:760px;height:auto;margin:6px 0" role="img" aria-label="Wechselspannung der Quelle und pulsierende Gleichspannung hinter der Diode"><rect x="30" y="30" width="320" height="170" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><line x1="40" y1="115" x2="340" y2="115" stroke="#64748b" stroke-width="2"/><line x1="50" y1="40" x2="50" y2="190" stroke="#64748b" stroke-width="2"/><polyline points="50.0,115.0 52.3,108.7 54.7,102.5 57.0,96.5 59.3,90.6 61.7,85.0 64.0,79.7 66.3,74.9 68.7,70.4 71.0,66.5 73.3,63.0 75.7,60.2 78.0,57.9 80.3,56.3 82.7,55.3 85.0,55.0 87.3,55.3 89.7,56.3 92.0,57.9 94.3,60.2 96.7,63.0 99.0,66.5 101.3,70.4 103.7,74.9 106.0,79.7 108.3,85.0 110.7,90.6 113.0,96.5 115.3,102.5 117.7,108.7 120.0,115.0 122.3,121.3 124.7,127.5 127.0,133.5 129.3,139.4 131.7,145.0 134.0,150.3 136.3,155.1 138.7,159.6 141.0,163.5 143.3,167.0 145.7,169.8 148.0,172.1 150.3,173.7 152.7,174.7 155.0,175.0 157.3,174.7 159.7,173.7 162.0,172.1 164.3,169.8 166.7,167.0 169.0,163.5 171.3,159.6 173.7,155.1 176.0,150.3 178.3,145.0 180.7,139.4 183.0,133.5 185.3,127.5 187.7,121.3 190.0,115.0 192.3,108.7 194.7,102.5 197.0,96.5 199.3,90.6 201.7,85.0 204.0,79.7 206.3,74.9 208.7,70.4 211.0,66.5 213.3,63.0 215.7,60.2 218.0,57.9 220.3,56.3 222.7,55.3 225.0,55.0 227.3,55.3 229.7,56.3 232.0,57.9 234.3,60.2 236.7,63.0 239.0,66.5 241.3,70.4 243.7,74.9 246.0,79.7 248.3,85.0 250.7,90.6 253.0,96.5 255.3,102.5 257.7,108.7 260.0,115.0 262.3,121.3 264.7,127.5 267.0,133.5 269.3,139.4 271.7,145.0 274.0,150.3 276.3,155.1 278.7,159.6 281.0,163.5 283.3,167.0 285.7,169.8 288.0,172.1 290.3,173.7 292.7,174.7 295.0,175.0 297.3,174.7 299.7,173.7 302.0,172.1 304.3,169.8 306.7,167.0 309.0,163.5 311.3,159.6 313.7,155.1 316.0,150.3 318.3,145.0 320.7,139.4 323.0,133.5 325.3,127.5 327.7,121.3 330.0,115.0" fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linejoin="round"/><text x="190" y="228" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle">Quelle: Wechselspannung</text><text x="330" y="60" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">U</text><text x="330" y="135" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">t</text><rect x="410" y="30" width="320" height="170" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><line x1="420" y1="115" x2="720" y2="115" stroke="#64748b" stroke-width="2"/><line x1="430" y1="40" x2="430" y2="190" stroke="#64748b" stroke-width="2"/><polyline points="430.0,115.0 432.3,108.7 434.7,102.5 437.0,96.5 439.3,90.6 441.7,85.0 444.0,79.7 446.3,74.9 448.7,70.4 451.0,66.5 453.3,63.0 455.7,60.2 458.0,57.9 460.3,56.3 462.7,55.3 465.0,55.0 467.3,55.3 469.7,56.3 472.0,57.9 474.3,60.2 476.7,63.0 479.0,66.5 481.3,70.4 483.7,74.9 486.0,79.7 488.3,85.0 490.7,90.6 493.0,96.5 495.3,102.5 497.7,108.7 500.0,115.0 502.3,115.0 504.7,115.0 507.0,115.0 509.3,115.0 511.7,115.0 514.0,115.0 516.3,115.0 518.7,115.0 521.0,115.0 523.3,115.0 525.7,115.0 528.0,115.0 530.3,115.0 532.7,115.0 535.0,115.0 537.3,115.0 539.7,115.0 542.0,115.0 544.3,115.0 546.7,115.0 549.0,115.0 551.3,115.0 553.7,115.0 556.0,115.0 558.3,115.0 560.7,115.0 563.0,115.0 565.3,115.0 567.7,115.0 570.0,115.0 572.3,108.7 574.7,102.5 577.0,96.5 579.3,90.6 581.7,85.0 584.0,79.7 586.3,74.9 588.7,70.4 591.0,66.5 593.3,63.0 595.7,60.2 598.0,57.9 600.3,56.3 602.7,55.3 605.0,55.0 607.3,55.3 609.7,56.3 612.0,57.9 614.3,60.2 616.7,63.0 619.0,66.5 621.3,70.4 623.7,74.9 626.0,79.7 628.3,85.0 630.7,90.6 633.0,96.5 635.3,102.5 637.7,108.7 640.0,115.0 642.3,115.0 644.7,115.0 647.0,115.0 649.3,115.0 651.7,115.0 654.0,115.0 656.3,115.0 658.7,115.0 661.0,115.0 663.3,115.0 665.7,115.0 668.0,115.0 670.3,115.0 672.7,115.0 675.0,115.0 677.3,115.0 679.7,115.0 682.0,115.0 684.3,115.0 686.7,115.0 689.0,115.0 691.3,115.0 693.7,115.0 696.0,115.0 698.3,115.0 700.7,115.0 703.0,115.0 705.3,115.0 707.7,115.0 710.0,115.0" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linejoin="round"/><text x="570" y="228" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle">an der Lampe, hinter der Diode</text><text x="710" y="60" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">U</text><text x="710" y="135" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">t</text><text x="380" y="120" font-size="40" font-weight="800" fill="#0f172a" text-anchor="middle">→</text></svg><div class="callout frag"><p>„Nur etwa während der halben Zeit besteht ein Strom, und die Spannung an der Glühlampe ist etwa 0,7 V niedriger als an der Quelle.“ (Buch V1) <span class="trenner">&#9656;</span> Das nennt man <b>pulsierenden Gleichstrom</b>.</p></div><div class="randnotiz"><b>Buch B4 und V1, in einem Bild.</b> Links die Quelle, rechts das, was hinter der Diode ankommt.<br><b>Die 0,7 V ansprechen:</b> Das ist die Schwelle der Silicium-Diode <span class="trenner">&#9656;</span> dieselbe Zahl wie auf der Farbenfolie. Die Diode „behält“ sie.<br><b>Das Wort „pulsierend“ betonen.</b> Nicht glatt. Das ist die dritte Fehlvorstellung, Plickers 3 fragt sie ab.</div>
+<div class="kicker">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a>, V1 &mdash; Diode und Gl&uuml;hlampe an Wechselspannung</div><h2 class="wt">Was die Diode mit Wechselstrom macht</h2><p class="lead weit">Bei Wechselstrom ändern die Elektronen ständig ihre Richtung. Die Diode lässt nur eine davon durch.</p><svg viewBox="0 0 760 250" style="width:760px;height:auto;margin:6px 0" role="img" aria-label="Wechselspannung der Quelle und pulsierende Gleichspannung hinter der Diode"><rect x="30" y="30" width="320" height="170" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><line x1="40" y1="115" x2="340" y2="115" stroke="#64748b" stroke-width="2"/><line x1="50" y1="40" x2="50" y2="190" stroke="#64748b" stroke-width="2"/><polyline points="50.0,115.0 52.3,108.7 54.7,102.5 57.0,96.5 59.3,90.6 61.7,85.0 64.0,79.7 66.3,74.9 68.7,70.4 71.0,66.5 73.3,63.0 75.7,60.2 78.0,57.9 80.3,56.3 82.7,55.3 85.0,55.0 87.3,55.3 89.7,56.3 92.0,57.9 94.3,60.2 96.7,63.0 99.0,66.5 101.3,70.4 103.7,74.9 106.0,79.7 108.3,85.0 110.7,90.6 113.0,96.5 115.3,102.5 117.7,108.7 120.0,115.0 122.3,121.3 124.7,127.5 127.0,133.5 129.3,139.4 131.7,145.0 134.0,150.3 136.3,155.1 138.7,159.6 141.0,163.5 143.3,167.0 145.7,169.8 148.0,172.1 150.3,173.7 152.7,174.7 155.0,175.0 157.3,174.7 159.7,173.7 162.0,172.1 164.3,169.8 166.7,167.0 169.0,163.5 171.3,159.6 173.7,155.1 176.0,150.3 178.3,145.0 180.7,139.4 183.0,133.5 185.3,127.5 187.7,121.3 190.0,115.0 192.3,108.7 194.7,102.5 197.0,96.5 199.3,90.6 201.7,85.0 204.0,79.7 206.3,74.9 208.7,70.4 211.0,66.5 213.3,63.0 215.7,60.2 218.0,57.9 220.3,56.3 222.7,55.3 225.0,55.0 227.3,55.3 229.7,56.3 232.0,57.9 234.3,60.2 236.7,63.0 239.0,66.5 241.3,70.4 243.7,74.9 246.0,79.7 248.3,85.0 250.7,90.6 253.0,96.5 255.3,102.5 257.7,108.7 260.0,115.0 262.3,121.3 264.7,127.5 267.0,133.5 269.3,139.4 271.7,145.0 274.0,150.3 276.3,155.1 278.7,159.6 281.0,163.5 283.3,167.0 285.7,169.8 288.0,172.1 290.3,173.7 292.7,174.7 295.0,175.0 297.3,174.7 299.7,173.7 302.0,172.1 304.3,169.8 306.7,167.0 309.0,163.5 311.3,159.6 313.7,155.1 316.0,150.3 318.3,145.0 320.7,139.4 323.0,133.5 325.3,127.5 327.7,121.3 330.0,115.0" fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linejoin="round"/><text x="190" y="228" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle">Quelle: Wechselspannung</text><text x="330" y="60" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">U</text><text x="330" y="135" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">t</text><rect x="410" y="30" width="320" height="170" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><line x1="420" y1="115" x2="720" y2="115" stroke="#64748b" stroke-width="2"/><line x1="430" y1="40" x2="430" y2="190" stroke="#64748b" stroke-width="2"/><polyline points="430.0,115.0 432.3,108.7 434.7,102.5 437.0,96.5 439.3,90.6 441.7,85.0 444.0,79.7 446.3,74.9 448.7,70.4 451.0,66.5 453.3,63.0 455.7,60.2 458.0,57.9 460.3,56.3 462.7,55.3 465.0,55.0 467.3,55.3 469.7,56.3 472.0,57.9 474.3,60.2 476.7,63.0 479.0,66.5 481.3,70.4 483.7,74.9 486.0,79.7 488.3,85.0 490.7,90.6 493.0,96.5 495.3,102.5 497.7,108.7 500.0,115.0 502.3,115.0 504.7,115.0 507.0,115.0 509.3,115.0 511.7,115.0 514.0,115.0 516.3,115.0 518.7,115.0 521.0,115.0 523.3,115.0 525.7,115.0 528.0,115.0 530.3,115.0 532.7,115.0 535.0,115.0 537.3,115.0 539.7,115.0 542.0,115.0 544.3,115.0 546.7,115.0 549.0,115.0 551.3,115.0 553.7,115.0 556.0,115.0 558.3,115.0 560.7,115.0 563.0,115.0 565.3,115.0 567.7,115.0 570.0,115.0 572.3,108.7 574.7,102.5 577.0,96.5 579.3,90.6 581.7,85.0 584.0,79.7 586.3,74.9 588.7,70.4 591.0,66.5 593.3,63.0 595.7,60.2 598.0,57.9 600.3,56.3 602.7,55.3 605.0,55.0 607.3,55.3 609.7,56.3 612.0,57.9 614.3,60.2 616.7,63.0 619.0,66.5 621.3,70.4 623.7,74.9 626.0,79.7 628.3,85.0 630.7,90.6 633.0,96.5 635.3,102.5 637.7,108.7 640.0,115.0 642.3,115.0 644.7,115.0 647.0,115.0 649.3,115.0 651.7,115.0 654.0,115.0 656.3,115.0 658.7,115.0 661.0,115.0 663.3,115.0 665.7,115.0 668.0,115.0 670.3,115.0 672.7,115.0 675.0,115.0 677.3,115.0 679.7,115.0 682.0,115.0 684.3,115.0 686.7,115.0 689.0,115.0 691.3,115.0 693.7,115.0 696.0,115.0 698.3,115.0 700.7,115.0 703.0,115.0 705.3,115.0 707.7,115.0 710.0,115.0" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linejoin="round"/><text x="570" y="228" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle">an der Lampe, hinter der Diode</text><text x="710" y="60" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">U</text><text x="710" y="135" font-size="18" font-weight="600" fill="#64748b" text-anchor="end">t</text><text x="380" y="120" font-size="40" font-weight="800" fill="#0f172a" text-anchor="middle">→</text></svg><div class="callout frag"><p>„Nur etwa während der halben Zeit besteht ein Strom, und die Spannung an der Glühlampe ist etwa 0,7 V niedriger als an der Quelle.“ (Buch V1) <span class="trenner">&#9656;</span> Das nennt man <b>pulsierenden Gleichstrom</b>.</p></div><div class="randnotiz"><b>Buch B4 und V1, in einem Bild.</b> Links die Quelle, rechts das, was hinter der Diode ankommt.<br><b>Die 0,7 V ansprechen:</b> Das ist die Schwelle der Silicium-Diode <span class="trenner">&#9656;</span> dieselbe Zahl wie auf der Farbenfolie. Die Diode „behält“ sie.<br><b>Das Wort „pulsierend“ betonen.</b> Nicht glatt. Das ist die dritte Fehlvorstellung, Plickers 3 fragt sie ab.</div>
 </section>
 
 <section class="slide abfrage plk stufig" data-phase="7 · Gleichrichter" data-ab="54" data-marke="P3" data-frage="Diode und Glühlampe in Reihe an Wechselspannung (V1). Was zeigt das Oszilloskop an der Lampe?" data-optionen="[&quot;Eine glatte Gleichspannung.&quot;, &quot;Nur jede zweite Halbwelle — pulsierend.&quot;, &quot;Die volle Wechselspannung — unverändert.&quot;, &quot;Gar nichts — die Diode sperrt.&quot;]" data-schluessel="p3" data-weiche="[{&quot;bis&quot;: 59, &quot;ziel&quot;: &quot;R3&quot;}]">
@@ -1033,11 +1230,11 @@
 </section>
 
 <section class="slide reserve videofolie" data-phase="Reserve" data-ab="90" data-marke="R3">
-<div class="kicker">Reserve R3 &mdash; die Frage, die kommt: „Und beide Halbwellen?“</div><h2 class="wt">Vier Dioden nutzen beide Halbwellen <span class="trenner">&#9656;</span> die Brücke <span class="zeitschild">4,5 min</span></h2><p class="lead weit">Buch S. 143, Beispiel: Je nach Polung fließt der Strom durch die Dioden 1 und 4 oder durch 2 und 3 <span class="trenner">&#9656;</span> durch die Lampe aber immer in dieselbe Richtung.</p><div class="videorahmen"><iframe data-src="https://www.youtube-nocookie.com/embed/H3ODqrLftCc?rel=0&modestbranding=1" title="Vier Dioden nutzen beide Halbwellen — die Brücke" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div><p class="videoquelle">„Brückengleichrichter B2U einfach erklärt“ · DerElektroniker &middot; youtu.be/H3ODqrLftCc</p><div class="randnotiz"><b>Erst die Einweg-Schaltung, dann die Brücke</b> <span class="trenner">&#9656;</span> das Video geht denselben Weg wie das Buch. Bei der Brücke anhalten und die Pfeile des Buches (grün/blau) daneben halten.<br><b>Ohne Netz:</b> Buch S. 143 aufschlagen, das Beispiel mit der Lösung vorlesen.</div>
+<div class="kicker">Reserve R3 &mdash; die Frage, die kommt: „Und beide Halbwellen?“</div><h2 class="wt">Vier Dioden nutzen beide Halbwellen <span class="trenner">&#9656;</span> die Brücke <span class="zeitschild">4,5 min</span></h2><p class="lead weit">Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a>, Beispiel: Je nach Polung fließt der Strom durch die Dioden 1 und 4 oder durch 2 und 3 <span class="trenner">&#9656;</span> durch die Lampe aber immer in dieselbe Richtung.</p><div class="videorahmen"><iframe data-src="https://www.youtube-nocookie.com/embed/H3ODqrLftCc?rel=0&modestbranding=1" title="Vier Dioden nutzen beide Halbwellen — die Brücke" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div><p class="videoquelle">„Brückengleichrichter B2U einfach erklärt“ · DerElektroniker &middot; youtu.be/H3ODqrLftCc</p><div class="randnotiz"><b>Erst die Einweg-Schaltung, dann die Brücke</b> <span class="trenner">&#9656;</span> das Video geht denselben Weg wie das Buch. Bei der Brücke anhalten und die Pfeile des Buches (grün/blau) daneben halten.<br><b>Ohne Netz:</b> Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a> aufschlagen, das Beispiel mit der Lösung vorlesen.</div>
 </section>
 
 <section class="slide reserve" data-phase="Reserve" data-ab="90" data-marke="R4">
-<div class="kicker">Reserve R4 &mdash; für die Schnellen</div><h2 class="wt">Zwei Aufgaben, die zweite ist die schwerere <span class="zeitschild">frei</span></h2><div class="auftrag"><ol><li><b>Buch S. 143, A3:</b> Drei blaue Leuchtdioden sind in Reihe geschaltet. Reicht eine 4,5-V-Batterie? Rechne mit der Schwelle aus Folie 20.</li><li><b>Erfinde eine Schaltung aus zwei LEDs</b>, die auf einen Blick zeigt, ob an zwei Klemmen Gleichspannung oder Wechselspannung liegt. Zeichne sie mit Schaltzeichen <span class="trenner">&#9656;</span> und sag, was man bei beiden sieht.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Zur zweiten: zwei LEDs antiparallel, jede mit Vorwiderstand. Gleichspannung: eine leuchtet. Wechselspannung: beide (und bei sehr langsamem Wechsel abwechselnd).</p></div><div class="randnotiz"><b>A3:</b> 3 · 3 V = 9 V, die Batterie hat 4,5 V <span class="trenner">&#9656;</span> nein; nicht einmal zwei blaue reichen sicher. Wer mit 1,7 V rechnet, hat Rot und Blau verwechselt.<br><b>Die zweite Aufgabe ist die umgekehrte:</b> nicht „rechne aus“, sondern „erfinde“. Das ist Anforderungsbereich III und kostet keine Vorbereitung.</div>
+<div class="kicker">Reserve R4 &mdash; für die Schnellen</div><h2 class="wt">Zwei Aufgaben, die zweite ist die schwerere <span class="zeitschild">frei</span></h2><div class="auftrag"><ol><li><b>Buch <a class="buchseite" target="_blank" rel="noopener" href="../Buchviewer_2026-27.html?buch=PH10&amp;von=143&amp;bis=143" title="Buchseite 143 im Viewer öffnen — blätterbar und skalierbar">S. 143</a>, A3:</b> Drei blaue Leuchtdioden sind in Reihe geschaltet. Reicht eine 4,5-V-Batterie? Rechne mit der Schwelle aus Folie 20.</li><li><b>Erfinde eine Schaltung aus zwei LEDs</b>, die auf einen Blick zeigt, ob an zwei Klemmen Gleichspannung oder Wechselspannung liegt. Zeichne sie mit Schaltzeichen <span class="trenner">&#9656;</span> und sag, was man bei beiden sieht.</li></ol><p class="muted" style="margin-top:.8em;font-size:clamp(14px,1.5vw,22px)">Zur zweiten: zwei LEDs antiparallel, jede mit Vorwiderstand. Gleichspannung: eine leuchtet. Wechselspannung: beide (und bei sehr langsamem Wechsel abwechselnd).</p></div><div class="randnotiz"><b>A3:</b> 3 · 3 V = 9 V, die Batterie hat 4,5 V <span class="trenner">&#9656;</span> nein; nicht einmal zwei blaue reichen sicher. Wer mit 1,7 V rechnet, hat Rot und Blau verwechselt.<br><b>Die zweite Aufgabe ist die umgekehrte:</b> nicht „rechne aus“, sondern „erfinde“. Das ist Anforderungsbereich III und kostet keine Vorbereitung.</div>
 </section>
 
 <section class="slide reserve videofolie" data-phase="Reserve" data-ab="90" data-marke="R5">
@@ -1149,6 +1346,7 @@
        auf Klassenwechsel und wuerde sich sonst selbst wieder ausloesen -
        eine Schleife, die den Aufbau der Seite anhaelt. */
     b.style.transform = "";
+    b.style.width = "";
     folie.style.justifyContent = "";
     /* Die Flaeche wird um ihre eigene Mitte skaliert - also muss sie auch
        mittig sitzen, ganz gleich, wie die Folie ihre Kinder ausrichtet.
@@ -1161,12 +1359,116 @@
     const platz = B.unten - B.oben;
     const breite = folie.clientWidth
                  - 2 * parseFloat(getComputedStyle(folie).paddingLeft);
-    const hoch = b.getBoundingClientRect().height;
+    /* Die Breitenschranken der Ueberschriften auf den Ausgangswert
+       zuruecksetzen; entschieden wird ueber sie erst weiter unten, wenn
+       die Breite der Flaeche feststeht.
+
+       Eine im Editor gesetzte BREITE bleibt unangetastet - sonst
+       loeschte die Automatik sie beim naechsten Folienwechsel lautlos
+       weg. Ausschlaggebend ist `data-anp-breite`, das der Anwender nur
+       fuer eine Breite setzt; das allgemeine `data-anp` waere zu grob:
+       Dann liesse schon eine geaenderte Schriftgroesse die
+       Zeilenersparnis mit ausfallen. */
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead"))
+      if (!t.dataset.anpBreite) t.style.maxWidth = "";
+    let flaeche = 1200;
+    let hoch = b.getBoundingClientRect().height;
     if(platz <= 0 || hoch <= 0) return 1;
     /* So gross wie moeglich: begrenzt von der Hoehe des freien Bandes und
        von der Breite der Folie. Nach oben bei 2,4 gedeckelt - darueber
        wuerde eine kurze Folie grotesk wirken. */
-    const k = Math.max(0.55, Math.min(2.4, (platz - 20) / hoch, breite / 1200));
+    let kH = (platz - 20) / hoch, kB = breite / flaeche;
+    /* Wo die HOEHE die bindende Schranke ist, liegt seitlich Platz brach,
+       den der Text nicht nutzen darf. Gemessen an der 7b: 18 der 34
+       Folien sind hoehenbegrenzt, und genau darunter sind alle acht
+       Sachaufgaben, die auf drei und vier Zeilen umbrachen - waehrend
+       neben ihnen 180 px leer blieben. Die 16 breitenbegrenzten Folien
+       duerfen dagegen NICHT verbreitert werden: dort ginge Schrift
+       verloren.
+
+       Wo die Hoehe bindet, darf die Flaeche so weit wachsen, dass die
+       Breite gerade zur bindenden Schranke wird. Das ist beweisbar ohne
+       Verlust: mit W = breite/kH ist danach kB' = kH, und weil der Text
+       durch die groessere Breite nur kuerzer werden kann, ist kH' >= kH.
+       Der Massstab min(kH', kB') ist also genau der von vorher -
+       dieselbe Schriftgroesse, weniger Zeilen, mehr Luft. Gedeckelt bei
+       1600 px, damit die Zeile lesbar kurz bleibt. */
+    /* Wie weit reicht der Inhalt wirklich nach rechts? Eine feste
+       Tabelle wird von einer breiteren Flaeche nicht breiter - sie
+       bekaeme nur eine leere Haelfte daneben. Also wird nachgemessen. */
+    const genutzt = () => {
+      let rechts = 0;
+      const l = b.getBoundingClientRect().left;
+      for (const k of b.querySelectorAll("*")){
+        const r = k.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) rechts = Math.max(rechts, r.right - l);
+      }
+      return rechts;
+    };
+    if(kH < kB){
+      const sollBreite = Math.min(1600, Math.round(breite / kH));
+      if(sollBreite > flaeche){
+        const vorherBreit = genutzt();
+        b.style.width = sollBreite + "px";
+        const nachher = b.getBoundingClientRect().height;
+        /* Zwei Bedingungen, beide gemessen: Breiter darf nie hoeher
+           heissen, und die gewonnene Breite muss auch gefuellt werden.
+           Ohne die zweite stand die Tabellenfolie der 7b in einer
+           1600 px breiten Flaeche, von der sie 800 nutzte - eine leere
+           Haelfte, die es vorher nicht gab. */
+        /* Und drittens: Der Inhalt muss in die Flaeche passen. Eine
+           Spalte mit fester Breite (etwa eine Zeichnung) schrumpft nicht
+           mit; sie stand dann rechts aus dem Bild heraus - auf drei
+           Folien der 7b um 33, 75 und 140 px. */
+        if(nachher > 0 && nachher <= hoch && genutzt() > vorherBreit + 8
+           && genutzt() <= sollBreite + 2){
+          flaeche = sollBreite; hoch = nachher;
+          kH = (platz - 20) / hoch; kB = breite / flaeche;
+        } else b.style.width = "";
+      }
+    }
+    /* Hier stand einmal der Versuch, die Flaeche einem zu breiten Inhalt
+       NACHZUZIEHEN, damit nichts aus dem Bild laeuft. Er ist gemessen
+       gescheitert: Die Beanstandungen stiegen von 13 auf 44, weil das
+       Verbreitern die Flexspalten neu umbricht und der Inhalt danach oft
+       wieder breiter ist - ein Durchgang reicht nicht, und mehrere
+       schwingen. Die verbleibenden Ueberstaende gehoeren in die
+       betroffenen Stunden, nicht in diese Schleife. */
+    /* JETZT, wo die Breite der Flaeche feststeht: Eine Breitenschranke,
+       die eine ZEILE kostet, bringt nichts.
+
+       Die Ueberschriften sind auf 46ch gedeckelt - eine gute Zeilenlaenge
+       fuer Fliesstext, aber an der Wand liest niemand Absaetze. Gemessen
+       auf Folie 9 der 7b: Flaeche 1347 px, Deckel 1138 px, und der Text
+       brach deshalb auf VIER Zeilen statt auf drei.
+
+       Je Element wird nachgesehen: wie viele Zeilen mit Deckel, wie viele
+       ohne? Nur wenn es ohne WENIGER werden, faellt er. Sonst bleibt er,
+       denn dann waere die lange Zeile nur lang.
+
+       Die Reihenfolge ist der Punkt. Zuerst stand diese Pruefung oben,
+       vor der Verbreiterung - und lief ins Leere: Bei 1200 px sparte das
+       Fallenlassen keine Zeile, bei den spaeteren 1347 px haette es eine
+       gespart. Danach kann die Flaeche nur kuerzer werden, nie laenger;
+       ein zweiter Durchgang ist also nicht noetig. */
+    let gespart = false;
+    for (const t of b.querySelectorAll("h1,h2.wt,.frage,.lead")){
+      if (t.dataset.anpBreite) continue;    /* Breite von Hand gesetzt */
+      const cs = getComputedStyle(t);
+      const zh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+      if (!zh) continue;
+      const mit = Math.round(t.getBoundingClientRect().height / zh);
+      if (mit < 2) continue;
+      t.style.maxWidth = "none";
+      if (Math.round(t.getBoundingClientRect().height / zh) >= mit)
+        t.style.maxWidth = "";
+      else gespart = true;
+    }
+    if (gespart){
+      hoch = b.getBoundingClientRect().height || hoch;
+      kH = (platz - 20) / hoch;
+    }
+    const k = Math.max(0.55, Math.min(2.4, kH, kB));
     b.style.transform = "scale(" + k.toFixed(4) + ")";
     /* Die skalierte Flaeche im Band ausrichten: oben anschlagen und den
        Rest der Hoehe als Polsterung verteilen, damit sie mittig sitzt. */
@@ -1709,6 +2011,32 @@
     lauf();
   })();
 
+  /* ---- Rueckblende gross ----------------------------------------------
+     Eine Rueckblende steht verkleinert neben dem Text; ein Klick legt sie
+     gross ueber die Folie. Die vorhandene .lupe taugt dafuer nicht - sie
+     zeigt nur <img>, eine Rueckblende ist aber meist eine Tabelle oder
+     ein Preisschild, also gewoehnliches HTML. Deshalb wird der Inhalt
+     geklont statt abgebildet: So bleibt er scharf, egal wie gross die
+     Wand ist. */
+  (function rueckblendeGross(){
+    let schirm = null;
+    function zu(){ if(schirm){ schirm.remove(); schirm = null; } }
+    document.addEventListener('click', e => {
+      if(schirm && schirm.contains(e.target)) return zu();
+      const rb = e.target.closest && e.target.closest('.rueckblende');
+      if(!rb) return;
+      zu();
+      schirm = document.createElement('div');
+      schirm.className = 'rbgross';
+      const innen = document.createElement('div');
+      innen.className = 'rbbuehne';
+      innen.innerHTML = rb.innerHTML;
+      schirm.appendChild(innen);
+      document.body.appendChild(schirm);
+    });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') zu(); });
+  })();
+
   /* ---- Live-Abstimmung ------------------------------------------------
      Die Schueler antworten auf ihren iPads; die Wand zeigt die Verteilung.
      Erreicht die Seite den Dienst nicht - kein WLAN, Dienst aus, Datei
@@ -1812,20 +2140,47 @@
       folie.dataset.zaehler = zaehler.join(",");
     }
 
-    async function oeffne(folie){
-      const frage = folie.dataset.frage || "";
-      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+    /* Welche Runde soll auf dieser Folie gerade laufen - oder keine?
+       Zwei Faelle:
+
+       Eine gewoehnliche Abfragefolie hat genau EINE Runde, und die laeuft
+       bis zum ersten Aufdecken.
+
+       Eine Tabellenfolie mit data-runden hat eine Runde JE VERDECKTER
+       ZELLE: erst rechnet die Klasse Spalte 1 und schickt ab, dann wird
+       Spalte 1 aufgedeckt und Spalte 2 gefragt, und so fort. Die Stufe
+       sagt, wie viele Zellen schon offen sind - also ist sie zugleich die
+       Nummer der Runde, die jetzt drankommt. */
+    function rundeVon(folie){
+      const stufe = +(folie.dataset.step || 0);
+      let liste = null;
+      try { liste = JSON.parse(folie.dataset.runden || "null"); } catch(e){}
+      if (liste && liste.length)
+        return stufe < liste.length
+          ? { frage: liste[stufe].frage, marke: liste[stufe].schluessel,
+              art: "zeichnen", optionen: [] }
+          : null;
+      if (!folie.dataset.frage || stufe > 0) return null;
       let optionen = [];
       try { optionen = JSON.parse(folie.dataset.optionen || "[]"); } catch(e){}
-      if (art === "wahl" && optionen.length < 2) return;
-      const schluessel = raum + "-" + sitzung + "-" + folie.dataset.schluessel;
+      const art = folie.dataset.art === "zeichnen" ? "zeichnen" : "wahl";
+      if (art === "wahl" && optionen.length < 2) return null;
+      return { frage: folie.dataset.frage, marke: folie.dataset.schluessel,
+               art, optionen };
+    }
+
+    async function oeffne(folie, r){
+      r = r || rundeVon(folie);
+      if (!r) return;
+      const frage = r.frage, art = r.art, optionen = r.optionen;
+      const schluessel = raum + "-" + sitzung + "-" + r.marke;
       try {
         const a = await fetch(dienst + "/v1/raum/" + raum + "/frage", {
           method:"POST", headers: kopf(),
           body: JSON.stringify({ frage, optionen, schluessel, art }) });
         if (a.status === 403){ document.body.classList.add("schluesselfehlt"); return; }
         if (!a.ok) return;
-        laufend = { folie, schluessel };
+        laufend = { folie, schluessel, marke: r.marke };
         stand.classList.remove("zu");
         const b = balken(folie);
         if (b){ b.classList.remove("gezeigt"); folie.classList.add("abstimmt"); }
@@ -2211,7 +2566,7 @@
       if (abgabeAn) return;          /* der Abgabeschirm hat Vorrang */
       const folie = document.querySelector(".slide.on");
       if (!folie) return;
-      const istAbfrage = !!folie.dataset.frage;
+      const istAbfrage = !!(folie.dataset.frage || folie.dataset.runden);
       /* Die Regel beim Folienwechsel: Grundzustand ueberall, nur nicht
          auf einer Abfragefolie. Einmal je Folie - danach darf der
          Schalter von Hand anders entscheiden. */
@@ -2221,12 +2576,16 @@
       }
       if (ruhe) return;                /* Grundzustand: nichts geht auf */
       if (!istAbfrage){ if (laufend) schliesse(); return; }
-      const aufgeloest = (+(folie.dataset.step || 0)) > 0;
-      if (!laufend && !aufgeloest && lebt && holeSchluessel()) return oeffne(folie);
+      const soll = rundeVon(folie);
+      if (!laufend && soll && lebt && holeSchluessel()) return oeffne(folie, soll);
       /* Von einer Abfragefolie direkt auf die naechste: erst die alte
          schliessen, dann noch einmal hinsehen, damit die neue aufgeht. */
       if (laufend && laufend.folie !== folie) return schliesse().then(beobachte);
-      if (laufend && aufgeloest){
+      /* Dieselbe Folie, aber die naechste Spalte ist dran: alte Runde zu,
+         dann noch einmal hinsehen - so geht die neue von selbst auf. */
+      if (laufend && soll && laufend.marke !== soll.marke)
+        return schliesse().then(beobachte);
+      if (laufend && !soll){
         /* Bei stufigen Folien deckt der erste Klick nur die Verteilung auf.
            Gefaerbt - und damit verraten - wird die richtige Karte erst beim
            zweiten. Ohne diese Unterscheidung staende die Loesung schon da,
@@ -2253,6 +2612,10 @@
   })();
 
   window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
+
+  window.HAUSSTIL_SCHRIFTEN = [{"schluessel": "system", "name": "Systemschrift (wie bisher)", "familie": "-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "fredoka", "name": "Fredoka — rundes Sans, sehr gut lesbar", "familie": "HausFredoka,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "baloo", "name": "Baloo 2 — kräftig und rund", "familie": "HausBaloo,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "marcellus", "name": "Marcellus — ruhige Antiqua", "familie": "HausMarcellus,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "patrick", "name": "Patrick Hand — sachliche Handschrift", "familie": "HausPatrick,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}, {"schluessel": "architekt", "name": "Architects Daughter — technische Schrift", "familie": "HausArchitekt,-apple-system,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif"}];
+
+  
 /* ===========================================================================
    Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
 
@@ -2398,7 +2761,9 @@
     });
     document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
       el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
+      el.style.transform = ""; el.style.fontFamily = "";
       delete el.dataset.anp; delete el.dataset.anpWeg;
+      delete el.dataset.anpBreite;
     });
   }
 
@@ -2495,11 +2860,49 @@
         if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
       }
       if (w.breite) {
-        el.style.maxWidth = "";
-        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
-        var ist = el.getBoundingClientRect().width;
-        if (voll > 0 && ist > 0)
-          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
+        /* `breite` ist der ANTEIL an der Breite des Eltern-Kastens -
+           0,6 heisst „sechs Zehntel der Folienbreite". Ablesbar, stabil
+           und unabhaengig von Schriftgroesse und CSS-Deckel.
+
+           Frueher war es ein Faktor der „natuerlichen" Breite. Die haengt
+           aber selbst an der Schrift und am Deckel: Wer die Schrift
+           aenderte, verschob damit auch die Breite, und der gespeicherte
+           Wert passte nicht mehr zu dem, was man sah (0,966 bei sichtbar
+           82 %). Drei bewegliche Teile fuer eine Zahl sind zwei zu viel.
+
+           Marke fuer window.einpassen: Diese Breite ist von Hand gesetzt
+           und wird von der Automatik nicht angefasst. Nur DIESE Marke,
+           nicht das allgemeine data-anp - sonst liesse eine blosse
+           Schriftgroesse die Zeilenersparnis mit ausfallen. */
+        el.dataset.anpBreite = "1";
+        el.style.maxWidth = Math.max(5, w.breite * 100).toFixed(2) + "%";
+      }
+      if (w.schrift) {
+        /* Die Familie steht in window.HAUSSTIL_SCHRIFTEN - dieselbe
+           Liste, aus der der Editor auswaehlen laesst, und sie liegt
+           AUSSERHALB der Editor-Marken, damit die Wahl auch in der
+           veroeffentlichten Fassung wirkt. Der Schnitt selbst ist beim
+           Bauen eingebettet worden, weil dieser Eintrag hier steht. */
+        var liste = window.HAUSSTIL_SCHRIFTEN || [];
+        for (var si = 0; si < liste.length; si++)
+          if (liste[si].schluessel === w.schrift) {
+            el.style.fontFamily = liste[si].familie;
+            break;
+          }
+      }
+      if (w.verschoben) {
+        /* Verschoben wird ueber transform, NICHT ueber position:absolute.
+           Der Unterschied ist wesentlich: Ein transform nimmt dem Element
+           seinen Platz im Fluss nicht weg, also rueckt nichts anderes
+           nach. Wer eine Ueberschrift beiseite schiebt, will die
+           Ueberschrift woanders haben - nicht die halbe Folie neu
+           sortiert. Ueberlappungen sind damit ausdruecklich moeglich.
+
+           Die Werte stehen in den Koordinaten der Entwurfsflaeche (1200
+           px breit), nicht in Bildschirmpixeln: Sonst saesse dieselbe
+           Verschiebung am Beamer woanders als am Notebook. */
+        el.style.transform = "translate(" + w.verschoben.x + "px,"
+                           + w.verschoben.y + "px)";
       }
       if (w.bild) bildSetzen(el, w.bild);
       if (typeof w.rang === "number" && w.rang !== 0) {
