@@ -3751,11 +3751,53 @@ body.anp-an [data-anp-weg]{display:block !important;opacity:.28;
   setInterval(function () { if (AN && GEWAEHLT) rahmenZeigen(); }, 250);
   addEventListener("resize", rahmenZeigen);
 
+  /* --- Der Editor liegt hinter einer Folge: E-S-A-U --------------------
+     Vorher lag er auf der blanken Taste E. Das ist eine Taste zu wenig.
+     Im Unterricht liegt die Hand auf der Tastatur, und ein versehentliches
+     E riss mitten in der Stunde die Bearbeitungsleiste auf; auf einer
+     oeffentlich erreichbaren Seite genuegte derselbe eine Tastendruck,
+     damit ein Fremder sie zu sehen bekommt.
+
+     Getippt wird das Wort EINMAL. Danach ist der Editor entriegelt und E
+     schaltet ihn um wie bisher - sonst muesste man vor jedem Handgriff
+     vier Tasten tippen. Ein Neuladen verriegelt wieder.
+
+     WARUM DIE FOLGE GESCHLUCKT WIRD: Das A aus „esau" ist an der Wand die
+     Taste fuer die spontane Abgabe. Ohne stopPropagation oeffnete das
+     Tippen des Wortes nebenbei den Abgabeschirm. Geschluckt wird nur, was
+     einen gueltigen Anfang fortsetzt - wer irgendetwas anderes tippt,
+     merkt von diesem Riegel nichts.
+
+     Der Riegel ist eine Bequemlichkeit, kein Schutz: Wer die Leiste
+     oeffnet, kann damit nur die Anzeige im EIGENEN Browser verstellen.
+     Gespeichert wird ueber den Anpassungsdienst auf 127.0.0.1:8129, und
+     den gibt es nur auf Michaels Rechner. */
+  var RIEGELWORT = "esau";
+  var getippt = "", zuletzt = 0, entriegelt = false;
+
   document.addEventListener("keydown", function (ev) {
-    if (ev.key !== "e" && ev.key !== "E") return;
     if (/^(INPUT|TEXTAREA)$/.test(ev.target.tagName) || ev.target.isContentEditable) return;
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    var k = (ev.key || "").toLowerCase();
+    if (entriegelt) { if (k === "e") umschalten(); return; }
+    if (k.length !== 1) return;
+    var jetzt = Date.now();
+    if (jetzt - zuletzt > 2000) getippt = "";     /* zu lange her: von vorn */
+    zuletzt = jetzt;
+    var neu = getippt + k;
+    if (RIEGELWORT.indexOf(neu) !== 0) {
+      /* Kein gueltiger Anfang mehr. Faengt die Taste selbst das Wort an,
+         gilt sie als erster Buchstabe - sonst zurueck auf null. */
+      getippt = RIEGELWORT.indexOf(k) === 0 ? k : "";
+      return;
+    }
+    ev.stopPropagation();
+    getippt = neu;
+    if (getippt !== RIEGELWORT) return;
+    getippt = "";
+    entriegelt = true;
     umschalten();
-  });
+  }, true);
 
   /* Was der Editor NICHT an sich zieht.
      Der Klickfaenger nahm bisher jeden Klick - auch den auf die
