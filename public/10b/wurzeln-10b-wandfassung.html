@@ -104,8 +104,21 @@
      der Wand fuellt auf Papier selten mehr als ein Drittel. */
   .protokollkopf,.protokolltitel{display:none}
   @media print{
-    @page{size:A4 portrait;margin:8mm}
-    body.protokoll{overflow:visible!important;height:auto!important;background:#fff}
+    /* Der SEITLICHE Rand steckt im Inhalt, nicht in der @page-Regel. Steht
+       der Druckdialog auf „Raender: Keine" - und er merkt sich das -, faellt
+       jede @page-Randangabe weg: Im Protokoll der 7b vom 09.09.2026 lief der
+       Text von 0,0 mm bis 209,7 mm auf 210 mm Papier. Das schneidet jeder
+       Drucker ab, und gelocht wird in den Text hinein. Eine Polsterung des
+       Koerpers ueberlebt jede Dialogeinstellung.
+       Oben und unten geht das nicht: Polsterung wiederholt sich an einem
+       Seitenumbruch nicht, dort muss die @page-Regel ran. Den Abstand zur
+       Papierkante geben dann die 4 mm zwischen zwei Folien.
+       Darum steht in @page kein seitlicher Rand mehr - sonst kaeme er zur
+       Polsterung HINZU, die Buehne (190,5 mm) passte nicht mehr auf die
+       Restbreite, und Chrome schruempfte das ganze Dokument. */
+    @page{size:A4 portrait;margin:8mm 0}
+    body.protokoll{overflow:visible!important;height:auto!important;background:#fff;
+      padding:0 8mm}
     body.protokoll .deck{position:static;height:auto;width:auto;overflow:visible}
     body.protokoll .slide{display:none!important}
     body.protokoll .slide.im-protokoll{display:block!important;position:relative;inset:auto;
@@ -115,10 +128,10 @@
       padding-top:4mm!important}
     body.protokoll .slide.im-protokoll::before,
     body.protokoll .slide.im-protokoll::after{display:none!important}
-    /* 1200 px Entwurfsflaeche auf 194 mm nutzbare Breite (A4 hoch, 8 mm Rand).
-       Nichts darf breiter sein als die Seite, sonst verkleinert Chrome das
-       GANZE Dokument auf Seitenbreite - jede eingepasste Folie wuerde dann
-       doppelt geschrumpft. */
+    /* 1200 px Entwurfsflaeche auf 194 mm nutzbare Breite (A4 hoch, seitlich
+       8 mm Polsterung des Koerpers). Nichts darf breiter sein als die Seite,
+       sonst verkleinert Chrome das GANZE Dokument auf Seitenbreite - jede
+       eingepasste Folie wuerde dann doppelt geschrumpft. */
     body.protokoll .slide.im-protokoll .buehne{transform:none!important;width:1200px;
       zoom:.6;margin:0 auto}
     body.protokoll .protokolltitel{display:block;font-size:19px;font-weight:800;
