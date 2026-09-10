@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klausurtrainer 11a · Kapitel 1</title>
+<meta name="description" content="Übungsprogramm zur 1. Klausur der 11a: Diagnose, Erklärung, Üben, Re-Test — für jedes Thema aus Kapitel 1.">
+<!--
+  ===========================================================================
+  Klausurtrainer 11a — Kapitel 1 „Funktionen: mathematische Werkzeuge“
+  ---------------------------------------------------------------------------
+  Entstanden aus einer Schülermail: „Könnte ich ein Programm mit Übungsaufgaben
+  für alle klausurrelevanten Themen bekommen?" Das Programm beantwortet die
+  Frage in sechs Schritten, immer in derselben Reihenfolge:
+
+      Diagnose  ->  Zuspruch  ->  Erklären  ->  Üben  ->  Re-Test  ->  Bestätigung
+
+  WARUM GENERIERTE AUFGABEN, KEIN AUFGABENPOOL: Ein Re-Test muss dieselbe Sache
+  mit anderen Zahlen prüfen. Aus einem festen Pool käme beim zweiten Durchgang
+  die auswendig gelernte Aufgabe zurück — und bestätigte nichts.
+
+  WARUM ALLES IN EINER DATEI: Sie liegt auf der Klassenseite, wird auf iPads
+  geöffnet und muss auch dann laufen, wenn im Haus das WLAN wackelt. Kein CDN,
+  kein Framework, keine Schriftdatei von außen.
+
+  WARUM NICHTS ÜBERTRAGEN WIRD: Der Trainer merkt sich den Stand ausschließlich
+  im Browser des Geräts (localStorage). Es gibt keinen Server, keine Anmeldung,
+  keine Auswertung, die bei der Lehrkraft ankommt. Das ist Absicht: Wer übt,
+  soll Fehler machen dürfen, ohne dass jemand zusieht.
+  ===========================================================================
+-->
+<style>
+/* --- Farben und Maße: dieselben Marken wie die Werkzeuge der Website ------ */
+:root{
+  --grund:#faf8f2; --flaeche:#ffffff; --flaeche-2:#f3efe6;
+  --linie:#dcd5c5; --linie-stark:#bfb39c;
+  --text:#2a241d; --text-leise:#564938; --text-schwach:#857355;
+  --akzent:#2563eb; --akzent-hell:#dbeafe; --akzent-tief:#1e40af;
+  --teal:#0d9488; --teal-hell:#ccfbf1;
+  --violett:#7c3aed; --violett-hell:#ede9fe;
+  --gold:#b45309; --gold-hell:#fef3c7;
+  --gruen:#15803d; --gruen-hell:#dcfce7;
+  --rot:#be123c; --rot-hell:#ffe4e6;
+  --radius:12px; --radius-klein:8px;
+  --schatten:0 1px 2px rgba(42,36,29,.06), 0 8px 24px -12px rgba(42,36,29,.18);
+  --schrift:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --basis:17px;
+}
+html[data-thema="dunkel"]{
+  --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+  --linie:#423a56; --linie-stark:#5b5175;
+  --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+  --akzent:#60a5fa; --akzent-hell:#1e3a8a; --akzent-tief:#93c5fd;
+  --teal:#2dd4bf; --teal-hell:#134e4a;
+  --violett:#a78bfa; --violett-hell:#3b2a6b;
+  --gold:#fbbf24; --gold-hell:#4a3208;
+  --gruen:#4ade80; --gruen-hell:#14361f;
+  --rot:#fb7185; --rot-hell:#4c1327;
+  --schatten:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{color-scheme:light; font-size:var(--basis); -webkit-text-size-adjust:100%}
+html[data-thema="dunkel"]{color-scheme:dark}
+body{
+  margin:0; min-height:100vh; font-family:var(--schrift); color:var(--text);
+  background:var(--grund); line-height:1.55;
+}
+h1,h2,h3{font-family:var(--serif); font-weight:600; line-height:1.25; margin:0}
+h1{font-size:1.5rem} h2{font-size:1.28rem} h3{font-size:1.05rem}
+p{margin:0 0 .8em}
+a{color:var(--akzent)}
+
+/* --- Kopfleiste ---------------------------------------------------------- */
+.kopf{
+  position:sticky; top:0; z-index:30; background:var(--grund);
+  border-bottom:1px solid var(--linie);
+}
+.kopf-innen{
+  max-width:820px; margin:0 auto; padding:.6rem .9rem;
+  display:flex; align-items:center; gap:.8rem;
+}
+.kopf-titel{font-family:var(--serif); font-weight:600; font-size:1rem; margin:0; flex:1; min-width:0}
+.kopf-titel small{display:block; font-family:var(--schrift); font-weight:400;
+  font-size:.76rem; color:var(--text-schwach)}
+.streifen{height:4px; background:linear-gradient(90deg,var(--akzent),var(--teal),var(--violett))}
+
+/* Fortschrittsring: neun Themen, ein Kreis. Sichtbar in jeder Ansicht, damit
+   „wie weit bin ich?“ nie eine eigene Frage ist. */
+.ring{flex:0 0 auto; width:2.7rem; height:2.7rem; position:relative}
+.ring svg{display:block; transform:rotate(-90deg)}
+.ring .zahl{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-leise);
+}
+.iknopf{
+  width:2.2rem; height:2.2rem; border:1px solid transparent; background:transparent;
+  color:var(--text-leise); border-radius:var(--radius-klein); cursor:pointer;
+  font-size:1rem; line-height:1; flex:0 0 auto;
+}
+.iknopf:hover{background:var(--flaeche-2); border-color:var(--linie)}
+
+/* --- Grundbausteine ------------------------------------------------------ */
+.huelle{max-width:820px; margin:0 auto; padding:1.1rem .9rem 5rem}
+.karte{
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius);
+  padding:1.05rem 1.15rem; box-shadow:var(--schatten);
+}
+.karte + .karte{margin-top:.9rem}
+.reihe{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center}
+.reihe-ende{justify-content:flex-end}
+.lead{color:var(--text-leise); font-size:1.02rem; max-width:62ch; margin:.35rem 0 1.1rem}
+.leise{color:var(--text-schwach); font-size:.86rem}
+
+.knopf{
+  font:inherit; font-size:.95rem; font-weight:500; padding:.5rem .95rem;
+  border-radius:var(--radius-klein); border:1px solid var(--linie-stark);
+  background:var(--flaeche); color:var(--text); cursor:pointer;
+  display:inline-flex; align-items:center; gap:.45rem; min-height:2.6rem;
+}
+.knopf:hover{background:var(--flaeche-2); border-color:var(--akzent)}
+.knopf:active{transform:translateY(1px)}
+.knopf:focus-visible{outline:3px solid var(--akzent); outline-offset:2px}
+.knopf[disabled]{opacity:.45; cursor:not-allowed}
+.knopf-haupt{background:var(--akzent); border-color:var(--akzent); color:#fff; font-weight:600}
+html[data-thema="dunkel"] .knopf-haupt{color:#10131c}
+.knopf-haupt:hover{background:var(--akzent-tief); border-color:var(--akzent-tief)}
+html[data-thema="dunkel"] .knopf-haupt:hover{color:#10131c}
+.knopf-still{border-color:transparent; background:transparent; color:var(--text-leise)}
+.knopf-still:hover{background:var(--flaeche-2); border-color:var(--linie)}
+.knopf-gross{font-size:1.08rem; padding:.7rem 1.3rem; min-height:3rem}
+
+.pille{
+  display:inline-flex; align-items:center; gap:.3rem; padding:.12rem .6rem;
+  border-radius:999px; font-size:.76rem; font-weight:600;
+  background:var(--akzent-hell); color:var(--akzent-tief);
+}
+html[data-thema="dunkel"] .pille{color:var(--text)}
+.pille-gruen{background:var(--gruen-hell); color:var(--gruen)}
+.pille-gold{background:var(--gold-hell); color:var(--gold)}
+.pille-rot{background:var(--rot-hell); color:var(--rot)}
+.pille-teal{background:var(--teal-hell); color:var(--teal)}
+
+.hinweis{
+  border-left:4px solid var(--akzent); background:var(--flaeche-2);
+  padding:.7rem .9rem; border-radius:0 var(--radius-klein) var(--radius-klein) 0;
+  font-size:.94rem; color:var(--text-leise); margin:.8rem 0;
+}
+.hinweis strong{color:var(--text)}
+.hinweis-gold{border-left-color:var(--gold)}
+.hinweis-gruen{border-left-color:var(--gruen)}
+.hinweis-rot{border-left-color:var(--rot)}
+
+/* --- Mathematischer Satz ------------------------------------------------- */
+.m{font-family:var(--serif); font-size:1.06em; white-space:nowrap}
+.mblock{
+  font-family:var(--serif); font-size:1.28rem; text-align:center;
+  margin:.9rem 0; padding:.55rem .4rem; overflow-x:auto;
+}
+.mblock.klein{font-size:1.08rem}
+sup{font-size:.72em; vertical-align:.45em; line-height:0}
+sub{font-size:.72em; vertical-align:-.25em; line-height:0}
+.br{display:inline-block; vertical-align:-.55em; text-align:center; margin:0 .16em}
+.br > span{display:block; padding:0 .22em}
+.br > span:first-child{border-bottom:1.5px solid currentColor; padding-bottom:.05em}
+.br > span:last-child{padding-top:.05em}
+.wz{white-space:nowrap}
+.wz > .dach{border-top:1.5px solid currentColor; padding:0 .12em 0 .06em; margin-left:-.06em}
+
+/* --- Schrittfolge (das ausführliche Erklären) ---------------------------- */
+.schritte{list-style:none; margin:.6rem 0 0; padding:0}
+.schritt{
+  display:grid; grid-template-columns:1.8rem 1fr; gap:.1rem .7rem;
+  padding:.55rem 0; border-top:1px solid var(--linie);
+}
+.schritt:first-child{border-top:0}
+.schritt .nr{
+  grid-row:span 2; width:1.8rem; height:1.8rem; border-radius:50%;
+  background:var(--akzent-hell); color:var(--akzent-tief);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.82rem; font-weight:700; margin-top:.15rem;
+}
+html[data-thema="dunkel"] .schritt .nr{color:var(--text)}
+.schritt .was{font-size:.9rem; color:var(--text-leise)}
+.schritt .rechnung{font-family:var(--serif); font-size:1.12rem; margin-top:.1rem; overflow-x:auto}
+
+/* --- Aufgabenkarte ------------------------------------------------------- */
+.frage{font-size:1.06rem; margin:0 0 .2rem}
+.felder{display:flex; flex-wrap:wrap; gap:.7rem 1rem; align-items:flex-end; margin:.9rem 0 .2rem}
+.feld{display:flex; align-items:center; gap:.4rem}
+.feld label{font-family:var(--serif); font-size:1.08rem; white-space:nowrap}
+.feld input{
+  font:inherit; font-family:var(--mono); font-size:1rem; width:7.5rem;
+  padding:.5rem .6rem; border-radius:var(--radius-klein);
+  border:1.5px solid var(--linie-stark); background:var(--flaeche); color:var(--text);
+  min-height:2.8rem; text-align:center;
+}
+.feld input:focus-visible{outline:3px solid var(--akzent); outline-offset:1px; border-color:var(--akzent)}
+.feld input[data-stand="richtig"]{border-color:var(--gruen); background:var(--gruen-hell)}
+.feld input[data-stand="falsch"]{border-color:var(--rot); background:var(--rot-hell)}
+.feld .einheit{font-size:.92rem; color:var(--text-leise)}
+
+.wahlen{display:grid; gap:.5rem; margin:.9rem 0 .2rem}
+.wahl{
+  display:flex; align-items:center; gap:.7rem; text-align:left; width:100%;
+  font:inherit; padding:.7rem .85rem; border-radius:var(--radius-klein);
+  border:1.5px solid var(--linie-stark); background:var(--flaeche); color:var(--text);
+  cursor:pointer; min-height:3rem;
+}
+.wahl:hover{border-color:var(--akzent); background:var(--flaeche-2)}
+.wahl .buchstabe{
+  flex:0 0 auto; width:1.7rem; height:1.7rem; border-radius:50%;
+  background:var(--flaeche-2); border:1px solid var(--linie-stark);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.82rem; font-weight:700; color:var(--text-leise);
+}
+.wahl[aria-pressed="true"]{border-color:var(--akzent); background:var(--akzent-hell)}
+.wahl[aria-pressed="true"] .buchstabe{background:var(--akzent); color:#fff; border-color:var(--akzent)}
+.wahl[data-stand="richtig"]{border-color:var(--gruen); background:var(--gruen-hell)}
+.wahl[data-stand="falsch"]{border-color:var(--rot); background:var(--rot-hell)}
+.wahl[disabled]{cursor:default; opacity:1}
+.wahl .inhalt{font-family:var(--serif); font-size:1.06rem}
+
+/* --- Rückmeldung --------------------------------------------------------- */
+.echo{
+  margin:.9rem 0 0; padding:.85rem 1rem; border-radius:var(--radius-klein);
+  border:1px solid var(--linie); background:var(--flaeche-2);
+}
+.echo.gut{border-color:var(--gruen); background:var(--gruen-hell)}
+.echo.fast{border-color:var(--gold); background:var(--gold-hell)}
+.echo.nein{border-color:var(--rot); background:var(--rot-hell)}
+.echo .kopfzeile{display:flex; align-items:center; gap:.5rem; font-weight:700; margin-bottom:.3rem}
+.echo .zeichen{font-size:1.15rem}
+.echo p:last-child{margin-bottom:0}
+
+/* --- Landkarte ----------------------------------------------------------- */
+.gruppe-titel{
+  font-size:.78rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--text-schwach); margin:1.4rem 0 .5rem;
+}
+.thema-zeile{
+  display:flex; align-items:center; gap:.85rem; width:100%; text-align:left;
+  font:inherit; padding:.75rem .9rem; margin:.45rem 0; cursor:pointer;
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius);
+  color:var(--text);
+}
+.thema-zeile:hover{border-color:var(--akzent)}
+.thema-zeile[data-dran="ja"]{border-color:var(--akzent); border-width:2px; box-shadow:var(--schatten)}
+.thema-zeile .ampel{
+  flex:0 0 auto; width:2.2rem; height:2.2rem; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700;
+  background:var(--flaeche-2); color:var(--text-schwach); border:1px solid var(--linie);
+}
+.thema-zeile[data-stand="sicher"] .ampel{background:var(--gruen-hell); color:var(--gruen); border-color:var(--gruen)}
+.thema-zeile[data-stand="wackelig"] .ampel{background:var(--gold-hell); color:var(--gold); border-color:var(--gold)}
+.thema-zeile[data-stand="offen"] .ampel{background:var(--rot-hell); color:var(--rot); border-color:var(--rot)}
+.thema-zeile .mitte{flex:1; min-width:0}
+.thema-zeile .name{display:block; font-family:var(--serif); font-weight:600; font-size:1.02rem}
+.thema-zeile .unter{display:block; font-size:.83rem; color:var(--text-schwach)}
+.thema-zeile .pfeil{color:var(--text-schwach); font-size:1.1rem; flex:0 0 auto}
+
+/* --- Phasenleiste im Thema ----------------------------------------------- */
+.phasen{display:flex; gap:.3rem; margin:0 0 1rem; flex-wrap:wrap}
+.phase{
+  flex:1 1 0; min-width:4.6rem; text-align:center; font-size:.72rem; font-weight:600;
+  padding:.32rem .2rem; border-radius:999px; background:var(--flaeche-2);
+  color:var(--text-schwach); border:1px solid var(--linie);
+}
+.phase[data-jetzt="ja"]{background:var(--akzent); color:#fff; border-color:var(--akzent)}
+html[data-thema="dunkel"] .phase[data-jetzt="ja"]{color:#10131c}
+.phase[data-fertig="ja"]{background:var(--gruen-hell); color:var(--gruen); border-color:var(--gruen)}
+
+/* --- Punkte (Re-Test-Fortschritt) ---------------------------------------- */
+.punkte{display:flex; gap:.35rem; margin:.2rem 0 0}
+.punkt{width:.7rem; height:.7rem; border-radius:50%; background:var(--linie)}
+.punkt[data-stand="richtig"]{background:var(--gruen)}
+.punkt[data-stand="falsch"]{background:var(--rot)}
+
+/* --- Zeichnungen --------------------------------------------------------- */
+svg.bild{display:block; width:100%; max-width:420px; height:auto; margin:.7rem auto;
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius-klein)}
+.bildpaar{display:grid; grid-template-columns:1fr 1fr; gap:.5rem}
+.bildpaar svg.bild{max-width:100%}
+
+table.werte{width:100%; border-collapse:collapse; font-family:var(--serif); font-size:1.02rem; margin:.7rem 0}
+table.werte th,table.werte td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+table.werte th{background:var(--flaeche-2); font-weight:600; font-size:.92rem}
+
+/* --- Fuß ----------------------------------------------------------------- */
+.fuss{
+  max-width:820px; margin:0 auto; padding:1.4rem .9rem 3rem;
+  border-top:1px solid var(--linie); font-size:.82rem; color:var(--text-schwach);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:baseline;
+}
+.fuss a{color:var(--text-leise)}
+kbd{font-family:var(--mono); font-size:.78em; padding:.1em .4em; border:1px solid var(--linie-stark);
+  border-bottom-width:2px; border-radius:4px; background:var(--flaeche-2); color:var(--text-leise)}
+
+@media (max-width:30rem){
+  .huelle{padding:.9rem .7rem 5rem}
+  .karte{padding:.9rem .85rem}
+  .phase{font-size:.66rem; min-width:3.6rem}
+  .feld input{width:6rem}
+}
+@media print{
+  .kopf,.fuss,.nicht-drucken,.streifen{display:none !important}
+  body{background:#fff}
+  .karte{box-shadow:none; border-color:#bbb; break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:1ms !important; animation-duration:1ms !important}}
+</style>
+</head>
+<body>
+
+<header class="kopf nicht-drucken">
+  <div class="kopf-innen">
+    <div class="ring" id="ring" title="Themen, die sitzen"></div>
+    <h1 class="kopf-titel">Klausurtrainer 11a<small id="kopf-unter">Kapitel 1 · Funktionen als Werkzeug</small></h1>
+    <button class="iknopf" id="knopf-karte" type="button" title="Zur Übersicht" aria-label="Zur Übersicht">☰</button>
+    <button class="iknopf" id="knopf-thema" type="button" title="Hell oder dunkel" aria-label="Hell oder dunkel">☾</button>
+  </div>
+</header>
+<div class="streifen nicht-drucken"></div>
+
+<main class="huelle" id="buehne"></main>
+
+<footer class="fuss nicht-drucken">
+  <span>Läuft ganz im Browser. Dein Stand bleibt auf diesem Gerät — er wird nirgendwohin geschickt.</span>
+  <span style="margin-left:auto"><button class="knopf knopf-still" id="knopf-reset" type="button">Alles zurücksetzen</button></span>
+</footer>
+
+<script>
+"use strict";
+/* ==========================================================================
+   1 — Kleinteile: Text, Zahlen, Zufall
+   ========================================================================== */
+
+var MINUS = "−";        /* echtes Minuszeichen, wie im Buch und an der Wand */
+var MAL   = "·";
+var HOCH2 = "²";
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(z){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[z];
+  });
+}
+
+function el(tag, attr, kinder){
+  var k = document.createElement(tag);
+  if (attr) Object.keys(attr).forEach(function(name){
+    var w = attr[name];
+    if (w === null || w === undefined || w === false) return;
+    if (name === "text") k.textContent = w;
+    else if (name === "html") k.innerHTML = w;
+    else if (name.slice(0,2) === "on" && typeof w === "function") k.addEventListener(name.slice(2).toLowerCase(), w);
+    else k.setAttribute(name, w === true ? "" : w);
+  });
+  (kinder || []).forEach(function(kind){
+    if (kind === null || kind === undefined) return;
+    k.appendChild(typeof kind === "string" ? document.createTextNode(kind) : kind);
+  });
+  return k;
+}
+
+/* --- Brüche als Datentyp -------------------------------------------------
+   WARUM: Eine Steigung ist oft 2/3, und 0,6666666667 ist an der Tafel keine
+   Antwort. Wo geteilt wird, rechnet der Trainer mit {z, n} weiter und
+   entscheidet erst beim Anzeigen, ob Dezimalzahl oder Bruch dasteht. */
+function ggt(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var h=b; b=a%b; a=h; } return a||1; }
+
+function BR(z, n){
+  if (n === undefined) n = 1;
+  if (n < 0){ z = -z; n = -n; }
+  var t = ggt(z, n);
+  return { z: z/t, n: n/t, bruch: true };
+}
+function istBr(v){ return v && typeof v === "object" && v.bruch === true; }
+function wertVon(v){ return istBr(v) ? v.z / v.n : v; }
+function brMal(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.z, a.n*b.n); }
+function brPlus(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n + b.z*a.n, a.n*b.n); }
+function brMinus(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n - b.z*a.n, a.n*b.n); }
+function brDurch(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n, a.n*b.z); }
+function zuBr(v){
+  if (istBr(v)) return v;
+  if (Number.isInteger(v)) return BR(v, 1);
+  /* Dezimalzahlen aus den Generatoren haben höchstens vier Stellen. */
+  return BR(Math.round(v*10000), 10000);
+}
+
+/* Dezimaltext in deutscher Schreibweise, ohne Nachkommanullen. */
+function dez(x, stellen){
+  var n = (stellen === undefined) ? 4 : stellen;
+  var g = Math.round(x * Math.pow(10,n)) / Math.pow(10,n);
+  var s = String(g);
+  if (s.indexOf("e") >= 0) s = g.toFixed(n);
+  return s.replace("-", MINUS).replace(".", ",");
+}
+
+/* Endet die Dezimaldarstellung nach höchstens drei Stellen? Dann ist sie
+   lesbarer als der Bruch — 0,75 statt drei Vierteln. */
+function kurzDezimal(v){
+  var b = zuBr(v);
+  var x = b.z / b.n;
+  return Math.abs(Math.round(x*1000)/1000 - x) < 1e-12;
+}
+
+/* Zahl als reiner Text (für Eingabefelder, Titel, Tabellen). */
+function zText(v){
+  if (!istBr(v)) return dez(v);
+  if (v.n === 1) return dez(v.z);
+  if (kurzDezimal(v)) return dez(v.z/v.n);
+  return (v.z < 0 ? MINUS : "") + Math.abs(v.z) + "/" + v.n;
+}
+
+/* Zahl als HTML — hier darf der Bruch übereinander stehen. */
+function zHtml(v){
+  if (!istBr(v)) return esc(dez(v));
+  if (v.n === 1) return esc(dez(v.z));
+  if (kurzDezimal(v)) return esc(dez(v.z/v.n));
+  return (v.z < 0 ? MINUS : "") + bruchHtml(Math.abs(v.z), v.n);
+}
+function bruchHtml(oben, unten){
+  return '<span class="br"><span>' + oben + '</span><span>' + unten + '</span></span>';
+}
+function wurzelHtml(inhalt){
+  return '<span class="wz">√<span class="dach">' + inhalt + '</span></span>';
+}
+function hochHtml(basis, exp){
+  if (exp === 2) return basis + HOCH2;
+  if (exp === 3) return basis + "³";
+  return basis + "<sup>" + exp + "</sup>";
+}
+
+/* --- Terme zusammensetzen ------------------------------------------------
+   Ein Term wie 2x² − x + 3 soll auch dann richtig aussehen, wenn ein
+   Koeffizient 1, −1 oder 0 ist. Das hier ist die einzige Stelle, an der
+   diese Fallunterscheidung steht. */
+function summandHtml(k, teil, erster){
+  var x = wertVon(k);
+  if (x === 0) return "";
+  var negativ = x < 0;
+  var betrag = istBr(k) ? BR(Math.abs(k.z), k.n) : Math.abs(x);
+  var zahl = (teil && wertVon(betrag) === 1) ? "" : zHtml(betrag);
+  var kern = zahl + (teil || "");
+  if (erster) return (negativ ? MINUS : "") + kern;
+  return " " + (negativ ? MINUS : "+") + " " + kern;
+}
+function termHtml(teile){
+  /* teile: [{k: Koeffizient, t: HTML des Variablenteils}] */
+  var raus = "", erster = true;
+  teile.forEach(function(s){
+    var stueck = summandHtml(s.k, s.t, erster);
+    if (stueck){ raus += stueck; erster = false; }
+  });
+  return raus || "0";
+}
+function linHtml(m, b){ return termHtml([{k:m, t:"x"}, {k:b, t:""}]); }
+function quadHtml(a, b, c){ return termHtml([{k:a, t:"x"+HOCH2}, {k:b, t:"x"}, {k:c, t:""}]); }
+/* f(x) = a(x − d)² + e — mit dem Vorzeichenwechsel, der die halbe Klasse kostet. */
+function scheitelHtml(a, d, e){
+  var innen = "x " + (wertVon(d) < 0 ? "+" : MINUS) + " " + zHtml(istBr(d) ? BR(Math.abs(d.z), d.n) : Math.abs(wertVon(d)));
+  if (wertVon(d) === 0) innen = "x";
+  var klammer = (wertVon(d) === 0 ? "x" : "(" + innen + ")") + HOCH2;
+  var vorn = summandHtml(a, klammer, true);
+  var hinten = summandHtml(e, "", false);
+  return vorn + hinten;
+}
+/* Negative Zahlen gehoeren in Klammern: „3 · (−5)" liest sich, „3 · −5" nicht. */
+function kl(v){ return wertVon(v) < 0 ? "(" + zHtml(v) + ")" : zHtml(v); }
+/* Der Faktor vor einer Klammer: 1 und −1 werden nicht geschrieben. */
+function vorFaktor(m){ return m === 1 ? "" : (m === -1 ? MINUS : zHtml(m)); }
+var ORDNUNG = { 2: "zweite", 3: "dritte", 4: "vierte", 5: "fünfte" };
+
+function punktHtml(name, x, y){
+  return esc(name) + "(" + zHtml(x) + " | " + zHtml(y) + ")";
+}
+
+/* --- Zufall -------------------------------------------------------------- */
+function rnd(min, max){ return Math.floor(Math.random()*(max-min+1)) + min; }
+function rndOhne0(min, max){ var x; do { x = rnd(min,max); } while (x === 0); return x; }
+function vorz(){ return Math.random() < 0.5 ? -1 : 1; }
+function waehle(liste){ return liste[Math.floor(Math.random()*liste.length)]; }
+function mische(liste){
+  var k = liste.slice();
+  for (var i = k.length-1; i > 0; i--){
+    var j = Math.floor(Math.random()*(i+1)), h = k[i]; k[i] = k[j]; k[j] = h;
+  }
+  return k;
+}
+/* Zwei verschiedene Zahlen aus einem Bereich — für Punkte, Nullstellen, Paare. */
+function zweiVerschieden(min, max){
+  var a = rnd(min,max), b;
+  do { b = rnd(min,max); } while (b === a);
+  return [a, b];
+}
+
+/* --- Eingaben lesen ------------------------------------------------------
+   Was eine Elfte tippt: 0,5 · 0.5 · 1/2 · −3 · -3 · " 4 " · 2π/3 kommt hier
+   nicht vor, weil kein Feld danach fragt. Alles andere wird verstanden. */
+function zahlAus(text){
+  var s = String(text).trim().replace(/\s+/g, "");
+  if (!s) return null;
+  s = s.replace(/−/g, "-").replace(/,/g, ".");
+  var bruch = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/.exec(s);
+  if (bruch){
+    var n = parseFloat(bruch[2]);
+    if (!n) return null;
+    return parseFloat(bruch[1]) / n;
+  }
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+/* Wie genau muss eine Eingabe stimmen?
+   Bei glatten Werten auf die letzte Stelle. Bei krummen — 4/3, 1/3, 0,8333 —
+   waere das eine Falle: Wer den Bruch richtig hat und ihn als 1,33 eintippt,
+   hat die Aufgabe verstanden. Deshalb dort zwei Nachkommastellen. */
+function toleranzFuer(feld){
+  if (typeof feld.toleranz === "number") return feld.toleranz;
+  var x = feld.soll;
+  return Math.abs(Math.round(x*1000)/1000 - x) < 1e-12 ? 1e-6 : 0.0051;
+}
+function gleichAuf(a, b, toleranz){
+  if (a === null || a === undefined) return false;
+  var t = (toleranz === undefined) ? 1e-6 : toleranz;
+  return Math.abs(a - b) <= t + 1e-9;
+}
+
+/* ==========================================================================
+   2 — Kleine Zeichnungen
+   Ein Graph sagt bei Parabeln und Sinuskurven mehr als drei Sätze. Gezeichnet
+   wird mit den Farbmarken der Seite, damit die Bilder auch dunkel stimmen.
+   ========================================================================== */
+var graphZaehler = 0;
+function graphSvg(opt){
+  var B = 400, H = opt.hoehe || 300, rand = 26;
+  /* Eigene Kennung je Bild: Auf einer Seite können mehrere Koordinatensysteme
+     stehen, und zwei gleich benannte Schnittmasken würden sich in die Quere
+     kommen. */
+  var maske = "gsvg" + (++graphZaehler);
+  var xmin = opt.xmin, xmax = opt.xmax, ymin = opt.ymin, ymax = opt.ymax;
+  function px(x){ return rand + (x - xmin) / (xmax - xmin) * (B - 2*rand); }
+  function py(y){ return H - rand - (y - ymin) / (ymax - ymin) * (H - 2*rand); }
+  var teile = [];
+
+  /* Gitter in ganzen Schritten, aber höchstens 20 Linien je Richtung. */
+  var sx = Math.max(1, Math.ceil((xmax - xmin) / 20));
+  var sy = Math.max(1, Math.ceil((ymax - ymin) / 20));
+  for (var gx = Math.ceil(xmin/sx)*sx; gx <= xmax; gx += sx)
+    teile.push('<line x1="'+px(gx)+'" y1="'+py(ymin)+'" x2="'+px(gx)+'" y2="'+py(ymax)+'" stroke="var(--linie)" stroke-width="1"/>');
+  for (var gy = Math.ceil(ymin/sy)*sy; gy <= ymax; gy += sy)
+    teile.push('<line x1="'+px(xmin)+'" y1="'+py(gy)+'" x2="'+px(xmax)+'" y2="'+py(gy)+'" stroke="var(--linie)" stroke-width="1"/>');
+
+  /* Achsen */
+  if (ymin <= 0 && ymax >= 0)
+    teile.push('<line x1="'+px(xmin)+'" y1="'+py(0)+'" x2="'+px(xmax)+'" y2="'+py(0)+'" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  if (xmin <= 0 && xmax >= 0)
+    teile.push('<line x1="'+px(0)+'" y1="'+py(ymin)+'" x2="'+px(0)+'" y2="'+py(ymax)+'" stroke="var(--text-leise)" stroke-width="1.6"/>');
+
+  /* Achsenbeschriftung: nur wenige Zahlen, sonst wird es unruhig. */
+  var bx = Math.max(sx, Math.round((xmax-xmin)/6/sx)*sx);
+  for (var tx = Math.ceil(xmin/bx)*bx; tx <= xmax; tx += bx){
+    if (tx === 0) continue;
+    teile.push('<text x="'+px(tx)+'" y="'+(py(Math.max(ymin,Math.min(ymax,0)))+14)+'" text-anchor="middle" font-size="11" fill="var(--text-schwach)">'+dez(tx)+'</text>');
+  }
+  var by = Math.max(sy, Math.round((ymax-ymin)/6/sy)*sy);
+  for (var ty = Math.ceil(ymin/by)*by; ty <= ymax; ty += by){
+    if (ty === 0) continue;
+    teile.push('<text x="'+(px(Math.max(xmin,Math.min(xmax,0)))-6)+'" y="'+(py(ty)+4)+'" text-anchor="end" font-size="11" fill="var(--text-schwach)">'+dez(ty)+'</text>');
+  }
+
+  (opt.kurven || []).forEach(function(kurve){
+    var punkte = [], N = 260, luecke = true, d = "";
+    for (var i = 0; i <= N; i++){
+      var x = xmin + (xmax - xmin) * i / N;
+      var y = kurve.f(x);
+      if (!isFinite(y) || y < ymin - (ymax-ymin) || y > ymax + (ymax-ymin)){ luecke = true; continue; }
+      d += (luecke ? "M" : "L") + px(x).toFixed(1) + " " + py(y).toFixed(1) + " ";
+      luecke = false;
+    }
+    teile.push('<g clip-path="url(#'+maske+')"><path d="'+d+'" fill="none" stroke="'+(kurve.farbe||"var(--akzent)")+'" stroke-width="2.4" stroke-linecap="round"'
+      + (kurve.strich ? ' stroke-dasharray="6 5"' : '') + '/></g>');
+  });
+
+  (opt.punkte || []).forEach(function(p){
+    teile.push('<circle cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="4.5" fill="'+(p.farbe||"var(--rot)")+'"/>');
+    if (p.name) teile.push('<text x="'+(px(p.x)+8)+'" y="'+(py(p.y)-8)+'" font-size="12" font-weight="600" fill="'+(p.farbe||"var(--rot)")+'">'+esc(p.name)+'</text>');
+  });
+
+  return '<svg class="bild" viewBox="0 0 '+B+' '+H+'" role="img" aria-label="'
+    + esc(opt.alt || "Koordinatensystem mit Graph") + '"><defs><clipPath id="'+maske+'">'
+    + '<rect x="'+(rand-4)+'" y="'+(rand-4)+'" width="'+(B-2*rand+8)+'" height="'+(H-2*rand+8)+'"/>'
+    + '</clipPath></defs>' + teile.join("") + '</svg>';
+}
+/* ==========================================================================
+   3 — Die Aufgaben
+   --------------------------------------------------------------------------
+   Jede Aufgabe ist ein Objekt:
+
+     frage      HTML der Aufgabenstellung
+     bild       optional: SVG, Tabelle, Gleichungssystem
+     eingabe    wie geantwortet wird (Zahl, mehrere Felder, Auswahl)
+     hinweis    der erste Tipp nach einem Fehler — nie die Lösung
+     schritte   die vollständige Rechnung, Schritt für Schritt
+     antwort    die Endantwort in einem Satz
+
+   Erzeugt werden sie von Funktionen ohne Argumente. Jeder Aufruf liefert
+   dieselbe Sorte Aufgabe mit neuen Zahlen — das ist der Grund, warum ein
+   Re-Test hier etwas bestätigt und nicht nur ein Gedächtnis prüft.
+   ========================================================================== */
+
+function S(was, rechnung){ return { was: was, r: rechnung }; }
+
+/* Vier Wahlmöglichkeiten mischen und merken, welche die richtige ist. */
+function wahl(richtigHtml, falschHtmls){
+  var alle = mische([{ h: richtigHtml, ok: true }].concat(
+    falschHtmls.map(function(h){ return { h: h, ok: false }; })));
+  return {
+    art: "wahl",
+    optionen: alle.map(function(a){ return a.h; }),
+    richtig: alle.findIndex(function(a){ return a.ok; })
+  };
+}
+/* Wie wahl(), aber gegen den haeufigsten Generatorfehler abgesichert: Bei
+   bestimmten Zahlen faellt ein Ablenker mit der richtigen Antwort zusammen
+   (bei a = 1 ist a² = a). Aus einer Vorratsliste werden die ersten drei
+   genommen, die weder gleich der Loesung noch untereinander gleich sind. */
+function wahlAus(richtigHtml, vorrat){
+  var raus = [];
+  vorrat.forEach(function(k){
+    if (k !== richtigHtml && raus.indexOf(k) < 0 && raus.length < 3) raus.push(k);
+  });
+  while (raus.length < 3) raus.push("keiner der genannten Terme" + (raus.length === 3 ? "" : " ".repeat(raus.length)));
+  return wahl(richtigHtml, raus);
+}
+function zahlFeld(label, soll, extra){
+  var e = { art: "felder", felder: [Object.assign({ label: label, soll: soll }, extra || {})] };
+  return e;
+}
+function felder(liste, egal){
+  return { art: "felder", felder: liste, egal: !!egal };
+}
+
+/* ==========================================================================
+   THEMA 1 — Termumformungen
+   ========================================================================== */
+var G_TERME = [];
+
+/* Klammern auflösen und zusammenfassen. Der Klassiker: das Minus vor der
+   zweiten Klammer. */
+G_TERME.push(function(){
+  var a = rnd(2,5), b = rnd(2,6), c = rndOhne0(-6,6);
+  var d = rnd(2,4), e = rnd(2,5), f = rndOhne0(-6,6);
+  var mx = a*b - d*e, konst = a*c - d*f;
+  var t = zHtml(a) + "(" + linHtml(b, c) + ") " + MINUS + " " + zHtml(d) + "(" + linHtml(e, f) + ")";
+  return {
+    frage: "Multipliziere aus und fasse zusammen:",
+    formel: t,
+    eingabe: felder([
+      { label: "Zahl vor x:", soll: mx },
+      { label: "Zahl ohne x:", soll: konst }
+    ]),
+    hinweis: "Das Minus vor der zweiten Klammer gilt für <em>beide</em> Summanden darin — auch für den zweiten.",
+    schritte: [
+      S("Erste Klammer ausmultiplizieren", zHtml(a) + "(" + linHtml(b,c) + ") = " + linHtml(a*b, a*c)),
+      S("Zweite Klammer ausmultiplizieren — das Minus mitnehmen",
+        MINUS + " " + zHtml(d) + "(" + linHtml(e,f) + ") = " + linHtml(-d*e, -d*f)),
+      S("Beides untereinander schreiben", linHtml(a*b, a*c) + " " + ((-d*e) < 0 ? MINUS : "+") + " " + zHtml(Math.abs(d*e)) + "x " + ((-d*f) < 0 ? MINUS : "+") + " " + zHtml(Math.abs(d*f))),
+      S("x-Glieder und Zahlen getrennt zusammenfassen", linHtml(mx, konst))
+    ],
+    antwort: "Der Term ist <span class=\"m\">" + linHtml(mx, konst) + "</span>."
+  };
+});
+
+/* Binomische Formel — als Auswahl, weil hier die Fehler die Aufgabe sind. */
+G_TERME.push(function(){
+  var a = rnd(1,4), b = rnd(2,7), minus = Math.random() < 0.5;
+  var t = "(" + linHtml(a, minus ? -b : b) + ")" + HOCH2;
+  var m = minus ? -1 : 1;
+  return {
+    frage: "Welcher Term ist gleichwertig?",
+    formel: t,
+    eingabe: wahlAus(quadHtml(a*a, m*2*a*b, b*b),
+      [ quadHtml(a*a, 0, b*b),
+        quadHtml(a*a, m*a*b, b*b),
+        quadHtml(a, m*2*a*b, b*b),
+        quadHtml(a*a, m*2*a*b, -b*b),
+        quadHtml(a*a, m*2*a*b, m*b) ]),
+    hinweis: "Erste binomische Formel: (u ± v)" + HOCH2 + " = u" + HOCH2 + " ± 2uv + v" + HOCH2 + ". Das mittlere Glied fehlt fast nie zufällig.",
+    schritte: [
+      S("Bausteine benennen", "u = " + (a === 1 ? "x" : zHtml(a) + "x") + ",&nbsp;&nbsp; v = " + zHtml(b)),
+      S("u" + HOCH2 + " bilden", (a === 1 ? "x" : zHtml(a) + "x") + HOCH2 + " = " + summandHtml(a*a, "x"+HOCH2, true)),
+      S("Das gemischte Glied: 2" + MAL + "u" + MAL + "v", "2 " + MAL + " " + (a===1?"":zHtml(a)) + "x " + MAL + " " + zHtml(b) + " = " + zHtml(2*a*b) + "x"),
+      S("v" + HOCH2 + " bilden und alles zusammensetzen", quadHtml(a*a, m*2*a*b, b*b))
+    ],
+    antwort: "Richtig ist <span class=\"m\">" + quadHtml(a*a, m*2*a*b, b*b) + "</span>."
+  };
+});
+
+/* Dritte binomische Formel. */
+G_TERME.push(function(){
+  var a = rnd(1,5), b = rnd(2,8);
+  return {
+    frage: "Multipliziere aus:",
+    formel: "(" + linHtml(a,b) + ")(" + linHtml(a,-b) + ")",
+    eingabe: wahl(
+      quadHtml(a*a, 0, -b*b),
+      [ quadHtml(a*a, 0, b*b),
+        quadHtml(a*a, -2*a*b, -b*b),
+        quadHtml(a*a, 0, -b) ]
+    ),
+    hinweis: "Plus und Minus in den Klammern: Die gemischten Glieder heben sich gegenseitig auf.",
+    schritte: [
+      S("Jeden mit jedem", (a===1?"x":zHtml(a)+"x") + MAL + (a===1?"x":zHtml(a)+"x") + " = " + summandHtml(a*a,"x"+HOCH2,true)
+        + ",&nbsp; dann " + MINUS + zHtml(a*b) + "x und +" + zHtml(a*b) + "x, zuletzt " + MINUS + zHtml(b*b)),
+      S("Die beiden x-Glieder heben sich auf", MINUS + zHtml(a*b) + "x + " + zHtml(a*b) + "x = 0"),
+      S("Es bleibt die dritte binomische Formel", quadHtml(a*a, 0, -b*b))
+    ],
+    antwort: "Es bleibt <span class=\"m\">" + quadHtml(a*a, 0, -b*b) + "</span>."
+  };
+});
+
+/* Ausklammern — die Umkehrung, und genau die braucht man bei Nullstellen. */
+G_TERME.push(function(){
+  var g = rnd(2,6), p = rnd(1,5), q = rndOhne0(-6,6);
+  var a = g*p, b = g*q;
+  return {
+    frage: "Klammere so weit wie möglich aus:",
+    formel: quadHtml(a, b, 0),
+    eingabe: wahl(
+      zHtml(g) + "x(" + linHtml(p, q) + ")",
+      [ "x(" + linHtml(a, b) + ")",
+        zHtml(g) + "(" + quadHtml(p, q, 0) + ")",
+        zHtml(g) + "x(" + linHtml(p, q*g) + ")" ]
+    ),
+    hinweis: "Zwei Dinge stecken in beiden Summanden: eine Zahl und ein x. Beides gehört vor die Klammer.",
+    schritte: [
+      S("Was steckt in beiden Summanden?", "In " + zHtml(a) + "x" + HOCH2 + " und " + zHtml(Math.abs(b)) + "x steckt jeweils " + zHtml(g) + " und x."),
+      S("Beides vor die Klammer ziehen", quadHtml(a,b,0) + " = " + zHtml(g) + "x " + MAL + " (…)"),
+      S("Was bleibt in der Klammer? Jeden Summanden durch " + zHtml(g) + "x teilen",
+        zHtml(a) + "x" + HOCH2 + " : " + zHtml(g) + "x = " + summandHtml(p, "x", true)
+        + "&nbsp;&nbsp;und&nbsp;&nbsp;" + zHtml(b) + "x : " + zHtml(g) + "x = " + zHtml(q)),
+      S("Probe durch Ausmultiplizieren", zHtml(g) + "x(" + linHtml(p,q) + ") = " + quadHtml(a,b,0))
+    ],
+    antwort: "Ausgeklammert: <span class=\"m\">" + zHtml(g) + "x(" + linHtml(p,q) + ")</span>."
+  };
+});
+
+/* Einsetzen mit negativem x — die Quadratfalle. */
+G_TERME.push(function(){
+  var a = rndOhne0(-3,3), b = rndOhne0(-6,6), c = rndOhne0(-9,9);
+  var x = -rnd(2,5);
+  var wert = a*x*x + b*x + c;
+  return {
+    frage: "Berechne den Wert des Terms für <span class=\"m\">x = " + zHtml(x) + "</span>:",
+    formel: quadHtml(a,b,c),
+    eingabe: zahlFeld("Wert =", wert),
+    hinweis: "Setze x überall in Klammern ein: (" + zHtml(x) + ")" + HOCH2 + " ist <em>positiv</em>.",
+    schritte: [
+      S("x in Klammern einsetzen", quadHtml(a,b,c).replace(/x/g, "(" + zHtml(x) + ")")),
+      S("Zuerst die Potenz", "(" + zHtml(x) + ")" + HOCH2 + " = " + zHtml(x*x) + "&nbsp;&nbsp;(Minus mal Minus ergibt Plus)"),
+      S("Dann die Produkte", kl(a) + " " + MAL + " " + zHtml(x*x) + " = " + zHtml(a*x*x)
+        + ",&nbsp;&nbsp;" + kl(b) + " " + MAL + " " + kl(x) + " = " + zHtml(b*x)),
+      S("Zum Schluss addieren", zHtml(a*x*x) + " + " + kl(b*x) + " + " + kl(c) + " = " + zHtml(wert))
+    ],
+    antwort: "Der Termwert ist <span class=\"m\">" + zHtml(wert) + "</span>."
+  };
+});
+
+/* ==========================================================================
+   THEMA 2 — Gleichungen umstellen
+   ========================================================================== */
+var G_GLEICH = [];
+
+/* Variable auf beiden Seiten. */
+G_GLEICH.push(function(){
+  var x0 = rndOhne0(-7,7);
+  var a = rndOhne0(-6,6), c;
+  do { c = rndOhne0(-6,6); } while (c === a);
+  var b = rndOhne0(-9,9);
+  var d = (a - c)*x0 + b;
+  return {
+    frage: "Löse die Gleichung nach x auf:",
+    formel: linHtml(a,b) + " = " + linHtml(c,d),
+    eingabe: zahlFeld("x =", x0),
+    hinweis: "Erst alle x auf eine Seite, dann alle Zahlen auf die andere. Was du auf der einen Seite tust, tust du auch auf der anderen.",
+    schritte: [
+      S("x-Glieder auf die linke Seite", linHtml(a,b) + " " + MINUS + " " + zHtml(c) + "x = " + zHtml(d)
+        + "&nbsp;&nbsp;|&nbsp;" + MINUS + " " + zHtml(c) + "x"),
+      S("Zusammenfassen", linHtml(a-c, b) + " = " + zHtml(d)),
+      S("Zahl nach rechts", zHtml(a-c) + "x = " + zHtml(d - b) + "&nbsp;&nbsp;|&nbsp;" + (b<0?"+":MINUS) + " " + zHtml(Math.abs(b))),
+      S("Durch den Faktor vor x teilen", "x = " + zHtml(BR(d-b, a-c)) + "&nbsp;&nbsp;|&nbsp;: " + zHtml(a-c)),
+      S("Probe: x einsetzen", "links " + zHtml(a*x0+b) + ",&nbsp; rechts " + zHtml(c*x0+d) + " — stimmt.")
+    ],
+    antwort: "<span class=\"m\">x = " + zHtml(x0) + "</span>"
+  };
+});
+
+/* Klammern in der Gleichung. */
+G_GLEICH.push(function(){
+  /* Aufgebaut von der Lösung her: x0 wird gewählt, die rechte Seite so
+     berechnet, dass sie passt. Dann geht die Gleichung immer glatt auf und
+     es steht nie ein „− −5" in der Angabe. */
+  var x0 = rndOhne0(-6,6);
+  var a = rnd(2,5), b = rndOhne0(-6,6), c;
+  do { c = rndOhne0(-5,5); } while (c === a);
+  var e = a*(x0 + b) - c*x0;
+  return {
+    frage: "Löse nach x auf:",
+    formel: zHtml(a) + "(" + linHtml(1,b) + ") = " + linHtml(c, e),
+    eingabe: zahlFeld("x =", x0),
+    hinweis: "Zuerst die Klammer ausmultiplizieren. Danach ist es eine gewöhnliche Gleichung mit x auf beiden Seiten.",
+    schritte: [
+      S("Klammer ausmultiplizieren", linHtml(a, a*b) + " = " + linHtml(c, e)),
+      S("x-Glieder nach links", linHtml(a - c, a*b) + " = " + zHtml(e)),
+      S("Zahl nach rechts", zHtml(a-c) + "x = " + zHtml(e - a*b)),
+      S("Durch " + kl(a-c) + " teilen", "x = " + zHtml(x0)),
+      S("Probe", zHtml(a) + "(" + zHtml(x0) + " " + (b<0?MINUS:"+") + " " + zHtml(Math.abs(b)) + ") = " + zHtml(a*(x0+b))
+        + " und rechts " + zHtml(c*x0 + e) + " ✓")
+    ],
+    antwort: "<span class=\"m\">x = " + zHtml(x0) + "</span>"
+  };
+});
+
+/* Bruchgleichung mit Zahl im Nenner. */
+G_GLEICH.push(function(){
+  /* Von der Lösung her gebaut: erst x und die Zahl im Zähler, daraus die
+     rechte Seite. Sonst käme bei jeder zweiten Aufgabe ein Bruch wie 19/3
+     heraus — richtig, aber als Übungsaufgabe unnötig sperrig. */
+  var n = rnd(2,5), k = rnd(2,4), x0, a, c;
+  do {
+    x0 = rndOhne0(-8,8);
+    a = rndOhne0(-12,12);
+    c = (k*x0 + a)/n;
+  } while (!Number.isInteger(c) || c === 0 || Math.abs(c) > 9);
+  var x = BR(c*n - a, k);
+  return {
+    frage: "Löse nach x auf:",
+    formel: bruchHtml(linHtml(k, a), zHtml(n)) + " = " + zHtml(c),
+    eingabe: zahlFeld("x =", wertVon(x)),
+    hinweis: "Der ganze Zähler ist durch " + zHtml(n) + " geteilt. Multipliziere zuerst beide Seiten mit " + zHtml(n) + ".",
+    schritte: [
+      S("Beide Seiten mit " + zHtml(n) + " multiplizieren", linHtml(k,a) + " = " + zHtml(c*n) + "&nbsp;&nbsp;|&nbsp;" + MAL + " " + zHtml(n)),
+      S("Zahl auf die andere Seite", zHtml(k) + "x = " + zHtml(c*n - a) + "&nbsp;&nbsp;|&nbsp;" + (a<0?"+":MINUS) + " " + zHtml(Math.abs(a))),
+      S("Durch " + zHtml(k) + " teilen", "x = " + zHtml(x))
+    ],
+    antwort: "<span class=\"m\">x = " + zHtml(x) + "</span>"
+  };
+});
+
+/* Formel nach einer Größe umstellen — ausgewählte Klassiker. */
+G_GLEICH.push(function(){
+  var faelle = [
+    { f: "y = m " + MAL + " x + b", nach: "x",
+      ok: "x = " + bruchHtml("y " + MINUS + " b", "m"),
+      falsch: [ "x = " + bruchHtml("y", "m") + " " + MINUS + " b",
+                "x = y " + MINUS + " b " + MINUS + " m",
+                "x = " + bruchHtml("b " + MINUS + " y", "m") ],
+      wie: [ S("b nach links", "y " + MINUS + " b = m " + MAL + " x"),
+             S("Durch m teilen", bruchHtml("y " + MINUS + " b", "m") + " = x") ] },
+    { f: "A = " + bruchHtml("1","2") + " " + MAL + " g " + MAL + " h", nach: "h",
+      ok: "h = " + bruchHtml("2A", "g"),
+      falsch: [ "h = " + bruchHtml("A", "2g"), "h = 2A " + MINUS + " g", "h = " + bruchHtml("g", "2A") ],
+      wie: [ S("Mit 2 multiplizieren", "2A = g " + MAL + " h"),
+             S("Durch g teilen", bruchHtml("2A","g") + " = h") ] },
+    { f: "U = 2 " + MAL + " (a + b)", nach: "a",
+      ok: "a = " + bruchHtml("U","2") + " " + MINUS + " b",
+      falsch: [ "a = U " + MINUS + " 2b", "a = " + bruchHtml("U " + MINUS + " b", "2"), "a = 2U " + MINUS + " b" ],
+      wie: [ S("Durch 2 teilen", bruchHtml("U","2") + " = a + b"),
+             S("b abziehen", bruchHtml("U","2") + " " + MINUS + " b = a") ] },
+    { f: "V = π " + MAL + " r" + HOCH2 + " " + MAL + " h", nach: "h",
+      ok: "h = " + bruchHtml("V", "π " + MAL + " r" + HOCH2),
+      falsch: [ "h = V " + MINUS + " π r" + HOCH2, "h = " + bruchHtml("π r" + HOCH2, "V"), "h = " + bruchHtml("V", "π") + " " + MINUS + " r" + HOCH2 ],
+      wie: [ S("Was steht bei h?", "h ist mit π " + MAL + " r" + HOCH2 + " multipliziert."),
+             S("Also durch π r" + HOCH2 + " teilen", bruchHtml("V", "π " + MAL + " r"+HOCH2) + " = h") ] }
+  ];
+  var f = waehle(faelle);
+  return {
+    frage: "Stelle die Formel nach <span class=\"m\">" + f.nach + "</span> um:",
+    formel: f.f,
+    eingabe: wahl(f.ok, f.falsch),
+    hinweis: "Frag dich: Was ist mit " + f.nach + " passiert? Genau das machst du rückwärts — und zwar auf beiden Seiten.",
+    schritte: f.wie,
+    antwort: "<span class=\"m\">" + f.ok + "</span>"
+  };
+});
+
+/* ==========================================================================
+   THEMA 3 — Lineare Gleichungssysteme
+   ========================================================================== */
+var G_LGS = [];
+
+function lgsBild(a1,b1,c1,a2,b2,c2){
+  return '<div class="mblock klein">'
+    + "I&nbsp;&nbsp;&nbsp;" + termHtml([{k:a1,t:"x"},{k:b1,t:"y"}]) + " = " + zHtml(c1) + "<br>"
+    + "II&nbsp;&nbsp;" + termHtml([{k:a2,t:"x"},{k:b2,t:"y"}]) + " = " + zHtml(c2)
+    + "</div>";
+}
+
+/* Additionsverfahren — mit ganzzahliger Lösung. */
+G_LGS.push(function(){
+  var x0 = rndOhne0(-5,5), y0 = rndOhne0(-5,5);
+  var a1, b1, a2, b2;
+  do {
+    a1 = rndOhne0(-4,4); b1 = rndOhne0(-4,4);
+    a2 = rndOhne0(-4,4); b2 = rndOhne0(-4,4);
+  } while (a1*b2 - a2*b1 === 0);
+  var c1 = a1*x0 + b1*y0, c2 = a2*x0 + b2*y0;
+  /* Für den Rechenweg: I mit b2, II mit b1 multiplizieren und subtrahieren. */
+  return {
+    frage: "Löse das Gleichungssystem.",
+    bild: lgsBild(a1,b1,c1,a2,b2,c2),
+    eingabe: felder([ { label: "x =", soll: x0 }, { label: "y =", soll: y0 } ]),
+    hinweis: "Additionsverfahren: Multipliziere die Gleichungen so, dass vor y (oder vor x) betragsgleiche Zahlen stehen. Dann fällt beim Addieren oder Subtrahieren eine Variable weg.",
+    schritte: (b1 === b2
+      ? [ S("Vor y steht in beiden Gleichungen dieselbe Zahl — dann genügt I " + MINUS + " II",
+            zHtml(a1 - a2) + "x = " + zHtml(c1 - c2)) ]
+      : [ S("Ziel: y soll wegfallen. Dazu I " + MAL + " " + kl(b2) + " und II " + MAL + " " + kl(b1),
+            "I'&nbsp;&nbsp;" + termHtml([{k:a1*b2,t:"x"},{k:b1*b2,t:"y"}]) + " = " + zHtml(c1*b2) + "<br>"
+            + "II'&nbsp;" + termHtml([{k:a2*b1,t:"x"},{k:b2*b1,t:"y"}]) + " = " + zHtml(c2*b1)),
+          S("I' " + MINUS + " II' — das y-Glied verschwindet",
+            zHtml(a1*b2 - a2*b1) + "x = " + zHtml(c1*b2 - c2*b1)) ]
+    ).concat([
+      S("Nach x auflösen", "x = " + zHtml(x0)),
+      S("x in I einsetzen und y bestimmen",
+        kl(a1) + " " + MAL + " " + kl(x0) + " " + (b1<0?MINUS:"+") + " " + zHtml(Math.abs(b1)) + "y = " + zHtml(c1)
+        + "&nbsp;&nbsp;⇒&nbsp;&nbsp;y = " + zHtml(y0)),
+      S("Probe in II", kl(a2) + " " + MAL + " " + kl(x0) + " + " + kl(b2) + " " + MAL + " " + kl(y0)
+        + " = " + zHtml(c2) + " ✓")
+    ]),
+    antwort: "<span class=\"m\">x = " + zHtml(x0) + ",&nbsp; y = " + zHtml(y0) + "</span>"
+  };
+});
+
+/* Schnittpunkt zweier Geraden — dasselbe Verfahren, andere Sprache. */
+G_LGS.push(function(){
+  var x0 = rndOhne0(-6,6);
+  var m1 = rndOhne0(-4,4), m2;
+  do { m2 = rndOhne0(-4,4); } while (m2 === m1);
+  var b1 = rndOhne0(-8,8);
+  var b2 = (m1 - m2)*x0 + b1;
+  var y0 = m1*x0 + b1;
+  return {
+    frage: "Wo schneiden sich die beiden Geraden?",
+    bild: '<div class="mblock klein">f(x) = ' + linHtml(m1,b1) + "<br>g(x) = " + linHtml(m2,b2) + "</div>",
+    eingabe: felder([ { label: "x =", soll: x0 }, { label: "y =", soll: y0 } ]),
+    hinweis: "Im Schnittpunkt haben beide Geraden denselben y-Wert. Setze also f(x) = g(x).",
+    schritte: [
+      S("Gleichsetzen", linHtml(m1,b1) + " = " + linHtml(m2,b2)),
+      S("x-Glieder auf eine Seite, Zahlen auf die andere", linHtml(m1-m2, 0) + " = " + zHtml(b2-b1)),
+      (Math.abs(m1-m2) === 1
+        ? S("Damit steht die x-Koordinate schon da"
+            + (m1-m2 === -1 ? " — noch beide Seiten mit " + MINUS + "1 multiplizieren" : ""), "x = " + zHtml(x0))
+        : S("Durch " + kl(m1-m2) + " teilen — das ist die x-Koordinate", "x = " + zHtml(x0))),
+      S("x in eine der beiden Funktionen einsetzen — der y-Wert",
+        "f(" + zHtml(x0) + ") = " + kl(m1) + " " + MAL + " " + kl(x0) + " " + (b1<0?MINUS:"+") + " " + zHtml(Math.abs(b1)) + " = " + zHtml(y0)),
+      S("Gegenprobe mit g", "g(" + zHtml(x0) + ") = " + zHtml(y0) + " ✓ — beide liefern denselben Wert.")
+    ],
+    antwort: "Der Schnittpunkt ist <span class=\"m\">S(" + zHtml(x0) + " | " + zHtml(y0) + ")</span>."
+  };
+});
+
+/* Einsetzungsverfahren: eine Gleichung ist schon nach y aufgelöst. */
+G_LGS.push(function(){
+  var x0 = rndOhne0(-5,5), y0 = rndOhne0(-6,6);
+  var m = rndOhne0(-3,3);
+  var b = y0 - m*x0;
+  var a2, b2;
+  do { a2 = rndOhne0(-4,4); b2 = rndOhne0(-4,4); } while (a2 + b2*m === 0);
+  var c2 = a2*x0 + b2*y0;
+  return {
+    frage: "Löse das Gleichungssystem.",
+    bild: '<div class="mblock klein">I&nbsp;&nbsp;&nbsp;y = ' + linHtml(m,b) + "<br>II&nbsp;&nbsp;"
+      + termHtml([{k:a2,t:"x"},{k:b2,t:"y"}]) + " = " + zHtml(c2) + "</div>",
+    eingabe: felder([ { label: "x =", soll: x0 }, { label: "y =", soll: y0 } ]),
+    hinweis: "Gleichung I sagt dir, wofür y steht. Setze diesen Term in II an die Stelle von y — dann steht dort nur noch x.",
+    schritte: [
+      S("y aus I in II einsetzen", termHtml([{k:a2,t:"x"}]) + " " + (b2<0?MINUS:"+") + " "
+        + (Math.abs(b2) === 1 ? "" : zHtml(Math.abs(b2))) + "(" + linHtml(m,b) + ") = " + zHtml(c2)),
+      S("Klammer ausmultiplizieren", termHtml([{k:a2,t:"x"},{k:b2*m,t:"x"},{k:b2*b,t:""}]) + " = " + zHtml(c2)),
+      S("x-Glieder zusammenfassen", linHtml(a2 + b2*m, b2*b) + " = " + zHtml(c2)),
+      S("Nach x auflösen", "x = " + zHtml(x0)),
+      S("x in I einsetzen", "y = " + kl(m) + " " + MAL + " " + kl(x0) + " " + (b<0?MINUS:"+") + " " + zHtml(Math.abs(b)) + " = " + zHtml(y0))
+    ],
+    antwort: "<span class=\"m\">x = " + zHtml(x0) + ",&nbsp; y = " + zHtml(y0) + "</span>"
+  };
+});
+
+/* Wie viele Lösungen? Der Fall, der in Klausuren als Kurzfrage kommt. */
+G_LGS.push(function(){
+  var art = waehle(["eine","keine","unendlich"]);
+  var m = rndOhne0(-4,4), b1 = rndOhne0(-8,8), k = rnd(2,3);
+  var a1 = rndOhne0(-4,4), bb1 = rndOhne0(-4,4), c1 = rndOhne0(-9,9);
+  var a2, b2, c2, begruendung;
+  if (art === "eine"){
+    do { a2 = rndOhne0(-4,4); b2 = rndOhne0(-4,4); } while (a1*b2 - a2*bb1 === 0);
+    c2 = rndOhne0(-9,9);
+    begruendung = "Die beiden Geraden haben verschiedene Steigungen — sie schneiden sich in genau einem Punkt.";
+  } else if (art === "keine"){
+    a2 = k*a1; b2 = k*bb1; c2 = k*c1 + rndOhne0(1,5);
+    begruendung = "Die linken Seiten sind Vielfache voneinander (II = " + zHtml(k) + " " + MAL + " I links), die rechten nicht. Das sind parallele Geraden — sie treffen sich nie.";
+  } else {
+    a2 = k*a1; b2 = k*bb1; c2 = k*c1;
+    begruendung = "Die zweite Gleichung ist das " + zHtml(k) + "-fache der ersten — beide beschreiben dieselbe Gerade. Jeder Punkt darauf ist eine Lösung.";
+  }
+  var richtig = art === "eine" ? "Genau eine Lösung" : (art === "keine" ? "Keine Lösung" : "Unendlich viele Lösungen");
+  return {
+    frage: "Wie viele Lösungen hat dieses Gleichungssystem?",
+    bild: lgsBild(a1,bb1,c1,a2,b2,c2),
+    eingabe: wahl(richtig, ["Genau eine Lösung","Keine Lösung","Unendlich viele Lösungen","Genau zwei Lösungen"]
+      .filter(function(t){ return t !== richtig; }).slice(0,3)),
+    hinweis: "Vergleiche die linken Seiten: Ist die eine ein Vielfaches der anderen? Und passt die rechte Seite zu demselben Faktor?",
+    schritte: [
+      S("Linke Seiten vergleichen", "I: " + termHtml([{k:a1,t:"x"},{k:bb1,t:"y"}]) + "&nbsp;&nbsp;II: " + termHtml([{k:a2,t:"x"},{k:b2,t:"y"}])),
+      S("Rechte Seiten vergleichen", "I: " + zHtml(c1) + "&nbsp;&nbsp;II: " + zHtml(c2)),
+      S("Was heißt das?", begruendung)
+    ],
+    antwort: richtig + ". " + begruendung
+  };
+});
+
+/* Sachaufgabe — zwei Sorten, zwei Preise. */
+G_LGS.push(function(){
+  var szenen = [
+    { a: "Hefte", b: "Stifte", ea: "Heft", eb: "Stift", wo: "im Schreibwarenladen" },
+    { a: "Brötchen", b: "Croissants", ea: "Brötchen", eb: "Croissant", wo: "beim Bäcker" },
+    { a: "Tickets für Erwachsene", b: "Kindertickets", ea: "Erwachsenenticket", eb: "Kinderticket", wo: "an der Kasse" }
+  ];
+  var s = waehle(szenen);
+  var pa = rnd(2,9)/2, pb = rnd(2,9)/2;      /* halbe Euro — realistisch */
+  var m1 = rnd(2,6), n1 = rnd(1,5), m2 = rnd(1,6), n2 = rnd(2,6);
+  if (m1*n2 - m2*n1 === 0) n2 = n2 + 1;
+  var s1 = m1*pa + n1*pb, s2 = m2*pa + n2*pb;
+  return {
+    frage: s.wo.charAt(0).toUpperCase() + s.wo.slice(1) + " kosten " + m1 + " " + s.a + " und " + n1 + " " + s.b
+      + " zusammen " + zText(s1).replace(".",",") + " €. " + m2 + " " + s.a + " und " + n2 + " " + s.b
+      + " kosten " + zText(s2) + " €.",
+    bild: '<div class="hinweis">Setze x = Preis für ein ' + s.ea + ", y = Preis für ein " + s.eb + ".</div>",
+    eingabe: felder([
+      { label: "x =", soll: pa, einheit: "€" },
+      { label: "y =", soll: pb, einheit: "€" }
+    ]),
+    hinweis: "Schreibe zuerst zwei Gleichungen auf: I " + m1 + "x + " + n1 + "y = " + zText(s1) + " und II " + m2 + "x + " + n2 + "y = " + zText(s2) + ".",
+    schritte: [
+      S("Gleichungen aufstellen", "I&nbsp;&nbsp;" + m1 + "x + " + n1 + "y = " + zHtml(s1) + "<br>II&nbsp;" + m2 + "x + " + n2 + "y = " + zHtml(s2)),
+      S("Additionsverfahren: I " + MAL + " " + n2 + ", II " + MAL + " " + n1,
+        "I'&nbsp;&nbsp;" + (m1*n2) + "x + " + (n1*n2) + "y = " + zHtml(s1*n2) + "<br>II'&nbsp;" + (m2*n1) + "x + " + (n1*n2) + "y = " + zHtml(s2*n1)),
+      S("I' " + MINUS + " II'", zHtml(m1*n2 - m2*n1) + "x = " + zHtml(s1*n2 - s2*n1) + "&nbsp;&nbsp;⇒&nbsp;&nbsp;x = " + zHtml(pa)),
+      S("x in I einsetzen", "y = " + zHtml(pb)),
+      S("Antwortsatz", "Ein " + s.ea + " kostet " + zHtml(pa) + " €, ein " + s.eb + " kostet " + zHtml(pb) + " €.")
+    ],
+    antwort: "Ein " + s.ea + " kostet <span class=\"m\">" + zHtml(pa) + " €</span>, ein " + s.eb + " kostet <span class=\"m\">" + zHtml(pb) + " €</span>."
+  };
+});
+
+/* ==========================================================================
+   THEMA 4 — Lineare Funktionen
+   ========================================================================== */
+var G_LINEAR = [];
+
+/* Steigung aus zwei Punkten. */
+G_LINEAR.push(function(){
+  var p = zweiVerschieden(-8,8), q = zweiVerschieden(-8,8);
+  var x1 = p[0], x2 = p[1], y1 = q[0], y2 = q[1];
+  var m = BR(y2 - y1, x2 - x1);
+  return {
+    frage: "Bestimme die Steigung der Geraden durch die beiden Punkte.",
+    formel: punktHtml("P", x1, y1) + ",&nbsp;&nbsp;" + punktHtml("Q", x2, y2),
+    eingabe: zahlFeld("m =", wertVon(m)),
+    hinweis: "m = (y" + "<sub>2</sub>" + " " + MINUS + " y<sub>1</sub>) : (x<sub>2</sub> " + MINUS + " x<sub>1</sub>). Achte auf die Reihenfolge — oben und unten dieselbe.",
+    schritte: [
+      S("Formel hinschreiben", "m = " + bruchHtml("y<sub>2</sub> " + MINUS + " y<sub>1</sub>", "x<sub>2</sub> " + MINUS + " x<sub>1</sub>")),
+      S("Werte einsetzen", "m = " + bruchHtml(zHtml(y2) + " " + MINUS + " " + kl(y1), zHtml(x2) + " " + MINUS + " " + kl(x1))),
+      S("Zähler und Nenner ausrechnen", "m = " + bruchHtml(zHtml(y2-y1), zHtml(x2-x1))),
+      S("Kürzen", "m = " + zHtml(m))
+    ],
+    antwort: "Die Steigung ist <span class=\"m\">m = " + zHtml(m) + "</span>."
+  };
+});
+
+/* Punkt-Steigungs-Form in die Standardform bringen. */
+G_LINEAR.push(function(){
+  var m = rndOhne0(-4,4), d = rndOhne0(-6,6), e = rndOhne0(-8,8);
+  var b = e - m*d;
+  return {
+    frage: "Schreibe die Gerade in der Form <span class=\"m\">f(x) = m " + MAL + " x + b</span>.",
+    formel: "f(x) = " + vorFaktor(m) + "(x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ") " + (e<0?MINUS:"+") + " " + zHtml(Math.abs(e)),
+    eingabe: felder([ { label: "m =", soll: m }, { label: "b =", soll: b } ]),
+    hinweis: "Die Steigung siehst du sofort — sie steht vor der Klammer. Für b musst du die Klammer ausmultiplizieren.",
+    schritte: [
+      S("Klammer ausmultiplizieren", vorFaktor(m) + "(x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ") = " + linHtml(m, -m*d)),
+      S("Den Summanden dazunehmen", linHtml(m, -m*d) + " " + (e<0?MINUS:"+") + " " + zHtml(Math.abs(e))),
+      S("Zahlen zusammenfassen", "f(x) = " + linHtml(m, b)),
+      S("Was steckt dahinter?", "Die Punkt-Steigungs-Form sagt: Die Gerade hat die Steigung " + zHtml(m)
+        + " und geht durch " + punktHtml("P", d, e) + ". Beides bleibt beim Umformen natürlich gleich.")
+    ],
+    antwort: "<span class=\"m\">f(x) = " + linHtml(m,b) + "</span>, also m = " + zHtml(m) + " und b = " + zHtml(b) + "."
+  };
+});
+
+/* Nullstelle. */
+G_LINEAR.push(function(){
+  var m = rndOhne0(-6,6), b = rndOhne0(-12,12);
+  var x0 = BR(-b, m);
+  return {
+    frage: "Bestimme die Nullstelle der Funktion.",
+    formel: "f(x) = " + linHtml(m,b),
+    eingabe: zahlFeld("x =", wertVon(x0)),
+    hinweis: "Nullstelle heißt: Der Funktionswert ist null. Setze also f(x) = 0 und löse nach x auf.",
+    schritte: [
+      S("Ansatz", linHtml(m,b) + " = 0"),
+      S("Zahl auf die andere Seite", zHtml(m) + "x = " + zHtml(-b)),
+      S("Durch " + zHtml(m) + " teilen", "x = " + zHtml(x0)),
+      S("Was bedeutet das?", "Der Graph schneidet die x-Achse bei " + zHtml(x0) + ".")
+    ],
+    antwort: "Die Nullstelle liegt bei <span class=\"m\">x = " + zHtml(x0) + "</span>."
+  };
+});
+
+/* Geradengleichung aus zwei Punkten. */
+G_LINEAR.push(function(){
+  var x1 = rnd(-6,2), x2 = x1 + rnd(1,5);
+  var m = rndOhne0(-3,3), b = rndOhne0(-7,7);
+  var y1 = m*x1 + b, y2 = m*x2 + b;
+  return {
+    frage: "Bestimme die Gleichung der Geraden durch die beiden Punkte.",
+    formel: punktHtml("P", x1, y1) + ",&nbsp;&nbsp;" + punktHtml("Q", x2, y2),
+    eingabe: felder([ { label: "m =", soll: m }, { label: "b =", soll: b } ]),
+    hinweis: "Zuerst die Steigung aus den beiden Punkten. Danach einen der Punkte einsetzen, um b zu finden.",
+    schritte: [
+      S("Steigung berechnen", "m = " + bruchHtml(zHtml(y2) + " " + MINUS + " " + kl(y1), zHtml(x2) + " " + MINUS + " " + kl(x1))
+        + " = " + bruchHtml(zHtml(y2-y1), zHtml(x2-x1)) + " = " + zHtml(m)),
+      S("Ansatz mit dem gefundenen m", "f(x) = " + zHtml(m) + "x + b"),
+      S("Punkt P einsetzen", zHtml(y1) + " = " + zHtml(m) + " " + MAL + " " + kl(x1) + " + b = " + zHtml(m*x1) + " + b"),
+      S("Nach b auflösen", "b = " + zHtml(y1) + " " + MINUS + " " + kl(m*x1) + " = " + zHtml(b)),
+      S("Probe mit Q", "f(" + zHtml(x2) + ") = " + zHtml(y2) + " ✓")
+    ],
+    antwort: "<span class=\"m\">f(x) = " + linHtml(m,b) + "</span>"
+  };
+});
+
+/* Senkrechte Geraden. */
+G_LINEAR.push(function(){
+  var z = rndOhne0(-5,5), n = rnd(1,4);
+  var m1 = BR(z, n);
+  var m2 = BR(-n, z);
+  return {
+    frage: "Welche Steigung hat eine Gerade, die senkrecht zu dieser Geraden steht?",
+    formel: "f(x) = " + zHtml(m1) + "x " + (Math.random()<0.5 ? "+ " + rnd(1,7) : MINUS + " " + rnd(1,7)),
+    eingabe: zahlFeld("m<sub>2</sub> =", wertVon(m2)),
+    hinweis: "Für senkrechte Geraden gilt m<sub>1</sub> " + MAL + " m<sub>2</sub> = " + MINUS + "1. Also ist m<sub>2</sub> der negative Kehrwert.",
+    schritte: [
+      S("Bedingung aufschreiben", "m<sub>1</sub> " + MAL + " m<sub>2</sub> = " + MINUS + "1"),
+      S("m<sub>1</sub> einsetzen", zHtml(m1) + " " + MAL + " m<sub>2</sub> = " + MINUS + "1"),
+      S("Nach m<sub>2</sub> auflösen — Kehrwert bilden und Vorzeichen umdrehen", "m<sub>2</sub> = " + zHtml(m2)),
+      S("Probe", zHtml(m1) + " " + MAL + " " + zHtml(m2) + " = " + MINUS + "1 ✓")
+    ],
+    antwort: "<span class=\"m\">m<sub>2</sub> = " + zHtml(m2) + "</span>"
+  };
+});
+
+/* Mittlere Änderungsrate im Sachzusammenhang. */
+G_LINEAR.push(function(){
+  var szenen = [
+    { was:"Die Wassermenge in einem Becken", x:"Zeit in Minuten", y:"Wasser in Litern", eh:"Liter pro Minute", ding:"Wasser" },
+    { was:"Der Kilometerstand eines Zuges", x:"Zeit in Stunden", y:"Strecke in Kilometern", eh:"Kilometer pro Stunde", ding:"Strecke" },
+    { was:"Die Temperatur einer Tasse Tee", x:"Zeit in Minuten", y:"Temperatur in °C", eh:"°C pro Minute", ding:"Temperatur" }
+  ];
+  var s = waehle(szenen);
+  var t1 = rnd(0,6), t2 = t1 + rnd(2,8);
+  var w1 = rnd(5,60), w2 = w1 + rndOhne0(-40,40);
+  var m = BR(w2 - w1, t2 - t1);
+  return {
+    frage: s.was + " wurde zweimal gemessen. Berechne die mittlere Änderungsrate zwischen den beiden Messungen.",
+    bild: '<table class="werte"><tr><th>' + esc(s.x) + "</th><td>" + t1 + "</td><td>" + t2 + "</td></tr>"
+      + "<tr><th>" + esc(s.y) + "</th><td>" + w1 + "</td><td>" + w2 + "</td></tr></table>",
+    eingabe: zahlFeld("Änderungsrate =", wertVon(m), { einheit: s.eh }),
+    hinweis: "Mittlere Änderungsrate = Änderung des Werts geteilt durch Änderung der Zeit. Das ist genau die Steigung der Geraden durch die beiden Messpunkte.",
+    schritte: [
+      S("Was ändert sich?", "Der Wert ändert sich um " + zHtml(w2) + " " + MINUS + " " + zHtml(w1) + " = " + zHtml(w2-w1) + "."),
+      S("In welcher Zeit?", "In " + zHtml(t2) + " " + MINUS + " " + zHtml(t1) + " = " + zHtml(t2-t1) + " Einheiten."),
+      S("Teilen", bruchHtml(zHtml(w2-w1), zHtml(t2-t1)) + " = " + zHtml(m)),
+      S("Mit Einheit deuten", "Im Mittel ändert sich der Wert um " + zHtml(m) + " " + esc(s.eh)
+        + (wertVon(m) < 0 ? " — er nimmt also ab." : " — er nimmt also zu."))
+    ],
+    antwort: "Die mittlere Änderungsrate beträgt <span class=\"m\">" + zHtml(m) + " " + esc(s.eh) + "</span>."
+  };
+});
+
+/* Punktprobe. */
+G_LINEAR.push(function(){
+  var m = rndOhne0(-4,4), b = rndOhne0(-8,8), x = rndOhne0(-6,6);
+  var drauf = Math.random() < 0.5;
+  var y = m*x + b + (drauf ? 0 : rndOhne0(-4,4));
+  return {
+    frage: "Liegt der Punkt " + punktHtml("P", x, y) + " auf dem Graphen von f?",
+    formel: "f(x) = " + linHtml(m,b),
+    eingabe: wahl(drauf ? "Ja, P liegt auf der Geraden." : "Nein, P liegt nicht auf der Geraden.",
+      [ drauf ? "Nein, P liegt nicht auf der Geraden." : "Ja, P liegt auf der Geraden.",
+        "Das lässt sich ohne Zeichnung nicht entscheiden.",
+        "Nur wenn x und y beide positiv sind." ]),
+    hinweis: "Setze die x-Koordinate in f ein und vergleiche das Ergebnis mit der y-Koordinate.",
+    schritte: [
+      S("x-Koordinate einsetzen", "f(" + zHtml(x) + ") = " + zHtml(m) + " " + MAL + " " + kl(x) + " " + (b<0?MINUS:"+") + " " + zHtml(Math.abs(b))),
+      S("Ausrechnen", "f(" + zHtml(x) + ") = " + zHtml(m*x + b)),
+      S("Mit der y-Koordinate vergleichen", zHtml(m*x+b) + (drauf ? " = " : " ≠ ") + zHtml(y)
+        + (drauf ? " — der Punkt passt." : " — der Punkt passt nicht."))
+    ],
+    antwort: drauf ? "Ja: f(" + zHtml(x) + ") = " + zHtml(y) + "." : "Nein: f(" + zHtml(x) + ") = " + zHtml(m*x+b) + ", nicht " + zHtml(y) + "."
+  };
+});
+/* ==========================================================================
+   THEMA 5 — Quadratische Funktionen
+   ========================================================================== */
+var G_QUADFUN = [];
+
+var A_WERTE = [1,-1,2,-2,3,-3,0.5,-0.5];
+
+/* Scheitel aus der Scheitelpunktform ablesen — die Vorzeichenfalle. */
+G_QUADFUN.push(function(){
+  var a = waehle(A_WERTE), d = rndOhne0(-6,6), e = rndOhne0(-8,8);
+  return {
+    frage: "Lies den Scheitelpunkt ab.",
+    formel: "f(x) = " + scheitelHtml(a, d, e),
+    eingabe: felder([ { label: "d =", soll: d }, { label: "e =", soll: e } ]),
+    hinweis: "In f(x) = a(x " + MINUS + " d)" + HOCH2 + " + e steht in der Klammer ein <em>Minus</em>. Steht dort ein Plus, ist d negativ.",
+    schritte: [
+      S("Die Grundform danebenlegen", "f(x) = a(x " + MINUS + " d)" + HOCH2 + " + e&nbsp;&nbsp;mit&nbsp;&nbsp;S(d | e)"),
+      S("Vergleichen", "f(x) = " + scheitelHtml(a,d,e)),
+      S("d ablesen — das Vorzeichen umdrehen",
+        "In der Klammer steht (x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + "), also x " + MINUS + " (" + zHtml(d) + "). Damit ist d = " + zHtml(d) + "."),
+      S("e ablesen — das steht ohne Umweg da", "e = " + zHtml(e)),
+      S("Scheitelpunkt hinschreiben", "S(" + zHtml(d) + " | " + zHtml(e) + ")"
+        + (a > 0 ? " — a > 0, die Parabel ist nach oben geöffnet, der Scheitel ist der tiefste Punkt."
+                 : " — a < 0, die Parabel ist nach unten geöffnet, der Scheitel ist der höchste Punkt."))
+    ],
+    bildNachher: function(){
+      return graphSvg({ xmin: d-6, xmax: d+6, ymin: Math.min(e-8, e+8*(a>0?0:1)), ymax: Math.max(e+8, e-8*(a>0?0:1)),
+        kurven: [{ f: function(x){ return a*(x-d)*(x-d)+e; } }],
+        punkte: [{ x: d, y: e, name: "S" }], alt: "Parabel mit eingezeichnetem Scheitelpunkt" });
+    },
+    antwort: "Der Scheitelpunkt ist <span class=\"m\">S(" + zHtml(d) + " | " + zHtml(e) + ")</span>."
+  };
+});
+
+/* Scheitelform ausmultiplizieren. */
+G_QUADFUN.push(function(){
+  var a = waehle([1,-1,2,-2,3]), d = rndOhne0(-5,5), e = rndOhne0(-8,8);
+  var b = -2*a*d, c = a*d*d + e;
+  return {
+    frage: "Schreibe die Funktion in der Normalform <span class=\"m\">f(x) = ax" + HOCH2 + " + bx + c</span>.",
+    formel: "f(x) = " + scheitelHtml(a,d,e),
+    eingabe: felder([ { label: "a =", soll: a }, { label: "b =", soll: b }, { label: "c =", soll: c } ]),
+    hinweis: "Zuerst die binomische Formel auf die Klammer anwenden, erst danach mit " + zHtml(a) + " multiplizieren.",
+    schritte: [
+      S("Binomische Formel in der Klammer",
+        "(x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ")" + HOCH2 + " = " + quadHtml(1, -2*d, d*d)),
+      S("Mit " + zHtml(a) + " multiplizieren — jeden Summanden", quadHtml(a, -2*a*d, a*d*d)),
+      S("Den letzten Summanden dazu", quadHtml(a, -2*a*d, a*d*d) + " " + (e<0?MINUS:"+") + " " + zHtml(Math.abs(e))),
+      S("Zahlen zusammenfassen", "f(x) = " + quadHtml(a,b,c))
+    ],
+    antwort: "<span class=\"m\">f(x) = " + quadHtml(a,b,c) + "</span>"
+  };
+});
+
+/* Quadratische Ergänzung, a = 1. */
+G_QUADFUN.push(function(){
+  var d = rndOhne0(-6,6), e = rndOhne0(-9,9);
+  var p = -2*d, q = d*d + e;
+  return {
+    frage: "Bringe die Funktion mit quadratischer Ergänzung auf die Scheitelpunktform und gib den Scheitel an.",
+    formel: "f(x) = " + quadHtml(1, p, q),
+    eingabe: felder([ { label: "d =", soll: d }, { label: "e =", soll: e } ]),
+    hinweis: "Nimm die Hälfte der Zahl vor x, quadriere sie — und addiere und subtrahiere diese Zahl im selben Term.",
+    schritte: [
+      S("Nur die ersten beiden Summanden ansehen", "<u>" + quadHtml(1,p,0) + "</u>" + summandHtml(q, "", false)),
+      S("Halbe Zahl vor x, quadriert", "(" + bruchHtml(zHtml(p), "2") + ")" + HOCH2 + " = (" + zHtml(p/2) + ")" + HOCH2 + " = " + zHtml(d*d)),
+      S("Diese Zahl addieren und gleich wieder abziehen — der Term ändert sich dadurch nicht",
+        quadHtml(1,p,0) + " + " + zHtml(d*d) + " " + MINUS + " " + zHtml(d*d) + " + " + zHtml(q)),
+      S("Die ersten drei Summanden sind jetzt ein Binom",
+        "(x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ")" + HOCH2 + " " + MINUS + " " + zHtml(d*d) + " + " + zHtml(q)),
+      S("Zahlen hinten zusammenfassen", "f(x) = " + scheitelHtml(1,d,e) + "&nbsp;&nbsp;⇒&nbsp;&nbsp;S(" + zHtml(d) + " | " + zHtml(e) + ")")
+    ],
+    antwort: "<span class=\"m\">f(x) = " + scheitelHtml(1,d,e) + "</span>, Scheitel S(" + zHtml(d) + " | " + zHtml(e) + ")."
+  };
+});
+
+/* Scheitel aus der Normalform mit a ungleich 1. */
+G_QUADFUN.push(function(){
+  var a = waehle([2,-2,3,-3,0.5,-0.5]), d = rndOhne0(-4,4), e = rndOhne0(-8,8);
+  var b = -2*a*d, c = a*d*d + e;
+  return {
+    frage: "Bestimme den Scheitelpunkt.",
+    formel: "f(x) = " + quadHtml(a,b,c),
+    eingabe: felder([ { label: "d =", soll: d }, { label: "e =", soll: e } ]),
+    hinweis: "Für den Scheitel gilt d = " + MINUS + "b : (2a). Den y-Wert bekommst du, indem du d in f einsetzt.",
+    schritte: [
+      S("Formel für die x-Koordinate", "d = " + bruchHtml(MINUS + "b", "2a")),
+      S("Einsetzen", "d = " + bruchHtml(MINUS + kl(b), "2 " + MAL + " " + kl(a)) + " = " + bruchHtml(zHtml(-b), zHtml(2*a)) + " = " + zHtml(d)),
+      S("d in f einsetzen", "f(" + zHtml(d) + ") = " + zHtml(a) + " " + MAL + " " + kl(d) + HOCH2
+        + " " + (b<0?MINUS:"+") + " " + zHtml(Math.abs(b)) + " " + MAL + " " + kl(d) + " " + (c<0?MINUS:"+") + " " + zHtml(Math.abs(c))),
+      S("Ausrechnen", "f(" + zHtml(d) + ") = " + zHtml(a*d*d) + " + " + kl(b*d) + " + " + kl(c) + " = " + zHtml(e)),
+      S("Scheitel", "S(" + zHtml(d) + " | " + zHtml(e) + ")")
+    ],
+    antwort: "<span class=\"m\">S(" + zHtml(d) + " | " + zHtml(e) + ")</span>"
+  };
+});
+
+/* Streckfaktor aus Scheitel und einem weiteren Punkt. */
+G_QUADFUN.push(function(){
+  var a = waehle([1,-1,2,-2,3,-3,0.5,-0.5]);
+  var d = rndOhne0(-5,5), e = rndOhne0(-8,8);
+  var abstand = waehle([1,2,2,4]);
+  var x1 = d + abstand*waehle([1,-1]);
+  var y1 = a*abstand*abstand + e;
+  return {
+    frage: "Eine Parabel hat den Scheitel " + punktHtml("S", d, e) + " und geht durch " + punktHtml("P", x1, y1) + ". Bestimme a.",
+    formel: "f(x) = a(x " + MINUS + " d)" + HOCH2 + " + e",
+    eingabe: zahlFeld("a =", a),
+    hinweis: "Setze zuerst d und e aus dem Scheitel ein. Danach setzt du die Koordinaten von P ein — übrig bleibt eine Gleichung mit nur einer Unbekannten.",
+    schritte: [
+      S("Scheitel einsetzen", "f(x) = a(x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ")" + HOCH2 + " " + (e<0?MINUS:"+") + " " + zHtml(Math.abs(e))),
+      S("Punkt P einsetzen", zHtml(y1) + " = a(" + zHtml(x1) + " " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ")" + HOCH2 + " " + (e<0?MINUS:"+") + " " + zHtml(Math.abs(e))),
+      S("Klammer ausrechnen", zHtml(y1) + " = a " + MAL + " " + zHtml(abstand*abstand) + " " + (e<0?MINUS:"+") + " " + zHtml(Math.abs(e))),
+      S("Nach a auflösen", zHtml(y1 - e) + " = " + zHtml(abstand*abstand) + "a&nbsp;&nbsp;⇒&nbsp;&nbsp;a = " + zHtml(BR(Math.round((y1-e)*2), Math.round(abstand*abstand*2))))
+    ],
+    antwort: "<span class=\"m\">a = " + zHtml(a) + "</span>"
+  };
+});
+
+/* Aus dem Graphen die Gleichung erkennen. */
+G_QUADFUN.push(function(){
+  var a = waehle([1,-1,2,-2,0.5,-0.5]), d = rnd(-4,4), e = rnd(-5,5);
+  var vorrat = [
+    scheitelHtml(a, -d, e),
+    scheitelHtml(-a, d, e),
+    scheitelHtml(a, d, -e),
+    scheitelHtml(a === 1 ? 2 : 1, d, e),
+    scheitelHtml(a, d + 1, e),
+    scheitelHtml(a, d, e + 1)
+  ].map(function(t){ return "f(x) = " + t; });
+  return {
+    frage: "Welche Gleichung gehört zu dieser Parabel?",
+    bild: graphSvg({ xmin: d-6, xmax: d+6, ymin: e-10, ymax: e+10,
+      kurven: [{ f: function(x){ return a*(x-d)*(x-d)+e; } }],
+      punkte: [{ x: d, y: e, name: "S" }], alt: "Parabel mit Scheitelpunkt S" }),
+    eingabe: wahlAus("f(x) = " + scheitelHtml(a,d,e), vorrat),
+    hinweis: "Lies zuerst den Scheitel ab. Dann prüfe die Öffnung: nach oben heißt a > 0, nach unten a < 0.",
+    schritte: [
+      S("Scheitel ablesen", "S(" + zHtml(d) + " | " + zHtml(e) + ") — also d = " + zHtml(d) + " und e = " + zHtml(e) + "."),
+      S("Achtung beim Vorzeichen von d", "In der Klammer steht x " + MINUS + " d, hier also (x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ")."),
+      S("Öffnung prüfen", a > 0 ? "Die Parabel ist nach oben geöffnet, also a > 0." : "Die Parabel ist nach unten geöffnet, also a < 0."),
+      S("Zusammensetzen", "f(x) = " + scheitelHtml(a,d,e))
+    ],
+    antwort: "<span class=\"m\">f(x) = " + scheitelHtml(a,d,e) + "</span>"
+  };
+});
+
+/* ==========================================================================
+   THEMA 6 — Quadratische Gleichungen
+   ========================================================================== */
+var G_QUADGL = [];
+
+/* Reinquadratisch: Wurzelziehen, beide Vorzeichen. */
+G_QUADGL.push(function(){
+  var w = rnd(2,9), a = waehle([1,2,3,4]);
+  var c = a*w*w;
+  return {
+    frage: "Löse die Gleichung.",
+    formel: (a === 1 ? "x" + HOCH2 : zHtml(a) + "x" + HOCH2) + " " + MINUS + " " + zHtml(c) + " = 0",
+    eingabe: felder([ { label: "x<sub>1</sub> =", soll: -w }, { label: "x<sub>2</sub> =", soll: w } ], true),
+    hinweis: "Bring erst x" + HOCH2 + " allein auf eine Seite. Beim Wurzelziehen gibt es <em>zwei</em> Lösungen: + und " + MINUS + ".",
+    schritte: [
+      S("Zahl auf die andere Seite", (a===1?"x"+HOCH2:zHtml(a)+"x"+HOCH2) + " = " + zHtml(c)),
+      a === 1 ? S("x" + HOCH2 + " steht schon allein", "x" + HOCH2 + " = " + zHtml(c))
+              : S("Durch " + zHtml(a) + " teilen", "x" + HOCH2 + " = " + zHtml(c/a)),
+      S("Wurzel ziehen — mit beiden Vorzeichen", "x = ± " + wurzelHtml(zHtml(w*w)) + " = ± " + zHtml(w)),
+      S("Lösungsmenge", "L = { " + MINUS + zHtml(w) + " ; " + zHtml(w) + " }")
+    ],
+    antwort: "<span class=\"m\">x<sub>1</sub> = " + MINUS + zHtml(w) + ",&nbsp; x<sub>2</sub> = " + zHtml(w) + "</span>"
+  };
+});
+
+/* Ohne Absolutglied: ausklammern statt pq-Formel. */
+G_QUADGL.push(function(){
+  var p = rndOhne0(-9,9), a = waehle([1,1,2]);
+  return {
+    frage: "Löse die Gleichung — ohne pq-Formel.",
+    formel: (a===1?"x"+HOCH2:zHtml(a)+"x"+HOCH2) + " " + (p<0?MINUS:"+") + " " + zHtml(Math.abs(a*p)) + "x = 0",
+    eingabe: felder([ { label: "x<sub>1</sub> =", soll: 0 }, { label: "x<sub>2</sub> =", soll: -p } ], true),
+    hinweis: "In beiden Summanden steckt ein x. Klammere es aus — dann steht ein Produkt da, das null ist.",
+    schritte: [
+      S("x ausklammern", (a===1?"":zHtml(a)) + "x(x " + (p<0?MINUS:"+") + " " + zHtml(Math.abs(p)) + ") = 0"),
+      S("Satz vom Nullprodukt", "Ein Produkt ist genau dann null, wenn einer der Faktoren null ist."),
+      S("Erster Faktor", "x = 0"),
+      S("Zweiter Faktor", "x " + (p<0?MINUS:"+") + " " + zHtml(Math.abs(p)) + " = 0&nbsp;&nbsp;⇒&nbsp;&nbsp;x = " + zHtml(-p)),
+      S("Warum nicht durch x teilen?", "Wer durch x teilt, verliert die Lösung x = 0 — ein Fehler, der in Klausuren regelmäßig einen halben Punkt kostet.")
+    ],
+    antwort: "<span class=\"m\">x<sub>1</sub> = 0,&nbsp; x<sub>2</sub> = " + zHtml(-p) + "</span>"
+  };
+});
+
+/* pq-Formel mit ganzzahligen Lösungen. */
+G_QUADGL.push(function(){
+  var r = rndOhne0(-7,7), s;
+  /* keine doppelte Nullstelle und kein p = 0 — beides ist ein anderer Aufgabentyp */
+  do { s = rndOhne0(-7,7); } while (s === r || s + r === 0);
+  var p = -(r+s), q = r*s;
+  var D = (p/2)*(p/2) - q;
+  return {
+    frage: "Löse mit der pq-Formel.",
+    formel: quadHtml(1, p, q) + " = 0",
+    eingabe: felder([ { label: "x<sub>1</sub> =", soll: Math.min(r,s) }, { label: "x<sub>2</sub> =", soll: Math.max(r,s) } ], true),
+    hinweis: "pq-Formel: x = " + MINUS + bruchHtml("p","2") + " ± " + wurzelHtml("(" + bruchHtml("p","2") + ")" + HOCH2 + " " + MINUS + " q")
+      + ". Hier ist p = " + zHtml(p) + " und q = " + zHtml(q) + " — mit Vorzeichen!",
+    schritte: [
+      S("p und q ablesen", "p = " + zHtml(p) + ",&nbsp;&nbsp;q = " + zHtml(q) + " — die Vorzeichen gehören dazu."),
+      S("Formel hinschreiben", "x = " + MINUS + bruchHtml("p","2") + " ± " + wurzelHtml("(" + bruchHtml("p","2") + ")" + HOCH2 + " " + MINUS + " q")),
+      S("Einsetzen", "x = " + MINUS + bruchHtml(kl(p),"2") + " ± " + wurzelHtml("(" + bruchHtml(kl(p),"2") + ")" + HOCH2 + " " + MINUS + " " + kl(q))),
+      S("Unter der Wurzel zuerst", kl(-p/2) + HOCH2 + " " + MINUS + " " + kl(q) + " = " + zHtml((p/2)*(p/2)) + " " + MINUS + " " + kl(q) + " = " + zHtml(D)),
+      S("Wurzel ziehen und beide Fälle rechnen",
+        "x = " + zHtml(-p/2) + " ± " + zHtml(Math.sqrt(D)) + "&nbsp;&nbsp;⇒&nbsp;&nbsp;x<sub>1</sub> = " + zHtml(Math.min(r,s)) + ",&nbsp; x<sub>2</sub> = " + zHtml(Math.max(r,s))),
+      S("Probe mit dem Satz von Vieta", "x<sub>1</sub> + x<sub>2</sub> = " + zHtml(r+s) + " = " + MINUS + "p ✓&nbsp;&nbsp;und&nbsp;&nbsp;x<sub>1</sub> " + MAL + " x<sub>2</sub> = " + zHtml(q) + " = q ✓")
+    ],
+    antwort: "<span class=\"m\">x<sub>1</sub> = " + zHtml(Math.min(r,s)) + ",&nbsp; x<sub>2</sub> = " + zHtml(Math.max(r,s)) + "</span>"
+  };
+});
+
+/* Erst normieren: Zahl vor x². */
+G_QUADGL.push(function(){
+  var a = waehle([2,3,-2,4]);
+  var r = rndOhne0(-5,5), s;
+  do { s = rndOhne0(-5,5); } while (s === r || s + r === 0);
+  var b = -a*(r+s), c = a*r*s;
+  var p = b/a, q = c/a;
+  return {
+    frage: "Löse die Gleichung.",
+    formel: quadHtml(a,b,c) + " = 0",
+    eingabe: felder([ { label: "x<sub>1</sub> =", soll: Math.min(r,s) }, { label: "x<sub>2</sub> =", soll: Math.max(r,s) } ], true),
+    hinweis: "Die pq-Formel gilt nur, wenn vor x" + HOCH2 + " eine 1 steht. Teile also zuerst die ganze Gleichung durch " + zHtml(a) + ".",
+    schritte: [
+      S("Durch " + zHtml(a) + " teilen — jeden Summanden", quadHtml(1, p, q) + " = 0"),
+      S("p und q ablesen", "p = " + zHtml(p) + ",&nbsp;&nbsp;q = " + zHtml(q)),
+      S("pq-Formel einsetzen", "x = " + zHtml(-p/2) + " ± " + wurzelHtml(zHtml((p/2)*(p/2)) + " " + MINUS + " " + kl(q))),
+      S("Wurzel ausrechnen", "x = " + zHtml(-p/2) + " ± " + zHtml(Math.sqrt((p/2)*(p/2) - q))),
+      S("Beide Lösungen", "x<sub>1</sub> = " + zHtml(Math.min(r,s)) + ",&nbsp; x<sub>2</sub> = " + zHtml(Math.max(r,s)))
+    ],
+    antwort: "<span class=\"m\">x<sub>1</sub> = " + zHtml(Math.min(r,s)) + ",&nbsp; x<sub>2</sub> = " + zHtml(Math.max(r,s)) + "</span>"
+  };
+});
+
+/* Wie viele Lösungen? Die Diskriminante entscheidet. */
+G_QUADGL.push(function(){
+  var art = waehle(["zwei","eine","keine"]);
+  var p = 2*rndOhne0(-4,4), q;      /* gerade: dann bleibt (p/2)² ganzzahlig */
+  if (art === "zwei") q = (p/2)*(p/2) - rnd(1,9);
+  else if (art === "eine") q = (p/2)*(p/2);
+  else q = (p/2)*(p/2) + rnd(1,9);
+  var D = (p/2)*(p/2) - q;
+  var richtig = art === "zwei" ? "Zwei Lösungen" : (art === "eine" ? "Genau eine Lösung" : "Keine Lösung");
+  return {
+    frage: "Wie viele Lösungen hat diese Gleichung? Rechne die Lösungen <em>nicht</em> aus.",
+    formel: quadHtml(1, p, q) + " = 0",
+    eingabe: wahl(richtig, ["Zwei Lösungen","Genau eine Lösung","Keine Lösung"].filter(function(t){ return t !== richtig; })
+      .concat(["Das hängt vom Definitionsbereich ab"]).slice(0,3)),
+    hinweis: "Es zählt nur, was unter der Wurzel steht: D = (p/2)" + HOCH2 + " " + MINUS + " q. Ist D positiv, null oder negativ?",
+    schritte: [
+      S("p und q ablesen", "p = " + zHtml(p) + ",&nbsp;&nbsp;q = " + zHtml(q)),
+      S("Diskriminante berechnen", "D = (" + bruchHtml(kl(p),"2") + ")" + HOCH2 + " " + MINUS + " " + kl(q) + " = " + zHtml((p/2)*(p/2)) + " " + MINUS + " " + kl(q) + " = " + zHtml(D)),
+      S("Vorzeichen deuten", D > 0 ? "D > 0 — die Wurzel liefert zwei verschiedene Werte, also zwei Lösungen."
+        : (D === 0 ? "D = 0 — die Wurzel ist null, ± ändert nichts. Es bleibt genau eine Lösung."
+                   : "D < 0 — aus einer negativen Zahl lässt sich keine Wurzel ziehen. Es gibt keine Lösung.")),
+      S("Am Graphen gesehen", D > 0 ? "Die Parabel schneidet die x-Achse zweimal."
+        : (D === 0 ? "Die Parabel berührt die x-Achse im Scheitel." : "Die Parabel liegt ganz über oder ganz unter der x-Achse."))
+    ],
+    antwort: richtig + " (D = " + zHtml(D) + ")."
+  };
+});
+
+/* Produktform: der Satz vom Nullprodukt allein. */
+G_QUADGL.push(function(){
+  var r = rndOhne0(-8,8), s, k = waehle([1,1,2,3]);
+  do { s = rndOhne0(-8,8); } while (s === r);
+  return {
+    frage: "Bestimme alle Lösungen.",
+    formel: (k===1?"":zHtml(k)) + "(x " + (r<0?"+":MINUS) + " " + zHtml(Math.abs(r)) + ")(x " + (s<0?"+":MINUS) + " " + zHtml(Math.abs(s)) + ") = 0",
+    eingabe: felder([ { label: "x<sub>1</sub> =", soll: Math.min(r,s) }, { label: "x<sub>2</sub> =", soll: Math.max(r,s) } ], true),
+    hinweis: "Hier muss nichts ausmultipliziert werden. Ein Produkt ist null, sobald ein Faktor null ist.",
+    schritte: [
+      S("Satz vom Nullprodukt", "Ein Produkt ist genau dann 0, wenn mindestens ein Faktor 0 ist."),
+      k === 1 ? S("Faktoren betrachten", "Es gibt zwei Faktoren, die null werden können.")
+              : S("Der Vorfaktor " + zHtml(k) + " kann nie null werden", "Also entscheiden nur die beiden Klammern."),
+      S("Erste Klammer null setzen", "x " + (r<0?"+":MINUS) + " " + zHtml(Math.abs(r)) + " = 0&nbsp;&nbsp;⇒&nbsp;&nbsp;x = " + zHtml(r)),
+      S("Zweite Klammer null setzen", "x " + (s<0?"+":MINUS) + " " + zHtml(Math.abs(s)) + " = 0&nbsp;&nbsp;⇒&nbsp;&nbsp;x = " + zHtml(s))
+    ],
+    antwort: "<span class=\"m\">x<sub>1</sub> = " + zHtml(Math.min(r,s)) + ",&nbsp; x<sub>2</sub> = " + zHtml(Math.max(r,s)) + "</span>"
+  };
+});
+
+/* Mit Taschenrechner: unschöne Wurzel, auf zwei Stellen runden. */
+G_QUADGL.push(function(){
+  var p, q, D;
+  do {
+    p = rndOhne0(-9,9); q = rndOhne0(-9,9);
+    D = (p/2)*(p/2) - q;
+  } while (D <= 0 || Math.abs(Math.sqrt(D) - Math.round(Math.sqrt(D))) < 1e-9);
+  var x1 = -p/2 - Math.sqrt(D), x2 = -p/2 + Math.sqrt(D);
+  return {
+    frage: "Löse mit der pq-Formel. Runde die Lösungen auf zwei Nachkommastellen.",
+    formel: quadHtml(1,p,q) + " = 0",
+    eingabe: felder([
+      { label: "x<sub>1</sub> =", soll: x1, toleranz: 0.006 },
+      { label: "x<sub>2</sub> =", soll: x2, toleranz: 0.006 }
+    ], true),
+    hinweis: "Runde erst ganz am Schluss. Wer die Wurzel zwischendurch rundet, landet in der zweiten Nachkommastelle daneben.",
+    schritte: [
+      S("p und q ablesen", "p = " + zHtml(p) + ",&nbsp;&nbsp;q = " + zHtml(q)),
+      S("Diskriminante", "D = " + kl(p/2) + HOCH2 + " " + MINUS + " " + kl(q) + " = " + zHtml(D)),
+      S("Wurzel — jetzt noch nicht runden", wurzelHtml(zHtml(D)) + " ≈ " + esc(dez(Math.sqrt(D), 5))),
+      S("Beide Fälle rechnen", "x<sub>1</sub> = " + zHtml(-p/2) + " " + MINUS + " " + esc(dez(Math.sqrt(D),5)) + " ≈ " + esc(dez(x1,2))
+        + "<br>x<sub>2</sub> = " + zHtml(-p/2) + " + " + esc(dez(Math.sqrt(D),5)) + " ≈ " + esc(dez(x2,2)))
+    ],
+    antwort: "<span class=\"m\">x<sub>1</sub> ≈ " + esc(dez(x1,2)) + ",&nbsp; x<sub>2</sub> ≈ " + esc(dez(x2,2)) + "</span>"
+  };
+});
+
+/* ==========================================================================
+   THEMA 7 — Modellieren
+   ========================================================================== */
+var G_MODELL = [];
+
+/* Wertetabelle: linear oder quadratisch? */
+G_MODELL.push(function(){
+  var quadratisch = Math.random() < 0.5;
+  var xs = [0,1,2,3,4], ys, gleichung;
+  if (quadratisch){
+    var a = waehle([1,2,-1,-2,0.5]), b = rnd(-4,4), c = rnd(-5,8);
+    ys = xs.map(function(x){ return a*x*x + b*x + c; });
+    gleichung = "f(x) = " + quadHtml(a,b,c);
+  } else {
+    var m = rndOhne0(-6,6), n = rndOhne0(-8,8);
+    ys = xs.map(function(x){ return m*x + n; });
+    gleichung = "f(x) = " + linHtml(m,n);
+  }
+  var d1 = [], d2 = [];
+  for (var i = 1; i < ys.length; i++) d1.push(ys[i] - ys[i-1]);
+  for (var j = 1; j < d1.length; j++) d2.push(d1[j] - d1[j-1]);
+  return {
+    frage: "Zu diesen Messwerten soll eine Funktion aufgestellt werden. Welcher Funktionstyp passt?",
+    bild: '<table class="werte"><tr><th>x</th>' + xs.map(function(x){ return "<td>" + zHtml(x) + "</td>"; }).join("") + "</tr>"
+      + "<tr><th>y</th>" + ys.map(function(y){ return "<td>" + zHtml(y) + "</td>"; }).join("") + "</tr></table>",
+    eingabe: wahl(quadratisch ? "eine quadratische Funktion" : "eine lineare Funktion",
+      [ quadratisch ? "eine lineare Funktion" : "eine quadratische Funktion",
+        "eine proportionale Funktion (Gerade durch den Ursprung)",
+        "keiner der genannten Typen" ]),
+    hinweis: "Bilde die Differenzen benachbarter y-Werte. Sind die schon gleich, ist es linear. Sind erst die Differenzen der Differenzen gleich, ist es quadratisch.",
+    schritte: [
+      S("Erste Differenzen bilden", d1.map(function(d){ return zHtml(d); }).join(",&nbsp; ")),
+      S(quadratisch ? "Die sind nicht gleich — also zweite Differenzen bilden" : "Die sind alle gleich",
+        quadratisch ? d2.map(function(d){ return zHtml(d); }).join(",&nbsp; ") : "Bei gleichen ersten Differenzen wächst y in gleichen Schritten — das ist eine Gerade."),
+      S("Entscheidung", quadratisch
+        ? "Die zweiten Differenzen sind konstant. Das ist das Kennzeichen einer quadratischen Funktion."
+        : "Die ersten Differenzen sind konstant. Das ist das Kennzeichen einer linearen Funktion."),
+      S("Die Funktion selbst", gleichung)
+    ],
+    antwort: quadratisch ? "Quadratisch — die zweiten Differenzen sind konstant." : "Linear — die ersten Differenzen sind konstant."
+  };
+});
+
+/* Wurfparabel: Scheitel und Abwurfpunkt gegeben. */
+G_MODELL.push(function(){
+  var k, d, e, h0;
+  do {
+    k = waehle([2,4,5,10]);         /* a = " + MINUS + "k/100 */
+    d = waehle([6,8,10,12]);
+    e = rnd(4,10);
+    h0 = e - k*d*d/100;
+  } while (!(h0 >= 0.4 && h0 <= 3 && Math.abs(h0*10 - Math.round(h0*10)) < 1e-9));
+  var a = -k/100;
+  var xf = waehle([2,4,d/2, d+2]);
+  var yf = a*(xf-d)*(xf-d) + e;
+  return {
+    frage: "Ein Ball fliegt auf einer Parabelbahn. Sein höchster Punkt liegt " + zText(e)
+      + " m hoch, und zwar " + d + " m von der Abwurfstelle entfernt. Abgeworfen wurde er aus "
+      + zText(h0) + " m Höhe. Wie hoch fliegt der Ball " + zText(xf) + " m nach dem Abwurf?",
+    bild: graphSvg({ xmin: 0, xmax: 2*d + 2, ymin: 0, ymax: e + 2,
+      kurven: [{ f: function(x){ return a*(x-d)*(x-d)+e; } }],
+      punkte: [ { x: d, y: e, name: "S" }, { x: 0, y: h0, name: "Abwurf", farbe: "var(--teal)" } ],
+      alt: "Flugbahn des Balls als Parabel", hoehe: 240 }),
+    eingabe: zahlFeld("Höhe =", yf, { einheit: "m", toleranz: 0.005 }),
+    hinweis: "Der höchste Punkt ist der Scheitel: S(" + d + " | " + zText(e) + "). Damit steht die Scheitelpunktform schon halb da — es fehlt nur a.",
+    schritte: [
+      S("Scheitelpunktform ansetzen", "f(x) = a(x " + MINUS + " " + d + ")" + HOCH2 + " + " + zHtml(e)),
+      S("Abwurfpunkt einsetzen: bei x = 0 ist die Höhe " + zText(h0) + " m",
+        zHtml(h0) + " = a(0 " + MINUS + " " + d + ")" + HOCH2 + " + " + zHtml(e) + " = " + zHtml(d*d) + "a + " + zHtml(e)),
+      S("Nach a auflösen", zHtml(h0 - e) + " = " + zHtml(d*d) + "a&nbsp;&nbsp;⇒&nbsp;&nbsp;a = " + zHtml(BR(Math.round((h0-e)*100), d*d*100))),
+      S("Funktionsgleichung", "f(x) = " + zHtml(a) + "(x " + MINUS + " " + d + ")" + HOCH2 + " + " + zHtml(e)),
+      S("Gefragten Wert einsetzen", "f(" + zHtml(xf) + ") = " + zHtml(a) + "(" + zHtml(xf) + " " + MINUS + " " + d + ")" + HOCH2 + " + " + zHtml(e) + " = " + zHtml(yf) + " m")
+    ],
+    antwort: "Nach " + zText(xf) + " m ist der Ball <span class=\"m\">" + zHtml(yf) + " m</span> hoch."
+  };
+});
+
+/* Lineares Modell im Sachkontext: Grundgebühr und Preis je Einheit. */
+G_MODELL.push(function(){
+  var szenen = [
+    { name:"Handytarif", eh:"Gigabyte", ez:"Gigabyte", grund:"Grundgebühr", einheit:"€ je GB", x:"Datenmenge in GB" },
+    { name:"Mietwagen", eh:"Kilometer", ez:"Kilometer", grund:"Grundpreis", einheit:"€ je km", x:"gefahrene Kilometer" },
+    { name:"Kopierkarte", eh:"Kopien", ez:"Kopie", grund:"Kartenpreis", einheit:"€ je Kopie", x:"Anzahl Kopien" }
+  ];
+  var s = waehle(szenen);
+  var m = rnd(2,9)/10, b = rnd(4,20);
+  var x1 = rnd(5,15), x2 = x1 + rnd(10,30);
+  var y1 = m*x1 + b, y2 = m*x2 + b;
+  var xf = x2 + rnd(5,25);
+  return {
+    frage: s.name + ": Bei " + x1 + " " + s.eh + " zahlt man " + zText(y1) + " €, bei " + x2 + " " + s.eh
+      + " sind es " + zText(y2) + " €. Der Zusammenhang ist linear. Was kostet es bei " + xf + " " + s.eh + "?",
+    eingabe: zahlFeld("Preis =", m*xf + b, { einheit: "€", toleranz: 0.005 }),
+    hinweis: "Zuerst die Steigung: Wie viel Euro kommen je zusätzlicher Einheit dazu? Das ist der Preis pro " + s.ez + ".",
+    schritte: [
+      S("Steigung aus den beiden Angaben", "m = " + bruchHtml(zHtml(y2) + " " + MINUS + " " + zHtml(y1), zHtml(x2) + " " + MINUS + " " + zHtml(x1))
+        + " = " + bruchHtml(zHtml(y2-y1), zHtml(x2-x1)) + " = " + zHtml(m)),
+      S("Bedeutung", "Jede weitere " + s.ez + " kostet " + zHtml(m) + " €."),
+      S(s.grund + " bestimmen — das ist b", zHtml(y1) + " = " + zHtml(m) + " " + MAL + " " + zHtml(x1) + " + b&nbsp;&nbsp;⇒&nbsp;&nbsp;b = " + zHtml(b)),
+      S("Funktionsgleichung", "f(x) = " + linHtml(m,b) + "&nbsp;&nbsp;(x = " + esc(s.x) + ")"),
+      S("Gefragten Wert einsetzen", "f(" + xf + ") = " + zHtml(m) + " " + MAL + " " + xf + " + " + zHtml(b) + " = " + zHtml(m*xf+b) + " €")
+    ],
+    antwort: "Es kostet <span class=\"m\">" + zHtml(m*xf+b) + " €</span>."
+  };
+});
+
+/* Gültigkeitsbereich — die Frage, die das Modellieren erst ehrlich macht. */
+G_MODELL.push(function(){
+  var faelle = [
+    { text: "Die Höhe eines geworfenen Balls wird durch f(x) = " + MINUS + "0,05(x " + MINUS + " 10)" + HOCH2 + " + 6 beschrieben (x = Entfernung in Metern). Für welche x ist das Modell sinnvoll?",
+      ok: "Nur von der Abwurfstelle bis zum Aufprall — danach beschreibt die Parabel nichts mehr.",
+      falsch: ["Für alle reellen Zahlen, denn die Funktion ist überall definiert.",
+               "Nur für x = 10, weil dort der Scheitel liegt.",
+               "Für alle x > 0, auch weit hinter dem Aufprall."],
+      warum: "Die Funktion ist mathematisch überall definiert — der Ball aber nicht. Hinter dem Aufprall gäbe das Modell negative Höhen." },
+    { text: "Ein Handytarif kostet 8 € Grundgebühr plus 0,50 € je Gigabyte: f(x) = 0,5x + 8. Für welche x ist das Modell sinnvoll?",
+      ok: "Nur für x ≥ 0 — und nur bis zur Obergrenze, die der Tarif zulässt.",
+      falsch: ["Für alle reellen Zahlen.",
+               "Für alle x, auch negative, weil eine Gerade nie endet.",
+               "Nur für ganzzahlige x, weil man keine halben Gigabyte verbraucht."],
+      warum: "Negative Datenmengen gibt es nicht, und über die Tarifgrenze hinaus gilt eine andere Regel. Halbe Gigabyte gibt es dagegen sehr wohl." },
+    { text: "Die Zahl der Besucher eines Freibads wurde für eine Woche durch eine quadratische Funktion angenähert. Was folgt daraus für den nächsten Monat?",
+      ok: "Nichts Verlässliches — außerhalb des Messzeitraums ist eine Modellfunktion nur eine Vermutung.",
+      falsch: ["Man kann die Besucherzahl für jeden künftigen Tag exakt berechnen.",
+               "Die Besucherzahl wird sicher weiter steigen, weil die Parabel steigt.",
+               "Das Modell gilt automatisch auch rückwärts für das ganze Vorjahr."],
+      warum: "Ein Modell gilt zunächst nur dort, wo es an Daten geprüft wurde. Alles darüber hinaus ist Extrapolation — man darf sie nennen, aber nicht als Tatsache verkaufen." },
+    { text: "Eine Kerze brennt gleichmäßig ab: h(t) = 20 " + MINUS + " 2t (h in cm, t in Stunden). Bis wann gilt das Modell?",
+      ok: "Bis t = 10 — dann ist die Kerze abgebrannt, danach gibt es keine negative Länge.",
+      falsch: ["Für beliebig große t, die Gerade läuft ja weiter.",
+               "Nur für t = 0, weil nur da die Länge bekannt ist.",
+               "Bis t = 20, weil die Kerze 20 cm lang ist."],
+      warum: "Die Nullstelle des Modells markiert hier das Ende des Sachzusammenhangs: 20 " + MINUS + " 2t = 0 ergibt t = 10." }
+  ];
+  var f = waehle(faelle);
+  return {
+    frage: f.text,
+    eingabe: wahl(f.ok, f.falsch),
+    hinweis: "Frage dich nicht, wo die Funktion definiert ist, sondern wo die <em>Sache</em> noch stimmt.",
+    schritte: [
+      S("Zwei verschiedene Fragen", "„Wo ist der Term definiert?“ ist Mathematik. „Wo beschreibt er die Wirklichkeit?“ ist Modellieren."),
+      S("Hier", f.warum),
+      S("Merke", "Zu jeder Modellierung gehört der Gültigkeitsbereich — in Klausuren gibt es dafür eigene Punkte.")
+    ],
+    antwort: f.ok
+  };
+});
+
+/* ==========================================================================
+   THEMA 8 — Potenz- und Wurzelfunktionen
+   ========================================================================== */
+var G_POTENZ = [];
+
+/* Potenzgesetze zusammenfassen. */
+G_POTENZ.push(function(){
+  var a = rnd(2,9), b = rnd(2,9), c = rnd(1, Math.min(6, a + b - 1));
+  return {
+    frage: "Fasse zu einer Potenz zusammen und gib den Exponenten an.",
+    formel: bruchHtml(hochHtml("x", a) + " " + MAL + " " + hochHtml("x", b), hochHtml("x", c)),
+    eingabe: zahlFeld("Exponent =", a + b - c),
+    hinweis: "Beim Multiplizieren werden Exponenten addiert, beim Dividieren subtrahiert. Die Basis bleibt dieselbe.",
+    schritte: [
+      S("Zähler zusammenfassen", hochHtml("x",a) + " " + MAL + " " + hochHtml("x",b) + " = " + hochHtml("x", a + " + " + b) + " = " + hochHtml("x", a+b)),
+      S("Jetzt dividieren", bruchHtml(hochHtml("x",a+b), hochHtml("x",c)) + " = " + hochHtml("x", (a+b) + " " + MINUS + " " + c)),
+      S("Exponent ausrechnen", hochHtml("x", a+b-c))
+    ],
+    antwort: "<span class=\"m\">" + hochHtml("x", a+b-c) + "</span> — der Exponent ist " + (a+b-c) + "."
+  };
+});
+
+/* Potenz einer Potenz. */
+G_POTENZ.push(function(){
+  var a = rnd(2,6), b;
+  do { b = rnd(2,5); } while (b === a);
+  return {
+    frage: "Welcher Term ist gleichwertig?",
+    formel: "(" + hochHtml("x", a) + ")" + "<sup>" + b + "</sup>",
+    eingabe: wahlAus(hochHtml("x", a*b),
+      [ hochHtml("x", a+b), hochHtml("x", Math.pow(a,b)), hochHtml("x", a*b + a), hochHtml("x", a*b - a) ]),
+    hinweis: "(x^a)^b heißt: x^a wird b-mal mit sich selbst multipliziert. Zähle die x.",
+    schritte: [
+      S("Was steht da?", "(" + hochHtml("x",a) + ")<sup>" + b + "</sup> = " + hochHtml("x",a) + " " + MAL + " … " + MAL + " " + hochHtml("x",a) + "&nbsp;&nbsp;(" + b + " Faktoren)"),
+      S("Exponenten addieren — " + b + "-mal die " + a, a + " + … + " + a + " = " + a + " " + MAL + " " + b + " = " + (a*b)),
+      S("Regel", "(x<sup>a</sup>)<sup>b</sup> = x<sup>a" + MAL + "b</sup>, hier " + hochHtml("x", a*b))
+    ],
+    antwort: "<span class=\"m\">" + hochHtml("x", a*b) + "</span>"
+  };
+});
+
+/* Wurzeln als Potenzen schreiben. */
+G_POTENZ.push(function(){
+  var n = waehle([2,3,4,5]), m;
+  /* teilerfremd und ungleich n — sonst stünde da x^3/3 statt x. */
+  do { m = rnd(1,5); } while (m === n || ggt(m,n) !== 1);
+  var ok = "x<sup>" + m + "/" + n + "</sup>";
+  return {
+    frage: "Schreibe als Potenz mit rationalem Exponenten.",
+    formel: (n === 2 ? "" : "<sup>" + n + "</sup>") + wurzelHtml(hochHtml("x", m)),
+    eingabe: wahl(ok, [ "x<sup>" + n + "/" + m + "</sup>", "x<sup>" + (m*n) + "</sup>", "x<sup>" + MINUS + m + "/" + n + "</sup>" ]),
+    hinweis: "Die Wurzelzahl kommt in den <em>Nenner</em> des Exponenten, der Exponent unter der Wurzel in den Zähler.",
+    schritte: [
+      S("Die Regel", "<sup>n</sup>" + wurzelHtml("x<sup>m</sup>") + " = x<sup>m/n</sup>"),
+      S("Hier ablesen", "Wurzelzahl n = " + n + " (kommt nach unten), Exponent m = " + m + " (kommt nach oben)."),
+      S("Zusammensetzen", ok),
+      S("Gegenprobe im Kopf", "Für m = n stünde x<sup>1</sup> = x — und tatsächlich ist <sup>" + n + "</sup>" + wurzelHtml("x<sup>" + n + "</sup>") + " = x.")
+    ],
+    antwort: "<span class=\"m\">" + ok + "</span>"
+  };
+});
+
+/* Potenz mit rationalem Exponenten ausrechnen. */
+G_POTENZ.push(function(){
+  var faelle = [
+    { b:8,  e:"2/3",  w:4,    weg:"³" + "√8 = 2, dann 2² = 4" },
+    { b:16, e:"3/4",  w:8,    weg:"⁴√16 = 2, dann 2³ = 8" },
+    { b:27, e:"1/3",  w:3,    weg:"³√27 = 3" },
+    { b:32, e:"2/5",  w:4,    weg:"⁵√32 = 2, dann 2² = 4" },
+    { b:81, e:"3/4",  w:27,   weg:"⁴√81 = 3, dann 3³ = 27" },
+    { b:25, e:"1/2",  w:5,    weg:"√25 = 5" },
+    { b:64, e:"2/3",  w:16,   weg:"³√64 = 4, dann 4² = 16" },
+    { b:9,  e:"-1/2", w:1/3,  weg:"√9 = 3, das Minus im Exponenten heißt Kehrwert: 1/3" },
+    { b:16, e:"-1/2", w:0.25, weg:"√16 = 4, Kehrwert: 1/4 = 0,25" },
+    { b:4,  e:"3/2",  w:8,    weg:"√4 = 2, dann 2³ = 8" }
+  ];
+  var f = waehle(faelle);
+  var teile = f.e.replace("-","").split("/");
+  return {
+    frage: "Berechne ohne Taschenrechner.",
+    formel: f.b + "<sup>" + f.e.replace("-", MINUS) + "</sup>",
+    eingabe: zahlFeld("Wert =", f.w, { toleranz: 0.005 }),
+    hinweis: "Der Nenner des Exponenten ist die Wurzel, der Zähler die Potenz. Ein Minus im Exponenten heißt Kehrwert.",
+    schritte: [
+      S("Exponent zerlegen", f.b + "<sup>" + f.e.replace("-",MINUS) + "</sup>: Nenner " + teile[1] + " = Wurzel, Zähler " + teile[0] + " = Potenz"
+        + (f.e.charAt(0) === "-" ? ", Minus = Kehrwert" : "")),
+      S("Erst die Wurzel — das hält die Zahlen klein", f.weg),
+      S("Ergebnis", zHtml(f.w))
+    ],
+    antwort: "<span class=\"m\">" + f.b + "<sup>" + f.e.replace("-",MINUS) + "</sup> = " + zHtml(f.w) + "</span>"
+  };
+});
+
+/* Potenzgleichung lösen — gerader Exponent gibt zwei Lösungen. */
+G_POTENZ.push(function(){
+  var n = waehle([2,3,4,5]), w = rnd(2,4);
+  var c = Math.pow(w, n);
+  var gerade = n % 2 === 0;
+  return {
+    frage: "Löse die Gleichung" + (gerade ? " — achte auf die Anzahl der Lösungen." : "."),
+    formel: hochHtml("x", n) + " = " + c,
+    eingabe: gerade
+      ? felder([ { label: "x<sub>1</sub> =", soll: -w }, { label: "x<sub>2</sub> =", soll: w } ], true)
+      : zahlFeld("x =", w),
+    hinweis: gerade
+      ? "Bei einem geraden Exponenten liefern + und " + MINUS + " dasselbe Ergebnis — es gibt also zwei Lösungen."
+      : "Bei einem ungeraden Exponenten behält die Zahl ihr Vorzeichen. Es gibt genau eine Lösung.",
+    schritte: [
+      S("Die " + ORDNUNG[n] + " Wurzel ziehen", "x = " + (gerade ? "± " : "") + "<sup>" + n + "</sup>" + wurzelHtml(String(c))),
+      S("Wurzel ausrechnen", "<sup>" + n + "</sup>" + wurzelHtml(String(c)) + " = " + w + ", denn " + w + "<sup>" + n + "</sup> = " + c),
+      gerade
+        ? S("Beide Vorzeichen prüfen", "(" + MINUS + w + ")<sup>" + n + "</sup> = " + c + " ✓ — also ist auch " + MINUS + w + " eine Lösung.")
+        : S("Nur ein Vorzeichen möglich", "(" + MINUS + w + ")<sup>" + n + "</sup> = " + MINUS + c + " ≠ " + c + " — die negative Zahl passt nicht.")
+    ],
+    antwort: gerade ? "<span class=\"m\">x<sub>1</sub> = " + MINUS + w + ",&nbsp; x<sub>2</sub> = " + w + "</span>"
+                    : "<span class=\"m\">x = " + w + "</span>"
+  };
+});
+
+/* Graph einer Potenzfunktion erkennen. */
+G_POTENZ.push(function(){
+  var typen = [
+    { t: "f(x) = x" + HOCH2, f: function(x){ return x*x; }, wie: "eine nach oben geöffnete Parabel, symmetrisch zur y-Achse" },
+    { t: "f(x) = x³", f: function(x){ return x*x*x; }, wie: "punktsymmetrisch zum Ursprung: links unten, rechts oben" },
+    { t: "f(x) = " + wurzelHtml("x"), f: function(x){ return x < 0 ? NaN : Math.sqrt(x); }, wie: "nur für x ≥ 0 vorhanden, flach ansteigend" },
+    { t: "f(x) = " + bruchHtml("1","x"), f: function(x){ return Math.abs(x) < 0.08 ? NaN : 1/x; }, wie: "eine Hyperbel mit zwei getrennten Ästen" }
+  ];
+  var gemischt = mische(typen);
+  var richtig = gemischt[0];
+  return {
+    frage: "Welche Funktion gehört zu diesem Graphen?",
+    bild: graphSvg({ xmin:-4, xmax:4, ymin:-4, ymax:4, kurven:[{ f: richtig.f }], alt: "Graph einer Potenzfunktion" }),
+    eingabe: wahl(richtig.t, gemischt.slice(1,4).map(function(t){ return t.t; })),
+    hinweis: "Achte auf drei Dinge: Gibt es den Graphen für negative x? Ist er symmetrisch? Und geht er durch den Ursprung?",
+    schritte: [
+      S("Definitionsbereich prüfen", "Für welche x existiert der Graph überhaupt?"),
+      S("Symmetrie prüfen", "Achsensymmetrisch (gerader Exponent), punktsymmetrisch (ungerader Exponent) oder keins von beidem?"),
+      S("Hier", "Der Graph ist " + richtig.wie + " — das passt zu " + richtig.t + ".")
+    ],
+    antwort: "<span class=\"m\">" + richtig.t + "</span>"
+  };
+});
+
+/* Verschiebung und Streckung bei Potenzfunktionen. */
+G_POTENZ.push(function(){
+  var n = waehle([2,3]), a = waehle([1,2,-1,0.5]), d = rndOhne0(-4,4), e = rndOhne0(-5,5);
+  var innen = "(x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + ")<sup>" + n + "</sup>";
+  var t = summandHtml(a, innen, true) + summandHtml(e, "", false);
+  return {
+    frage: "Der Graph von <span class=\"m\">" + hochHtml("x", n) + "</span> wird verschoben und gestreckt. Um wie viel wird er in x- und in y-Richtung verschoben?",
+    formel: "g(x) = " + t,
+    eingabe: felder([ { label: "in x-Richtung um", soll: d }, { label: "in y-Richtung um", soll: e } ]),
+    hinweis: "In g(x) = a " + MAL + " f(x " + MINUS + " d) + e verschiebt d nach rechts und e nach oben. Ein Plus in der Klammer heißt: nach links.",
+    schritte: [
+      S("Grundform danebenlegen", "g(x) = a " + MAL + " (x " + MINUS + " d)<sup>n</sup> + e"),
+      S("d ablesen — Vorzeichen umdrehen", "In der Klammer steht (x " + (d<0?"+":MINUS) + " " + zHtml(Math.abs(d)) + "), also d = " + zHtml(d)
+        + " (" + (d > 0 ? "nach rechts" : "nach links") + ")"),
+      S("e ablesen", "e = " + zHtml(e) + " (" + (e > 0 ? "nach oben" : "nach unten") + ")"),
+      S("Und a?", "a = " + zHtml(a) + (a < 0 ? " — negativ, der Graph wird zusätzlich an der Waagerechten gespiegelt." : " — der Graph wird gestreckt bzw. gestaucht, aber nicht verschoben."))
+    ],
+    antwort: "In x-Richtung um <span class=\"m\">" + zHtml(d) + "</span>, in y-Richtung um <span class=\"m\">" + zHtml(e) + "</span>."
+  };
+});
+
+/* ==========================================================================
+   THEMA 9 — Sinusfunktion
+   ========================================================================== */
+var G_SINUS = [];
+
+var BOGEN = [
+  { grad: 30,  txt: bruchHtml("π","6"),        wert: Math.PI/6 },
+  { grad: 45,  txt: bruchHtml("π","4"),        wert: Math.PI/4 },
+  { grad: 60,  txt: bruchHtml("π","3"),        wert: Math.PI/3 },
+  { grad: 90,  txt: bruchHtml("π","2"),        wert: Math.PI/2 },
+  { grad: 120, txt: bruchHtml("2π","3"),       wert: 2*Math.PI/3 },
+  { grad: 135, txt: bruchHtml("3π","4"),       wert: 3*Math.PI/4 },
+  { grad: 150, txt: bruchHtml("5π","6"),       wert: 5*Math.PI/6 },
+  { grad: 180, txt: "π",                       wert: Math.PI },
+  { grad: 270, txt: bruchHtml("3π","2"),       wert: 3*Math.PI/2 },
+  { grad: 360, txt: "2π",                      wert: 2*Math.PI }
+];
+
+/* Grad in Bogenmaß. */
+G_SINUS.push(function(){
+  var f = waehle(BOGEN);
+  var andere = mische(BOGEN.filter(function(b){ return b.grad !== f.grad; })).slice(0,3);
+  return {
+    frage: "Gib den Winkel im Bogenmaß an.",
+    formel: f.grad + "°",
+    eingabe: wahl(f.txt, andere.map(function(b){ return b.txt; })),
+    hinweis: "Ein voller Umlauf sind 360° oder 2π. Also entspricht 1° dem Bruchteil 2π/360 = π/180.",
+    schritte: [
+      S("Umrechnungsformel", "Bogenmaß = Gradmaß " + MAL + " " + bruchHtml("π","180")),
+      S("Einsetzen", f.grad + " " + MAL + " " + bruchHtml("π","180") + " = " + bruchHtml(f.grad + "π","180")),
+      S("Kürzen", f.txt),
+      S("Zur Kontrolle als Dezimalzahl", "≈ " + esc(dez(f.wert, 3)))
+    ],
+    antwort: f.grad + "° entsprechen <span class=\"m\">" + f.txt + "</span>."
+  };
+});
+
+/* Bogenmaß in Grad. */
+G_SINUS.push(function(){
+  var f = waehle(BOGEN);
+  return {
+    frage: "Gib den Winkel im Gradmaß an.",
+    formel: f.txt,
+    eingabe: zahlFeld("Winkel =", f.grad, { einheit: "°" }),
+    hinweis: "Rückwärts gerechnet: Gradmaß = Bogenmaß " + MAL + " 180/π.",
+    schritte: [
+      S("Umrechnungsformel", "Gradmaß = Bogenmaß " + MAL + " " + bruchHtml("180","π")),
+      S("Einsetzen", f.txt + " " + MAL + " " + bruchHtml("180","π") + " — das π kürzt sich weg"),
+      S("Ergebnis", f.grad + "°")
+    ],
+    antwort: "<span class=\"m\">" + f.grad + "°</span>"
+  };
+});
+
+/* Amplitude und Periodenlänge ablesen. */
+G_SINUS.push(function(){
+  var a = waehle([2,3,4,0.5,-2,-3]), b = waehle([1,2,3,4,0.5]);
+  var periode = 360/b;
+  return {
+    frage: "Lies Amplitude und Periodenlänge ab (Periodenlänge in Grad).",
+    formel: "g(x) = " + zHtml(a) + " " + MAL + " sin(" + (b === 1 ? "" : zHtml(b) + " " + MAL + " ") + "x)",
+    eingabe: felder([
+      { label: "Amplitude =", soll: Math.abs(a) },
+      { label: "Periodenlänge =", soll: periode, einheit: "°" }
+    ]),
+    hinweis: "Die Amplitude ist der Betrag der Zahl <em>vor</em> dem Sinus. Die Zahl <em>bei</em> x staucht die Kurve: Periodenlänge = 360° : b.",
+    schritte: [
+      S("Grundform", "g(x) = a " + MAL + " sin(b " + MAL + " x)"),
+      S("Amplitude ablesen", "a = " + zHtml(a) + ", die Amplitude ist der Betrag: " + zHtml(Math.abs(a))
+        + (a < 0 ? " — das Minus spiegelt die Kurve, ändert die Amplitude aber nicht." : "")),
+      S("Periodenlänge berechnen", "b = " + zHtml(b) + "&nbsp;&nbsp;⇒&nbsp;&nbsp;Periodenlänge = " + bruchHtml("360°", zHtml(b)) + " = " + zHtml(periode) + "°"),
+      S("Im Bogenmaß wäre das", bruchHtml("2π", zHtml(b)))
+    ],
+    bildNachher: function(){
+      return graphSvg({ xmin: 0, xmax: Math.max(720, 2*periode), ymin: -Math.abs(a)-1, ymax: Math.abs(a)+1,
+        kurven: [{ f: function(x){ return a*Math.sin(b*x*Math.PI/180); } }],
+        alt: "Sinuskurve mit abgelesener Amplitude und Periode", hoehe: 220 });
+    },
+    antwort: "Amplitude <span class=\"m\">" + zHtml(Math.abs(a)) + "</span>, Periodenlänge <span class=\"m\">" + zHtml(periode) + "°</span>."
+  };
+});
+
+/* Sinuswerte am Einheitskreis. */
+G_SINUS.push(function(){
+  var werte = [
+    { g:0, w:0 }, { g:30, w:0.5 }, { g:90, w:1 }, { g:150, w:0.5 },
+    { g:180, w:0 }, { g:210, w:-0.5 }, { g:270, w:-1 }, { g:330, w:-0.5 }, { g:360, w:0 }
+  ];
+  var f = waehle(werte);
+  return {
+    frage: "Bestimme den Funktionswert ohne Taschenrechner.",
+    formel: "sin(" + f.g + "°)",
+    eingabe: zahlFeld("=", f.w, { toleranz: 0.005 }),
+    hinweis: "Der Sinus ist die Höhe des Punktes auf dem Einheitskreis. Bei 90° ganz oben (1), bei 270° ganz unten (" + MINUS + "1), auf der x-Achse null.",
+    schritte: [
+      S("Wo liegt der Winkel?", f.g + "° liegt " + (f.g % 180 === 0 ? "auf der x-Achse" : (f.g < 180 ? "im oberen Halbkreis — der Sinus ist positiv" : "im unteren Halbkreis — der Sinus ist negativ"))),
+      S("Höhe ablesen", "sin(" + f.g + "°) = " + zHtml(f.w)),
+      S("Am Graphen", "Die Sinuskurve hat bei 0°, 180° und 360° Nullstellen, bei 90° ihr Maximum und bei 270° ihr Minimum.")
+    ],
+    antwort: "<span class=\"m\">sin(" + f.g + "°) = " + zHtml(f.w) + "</span>"
+  };
+});
+
+/* Sinuskurve erkennen. */
+G_SINUS.push(function(){
+  var a = waehle([1,2,3]), b = waehle([1,2]), e = waehle([0,0,1,-1]);
+  function txt(aa,bb,ee){
+    return "g(x) = " + (aa === 1 ? "" : zHtml(aa) + " " + MAL + " ") + "sin(" + (bb === 1 ? "x" : zHtml(bb) + " " + MAL + " x") + ")"
+      + (ee === 0 ? "" : (ee > 0 ? " + " + zHtml(ee) : " " + MINUS + " " + zHtml(-ee)));
+  }
+  var falsche = mische([ txt(a === 1 ? 2 : 1, b, e), txt(a, b === 1 ? 2 : 1, e), txt(a, b, e === 0 ? 2 : 0) ]);
+  return {
+    frage: "Welche Gleichung gehört zu dieser Kurve?",
+    bild: graphSvg({ xmin: 0, xmax: 720, ymin: -5, ymax: 5,
+      kurven: [{ f: function(x){ return a*Math.sin(b*x*Math.PI/180) + e; } }],
+      alt: "Sinuskurve", hoehe: 230 }),
+    eingabe: wahl(txt(a,b,e), falsche),
+    hinweis: "Drei Fragen: Wie hoch schwingt die Kurve (Amplitude)? Wie breit ist eine volle Welle (Periode)? Und um welche Höhe schwingt sie (Mittellinie)?",
+    schritte: [
+      S("Amplitude", "Die Kurve schwingt " + zHtml(a) + " nach oben und nach unten — also a = " + zHtml(a) + "."),
+      S("Periodenlänge", "Eine volle Welle braucht " + zHtml(360/b) + "° — aus 360° : b = " + zHtml(360/b) + "° folgt b = " + zHtml(b) + "."),
+      S("Mittellinie", e === 0 ? "Die Kurve schwingt um die x-Achse — also kein Summand e." : "Die Kurve schwingt um y = " + zHtml(e) + " — also + (" + zHtml(e) + ")."),
+      S("Zusammensetzen", txt(a,b,e))
+    ],
+    antwort: "<span class=\"m\">" + txt(a,b,e) + "</span>"
+  };
+});
+
+/* Verschiebung der Sinuskurve ablesen. */
+G_SINUS.push(function(){
+  var a = waehle([1,2,3]), b = waehle([1,2]), d = waehle([30,45,60,90,-45,-90]), e = rndOhne0(-3,3);
+  return {
+    frage: "Um wie viel ist die Kurve gegenüber <span class=\"m\">sin(x)</span> verschoben?",
+    formel: "g(x) = " + (a===1?"":zHtml(a) + " " + MAL + " ") + "sin(" + (b===1?"":zHtml(b) + " " + MAL + " ") + "(x " + (d<0?"+":MINUS) + " " + Math.abs(d) + "°))"
+      + (e > 0 ? " + " + zHtml(e) : " " + MINUS + " " + zHtml(-e)),
+    eingabe: felder([
+      { label: "in x-Richtung um", soll: d, einheit: "°" },
+      { label: "in y-Richtung um", soll: e }
+    ]),
+    hinweis: "Dieselbe Regel wie bei Parabeln: In der Klammer steht x " + MINUS + " d. Ein Plus dort bedeutet Verschiebung nach links.",
+    schritte: [
+      S("Grundform", "g(x) = a " + MAL + " sin(b(x " + MINUS + " d)) + e"),
+      S("d ablesen", "In der Klammer steht (x " + (d<0?"+":MINUS) + " " + Math.abs(d) + "°), also d = " + zHtml(d) + "° — "
+        + (d > 0 ? "nach rechts." : "nach links.")),
+      S("e ablesen", "e = " + zHtml(e) + " — die Mittellinie liegt bei y = " + zHtml(e) + "."),
+      S("Warum die Klammer wichtig ist", "sin(2x " + MINUS + " 90°) ist etwas anderes als sin(2(x " + MINUS + " 90°)). Erst ausklammern, dann ablesen.")
+    ],
+    antwort: "In x-Richtung um <span class=\"m\">" + zHtml(d) + "°</span>, in y-Richtung um <span class=\"m\">" + zHtml(e) + "</span>."
+  };
+});
+/* ==========================================================================
+   4 — Die neun Themen
+   --------------------------------------------------------------------------
+   Reihenfolge ist nicht Geschmack: Wer Terme nicht umformen kann, scheitert
+   später an der quadratischen Ergänzung, ohne je etwas über Parabeln gelernt
+   zu haben. Deshalb stehen die Werkzeuge vorn — auch wenn die Klausur sie
+   nicht eigens abfragt.
+   ========================================================================== */
+
+var THEMEN = [
+  {
+    id: "terme", name: "Termumformungen", unter: "Klammern, binomische Formeln, Ausklammern",
+    gruppe: "werkzeug", gen: G_TERME,
+    warum: "Kein einziger Klausurpunkt hängt direkt an diesem Thema — und trotzdem entscheidet es über die halbe Klausur. Quadratische Ergänzung, Scheitelform, pq-Formel: Überall wird ausmultipliziert, ausgeklammert und zusammengefasst. Wer hier sicher ist, verliert später keine Zeit.",
+    merksatz: "Beim Ausmultiplizieren wird <em>jeder</em> Summand der einen Klammer mit <em>jedem</em> der anderen multipliziert. Ein Minus vor einer Klammer dreht alle Vorzeichen darin um. Binomische Formeln: (u ± v)" + HOCH2 + " = u" + HOCH2 + " ± 2uv + v" + HOCH2 + " und (u + v)(u " + MINUS + " v) = u" + HOCH2 + " " + MINUS + " v" + HOCH2 + ".",
+    stolperstein: "Das mittlere Glied bei (u + v)" + HOCH2 + ". Wer 2uv vergisst, rechnet ab dort korrekt weiter — und alles ist falsch. Zweiter Klassiker: das Minus vor der Klammer, das nur den ersten Summanden erwischt.",
+    koennen: ["Klammern ausmultiplizieren und zusammenfassen",
+              "die binomischen Formeln vorwärts und rückwärts anwenden",
+              "gemeinsame Faktoren ausklammern",
+              "Zahlen sauber in Terme einsetzen — auch negative"]
+  },
+  {
+    id: "gleich", name: "Gleichungen umstellen", unter: "nach x auflösen, Formeln umformen",
+    gruppe: "werkzeug", gen: G_GLEICH,
+    warum: "„Bestimme die Nullstelle“, „berechne den Schnittpunkt“, „für welches x gilt …“ — in jeder dieser Aufgaben steckt eine Gleichung, die aufgelöst werden will. Und der Klausurteil ohne Hilfsmittel besteht zu großen Teilen genau daraus.",
+    merksatz: "Was auf der einen Seite geschieht, geschieht auch auf der anderen. Reihenfolge: erst Klammern auflösen, dann jede Seite zusammenfassen, dann x-Glieder auf eine Seite und Zahlen auf die andere, zuletzt durch die Zahl vor x teilen.",
+    stolperstein: "Beim Teilen durch eine negative Zahl das Vorzeichen vergessen. Und: bei einem Bruch nur den Zähler malnehmen — der Bruchstrich wirkt wie eine Klammer um den <em>ganzen</em> Zähler.",
+    koennen: ["lineare Gleichungen mit x auf beiden Seiten lösen",
+              "Gleichungen mit Klammern und Brüchen lösen",
+              "eine Formel nach einer beliebigen Größe umstellen",
+              "das Ergebnis durch Einsetzen prüfen"]
+  },
+  {
+    id: "lgs", name: "Lineare Gleichungssysteme", unter: "Gleichsetzen, Einsetzen, Addieren",
+    gruppe: "werkzeug", gen: G_LGS,
+    warum: "Zwei Geraden, ein Schnittpunkt: Das ist ein Gleichungssystem, auch wenn in der Aufgabe nichts davon steht. Dieselbe Technik brauchst du, wenn eine Funktion aus mehreren Bedingungen bestimmt werden soll.",
+    merksatz: "Drei Wege führen zum Ziel: <strong>Gleichsetzen</strong> (wenn beide Gleichungen nach derselben Variablen aufgelöst sind), <strong>Einsetzen</strong> (wenn eine Gleichung schon aufgelöst ist), <strong>Addieren</strong> (wenn vor einer Variablen betragsgleiche Zahlen stehen — oder man sie durch Multiplizieren herstellt).",
+    stolperstein: "Nach dem ersten Wert aufhören. Ein Gleichungssystem ist erst gelöst, wenn <em>beide</em> Werte dastehen — und die Probe in der <em>zweiten</em> Gleichung gemacht ist.",
+    koennen: ["ein 2×2-System mit dem passenden Verfahren lösen",
+              "den Schnittpunkt zweier Geraden rechnerisch bestimmen",
+              "erkennen, wann es keine oder unendlich viele Lösungen gibt",
+              "aus einem Sachtext zwei Gleichungen aufstellen"]
+  },
+  {
+    id: "linear", name: "Lineare Funktionen", unter: "Steigung, Nullstelle, drei Darstellungsformen",
+    gruppe: "klausur", buch: "Neue Wege 11, Kap. 1.1–1.2 (S. 8–15)", gen: G_LINEAR,
+    warum: "Der Einstieg ins Kapitel und der Anfang der Oberstufenmathematik überhaupt: Die Steigung einer Geraden ist die mittlere Änderungsrate — und die wird euch bis zur Ableitung begleiten.",
+    merksatz: "f(x) = m " + MAL + " x + b mit der Steigung m = " + bruchHtml("y<sub>2</sub> " + MINUS + " y<sub>1</sub>", "x<sub>2</sub> " + MINUS + " x<sub>1</sub>")
+      + " und dem y-Achsenabschnitt b. Drei Darstellungen derselben Geraden: Standardform m " + MAL + " x + b, Nullstellenform m(x " + MINUS + " x<sub>0</sub>), Punkt-Steigungs-Form m(x " + MINUS + " d) + e. Senkrecht zueinander heißt m<sub>1</sub> " + MAL + " m<sub>2</sub> = " + MINUS + "1.",
+    stolperstein: "m und b verwechseln — und bei der Steigung Zähler und Nenner in unterschiedlicher Reihenfolge nehmen. Oben und unten muss dieselbe Richtung stehen: „2 minus 1“ oben, „2 minus 1“ unten.",
+    koennen: ["die Steigung aus zwei Punkten berechnen",
+              "zwischen den drei Darstellungsformen wechseln",
+              "Nullstelle und Achsenschnittpunkt bestimmen",
+              "eine mittlere Änderungsrate im Sachzusammenhang deuten"]
+  },
+  {
+    id: "quadfun", name: "Quadratische Funktionen", unter: "Scheitelpunktform, quadratische Ergänzung",
+    gruppe: "klausur", buch: "Neue Wege 11, Kap. 1.2 (S. 16–19)", gen: G_QUADFUN,
+    warum: "Der Scheitelpunkt ist in der Klausur der meistgefragte einzelne Wert des ganzen Kapitels: höchster Punkt einer Wurfbahn, größter Gewinn, kleinste Kosten. Wer die Scheitelpunktform beherrscht, liest ihn ab, statt ihn zu suchen.",
+    merksatz: "f(x) = a(x " + MINUS + " d)" + HOCH2 + " + e hat den Scheitel S(d | e). a > 0: nach oben geöffnet (Tiefpunkt), a < 0: nach unten (Hochpunkt); |a| > 1 macht die Parabel schmaler. Aus der Normalform kommt man mit quadratischer Ergänzung dorthin — oder über d = " + MINUS + bruchHtml("b","2a") + " und e = f(d).",
+    stolperstein: "Das Vorzeichen von d. In (x + 3)" + HOCH2 + " ist d = " + MINUS + "3, nicht +3 — die Grundform heißt (x " + MINUS + " d)" + HOCH2 + ". Zweiter Klassiker: bei der quadratischen Ergänzung die addierte Zahl nicht wieder abziehen.",
+    koennen: ["den Scheitelpunkt aus der Scheitelform ablesen",
+              "die Scheitelform ausmultiplizieren",
+              "mit quadratischer Ergänzung von der Normalform zur Scheitelform kommen",
+              "a aus Scheitel und einem weiteren Punkt bestimmen"]
+  },
+  {
+    id: "quadgl", name: "Quadratische Gleichungen", unter: "pq-Formel, Faktorisieren, Wurzelziehen",
+    gruppe: "klausur", buch: "Neue Wege 11, Kap. 1.3 (S. 20–23)", gen: G_QUADGL,
+    warum: "Nullstellen einer Parabel, Schnittpunkte mit einer Geraden, „wann trifft der Ball den Boden“ — alles läuft auf eine quadratische Gleichung hinaus. Im hilfsmittelfreien Teil wird die pq-Formel erwartet, ohne Taschenrechner.",
+    merksatz: "Erst hinsehen, dann rechnen: x" + HOCH2 + " = c → Wurzelziehen (zwei Lösungen!). x" + HOCH2 + " + px = 0 → x ausklammern. Produktform → Satz vom Nullprodukt. Sonst pq-Formel für x" + HOCH2 + " + px + q = 0: x = " + MINUS + bruchHtml("p","2") + " ± " + wurzelHtml("(" + bruchHtml("p","2") + ")" + HOCH2 + " " + MINUS + " q") + ". Die Diskriminante D unter der Wurzel sagt: D > 0 zwei, D = 0 eine, D < 0 keine Lösung.",
+    stolperstein: "Die pq-Formel auf 2x" + HOCH2 + " + … loslassen. Sie gilt nur, wenn vor x" + HOCH2 + " eine 1 steht — vorher die ganze Gleichung durch a teilen. Und: bei x" + HOCH2 + " + px = 0 durch x teilen und dadurch die Lösung x = 0 verlieren.",
+    koennen: ["die passende Lösungsmethode am Aussehen der Gleichung erkennen",
+              "die pq-Formel sicher anwenden — mit richtigen Vorzeichen",
+              "vor der pq-Formel normieren",
+              "an der Diskriminante die Anzahl der Lösungen ablesen"]
+  },
+  {
+    id: "modell", name: "Modellieren", unter: "linear oder quadratisch, Gültigkeitsbereich",
+    gruppe: "klausur", buch: "Neue Wege 11, Kap. 1.4 (S. 25–30)", gen: G_MODELL,
+    warum: "Der Aufgabenteil mit dem meisten Text und den meisten Punkten. Gefragt ist nicht Rechnen, sondern Übersetzen: von der Situation zur Funktion und wieder zurück — samt der Frage, wo das Modell überhaupt gilt.",
+    merksatz: "Erste Differenzen konstant → lineares Modell. Zweite Differenzen konstant → quadratisches Modell. Beim Aufstellen hilft ein bekannter Punkt: Scheitel → Scheitelform, zwei beliebige Punkte → Steigung und b. Und zu jedem Modell gehört der Gültigkeitsbereich.",
+    stolperstein: "Das Ergebnis nicht zurückübersetzen. „x = 12“ ist keine Antwort — „nach 12 Sekunden ist der Ball wieder am Boden“ ist eine. Fast ebenso teuer: den Gültigkeitsbereich weglassen.",
+    koennen: ["aus einer Wertetabelle den Funktionstyp bestimmen",
+              "eine Funktionsgleichung aus Scheitel oder zwei Punkten aufstellen",
+              "mit dem Modell eine Prognose rechnen",
+              "den Gültigkeitsbereich benennen und begründen"]
+  },
+  {
+    id: "potenz", name: "Potenz- und Wurzelfunktionen", unter: "Potenzgesetze, rationale Exponenten",
+    gruppe: "klausur", buch: "Neue Wege 11, Kap. 1.5 (S. 32–36)", gen: G_POTENZ,
+    warum: "Hier wird der Potenzbegriff erweitert: x<sup>1/2</sup> ist die Wurzel, x<sup>" + MINUS + "1</sup> der Kehrwert. Das braucht ihr im zweiten Halbjahr bei jeder Ableitung wieder — und in der Klausur beim Umgang mit Graphen und Parametern.",
+    merksatz: "x<sup>a</sup> " + MAL + " x<sup>b</sup> = x<sup>a+b</sup>,&nbsp; x<sup>a</sup> : x<sup>b</sup> = x<sup>a" + MINUS + "b</sup>,&nbsp; (x<sup>a</sup>)<sup>b</sup> = x<sup>a" + MAL + "b</sup>. Rationale Exponenten: <sup>n</sup>" + wurzelHtml("x<sup>m</sup>") + " = x<sup>m/n</sup>, negativer Exponent heißt Kehrwert. Der Exponent bestimmt die Form des Graphen.",
+    stolperstein: "Exponenten multiplizieren, wo sie addiert gehören. x³ " + MAL + " x" + HOCH2 + " ist x<sup>5</sup>, nicht x<sup>6</sup>. Und beim Rechnen mit x<sup>m/n</sup>: erst die Wurzel, dann die Potenz — dann bleiben die Zahlen klein.",
+    koennen: ["Potenzterme mit den Potenzgesetzen zusammenfassen",
+              "Wurzeln als Potenzen schreiben und umgekehrt",
+              "Potenzen mit rationalem Exponenten im Kopf ausrechnen",
+              "Gleichungen der Form x<sup>n</sup> = a lösen — mit der richtigen Lösungsanzahl"]
+  },
+  {
+    id: "sinus", name: "Sinusfunktion", unter: "Bogenmaß, Amplitude, Periode",
+    gruppe: "klausur", buch: "Neue Wege 11, Kap. 1.6 (S. 44–48)", gen: G_SINUS,
+    warum: "Das letzte Stück vor der Klausur — und das mit den wenigsten Übungsstunden. Gerade deshalb lohnt es sich: Die Fragen sind gut vorhersagbar (umrechnen, ablesen, zuordnen) und mit etwas Übung sichere Punkte.",
+    merksatz: "Bogenmaß: 360° = 2π, also Bogenmaß = Gradmaß " + MAL + " " + bruchHtml("π","180") + ". Bei g(x) = a " + MAL + " sin(b(x " + MINUS + " d)) + e ist |a| die Amplitude, " + bruchHtml("360°","b") + " (bzw. " + bruchHtml("2π","b") + ") die Periodenlänge, d die Verschiebung nach rechts und e die Höhe der Mittellinie.",
+    stolperstein: "b und die Periodenlänge verwechseln. Ein größeres b macht die Welle <em>kürzer</em>, nicht länger. Und: bei sin(2x " + MINUS + " 90°) ist die Verschiebung nicht 90° — erst ausklammern zu sin(2(x " + MINUS + " 45°)).",
+    koennen: ["zwischen Gradmaß und Bogenmaß umrechnen",
+              "Amplitude und Periodenlänge aus der Gleichung ablesen",
+              "die wichtigen Sinuswerte ohne Taschenrechner angeben",
+              "einen Graphen der passenden Gleichung zuordnen"]
+  }
+];
+
+function themaMit(id){ return THEMEN.find(function(t){ return t.id === id; }); }
+
+/* ==========================================================================
+   5 — Was der Trainer sich merkt
+   ========================================================================== */
+var SCHLUESSEL = "mu-11a-klausurtrainer-v1";
+var KLAUSUR = new Date(2026, 9, 1);   /* Do, 01.10.2026 — 1. Klausur der 11a */
+
+var stand = laden();
+
+function leererStand(){
+  var t = {};
+  THEMEN.forEach(function(th){ t[th.id] = { stand: "unbekannt", runden: 0, letzte: null }; });
+  return { fassung: 1, diagnose: null, themen: t, check: null };
+}
+function laden(){
+  try {
+    var roh = localStorage.getItem(SCHLUESSEL);
+    if (!roh) return leererStand();
+    var s = JSON.parse(roh);
+    var frisch = leererStand();
+    if (!s || s.fassung !== 1) return frisch;
+    /* Neue Themen dürfen später dazukommen, ohne alte Stände zu verlieren. */
+    THEMEN.forEach(function(th){ if (!s.themen[th.id]) s.themen[th.id] = frisch.themen[th.id]; });
+    return s;
+  } catch (e) { return leererStand(); }
+}
+function sichern(){
+  try { localStorage.setItem(SCHLUESSEL, JSON.stringify(stand)); } catch (e) { /* privates Fenster */ }
+}
+
+function tageBisKlausur(){
+  var heute = new Date(); heute.setHours(0,0,0,0);
+  return Math.round((KLAUSUR - heute) / 86400000);
+}
+function zahlSicher(){
+  return THEMEN.filter(function(t){ return stand.themen[t.id].stand === "sicher"; }).length;
+}
+
+/* ==========================================================================
+   6 — Rückmeldung in Worten
+   Immer dieselbe Haltung: Was war richtig, woran lag es, wie geht es weiter.
+   Nie „falsch“ allein, nie Ausrufezeichen-Jubel.
+   ========================================================================== */
+var LOB = [
+  "Sitzt.", "Genau so.", "Richtig — und sauber gerechnet.", "Das stimmt.",
+  "Richtig.", "Passt.", "Genau.", "Stimmt — weiter so."
+];
+var MUT = [
+  "Noch nicht — aber das ist der Sinn des Übens. Schau dir den Hinweis an.",
+  "Das war es noch nicht. Ein Blick auf den Hinweis, dann noch einmal.",
+  "Knapp daneben ist auch daneben — aber leicht zu reparieren. Hinweis lesen, neu versuchen.",
+  "Nicht ganz. Der Hinweis unten sagt dir, wo es kippt."
+];
+var ZWEITER = [
+  "Immer noch nicht — dann rechnen wir es gemeinsam durch.",
+  "Kein Problem. Hier ist der ganze Weg, Schritt für Schritt.",
+  "Dann schauen wir uns die Rechnung genau an. Danach probierst du es noch einmal."
+];
+
+/* ==========================================================================
+   7 — Eine Aufgabe anzeigen und prüfen
+   ========================================================================== */
+
+function aufgabeHtml(auf){
+  var teile = [];
+  if (auf.frage) teile.push('<p class="frage">' + auf.frage + "</p>");
+  if (auf.formel) teile.push('<div class="mblock">' + auf.formel + "</div>");
+  if (auf.bild) teile.push(auf.bild);
+  return teile.join("");
+}
+
+function eingabeHtml(auf, nr){
+  var e = auf.eingabe;
+  if (e.art === "wahl"){
+    return '<div class="wahlen" role="group" aria-label="Antwortmöglichkeiten">'
+      + e.optionen.map(function(o, i){
+          return '<button class="wahl" type="button" data-wahl="' + i + '" aria-pressed="false">'
+            + '<span class="buchstabe">' + "ABCD".charAt(i) + '</span><span class="inhalt">' + o + "</span></button>";
+        }).join("")
+      + "</div>";
+  }
+  return '<div class="felder">' + e.felder.map(function(f, i){
+    return '<span class="feld"><label for="f' + nr + "_" + i + '">' + f.label + "</label>"
+      + '<input id="f' + nr + "_" + i + '" type="text" inputmode="text" autocomplete="off" spellcheck="false" data-feld="' + i + '">'
+      + (f.einheit ? '<span class="einheit">' + esc(f.einheit) + "</span>" : "") + "</span>";
+  }).join("") + "</div>";
+}
+
+/* Prüfen: liefert {ok, teile} — teile sagt je Feld, ob es stimmt. */
+function pruefen(auf, wurzel){
+  var e = auf.eingabe;
+  if (e.art === "wahl"){
+    var gewaehlt = wurzel.querySelector('.wahl[aria-pressed="true"]');
+    if (!gewaehlt) return null;                       /* nichts angekreuzt */
+    var i = Number(gewaehlt.getAttribute("data-wahl"));
+    return { ok: i === e.richtig, gewaehlt: i, teile: [] };
+  }
+  var eingaben = [].slice.call(wurzel.querySelectorAll("input[data-feld]"));
+  var werte = eingaben.map(function(inp){ return zahlAus(inp.value); });
+  if (werte.some(function(w){ return w === null; })) return null;
+
+  if (e.egal && e.felder.length === 2){
+    /* Reihenfolge egal: x₁ und x₂ dürfen vertauscht sein. */
+    var s0 = e.felder[0].soll, s1 = e.felder[1].soll;
+    var t0 = toleranzFuer(e.felder[0]), t1 = toleranzFuer(e.felder[1]);
+    var gerade = gleichAuf(werte[0], s0, t0) && gleichAuf(werte[1], s1, t1);
+    var quer   = gleichAuf(werte[0], s1, t1) && gleichAuf(werte[1], s0, t0);
+    var ok = gerade || quer;
+    return { ok: ok, teile: ok ? [true,true]
+      : [ gleichAuf(werte[0], s0, t0) || gleichAuf(werte[0], s1, t1),
+          gleichAuf(werte[1], s0, t0) || gleichAuf(werte[1], s1, t1) ] };
+  }
+  var teile = werte.map(function(w, i){ return gleichAuf(w, e.felder[i].soll, toleranzFuer(e.felder[i])); });
+  return { ok: teile.every(Boolean), teile: teile };
+}
+
+function markieren(auf, wurzel, ergebnis){
+  if (auf.eingabe.art === "wahl"){
+    [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k, i){
+      k.disabled = true;
+      if (i === auf.eingabe.richtig) k.setAttribute("data-stand", "richtig");
+      else if (i === ergebnis.gewaehlt) k.setAttribute("data-stand", "falsch");
+    });
+  } else {
+    [].slice.call(wurzel.querySelectorAll("input[data-feld]")).forEach(function(inp, i){
+      inp.setAttribute("data-stand", ergebnis.teile[i] ? "richtig" : "falsch");
+    });
+  }
+}
+function entsperren(wurzel){
+  [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k){
+    k.disabled = false; k.removeAttribute("data-stand"); k.setAttribute("aria-pressed","false");
+  });
+  [].slice.call(wurzel.querySelectorAll("input[data-feld]")).forEach(function(inp){
+    inp.removeAttribute("data-stand");
+  });
+}
+
+function schritteHtml(auf){
+  var s = auf.schritte.map(function(sch, i){
+    return '<li class="schritt"><span class="nr">' + (i+1) + "</span>"
+      + '<span class="was">' + sch.was + "</span>"
+      + '<span class="rechnung">' + sch.r + "</span></li>";
+  }).join("");
+  return '<ol class="schritte">' + s + "</ol>"
+    + (auf.bildNachher ? auf.bildNachher() : "");
+}
+
+/* Wahl-Knöpfe verhalten sich wie Radiobuttons. */
+function wahlBinden(wurzel, beiAuswahl){
+  [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k){
+    k.addEventListener("click", function(){
+      if (k.disabled) return;
+      [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(a){ a.setAttribute("aria-pressed","false"); });
+      k.setAttribute("aria-pressed","true");
+      if (beiAuswahl) beiAuswahl();
+    });
+  });
+}
+/* ==========================================================================
+   8 — Die Ansichten
+   ========================================================================== */
+var buehne = document.getElementById("buehne");
+
+function zeige(html){
+  buehne.innerHTML = html;
+  ringZeichnen();
+  window.scrollTo(0, 0);
+}
+
+function ringZeichnen(){
+  var n = zahlSicher(), ganz = THEMEN.length;
+  var u = 2*Math.PI*15;
+  var anteil = ganz ? n/ganz : 0;
+  document.getElementById("ring").innerHTML =
+    '<svg viewBox="0 0 36 36" width="43" height="43" aria-hidden="true">'
+    + '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--linie)" stroke-width="4"/>'
+    + '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--gruen)" stroke-width="4" stroke-linecap="round"'
+    + ' stroke-dasharray="' + (anteil*u).toFixed(2) + " " + u.toFixed(2) + '"/></svg>'
+    + '<span class="zahl">' + n + "/" + ganz + "</span>";
+  document.getElementById("ring").setAttribute("title", n + " von " + ganz + " Themen sitzen");
+}
+
+function countdownText(){
+  var t = tageBisKlausur();
+  if (t > 1) return "Noch " + t + " Tage bis zur Klausur am 1. Oktober.";
+  if (t === 1) return "Morgen ist die Klausur.";
+  if (t === 0) return "Heute ist die Klausur. Viel Erfolg!";
+  return "Kapitel 1 — Funktionen als Werkzeug.";
+}
+
+/* --- Startseite ---------------------------------------------------------- */
+function zeigeStart(){
+  var begonnen = stand.diagnose !== null;
+  zeige(
+    '<div class="karte">'
+    + "<h2>Hallo.</h2>"
+    + '<p class="lead">Dieses Programm bringt dich Thema für Thema durch Kapitel 1 — von den Termumformungen bis zur Sinuskurve. '
+    + "Es sagt dir zuerst, wo du stehst, erklärt dann in Ruhe, lässt dich üben und prüft am Ende mit neuen Aufgaben nach, ob es wirklich sitzt.</p>"
+    + '<div class="hinweis"><strong>' + countdownText() + "</strong> "
+    + "Du musst nicht alles auf einmal machen. Der Trainer merkt sich auf diesem Gerät, wie weit du bist.</div>"
+    + "<h3 style=\"margin-top:1.1rem\">So läuft es ab</h3>"
+    + '<ol style="margin:.5rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
+    + "<li><strong>Diagnose</strong> — 18 kurze Aufgaben, quer durch alle Themen. Keine Note, keine Zeit, kein Publikum.</li>"
+    + "<li><strong>Landkarte</strong> — du siehst, was schon sitzt und was noch nicht.</li>"
+    + "<li><strong>Erklärung</strong> — für jedes offene Thema eine vollständige Musterlösung, Schritt für Schritt.</li>"
+    + "<li><strong>Üben</strong> — mit Hinweis beim ersten Fehler und der ganzen Rechnung beim zweiten.</li>"
+    + "<li><strong>Re-Test</strong> — neue Aufgaben, neue Zahlen. Drei von vier genügen.</li>"
+    + "<li><strong>Bestätigung</strong> — das Thema wird grün, und du siehst schwarz auf weiß, was du jetzt kannst.</li>"
+    + "</ol>"
+    + '<div class="reihe">'
+    + (begonnen
+        ? '<button class="knopf knopf-haupt knopf-gross" id="k-weiter" type="button">Weitermachen</button>'
+          + '<button class="knopf" id="k-diagnose" type="button">Diagnose noch einmal</button>'
+        : '<button class="knopf knopf-haupt knopf-gross" id="k-diagnose" type="button">Diagnose starten</button>'
+          + '<button class="knopf" id="k-karte" type="button">Ohne Diagnose zur Themenliste</button>')
+    + "</div>"
+    + '<p class="leise" style="margin-top:1rem">Alles bleibt auf deinem Gerät. Es wird nichts verschickt und nichts ausgewertet — '
+    + "auch nicht von mir. Wenn du an einer Stelle wirklich hängst, frag im Unterricht nach; genau dafür ist er da.</p>"
+    + "</div>"
+  );
+  var a = document.getElementById("k-diagnose"); if (a) a.onclick = diagnoseStarten;
+  var b = document.getElementById("k-karte");    if (b) b.onclick = zeigeKarte;
+  var c = document.getElementById("k-weiter");   if (c) c.onclick = zeigeKarte;
+}
+
+/* --- Diagnose ------------------------------------------------------------
+   Zwei Aufgaben je Thema. Wer bei der ersten „weiß ich nicht“ drückt,
+   bekommt die zweite nicht mehr — das Ergebnis stünde ohnehin fest, und
+   nichts entmutigt so zuverlässig wie eine zweite Aufgabe zum selben Loch. */
+var dia = null;
+
+function diagnoseStarten(){
+  dia = { plan: [], index: 0, treffer: {} };
+  THEMEN.forEach(function(t){
+    dia.treffer[t.id] = [];
+    dia.plan.push({ id: t.id, stufe: 0 });
+    dia.plan.push({ id: t.id, stufe: 1 });
+  });
+  diagnoseSchritt();
+}
+
+function diagnoseSchritt(){
+  /* Übersprungene Aufgaben aussortieren. */
+  while (dia.index < dia.plan.length){
+    var p = dia.plan[dia.index];
+    if (p.stufe === 1 && dia.treffer[p.id].indexOf("weissnicht") >= 0){ dia.index++; continue; }
+    break;
+  }
+  if (dia.index >= dia.plan.length) return diagnoseAuswerten();
+
+  var eintrag = dia.plan[dia.index];
+  var thema = themaMit(eintrag.id);
+  var macher = thema.gen[eintrag.stufe % thema.gen.length];
+  var auf = macher();
+  var offen = dia.plan.filter(function(p, i){
+    return i >= dia.index && !(p.stufe === 1 && dia.treffer[p.id].indexOf("weissnicht") >= 0);
+  }).length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille">Diagnose</span>'
+    + '<span class="leise">noch ' + offen + " " + (offen === 1 ? "Aufgabe" : "Aufgaben") + "</span></div>"
+    + '<p class="leise" style="margin:.6rem 0 .2rem">' + esc(thema.name) + "</p>"
+    + aufgabeHtml(auf)
+    + eingabeHtml(auf, dia.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="d-ok" type="button">Antwort abschicken</button>'
+    + '<button class="knopf knopf-still" id="d-nix" type="button">Weiß ich nicht</button>'
+    + "</div>"
+    + '<p class="leise" style="margin-top:.9rem">Hier gibt es keine Rückmeldung — das ist Absicht. '
+    + "Die Diagnose soll ein ehrliches Bild geben, kein Training. „Weiß ich nicht“ ist eine gültige und nützliche Antwort.</p>"
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  document.getElementById("d-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      meldung(karte, "Da fehlt noch eine Antwort. Wenn du nicht weiterweißt, ist „Weiß ich nicht“ genau richtig.");
+      return;
+    }
+    dia.treffer[eintrag.id].push(e.ok ? "richtig" : "falsch");
+    dia.index++;
+    diagnoseSchritt();
+  };
+  document.getElementById("d-nix").onclick = function(){
+    dia.treffer[eintrag.id].push("weissnicht");
+    dia.index++;
+    diagnoseSchritt();
+  };
+}
+
+function meldung(karte, text){
+  var alt = karte.querySelector(".echo");
+  if (alt) alt.remove();
+  karte.appendChild(el("div", { class: "echo", html: "<p>" + text + "</p>" }));
+}
+
+function diagnoseAuswerten(){
+  THEMEN.forEach(function(t){
+    var r = dia.treffer[t.id] || [];
+    var richtig = r.filter(function(x){ return x === "richtig"; }).length;
+    var neu = richtig >= 2 ? "sicher" : (richtig === 1 ? "wackelig" : "offen");
+    /* Ein bereits bestandener Re-Test wiegt schwerer als eine Momentaufnahme:
+       Wer ein Thema abgeschlossen hat, verliert das nicht durch einen
+       verrutschten Diagnoseklick. */
+    if (!(stand.themen[t.id].stand === "sicher" && stand.themen[t.id].runden > 0))
+      stand.themen[t.id].stand = neu;
+  });
+  stand.diagnose = { wann: new Date().toISOString().slice(0,10) };
+  sichern();
+
+  var offen = THEMEN.filter(function(t){ return stand.themen[t.id].stand !== "sicher"; });
+  var sicher = THEMEN.length - offen.length;
+  var text;
+  if (sicher === THEMEN.length)
+    text = "Alle neun Themen sitzen bereits. Dann ist der Klausur-Check unten dein nächster Schritt — "
+         + "gemischte Aufgaben, wie in der Klausur, ohne Ankündigung, welches Thema kommt.";
+  else if (sicher >= 6)
+    text = "Der größte Teil steht. Es bleiben " + offen.length + " Themen — das ist in ein paar Sitzungen zu schaffen.";
+  else if (sicher >= 3)
+    text = "Eine solide Grundlage und " + offen.length + " Baustellen. Genau dafür ist noch Zeit.";
+  else
+    text = "Das sieht nach viel aus — ist es aber nicht. Die Themen bauen aufeinander auf: Wenn die ersten beiden sitzen, "
+         + "fallen mehrere der späteren fast von allein.";
+
+  zeige(
+    '<div class="karte">'
+    + '<span class="pille pille-teal">Diagnose ausgewertet</span>'
+    + "<h2 style=\"margin-top:.6rem\">Das ist deine Landkarte</h2>"
+    + '<p class="lead">' + text + "</p>"
+    + '<div class="hinweis hinweis-gold"><strong>Wichtig:</strong> Das hier ist keine Note und kein Urteil. '
+    + "Es ist eine Karte, die dir sagt, wo deine Zeit gerade am meisten bringt. Rot heißt nicht „kann ich nicht“, "
+    + "sondern „hier hole ich am schnellsten Punkte“.</div>"
+    + '<div class="reihe"><button class="knopf knopf-haupt knopf-gross" id="d-karte" type="button">Zur Übersicht</button></div>'
+    + "</div>"
+  );
+  document.getElementById("d-karte").onclick = zeigeKarte;
+}
+
+/* --- Landkarte ----------------------------------------------------------- */
+var STAND_TEXT = {
+  sicher:    { zeichen: "✓", wort: "sitzt" },
+  wackelig:  { zeichen: "~", wort: "wackelt noch" },
+  offen:     { zeichen: "!", wort: "offen" },
+  unbekannt: { zeichen: "?", wort: "noch nicht geprüft" }
+};
+
+function zeigeKarte(){
+  var dranId = null;
+  for (var i = 0; i < THEMEN.length; i++){
+    if (stand.themen[THEMEN[i].id].stand !== "sicher"){ dranId = THEMEN[i].id; break; }
+  }
+  function zeile(t){
+    var s = stand.themen[t.id];
+    var info = STAND_TEXT[s.stand];
+    return '<button class="thema-zeile" type="button" data-thema="' + t.id + '" data-stand="' + s.stand + '"'
+      + (t.id === dranId ? ' data-dran="ja"' : "") + ">"
+      + '<span class="ampel" aria-hidden="true">' + info.zeichen + "</span>"
+      + '<span class="mitte"><span class="name">' + esc(t.name) + "</span>"
+      + '<span class="unter">' + esc(t.unter) + " · " + info.wort
+      + (t.id === dranId ? " · <strong>hier weiter</strong>" : "") + "</span></span>"
+      + '<span class="pfeil" aria-hidden="true">›</span></button>';
+  }
+  var werkzeug = THEMEN.filter(function(t){ return t.gruppe === "werkzeug"; });
+  var klausur  = THEMEN.filter(function(t){ return t.gruppe === "klausur"; });
+  var alleSicher = zahlSicher() === THEMEN.length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between; align-items:baseline">'
+    + "<h2>Deine Themen</h2><span class=\"leise\">" + esc(countdownText()) + "</span></div>"
+    + '<p class="lead" style="margin-bottom:.4rem">' + zahlSicher() + " von " + THEMEN.length + " Themen sitzen. "
+    + (dranId ? "Vorgeschlagen ist das erste noch offene Thema — du kannst aber jedes anklicken."
+              : "Alles grün. Jetzt lohnt sich der gemischte Klausur-Check.") + "</p>"
+    + '<div class="gruppe-titel">Werkzeuge — Grundlage für alles Weitere</div>'
+    + werkzeug.map(zeile).join("")
+    + '<div class="gruppe-titel">Klausur-Schwerpunkte — Kapitel 1</div>'
+    + klausur.map(zeile).join("")
+    + "</div>"
+    + '<div class="karte">'
+    + "<h3>Klausur-Check</h3>"
+    + "<p>Zwölf gemischte Aufgaben quer durch alle Themen — ohne Ankündigung, welches Thema gerade dran ist. "
+    + "Genau das ist in der Klausur der eigentliche Unterschied: Du musst nicht nur rechnen können, sondern auch erkennen, <em>was</em> gefragt ist.</p>"
+    + (alleSicher ? "" : '<p class="leise">Du kannst ihn jederzeit machen. Am meisten bringt er, wenn die Themen oben grün sind.</p>')
+    + '<div class="reihe"><button class="knopf' + (alleSicher ? " knopf-haupt" : "") + '" id="k-check" type="button">Klausur-Check starten</button></div>'
+    + (stand.check ? '<p class="leise" style="margin-top:.7rem">Letztes Ergebnis: ' + stand.check.richtig + " von " + stand.check.gesamt + " richtig.</p>" : "")
+    + "</div>"
+  );
+  [].slice.call(buehne.querySelectorAll(".thema-zeile")).forEach(function(k){
+    k.onclick = function(){ themaOeffnen(k.getAttribute("data-thema")); };
+  });
+  document.getElementById("k-check").onclick = checkStarten;
+}
+
+/* --- Ein Thema durcharbeiten --------------------------------------------- */
+var sitzung = null;
+var PHASEN = ["Ankommen","Erklärung","Üben","Re-Test","Geschafft"];
+
+function phasenleiste(jetzt){
+  return '<div class="phasen">' + PHASEN.map(function(p, i){
+    return '<span class="phase"' + (i === jetzt ? ' data-jetzt="ja"' : (i < jetzt ? ' data-fertig="ja"' : "")) + ">" + esc(p) + "</span>";
+  }).join("") + "</div>";
+}
+
+function themaOeffnen(id){
+  sitzung = { id: id, runde: 0, index: 0, ergebnisse: [], versuch: 0 };
+  zeigeAnkommen();
+}
+
+function zeigeAnkommen(){
+  var t = themaMit(sitzung.id);
+  var s = stand.themen[t.id];
+  var gruss;
+  if (s.stand === "sicher")
+    gruss = "Dieses Thema hast du schon bestanden. Eine Auffrischung schadet trotzdem nie — besonders kurz vor der Klausur.";
+  else if (s.stand === "wackelig")
+    gruss = "In der Diagnose war eine von zwei Aufgaben richtig. Das heißt: Der Gedanke ist da, es fehlt die Sicherheit. Das ist die schnellste Sorte Baustelle.";
+  else if (s.stand === "offen")
+    gruss = "In der Diagnose hat das hier noch nicht geklappt. Kein Grund zur Sorge — dafür ist das Programm da. Wir gehen es von vorn an, in Ruhe und mit vollständiger Rechnung.";
+  else
+    gruss = "Dieses Thema ist noch nicht geprüft. Wir fangen einfach vorn an.";
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(0)
+    + '<span class="pille' + (t.gruppe === "werkzeug" ? "" : " pille-teal") + '">'
+    + (t.gruppe === "werkzeug" ? "Werkzeug" : "Klausur-Schwerpunkt") + "</span>"
+    + '<h2 style="margin-top:.6rem">' + esc(t.name) + "</h2>"
+    + '<p class="leise">' + esc(t.unter) + (t.buch ? " · " + esc(t.buch) : "") + "</p>"
+    + '<div class="hinweis hinweis-gold" style="margin-top:1rem">' + gruss + "</div>"
+    + "<h3 style=\"margin-top:1.2rem\">Warum das zählt</h3>"
+    + "<p>" + t.warum + "</p>"
+    + "<h3>Was du danach kannst</h3>"
+    + '<ul style="margin:.4rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
+    + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="t-los" type="button">Los geht\'s</button>'
+    + (s.stand === "sicher" ? '<button class="knopf" id="t-direkt" type="button">Direkt zum Re-Test</button>' : "")
+    + '<button class="knopf knopf-still" id="t-zurueck" type="button">Zurück zur Übersicht</button>'
+    + "</div></div>"
+  );
+  document.getElementById("t-los").onclick = zeigeErklaerung;
+  var d = document.getElementById("t-direkt");
+  if (d) d.onclick = function(){ sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest(); };
+  document.getElementById("t-zurueck").onclick = zeigeKarte;
+}
+
+/* Die Erklärung: ein vollständig durchgerechnetes Beispiel, Schritt für
+   Schritt aufdeckbar. Wer alles auf einmal sieht, liest es nicht. */
+function zeigeErklaerung(){
+  var t = themaMit(sitzung.id);
+  var macher = t.gen[sitzung.runde % t.gen.length];
+  var auf = macher();
+  sitzung.beispiel = auf;
+  sitzung.gezeigt = 0;
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(1)
+    + '<h2>' + esc(t.name) + "</h2>"
+    + '<div class="hinweis"><strong>Das Wichtigste in einem Satz:</strong> ' + t.merksatz + "</div>"
+    + '<div class="hinweis hinweis-rot"><strong>Typischer Stolperstein:</strong> ' + t.stolperstein + "</div>"
+    + "<h3 style=\"margin-top:1.2rem\">Ein Beispiel, ganz durchgerechnet</h3>"
+    + aufgabeHtml(auf)
+    + '<div id="erk-schritte"></div>'
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="e-mehr" type="button">Ersten Schritt zeigen</button>'
+    + '<button class="knopf knopf-still" id="e-alles" type="button">Alle Schritte auf einmal</button>'
+    + "</div>"
+    + '<div class="reihe" style="margin-top:.6rem" id="e-weiter-reihe" hidden>'
+    + '<button class="knopf knopf-haupt knopf-gross" id="e-weiter" type="button">Verstanden — jetzt selbst</button>'
+    + "</div></div>"
+  );
+
+  var ziel = document.getElementById("erk-schritte");
+  function nachlegen(){
+    var sch = auf.schritte[sitzung.gezeigt];
+    ziel.insertAdjacentHTML("beforeend",
+      '<ol class="schritte" style="margin-top:0"><li class="schritt"><span class="nr">' + (sitzung.gezeigt+1) + "</span>"
+      + '<span class="was">' + sch.was + '</span><span class="rechnung">' + sch.r + "</span></li></ol>");
+    sitzung.gezeigt++;
+    if (sitzung.gezeigt >= auf.schritte.length) fertig();
+    else document.getElementById("e-mehr").textContent = "Nächster Schritt (" + (sitzung.gezeigt+1) + " von " + auf.schritte.length + ")";
+  }
+  function fertig(){
+    document.getElementById("e-mehr").hidden = true;
+    document.getElementById("e-alles").hidden = true;
+    if (auf.bildNachher) ziel.insertAdjacentHTML("beforeend", auf.bildNachher());
+    ziel.insertAdjacentHTML("beforeend", '<div class="echo gut"><p><strong>Ergebnis:</strong> ' + auf.antwort + "</p></div>");
+    document.getElementById("e-weiter-reihe").hidden = false;
+  }
+  document.getElementById("e-mehr").onclick = nachlegen;
+  document.getElementById("e-alles").onclick = function(){
+    while (sitzung.gezeigt < auf.schritte.length) nachlegen();
+  };
+  document.getElementById("e-weiter").onclick = function(){
+    sitzung.index = 0; sitzung.ergebnisse = []; sitzung.versuch = 0;
+    zeigeUeben();
+  };
+}
+
+/* Üben: drei Aufgaben, mit Hinweis beim ersten und voller Rechnung beim
+   zweiten Fehlversuch. Fehler kosten hier nichts. */
+var UEBEN_ANZAHL = 3;
+
+function zeigeUeben(){
+  var t = themaMit(sitzung.id);
+  if (sitzung.index >= UEBEN_ANZAHL) return zeigeUebergang();
+  var auf = waehle(t.gen)();
+  sitzung.versuch = 0;
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(2)
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille">Üben · Aufgabe ' + (sitzung.index+1) + " von " + UEBEN_ANZAHL + "</span>"
+    + '<span class="leise">' + esc(t.name) + "</span></div>"
+    + '<div style="margin-top:.7rem">' + aufgabeHtml(auf) + "</div>"
+    + eingabeHtml(auf, "u" + sitzung.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="u-ok" type="button">Prüfen</button>'
+    + '<button class="knopf knopf-still" id="u-hilf" type="button">Ich komme nicht weiter</button>'
+    + "</div>"
+    + '<div id="u-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  var echo = document.getElementById("u-echo");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  function loesungZeigen(vorspann, art){
+    markierenWennMoeglich();
+    echo.innerHTML = '<div class="echo ' + art + '">'
+      + '<div class="kopfzeile"><span class="zeichen">→</span>' + vorspann + "</div>"
+      + schritteHtml(auf)
+      + "<p style=\"margin-top:.7rem\"><strong>Antwort:</strong> " + auf.antwort + "</p></div>"
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-next" type="button">'
+      + (sitzung.index + 1 >= UEBEN_ANZAHL ? "Weiter zum Re-Test" : "Nächste Aufgabe") + "</button></div>";
+    document.getElementById("u-ok").disabled = true;
+    document.getElementById("u-hilf").hidden = true;
+    document.getElementById("u-next").onclick = function(){ sitzung.index++; zeigeUeben(); };
+    document.getElementById("u-next").focus();
+  }
+  function markierenWennMoeglich(){
+    var e = pruefen(auf, karte);
+    if (e) markieren(auf, karte, e);
+    else if (auf.eingabe.art === "wahl"){
+      [].slice.call(karte.querySelectorAll(".wahl")).forEach(function(k, i){
+        k.disabled = true;
+        if (i === auf.eingabe.richtig) k.setAttribute("data-stand","richtig");
+      });
+    }
+  }
+
+  document.getElementById("u-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      echo.innerHTML = '<div class="echo"><p>Da fehlt noch eine Antwort — oder eine Eingabe ist keine Zahl. '
+        + "Erlaubt sind zum Beispiel <code>2</code>, <code>" + MINUS + "3,5</code> oder <code>3/4</code>.</p></div>";
+      return;
+    }
+    sitzung.versuch++;
+    if (e.ok){
+      markieren(auf, karte, e);
+      echo.innerHTML = '<div class="echo gut"><div class="kopfzeile"><span class="zeichen">✓</span>' + waehle(LOB) + "</div>"
+        + "<p>" + auf.antwort + "</p>"
+        + '<p style="margin-top:.5rem"><button class="knopf knopf-still" id="u-weg" type="button">Rechenweg trotzdem ansehen</button></p></div>'
+        + '<div id="u-weg-ziel"></div>'
+        + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-next" type="button">'
+        + (sitzung.index + 1 >= UEBEN_ANZAHL ? "Weiter zum Re-Test" : "Nächste Aufgabe") + "</button></div>";
+      document.getElementById("u-ok").disabled = true;
+      document.getElementById("u-hilf").hidden = true;
+      document.getElementById("u-weg").onclick = function(){
+        document.getElementById("u-weg-ziel").innerHTML = schritteHtml(auf);
+        document.getElementById("u-weg").hidden = true;
+      };
+      document.getElementById("u-next").onclick = function(){ sitzung.index++; zeigeUeben(); };
+      document.getElementById("u-next").focus();
+      return;
+    }
+    if (sitzung.versuch === 1){
+      markieren(auf, karte, e);
+      echo.innerHTML = '<div class="echo fast"><div class="kopfzeile"><span class="zeichen">~</span>' + waehle(MUT) + "</div>"
+        + "<p><strong>Hinweis:</strong> " + auf.hinweis + "</p></div>"
+        + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-retry" type="button">Noch einmal versuchen</button></div>';
+      document.getElementById("u-retry").onclick = function(){
+        entsperren(karte);
+        echo.innerHTML = "";
+        var f = karte.querySelector("input[data-feld]");
+        if (f) f.focus();
+      };
+      return;
+    }
+    loesungZeigen(waehle(ZWEITER), "nein");
+  };
+  document.getElementById("u-hilf").onclick = function(){
+    loesungZeigen("Kein Problem — hier ist der ganze Weg.", "");
+  };
+}
+
+/* Zwischenstopp vor dem Re-Test: kurz Luft holen, klar sagen, was kommt. */
+function zeigeUebergang(){
+  var t = themaMit(sitzung.id);
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + "<h2>Jetzt der Re-Test</h2>"
+    + '<p class="lead">Vier Aufgaben zu <strong>' + esc(t.name) + "</strong> — neue Zahlen, kein Hinweis, ein Versuch pro Aufgabe. "
+    + "Drei richtige genügen, damit das Thema als sicher gilt.</p>"
+    + '<div class="hinweis"><strong>Warum ohne Hilfe?</strong> Weil in der Klausur auch niemand danebensteht. '
+    + "Und weil du erst dann weißt, dass du es kannst, wenn du es einmal allein geschafft hast. "
+    + "Geht es schief, ist nichts verloren — dann erkläre ich es dir noch einmal anders.</div>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="r-los" type="button">Re-Test starten</button>'
+    + '<button class="knopf knopf-still" id="r-mehr" type="button">Lieber noch etwas üben</button>'
+    + "</div></div>"
+  );
+  document.getElementById("r-los").onclick = function(){
+    sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest();
+  };
+  document.getElementById("r-mehr").onclick = function(){
+    sitzung.index = 0; zeigeUeben();
+  };
+}
+
+var TEST_ANZAHL = 4, TEST_NOETIG = 3;
+
+function zeigeRetest(){
+  var t = themaMit(sitzung.id);
+  if (sitzung.index >= TEST_ANZAHL) return retestAuswerten();
+  var auf = waehle(t.gen)();
+
+  var punkte = "";
+  for (var i = 0; i < TEST_ANZAHL; i++){
+    var s = sitzung.ergebnisse[i];
+    punkte += '<span class="punkt"' + (s === undefined ? "" : ' data-stand="' + (s ? "richtig" : "falsch") + '"') + "></span>";
+  }
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille pille-teal">Re-Test · ' + (sitzung.index+1) + " von " + TEST_ANZAHL + "</span>"
+    + '<span class="punkte" aria-label="bisherige Ergebnisse">' + punkte + "</span></div>"
+    + '<div style="margin-top:.7rem">' + aufgabeHtml(auf) + "</div>"
+    + eingabeHtml(auf, "r" + sitzung.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="rt-ok" type="button">Antwort abschicken</button></div>'
+    + '<div id="rt-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  document.getElementById("rt-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      document.getElementById("rt-echo").innerHTML =
+        '<div class="echo"><p>Bitte trage in jedes Feld eine Zahl ein — oder wähle eine Antwort aus.</p></div>';
+      return;
+    }
+    markieren(auf, karte, e);
+    sitzung.ergebnisse.push(e.ok);
+    document.getElementById("rt-ok").disabled = true;
+    document.getElementById("rt-echo").innerHTML =
+      '<div class="echo ' + (e.ok ? "gut" : "nein") + '">'
+      + '<div class="kopfzeile"><span class="zeichen">' + (e.ok ? "✓" : "✗") + "</span>"
+      + (e.ok ? waehle(LOB) : "Diese nicht.") + "</div>"
+      + "<p>" + auf.antwort + "</p>"
+      + '<p style="margin-top:.5rem"><button class="knopf knopf-still" id="rt-weg" type="button">Rechenweg ansehen</button></p></div>'
+      + '<div id="rt-weg-ziel"></div>'
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="rt-next" type="button">'
+      + (sitzung.index + 1 >= TEST_ANZAHL ? "Auswertung" : "Nächste Aufgabe") + "</button></div>";
+    document.getElementById("rt-weg").onclick = function(){
+      document.getElementById("rt-weg-ziel").innerHTML = schritteHtml(auf);
+      document.getElementById("rt-weg").hidden = true;
+    };
+    document.getElementById("rt-next").onclick = function(){ sitzung.index++; zeigeRetest(); };
+    document.getElementById("rt-next").focus();
+  };
+}
+
+function retestAuswerten(){
+  var t = themaMit(sitzung.id);
+  var richtig = sitzung.ergebnisse.filter(Boolean).length;
+  var bestanden = richtig >= TEST_NOETIG;
+  var s = stand.themen[t.id];
+  s.runden++;
+  s.letzte = { richtig: richtig, gesamt: TEST_ANZAHL };
+  if (bestanden) s.stand = "sicher";
+  else if (richtig >= 1 && s.stand === "offen") s.stand = "wackelig";
+  sichern();
+
+  if (bestanden){
+    var naechste = null;
+    for (var i = 0; i < THEMEN.length; i++){
+      if (stand.themen[THEMEN[i].id].stand !== "sicher"){ naechste = THEMEN[i]; break; }
+    }
+    var schluss = naechste
+      ? "Als Nächstes steht <strong>" + esc(naechste.name) + "</strong> an."
+      : "Damit sind alle neun Themen grün. Der gemischte Klausur-Check ist jetzt der beste nächste Schritt.";
+    zeige(
+      '<div class="karte">'
+      + phasenleiste(4)
+      + '<span class="pille pille-gruen">' + richtig + " von " + TEST_ANZAHL + " richtig</span>"
+      + "<h2 style=\"margin-top:.6rem\">" + esc(t.name) + " sitzt.</h2>"
+      + '<p class="lead">' + (richtig === TEST_ANZAHL
+          ? "Vier von vier — ohne Hinweise, mit neuen Zahlen. Das ist kein Zufall mehr, das ist Können."
+          : "Drei von vier ohne Hilfe: Das reicht. Der eine Ausrutscher ist normal und kein Grund, hier länger zu bleiben.") + "</p>"
+      + '<div class="hinweis hinweis-gruen"><strong>Du kannst jetzt:</strong><ul style="margin:.4rem 0 0 1.1rem; padding:0">'
+      + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul></div>"
+      + '<p class="leise">Ein Tipp aus Erfahrung: Komm in ein paar Tagen noch einmal her und mach nur den Re-Test. '
+      + "Was man zweimal mit Abstand kann, kann man in der Klausur auch.</p>"
+      + "<p>" + schluss + "</p>"
+      + '<div class="reihe">'
+      + (naechste ? '<button class="knopf knopf-haupt knopf-gross" id="g-next" type="button">Weiter mit ' + esc(naechste.name) + "</button>" : "")
+      + '<button class="knopf" id="g-karte" type="button">Zur Übersicht</button>'
+      + "</div></div>"
+    );
+    var n = document.getElementById("g-next");
+    if (n) n.onclick = function(){ themaOeffnen(naechste.id); };
+    document.getElementById("g-karte").onclick = zeigeKarte;
+    return;
+  }
+
+  /* Nicht bestanden: kein Tadel, sondern ein zweiter Anlauf mit einem
+     anderen Beispiel. Der Weg zurück ist immer derselbe wie beim ersten Mal. */
+  sitzung.runde++;
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + '<span class="pille pille-gold">' + richtig + " von " + TEST_ANZAHL + " richtig</span>"
+    + "<h2 style=\"margin-top:.6rem\">Noch nicht — und das ist in Ordnung.</h2>"
+    + '<p class="lead">' + (richtig === 2
+        ? "Zwei von vier: Die Hälfte stimmt schon. Meistens fehlt genau ein Schritt, und den finden wir jetzt."
+        : (richtig === 1
+          ? "Eine richtige Antwort ist mehr als keine — aber es fehlt noch etwas Grundsätzliches. Gehen wir es anders an."
+          : "Diesmal hat keine gepasst. Das heißt nicht, dass du es nicht kannst; es heißt, dass die Erklärung noch nicht bei dir angekommen ist. Also nehmen wir eine andere.")) + "</p>"
+    + '<div class="hinweis"><strong>So geht es weiter:</strong> ein neues Beispiel, vollständig durchgerechnet, '
+    + "danach wieder drei Übungsaufgaben mit Hinweisen — und dann ein frischer Re-Test. "
+    + "Es gibt keine Begrenzung, wie oft du das machen darfst.</div>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="w-erk" type="button">Neues Beispiel ansehen</button>'
+    + '<button class="knopf knopf-still" id="w-karte" type="button">Später weitermachen</button>'
+    + "</div></div>"
+  );
+  document.getElementById("w-erk").onclick = zeigeErklaerung;
+  document.getElementById("w-karte").onclick = zeigeKarte;
+}
+
+/* --- Klausur-Check: gemischt, wie in der Klausur -------------------------- */
+var check = null;
+var CHECK_ANZAHL = 12;
+
+function checkStarten(){
+  /* Gemischt, aber mit Schwerpunkt auf den Klausurthemen: jedes Thema
+     mindestens einmal, die restlichen Plätze an die Kapitel-1-Themen. */
+  var plan = THEMEN.map(function(t){ return t.id; });
+  var klausurThemen = THEMEN.filter(function(t){ return t.gruppe === "klausur"; }).map(function(t){ return t.id; });
+  while (plan.length < CHECK_ANZAHL) plan.push(waehle(klausurThemen));
+  check = { plan: mische(plan), index: 0, ergebnisse: [] };
+  checkSchritt();
+}
+
+function checkSchritt(){
+  if (check.index >= check.plan.length) return checkAuswerten();
+  var t = themaMit(check.plan[check.index]);
+  var auf = waehle(t.gen)();
+  var richtigBisher = check.ergebnisse.filter(function(e){ return e.ok; }).length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille pille-teal">Klausur-Check · ' + (check.index+1) + " von " + CHECK_ANZAHL + "</span>"
+    + '<span class="leise">' + richtigBisher + " richtig</span></div>"
+    + '<p class="leise" style="margin:.7rem 0 0">Welches Thema? Das musst du hier selbst erkennen.</p>'
+    + aufgabeHtml(auf)
+    + eingabeHtml(auf, "c" + check.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="c-ok" type="button">Antwort abschicken</button>'
+    + '<button class="knopf knopf-still" id="c-skip" type="button">Überspringen</button></div>'
+    + '<div id="c-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  function weiter(ok){
+    check.ergebnisse.push({ id: t.id, ok: ok });
+    check.index++;
+    checkSchritt();
+  }
+  document.getElementById("c-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      document.getElementById("c-echo").innerHTML = '<div class="echo"><p>Bitte fülle alle Felder aus oder überspringe die Aufgabe.</p></div>';
+      return;
+    }
+    markieren(auf, karte, e);
+    document.getElementById("c-ok").disabled = true;
+    document.getElementById("c-skip").hidden = true;
+    document.getElementById("c-echo").innerHTML =
+      '<div class="echo ' + (e.ok ? "gut" : "nein") + '"><div class="kopfzeile"><span class="zeichen">'
+      + (e.ok ? "✓" : "✗") + "</span>" + (e.ok ? waehle(LOB) : esc(t.name) + " — schau gleich noch einmal hin.") + "</div>"
+      + "<p>" + auf.antwort + "</p></div>"
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="c-next" type="button">Weiter</button></div>';
+    document.getElementById("c-next").onclick = function(){ weiter(e.ok); };
+    document.getElementById("c-next").focus();
+  };
+  document.getElementById("c-skip").onclick = function(){ weiter(false); };
+}
+
+function checkAuswerten(){
+  var proThema = {};
+  check.ergebnisse.forEach(function(e){
+    if (!proThema[e.id]) proThema[e.id] = { richtig: 0, gesamt: 0 };
+    proThema[e.id].gesamt++;
+    if (e.ok) proThema[e.id].richtig++;
+  });
+  var richtig = check.ergebnisse.filter(function(e){ return e.ok; }).length;
+  stand.check = { richtig: richtig, gesamt: CHECK_ANZAHL, wann: new Date().toISOString().slice(0,10) };
+  /* Ein Thema, das im gemischten Test durchfällt, war nur im Zusammenhang
+     sicher. Es rutscht auf „wackelig“ — mit Absicht: Das ist die ehrlichere
+     Auskunft, und der Weg dorthin zurück ist kurz. */
+  Object.keys(proThema).forEach(function(id){
+    if (proThema[id].richtig === 0 && stand.themen[id].stand === "sicher")
+      stand.themen[id].stand = "wackelig";
+  });
+  sichern();
+
+  var urteil;
+  if (richtig >= 11) urteil = "Das ist Klausurniveau. Mehr als eine Wiederholung in ein paar Tagen braucht es nicht.";
+  else if (richtig >= 9) urteil = "Ein gutes Ergebnis. Sieh dir die zwei, drei Wackler unten an — der Rest sitzt.";
+  else if (richtig >= 6) urteil = "Die Hälfte und mehr steht. Nimm dir gezielt die Themen vor, die unten rot sind, statt alles noch einmal zu machen.";
+  else urteil = "Das war noch schwer. Wichtig: Nicht alles gleichzeitig. Nimm dir das erste rote Thema von oben vor und arbeite es fertig — das trägt die anderen mit.";
+
+  var zeilen = Object.keys(proThema).map(function(id){
+    var t = themaMit(id), p = proThema[id];
+    var farbe = p.richtig === p.gesamt ? "pille-gruen" : (p.richtig === 0 ? "pille-rot" : "pille-gold");
+    return '<tr><td style="text-align:left">' + esc(t.name) + '</td><td><span class="pille ' + farbe + '">'
+      + p.richtig + "/" + p.gesamt + "</span></td></tr>";
+  }).join("");
+
+  zeige(
+    '<div class="karte">'
+    + '<span class="pille pille-teal">Klausur-Check</span>'
+    + "<h2 style=\"margin-top:.6rem\">" + richtig + " von " + CHECK_ANZAHL + " richtig</h2>"
+    + '<p class="lead">' + urteil + "</p>"
+    + '<table class="werte"><tr><th style="text-align:left">Thema</th><th>Ergebnis</th></tr>' + zeilen + "</table>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt" id="c-karte" type="button">Zur Übersicht</button>'
+    + '<button class="knopf" id="c-nochmal" type="button">Noch einen Durchgang</button>'
+    + "</div></div>"
+  );
+  document.getElementById("c-karte").onclick = zeigeKarte;
+  document.getElementById("c-nochmal").onclick = checkStarten;
+}
+
+/* ==========================================================================
+   9 — Bedienung außen herum
+   ========================================================================== */
+document.getElementById("knopf-karte").onclick = function(){
+  if (stand.diagnose === null && zahlSicher() === 0) zeigeStart(); else zeigeKarte();
+};
+document.getElementById("knopf-thema").onclick = function(){
+  var dunkel = document.documentElement.getAttribute("data-thema") === "dunkel";
+  document.documentElement.setAttribute("data-thema", dunkel ? "hell" : "dunkel");
+  document.getElementById("knopf-thema").textContent = dunkel ? "☾" : "☀";
+  try { localStorage.setItem("mu-11a-thema", dunkel ? "hell" : "dunkel"); } catch (e) {}
+};
+document.getElementById("knopf-reset").onclick = function(){
+  if (!window.confirm("Wirklich alles zurücksetzen? Dein Fortschritt auf diesem Gerät geht dabei verloren.")) return;
+  stand = leererStand();
+  sichern();
+  zeigeStart();
+};
+
+/* Enter schickt ab — auf dem iPad spart das den Griff zum Knopf. */
+document.addEventListener("keydown", function(e){
+  if (e.key !== "Enter" || e.shiftKey || e.ctrlKey || e.metaKey) return;
+  var ziel = e.target;
+  if (ziel && ziel.tagName === "BUTTON") return;
+  var knopf = buehne.querySelector(".knopf-haupt:not([disabled])");
+  if (knopf){ e.preventDefault(); knopf.click(); }
+});
+
+/* Beim Öffnen: gespeicherte Darstellung, dann die passende Ansicht. */
+(function start(){
+  var t = null;
+  try { t = localStorage.getItem("mu-11a-thema"); } catch (e) {}
+  if (t !== "hell" && t !== "dunkel"){
+    var dunkel = false;
+    try { dunkel = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) {}
+    t = dunkel ? "dunkel" : "hell";
+  }
+  document.documentElement.setAttribute("data-thema", t);
+  document.getElementById("knopf-thema").textContent = t === "dunkel" ? "☀" : "☾";
+  document.getElementById("kopf-unter").textContent = countdownText();
+  zeigeStart();
+})();
+</script>
+
+</body>
+</html>
