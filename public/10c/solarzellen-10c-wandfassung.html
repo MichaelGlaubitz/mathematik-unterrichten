@@ -103,6 +103,20 @@
      zwanzig ueberwiegend weisse Seiten (10b, 03.09.2026) - eine Folie
      der Wand fuellt auf Papier selten mehr als ein Drittel. */
   .protokollkopf,.protokolltitel{display:none}
+  /* Rueckmeldung des Protokoll-Dienstes. Unten links, weil dort waehrend
+     einer Abfrage nichts steht; gross genug, um sie vom Pult aus zu lesen,
+     klein genug, um die Klasse nicht zu beschaeftigen. Sie geht von allein
+     wieder weg und wird nie gedruckt. */
+  .protokollmeldung{position:fixed;left:18px;bottom:18px;z-index:60;max-width:46vw;
+    background:#0f172a;color:#f8fafc;border-radius:12px;padding:.7em 1em;
+    font-size:17px;font-weight:600;line-height:1.45;
+    box-shadow:0 10px 30px rgba(15,23,42,.35);
+    opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;
+    pointer-events:none}
+  .protokollmeldung.an{opacity:1;transform:none}
+  .protokollmeldung[data-art="fehler"]{background:#7f1d1d}
+  body.protokoll .protokollmeldung,html.pause .protokollmeldung{display:none}
+  @media print{.protokollmeldung{display:none!important}}
   @media print{
     /* Der SEITLICHE Rand steckt im Inhalt, nicht in der @page-Regel. Steht
        der Druckdialog auf „Raender: Keine" - und er merkt sich das -, faellt
@@ -418,6 +432,11 @@
     align-items:center;justify-content:center;font-size:.95em}
   /* Die Markierung der richtigen Antwort ist ein eigenes .frag-Element:
      Sie legt sich als gruener Rahmen ueber die Karte, sobald aufgeloest wird. */
+  /* Zurueckgehalten: die richtige Karte ist vermerkt, wird aber nicht
+     gezeigt (plickers(aufloesen=False), Rahmenfrage). Auch im Ausdruck
+     nicht - ein Protokoll, das die Antwort verraet, waere fuer die
+     naechste Runde derselben Frage wertlos. */
+  .opt .haken.spaeter{display:none !important}
   .haken{position:absolute;inset:-3px;z-index:2;
     border:3px solid var(--green);border-radius:17px;
     /* Nur ein Hauch Farbe: Der Rahmen liegt UEBER dem Text, damit das
@@ -1749,14 +1768,95 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
     };
     const knopf = document.querySelector('.regie .protokoll');
     if(!knopf) return;
-    knopf.addEventListener('click', e => {
-      e.stopPropagation();
+
+    /* --- Der kurze Weg: der Protokoll-Dienst -------------------------
+       Laeuft Werkzeuge/protokoll_dienst.mjs auf 8131, bekommt er den
+       fertig umgestellten HTML und macht daraus in einem Zug ein PDF,
+       legt es in den Stundenordner und bereitet den Mailentwurf an die
+       Lerngruppe vor. Kein Druckdialog, kein „Als PDF speichern", kein
+       spaeteres Einsortieren von Hand.
+
+       Laeuft er nicht, bleibt alles beim Alten: Druckdialog. Das ist
+       kein Notbehelf, sondern der Weg, der ueberall funktioniert - auf
+       einem fremden Rechner, im Vertretungsfall, an der Wand in einem
+       anderen Raum.
+
+       Gefragt wird erst beim Klick, nicht beim Laden: Ein Dienst, der um
+       09:40 nicht lief, kann um 11:05 laufen. */
+    const DIENST = 'http://127.0.0.1:8131';
+
+    function sagen(text, art){
+      let b = document.querySelector('.protokollmeldung');
+      if(!b){
+        b = document.createElement('div');
+        b.className = 'protokollmeldung';
+        document.body.appendChild(b);
+      }
+      b.textContent = text;
+      b.dataset.art = art || '';
+      b.classList.add('an');
+      clearTimeout(b._weg);
+      b._weg = setTimeout(() => b.classList.remove('an'), art === 'fehler' ? 12000 : 7000);
+    }
+
+    async function ueberDienst(){
+      let da = false;
+      try {
+        const a = await fetch(DIENST + '/status', { cache:'no-store' });
+        da = a.ok && (await a.json()).ok;
+      } catch(e){}
+      if(!da) return false;
+
+      window.protokollVorbereiten();
+      const titel = document.title.replace(/^Protokoll /, '')
+                                  .replace(/ \d{4}-\d{2}-\d{2} \d{2}-\d{2}$/, '');
+      const html = '<!doctype html>' + document.documentElement.outerHTML;
+      window.protokollBeenden();
+
+      sagen('Protokoll wird gesetzt … (' + Math.round(html.length/1024) + ' kB)');
+      try {
+        const a = await fetch(DIENST + '/v1/protokoll', {
+          method:'POST', headers:{ 'content-type':'application/json' },
+          body: JSON.stringify({ titel, html, versand: true }) });
+        const d = await a.json();
+        if(!d.ok) throw new Error(d.fehler || 'unbekannter Fehler');
+        if(d.abgelegt){
+          const kurz = d.abgelegt.split(/[\\/]/).slice(-3).join(' / ');
+          sagen('Protokoll abgelegt: ' + kurz
+                + (d.auftrag ? '  ·  Versandauftrag liegt in Downloads – '
+                             + '„Auftrag ausfuehren.cmd“ öffnet den Entwurf.'
+                             : ''));
+        } else {
+          sagen('Protokoll gesetzt, aber nicht zuzuordnen – es liegt in '
+                + 'Downloads. ' + (d.grund || ''), 'fehler');
+        }
+      } catch(e){
+        sagen('Protokoll-Dienst antwortet nicht: ' + (e.message || e)
+              + ' – nimm den Druckdialog (Knopf noch einmal).', 'fehler');
+      }
+      return true;
+    }
+
+    function ueberDruckdialog(){
       window.protokollVorbereiten();
       const fertig = () => { window.removeEventListener('afterprint', fertig);
                              window.protokollBeenden(); };
       window.addEventListener('afterprint', fertig);
       window.print();
       setTimeout(fertig, 1500);      /* falls afterprint ausbleibt */
+    }
+
+    knopf.addEventListener('click', async e => {
+      e.stopPropagation();
+      /* Umschalttaste erzwingt den alten Weg - fuer den Fall, dass man
+         das PDF wirklich im Dialog haben will. */
+      if(e.shiftKey) return ueberDruckdialog();
+      knopf.disabled = true;
+      try {
+        if(!await ueberDienst()) ueberDruckdialog();
+      } finally {
+        knopf.disabled = false;
+      }
     });
   })();
 
@@ -2105,6 +2205,7 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
         const karten = [...folie.querySelectorAll(".opt")];
         const richtig = karten.findIndex(k => k.classList.contains("istrichtig")
                                           || k.querySelector(".haken"));
+        /* .haken deckt beide Faelle ab, auch den zurueckgehaltenen. */
         if (richtig < 0 && quoteVorgabe == null) return zu();
         let quote, woher = "";
         if (quoteVorgabe != null){
@@ -2284,7 +2385,8 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
         if (k.querySelector(".fuellung")) return;
         /* Die richtige Karte wird hier vermerkt, aber noch nicht gefaerbt
            - das geschieht erst beim Aufloesen (.plickers.gezeigt). */
-        if (k.querySelector(".haken")) k.classList.add("istrichtig");
+        if (k.querySelector(".haken:not(.spaeter)"))
+          k.classList.add("istrichtig");
         const f = document.createElement("i");
         f.className = "fuellung";
         k.insertBefore(f, k.firstChild);
@@ -2603,6 +2705,64 @@ h1,h2,h3,h4,.frage,.kicker,.marke,.zeitschild,.pill,.merk .satz,.antwort .wert,.
         ...u16(dateien.length), ...u16(dateien.length), ...u32(zgroesse), ...u32(versatz), ...u16(0)]);
       return new Blob([...teile, ...zentral, ende], { type:"application/zip" });
     }
+
+    /* --- Beim Weiterschalten von allein sichern ------------------------
+       WOZU: Die Schuelerarbeiten einer Runde liegen im Abstimmungsdienst
+       und werden dort ueberschrieben, sobald derselbe Raum die naechste
+       Runde oeffnet. Wer den Knopf „Alle als ZIP" vergisst - und man
+       vergisst ihn, weil man gerade unterrichtet -, hat die Runde nach
+       der Stunde nicht mehr. Deshalb tut die Wand jetzt beim
+       Weiterschalten von selbst, was sonst der Knopf tut.
+
+       WANN: Genau dann, wenn eine Folie ihr .on verliert und Kacheln
+       traegt. Nicht beim Ankommen auf einer Folie (da ist noch nichts da),
+       nicht beim Aufdecken einer Stufe (das aendert .on nicht).
+
+       NICHT ZWEIMAL: Gemerkt wird eine Unterschrift aus Rundenschluessel,
+       Zahl der Kacheln und der juengsten Bildzeit. Wer zurueckblaettert
+       und wieder vorgeht, bekommt kein zweites ZIP; kommt in der
+       Zwischenzeit ein Bild dazu, schon.
+
+       NICHT WAEHREND DES DRUCKS: Der Protokollknopf blendet Folien um,
+       ohne dass jemand weiterschaltet.
+
+       Der Browser fragt beim zweiten selbsttaetigen Download einmal, ob
+       er „mehrere Dateien" speichern darf. Einmal erlauben, dann ist
+       Ruhe - die Antwort haengt an der Herkunft der Seite. */
+    const gesichert = new Map();
+    function unterschrift(folie){
+      const kacheln = [...folie.querySelectorAll(".kachel")];
+      if (!kacheln.length) return null;
+      let jung = 0;
+      kacheln.forEach(k => {
+        const z = +(k.dataset.geladen || k.dataset.laedt || 0);
+        if (z > jung) jung = z;
+      });
+      return kennung(folie) + "|" + kacheln.length + "|" + jung;
+    }
+    function sichereBeimVerlassen(folie){
+      if (document.body.classList.contains("protokoll")) return;
+      const u = unterschrift(folie);
+      if (!u || gesichert.get(folie) === u) return;
+      gesichert.set(folie, u);
+      /* alleSichern holt jedes Bild einzeln beim Dienst - auch die noch
+         nicht freigegebenen. Das darf dauern; die naechste Folie steht
+         laengst an der Wand. Faellt es um, bleibt die Unterschrift
+         stehen: Ein zweiter Versuch bei jedem Blaettern waere im
+         Unterricht schlimmer als eine fehlende Datei, und der Knopf ist
+         ja noch da. */
+      alleSichern(folie);
+    }
+    new MutationObserver(list => {
+      list.forEach(m => {
+        const s = m.target;
+        if (!s.classList || !s.classList.contains("slide")) return;
+        const war = (m.oldValue || "").split(/\s+/).includes("on");
+        if (war && !s.classList.contains("on")) sichereBeimVerlassen(s);
+      });
+    }).observe(document.getElementById("deck"),
+               { subtree:true, attributes:true, attributeFilter:["class"],
+                 attributeOldValue:true });
 
     /* --- QR bildschirmfuellend ----------------------------------------
        Der kleine Pfeil am Eck-QR legt den Code gross ueber alles, mit
