@@ -1,0 +1,2962 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klassenarbeitstrainer 7b · Zuordnungen</title>
+<meta name="description" content="Übungsprogramm zur 1. Klassenarbeit der 7b: Graphen, proportionale und antiproportionale Zuordnungen — mit Diagnose, Erklärung, Üben und Re-Test.">
+<!--
+  ===========================================================================
+  Klassenarbeitstrainer 7b — Kapitel 1 „Zuordnungen“
+  ---------------------------------------------------------------------------
+  Entstanden auf Wunsch der Klasse nach weiteren Übungen vor der
+  1. Klassenarbeit (Di, 22.09.2026). Gebaut nach dem Muster des
+  Klausurtrainers der 11a — dieselben sechs Schritte:
+
+      Diagnose  ->  Zuspruch  ->  Erklären  ->  Üben  ->  Re-Test  ->  Bestätigung
+
+  INHALT: Die Themen folgen dem Aufbau der Klassenarbeit (Graphen ablesen,
+  Punkte oder Linie, Füllgraphen, Art der Zuordnung, proportional und
+  antiproportional rechnen, Fehler finden, Sachaufgaben, Begründen), dazu
+  Rechnen ohne Taschenrechner. Das Wort „Dreisatz“ kommt bewusst nicht vor:
+  Die Stunde dazu liegt nach der Arbeit.
+
+  ABDICHTUNG: Kein Kontext und keine Aufgabe der Klassenarbeit oder der
+  Probearbeit steht hier. Geprüft wird das vor jeder Veröffentlichung mit
+  Stundenregie/bau-7b/pruefe_katrainer_7b.mjs (Musterlisten aus
+  bau-ka1-7b/modelle_ka1_7b.py und modelle_probe_7b.py).
+
+  WARUM GENERIERTE AUFGABEN: Ein Re-Test muss dieselbe Sache mit anderen
+  Zahlen prüfen. Aus einem festen Pool käme die gemerkte Aufgabe zurück.
+
+  WARUM NICHTS ÜBERTRAGEN WIRD: Der Stand bleibt im Browser des Geräts
+  (localStorage). Kein Server, keine Anmeldung, keine Auswertung.
+  ===========================================================================
+-->
+<style>
+/* --- Farben und Maße: dieselben Marken wie die Werkzeuge der Website ------ */
+:root{
+  --grund:#faf8f2; --flaeche:#ffffff; --flaeche-2:#f3efe6;
+  --linie:#dcd5c5; --linie-stark:#bfb39c;
+  --text:#2a241d; --text-leise:#564938; --text-schwach:#857355;
+  --akzent:#2563eb; --akzent-hell:#dbeafe; --akzent-tief:#1e40af;
+  --teal:#0d9488; --teal-hell:#ccfbf1;
+  --violett:#7c3aed; --violett-hell:#ede9fe;
+  --gold:#b45309; --gold-hell:#fef3c7;
+  --gruen:#15803d; --gruen-hell:#dcfce7;
+  --rot:#be123c; --rot-hell:#ffe4e6;
+  --radius:12px; --radius-klein:8px;
+  --schatten:0 1px 2px rgba(42,36,29,.06), 0 8px 24px -12px rgba(42,36,29,.18);
+  --schrift:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --basis:17px;
+}
+html[data-thema="dunkel"]{
+  --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+  --linie:#423a56; --linie-stark:#5b5175;
+  --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+  --akzent:#60a5fa; --akzent-hell:#1e3a8a; --akzent-tief:#93c5fd;
+  --teal:#2dd4bf; --teal-hell:#134e4a;
+  --violett:#a78bfa; --violett-hell:#3b2a6b;
+  --gold:#fbbf24; --gold-hell:#4a3208;
+  --gruen:#4ade80; --gruen-hell:#14361f;
+  --rot:#fb7185; --rot-hell:#4c1327;
+  --schatten:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{color-scheme:light; font-size:var(--basis); -webkit-text-size-adjust:100%}
+html[data-thema="dunkel"]{color-scheme:dark}
+body{
+  margin:0; min-height:100vh; font-family:var(--schrift); color:var(--text);
+  background:var(--grund); line-height:1.55;
+}
+h1,h2,h3{font-family:var(--serif); font-weight:600; line-height:1.25; margin:0}
+h1{font-size:1.5rem} h2{font-size:1.28rem} h3{font-size:1.05rem}
+p{margin:0 0 .8em}
+a{color:var(--akzent)}
+
+/* --- Kopfleiste ---------------------------------------------------------- */
+.kopf{
+  position:sticky; top:0; z-index:30; background:var(--grund);
+  border-bottom:1px solid var(--linie);
+}
+.kopf-innen{
+  max-width:820px; margin:0 auto; padding:.6rem .9rem;
+  display:flex; align-items:center; gap:.8rem;
+}
+.kopf-titel{font-family:var(--serif); font-weight:600; font-size:1rem; margin:0; flex:1; min-width:0}
+.kopf-titel small{display:block; font-family:var(--schrift); font-weight:400;
+  font-size:.76rem; color:var(--text-schwach)}
+.streifen{height:4px; background:linear-gradient(90deg,var(--akzent),var(--teal),var(--violett))}
+
+/* Fortschrittsring: neun Themen, ein Kreis. Sichtbar in jeder Ansicht, damit
+   „wie weit bin ich?“ nie eine eigene Frage ist. */
+.ring{flex:0 0 auto; width:2.7rem; height:2.7rem; position:relative}
+.ring svg{display:block; transform:rotate(-90deg)}
+.ring .zahl{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-leise);
+}
+.iknopf{
+  width:2.2rem; height:2.2rem; border:1px solid transparent; background:transparent;
+  color:var(--text-leise); border-radius:var(--radius-klein); cursor:pointer;
+  font-size:1rem; line-height:1; flex:0 0 auto;
+}
+.iknopf:hover{background:var(--flaeche-2); border-color:var(--linie)}
+
+/* --- Grundbausteine ------------------------------------------------------ */
+.huelle{max-width:820px; margin:0 auto; padding:1.1rem .9rem 5rem}
+.karte{
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius);
+  padding:1.05rem 1.15rem; box-shadow:var(--schatten);
+}
+.karte + .karte{margin-top:.9rem}
+.reihe{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center}
+.reihe-ende{justify-content:flex-end}
+.lead{color:var(--text-leise); font-size:1.02rem; max-width:62ch; margin:.35rem 0 1.1rem}
+.leise{color:var(--text-schwach); font-size:.86rem}
+
+.knopf{
+  font:inherit; font-size:.95rem; font-weight:500; padding:.5rem .95rem;
+  border-radius:var(--radius-klein); border:1px solid var(--linie-stark);
+  background:var(--flaeche); color:var(--text); cursor:pointer;
+  display:inline-flex; align-items:center; gap:.45rem; min-height:2.6rem;
+}
+.knopf:hover{background:var(--flaeche-2); border-color:var(--akzent)}
+.knopf:active{transform:translateY(1px)}
+.knopf:focus-visible{outline:3px solid var(--akzent); outline-offset:2px}
+.knopf[disabled]{opacity:.45; cursor:not-allowed}
+.knopf-haupt{background:var(--akzent); border-color:var(--akzent); color:#fff; font-weight:600}
+html[data-thema="dunkel"] .knopf-haupt{color:#10131c}
+.knopf-haupt:hover{background:var(--akzent-tief); border-color:var(--akzent-tief)}
+html[data-thema="dunkel"] .knopf-haupt:hover{color:#10131c}
+.knopf-still{border-color:transparent; background:transparent; color:var(--text-leise)}
+.knopf-still:hover{background:var(--flaeche-2); border-color:var(--linie)}
+.knopf-gross{font-size:1.08rem; padding:.7rem 1.3rem; min-height:3rem}
+
+.pille{
+  display:inline-flex; align-items:center; gap:.3rem; padding:.12rem .6rem;
+  border-radius:999px; font-size:.76rem; font-weight:600;
+  background:var(--akzent-hell); color:var(--akzent-tief);
+}
+html[data-thema="dunkel"] .pille{color:var(--text)}
+.pille-gruen{background:var(--gruen-hell); color:var(--gruen)}
+.pille-gold{background:var(--gold-hell); color:var(--gold)}
+.pille-rot{background:var(--rot-hell); color:var(--rot)}
+.pille-teal{background:var(--teal-hell); color:var(--teal)}
+
+.hinweis{
+  border-left:4px solid var(--akzent); background:var(--flaeche-2);
+  padding:.7rem .9rem; border-radius:0 var(--radius-klein) var(--radius-klein) 0;
+  font-size:.94rem; color:var(--text-leise); margin:.8rem 0;
+}
+.hinweis strong{color:var(--text)}
+.hinweis-gold{border-left-color:var(--gold)}
+.hinweis-gruen{border-left-color:var(--gruen)}
+.hinweis-rot{border-left-color:var(--rot)}
+
+/* --- Mathematischer Satz ------------------------------------------------- */
+.m{font-family:var(--serif); font-size:1.06em; white-space:nowrap}
+.mblock{
+  font-family:var(--serif); font-size:1.28rem; text-align:center;
+  margin:.9rem 0; padding:.55rem .4rem; overflow-x:auto;
+}
+.mblock.klein{font-size:1.08rem}
+sup{font-size:.72em; vertical-align:.45em; line-height:0}
+sub{font-size:.72em; vertical-align:-.25em; line-height:0}
+.br{display:inline-block; vertical-align:-.55em; text-align:center; margin:0 .16em}
+.br > span{display:block; padding:0 .22em}
+.br > span:first-child{border-bottom:1.5px solid currentColor; padding-bottom:.05em}
+.br > span:last-child{padding-top:.05em}
+.wz{white-space:nowrap}
+.wz > .dach{border-top:1.5px solid currentColor; padding:0 .12em 0 .06em; margin-left:-.06em}
+
+/* --- Schrittfolge (das ausführliche Erklären) ---------------------------- */
+.schritte{list-style:none; margin:.6rem 0 0; padding:0}
+.schritt{
+  display:grid; grid-template-columns:1.8rem 1fr; gap:.1rem .7rem;
+  padding:.55rem 0; border-top:1px solid var(--linie);
+}
+.schritt:first-child{border-top:0}
+.schritt .nr{
+  grid-row:span 2; width:1.8rem; height:1.8rem; border-radius:50%;
+  background:var(--akzent-hell); color:var(--akzent-tief);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.82rem; font-weight:700; margin-top:.15rem;
+}
+html[data-thema="dunkel"] .schritt .nr{color:var(--text)}
+.schritt .was{font-size:.9rem; color:var(--text-leise)}
+.schritt .rechnung{font-family:var(--serif); font-size:1.12rem; margin-top:.1rem; overflow-x:auto}
+
+/* --- Aufgabenkarte ------------------------------------------------------- */
+.frage{font-size:1.06rem; margin:0 0 .2rem}
+.felder{display:flex; flex-wrap:wrap; gap:.7rem 1rem; align-items:flex-end; margin:.9rem 0 .2rem}
+.feld{display:flex; align-items:center; gap:.4rem}
+.feld label{font-family:var(--serif); font-size:1.08rem; white-space:nowrap}
+.feld input{
+  font:inherit; font-family:var(--mono); font-size:1rem; width:7.5rem;
+  padding:.5rem .6rem; border-radius:var(--radius-klein);
+  border:1.5px solid var(--linie-stark); background:var(--flaeche); color:var(--text);
+  min-height:2.8rem; text-align:center;
+}
+.feld input:focus-visible{outline:3px solid var(--akzent); outline-offset:1px; border-color:var(--akzent)}
+.feld input[data-stand="richtig"]{border-color:var(--gruen); background:var(--gruen-hell)}
+.feld input[data-stand="falsch"]{border-color:var(--rot); background:var(--rot-hell)}
+.feld .einheit{font-size:.92rem; color:var(--text-leise)}
+
+.wahlen{display:grid; gap:.5rem; margin:.9rem 0 .2rem}
+.wahl{
+  display:flex; align-items:center; gap:.7rem; text-align:left; width:100%;
+  font:inherit; padding:.7rem .85rem; border-radius:var(--radius-klein);
+  border:1.5px solid var(--linie-stark); background:var(--flaeche); color:var(--text);
+  cursor:pointer; min-height:3rem;
+}
+.wahl:hover{border-color:var(--akzent); background:var(--flaeche-2)}
+.wahl .buchstabe{
+  flex:0 0 auto; width:1.7rem; height:1.7rem; border-radius:50%;
+  background:var(--flaeche-2); border:1px solid var(--linie-stark);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.82rem; font-weight:700; color:var(--text-leise);
+}
+.wahl[aria-pressed="true"]{border-color:var(--akzent); background:var(--akzent-hell)}
+.wahl[aria-pressed="true"] .buchstabe{background:var(--akzent); color:#fff; border-color:var(--akzent)}
+.wahl[data-stand="richtig"]{border-color:var(--gruen); background:var(--gruen-hell)}
+.wahl[data-stand="falsch"]{border-color:var(--rot); background:var(--rot-hell)}
+.wahl[disabled]{cursor:default; opacity:1}
+.wahl .inhalt{font-family:var(--serif); font-size:1.06rem}
+
+/* --- Rückmeldung --------------------------------------------------------- */
+.echo{
+  margin:.9rem 0 0; padding:.85rem 1rem; border-radius:var(--radius-klein);
+  border:1px solid var(--linie); background:var(--flaeche-2);
+}
+.echo.gut{border-color:var(--gruen); background:var(--gruen-hell)}
+.echo.fast{border-color:var(--gold); background:var(--gold-hell)}
+.echo.nein{border-color:var(--rot); background:var(--rot-hell)}
+.echo .kopfzeile{display:flex; align-items:center; gap:.5rem; font-weight:700; margin-bottom:.3rem}
+.echo .zeichen{font-size:1.15rem}
+.echo p:last-child{margin-bottom:0}
+
+/* --- Landkarte ----------------------------------------------------------- */
+.gruppe-titel{
+  font-size:.78rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--text-schwach); margin:1.4rem 0 .5rem;
+}
+.thema-zeile{
+  display:flex; align-items:center; gap:.85rem; width:100%; text-align:left;
+  font:inherit; padding:.75rem .9rem; margin:.45rem 0; cursor:pointer;
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius);
+  color:var(--text);
+}
+.thema-zeile:hover{border-color:var(--akzent)}
+.thema-zeile[data-dran="ja"]{border-color:var(--akzent); border-width:2px; box-shadow:var(--schatten)}
+.thema-zeile .ampel{
+  flex:0 0 auto; width:2.2rem; height:2.2rem; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700;
+  background:var(--flaeche-2); color:var(--text-schwach); border:1px solid var(--linie);
+}
+.thema-zeile[data-stand="sicher"] .ampel{background:var(--gruen-hell); color:var(--gruen); border-color:var(--gruen)}
+.thema-zeile[data-stand="wackelig"] .ampel{background:var(--gold-hell); color:var(--gold); border-color:var(--gold)}
+.thema-zeile[data-stand="offen"] .ampel{background:var(--rot-hell); color:var(--rot); border-color:var(--rot)}
+.thema-zeile .mitte{flex:1; min-width:0}
+.thema-zeile .name{display:block; font-family:var(--serif); font-weight:600; font-size:1.02rem}
+.thema-zeile .unter{display:block; font-size:.83rem; color:var(--text-schwach)}
+.thema-zeile .pfeil{color:var(--text-schwach); font-size:1.1rem; flex:0 0 auto}
+
+/* --- Phasenleiste im Thema ----------------------------------------------- */
+.phasen{display:flex; gap:.3rem; margin:0 0 1rem; flex-wrap:wrap}
+.phase{
+  flex:1 1 0; min-width:4.6rem; text-align:center; font-size:.72rem; font-weight:600;
+  padding:.32rem .2rem; border-radius:999px; background:var(--flaeche-2);
+  color:var(--text-schwach); border:1px solid var(--linie);
+}
+.phase[data-jetzt="ja"]{background:var(--akzent); color:#fff; border-color:var(--akzent)}
+html[data-thema="dunkel"] .phase[data-jetzt="ja"]{color:#10131c}
+.phase[data-fertig="ja"]{background:var(--gruen-hell); color:var(--gruen); border-color:var(--gruen)}
+
+/* --- Punkte (Re-Test-Fortschritt) ---------------------------------------- */
+.punkte{display:flex; gap:.35rem; margin:.2rem 0 0}
+.punkt{width:.7rem; height:.7rem; border-radius:50%; background:var(--linie)}
+.punkt[data-stand="richtig"]{background:var(--gruen)}
+.punkt[data-stand="falsch"]{background:var(--rot)}
+
+/* --- Zeichnungen --------------------------------------------------------- */
+svg.bild{display:block; width:100%; max-width:420px; height:auto; margin:.7rem auto;
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius-klein)}
+.bildpaar{display:grid; grid-template-columns:1fr 1fr; gap:.5rem}
+.bildpaar svg.bild{max-width:100%}
+
+table.werte{width:100%; border-collapse:collapse; font-family:var(--serif); font-size:1.02rem; margin:.7rem 0}
+table.werte th,table.werte td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+table.werte th{background:var(--flaeche-2); font-weight:600; font-size:.92rem}
+
+/* --- Fuß ----------------------------------------------------------------- */
+.fuss{
+  max-width:820px; margin:0 auto; padding:1.4rem .9rem 3rem;
+  border-top:1px solid var(--linie); font-size:.82rem; color:var(--text-schwach);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:baseline;
+}
+.fuss a{color:var(--text-leise)}
+kbd{font-family:var(--mono); font-size:.78em; padding:.1em .4em; border:1px solid var(--linie-stark);
+  border-bottom-width:2px; border-radius:4px; background:var(--flaeche-2); color:var(--text-leise)}
+
+@media (max-width:30rem){
+  .huelle{padding:.9rem .7rem 5rem}
+  .karte{padding:.9rem .85rem}
+  .phase{font-size:.66rem; min-width:3.6rem}
+  .feld input{width:6rem}
+}
+@media print{
+  .kopf,.fuss,.nicht-drucken,.streifen{display:none !important}
+  body{background:#fff}
+  .karte{box-shadow:none; border-color:#bbb; break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:1ms !important; animation-duration:1ms !important}}
+/* --- Ergänzungen für die 7b ------------------------------------------- */
+.luecke{display:inline-block; min-width:1.8em; padding:0 .2em; border-bottom:2px solid var(--akzent); color:var(--akzent); font-weight:700}
+.wahl svg.bild{margin:.15rem 0; max-width:220px}
+.wahl svg.gefaess{max-width:110px}
+/* Bild-Antworten nebeneinander: vier Graphen untereinander füllen sonst
+   drei Bildschirmhöhen. */
+.wahlen:has(svg){grid-template-columns:1fr 1fr}
+@media (max-width:22rem){ .wahlen:has(svg){grid-template-columns:1fr} }
+svg.gefaess{max-width:160px}
+table.werte.mini{width:auto; margin:.15rem 0; font-size:.95rem}
+table.werte.mini th, table.werte.mini td{padding:.15rem .5rem}
+</style>
+</head>
+<body>
+
+<header class="kopf nicht-drucken">
+  <div class="kopf-innen">
+    <div class="ring" id="ring" title="Themen, die sitzen"></div>
+    <h1 class="kopf-titel">Klassenarbeitstrainer 7b<small id="kopf-unter">Kapitel 1 · Zuordnungen</small></h1>
+    <button class="iknopf" id="knopf-karte" type="button" title="Zur Übersicht" aria-label="Zur Übersicht">☰</button>
+    <button class="iknopf" id="knopf-thema" type="button" title="Hell oder dunkel" aria-label="Hell oder dunkel">☾</button>
+  </div>
+</header>
+<div class="streifen nicht-drucken"></div>
+
+<main class="huelle" id="buehne"></main>
+
+<footer class="fuss nicht-drucken">
+  <span>Läuft ganz im Browser. Dein Stand bleibt auf diesem Gerät — er wird nirgendwohin geschickt.</span>
+  <span style="margin-left:auto"><button class="knopf knopf-still" id="knopf-reset" type="button">Alles zurücksetzen</button></span>
+</footer>
+
+<script>
+"use strict";
+/* ==========================================================================
+   1 — Kleinteile: Text, Zahlen, Zufall
+   ========================================================================== */
+
+var MINUS = "−";        /* echtes Minuszeichen, wie im Buch und an der Wand */
+var MAL   = "·";
+var HOCH2 = "²";
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(z){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[z];
+  });
+}
+
+function el(tag, attr, kinder){
+  var k = document.createElement(tag);
+  if (attr) Object.keys(attr).forEach(function(name){
+    var w = attr[name];
+    if (w === null || w === undefined || w === false) return;
+    if (name === "text") k.textContent = w;
+    else if (name === "html") k.innerHTML = w;
+    else if (name.slice(0,2) === "on" && typeof w === "function") k.addEventListener(name.slice(2).toLowerCase(), w);
+    else k.setAttribute(name, w === true ? "" : w);
+  });
+  (kinder || []).forEach(function(kind){
+    if (kind === null || kind === undefined) return;
+    k.appendChild(typeof kind === "string" ? document.createTextNode(kind) : kind);
+  });
+  return k;
+}
+
+/* --- Brüche als Datentyp -------------------------------------------------
+   WARUM: Eine Steigung ist oft 2/3, und 0,6666666667 ist an der Tafel keine
+   Antwort. Wo geteilt wird, rechnet der Trainer mit {z, n} weiter und
+   entscheidet erst beim Anzeigen, ob Dezimalzahl oder Bruch dasteht. */
+function ggt(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var h=b; b=a%b; a=h; } return a||1; }
+
+function BR(z, n){
+  if (n === undefined) n = 1;
+  if (n < 0){ z = -z; n = -n; }
+  var t = ggt(z, n);
+  return { z: z/t, n: n/t, bruch: true };
+}
+function istBr(v){ return v && typeof v === "object" && v.bruch === true; }
+function wertVon(v){ return istBr(v) ? v.z / v.n : v; }
+function brMal(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.z, a.n*b.n); }
+function brPlus(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n + b.z*a.n, a.n*b.n); }
+function brMinus(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n - b.z*a.n, a.n*b.n); }
+function brDurch(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n, a.n*b.z); }
+function zuBr(v){
+  if (istBr(v)) return v;
+  if (Number.isInteger(v)) return BR(v, 1);
+  /* Dezimalzahlen aus den Generatoren haben höchstens vier Stellen. */
+  return BR(Math.round(v*10000), 10000);
+}
+
+/* Dezimaltext in deutscher Schreibweise, ohne Nachkommanullen. */
+function dez(x, stellen){
+  var n = (stellen === undefined) ? 4 : stellen;
+  var g = Math.round(x * Math.pow(10,n)) / Math.pow(10,n);
+  var s = String(g);
+  if (s.indexOf("e") >= 0) s = g.toFixed(n);
+  return s.replace("-", MINUS).replace(".", ",");
+}
+
+/* Endet die Dezimaldarstellung nach höchstens drei Stellen? Dann ist sie
+   lesbarer als der Bruch — 0,75 statt drei Vierteln. */
+function kurzDezimal(v){
+  var b = zuBr(v);
+  var x = b.z / b.n;
+  return Math.abs(Math.round(x*1000)/1000 - x) < 1e-12;
+}
+
+/* Zahl als reiner Text (für Eingabefelder, Titel, Tabellen). */
+function zText(v){
+  if (!istBr(v)) return dez(v);
+  if (v.n === 1) return dez(v.z);
+  if (kurzDezimal(v)) return dez(v.z/v.n);
+  return (v.z < 0 ? MINUS : "") + Math.abs(v.z) + "/" + v.n;
+}
+
+/* Zahl als HTML — hier darf der Bruch übereinander stehen. */
+function zHtml(v){
+  if (!istBr(v)) return esc(dez(v));
+  if (v.n === 1) return esc(dez(v.z));
+  if (kurzDezimal(v)) return esc(dez(v.z/v.n));
+  return (v.z < 0 ? MINUS : "") + bruchHtml(Math.abs(v.z), v.n);
+}
+function bruchHtml(oben, unten){
+  return '<span class="br"><span>' + oben + '</span><span>' + unten + '</span></span>';
+}
+function wurzelHtml(inhalt){
+  return '<span class="wz">√<span class="dach">' + inhalt + '</span></span>';
+}
+function hochHtml(basis, exp){
+  if (exp === 2) return basis + HOCH2;
+  if (exp === 3) return basis + "³";
+  return basis + "<sup>" + exp + "</sup>";
+}
+
+/* --- Terme zusammensetzen ------------------------------------------------
+   Ein Term wie 2x² − x + 3 soll auch dann richtig aussehen, wenn ein
+   Koeffizient 1, −1 oder 0 ist. Das hier ist die einzige Stelle, an der
+   diese Fallunterscheidung steht. */
+function summandHtml(k, teil, erster){
+  var x = wertVon(k);
+  if (x === 0) return "";
+  var negativ = x < 0;
+  var betrag = istBr(k) ? BR(Math.abs(k.z), k.n) : Math.abs(x);
+  var zahl = (teil && wertVon(betrag) === 1) ? "" : zHtml(betrag);
+  var kern = zahl + (teil || "");
+  if (erster) return (negativ ? MINUS : "") + kern;
+  return " " + (negativ ? MINUS : "+") + " " + kern;
+}
+function termHtml(teile){
+  /* teile: [{k: Koeffizient, t: HTML des Variablenteils}] */
+  var raus = "", erster = true;
+  teile.forEach(function(s){
+    var stueck = summandHtml(s.k, s.t, erster);
+    if (stueck){ raus += stueck; erster = false; }
+  });
+  return raus || "0";
+}
+function linHtml(m, b){ return termHtml([{k:m, t:"x"}, {k:b, t:""}]); }
+function quadHtml(a, b, c){ return termHtml([{k:a, t:"x"+HOCH2}, {k:b, t:"x"}, {k:c, t:""}]); }
+/* f(x) = a(x − d)² + e — mit dem Vorzeichenwechsel, der die halbe Klasse kostet. */
+function scheitelHtml(a, d, e){
+  var innen = "x " + (wertVon(d) < 0 ? "+" : MINUS) + " " + zHtml(istBr(d) ? BR(Math.abs(d.z), d.n) : Math.abs(wertVon(d)));
+  if (wertVon(d) === 0) innen = "x";
+  var klammer = (wertVon(d) === 0 ? "x" : "(" + innen + ")") + HOCH2;
+  var vorn = summandHtml(a, klammer, true);
+  var hinten = summandHtml(e, "", false);
+  return vorn + hinten;
+}
+/* Negative Zahlen gehoeren in Klammern: „3 · (−5)" liest sich, „3 · −5" nicht. */
+function kl(v){ return wertVon(v) < 0 ? "(" + zHtml(v) + ")" : zHtml(v); }
+/* Der Faktor vor einer Klammer: 1 und −1 werden nicht geschrieben. */
+function vorFaktor(m){ return m === 1 ? "" : (m === -1 ? MINUS : zHtml(m)); }
+var ORDNUNG = { 2: "zweite", 3: "dritte", 4: "vierte", 5: "fünfte" };
+
+function punktHtml(name, x, y){
+  return esc(name) + "(" + zHtml(x) + " | " + zHtml(y) + ")";
+}
+
+/* --- Zufall -------------------------------------------------------------- */
+function rnd(min, max){ return Math.floor(Math.random()*(max-min+1)) + min; }
+function rndOhne0(min, max){ var x; do { x = rnd(min,max); } while (x === 0); return x; }
+function vorz(){ return Math.random() < 0.5 ? -1 : 1; }
+function waehle(liste){ return liste[Math.floor(Math.random()*liste.length)]; }
+function mische(liste){
+  var k = liste.slice();
+  for (var i = k.length-1; i > 0; i--){
+    var j = Math.floor(Math.random()*(i+1)), h = k[i]; k[i] = k[j]; k[j] = h;
+  }
+  return k;
+}
+/* Zwei verschiedene Zahlen aus einem Bereich — für Punkte, Nullstellen, Paare. */
+function zweiVerschieden(min, max){
+  var a = rnd(min,max), b;
+  do { b = rnd(min,max); } while (b === a);
+  return [a, b];
+}
+
+/* --- Eingaben lesen ------------------------------------------------------
+   Was getippt wird: 0,5 · 0.5 · 1/2 · " 4 " — alles wird verstanden. */
+function zahlAus(text){
+  var s = String(text).trim().replace(/\s+/g, "");
+  if (!s) return null;
+  s = s.replace(/−/g, "-").replace(/,/g, ".");
+  var bruch = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/.exec(s);
+  if (bruch){
+    var n = parseFloat(bruch[2]);
+    if (!n) return null;
+    return parseFloat(bruch[1]) / n;
+  }
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+/* Wie genau muss eine Eingabe stimmen?
+   Bei glatten Werten auf die letzte Stelle. Bei krummen — 4/3, 1/3, 0,8333 —
+   waere das eine Falle: Wer den Bruch richtig hat und ihn als 1,33 eintippt,
+   hat die Aufgabe verstanden. Deshalb dort zwei Nachkommastellen. */
+function toleranzFuer(feld){
+  if (typeof feld.toleranz === "number") return feld.toleranz;
+  var x = feld.soll;
+  return Math.abs(Math.round(x*1000)/1000 - x) < 1e-12 ? 1e-6 : 0.0051;
+}
+function gleichAuf(a, b, toleranz){
+  if (a === null || a === undefined) return false;
+  var t = (toleranz === undefined) ? 1e-6 : toleranz;
+  return Math.abs(a - b) <= t + 1e-9;
+}
+
+/* ==========================================================================
+   2 — Kleine Zeichnungen
+   Ein Graph sagt bei Parabeln und Sinuskurven mehr als drei Sätze. Gezeichnet
+   wird mit den Farbmarken der Seite, damit die Bilder auch dunkel stimmen.
+   ========================================================================== */
+var graphZaehler = 0;
+function graphSvg(opt){
+  var B = 400, H = opt.hoehe || 300, rand = 26;
+  /* Eigene Kennung je Bild: Auf einer Seite können mehrere Koordinatensysteme
+     stehen, und zwei gleich benannte Schnittmasken würden sich in die Quere
+     kommen. */
+  var maske = "gsvg" + (++graphZaehler);
+  var xmin = opt.xmin, xmax = opt.xmax, ymin = opt.ymin, ymax = opt.ymax;
+  function px(x){ return rand + (x - xmin) / (xmax - xmin) * (B - 2*rand); }
+  function py(y){ return H - rand - (y - ymin) / (ymax - ymin) * (H - 2*rand); }
+  var teile = [];
+
+  /* Gitter in ganzen Schritten, aber höchstens 20 Linien je Richtung. */
+  var sx = Math.max(1, Math.ceil((xmax - xmin) / 20));
+  var sy = Math.max(1, Math.ceil((ymax - ymin) / 20));
+  for (var gx = Math.ceil(xmin/sx)*sx; gx <= xmax; gx += sx)
+    teile.push('<line x1="'+px(gx)+'" y1="'+py(ymin)+'" x2="'+px(gx)+'" y2="'+py(ymax)+'" stroke="var(--linie)" stroke-width="1"/>');
+  for (var gy = Math.ceil(ymin/sy)*sy; gy <= ymax; gy += sy)
+    teile.push('<line x1="'+px(xmin)+'" y1="'+py(gy)+'" x2="'+px(xmax)+'" y2="'+py(gy)+'" stroke="var(--linie)" stroke-width="1"/>');
+
+  /* Achsen */
+  if (ymin <= 0 && ymax >= 0)
+    teile.push('<line x1="'+px(xmin)+'" y1="'+py(0)+'" x2="'+px(xmax)+'" y2="'+py(0)+'" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  if (xmin <= 0 && xmax >= 0)
+    teile.push('<line x1="'+px(0)+'" y1="'+py(ymin)+'" x2="'+px(0)+'" y2="'+py(ymax)+'" stroke="var(--text-leise)" stroke-width="1.6"/>');
+
+  /* Achsenbeschriftung: nur wenige Zahlen, sonst wird es unruhig. */
+  var bx = Math.max(sx, Math.round((xmax-xmin)/6/sx)*sx);
+  for (var tx = Math.ceil(xmin/bx)*bx; tx <= xmax; tx += bx){
+    if (tx === 0) continue;
+    teile.push('<text x="'+px(tx)+'" y="'+(py(Math.max(ymin,Math.min(ymax,0)))+14)+'" text-anchor="middle" font-size="11" fill="var(--text-schwach)">'+dez(tx)+'</text>');
+  }
+  var by = Math.max(sy, Math.round((ymax-ymin)/6/sy)*sy);
+  for (var ty = Math.ceil(ymin/by)*by; ty <= ymax; ty += by){
+    if (ty === 0) continue;
+    teile.push('<text x="'+(px(Math.max(xmin,Math.min(xmax,0)))-6)+'" y="'+(py(ty)+4)+'" text-anchor="end" font-size="11" fill="var(--text-schwach)">'+dez(ty)+'</text>');
+  }
+
+  (opt.kurven || []).forEach(function(kurve){
+    var punkte = [], N = 260, luecke = true, d = "";
+    for (var i = 0; i <= N; i++){
+      var x = xmin + (xmax - xmin) * i / N;
+      var y = kurve.f(x);
+      if (!isFinite(y) || y < ymin - (ymax-ymin) || y > ymax + (ymax-ymin)){ luecke = true; continue; }
+      d += (luecke ? "M" : "L") + px(x).toFixed(1) + " " + py(y).toFixed(1) + " ";
+      luecke = false;
+    }
+    teile.push('<g clip-path="url(#'+maske+')"><path d="'+d+'" fill="none" stroke="'+(kurve.farbe||"var(--akzent)")+'" stroke-width="2.4" stroke-linecap="round"'
+      + (kurve.strich ? ' stroke-dasharray="6 5"' : '') + '/></g>');
+  });
+
+  (opt.punkte || []).forEach(function(p){
+    teile.push('<circle cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="4.5" fill="'+(p.farbe||"var(--rot)")+'"/>');
+    if (p.name) teile.push('<text x="'+(px(p.x)+8)+'" y="'+(py(p.y)-8)+'" font-size="12" font-weight="600" fill="'+(p.farbe||"var(--rot)")+'">'+esc(p.name)+'</text>');
+  });
+
+  return '<svg class="bild" viewBox="0 0 '+B+' '+H+'" role="img" aria-label="'
+    + esc(opt.alt || "Koordinatensystem mit Graph") + '"><defs><clipPath id="'+maske+'">'
+    + '<rect x="'+(rand-4)+'" y="'+(rand-4)+'" width="'+(B-2*rand+8)+'" height="'+(H-2*rand+8)+'"/>'
+    + '</clipPath></defs>' + teile.join("") + '</svg>';
+}
+/* ==========================================================================
+   3 — Die Aufgaben
+   --------------------------------------------------------------------------
+   Jede Aufgabe ist ein Objekt:
+
+     frage      HTML der Aufgabenstellung
+     bild       optional: SVG, Tabelle, Gleichungssystem
+     eingabe    wie geantwortet wird (Zahl, mehrere Felder, Auswahl)
+     hinweis    der erste Tipp nach einem Fehler — nie die Lösung
+     schritte   die vollständige Rechnung, Schritt für Schritt
+     antwort    die Endantwort in einem Satz
+
+   Erzeugt werden sie von Funktionen ohne Argumente. Jeder Aufruf liefert
+   dieselbe Sorte Aufgabe mit neuen Zahlen — das ist der Grund, warum ein
+   Re-Test hier etwas bestätigt und nicht nur ein Gedächtnis prüft.
+   ========================================================================== */
+
+function S(was, rechnung){ return { was: was, r: rechnung }; }
+
+/* Vier Wahlmöglichkeiten mischen und merken, welche die richtige ist. */
+function wahl(richtigHtml, falschHtmls){
+  var alle = mische([{ h: richtigHtml, ok: true }].concat(
+    falschHtmls.map(function(h){ return { h: h, ok: false }; })));
+  return {
+    art: "wahl",
+    optionen: alle.map(function(a){ return a.h; }),
+    richtig: alle.findIndex(function(a){ return a.ok; })
+  };
+}
+/* Wie wahl(), aber gegen den haeufigsten Generatorfehler abgesichert: Bei
+   bestimmten Zahlen faellt ein Ablenker mit der richtigen Antwort zusammen
+   (bei a = 1 ist a² = a). Aus einer Vorratsliste werden die ersten drei
+   genommen, die weder gleich der Loesung noch untereinander gleich sind. */
+function wahlAus(richtigHtml, vorrat){
+  var raus = [];
+  vorrat.forEach(function(k){
+    if (k !== richtigHtml && raus.indexOf(k) < 0 && raus.length < 3) raus.push(k);
+  });
+  while (raus.length < 3) raus.push("keine dieser Antworten" + " ".repeat(raus.length));
+  return wahl(richtigHtml, raus);
+}
+function zahlFeld(label, soll, extra){
+  var e = { art: "felder", felder: [Object.assign({ label: label, soll: soll }, extra || {})] };
+  return e;
+}
+function felder(liste, egal){
+  return { art: "felder", felder: liste, egal: !!egal };
+}
+
+/* ==========================================================================
+   3b — Kleinteile für die 7b
+   --------------------------------------------------------------------------
+   Geld, Tabellen, Diagramme im ersten Quadranten, Gefäße. Die Kontexte sind
+   bewusst andere als in der Klassenarbeit und in der Probearbeit: Wer hier
+   übt, soll das Verfahren lernen, nicht eine bestimmte Aufgabe.
+   ========================================================================== */
+var NAMEN = ["Mia", "Noah", "Lea", "Finn", "Nele", "Ole", "Aylin", "Can", "Jana", "Paul", "Sofia", "Luca"];
+
+function glatt(v, stellen){
+  var f = Math.pow(10, stellen === undefined ? 2 : stellen);
+  return Math.abs(Math.round(v * f) - v * f) < 1e-7;
+}
+/* Geld: ganze Beträge ohne Nachkommastellen, sonst immer zwei. */
+function eurText(x){
+  var r = Math.round(x * 100) / 100;
+  return Number.isInteger(r) ? dez(r) : r.toFixed(2).replace(".", ",");
+}
+function eur(x){ return eurText(x) + "&nbsp;€"; }
+function mitE(x, e){ return dez(x) + (e ? "&nbsp;" + e : ""); }
+
+var LUECKE = '<span class="luecke">?</span>';
+
+function tabelle(kopfX, kopfY, xs, ys){
+  function zelle(v){ return "<td>" + (typeof v === "number" ? esc(dez(v)) : v) + "</td>"; }
+  return '<table class="werte"><tr><th>' + kopfX + "</th>" + xs.map(zelle).join("")
+    + "</tr><tr><th>" + kopfY + "</th>" + ys.map(zelle).join("") + "</tr></table>";
+}
+/* Kleine Tabelle als Antwortmöglichkeit — ohne Kopfspalte. */
+function miniTabelle(xs, ys){
+  function zeile(w){ return "<tr>" + w.map(function(v){ return "<td>" + esc(dez(v)) + "</td>"; }).join("") + "</tr>"; }
+  return '<table class="werte mini"><tr><th>x</th>' + xs.map(function(v){ return "<td>" + esc(dez(v)) + "</td>"; }).join("")
+    + '</tr><tr><th>y</th>' + ys.map(function(v){ return "<td>" + esc(dez(v)) + "</td>"; }).join("") + "</tr></table>";
+}
+function teilerVon(G, min, max){
+  var t = [];
+  for (var d = min; d <= max; d++) if (G % d === 0) t.push(d);
+  return t;
+}
+function zweiAus(liste){
+  var a = waehle(liste), b;
+  do { b = waehle(liste); } while (b === a);
+  return [a, b];
+}
+
+/* --- Diagramm im ersten Quadranten --------------------------------------
+   Anders als graphSvg: Achsen mit Namen, Gitter im Takt der Aufgabe, Punkte
+   ohne Linie möglich. klein: für Antwortmöglichkeiten, ohne Zahlen. */
+var diaZaehler = 0;
+function diagramm(opt){
+  var klein = !!opt.klein;
+  var B = klein ? 200 : 420, H = klein ? 150 : 300;
+  var L = klein ? 18 : 48, R = 12, O = klein ? 12 : 30, U = klein ? 18 : 40;
+  var xmax = opt.xmax, ymax = opt.ymax;
+  function px(x){ return L + x / xmax * (B - L - R); }
+  function py(y){ return H - U - y / ymax * (H - U - O); }
+  var t = [];
+  if (!klein){
+    var sx = opt.sx, sy = opt.sy;
+    for (var gx = sx; gx <= xmax + 1e-9; gx += sx){
+      t.push('<line x1="' + px(gx) + '" y1="' + py(0) + '" x2="' + px(gx) + '" y2="' + py(ymax) + '" stroke="var(--linie)" stroke-width="1"/>');
+      t.push('<text x="' + px(gx) + '" y="' + (py(0) + 16) + '" text-anchor="middle" font-size="12" fill="var(--text-leise)">' + dez(gx) + "</text>");
+    }
+    for (var gy = sy; gy <= ymax + 1e-9; gy += sy){
+      t.push('<line x1="' + px(0) + '" y1="' + py(gy) + '" x2="' + px(xmax) + '" y2="' + py(gy) + '" stroke="var(--linie)" stroke-width="1"/>');
+      t.push('<text x="' + (px(0) - 6) + '" y="' + (py(gy) + 4) + '" text-anchor="end" font-size="12" fill="var(--text-leise)">' + dez(gy) + "</text>");
+    }
+    t.push('<text x="' + (px(0) - 6) + '" y="' + (py(0) + 16) + '" text-anchor="end" font-size="12" fill="var(--text-leise)">0</text>');
+  }
+  /* Achsen mit Pfeil */
+  t.push('<line x1="' + px(0) + '" y1="' + py(0) + '" x2="' + (px(xmax) + 8) + '" y2="' + py(0) + '" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  t.push('<line x1="' + px(0) + '" y1="' + py(0) + '" x2="' + px(0) + '" y2="' + (py(ymax) - 8) + '" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  t.push('<path d="M' + (px(xmax) + 8) + " " + (py(0) - 4) + "L" + (px(xmax) + 14) + " " + py(0) + "L" + (px(xmax) + 8) + " " + (py(0) + 4) + 'Z" fill="var(--text-leise)"/>');
+  t.push('<path d="M' + (px(0) - 4) + " " + (py(ymax) - 8) + "L" + px(0) + " " + (py(ymax) - 14) + "L" + (px(0) + 4) + " " + (py(ymax) - 8) + 'Z" fill="var(--text-leise)"/>');
+  var fs = klein ? 10 : 13;
+  if (opt.xname) t.push('<text x="' + (B - R) + '" y="' + (H - (klein ? 3 : 8)) + '" text-anchor="end" font-size="' + fs + '" font-weight="600" fill="var(--text-leise)">' + esc(opt.xname) + "</text>");
+  if (opt.yname) t.push('<text x="' + (px(0) + 6) + '" y="' + (klein ? 10 : 16) + '" font-size="' + fs + '" font-weight="600" fill="var(--text-leise)">' + esc(opt.yname) + "</text>");
+
+  if (opt.linien){
+    var pts = opt.linien.map(function(p){ return px(p[0]).toFixed(1) + "," + py(p[1]).toFixed(1); }).join(" ");
+    t.push('<polyline points="' + pts + '" fill="none" stroke="var(--akzent)" stroke-width="' + (klein ? 2.4 : 2.8) + '" stroke-linejoin="round" stroke-linecap="round"/>');
+  }
+  (opt.punkte || []).forEach(function(p){
+    t.push('<circle cx="' + px(p[0]) + '" cy="' + py(p[1]) + '" r="' + (klein ? 3.5 : 4.5) + '" fill="var(--rot)"/>');
+  });
+  var name = "dia" + (++diaZaehler);
+  return '<svg class="bild' + (klein ? " klein" : "") + '" viewBox="0 0 ' + B + " " + H + '" role="img" aria-label="'
+    + esc(opt.alt || "Diagramm") + '" id="' + name + '">' + t.join("") + "</svg>";
+}
+
+/* ==========================================================================
+   THEMA A — Rechnen ohne Taschenrechner
+   Die Klassenarbeit ist ohne Taschenrechner. Die Zahlen darin sind
+   Kopfzahlen — aber mit Komma.
+   ========================================================================== */
+var G_RECHNEN = [];
+
+/* Kommazahl mal ganze Zahl — über das Weglassen des Kommas. */
+G_RECHNEN.push(function(){
+  var a = waehle([1.5, 2.5, 0.5, 1.2, 3.5, 0.8, 4.5, 0.25, 1.25, 2.4]);
+  var n = rnd(3, 12);
+  var s = glatt(a, 1) ? 1 : 2, f = Math.pow(10, s);
+  var ganz = Math.round(a * f), prod = ganz * n, erg = prod / f;
+  return {
+    frage: "Rechne ohne Taschenrechner:",
+    formel: dez(a) + " " + MAL + " " + n,
+    eingabe: zahlFeld("Ergebnis =", erg),
+    hinweis: "Rechne zuerst ohne Komma: " + ganz + " " + MAL + " " + n + ". Setze das Komma danach wieder ein — so viele Stellen wie vorher.",
+    schritte: [
+      S("Komma weglassen: aus " + dez(a) + " wird " + ganz + " (das ist " + f + "-mal so viel)", dez(a) + " " + MAL + " " + f + " = " + ganz),
+      S("Ohne Komma rechnen", ganz + " " + MAL + " " + n + " = " + prod),
+      S("Wieder durch " + f + " teilen, weil wir vorher mit " + f + " malgenommen haben", prod + " : " + f + " = " + dez(erg))
+    ],
+    antwort: dez(a) + " " + MAL + " " + n + " = <strong>" + dez(erg) + "</strong>."
+  };
+});
+
+/* Geldbetrag teilen — in Cent geht es glatt. */
+G_RECHNEN.push(function(){
+  var n = rnd(3, 8);
+  var q = waehle([0.4, 0.6, 0.75, 0.8, 1.2, 1.4, 1.5, 1.6, 2.25, 2.4, 3.5]);
+  var p = Math.round(q * n * 100) / 100;
+  var cent = Math.round(p * 100), qc = Math.round(q * 100);
+  return {
+    frage: n + " gleiche Teile kosten zusammen " + eur(p) + ". Wie viel kostet ein Teil?",
+    eingabe: zahlFeld("ein Teil kostet", q, { einheit: "€" }),
+    hinweis: "Rechne in Cent: " + eurText(p) + " € sind " + cent + " Cent.",
+    schritte: [
+      S("In Cent umrechnen", eurText(p) + " € = " + cent + " ct"),
+      S("Teilen", cent + " ct : " + n + " = " + qc + " ct"),
+      S("Zurück in Euro", qc + " ct = " + eur(q))
+    ],
+    antwort: "Ein Teil kostet <strong>" + eur(q) + "</strong>."
+  };
+});
+
+/* Mit welcher Zahl muss man malnehmen? — der Faktor zwischen zwei Werten. */
+G_RECHNEN.push(function(){
+  var r = waehle([1.5, 2.5, 0.5, 1.25, 0.75, 3, 4, 1.2]);
+  var basis;
+  do { basis = rnd(2, 16); } while (!Number.isInteger(basis * r) || basis * r === basis);
+  var ziel = basis * r;
+  return {
+    frage: "Mit welcher Zahl musst du <span class=\"m\">" + basis + "</span> malnehmen, um <span class=\"m\">" + dez(ziel) + "</span> zu erhalten?",
+    eingabe: zahlFeld("gesuchte Zahl:", r),
+    hinweis: "Die gesuchte Zahl ist " + dez(ziel) + " : " + basis + ". Sie darf ein Komma haben.",
+    schritte: [
+      S("Gesucht ist ein Quotient", dez(ziel) + " : " + basis),
+      S("Wie oft passt " + basis + " ganz hinein?", Math.floor(r) + " " + MAL + " " + basis + " = " + Math.floor(r) * basis
+        + (r % 1 ? ", Rest " + dez(ziel - Math.floor(r) * basis) : "")),
+      S(r % 1 ? "Der Rest ist ein Teil von " + basis : "Probe", r % 1
+        ? dez(ziel - Math.floor(r) * basis) + " : " + basis + " = " + dez(r - Math.floor(r)) + ", zusammen " + dez(r)
+        : basis + " " + MAL + " " + dez(r) + " = " + dez(ziel))
+    ],
+    antwort: basis + " " + MAL + " <strong>" + dez(r) + "</strong> = " + dez(ziel) + "."
+  };
+});
+
+/* Wie oft passt …? — Teilen mit großen runden Zahlen. */
+G_RECHNEN.push(function(){
+  var teil = waehle([125, 150, 200, 250, 300, 400, 500, 750]);
+  var n = rnd(2, 9);
+  if (teil === 750) n = waehle([2, 4, 8]);
+  var ganz = teil * n;
+  return {
+    frage: "Eine Packung enthält <span class=\"m\">" + mitE(ganz, "g") + "</span> Reis. Wie viele Portionen zu je <span class=\"m\">" + mitE(teil, "g") + "</span> sind das?",
+    eingabe: zahlFeld("Portionen:", n),
+    hinweis: "Wie oft passt " + teil + " in " + ganz + "? Verdopple " + teil + " so lange, bis du nah dran bist — oder rechne mit Hundertern.",
+    schritte: [
+      S("Gesucht ist", ganz + " : " + teil),
+      S("Vielfache von " + teil + " aufschreiben, bis " + ganz + " erreicht ist",
+        Array.from({ length: n }, function(_, i){ return String((i + 1) * teil); }).join(", ")),
+      S("Mitzählen und prüfen", "Das sind " + n + " Schritte: " + n + " " + MAL + " " + teil + " = " + ganz)
+    ],
+    antwort: "Das sind <strong>" + n + " Portionen</strong>."
+  };
+});
+
+/* ==========================================================================
+   THEMA B — Graphen ablesen
+   ========================================================================== */
+/* Die Sätze bekommen den Namen mitgegeben: kein „sie“ oder „er“, das zum
+   zufälligen Namen nicht passt. */
+var LESE_KONTEXTE = [
+  { id: "rad", xname: "Zeit in h", yname: "Strecke in km", xe: "h", ye: "km", sx: 1, n: 5, sy: 10,
+    schritte: [10, 20, 30, 0], steigend: true,
+    wer: function(n){ return n + " macht eine Radtour."; },
+    lies: function(x, n){ return "Wie viele km hat " + n + " nach " + dez(x) + " h zurückgelegt?"; },
+    wann: function(y, n){ return "Nach wie vielen Stunden hat " + n + " " + dez(y) + " km geschafft?"; },
+    schnell: function(n){ return "In welchem Zeitabschnitt fährt " + n + " am schnellsten?"; },
+    diff: function(a, b, n){ return "Wie viele km fährt " + n + " zwischen " + dez(a) + " h und " + dez(b) + " h?"; },
+    flach: "Es wird gerade nicht gefahren — eine Pause.",
+    punkt: function(x, y, n){ return "Nach " + dez(x) + " h hat " + n + " " + dez(y) + " km zurückgelegt."; },
+    tausch: function(x, y, n){ return "Nach " + dez(y) + " h hat " + n + " " + dez(x) + " km zurückgelegt."; },
+    anders: function(x, y, n){ return "In der " + dez(x) + ". Stunde fährt " + n + " " + dez(y) + " km."; },
+    anders2: function(x, y, n){ return n + " fährt in jeder Stunde " + dez(y) + " km."; } },
+  { id: "bohne", xname: "Zeit in Wochen", yname: "Höhe in cm", xe: "Wochen", ye: "cm", sx: 1, n: 6, sy: 5,
+    schritte: [5, 10, 15, 5], steigend: true,
+    wer: function(n){ return n + " misst jede Woche die Höhe einer Bohnenpflanze."; },
+    lies: function(x){ return "Wie hoch ist die Pflanze nach " + dez(x) + " Wochen?"; },
+    wann: function(y){ return "Nach wie vielen Wochen ist sie " + dez(y) + " cm hoch?"; },
+    schnell: function(){ return "In welchem Zeitabschnitt wächst die Pflanze am schnellsten?"; },
+    diff: function(a, b){ return "Um wie viele cm wächst die Pflanze zwischen Woche " + dez(a) + " und Woche " + dez(b) + "?"; },
+    flach: "Die Pflanze wächst nicht.",
+    punkt: function(x, y){ return "Nach " + dez(x) + " Wochen ist die Pflanze " + dez(y) + " cm hoch."; },
+    tausch: function(x, y){ return "Nach " + dez(y) + " Wochen ist die Pflanze " + dez(x) + " cm hoch."; },
+    anders: function(x, y){ return "In der " + dez(x) + ". Woche wächst die Pflanze " + dez(y) + " cm."; },
+    anders2: function(x, y){ return "Die Pflanze wächst jede Woche " + dez(y) + " cm."; } },
+  { id: "akku", xname: "Zeit in min", yname: "Ladung in %", xe: "min", ye: "%", sx: 10, n: 6, sy: 10,
+    schritte: [20, 10, 10, 20, 0], steigend: true, hoechstens: 100,
+    wer: function(n){ return n + " lädt ein Tablet auf."; },
+    lies: function(x){ return "Wie voll ist der Akku nach " + dez(x) + " min?"; },
+    wann: function(y){ return "Nach wie vielen Minuten ist der Akku zu " + dez(y) + " % geladen?"; },
+    schnell: function(){ return "In welchem Zeitabschnitt lädt der Akku am schnellsten?"; },
+    diff: function(a, b){ return "Um wie viele Prozent steigt die Ladung zwischen " + dez(a) + " min und " + dez(b) + " min?"; },
+    flach: "Der Akku wird nicht weiter geladen.",
+    punkt: function(x, y){ return "Nach " + dez(x) + " min ist der Akku zu " + dez(y) + " % geladen."; },
+    tausch: function(x, y){ return "Nach " + dez(y) + " min ist der Akku zu " + dez(x) + " % geladen."; },
+    anders: function(x, y){ return "In " + dez(x) + " min lädt der Akku immer " + dez(y) + " %."; },
+    anders2: function(x, y){ return "Der Akku braucht " + dez(y) + " min, um voll zu werden."; } },
+  { id: "becken", xname: "Zeit in min", yname: "Wasserhöhe in cm", xe: "min", ye: "cm", sx: 10, n: 5, sy: 20,
+    schritte: [20, 40, 0, 20], steigend: false, start: [140, 160, 180],
+    wer: function(n){ return "Aus einem Becken wird Wasser abgelassen. " + n + " misst die Wasserhöhe."; },
+    lies: function(x){ return "Wie hoch steht das Wasser nach " + dez(x) + " min?"; },
+    wann: function(y){ return "Nach wie vielen Minuten steht das Wasser " + dez(y) + " cm hoch?"; },
+    schnell: function(){ return "In welchem Zeitabschnitt sinkt das Wasser am schnellsten?"; },
+    diff: function(a, b){ return "Um wie viele cm sinkt das Wasser zwischen " + dez(a) + " min und " + dez(b) + " min?"; },
+    flach: "Es fließt gerade kein Wasser ab.",
+    punkt: function(x, y){ return "Nach " + dez(x) + " min steht das Wasser " + dez(y) + " cm hoch."; },
+    tausch: function(x, y){ return "Nach " + dez(y) + " min steht das Wasser " + dez(x) + " cm hoch."; },
+    anders: function(x, y){ return "In " + dez(x) + " min sinkt das Wasser um " + dez(y) + " cm."; },
+    anders2: function(x, y){ return "Das Wasser sinkt jede Minute um " + dez(y) + " cm."; } }
+];
+
+/* Eine Knickkurve mit ganzen Gitterwerten. Genau ein Abschnitt ist am
+   steilsten; höchstens ein Abschnitt ist waagerecht. */
+function leseKurve(k){
+  for (var versuch = 0; versuch < 200; versuch++){
+    var zuw = [], flach = 0;
+    for (var i = 0; i < k.n; i++){
+      var s = waehle(k.schritte);
+      if (s === 0 && (i === 0 || flach)) s = k.schritte[0];
+      if (s === 0) flach++;
+      zuw.push(s);
+    }
+    var max = Math.max.apply(null, zuw);
+    if (zuw.filter(function(s){ return s === max; }).length !== 1) continue;
+    var start = k.steigend ? 0 : waehle(k.start);
+    var ys = [start];
+    zuw.forEach(function(s){ ys.push(ys[ys.length - 1] + (k.steigend ? s : -s)); });
+    if (!k.steigend && ys[ys.length - 1] < 0) continue;
+    if (k.hoechstens && ys[ys.length - 1] > k.hoechstens) continue;
+    var hoch = Math.max.apply(null, ys);
+    var ymax = Math.ceil((hoch + k.sy * 0.5) / k.sy) * k.sy;
+    var punkte = ys.map(function(y, j){ return [j * k.sx, y]; });
+    return { zuw: zuw, ys: ys, punkte: punkte, ymax: ymax, xmax: k.n * k.sx };
+  }
+  throw new Error("Keine Kurve gefunden: " + k.id);
+}
+function leseBild(k, kurve){
+  return diagramm({ xmax: kurve.xmax, ymax: kurve.ymax, sx: k.sx, sy: k.sy, xname: k.xname, yname: k.yname,
+    linien: kurve.punkte, alt: k.yname + " in Abhängigkeit von der " + k.xname });
+}
+function abschnitt(k, i){ return "zwischen " + dez(i * k.sx) + " und " + dez((i + 1) * k.sx) + " " + k.xe; }
+
+/* In beide Richtungen ablesen. */
+var G_LESEN_1 = function(){
+  var k = waehle(LESE_KONTEXTE), kurve = leseKurve(k), name = waehle(NAMEN);
+  var ys = kurve.ys;
+  var innen = []; for (var i = 1; i < ys.length; i++) innen.push(i);
+  var ia = waehle(innen);
+  var eindeutig = innen.filter(function(j){
+    return ys.filter(function(y){ return y === ys[j]; }).length === 1 && j !== ia;
+  });
+  var ib = waehle(eindeutig.length ? eindeutig : innen.filter(function(j){ return j !== ia; }));
+  var xa = ia * k.sx, ya = ys[ia], xb = ib * k.sx, yb = ys[ib];
+  return {
+    frage: k.wer(name) + " Lies im Diagramm ab.<br>a) " + k.lies(xa, name) + "<br>b) " + k.wann(yb, name),
+    bild: leseBild(k, kurve),
+    eingabe: felder([
+      { label: "a)", soll: ya, einheit: k.ye },
+      { label: "b)", soll: xb, einheit: k.xe }
+    ]),
+    hinweis: "Bei a) gehst du auf der waagerechten Achse bis " + dez(xa) + ", dann senkrecht zur Linie und waagerecht zur senkrechten Achse. Bei b) ist es genau umgekehrt: Du startest auf der senkrechten Achse bei " + dez(yb) + ".",
+    schritte: [
+      S("a) Start auf der waagerechten Achse (" + k.xname + ")", "bei " + mitE(xa, k.xe) + " senkrecht bis zur Linie"),
+      S("a) Von dort waagerecht zur senkrechten Achse", "Ablesen: " + mitE(ya, k.ye)),
+      S("b) Jetzt andersherum: Start auf der senkrechten Achse (" + k.yname + ")", "bei " + mitE(yb, k.ye) + " waagerecht bis zur Linie"),
+      S("b) Von dort senkrecht nach unten", "Ablesen: " + mitE(xb, k.xe))
+    ],
+    antwort: "a) <strong>" + mitE(ya, k.ye) + "</strong> · b) <strong>" + mitE(xb, k.xe) + "</strong>"
+  };
+};
+
+/* Wo ist es am schnellsten? — steil heißt schnell. */
+var G_LESEN_2 = function(){
+  var k = waehle(LESE_KONTEXTE), kurve = leseKurve(k), name = waehle(NAMEN);
+  var zuw = kurve.zuw;
+  var imax = zuw.indexOf(Math.max.apply(null, zuw));
+  var andere = mische(zuw.map(function(s, i){ return i; }).filter(function(i){ return i !== imax; })).slice(0, 3);
+  var flachI = zuw.indexOf(0);
+  return {
+    frage: k.wer(name) + " " + k.schnell(name),
+    bild: leseBild(k, kurve),
+    eingabe: wahl(abschnitt(k, imax), andere.map(function(i){ return abschnitt(k, i); })),
+    hinweis: "Schnell heißt: viel Änderung in kurzer Zeit. Im Diagramm ist das der <em>steilste</em> Abschnitt — nicht der höchste.",
+    schritte: [
+      S("Für jeden Abschnitt die Änderung ablesen", zuw.map(function(s, i){ return abschnitt(k, i) + ": " + mitE(s, k.ye); }).join("<br>")),
+      S("Die größte Änderung in gleich langer Zeit gewinnt", abschnitt(k, imax) + ": " + mitE(zuw[imax], k.ye)),
+      S("Im Diagramm", "Dort ist die Linie am steilsten." + (flachI >= 0 ? " Waagerecht (" + abschnitt(k, flachI) + ") heißt: " + k.flach : ""))
+    ],
+    antwort: "Am schnellsten " + abschnitt(k, imax) + " — dort ist die Linie am steilsten."
+  };
+};
+
+/* Wie viel ändert sich in einem Zeitraum? */
+var G_LESEN_3 = function(){
+  var k = waehle(LESE_KONTEXTE), kurve = leseKurve(k), name = waehle(NAMEN);
+  var ys = kurve.ys;
+  var paar;
+  do { paar = zweiVerschieden(0, ys.length - 1); } while (ys[paar[0]] === ys[paar[1]]);
+  var a = Math.min(paar[0], paar[1]), b = Math.max(paar[0], paar[1]);
+  var diff = Math.abs(ys[b] - ys[a]);
+  return {
+    frage: k.wer(name) + " " + k.diff(a * k.sx, b * k.sx, name),
+    bild: leseBild(k, kurve),
+    eingabe: zahlFeld("Änderung:", diff, { einheit: k.ye }),
+    hinweis: "Lies zwei Werte ab — bei " + dez(a * k.sx) + " und bei " + dez(b * k.sx) + " " + k.xe + " — und bilde den Unterschied.",
+    schritte: [
+      S("Wert am Anfang ablesen", "bei " + mitE(a * k.sx, k.xe) + ": " + mitE(ys[a], k.ye)),
+      S("Wert am Ende ablesen", "bei " + mitE(b * k.sx, k.xe) + ": " + mitE(ys[b], k.ye)),
+      S("Unterschied bilden", dez(Math.max(ys[a], ys[b])) + " " + MINUS + " " + dez(Math.min(ys[a], ys[b])) + " = " + dez(diff))
+    ],
+    antwort: "Die Änderung beträgt <strong>" + mitE(diff, k.ye) + "</strong>."
+  };
+};
+
+/* Was bedeutet ein Punkt? — Achsen nicht vertauschen. */
+var G_LESEN_4 = function(){
+  var k = waehle(LESE_KONTEXTE), kurve = leseKurve(k), name = waehle(NAMEN);
+  /* Ein Punkt wie (60 | 60) taugt nicht: Dort sind Satz und vertauschter
+     Satz gleich. */
+  var moeglich = [];
+  for (var j = 1; j < kurve.ys.length; j++) if (j * k.sx !== kurve.ys[j]) moeglich.push(j);
+  var i = waehle(moeglich);
+  var x = i * k.sx, y = kurve.ys[i];
+  return {
+    frage: k.wer(name) + " Auf der Linie liegt der Punkt <span class=\"m\">(" + dez(x) + " | " + dez(y) + ")</span>. Was bedeutet er?",
+    bild: leseBild(k, kurve),
+    eingabe: wahlAus(k.punkt(x, y, name), [k.tausch(x, y, name), k.anders(x, y, name), k.anders2(x, y, name)]),
+    hinweis: "Im Punkt (x | y) steht zuerst der Wert der waagerechten Achse (" + k.xname + "), dann der der senkrechten (" + k.yname + ").",
+    schritte: [
+      S("Erste Zahl gehört zur waagerechten Achse", dez(x) + " → " + k.xname),
+      S("Zweite Zahl gehört zur senkrechten Achse", dez(y) + " → " + k.yname),
+      S("Zusammen als Satz", k.punkt(x, y, name))
+    ],
+    antwort: k.punkt(x, y, name)
+  };
+};
+var G_LESEN = [G_LESEN_1, G_LESEN_2, G_LESEN_3, G_LESEN_4];
+
+/* ==========================================================================
+   THEMA C — Punkte verbinden oder nicht?
+   ========================================================================== */
+var DISKRET = [
+  { z: "Anzahl der Hefte → Preis in €", warum: "Es gibt keine halben Hefte." },
+  { z: "Anzahl der Personen → Eintrittspreis in €", warum: "Es gibt keine halben Personen." },
+  { z: "Anzahl der Busse → Anzahl der Sitzplätze", warum: "Es gibt keine halben Busse." },
+  { z: "Anzahl der Pakete → Gewicht in kg", warum: "Man verschickt keine halben Pakete." },
+  { z: "Anzahl der Pizzen → Preis in €", warum: "Bestellt werden nur ganze Pizzen." },
+  { z: "Anzahl der Kinder → Anzahl der Stifte", warum: "Es gibt keine halben Kinder." }
+];
+var STETIG = [
+  { z: "Zeit in min → zurückgelegter Weg in m", warum: "Zu jedem Zeitpunkt, auch zwischen zwei Minuten, gibt es einen Weg." },
+  { z: "Menge Nüsse in kg → Preis in €", warum: "Nüsse kann man lose in jeder Menge kaufen, auch 1,3 kg." },
+  { z: "Länge eines Kabels in m → Preis in €", warum: "Ein Kabel wird in jeder Länge abgeschnitten, auch 2,5 m." },
+  { z: "Zeit in s → Höhe eines Balls in m", warum: "Der Ball ist zu jedem Zeitpunkt irgendwo." },
+  { z: "Füllmenge in Litern → Gewicht in kg", warum: "Man kann jede beliebige Menge einfüllen." },
+  { z: "Alter in Monaten → Gewicht eines Kätzchens in g", warum: "Das Kätzchen wächst auch zwischen den Messungen weiter." }
+];
+
+var G_VERBINDEN_1 = function(){
+  var stetig = Math.random() < 0.5;
+  var fall = waehle(stetig ? STETIG : DISKRET);
+  var ja = "Ja, verbinden. " + (stetig ? fall.warum : "");
+  var nein = "Nein, nicht verbinden. " + (stetig ? "" : fall.warum);
+  var richtig = stetig ? "Ja, verbinden: Es gibt auch Werte zwischen den Punkten. " + fall.warum
+                       : "Nein, nicht verbinden: " + fall.warum + " Zwischenwerte ergeben keinen Sinn.";
+  var falsch = stetig
+    ? ["Nein, nicht verbinden: Es wurden nur einzelne Werte gemessen.",
+       "Nein, nicht verbinden: Punkte verbindet man nur bei proportionalen Zuordnungen.",
+       "Ja, verbinden: Die Punkte sehen aus wie eine Linie, also ist es egal."]
+    : ["Ja, verbinden: Die Punkte liegen ordentlich nebeneinander.",
+       "Ja, verbinden: Eine Linie ist immer genauer als Punkte.",
+       "Nein, nicht verbinden: Man verbindet nie Punkte in einem Diagramm."];
+  return {
+    frage: "Die Zuordnung <strong>" + fall.z + "</strong> wird in einem Diagramm dargestellt. Darf man die Punkte verbinden?",
+    eingabe: wahl(richtig, falsch),
+    hinweis: "Frag dich: Gibt es zwischen zwei Punkten sinnvolle Werte? Wenn ja, verbinden. Wenn es nur ganze Stücke gibt, nicht.",
+    schritte: [
+      S("Welche Werte kann die erste Größe annehmen?", stetig ? "auch Zwischenwerte (Kommazahlen)" : "nur ganze Zahlen"),
+      S("Darum", fall.warum),
+      S("Entscheidung", stetig ? "Punkte verbinden — die Linie zeigt die Zwischenwerte." : "Einzelne Punkte lassen — eine Linie würde Werte zeigen, die es nicht gibt.")
+    ],
+    antwort: stetig ? "Ja — die Punkte werden verbunden." : "Nein — die Punkte bleiben einzeln."
+  };
+};
+
+var G_VERBINDEN_2 = function(){
+  var gesuchtStetig = Math.random() < 0.5;
+  var richtig = waehle(gesuchtStetig ? STETIG : DISKRET);
+  var andere = mische(gesuchtStetig ? DISKRET : STETIG).slice(0, 3);
+  return {
+    frage: "Bei welcher Zuordnung darf man die Punkte im Diagramm " + (gesuchtStetig ? "" : "<strong>nicht</strong> ") + "verbinden?",
+    eingabe: wahl(richtig.z, andere.map(function(a){ return a.z; })),
+    hinweis: "Nur wo es sinnvolle Zwischenwerte gibt, wird verbunden. Suche die Größe, die man " + (gesuchtStetig ? "auch in Bruchteilen" : "nur in ganzen Stücken") + " haben kann.",
+    schritte: [
+      S("Zu jeder Zuordnung fragen: Gibt es Zwischenwerte?", andere.concat([richtig]).map(function(a){
+        return a.z + ": " + (STETIG.indexOf(a) >= 0 ? "ja" : "nein"); }).join("<br>")),
+      S("Die eine, die anders ist", richtig.z),
+      S("Begründung", richtig.warum)
+    ],
+    antwort: "Gesucht war <strong>" + richtig.z + "</strong>. " + richtig.warum
+  };
+};
+
+var G_VERBINDEN_3 = function(){
+  var n = waehle(NAMEN), preis = waehle([1.5, 2, 2.5, 3]);
+  var xs = [1, 2, 3, 4, 5];
+  var bild = diagramm({ xmax: 6, ymax: Math.ceil(preis * 6 / 2) * 2, sx: 1, sy: 2, xname: "Anzahl der Hefte", yname: "Preis in €",
+    linien: [[0, 0], [6, preis * 6]], punkte: xs.map(function(x){ return [x, preis * x]; }), alt: "Punkte mit einer durchgezogenen Linie" });
+  return {
+    frage: "Ein Heft kostet " + eur(preis) + ". " + n + " hat die Punkte für 1 bis 5 Hefte eingezeichnet und mit einer Linie verbunden. Was stimmt?",
+    bild: bild,
+    eingabe: wahl(
+      "Die Linie ist hier falsch: Es gibt keine halben Hefte, deshalb bleiben es einzelne Punkte.",
+      ["Die Linie ist richtig, weil die Zuordnung proportional ist.",
+       "Die Linie ist richtig, man darf sie aber nicht durch den Nullpunkt ziehen.",
+       "Die Punkte sind falsch, weil sie auf einer Geraden liegen."]),
+    hinweis: "Lies an der Linie einen Zwischenwert ab, zum Beispiel bei 2,5. Gibt es das in Wirklichkeit?",
+    schritte: [
+      S("Was zeigt die Linie zwischen 2 und 3?", "zum Beispiel 2,5 Hefte für " + eur(2.5 * preis)),
+      S("Gibt es das?", "Nein — man kauft nur ganze Hefte."),
+      S("Darum", "Nur die Punkte zeichnen. Proportional oder nicht spielt dafür keine Rolle.")
+    ],
+    antwort: "Einzelne Punkte, keine Linie — es gibt keine halben Hefte."
+  };
+};
+var G_VERBINDEN = [G_VERBINDEN_1, G_VERBINDEN_2, G_VERBINDEN_3];
+
+/* ==========================================================================
+   THEMA D — Füllgraphen
+   Wasser läuft gleichmäßig ein. Wo das Gefäß schmal ist, steigt die Höhe
+   schnell. Die Kurven werden aus der Gefäßform berechnet, nicht gezeichnet.
+   ========================================================================== */
+var PROFILE = [
+  { id: "zyl", r: function(h){ return 0.9; }, wie: "gleich breit", graph: "eine gerade Linie — die Höhe steigt immer gleich schnell" },
+  { id: "eng", r: function(h){ return 1.15 - 0.65 * h; }, wie: "nach oben immer enger", graph: "eine Kurve, die immer steiler wird — die Höhe steigt immer schneller" },
+  { id: "weit", r: function(h){ return 0.5 + 0.65 * h; }, wie: "nach oben immer weiter", graph: "eine Kurve, die immer flacher wird — die Höhe steigt immer langsamer" },
+  { id: "stufeEng", r: function(h){ return h < 0.5 ? 1.1 : 0.55; }, wie: "unten breit, oben schmal", graph: "zwei gerade Stücke mit Knick: erst flach, dann steil" },
+  { id: "stufeWeit", r: function(h){ return h < 0.5 ? 0.55 : 1.1; }, wie: "unten schmal, oben breit", graph: "zwei gerade Stücke mit Knick: erst steil, dann flach" },
+  { id: "bauch", r: function(h){ return 0.45 + 0.65 * Math.sin(Math.PI * h); }, wie: "in der Mitte bauchig", graph: "erst steil, in der Mitte flach, oben wieder steil" }
+];
+function fuellKurve(p){
+  var N = 80, V = [0];
+  for (var i = 1; i <= N; i++){ var hm = (i - 0.5) / N, r = p.r(hm); V.push(V[i - 1] + r * r / N); }
+  return V.map(function(v, i){ return [v / V[N], i / N]; });
+}
+function fuellGraph(p){
+  return diagramm({ klein: true, xmax: 1, ymax: 1, xname: "Zeit", yname: "Höhe", linien: fuellKurve(p), alt: "Füllgraph" });
+}
+function gefaess(p, klein){
+  var B = klein ? 110 : 150, H = klein ? 120 : 170, u = H - 12, o = 14, m = B / 2, s = (B / 2 - 10) / 1.2;
+  var N = 60, links = [], rechts = [];
+  for (var i = 0; i <= N; i++){
+    var h = i / N;
+    var hh = [h];
+    if (p.id.indexOf("stufe") === 0 && Math.abs(h - 0.5) < 1e-9) hh = [0.4999, 0.5];
+    hh.forEach(function(x){
+      var y = u - x * (u - o);
+      links.push((m - p.r(x) * s).toFixed(1) + "," + y.toFixed(1));
+      rechts.unshift((m + p.r(x) * s).toFixed(1) + "," + y.toFixed(1));
+    });
+  }
+  var umriss = links.concat(rechts);
+  var wasser = [];
+  for (var j = 0; j <= 20; j++){ var hw = j / 20 * 0.35, yw = u - hw * (u - o); wasser.push((m - p.r(hw) * s).toFixed(1) + "," + yw.toFixed(1)); }
+  for (var j2 = 20; j2 >= 0; j2--){ var hw2 = j2 / 20 * 0.35, yw2 = u - hw2 * (u - o); wasser.push((m + p.r(hw2) * s).toFixed(1) + "," + yw2.toFixed(1)); }
+  return '<svg class="bild gefaess' + (klein ? " klein" : "") + '" viewBox="0 0 ' + B + " " + H + '" role="img" aria-label="Gefäß: ' + esc(p.wie) + '">'
+    + '<polygon points="' + wasser.join(" ") + '" fill="var(--akzent-hell)" stroke="none"/>'
+    + '<polyline points="' + umriss.join(" ") + '" fill="none" stroke="var(--text)" stroke-width="2.6" stroke-linejoin="round"/>'
+    + "</svg>";
+}
+function fuellSchritte(p){
+  return [
+    S("Wie ist das Gefäß geformt?", p.wie),
+    S("Die Regel", "Schmal → die Höhe steigt schnell (steiler Graph). Breit → die Höhe steigt langsam (flacher Graph)."),
+    S("Also sieht der Graph so aus", p.graph)
+  ];
+}
+
+var G_FUELL_1 = function(){
+  var alle = mische(PROFILE).slice(0, 4), p = alle[0];
+  return {
+    frage: "In dieses Gefäß läuft gleichmäßig Wasser. Welcher Graph zeigt die Wasserhöhe in Abhängigkeit von der Zeit?",
+    bild: gefaess(p, false),
+    eingabe: wahl(fuellGraph(p), alle.slice(1).map(fuellGraph)),
+    hinweis: "Schau, wo das Gefäß schmal ist: Dort steigt das Wasser schnell, der Graph ist steil. Wo es breit ist, ist er flach.",
+    schritte: fuellSchritte(p),
+    bildNachher: function(){ return '<div class="bildpaar">' + gefaess(p, true) + fuellGraph(p) + "</div>"; },
+    antwort: "Das Gefäß ist " + p.wie + ". Der Graph ist " + p.graph + "."
+  };
+};
+
+var G_FUELL_2 = function(){
+  var alle = mische(PROFILE).slice(0, 4), p = alle[0];
+  return {
+    frage: "Welches Gefäß gehört zu diesem Füllgraphen? Das Wasser läuft gleichmäßig ein.",
+    bild: fuellGraph(p).replace('class="bild klein"', 'class="bild"'),
+    eingabe: wahl(gefaess(p, true), alle.slice(1).map(function(q){ return gefaess(q, true); })),
+    hinweis: "Wo der Graph steil ist, muss das Gefäß schmal sein. Wo er flach ist, ist es breit. Ein Knick bedeutet eine Stufe im Gefäß.",
+    schritte: [
+      S("Wie sieht der Graph aus?", p.graph),
+      S("Die Regel rückwärts", "steil → schmal · flach → breit · Knick → Stufe · Krümmung → schräge Wand"),
+      S("Also ist das Gefäß", p.wie)
+    ],
+    antwort: "Das Gefäß ist " + p.wie + "."
+  };
+};
+
+var G_FUELL_3 = function(){
+  var fragen = [
+    { f: "Ein Füllgraph hat einen <strong>Knick</strong>. Was bedeutet das für das Gefäß?",
+      r: "Das Gefäß hat an dieser Höhe eine Stufe — es wird plötzlich schmaler oder breiter.",
+      x: ["Das Gefäß ist an dieser Stelle voll.", "Das Wasser läuft dort schneller ein.", "Das Gefäß ist oben offen."] },
+    { f: "Ein Füllgraph ist eine <strong>gerade Linie</strong>. Was weißt du über das Gefäß?",
+      r: "Es ist überall gleich breit, zum Beispiel ein Zylinder.",
+      x: ["Es wird nach oben immer schmaler.", "Es hat genau eine Stufe.", "Es ist unten schmal und oben breit."] },
+    { f: "Ein Füllgraph wird nach oben hin <strong>immer steiler</strong> (gekrümmt, ohne Knick). Wie ist das Gefäß geformt?",
+      r: "Es wird nach oben gleichmäßig schmaler (schräge Wände).",
+      x: ["Es wird nach oben gleichmäßig breiter.", "Es ist überall gleich breit.", "Es hat oben eine Stufe."] },
+    { f: "Wo steigt die Wasserhöhe in einem Gefäß am <strong>schnellsten</strong>?",
+      r: "Dort, wo das Gefäß am schmalsten ist.",
+      x: ["Dort, wo das Gefäß am breitesten ist.", "Immer ganz oben.", "Immer ganz unten."] }
+  ];
+  var q = waehle(fragen);
+  return {
+    frage: q.f,
+    eingabe: wahl(q.r, q.x),
+    hinweis: "Stell dir vor, in jeder Sekunde kommt gleich viel Wasser dazu. In einem schmalen Teil macht diese Menge viel Höhe, in einem breiten wenig.",
+    schritte: [
+      S("Gleich viel Wasser pro Sekunde", "schmal → viel Höhe · breit → wenig Höhe"),
+      S("Übersetzt in den Graphen", "schmal → steil · breit → flach · Stufe → Knick · schräge Wand → Krümmung"),
+      S("Hier", q.r)
+    ],
+    antwort: q.r
+  };
+};
+var G_FUELL = [G_FUELL_1, G_FUELL_2, G_FUELL_3];
+
+/* ==========================================================================
+   Kontexte für proportionale und antiproportionale Zuordnungen
+   ========================================================================== */
+var P_KONTEXTE = [
+  { xname: "Menge in kg", yname: "Preis in €", xe: "kg", ye: "€", raten: [2.4, 2.8, 3.2, 3.6, 2.5], xs: [2, 3, 4, 5, 6], maxX: 20, geld: true,
+    satz: function(x, y){ return dez(x) + " kg Tomaten kosten " + eur(y); },
+    fY: function(x){ return "Wie viel kosten " + dez(x) + " kg Tomaten?"; },
+    fX: function(y){ return "Wie viele kg Tomaten bekommt man für " + eur(y) + "?"; },
+    eins: function(r){ return "1 kg kostet " + eur(r); }, f1: "Wie viel kostet 1 kg?", rE: "€ je kg" },
+  { xname: "Menge in kg", yname: "Preis in €", xe: "kg", ye: "€", raten: [6, 7.5, 8, 9, 12], xs: [2, 3, 4, 5], maxX: 10, geld: true,
+    satz: function(x, y){ return dez(x) + " kg Walnüsse kosten " + eur(y); },
+    fY: function(x){ return "Wie viel kosten " + dez(x) + " kg Walnüsse?"; },
+    fX: function(y){ return "Wie viele kg Walnüsse bekommt man für " + eur(y) + "?"; },
+    eins: function(r){ return "1 kg kostet " + eur(r); }, f1: "Wie viel kostet 1 kg?", rE: "€ je kg" },
+  { xname: "Anzahl der Hefte", yname: "Preis in €", xe: "Hefte", ye: "€", raten: [0.8, 1.2, 1.5, 0.9, 1.25], xs: [4, 5, 6, 8, 10, 12], maxX: 40, geld: true, ganz: true,
+    satz: function(x, y){ return dez(x) + " Hefte kosten " + eur(y); },
+    fY: function(x){ return "Wie viel kosten " + dez(x) + " Hefte?"; },
+    fX: function(y){ return "Wie viele Hefte bekommt man für " + eur(y) + "?"; },
+    eins: function(r){ return "1 Heft kostet " + eur(r); }, f1: "Wie viel kostet 1 Heft?", rE: "€ je Heft" },
+  { xname: "Zeit in h", yname: "Strecke in km", xe: "h", ye: "km", raten: [12, 14, 15, 16, 18], xs: [2, 3, 4, 5, 6], maxX: 8,
+    satz: function(x, y){ return "Eine Radfahrerin fährt gleichmäßig und schafft in " + dez(x) + " h " + mitE(y, "km"); },
+    fY: function(x){ return "Wie weit kommt sie in " + dez(x) + " h?"; },
+    fX: function(y){ return "Wie lange braucht sie für " + mitE(y, "km") + "?"; },
+    eins: function(r){ return "In 1 h fährt sie " + mitE(r, "km"); }, f1: "Wie weit fährt sie in 1 h?", rE: "km je h" },
+  { xname: "Zeit in min", yname: "Wasser in l", xe: "min", ye: "l", raten: [6, 8, 9, 12], xs: [2, 3, 4, 5, 6, 10], maxX: 30,
+    satz: function(x, y){ return "Aus einem Wasserhahn laufen in " + dez(x) + " min gleichmäßig " + mitE(y, "Liter"); },
+    fY: function(x){ return "Wie viele Liter laufen in " + dez(x) + " min heraus?"; },
+    fX: function(y){ return "Wie lange dauert es, bis " + mitE(y, "Liter") + " herausgelaufen sind?"; },
+    eins: function(r){ return "In 1 min laufen " + mitE(r, "Liter") + " heraus"; }, f1: "Wie viele Liter laufen in 1 min heraus?", rE: "Liter je min" },
+  { xname: "Anzahl der Packungen", yname: "Anzahl der Kekse", xe: "Packungen", ye: "Kekse", raten: [12, 15, 18, 24], xs: [2, 3, 4, 5, 6, 7, 8], maxX: 40, ganz: true,
+    satz: function(x, y){ return "In " + dez(x) + " Packungen sind " + dez(y) + " Kekse"; },
+    fY: function(x){ return "Wie viele Kekse sind in " + dez(x) + " Packungen?"; },
+    fX: function(y){ return "Wie viele Packungen enthalten " + dez(y) + " Kekse?"; },
+    eins: function(r){ return "In 1 Packung sind " + dez(r) + " Kekse"; }, f1: "Wie viele Kekse sind in 1 Packung?", rE: "Kekse je Packung" }
+];
+
+/* Antiproportional: x · y = G bleibt gleich. */
+var A_KONTEXTE = [
+  { xname: "Anzahl der Helfer", yname: "Zeit in h", xe: "Helfer", ye: "h", G: [12, 24, 36, 48, 60], xmin: 2, xmax: 12, ystellen: 1,
+    satz: function(x, y){ return dez(x) + " Helfer brauchen " + mitE(y, "h") + ", um eine Sporthalle für ein Fest zu schmücken"; },
+    fY: function(x){ return "Wie lange brauchen " + dez(x) + " Helfer, wenn alle gleich schnell arbeiten?"; },
+    fX: function(y){ return "Wie viele Helfer braucht man, damit es nur " + mitE(y, "h") + " dauert?"; },
+    gesamt: "die Arbeitszeit insgesamt, wenn einer allein alles machen müsste (in Stunden)" },
+  { xname: "Anzahl der Ziegen", yname: "Anzahl der Tage", xe: "Ziegen", ye: "Tage", G: [60, 72, 120, 90, 48], xmin: 2, xmax: 12, ystellen: 0,
+    satz: function(x, y){ return "Ein Futtervorrat reicht für " + dez(x) + " Ziegen " + dez(y) + " Tage"; },
+    fY: function(x){ return "Wie lange reicht er für " + dez(x) + " Ziegen?"; },
+    fX: function(y){ return "Für wie viele Ziegen reicht er " + dez(y) + " Tage?"; },
+    gesamt: "die Anzahl der Tagesportionen im ganzen Vorrat" },
+  { xname: "Geschwindigkeit in km/h", yname: "Fahrzeit in h", xe: "km/h", ye: "h", G: [120, 180, 240, 60, 90], xlist: [10, 15, 20, 30, 40, 45, 60, 80, 90, 120], ystellen: 2,
+    satz: function(x, y){ return "Mit " + mitE(x, "km/h") + " dauert eine Fahrt " + mitE(y, "h"); },
+    fY: function(x){ return "Wie lange dauert dieselbe Fahrt mit " + mitE(x, "km/h") + "?"; },
+    fX: function(y){ return "Wie schnell muss man fahren, damit dieselbe Fahrt " + mitE(y, "h") + " dauert?"; },
+    gesamt: "die Länge der Strecke in km" },
+  { xname: "Stühle pro Reihe", yname: "Anzahl der Reihen", xe: "Stühle", ye: "Reihen", G: [48, 60, 72, 96, 120], xmin: 4, xmax: 24, ystellen: 0,
+    satz: function(x, y){ return "Für ein Konzert werden die Stühle in " + dez(y) + " Reihen mit je " + dez(x) + " Stühlen aufgestellt"; },
+    fY: function(x){ return "Wie viele Reihen werden es, wenn in jede Reihe " + dez(x) + " Stühle kommen?"; },
+    fX: function(y){ return "Wie viele Stühle kommen in jede Reihe, wenn es " + dez(y) + " Reihen werden sollen?"; },
+    gesamt: "die Anzahl aller Stühle" },
+  { xname: "Anzahl der Personen", yname: "Anteil in €", xe: "Personen", ye: "€", G: [36, 48, 60, 72, 90, 120], xmin: 2, xmax: 12, ystellen: 2, geld: true,
+    satz: function(x, y){ return "Wenn sich " + dez(x) + " Personen die Kosten für ein Geschenk teilen, zahlt jede " + eur(y); },
+    fY: function(x){ return "Wie viel zahlt jede, wenn sich " + dez(x) + " Personen die Kosten teilen?"; },
+    fX: function(y){ return "Wie viele Personen müssen sich die Kosten teilen, damit jede nur " + eur(y) + " zahlt?"; },
+    gesamt: "der Preis des Geschenks in €" }
+];
+
+function yText(k, v){ return k.geld ? eur(v) : mitE(v, k.ye); }
+function xText(k, v){ return mitE(v, k.xe); }
+
+/* Zwei Wertepaare einer proportionalen Zuordnung. */
+function pPaar(k){
+  var r = waehle(k.raten), xs = zweiAus(k.xs);
+  return { k: k, r: r, x1: xs[0], y1: Math.round(r * xs[0] * 100) / 100, x2: xs[1], y2: Math.round(r * xs[1] * 100) / 100 };
+}
+/* Zwei Wertepaare einer antiproportionalen Zuordnung. */
+/* Mögliche x-Werte zu einer Gesamtgröße: y = G : x muss sich mit höchstens
+   ystellen Nachkommastellen schreiben lassen. */
+function aKandidaten(k, G){
+  var liste = k.xlist ? k.xlist.slice() : [];
+  if (!k.xlist) for (var x = k.xmin; x <= k.xmax; x++) liste.push(x);
+  return liste.filter(function(x){ return glatt(G / x, k.ystellen) && G / x >= 0.5 && x !== G / x; });
+}
+function aPaar(k){
+  for (var v = 0; v < 200; v++){
+    var G = waehle(k.G);
+    var kand = aKandidaten(k, G);
+    if (kand.length < 2) continue;
+    var p = zweiAus(kand);
+    return { k: k, G: G, x1: p[0], y1: G / p[0], x2: p[1], y2: G / p[1] };
+  }
+  throw new Error("Kein Paar");
+}
+
+/* ==========================================================================
+   THEMA E — Welche Zuordnung ist das?
+   ========================================================================== */
+var ARTEN = {
+  P: "proportional",
+  A: "antiproportional",
+  K: "weder proportional noch antiproportional",
+  B: "proportional und antiproportional zugleich"
+};
+/* Eine Tabelle mit vier Spalten. Die Fallen sind die, an denen die 7b
+   hängen bleibt: gleichmäßig steigend mit Startwert, „je mehr, desto
+   weniger“ mit gleicher Summe, und die Zaun-Falle — außen gleiche Produkte,
+   innen nicht. */
+function erkennTabelle(art){
+  var xs, ys, falle = "";
+  if (art === "P"){
+    var r = waehle([2, 3, 4, 5, 1.5, 2.5, 6]);
+    var start = rnd(1, 3), d = waehle([1, 2]);
+    xs = [0, 1, 2, 3].map(function(i){ return start + i * d; });
+    ys = xs.map(function(x){ return r * x; });
+  } else if (art === "A"){
+    var G = waehle([24, 36, 48, 60, 72]);
+    xs = mische(teilerVon(G, 2, 12)).slice(0, 4).sort(function(a, b){ return a - b; });
+    ys = xs.map(function(x){ return G / x; });
+  } else {
+    var typ = waehle(["grund", "summe", "zaun", "fast"]);
+    falle = typ;
+    if (typ === "grund"){
+      var m = rnd(2, 5), b = rnd(1, 6);
+      xs = [1, 2, 4, 5]; ys = xs.map(function(x){ return m * x + b; });
+    } else if (typ === "summe"){
+      var s = rnd(9, 16);
+      xs = [1, 2, 3, 4].map(function(i){ return i * rnd(1, 2); });
+      xs = xs.filter(function(x, i){ return xs.indexOf(x) === i; });
+      while (xs.length < 4) xs.push(xs[xs.length - 1] + 1);
+      ys = xs.map(function(x){ return s - x; });
+    } else if (typ === "zaun"){
+      var s2 = waehle([8, 10, 12, 14]);
+      var a = rnd(1, 2), c = rnd(a + 1, s2 / 2 - 1);
+      xs = [a, c, s2 - c, s2 - a]; ys = xs.map(function(x){ return s2 - x; });
+    } else {
+      var G2 = waehle([24, 36, 48, 60]);
+      xs = mische(teilerVon(G2, 2, 12)).slice(0, 4).sort(function(p, q){ return p - q; });
+      ys = xs.map(function(x){ return G2 / x; });
+      var j = rnd(1, 2);
+      ys[j] = ys[j] + waehle([1, 2]);
+    }
+  }
+  return { xs: xs, ys: ys, falle: falle };
+}
+/* Krumme Quotienten nur gerundet und als solche gekennzeichnet — ohne
+   Taschenrechner rechnet niemand 22 : 3 auf vier Stellen aus. */
+function quotListe(t){
+  return t.xs.map(function(x, i){
+    var q = t.ys[i] / x;
+    return dez(t.ys[i]) + " : " + dez(x) + (glatt(q, 2) ? " = " + dez(q) : " ≈ " + dez(q, 2));
+  }).join("<br>");
+}
+function prodListe(t){ return t.xs.map(function(x, i){ return dez(x) + " " + MAL + " " + dez(t.ys[i]) + " = " + dez(x * t.ys[i]); }).join("<br>"); }
+
+var G_ERKENNEN_1 = function(){
+  var art = waehle(["P", "A", "K", "K"]);
+  var t = erkennTabelle(art);
+  var fallenText = {
+    grund: "Die Werte wachsen gleichmäßig — aber nicht auf das Doppelte, wenn x sich verdoppelt. Gleichmäßig ist nicht proportional.",
+    summe: "Je mehr, desto weniger — aber nicht das Produkt bleibt gleich, sondern die Summe.",
+    zaun: "Das erste und das letzte Produkt sind gleich — die mittleren aber nicht. Zwei gleiche Produkte beweisen nichts.",
+    fast: "Fast alle Produkte sind gleich. Eines reicht, damit die Zuordnung nicht antiproportional ist."
+  };
+  return {
+    frage: "Welche Art von Zuordnung zeigt die Tabelle? Prüfe <em>alle</em> Spalten.",
+    bild: tabelle("x", "y", t.xs, t.ys),
+    eingabe: wahl(ARTEN[art], ["P", "A", "K", "B"].filter(function(a){ return a !== art; }).map(function(a){ return ARTEN[a]; })),
+    hinweis: "Rechne in jeder Spalte y : x (bleibt das gleich → proportional) und x " + MAL + " y (bleibt das gleich → antiproportional). Eine einzige Ausnahme genügt für „nein“.",
+    schritte: [
+      S("Quotient y : x in jeder Spalte", quotListe(t)),
+      S("Produkt x " + MAL + " y in jeder Spalte", prodListe(t)),
+      S("Entscheidung", art === "P" ? "Der Quotient ist überall gleich → proportional."
+        : art === "A" ? "Das Produkt ist überall gleich → antiproportional."
+        : "Weder der Quotient noch das Produkt ist überall gleich. " + (fallenText[t.falle] || ""))
+    ],
+    antwort: "Die Zuordnung ist <strong>" + ARTEN[art] + "</strong>."
+  };
+};
+
+/* Alle Produkte ausrechnen — die Zaun-Falle als Rechenaufgabe. */
+var G_ERKENNEN_2 = function(){
+  var art = waehle(["A", "K"]);
+  var t;
+  do { t = erkennTabelle(art); } while (art === "K" && t.falle === "grund");
+  var prods = t.xs.map(function(x, i){ return x * t.ys[i]; });
+  var gleich = prods.every(function(p){ return p === prods[0]; });
+  return {
+    frage: "Rechne für <em>jede</em> Spalte das Produkt x " + MAL + " y aus. Danach weißt du, ob die Zuordnung antiproportional ist.",
+    bild: tabelle("x", "y", t.xs, t.ys),
+    eingabe: felder(prods.map(function(p, i){ return { label: "Spalte " + (i + 1) + ":", soll: p }; })),
+    hinweis: "Nicht nur die erste und die letzte Spalte — alle vier. Genau dazwischen versteckt sich oft die Abweichung.",
+    schritte: [
+      S("Die vier Produkte", prodListe(t)),
+      S("Vergleichen", gleich ? "Alle vier sind gleich." : "Nicht alle sind gleich."),
+      S("Entscheidung", gleich ? "Antiproportional — die Gesamtgröße ist " + dez(prods[0]) + "." : "Nicht antiproportional." + (t.falle === "zaun" ? " Außen gleich, innen nicht — das ist die typische Falle." : ""))
+    ],
+    antwort: "Die Produkte sind " + prods.map(dez).join(", ") + " — die Zuordnung ist <strong>" + (gleich ? "antiproportional" : "nicht antiproportional") + "</strong>."
+  };
+};
+
+/* Quotienten ausrechnen — gleichmäßig steigend ist nicht proportional. */
+var G_ERKENNEN_3 = function(){
+  var art = waehle(["P", "K"]);
+  var t;
+  do { t = erkennTabelle(art); } while (art === "K" && t.falle !== "grund");
+  var qs = t.xs.map(function(x, i){ return t.ys[i] / x; });
+  var gleich = qs.every(function(q){ return Math.abs(q - qs[0]) < 1e-9; });
+  return {
+    frage: "Rechne für <em>jede</em> Spalte den Quotienten y : x aus. Ist die Zuordnung proportional?",
+    bild: tabelle("x", "y", t.xs, t.ys),
+    eingabe: felder(qs.map(function(q, i){ return { label: "Spalte " + (i + 1) + ":", soll: q }; })),
+    hinweis: "y : x heißt: die untere Zahl geteilt durch die obere. Kommazahlen sind erlaubt — bei krummen Ergebnissen genügen zwei Nachkommastellen.",
+    schritte: [
+      S("Die vier Quotienten", t.xs.map(function(x, i){ return dez(t.ys[i]) + " : " + dez(x) + " = " + dez(qs[i], 2); }).join("<br>")),
+      S("Vergleichen", gleich ? "Alle gleich." : "Nicht alle gleich — obwohl y gleichmäßig wächst."),
+      S("Entscheidung", gleich ? "Proportional mit dem Faktor " + dez(qs[0]) + "." : "Nicht proportional: Bei doppeltem x ist y nicht doppelt so groß.")
+    ],
+    antwort: "Die Quotienten sind " + qs.map(function(q){ return dez(q, 2); }).join(", ") + " — <strong>" + (gleich ? "proportional" : "nicht proportional") + "</strong>."
+  };
+};
+var G_ERKENNEN = [G_ERKENNEN_1, G_ERKENNEN_2, G_ERKENNEN_3];
+
+/* ==========================================================================
+   THEMA F — Proportional: der Wert für 1 und der Faktor
+   ========================================================================== */
+var G_FAKTOR_1 = function(){
+  var k = waehle(P_KONTEXTE), p = pPaar(k);
+  return {
+    frage: k.satz(p.x1, p.y1) + ".<br>a) " + k.f1 + "<br>b) " + k.fY(p.x2),
+    eingabe: felder([
+      { label: "a) für 1:", soll: p.r, einheit: k.ye },
+      { label: "b)", soll: p.y2, einheit: k.ye }
+    ]),
+    hinweis: "Die Zuordnung ist proportional. Teile zuerst durch " + dez(p.x1) + " — dann hast du den Wert für 1. Den nimmst du mal " + dez(p.x2) + ".",
+    schritte: [
+      S("Wert für 1: beide Seiten durch " + dez(p.x1), yText(k, p.y1) + " : " + dez(p.x1) + " = " + yText(k, p.r)),
+      S("Das ist der Faktor", dez(p.r) + " " + k.rE),
+      S("Mal " + dez(p.x2), dez(p.r) + " " + MAL + " " + dez(p.x2) + " = " + yText(k, p.y2))
+    ],
+    antwort: "a) " + k.eins(p.r) + " · b) <strong>" + yText(k, p.y2) + "</strong>"
+  };
+};
+
+var G_FAKTOR_2 = function(){
+  var k = waehle(P_KONTEXTE), p = pPaar(k);
+  return {
+    frage: k.satz(p.x1, p.y1) + ". " + k.fX(p.y2),
+    eingabe: zahlFeld("Antwort:", p.x2, { einheit: k.xe }),
+    hinweis: "Andersherum: Du kennst das Ergebnis und suchst die Menge. Bestimme den Wert für 1 und teile dann den neuen Wert durch ihn.",
+    schritte: [
+      S("Wert für 1", yText(k, p.y1) + " : " + dez(p.x1) + " = " + yText(k, p.r) + " (" + k.rE + ")"),
+      S("Wie oft passt der Wert für 1 in " + yText(k, p.y2) + "?", dez(p.y2) + " : " + dez(p.r) + " = " + dez(p.x2)),
+      S("Probe", dez(p.x2) + " " + MAL + " " + dez(p.r) + " = " + dez(p.y2))
+    ],
+    antwort: "<strong>" + xText(k, p.x2) + "</strong>."
+  };
+};
+
+var G_FAKTOR_3 = function(){
+  var k = waehle(P_KONTEXTE), p = pPaar(k);
+  return {
+    frage: k.satz(p.x1, p.y1) + ". Der Quotient ist " + dez(p.y1) + " : " + dez(p.x1) + " = <strong>" + dez(p.r) + "</strong>. Was bedeutet diese Zahl?",
+    eingabe: wahlAus(k.eins(p.r) + ".", [
+      "Man bekommt immer genau " + dez(p.r) + " " + k.xe + ".",
+      dez(p.r) + " " + k.xe + " ergeben zusammen 1 " + k.ye + ".",
+      "Der Wert wird bei jedem Schritt um " + dez(p.r) + " kleiner."
+    ]),
+    hinweis: "Geteilt wurde „" + k.yname + "“ durch „" + k.xname + "“. Das Ergebnis sagt, wie viel davon auf <em>eine</em> Einheit (1 " + k.xe + ") kommt.",
+    schritte: [
+      S("Was wurde geteilt?", k.yname + " : " + k.xname),
+      S("Einheit des Ergebnisses", k.rE),
+      S("Als Satz", k.eins(p.r))
+    ],
+    antwort: k.eins(p.r) + "."
+  };
+};
+
+var G_FAKTOR_4 = function(){
+  var k = waehle(P_KONTEXTE), p = pPaar(k);
+  var fs = [2, 3, 4, 5].filter(function(n){ return p.x1 * n <= k.maxX; });
+  var f = fs.length ? waehle(fs) : 2;
+  var x2 = p.x1 * f, y2 = Math.round(p.y1 * f * 100) / 100;
+  return {
+    frage: k.satz(p.x1, p.y1) + ". " + k.fY(x2) + " Rechne ohne den Wert für 1.",
+    eingabe: zahlFeld("Antwort:", y2, { einheit: k.ye }),
+    hinweis: dez(x2) + " ist das " + f + "-Fache von " + dez(p.x1) + ". Bei einer proportionalen Zuordnung wird dann auch die andere Größe " + f + "-mal so groß.",
+    schritte: [
+      S("Womit wird die erste Größe malgenommen?", dez(p.x1) + " " + MAL + " " + f + " = " + dez(x2)),
+      S("Proportional: die andere Größe mit derselben Zahl", dez(p.y1) + " " + MAL + " " + f + " = " + dez(y2)),
+      S("Antwort", k.satz(x2, y2))
+    ],
+    antwort: "<strong>" + yText(k, y2) + "</strong> — " + f + "-mal so viel."
+  };
+};
+var G_FAKTOR = [G_FAKTOR_1, G_FAKTOR_2, G_FAKTOR_3, G_FAKTOR_4];
+
+/* ==========================================================================
+   THEMA G — Lücken in Tabellen
+   ========================================================================== */
+var G_LUECKEN_1 = function(){
+  var r = waehle([1.5, 2.5, 3, 4, 0.5, 1.2]);
+  var xs;
+  do { xs = mische([2, 3, 4, 5, 6, 8, 10]).slice(0, 3).sort(function(a, b){ return a - b; }); } while (!xs.every(function(x){ return glatt(r * x, 1); }));
+  var ys = xs.map(function(x){ return r * x; });
+  var bekannt = rnd(0, 2);
+  var anzeigeY = ys.map(function(y, i){ return i === bekannt ? y : LUECKE; });
+  var luecken = [0, 1, 2].filter(function(i){ return i !== bekannt; });
+  return {
+    frage: "Die Zuordnung ist <strong>proportional</strong>. Fülle die Lücken.",
+    bild: tabelle("x", "y", xs, anzeigeY),
+    eingabe: felder(luecken.map(function(i){ return { label: "bei x = " + xs[i] + ":", soll: ys[i] }; })),
+    hinweis: "Proportional: Der Quotient y : x ist überall gleich. Berechne ihn aus der vollen Spalte.",
+    schritte: [
+      S("Faktor aus der vollen Spalte", dez(ys[bekannt]) + " : " + xs[bekannt] + " = " + dez(r)),
+      S("Jede Lücke: x mal Faktor", luecken.map(function(i){ return xs[i] + " " + MAL + " " + dez(r) + " = " + dez(ys[i]); }).join("<br>")),
+      S("Probe: doppelt so viel x → doppelt so viel y", "Der Quotient ist überall " + dez(r) + ".")
+    ],
+    antwort: luecken.map(function(i){ return "bei x = " + xs[i] + ": <strong>" + dez(ys[i]) + "</strong>"; }).join(" · ")
+  };
+};
+
+var G_LUECKEN_2 = function(){
+  var G = waehle([24, 36, 48, 60, 72, 120]);
+  var xs = mische(teilerVon(G, 2, 12)).slice(0, 3).sort(function(a, b){ return a - b; });
+  var ys = xs.map(function(x){ return G / x; });
+  var bekannt = rnd(0, 2);
+  var luecken = [0, 1, 2].filter(function(i){ return i !== bekannt; });
+  return {
+    frage: "Die Zuordnung ist <strong>antiproportional</strong>. Fülle die Lücken.",
+    bild: tabelle("x", "y", xs, ys.map(function(y, i){ return i === bekannt ? y : LUECKE; })),
+    eingabe: felder(luecken.map(function(i){ return { label: "bei x = " + xs[i] + ":", soll: ys[i] }; })),
+    hinweis: "Antiproportional: Das Produkt x " + MAL + " y ist überall gleich. Berechne es aus der vollen Spalte — dann teilst du es durch jedes x.",
+    schritte: [
+      S("Gesamtgröße aus der vollen Spalte", xs[bekannt] + " " + MAL + " " + dez(ys[bekannt]) + " = " + G),
+      S("Jede Lücke: Gesamtgröße durch x", luecken.map(function(i){ return G + " : " + xs[i] + " = " + dez(ys[i]); }).join("<br>")),
+      S("Probe", "In jeder Spalte ergibt x " + MAL + " y wieder " + G + ".")
+    ],
+    antwort: luecken.map(function(i){ return "bei x = " + xs[i] + ": <strong>" + dez(ys[i]) + "</strong>"; }).join(" · ")
+  };
+};
+
+/* Lücke oben: x gesucht — bei beiden Arten. */
+var G_LUECKEN_3 = function(){
+  var anti = Math.random() < 0.5;
+  var xs, ys, G, r;
+  if (anti){
+    G = waehle([36, 48, 60, 72]);
+    xs = mische(teilerVon(G, 2, 12)).slice(0, 2).sort(function(a, b){ return a - b; });
+    ys = xs.map(function(x){ return G / x; });
+  } else {
+    r = waehle([2, 3, 4, 5, 2.5]);
+    xs = zweiAus([2, 4, 6, 8, 10]).sort(function(a, b){ return a - b; });
+    ys = xs.map(function(x){ return r * x; });
+  }
+  return {
+    frage: "Die Zuordnung ist <strong>" + (anti ? "antiproportional" : "proportional") + "</strong>. Welche Zahl gehört oben in die Lücke?",
+    bild: tabelle("x", "y", [xs[0], LUECKE], [ys[0], ys[1]]),
+    eingabe: zahlFeld("x =", xs[1]),
+    hinweis: anti ? "Das Produkt bleibt gleich: " + xs[0] + " " + MAL + " " + dez(ys[0]) + ". Durch welche Zahl musst du es teilen, um " + dez(ys[1]) + " zu erhalten?"
+                  : "Der Quotient bleibt gleich: " + dez(ys[0]) + " : " + xs[0] + ". Die gesuchte Zahl ist " + dez(ys[1]) + " geteilt durch diesen Faktor.",
+    schritte: anti ? [
+      S("Gesamtgröße", xs[0] + " " + MAL + " " + dez(ys[0]) + " = " + G),
+      S("Gesucht: x mit x " + MAL + " " + dez(ys[1]) + " = " + G, "x = " + G + " : " + dez(ys[1]) + " = " + xs[1]),
+      S("Probe", xs[1] + " " + MAL + " " + dez(ys[1]) + " = " + G)
+    ] : [
+      S("Faktor", dez(ys[0]) + " : " + xs[0] + " = " + dez(r)),
+      S("Gesucht: x mit x " + MAL + " " + dez(r) + " = " + dez(ys[1]), "x = " + dez(ys[1]) + " : " + dez(r) + " = " + xs[1]),
+      S("Probe", xs[1] + " " + MAL + " " + dez(r) + " = " + dez(ys[1]))
+    ],
+    antwort: "In die Lücke gehört <strong>" + xs[1] + "</strong>."
+  };
+};
+
+/* Mal n hier, durch n da — ohne Gesamtgröße. */
+var G_LUECKEN_4 = function(){
+  var moeglich = [];
+  [24, 36, 48, 60, 72].forEach(function(G){
+    teilerVon(G, 2, 6).forEach(function(x){
+      [2, 3, 4].forEach(function(f){ if (G % (x * f) === 0 && G / (x * f) >= 2) moeglich.push([G, x, f]); });
+    });
+  });
+  var w = waehle(moeglich);
+  var G = w[0], x1 = w[1], f = w[2];
+  var y1 = G / x1, x2 = x1 * f, y2 = y1 / f;
+  return {
+    frage: "Die Zuordnung ist <strong>antiproportional</strong>. Die obere Zahl wird mit " + f + " malgenommen. Was passiert unten?",
+    bild: tabelle("x", "y", [x1, x2], [y1, LUECKE]),
+    eingabe: zahlFeld("y =", y2),
+    hinweis: "Antiproportional heißt: mal " + f + " oben, <em>durch</em> " + f + " unten.",
+    schritte: [
+      S("Oben", x1 + " " + MAL + " " + f + " = " + x2),
+      S("Unten das Gegenteil", y1 + " : " + f + " = " + dez(y2)),
+      S("Probe mit dem Produkt", x1 + " " + MAL + " " + y1 + " = " + G + " und " + x2 + " " + MAL + " " + dez(y2) + " = " + G)
+    ],
+    antwort: "Unten steht <strong>" + dez(y2) + "</strong> — durch " + f + ", weil oben mal " + f + " gerechnet wurde."
+  };
+};
+var G_LUECKEN = [G_LUECKEN_1, G_LUECKEN_2, G_LUECKEN_3, G_LUECKEN_4];
+
+/* ==========================================================================
+   THEMA H — Fehler finden
+   ========================================================================== */
+/* Plus statt mal, proportional. */
+var G_FEHLER_1 = function(){
+  var k = waehle(P_KONTEXTE.filter(function(c){ return c.xs.length >= 4; }));
+  var n = waehle(NAMEN), p;
+  do { p = pPaar(k); } while (p.x2 <= p.x1 || Math.abs((p.y1 + (p.x2 - p.x1)) - p.y2) < 1e-9);
+  var falsch = Math.round((p.y1 + (p.x2 - p.x1)) * 100) / 100;
+  return {
+    frage: k.satz(p.x1, p.y1) + ". " + k.fY(p.x2) + "<br>" + n + " rechnet: „" + xText(k, p.x2) + " sind " + dez(p.x2 - p.x1) + " mehr als " + xText(k, p.x1)
+      + ", also ist das Ergebnis auch um " + dez(p.x2 - p.x1) + " größer: " + yText(k, falsch) + ".“<br>Was ist richtig?",
+    eingabe: zahlFeld("richtig:", p.y2, { einheit: k.ye }),
+    hinweis: n + " hat dieselbe Zahl <em>addiert</em>. Bei einer proportionalen Zuordnung wird aber mit derselben Zahl <em>malgenommen</em>.",
+    schritte: [
+      S("Der Fehler", "plus statt mal: " + dez(p.y1) + " + " + dez(p.x2 - p.x1) + " = " + dez(falsch)),
+      S("Richtig über den Wert für 1", dez(p.y1) + " : " + dez(p.x1) + " = " + dez(p.r)),
+      S("Mal " + dez(p.x2), dez(p.r) + " " + MAL + " " + dez(p.x2) + " = " + dez(p.y2))
+    ],
+    antwort: "Richtig ist: <strong>" + yText(k, p.y2) + "</strong>, nicht " + yText(k, falsch) + "."
+  };
+};
+
+/* Antiproportional wie proportional gerechnet. */
+var G_FEHLER_2 = function(){
+  var k = waehle(A_KONTEXTE), n = waehle(NAMEN), p;
+  do { p = aPaar(k); } while (!glatt(p.y1 * p.x2 / p.x1, 2) || Math.abs(p.y1 * p.x2 / p.x1 - p.y2) < 1e-9);
+  var falsch = p.y1 * p.x2 / p.x1;
+  return {
+    frage: k.satz(p.x1, p.y1) + ". " + k.fY(p.x2) + "<br>" + n + " sagt: „" + xText(k, p.x2) + " sind " + (p.x2 > p.x1 ? "mehr" : "weniger") + " als " + xText(k, p.x1)
+      + ", also wird auch das Ergebnis " + (p.x2 > p.x1 ? "größer" : "kleiner") + ": " + yText(k, falsch) + ".“<br>Was stimmt?",
+    eingabe: wahlAus(
+      n + " hat gerechnet, als wäre die Zuordnung proportional. Sie ist antiproportional: Richtig ist: " + yText(k, p.y2) + ".",
+      [ n + " hat recht: " + yText(k, falsch) + ".",
+        n + " hat richtig gedacht, aber sich verrechnet: Richtig ist: " + yText(k, Math.round((falsch + p.y1) / 2 * 100) / 100) + ".",
+        "Man kann es nicht ausrechnen, weil die Werte nicht zusammenpassen."]),
+    hinweis: "Frag dich: Wenn es " + (p.x2 > p.x1 ? "mehr" : "weniger") + " " + k.xe + " sind — wird das Ergebnis dann wirklich " + (p.x2 > p.x1 ? "größer" : "kleiner") + "?",
+    schritte: [
+      S("Art der Zuordnung", "doppelt so viel oben → halb so viel unten: antiproportional"),
+      S("Gesamtgröße", dez(p.x1) + " " + MAL + " " + dez(p.y1) + " = " + dez(p.G)),
+      S("Teilen", dez(p.G) + " : " + dez(p.x2) + " = " + dez(p.y2))
+    ],
+    antwort: "Richtig ist: <strong>" + yText(k, p.y2) + "</strong> — antiproportional, nicht proportional."
+  };
+};
+
+/* Plus statt mal, antiproportional. */
+var G_FEHLER_3 = function(){
+  var k = waehle(A_KONTEXTE.filter(function(c){ return !c.xlist; })), n = waehle(NAMEN), p;
+  do { p = aPaar(k); } while (Math.abs(p.x2 - p.x1) < 1 || p.y1 - (p.x2 - p.x1) <= 0 || Math.abs(p.y1 - (p.x2 - p.x1) - p.y2) < 1e-9);
+  var d = p.x2 - p.x1;
+  var falsch = p.y1 - d;
+  return {
+    frage: k.satz(p.x1, p.y1) + ". " + k.fY(p.x2) + "<br>" + n + " rechnet: „" + xText(k, p.x2) + " sind " + dez(Math.abs(d)) + (d > 0 ? " mehr" : " weniger")
+      + ", also ist das Ergebnis um " + dez(Math.abs(d)) + (d > 0 ? " kleiner" : " größer") + ": " + yText(k, falsch) + ".“<br>Was ist richtig?",
+    eingabe: zahlFeld("richtig:", p.y2, { einheit: k.ye }),
+    hinweis: "Die Richtung stimmt (" + (d > 0 ? "mehr → weniger" : "weniger → mehr") + "), aber antiproportional heißt nicht „um gleich viel“, sondern „mal hier, durch da“. Nutze das Produkt.",
+    schritte: [
+      S("Der Fehler", "mit dem Unterschied gerechnet: " + dez(p.y1) + (d > 0 ? " " + MINUS + " " : " + ") + dez(Math.abs(d)) + " = " + dez(falsch)),
+      S("Richtig: Gesamtgröße", dez(p.x1) + " " + MAL + " " + dez(p.y1) + " = " + dez(p.G)),
+      S("Durch " + dez(p.x2), dez(p.G) + " : " + dez(p.x2) + " = " + dez(p.y2))
+    ],
+    antwort: "Richtig ist: <strong>" + yText(k, p.y2) + "</strong>."
+  };
+};
+
+/* „Wächst immer um gleich viel, also proportional.“ */
+var G_FEHLER_4 = function(){
+  var n = waehle(NAMEN);
+  var m = rnd(3, 6), b = rnd(2, 8);
+  var xs = [1, 2, 3, 4], ys = xs.map(function(x){ return m * x + b; });
+  return {
+    frage: n + " sagt: „In der Tabelle wird y immer um " + m + " größer. Also ist die Zuordnung proportional.“ Was stimmt?",
+    bild: tabelle("x", "y", xs, ys),
+    eingabe: wahl(
+      "Nicht richtig: Bei x = 2 müsste y doppelt so groß sein wie bei x = 1. Das ist es nicht (" + ys[0] + " → " + ys[1] + ").",
+      [ "Richtig: Wenn y immer um dieselbe Zahl wächst, ist die Zuordnung proportional.",
+        "Nicht richtig: Die Zuordnung ist antiproportional.",
+        "Richtig, aber nur, wenn man noch eine Spalte dazunimmt." ]),
+    hinweis: "Proportional heißt nicht „gleichmäßig wachsend“, sondern „doppelt so viel → doppelt so viel“. Prüfe den Quotienten y : x.",
+    schritte: [
+      S("Quotienten", quotListe({ xs: xs, ys: ys })),
+      S("Vergleich", "nicht alle gleich"),
+      S("Warum", "Gleichmäßiges Wachsen mit Startwert " + b + " ist nicht proportional — die Linie geht nicht durch den Nullpunkt.")
+    ],
+    antwort: "Nicht proportional: Der Quotient y : x ist nicht überall gleich."
+  };
+};
+var G_FEHLER = [G_FEHLER_1, G_FEHLER_2, G_FEHLER_3, G_FEHLER_4];
+
+/* ==========================================================================
+   THEMA I — Sachaufgaben: erst entscheiden, dann rechnen
+   ========================================================================== */
+function sachFall(){
+  var anti = Math.random() < 0.5;
+  if (anti){
+    var k = waehle(A_KONTEXTE), p = aPaar(k);
+    return { anti: true, k: k, x1: p.x1, y1: p.y1, x2: p.x2, y2: p.y2, G: p.G,
+      proportionalFalsch: p.y1 * p.x2 / p.x1 };
+  }
+  var kp = waehle(P_KONTEXTE), q = pPaar(kp);
+  return { anti: false, k: kp, x1: q.x1, y1: q.y1, x2: q.x2, y2: q.y2, r: q.r,
+    antiFalsch: q.y1 * q.x1 / q.x2 };
+}
+function sachSchritte(f){
+  var k = f.k;
+  return f.anti ? [
+    S("Erst entscheiden", "Mehr " + k.xe + " → " + (f.k.ye === "€" ? "weniger €" : "weniger " + k.ye) + ", und zwar doppelt so viele → halb so viel: <strong>antiproportional</strong>"),
+    S("Das Produkt bleibt gleich (Gesamtgröße)", dez(f.x1) + " " + MAL + " " + dez(f.y1) + " = " + dez(f.G)),
+    S("Durch den neuen Wert teilen", dez(f.G) + " : " + dez(f.x2) + " = " + dez(f.y2))
+  ] : [
+    S("Erst entscheiden", "Doppelt so viel " + k.xe + " → doppelt so viel: <strong>proportional</strong>"),
+    S("Wert für 1 (Quotient)", dez(f.y1) + " : " + dez(f.x1) + " = " + dez(f.r)),
+    S("Mal den neuen Wert", dez(f.r) + " " + MAL + " " + dez(f.x2) + " = " + dez(f.y2))
+  ];
+}
+
+var G_SACH_1 = function(){
+  var f;
+  do { f = sachFall(); } while (!glatt(f.anti ? f.proportionalFalsch : f.antiFalsch, 2));
+  var k = f.k;
+  var falsch = f.anti ? f.proportionalFalsch : f.antiFalsch;
+  var plus = f.y1 + (f.x2 - f.x1) * (f.anti ? -1 : 1);
+  /* Die typischen Fehler zuerst; danach Ersatz, falls einer davon zufällig
+     mit der Lösung oder einem anderen Ablenker zusammenfällt. */
+  var vorrat = [falsch, plus, f.y1, f.y2 * 2, f.y2 / 2, f.y1 + f.y2, f.y2 + 1, f.y2 * 3]
+    .filter(function(v){ return v > 0 && glatt(v, 2); })
+    .map(function(v){ return yText(k, v); });
+  return {
+    frage: k.satz(f.x1, f.y1) + ". " + k.fY(f.x2) + "<br><em>Entscheide zuerst, ob die Zuordnung proportional oder antiproportional ist.</em>",
+    eingabe: wahlAus(yText(k, f.y2), vorrat),
+    hinweis: "Stell dir das Doppelte vor: Wird das Ergebnis dann auch doppelt so groß (proportional) oder halb so groß (antiproportional)?",
+    schritte: sachSchritte(f),
+    antwort: (f.anti ? "Antiproportional" : "Proportional") + ": <strong>" + yText(k, f.y2) + "</strong>."
+  };
+};
+
+var G_SACH_2 = function(){
+  var f = sachFall(), k = f.k;
+  return {
+    frage: k.satz(f.x1, f.y1) + ". " + k.fY(f.x2),
+    eingabe: zahlFeld("Antwort:", f.y2, { einheit: k.ye }),
+    hinweis: "Erst entscheiden: proportional oder antiproportional? Dann den Wert für 1 (proportional) oder die Gesamtgröße (antiproportional) bestimmen.",
+    schritte: sachSchritte(f),
+    antwort: (f.anti ? "Antiproportional" : "Proportional") + ": <strong>" + yText(k, f.y2) + "</strong>."
+  };
+};
+
+/* Nur entscheiden — mit „keines von beiden“. */
+var K_FAELLE = [
+  { t: "Ein Parkhaus kostet für die erste Stunde 3 € und für jede weitere Stunde 2 €. Zuordnung: Parkdauer → Preis.",
+    w: "Doppelt so lange kostet nicht doppelt so viel (1 h: 3 €, 2 h: 5 €)." },
+  { t: "Ein Handytarif kostet 5 € im Monat und zusätzlich 2 € für jedes Gigabyte. Zuordnung: Gigabyte → Monatspreis.",
+    w: "Wegen der 5 € Grundpreis ist der doppelte Verbrauch nicht doppelt so teuer." },
+  { t: "Ein Spiel dauert 60 Minuten. Zuordnung: gespielte Zeit → verbleibende Zeit.",
+    w: "Je mehr gespielt, desto weniger bleibt — aber gleich bleibt die Summe, nicht das Produkt." },
+  { t: "Zuordnung: Alter eines Kindes in Jahren → Körpergröße in cm.",
+    w: "Ein doppelt so altes Kind ist nicht doppelt (und nicht halb) so groß." },
+  { t: "Eine Taxifahrt kostet 4 € Grundpreis und 2 € je Kilometer. Zuordnung: Strecke → Preis.",
+    w: "Der Grundpreis verhindert, dass sich der Preis mit der Strecke verdoppelt." }
+];
+var G_SACH_3 = function(){
+  var wahlArt = waehle(["P", "A", "K"]);
+  var text, warum;
+  if (wahlArt === "K"){ var kf = waehle(K_FAELLE); text = kf.t; warum = kf.w; }
+  else if (wahlArt === "P"){ var kp = waehle(P_KONTEXTE), q = pPaar(kp); text = kp.satz(q.x1, q.y1) + ". Zuordnung: " + kp.xname + " → " + kp.yname + "."; warum = "Doppelt so viel → doppelt so viel; der Quotient bleibt gleich (" + kp.eins(q.r) + ")."; }
+  else { var ka = waehle(A_KONTEXTE), a = aPaar(ka); text = ka.satz(a.x1, a.y1) + ". Zuordnung: " + ka.xname + " → " + ka.yname + "."; warum = "Doppelt so viel → halb so viel; das Produkt bleibt gleich (" + dez(a.G) + ")."; }
+  return {
+    frage: text + "<br>Welche Art von Zuordnung ist das?",
+    eingabe: wahl(
+      { P: "proportional", A: "antiproportional", K: "weder proportional noch antiproportional" }[wahlArt],
+      ["proportional", "antiproportional", "weder proportional noch antiproportional"].filter(function(s){
+        return s !== { P: "proportional", A: "antiproportional", K: "weder proportional noch antiproportional" }[wahlArt]; })
+        .concat(["proportional und antiproportional zugleich"])),
+    hinweis: "Nicht „je mehr, desto …“ entscheidet, sondern: Was passiert beim <em>Doppelten</em>? Doppelt → proportional, halb → antiproportional, weder noch → keines von beiden.",
+    schritte: [
+      S("Probe mit dem Doppelten", warum),
+      S("Merke", "„Je mehr, desto mehr“ reicht nicht für proportional, „je mehr, desto weniger“ reicht nicht für antiproportional."),
+      S("Entscheidung", { P: "proportional", A: "antiproportional", K: "keines von beiden — hier hilft kein Rechnen mit Quotient oder Produkt" }[wahlArt])
+    ],
+    antwort: "Die Zuordnung ist <strong>" + { P: "proportional", A: "antiproportional", K: "weder proportional noch antiproportional" }[wahlArt] + "</strong>. " + warum
+  };
+};
+
+/* Zwei Schritte: erst eine Größe, dann mit ihr weiter. */
+var G_SACH_4 = function(){
+  var k = waehle(A_KONTEXTE.filter(function(c){ return !c.geld; })), p = aPaar(k);
+  var kand = aKandidaten(k, p.G).filter(function(x){ return x !== p.x1 && x !== p.x2; });
+  var x3 = kand.length ? waehle(kand) : p.x1;
+  var y3 = p.G / x3;
+  return {
+    frage: k.satz(p.x1, p.y1) + ".<br>a) " + k.fY(p.x2) + "<br>b) " + k.fY(x3),
+    eingabe: felder([
+      { label: "a)", soll: p.y2, einheit: k.ye },
+      { label: "b)", soll: y3, einheit: k.ye }
+    ]),
+    hinweis: "Beide Teile gehören zur selben antiproportionalen Zuordnung. Die Gesamtgröße brauchst du nur einmal auszurechnen.",
+    schritte: [
+      S("Gesamtgröße", dez(p.x1) + " " + MAL + " " + dez(p.y1) + " = " + dez(p.G)),
+      S("a)", dez(p.G) + " : " + dez(p.x2) + " = " + dez(p.y2)),
+      S("b)", dez(p.G) + " : " + dez(x3) + " = " + dez(y3))
+    ],
+    antwort: "a) <strong>" + yText(k, p.y2) + "</strong> · b) <strong>" + yText(k, y3) + "</strong>"
+  };
+};
+var G_SACH = [G_SACH_1, G_SACH_2, G_SACH_3, G_SACH_4];
+
+/* ==========================================================================
+   THEMA J — Begründen: woran man es erkennt
+   ========================================================================== */
+var G_BEGRUENDEN_1 = function(){
+  var anti = Math.random() < 0.5;
+  return anti ? {
+    frage: "Welcher Satz <strong>beweist</strong>, dass eine Zuordnung antiproportional ist?",
+    eingabe: wahl("Das Produkt x " + MAL + " y ist für jedes Wertepaar gleich.",
+      ["Je mehr x, desto weniger y.", "Zwei der Produkte x " + MAL + " y sind gleich.", "Der Quotient y : x ist für jedes Wertepaar gleich."]),
+    hinweis: "„Beweist“ heißt: Es muss für <em>alle</em> Wertepaare stimmen, und es darf keine andere Art von Zuordnung dasselbe erfüllen.",
+    schritte: [
+      S("„Je mehr, desto weniger“", "gilt auch, wenn die Summe gleich bleibt — also nicht genug"),
+      S("„Zwei Produkte gleich“", "ein drittes könnte anders sein — nicht genug"),
+      S("Der Beweis", "Das Produkt ist für jedes Wertepaar gleich.")
+    ],
+    antwort: "Das Produkt x " + MAL + " y ist für <strong>jedes</strong> Wertepaar gleich."
+  } : {
+    frage: "Welcher Satz <strong>beweist</strong>, dass eine Zuordnung proportional ist?",
+    eingabe: wahl("Der Quotient y : x ist für jedes Wertepaar gleich.",
+      ["Je mehr x, desto mehr y.", "y wird immer um dieselbe Zahl größer.", "Das Produkt x " + MAL + " y ist für jedes Wertepaar gleich."]),
+    hinweis: "Gleichmäßiges Wachsen reicht nicht — denk an einen Tarif mit Grundpreis.",
+    schritte: [
+      S("„Je mehr, desto mehr“", "gilt auch für Tarife mit Grundpreis — nicht genug"),
+      S("„Immer um dieselbe Zahl größer“", "gleichmäßig, aber nicht unbedingt doppelt → doppelt"),
+      S("Der Beweis", "Der Quotient ist für jedes Wertepaar gleich.")
+    ],
+    antwort: "Der Quotient y : x ist für <strong>jedes</strong> Wertepaar gleich."
+  };
+};
+
+/* Das Gegenbeispiel finden. */
+var G_BEGRUENDEN_2 = function(){
+  var s = rnd(9, 14);
+  var gegen = { xs: [1, 2, 3], ys: [s - 1, s - 2, s - 3] };
+  var G1 = waehle([12, 24, 36]);
+  var anti1 = { xs: [1, 2, 3], ys: [G1, G1 / 2, G1 / 3] };
+  var G2 = waehle([24, 48, 60]);
+  var anti2 = { xs: [2, 4, 6], ys: [G2 / 2, G2 / 4, G2 / 6] };
+  var r = rnd(2, 5);
+  var prop = { xs: [1, 2, 3], ys: [r, 2 * r, 3 * r] };
+  return {
+    frage: "Bei allen Tabellen außer einer gilt „je mehr, desto weniger“. Welche davon ist <strong>trotzdem nicht</strong> antiproportional?",
+    eingabe: wahl(miniTabelle(gegen.xs, gegen.ys),
+      [miniTabelle(anti1.xs, anti1.ys), miniTabelle(anti2.xs, anti2.ys), miniTabelle(prop.xs, prop.ys)]),
+    hinweis: "Rechne bei jeder Tabelle die Produkte aus. Wo sie nicht alle gleich sind, ist die Zuordnung nicht antiproportional — auch wenn y kleiner wird.",
+    schritte: [
+      S("Produkte der gesuchten Tabelle", prodListe(gegen)),
+      S("Was bleibt dort gleich?", "die Summe: x + y = " + s),
+      S("Die anderen", "zwei Tabellen haben gleiche Produkte (antiproportional), eine wächst (proportional)")
+    ],
+    antwort: "Die Tabelle mit y = " + gegen.ys.join(", ") + ": Dort bleibt die Summe gleich, nicht das Produkt."
+  };
+};
+
+/* Was gibt die Gesamtgröße an? */
+var G_BEGRUENDEN_3 = function(){
+  var k = waehle(A_KONTEXTE), p = aPaar(k);
+  var falsch = {
+    "Anzahl der Helfer": ["wie lange ein einzelner Helfer pro Tag arbeitet", "wie viele Helfer man braucht", "die Zeit, die die Gruppe braucht"],
+    "Anzahl der Ziegen": ["wie viele Ziegen es gibt", "wie lange der Vorrat für eine Ziege pro Woche reicht", "wie viel eine Ziege wiegt"],
+    "Geschwindigkeit in km/h": ["die Geschwindigkeit in km/h", "die Fahrzeit in Stunden", "wie viele Fahrten man macht"],
+    "Stühle pro Reihe": ["die Anzahl der Reihen", "wie viele Stühle in einer Reihe stehen", "wie viele Besucher fehlen"],
+    "Anzahl der Personen": ["was eine Person zahlt", "wie viele Personen mitmachen", "wie viel Geld übrig bleibt"]
+  }[k.xname];
+  return {
+    frage: k.satz(p.x1, p.y1) + ". Das Produkt " + dez(p.x1) + " " + MAL + " " + dez(p.y1) + " = " + dez(p.G) + " ist die Gesamtgröße. Was gibt sie an?",
+    eingabe: wahl(k.gesamt, falsch),
+    hinweis: "Achte auf die Einheiten: " + k.xname + " mal " + k.yname + ". Was entsteht, wenn man beides malnimmt?",
+    schritte: [
+      S("Was wird malgenommen?", k.xname + " " + MAL + " " + k.yname),
+      S("Zusammen", dez(p.x1) + " " + MAL + " " + dez(p.y1) + " = " + dez(p.G)),
+      S("Bedeutung", k.gesamt)
+    ],
+    antwort: "Die Gesamtgröße " + dez(p.G) + " ist " + k.gesamt + "."
+  };
+};
+
+/* Wie viele Wertepaare muss man prüfen? */
+var G_BEGRUENDEN_4 = function(){
+  var n = waehle(NAMEN);
+  var s = waehle([10, 12, 14]), a = 2, c = s / 2 - 1;
+  var xs = [a, c, s - c, s - a], ys = xs.map(function(x){ return s - x; });
+  return {
+    frage: n + " prüft die Tabelle so: „" + xs[0] + " " + MAL + " " + ys[0] + " = " + xs[0] * ys[0] + " und " + xs[3] + " " + MAL + " " + ys[3] + " = " + xs[3] * ys[3] + ". Gleich — also antiproportional.“ Was stimmt?",
+    bild: tabelle("x", "y", xs, ys),
+    eingabe: wahl(
+      "Nicht bewiesen: " + n + " muss alle Spalten prüfen. In der Mitte ist " + xs[1] + " " + MAL + " " + ys[1] + " = " + xs[1] * ys[1] + " — die Zuordnung ist nicht antiproportional.",
+      [ "Richtig: Wenn das erste und das letzte Produkt gleich sind, ist die Zuordnung antiproportional.",
+        "Richtig, weil y kleiner wird, wenn x größer wird.",
+        "Nicht bewiesen: " + n + " hätte die Quotienten ausrechnen müssen." ]),
+    hinweis: "Ein einziges abweichendes Wertepaar genügt, damit die Zuordnung nicht antiproportional ist. Rechne die mittleren Spalten nach.",
+    schritte: [
+      S("Alle Produkte", prodListe({ xs: xs, ys: ys })),
+      S("Vergleich", "außen " + xs[0] * ys[0] + ", innen " + xs[1] * ys[1] + " — nicht alle gleich"),
+      S("Merke", "Antiproportional heißt: Das Produkt ist für <em>jedes</em> Wertepaar gleich.")
+    ],
+    antwort: "Nicht antiproportional — die mittleren Produkte sind " + xs[1] * ys[1] + ", nicht " + xs[0] * ys[0] + "."
+  };
+};
+var G_BEGRUENDEN = [G_BEGRUENDEN_1, G_BEGRUENDEN_2, G_BEGRUENDEN_3, G_BEGRUENDEN_4];
+
+/* ==========================================================================
+   4 — Die zehn Themen
+   --------------------------------------------------------------------------
+   Vorn die Grundlagen, die in der Klassenarbeit am Anfang stehen und auf die
+   alles andere baut. Dann das aktuelle Thema: proportional und
+   antiproportional — ausdrücklich ohne das Wort „Dreisatz“, das kommt erst
+   nach der Arbeit.
+   ========================================================================== */
+
+var THEMEN = [
+  {
+    id: "rechnen", name: "Rechnen ohne Taschenrechner", unter: "Kommazahlen malnehmen und teilen",
+    gruppe: "werkzeug", gen: G_RECHNEN,
+    warum: "Die Klassenarbeit schreibst du ohne Taschenrechner. Die Zahlen sind nicht schwer — aber oft mit Komma: 2,5 mal 12, 4,20 € geteilt durch 3. Wer das sicher im Kopf oder schriftlich kann, hat in allen anderen Aufgaben den Kopf frei.",
+    merksatz: "Kommazahl mal ganze Zahl: erst ohne Komma rechnen, dann das Komma wieder setzen (2,5 " + MAL + " 12 → 25 " + MAL + " 12 = 300 → 30). Geld teilen: in Cent umrechnen (4,20 € = 420 ct).",
+    stolperstein: "Das Komma an die falsche Stelle setzen. Eine schnelle Probe hilft: 2,5 " + MAL + " 12 muss zwischen 2 " + MAL + " 12 = 24 und 3 " + MAL + " 12 = 36 liegen.",
+    koennen: ["Kommazahlen mit ganzen Zahlen malnehmen",
+              "Geldbeträge gerecht aufteilen",
+              "herausfinden, mit welcher Zahl man malnehmen muss",
+              "große runde Zahlen durcheinander teilen"]
+  },
+  {
+    id: "lesen", name: "Graphen ablesen", unter: "in beide Richtungen, steil heißt schnell",
+    gruppe: "werkzeug", gen: G_LESEN,
+    warum: "Die erste Aufgabe der Klassenarbeit beginnt fast immer mit einem Diagramm. Ablesen bringt sichere Punkte — wenn man die Achsen nicht verwechselt und auch <em>andersherum</em> ablesen kann.",
+    merksatz: "Von der waagerechten Achse senkrecht zur Linie, dann waagerecht zur senkrechten Achse — oder genau umgekehrt. Im Punkt (x | y) steht zuerst der Wert der waagerechten Achse. <strong>Steil</strong> heißt: schnelle Änderung. <strong>Waagerecht</strong> heißt: keine Änderung.",
+    stolperstein: "Nur in eine Richtung ablesen können. Die Frage „Wann …?“ verlangt, auf der <em>senkrechten</em> Achse anzufangen. Und: „am schnellsten“ ist der steilste Abschnitt, nicht der höchste Punkt.",
+    koennen: ["zu einem x-Wert den y-Wert ablesen",
+              "zu einem y-Wert den x-Wert ablesen",
+              "den Abschnitt finden, in dem sich am meisten ändert",
+              "einen Punkt im Sachzusammenhang als Satz erklären"]
+  },
+  {
+    id: "verbinden", name: "Punkte oder Linie?", unter: "Wann darf man verbinden?",
+    gruppe: "werkzeug", gen: G_VERBINDEN,
+    warum: "Ein Diagramm ist nur dann richtig, wenn die Darstellung zur Sache passt. Diese Frage kommt in der Klassenarbeit kurz, aber sie kommt.",
+    merksatz: "Punkte werden nur verbunden, wenn es auch <strong>zwischen</strong> ihnen sinnvolle Werte gibt (Zeit, Gewicht, Länge). Bei Anzahlen (Hefte, Personen, Pakete) bleiben es einzelne Punkte.",
+    stolperstein: "Denken, dass man bei proportionalen Zuordnungen immer verbindet. Ob verbunden wird, hängt nur davon ab, ob es Zwischenwerte gibt.",
+    koennen: ["entscheiden, ob Zwischenwerte sinnvoll sind",
+              "begründen, warum Punkte verbunden werden oder nicht",
+              "falsch gezeichnete Linien erkennen"]
+  },
+  {
+    id: "fuell", name: "Füllgraphen", unter: "Gefäß und Graph einander zuordnen",
+    gruppe: "werkzeug", gen: G_FUELL,
+    warum: "Füllgraphen verbinden das Ablesen mit Nachdenken: Du musst dir vorstellen, wie schnell das Wasser steigt. Mit einer einzigen Regel lassen sich alle Aufgaben lösen.",
+    merksatz: "Wasser läuft gleichmäßig ein. <strong>Schmal → steil</strong>, <strong>breit → flach</strong>. Eine Stufe im Gefäß macht einen <strong>Knick</strong>, eine schräge Wand macht eine <strong>Krümmung</strong>.",
+    stolperstein: "Es genau falsch herum denken: Ein breiter Teil macht den Graphen nicht steil, sondern flach — dort verteilt sich das Wasser.",
+    koennen: ["zu einem Gefäß den passenden Füllgraphen finden",
+              "zu einem Füllgraphen das passende Gefäß finden",
+              "Knick und Krümmung erklären"]
+  },
+  {
+    id: "erkennen", name: "Welche Zuordnung ist das?", unter: "proportional, antiproportional oder keines",
+    gruppe: "klausur", gen: G_ERKENNEN,
+    warum: "Das ist der Kern des Kapitels. Erst wenn du weißt, welche Art von Zuordnung vorliegt, weißt du, wie du rechnen musst. In der Klassenarbeit gibt es dafür eine eigene Aufgabe mit mehreren Tabellen.",
+    merksatz: "<strong>Proportional:</strong> Der Quotient y : x ist in <em>jeder</em> Spalte gleich. <strong>Antiproportional:</strong> Das Produkt x " + MAL + " y ist in <em>jeder</em> Spalte gleich. Stimmt beides nicht, ist die Zuordnung keines von beiden.",
+    stolperstein: "Nur zwei Spalten prüfen. Wenn das erste und das letzte Produkt gleich sind, können die mittleren trotzdem anders sein — dann ist die Zuordnung nicht antiproportional.",
+    koennen: ["Quotienten und Produkte in jeder Spalte berechnen",
+              "eine Tabelle als proportional, antiproportional oder keines erkennen",
+              "Fallen erkennen: gleichmäßiges Wachsen, gleiche Summe, nur zwei gleiche Produkte"]
+  },
+  {
+    id: "faktor", name: "Proportional rechnen", unter: "der Wert für 1 und der Faktor",
+    gruppe: "klausur", gen: G_FAKTOR,
+    warum: "Preise, Strecken, Mengen: Die meisten proportionalen Aufgaben lassen sich über den Wert für 1 lösen. Und in der Klassenarbeit wird auch gefragt, was dieser Wert <em>bedeutet</em>.",
+    merksatz: "Bei einer proportionalen Zuordnung ist y : x immer gleich. Dieser Quotient ist der Wert für 1 (zum Beispiel „€ je kg“). Mit ihm kommst du in beide Richtungen: <strong>mal</strong> dem Wert für 1 zur zweiten Größe, <strong>durch</strong> ihn zurück.",
+    stolperstein: "Den Quotienten ausrechnen, aber nicht sagen können, was er bedeutet — und ihn dann in der falschen Richtung benutzen. Die Einheit hilft: „€ je kg“ heißt „so viel Euro für 1 kg“.",
+    koennen: ["den Wert für 1 bestimmen und mit Einheit angeben",
+              "von der Menge auf den Preis und zurück schließen",
+              "mit dem Vielfachen rechnen, ohne über 1 zu gehen",
+              "den Wert für 1 als Satz erklären"]
+  },
+  {
+    id: "luecken", name: "Lücken in Tabellen", unter: "proportional und antiproportional ergänzen",
+    gruppe: "klausur", gen: G_LUECKEN,
+    warum: "Lückentabellen sind in der Klassenarbeit schnelle Punkte — wenn man die zwei Regeln nicht verwechselt.",
+    merksatz: "Proportional: mal n oben, <strong>mal n</strong> unten (oder: Quotient bleibt gleich). Antiproportional: mal n oben, <strong>durch n</strong> unten (oder: Produkt bleibt gleich, die Gesamtgröße).",
+    stolperstein: "Bei einer antiproportionalen Tabelle unten auch malnehmen. Frag dich immer: Wird die zweite Größe größer oder kleiner?",
+    koennen: ["Lücken in proportionalen Tabellen füllen",
+              "Lücken in antiproportionalen Tabellen mit der Gesamtgröße füllen",
+              "auch fehlende Werte in der oberen Zeile finden",
+              "„mal hier, durch da“ anwenden"]
+  },
+  {
+    id: "fehler", name: "Fehler finden", unter: "plus statt mal und falsche Richtung",
+    gruppe: "klausur", gen: G_FEHLER,
+    warum: "In der Klassenarbeit kommt eine Rechnung, die jemand anderes gemacht hat — und du sollst den Fehler finden. Das geht nur, wenn du die typischen Fehler kennst.",
+    merksatz: "Zwei Fehler kommen am häufigsten: <strong>plus statt mal</strong> (2 mehr → 2 € mehr) und <strong>die falsche Art</strong> (antiproportional wie proportional gerechnet). Bei beiden hilft die Frage: Was passiert beim <em>Doppelten</em>?",
+    stolperstein: "Die Richtung prüfen, aber nicht die Rechenart. „Mehr Helfer, also weniger Zeit“ stimmt — „einer mehr, also eine Stunde weniger“ trotzdem nicht.",
+    koennen: ["den Fehler „plus statt mal“ erkennen und verbessern",
+              "erkennen, wenn eine antiproportionale Aufgabe proportional gerechnet wurde",
+              "gleichmäßiges Wachsen von proportionalem Wachsen unterscheiden"]
+  },
+  {
+    id: "sach", name: "Sachaufgaben", unter: "erst entscheiden, dann rechnen",
+    gruppe: "klausur", gen: G_SACH,
+    warum: "Die Aufgabe mit den meisten Punkten: ein Text ohne Tabelle, und du musst selbst herausfinden, welche Art von Zuordnung dahintersteckt. Genau hier passieren die teuersten Fehler.",
+    merksatz: "Erst entscheiden: Was passiert beim Doppelten? Doppelt → <strong>proportional</strong> (über den Wert für 1). Halb → <strong>antiproportional</strong> (über das Produkt, die Gesamtgröße). Weder noch → keines von beiden, dann hilft keine der beiden Rechnungen.",
+    stolperstein: "Sofort losrechnen. Wer nicht vorher entscheidet, rechnet oft die Art, die zuletzt im Unterricht dran war — und liegt bei der anderen falsch.",
+    koennen: ["im Text erkennen, welche Art von Zuordnung vorliegt",
+              "proportionale Sachaufgaben lösen",
+              "antiproportionale Sachaufgaben mit der Gesamtgröße lösen",
+              "Aufgaben erkennen, bei denen keine der beiden Rechnungen passt"]
+  },
+  {
+    id: "begruenden", name: "Begründen", unter: "Woran erkennt man es sicher?",
+    gruppe: "klausur", gen: G_BEGRUENDEN,
+    warum: "Die letzte Aufgabe der Klassenarbeit fragt nicht nach einer Zahl, sondern nach einem Grund. Wer das Kriterium kennt <em>und</em> weiß, was nicht reicht, holt hier die schwierigsten Punkte.",
+    merksatz: "„Je mehr, desto weniger“ ist nur die <strong>Richtung</strong>. Antiproportional ist eine Zuordnung erst, wenn das Produkt für <strong>jedes</strong> Wertepaar gleich ist. Genauso reicht „je mehr, desto mehr“ nicht für proportional.",
+    stolperstein: "Aus „je mehr, desto weniger“ auf antiproportional schließen. Gegenbeispiel: Bei einem Spiel von 60 Minuten wird die Restzeit weniger, je länger gespielt wird — gleich bleibt aber die Summe, nicht das Produkt.",
+    koennen: ["den Satz nennen, der antiproportional (oder proportional) beweist",
+              "ein Gegenbeispiel zu „je mehr, desto weniger“ erkennen",
+              "erklären, was die Gesamtgröße im Sachzusammenhang bedeutet",
+              "begründen, warum zwei Wertepaare nicht genügen"]
+  }
+];
+
+function themaMit(id){ return THEMEN.find(function(t){ return t.id === id; }); }
+
+/* ==========================================================================
+   5 — Was der Trainer sich merkt
+   ========================================================================== */
+var SCHLUESSEL = "mu-7b-katrainer-v1";
+var KLAUSUR = new Date(2026, 8, 22);  /* Di, 22.09.2026 — 1. Klassenarbeit der 7b */
+
+var stand = laden();
+
+function leererStand(){
+  var t = {};
+  THEMEN.forEach(function(th){ t[th.id] = { stand: "unbekannt", runden: 0, letzte: null }; });
+  return { fassung: 1, diagnose: null, themen: t, check: null };
+}
+function laden(){
+  try {
+    var roh = localStorage.getItem(SCHLUESSEL);
+    if (!roh) return leererStand();
+    var s = JSON.parse(roh);
+    var frisch = leererStand();
+    if (!s || s.fassung !== 1) return frisch;
+    /* Neue Themen dürfen später dazukommen, ohne alte Stände zu verlieren. */
+    THEMEN.forEach(function(th){ if (!s.themen[th.id]) s.themen[th.id] = frisch.themen[th.id]; });
+    return s;
+  } catch (e) { return leererStand(); }
+}
+function sichern(){
+  try { localStorage.setItem(SCHLUESSEL, JSON.stringify(stand)); } catch (e) { /* privates Fenster */ }
+}
+
+function tageBisKlausur(){
+  var heute = new Date(); heute.setHours(0,0,0,0);
+  return Math.round((KLAUSUR - heute) / 86400000);
+}
+function zahlSicher(){
+  return THEMEN.filter(function(t){ return stand.themen[t.id].stand === "sicher"; }).length;
+}
+
+/* ==========================================================================
+   6 — Rückmeldung in Worten
+   Immer dieselbe Haltung: Was war richtig, woran lag es, wie geht es weiter.
+   Nie „falsch“ allein, nie Ausrufezeichen-Jubel.
+   ========================================================================== */
+var LOB = [
+  "Sitzt.", "Genau so.", "Richtig — und sauber gerechnet.", "Das stimmt.",
+  "Richtig.", "Passt.", "Genau.", "Stimmt — weiter so."
+];
+var MUT = [
+  "Noch nicht — aber das ist der Sinn des Übens. Schau dir den Hinweis an.",
+  "Das war es noch nicht. Ein Blick auf den Hinweis, dann noch einmal.",
+  "Knapp daneben ist auch daneben — aber leicht zu reparieren. Hinweis lesen, neu versuchen.",
+  "Nicht ganz. Der Hinweis unten sagt dir, wo es kippt."
+];
+var ZWEITER = [
+  "Immer noch nicht — dann rechnen wir es gemeinsam durch.",
+  "Kein Problem. Hier ist der ganze Weg, Schritt für Schritt.",
+  "Dann schauen wir uns die Rechnung genau an. Danach probierst du es noch einmal."
+];
+
+/* ==========================================================================
+   7 — Eine Aufgabe anzeigen und prüfen
+   ========================================================================== */
+
+function aufgabeHtml(auf){
+  var teile = [];
+  if (auf.frage) teile.push('<p class="frage">' + auf.frage + "</p>");
+  if (auf.formel) teile.push('<div class="mblock">' + auf.formel + "</div>");
+  if (auf.bild) teile.push(auf.bild);
+  return teile.join("");
+}
+
+function eingabeHtml(auf, nr){
+  var e = auf.eingabe;
+  if (e.art === "wahl"){
+    return '<div class="wahlen" role="group" aria-label="Antwortmöglichkeiten">'
+      + e.optionen.map(function(o, i){
+          return '<button class="wahl" type="button" data-wahl="' + i + '" aria-pressed="false">'
+            + '<span class="buchstabe">' + "ABCD".charAt(i) + '</span><span class="inhalt">' + o + "</span></button>";
+        }).join("")
+      + "</div>";
+  }
+  return '<div class="felder">' + e.felder.map(function(f, i){
+    return '<span class="feld"><label for="f' + nr + "_" + i + '">' + f.label + "</label>"
+      + '<input id="f' + nr + "_" + i + '" type="text" inputmode="text" autocomplete="off" spellcheck="false" data-feld="' + i + '">'
+      + (f.einheit ? '<span class="einheit">' + esc(f.einheit) + "</span>" : "") + "</span>";
+  }).join("") + "</div>";
+}
+
+/* Prüfen: liefert {ok, teile} — teile sagt je Feld, ob es stimmt. */
+function pruefen(auf, wurzel){
+  var e = auf.eingabe;
+  if (e.art === "wahl"){
+    var gewaehlt = wurzel.querySelector('.wahl[aria-pressed="true"]');
+    if (!gewaehlt) return null;                       /* nichts angekreuzt */
+    var i = Number(gewaehlt.getAttribute("data-wahl"));
+    return { ok: i === e.richtig, gewaehlt: i, teile: [] };
+  }
+  var eingaben = [].slice.call(wurzel.querySelectorAll("input[data-feld]"));
+  var werte = eingaben.map(function(inp){ return zahlAus(inp.value); });
+  if (werte.some(function(w){ return w === null; })) return null;
+
+  if (e.egal && e.felder.length === 2){
+    /* Reihenfolge egal: x₁ und x₂ dürfen vertauscht sein. */
+    var s0 = e.felder[0].soll, s1 = e.felder[1].soll;
+    var t0 = toleranzFuer(e.felder[0]), t1 = toleranzFuer(e.felder[1]);
+    var gerade = gleichAuf(werte[0], s0, t0) && gleichAuf(werte[1], s1, t1);
+    var quer   = gleichAuf(werte[0], s1, t1) && gleichAuf(werte[1], s0, t0);
+    var ok = gerade || quer;
+    return { ok: ok, teile: ok ? [true,true]
+      : [ gleichAuf(werte[0], s0, t0) || gleichAuf(werte[0], s1, t1),
+          gleichAuf(werte[1], s0, t0) || gleichAuf(werte[1], s1, t1) ] };
+  }
+  var teile = werte.map(function(w, i){ return gleichAuf(w, e.felder[i].soll, toleranzFuer(e.felder[i])); });
+  return { ok: teile.every(Boolean), teile: teile };
+}
+
+function markieren(auf, wurzel, ergebnis){
+  if (auf.eingabe.art === "wahl"){
+    [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k, i){
+      k.disabled = true;
+      if (i === auf.eingabe.richtig) k.setAttribute("data-stand", "richtig");
+      else if (i === ergebnis.gewaehlt) k.setAttribute("data-stand", "falsch");
+    });
+  } else {
+    [].slice.call(wurzel.querySelectorAll("input[data-feld]")).forEach(function(inp, i){
+      inp.setAttribute("data-stand", ergebnis.teile[i] ? "richtig" : "falsch");
+    });
+  }
+}
+function entsperren(wurzel){
+  [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k){
+    k.disabled = false; k.removeAttribute("data-stand"); k.setAttribute("aria-pressed","false");
+  });
+  [].slice.call(wurzel.querySelectorAll("input[data-feld]")).forEach(function(inp){
+    inp.removeAttribute("data-stand");
+  });
+}
+
+function schritteHtml(auf){
+  var s = auf.schritte.map(function(sch, i){
+    return '<li class="schritt"><span class="nr">' + (i+1) + "</span>"
+      + '<span class="was">' + sch.was + "</span>"
+      + '<span class="rechnung">' + sch.r + "</span></li>";
+  }).join("");
+  return '<ol class="schritte">' + s + "</ol>"
+    + (auf.bildNachher ? auf.bildNachher() : "");
+}
+
+/* Wahl-Knöpfe verhalten sich wie Radiobuttons. */
+function wahlBinden(wurzel, beiAuswahl){
+  [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k){
+    k.addEventListener("click", function(){
+      if (k.disabled) return;
+      [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(a){ a.setAttribute("aria-pressed","false"); });
+      k.setAttribute("aria-pressed","true");
+      if (beiAuswahl) beiAuswahl();
+    });
+  });
+}
+/* ==========================================================================
+   8 — Die Ansichten
+   ========================================================================== */
+var buehne = document.getElementById("buehne");
+
+function zeige(html){
+  buehne.innerHTML = html;
+  ringZeichnen();
+  window.scrollTo(0, 0);
+}
+
+function ringZeichnen(){
+  var n = zahlSicher(), ganz = THEMEN.length;
+  var u = 2*Math.PI*15;
+  var anteil = ganz ? n/ganz : 0;
+  document.getElementById("ring").innerHTML =
+    '<svg viewBox="0 0 36 36" width="43" height="43" aria-hidden="true">'
+    + '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--linie)" stroke-width="4"/>'
+    + '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--gruen)" stroke-width="4" stroke-linecap="round"'
+    + ' stroke-dasharray="' + (anteil*u).toFixed(2) + " " + u.toFixed(2) + '"/></svg>'
+    + '<span class="zahl">' + n + "/" + ganz + "</span>";
+  document.getElementById("ring").setAttribute("title", n + " von " + ganz + " Themen sitzen");
+}
+
+function countdownText(){
+  var t = tageBisKlausur();
+  if (t > 1) return "Noch " + t + " Tage bis zur Klassenarbeit am 22. September.";
+  if (t === 1) return "Morgen ist die Klassenarbeit.";
+  if (t === 0) return "Heute ist die Klassenarbeit. Viel Erfolg!";
+  return "Kapitel 1 — Zuordnungen.";
+}
+
+/* --- Startseite ---------------------------------------------------------- */
+function zeigeStart(){
+  var begonnen = stand.diagnose !== null;
+  zeige(
+    '<div class="karte">'
+    + "<h2>Hallo.</h2>"
+    + '<p class="lead">Dieses Programm bringt dich Thema für Thema durch alles, was in der Klassenarbeit vorkommt — vom Graphenlesen bis zur Frage, woran man eine antiproportionale Zuordnung sicher erkennt. '
+    + "Es sagt dir zuerst, wo du stehst, erklärt dann in Ruhe, lässt dich üben und prüft am Ende mit neuen Aufgaben nach, ob es wirklich sitzt.</p>"
+    + '<div class="hinweis"><strong>' + countdownText() + "</strong> "
+    + "Du musst nicht alles auf einmal machen. Der Trainer merkt sich auf diesem Gerät, wie weit du bist.</div>"
+    + "<h3 style=\"margin-top:1.1rem\">So läuft es ab</h3>"
+    + '<ol style="margin:.5rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
+    + "<li><strong>Diagnose</strong> — 20 kurze Aufgaben, quer durch alle Themen. Keine Note, keine Zeit, kein Publikum.</li>"
+    + "<li><strong>Landkarte</strong> — du siehst, was schon sitzt und was noch nicht.</li>"
+    + "<li><strong>Erklärung</strong> — für jedes offene Thema eine vollständige Musterlösung, Schritt für Schritt.</li>"
+    + "<li><strong>Üben</strong> — mit Hinweis beim ersten Fehler und der ganzen Rechnung beim zweiten.</li>"
+    + "<li><strong>Re-Test</strong> — neue Aufgaben, neue Zahlen. Drei von vier genügen.</li>"
+    + "<li><strong>Bestätigung</strong> — das Thema wird grün, und du siehst schwarz auf weiß, was du jetzt kannst.</li>"
+    + "</ol>"
+    + '<div class="reihe">'
+    + (begonnen
+        ? '<button class="knopf knopf-haupt knopf-gross" id="k-weiter" type="button">Weitermachen</button>'
+          + '<button class="knopf" id="k-diagnose" type="button">Diagnose noch einmal</button>'
+        : '<button class="knopf knopf-haupt knopf-gross" id="k-diagnose" type="button">Diagnose starten</button>'
+          + '<button class="knopf" id="k-karte" type="button">Ohne Diagnose zur Themenliste</button>')
+    + "</div>"
+    + '<p class="leise" style="margin-top:1rem">Alles bleibt auf deinem Gerät. Es wird nichts verschickt und nichts ausgewertet — '
+    + "auch nicht von mir. Wenn du an einer Stelle wirklich hängst, frag im Unterricht nach; genau dafür ist er da.</p>"
+    + "</div>"
+  );
+  var a = document.getElementById("k-diagnose"); if (a) a.onclick = diagnoseStarten;
+  var b = document.getElementById("k-karte");    if (b) b.onclick = zeigeKarte;
+  var c = document.getElementById("k-weiter");   if (c) c.onclick = zeigeKarte;
+}
+
+/* --- Diagnose ------------------------------------------------------------
+   Zwei Aufgaben je Thema. Wer bei der ersten „weiß ich nicht“ drückt,
+   bekommt die zweite nicht mehr — das Ergebnis stünde ohnehin fest, und
+   nichts entmutigt so zuverlässig wie eine zweite Aufgabe zum selben Loch. */
+var dia = null;
+
+function diagnoseStarten(){
+  dia = { plan: [], index: 0, treffer: {} };
+  THEMEN.forEach(function(t){
+    dia.treffer[t.id] = [];
+    dia.plan.push({ id: t.id, stufe: 0 });
+    dia.plan.push({ id: t.id, stufe: 1 });
+  });
+  diagnoseSchritt();
+}
+
+function diagnoseSchritt(){
+  /* Übersprungene Aufgaben aussortieren. */
+  while (dia.index < dia.plan.length){
+    var p = dia.plan[dia.index];
+    if (p.stufe === 1 && dia.treffer[p.id].indexOf("weissnicht") >= 0){ dia.index++; continue; }
+    break;
+  }
+  if (dia.index >= dia.plan.length) return diagnoseAuswerten();
+
+  var eintrag = dia.plan[dia.index];
+  var thema = themaMit(eintrag.id);
+  var macher = thema.gen[eintrag.stufe % thema.gen.length];
+  var auf = macher();
+  var offen = dia.plan.filter(function(p, i){
+    return i >= dia.index && !(p.stufe === 1 && dia.treffer[p.id].indexOf("weissnicht") >= 0);
+  }).length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille">Diagnose</span>'
+    + '<span class="leise">noch ' + offen + " " + (offen === 1 ? "Aufgabe" : "Aufgaben") + "</span></div>"
+    + '<p class="leise" style="margin:.6rem 0 .2rem">' + esc(thema.name) + "</p>"
+    + aufgabeHtml(auf)
+    + eingabeHtml(auf, dia.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="d-ok" type="button">Antwort abschicken</button>'
+    + '<button class="knopf knopf-still" id="d-nix" type="button">Weiß ich nicht</button>'
+    + "</div>"
+    + '<p class="leise" style="margin-top:.9rem">Hier gibt es keine Rückmeldung — das ist Absicht. '
+    + "Die Diagnose soll ein ehrliches Bild geben, kein Training. „Weiß ich nicht“ ist eine gültige und nützliche Antwort.</p>"
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  document.getElementById("d-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      meldung(karte, "Da fehlt noch eine Antwort. Wenn du nicht weiterweißt, ist „Weiß ich nicht“ genau richtig.");
+      return;
+    }
+    dia.treffer[eintrag.id].push(e.ok ? "richtig" : "falsch");
+    dia.index++;
+    diagnoseSchritt();
+  };
+  document.getElementById("d-nix").onclick = function(){
+    dia.treffer[eintrag.id].push("weissnicht");
+    dia.index++;
+    diagnoseSchritt();
+  };
+}
+
+function meldung(karte, text){
+  var alt = karte.querySelector(".echo");
+  if (alt) alt.remove();
+  karte.appendChild(el("div", { class: "echo", html: "<p>" + text + "</p>" }));
+}
+
+function diagnoseAuswerten(){
+  THEMEN.forEach(function(t){
+    var r = dia.treffer[t.id] || [];
+    var richtig = r.filter(function(x){ return x === "richtig"; }).length;
+    var neu = richtig >= 2 ? "sicher" : (richtig === 1 ? "wackelig" : "offen");
+    /* Ein bereits bestandener Re-Test wiegt schwerer als eine Momentaufnahme:
+       Wer ein Thema abgeschlossen hat, verliert das nicht durch einen
+       verrutschten Diagnoseklick. */
+    if (!(stand.themen[t.id].stand === "sicher" && stand.themen[t.id].runden > 0))
+      stand.themen[t.id].stand = neu;
+  });
+  stand.diagnose = { wann: new Date().toISOString().slice(0,10) };
+  sichern();
+
+  var offen = THEMEN.filter(function(t){ return stand.themen[t.id].stand !== "sicher"; });
+  var sicher = THEMEN.length - offen.length;
+  var text;
+  if (sicher === THEMEN.length)
+    text = "Alle zehn Themen sitzen bereits. Dann ist der Arbeits-Check unten dein nächster Schritt — "
+         + "gemischte Aufgaben, wie in der Klassenarbeit, ohne Ankündigung, welches Thema kommt.";
+  else if (sicher >= 6)
+    text = "Der größte Teil steht. Es bleiben " + offen.length + " Themen — das ist in ein paar Sitzungen zu schaffen.";
+  else if (sicher >= 3)
+    text = "Eine solide Grundlage und " + offen.length + " Baustellen. Genau dafür ist noch Zeit.";
+  else
+    text = "Das sieht nach viel aus — ist es aber nicht. Die Themen bauen aufeinander auf: Wenn die ersten beiden sitzen, "
+         + "fallen mehrere der späteren fast von allein.";
+
+  zeige(
+    '<div class="karte">'
+    + '<span class="pille pille-teal">Diagnose ausgewertet</span>'
+    + "<h2 style=\"margin-top:.6rem\">Das ist deine Landkarte</h2>"
+    + '<p class="lead">' + text + "</p>"
+    + '<div class="hinweis hinweis-gold"><strong>Wichtig:</strong> Das hier ist keine Note und kein Urteil. '
+    + "Es ist eine Karte, die dir sagt, wo deine Zeit gerade am meisten bringt. Rot heißt nicht „kann ich nicht“, "
+    + "sondern „hier hole ich am schnellsten Punkte“.</div>"
+    + '<div class="reihe"><button class="knopf knopf-haupt knopf-gross" id="d-karte" type="button">Zur Übersicht</button></div>'
+    + "</div>"
+  );
+  document.getElementById("d-karte").onclick = zeigeKarte;
+}
+
+/* --- Landkarte ----------------------------------------------------------- */
+var STAND_TEXT = {
+  sicher:    { zeichen: "✓", wort: "sitzt" },
+  wackelig:  { zeichen: "~", wort: "wackelt noch" },
+  offen:     { zeichen: "!", wort: "offen" },
+  unbekannt: { zeichen: "?", wort: "noch nicht geprüft" }
+};
+
+function zeigeKarte(){
+  var dranId = null;
+  for (var i = 0; i < THEMEN.length; i++){
+    if (stand.themen[THEMEN[i].id].stand !== "sicher"){ dranId = THEMEN[i].id; break; }
+  }
+  function zeile(t){
+    var s = stand.themen[t.id];
+    var info = STAND_TEXT[s.stand];
+    return '<button class="thema-zeile" type="button" data-thema="' + t.id + '" data-stand="' + s.stand + '"'
+      + (t.id === dranId ? ' data-dran="ja"' : "") + ">"
+      + '<span class="ampel" aria-hidden="true">' + info.zeichen + "</span>"
+      + '<span class="mitte"><span class="name">' + esc(t.name) + "</span>"
+      + '<span class="unter">' + esc(t.unter) + " · " + info.wort
+      + (t.id === dranId ? " · <strong>hier weiter</strong>" : "") + "</span></span>"
+      + '<span class="pfeil" aria-hidden="true">›</span></button>';
+  }
+  var werkzeug = THEMEN.filter(function(t){ return t.gruppe === "werkzeug"; });
+  var klausur  = THEMEN.filter(function(t){ return t.gruppe === "klausur"; });
+  var alleSicher = zahlSicher() === THEMEN.length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between; align-items:baseline">'
+    + "<h2>Deine Themen</h2><span class=\"leise\">" + esc(countdownText()) + "</span></div>"
+    + '<p class="lead" style="margin-bottom:.4rem">' + zahlSicher() + " von " + THEMEN.length + " Themen sitzen. "
+    + (dranId ? "Vorgeschlagen ist das erste noch offene Thema — du kannst aber jedes anklicken."
+              : "Alles grün. Jetzt lohnt sich der gemischte Arbeits-Check.") + "</p>"
+    + '<div class="gruppe-titel">Grundlagen — Graphen, Diagramme, Rechnen</div>'
+    + werkzeug.map(zeile).join("")
+    + '<div class="gruppe-titel">Das aktuelle Thema — proportional und antiproportional</div>'
+    + klausur.map(zeile).join("")
+    + "</div>"
+    + '<div class="karte">'
+    + "<h3>Arbeits-Check</h3>"
+    + "<p>Zwölf gemischte Aufgaben quer durch alle Themen — ohne Ankündigung, welches Thema gerade dran ist. "
+    + "Genau das ist in der Klassenarbeit der eigentliche Unterschied: Du musst nicht nur rechnen können, sondern auch erkennen, <em>was</em> gefragt ist.</p>"
+    + (alleSicher ? "" : '<p class="leise">Du kannst ihn jederzeit machen. Am meisten bringt er, wenn die Themen oben grün sind.</p>')
+    + '<div class="reihe"><button class="knopf' + (alleSicher ? " knopf-haupt" : "") + '" id="k-check" type="button">Arbeits-Check starten</button></div>'
+    + (stand.check ? '<p class="leise" style="margin-top:.7rem">Letztes Ergebnis: ' + stand.check.richtig + " von " + stand.check.gesamt + " richtig.</p>" : "")
+    + "</div>"
+  );
+  [].slice.call(buehne.querySelectorAll(".thema-zeile")).forEach(function(k){
+    k.onclick = function(){ themaOeffnen(k.getAttribute("data-thema")); };
+  });
+  document.getElementById("k-check").onclick = checkStarten;
+}
+
+/* --- Ein Thema durcharbeiten --------------------------------------------- */
+var sitzung = null;
+var PHASEN = ["Ankommen","Erklärung","Üben","Re-Test","Geschafft"];
+
+function phasenleiste(jetzt){
+  return '<div class="phasen">' + PHASEN.map(function(p, i){
+    return '<span class="phase"' + (i === jetzt ? ' data-jetzt="ja"' : (i < jetzt ? ' data-fertig="ja"' : "")) + ">" + esc(p) + "</span>";
+  }).join("") + "</div>";
+}
+
+function themaOeffnen(id){
+  sitzung = { id: id, runde: 0, index: 0, ergebnisse: [], versuch: 0 };
+  zeigeAnkommen();
+}
+
+function zeigeAnkommen(){
+  var t = themaMit(sitzung.id);
+  var s = stand.themen[t.id];
+  var gruss;
+  if (s.stand === "sicher")
+    gruss = "Dieses Thema hast du schon bestanden. Eine Auffrischung schadet trotzdem nie — besonders kurz vor der Klassenarbeit.";
+  else if (s.stand === "wackelig")
+    gruss = "In der Diagnose war eine von zwei Aufgaben richtig. Das heißt: Der Gedanke ist da, es fehlt die Sicherheit. Das ist die schnellste Sorte Baustelle.";
+  else if (s.stand === "offen")
+    gruss = "In der Diagnose hat das hier noch nicht geklappt. Kein Grund zur Sorge — dafür ist das Programm da. Wir gehen es von vorn an, in Ruhe und mit vollständiger Rechnung.";
+  else
+    gruss = "Dieses Thema ist noch nicht geprüft. Wir fangen einfach vorn an.";
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(0)
+    + '<span class="pille' + (t.gruppe === "werkzeug" ? "" : " pille-teal") + '">'
+    + (t.gruppe === "werkzeug" ? "Grundlage" : "Aktuelles Thema") + "</span>"
+    + '<h2 style="margin-top:.6rem">' + esc(t.name) + "</h2>"
+    + '<p class="leise">' + esc(t.unter) + (t.buch ? " · " + esc(t.buch) : "") + "</p>"
+    + '<div class="hinweis hinweis-gold" style="margin-top:1rem">' + gruss + "</div>"
+    + "<h3 style=\"margin-top:1.2rem\">Warum das zählt</h3>"
+    + "<p>" + t.warum + "</p>"
+    + "<h3>Was du danach kannst</h3>"
+    + '<ul style="margin:.4rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
+    + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="t-los" type="button">Los geht\'s</button>'
+    + (s.stand === "sicher" ? '<button class="knopf" id="t-direkt" type="button">Direkt zum Re-Test</button>' : "")
+    + '<button class="knopf knopf-still" id="t-zurueck" type="button">Zurück zur Übersicht</button>'
+    + "</div></div>"
+  );
+  document.getElementById("t-los").onclick = zeigeErklaerung;
+  var d = document.getElementById("t-direkt");
+  if (d) d.onclick = function(){ sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest(); };
+  document.getElementById("t-zurueck").onclick = zeigeKarte;
+}
+
+/* Die Erklärung: ein vollständig durchgerechnetes Beispiel, Schritt für
+   Schritt aufdeckbar. Wer alles auf einmal sieht, liest es nicht. */
+function zeigeErklaerung(){
+  var t = themaMit(sitzung.id);
+  var macher = t.gen[sitzung.runde % t.gen.length];
+  var auf = macher();
+  sitzung.beispiel = auf;
+  sitzung.gezeigt = 0;
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(1)
+    + '<h2>' + esc(t.name) + "</h2>"
+    + '<div class="hinweis"><strong>Das Wichtigste in einem Satz:</strong> ' + t.merksatz + "</div>"
+    + '<div class="hinweis hinweis-rot"><strong>Typischer Stolperstein:</strong> ' + t.stolperstein + "</div>"
+    + "<h3 style=\"margin-top:1.2rem\">Ein Beispiel, ganz durchgerechnet</h3>"
+    + aufgabeHtml(auf)
+    + '<div id="erk-schritte"></div>'
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="e-mehr" type="button">Ersten Schritt zeigen</button>'
+    + '<button class="knopf knopf-still" id="e-alles" type="button">Alle Schritte auf einmal</button>'
+    + "</div>"
+    + '<div class="reihe" style="margin-top:.6rem" id="e-weiter-reihe" hidden>'
+    + '<button class="knopf knopf-haupt knopf-gross" id="e-weiter" type="button">Verstanden — jetzt selbst</button>'
+    + "</div></div>"
+  );
+
+  var ziel = document.getElementById("erk-schritte");
+  function nachlegen(){
+    var sch = auf.schritte[sitzung.gezeigt];
+    ziel.insertAdjacentHTML("beforeend",
+      '<ol class="schritte" style="margin-top:0"><li class="schritt"><span class="nr">' + (sitzung.gezeigt+1) + "</span>"
+      + '<span class="was">' + sch.was + '</span><span class="rechnung">' + sch.r + "</span></li></ol>");
+    sitzung.gezeigt++;
+    if (sitzung.gezeigt >= auf.schritte.length) fertig();
+    else document.getElementById("e-mehr").textContent = "Nächster Schritt (" + (sitzung.gezeigt+1) + " von " + auf.schritte.length + ")";
+  }
+  function fertig(){
+    document.getElementById("e-mehr").hidden = true;
+    document.getElementById("e-alles").hidden = true;
+    if (auf.bildNachher) ziel.insertAdjacentHTML("beforeend", auf.bildNachher());
+    ziel.insertAdjacentHTML("beforeend", '<div class="echo gut"><p><strong>Ergebnis:</strong> ' + auf.antwort + "</p></div>");
+    document.getElementById("e-weiter-reihe").hidden = false;
+  }
+  document.getElementById("e-mehr").onclick = nachlegen;
+  document.getElementById("e-alles").onclick = function(){
+    while (sitzung.gezeigt < auf.schritte.length) nachlegen();
+  };
+  document.getElementById("e-weiter").onclick = function(){
+    sitzung.index = 0; sitzung.ergebnisse = []; sitzung.versuch = 0;
+    zeigeUeben();
+  };
+}
+
+/* Üben: drei Aufgaben, mit Hinweis beim ersten und voller Rechnung beim
+   zweiten Fehlversuch. Fehler kosten hier nichts. */
+var UEBEN_ANZAHL = 3;
+
+function zeigeUeben(){
+  var t = themaMit(sitzung.id);
+  if (sitzung.index >= UEBEN_ANZAHL) return zeigeUebergang();
+  var auf = waehle(t.gen)();
+  sitzung.versuch = 0;
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(2)
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille">Üben · Aufgabe ' + (sitzung.index+1) + " von " + UEBEN_ANZAHL + "</span>"
+    + '<span class="leise">' + esc(t.name) + "</span></div>"
+    + '<div style="margin-top:.7rem">' + aufgabeHtml(auf) + "</div>"
+    + eingabeHtml(auf, "u" + sitzung.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="u-ok" type="button">Prüfen</button>'
+    + '<button class="knopf knopf-still" id="u-hilf" type="button">Ich komme nicht weiter</button>'
+    + "</div>"
+    + '<div id="u-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  var echo = document.getElementById("u-echo");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  function loesungZeigen(vorspann, art){
+    markierenWennMoeglich();
+    echo.innerHTML = '<div class="echo ' + art + '">'
+      + '<div class="kopfzeile"><span class="zeichen">→</span>' + vorspann + "</div>"
+      + schritteHtml(auf)
+      + "<p style=\"margin-top:.7rem\"><strong>Antwort:</strong> " + auf.antwort + "</p></div>"
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-next" type="button">'
+      + (sitzung.index + 1 >= UEBEN_ANZAHL ? "Weiter zum Re-Test" : "Nächste Aufgabe") + "</button></div>";
+    document.getElementById("u-ok").disabled = true;
+    document.getElementById("u-hilf").hidden = true;
+    document.getElementById("u-next").onclick = function(){ sitzung.index++; zeigeUeben(); };
+    document.getElementById("u-next").focus();
+  }
+  function markierenWennMoeglich(){
+    var e = pruefen(auf, karte);
+    if (e) markieren(auf, karte, e);
+    else if (auf.eingabe.art === "wahl"){
+      [].slice.call(karte.querySelectorAll(".wahl")).forEach(function(k, i){
+        k.disabled = true;
+        if (i === auf.eingabe.richtig) k.setAttribute("data-stand","richtig");
+      });
+    }
+  }
+
+  document.getElementById("u-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      echo.innerHTML = '<div class="echo"><p>Da fehlt noch eine Antwort — oder eine Eingabe ist keine Zahl. '
+        + "Erlaubt sind zum Beispiel <code>12</code>, <code>2,5</code> oder <code>3/4</code>.</p></div>";
+      return;
+    }
+    sitzung.versuch++;
+    if (e.ok){
+      markieren(auf, karte, e);
+      echo.innerHTML = '<div class="echo gut"><div class="kopfzeile"><span class="zeichen">✓</span>' + waehle(LOB) + "</div>"
+        + "<p>" + auf.antwort + "</p>"
+        + '<p style="margin-top:.5rem"><button class="knopf knopf-still" id="u-weg" type="button">Rechenweg trotzdem ansehen</button></p></div>'
+        + '<div id="u-weg-ziel"></div>'
+        + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-next" type="button">'
+        + (sitzung.index + 1 >= UEBEN_ANZAHL ? "Weiter zum Re-Test" : "Nächste Aufgabe") + "</button></div>";
+      document.getElementById("u-ok").disabled = true;
+      document.getElementById("u-hilf").hidden = true;
+      document.getElementById("u-weg").onclick = function(){
+        document.getElementById("u-weg-ziel").innerHTML = schritteHtml(auf);
+        document.getElementById("u-weg").hidden = true;
+      };
+      document.getElementById("u-next").onclick = function(){ sitzung.index++; zeigeUeben(); };
+      document.getElementById("u-next").focus();
+      return;
+    }
+    if (sitzung.versuch === 1){
+      markieren(auf, karte, e);
+      echo.innerHTML = '<div class="echo fast"><div class="kopfzeile"><span class="zeichen">~</span>' + waehle(MUT) + "</div>"
+        + "<p><strong>Hinweis:</strong> " + auf.hinweis + "</p></div>"
+        + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-retry" type="button">Noch einmal versuchen</button></div>';
+      document.getElementById("u-retry").onclick = function(){
+        entsperren(karte);
+        echo.innerHTML = "";
+        var f = karte.querySelector("input[data-feld]");
+        if (f) f.focus();
+      };
+      return;
+    }
+    loesungZeigen(waehle(ZWEITER), "nein");
+  };
+  document.getElementById("u-hilf").onclick = function(){
+    loesungZeigen("Kein Problem — hier ist der ganze Weg.", "");
+  };
+}
+
+/* Zwischenstopp vor dem Re-Test: kurz Luft holen, klar sagen, was kommt. */
+function zeigeUebergang(){
+  var t = themaMit(sitzung.id);
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + "<h2>Jetzt der Re-Test</h2>"
+    + '<p class="lead">Vier Aufgaben zu <strong>' + esc(t.name) + "</strong> — neue Zahlen, kein Hinweis, ein Versuch pro Aufgabe. "
+    + "Drei richtige genügen, damit das Thema als sicher gilt.</p>"
+    + '<div class="hinweis"><strong>Warum ohne Hilfe?</strong> Weil in der Klassenarbeit auch niemand danebensteht. '
+    + "Und weil du erst dann weißt, dass du es kannst, wenn du es einmal allein geschafft hast. "
+    + "Geht es schief, ist nichts verloren — dann erkläre ich es dir noch einmal anders.</div>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="r-los" type="button">Re-Test starten</button>'
+    + '<button class="knopf knopf-still" id="r-mehr" type="button">Lieber noch etwas üben</button>'
+    + "</div></div>"
+  );
+  document.getElementById("r-los").onclick = function(){
+    sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest();
+  };
+  document.getElementById("r-mehr").onclick = function(){
+    sitzung.index = 0; zeigeUeben();
+  };
+}
+
+var TEST_ANZAHL = 4, TEST_NOETIG = 3;
+
+function zeigeRetest(){
+  var t = themaMit(sitzung.id);
+  if (sitzung.index >= TEST_ANZAHL) return retestAuswerten();
+  var auf = waehle(t.gen)();
+
+  var punkte = "";
+  for (var i = 0; i < TEST_ANZAHL; i++){
+    var s = sitzung.ergebnisse[i];
+    punkte += '<span class="punkt"' + (s === undefined ? "" : ' data-stand="' + (s ? "richtig" : "falsch") + '"') + "></span>";
+  }
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille pille-teal">Re-Test · ' + (sitzung.index+1) + " von " + TEST_ANZAHL + "</span>"
+    + '<span class="punkte" aria-label="bisherige Ergebnisse">' + punkte + "</span></div>"
+    + '<div style="margin-top:.7rem">' + aufgabeHtml(auf) + "</div>"
+    + eingabeHtml(auf, "r" + sitzung.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="rt-ok" type="button">Antwort abschicken</button></div>'
+    + '<div id="rt-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  document.getElementById("rt-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      document.getElementById("rt-echo").innerHTML =
+        '<div class="echo"><p>Bitte trage in jedes Feld eine Zahl ein — oder wähle eine Antwort aus.</p></div>';
+      return;
+    }
+    markieren(auf, karte, e);
+    sitzung.ergebnisse.push(e.ok);
+    document.getElementById("rt-ok").disabled = true;
+    document.getElementById("rt-echo").innerHTML =
+      '<div class="echo ' + (e.ok ? "gut" : "nein") + '">'
+      + '<div class="kopfzeile"><span class="zeichen">' + (e.ok ? "✓" : "✗") + "</span>"
+      + (e.ok ? waehle(LOB) : "Diese nicht.") + "</div>"
+      + "<p>" + auf.antwort + "</p>"
+      + '<p style="margin-top:.5rem"><button class="knopf knopf-still" id="rt-weg" type="button">Rechenweg ansehen</button></p></div>'
+      + '<div id="rt-weg-ziel"></div>'
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="rt-next" type="button">'
+      + (sitzung.index + 1 >= TEST_ANZAHL ? "Auswertung" : "Nächste Aufgabe") + "</button></div>";
+    document.getElementById("rt-weg").onclick = function(){
+      document.getElementById("rt-weg-ziel").innerHTML = schritteHtml(auf);
+      document.getElementById("rt-weg").hidden = true;
+    };
+    document.getElementById("rt-next").onclick = function(){ sitzung.index++; zeigeRetest(); };
+    document.getElementById("rt-next").focus();
+  };
+}
+
+function retestAuswerten(){
+  var t = themaMit(sitzung.id);
+  var richtig = sitzung.ergebnisse.filter(Boolean).length;
+  var bestanden = richtig >= TEST_NOETIG;
+  var s = stand.themen[t.id];
+  s.runden++;
+  s.letzte = { richtig: richtig, gesamt: TEST_ANZAHL };
+  if (bestanden) s.stand = "sicher";
+  else if (richtig >= 1 && s.stand === "offen") s.stand = "wackelig";
+  sichern();
+
+  if (bestanden){
+    var naechste = null;
+    for (var i = 0; i < THEMEN.length; i++){
+      if (stand.themen[THEMEN[i].id].stand !== "sicher"){ naechste = THEMEN[i]; break; }
+    }
+    var schluss = naechste
+      ? "Als Nächstes steht <strong>" + esc(naechste.name) + "</strong> an."
+      : "Damit sind alle zehn Themen grün. Der gemischte Arbeits-Check ist jetzt der beste nächste Schritt.";
+    zeige(
+      '<div class="karte">'
+      + phasenleiste(4)
+      + '<span class="pille pille-gruen">' + richtig + " von " + TEST_ANZAHL + " richtig</span>"
+      + "<h2 style=\"margin-top:.6rem\">" + esc(t.name) + " sitzt.</h2>"
+      + '<p class="lead">' + (richtig === TEST_ANZAHL
+          ? "Vier von vier — ohne Hinweise, mit neuen Zahlen. Das ist kein Zufall mehr, das ist Können."
+          : "Drei von vier ohne Hilfe: Das reicht. Der eine Ausrutscher ist normal und kein Grund, hier länger zu bleiben.") + "</p>"
+      + '<div class="hinweis hinweis-gruen"><strong>Du kannst jetzt:</strong><ul style="margin:.4rem 0 0 1.1rem; padding:0">'
+      + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul></div>"
+      + '<p class="leise">Ein Tipp aus Erfahrung: Komm in ein paar Tagen noch einmal her und mach nur den Re-Test. '
+      + "Was man zweimal mit Abstand kann, kann man in der Klassenarbeit auch.</p>"
+      + "<p>" + schluss + "</p>"
+      + '<div class="reihe">'
+      + (naechste ? '<button class="knopf knopf-haupt knopf-gross" id="g-next" type="button">Weiter mit ' + esc(naechste.name) + "</button>" : "")
+      + '<button class="knopf" id="g-karte" type="button">Zur Übersicht</button>'
+      + "</div></div>"
+    );
+    var n = document.getElementById("g-next");
+    if (n) n.onclick = function(){ themaOeffnen(naechste.id); };
+    document.getElementById("g-karte").onclick = zeigeKarte;
+    return;
+  }
+
+  /* Nicht bestanden: kein Tadel, sondern ein zweiter Anlauf mit einem
+     anderen Beispiel. Der Weg zurück ist immer derselbe wie beim ersten Mal. */
+  sitzung.runde++;
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + '<span class="pille pille-gold">' + richtig + " von " + TEST_ANZAHL + " richtig</span>"
+    + "<h2 style=\"margin-top:.6rem\">Noch nicht — und das ist in Ordnung.</h2>"
+    + '<p class="lead">' + (richtig === 2
+        ? "Zwei von vier: Die Hälfte stimmt schon. Meistens fehlt genau ein Schritt, und den finden wir jetzt."
+        : (richtig === 1
+          ? "Eine richtige Antwort ist mehr als keine — aber es fehlt noch etwas Grundsätzliches. Gehen wir es anders an."
+          : "Diesmal hat keine gepasst. Das heißt nicht, dass du es nicht kannst; es heißt, dass die Erklärung noch nicht bei dir angekommen ist. Also nehmen wir eine andere.")) + "</p>"
+    + '<div class="hinweis"><strong>So geht es weiter:</strong> ein neues Beispiel, vollständig durchgerechnet, '
+    + "danach wieder drei Übungsaufgaben mit Hinweisen — und dann ein frischer Re-Test. "
+    + "Es gibt keine Begrenzung, wie oft du das machen darfst.</div>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="w-erk" type="button">Neues Beispiel ansehen</button>'
+    + '<button class="knopf knopf-still" id="w-karte" type="button">Später weitermachen</button>'
+    + "</div></div>"
+  );
+  document.getElementById("w-erk").onclick = zeigeErklaerung;
+  document.getElementById("w-karte").onclick = zeigeKarte;
+}
+
+/* --- Arbeits-Check: gemischt, wie in der Klassenarbeit -------------------------- */
+var check = null;
+var CHECK_ANZAHL = 12;
+
+function checkStarten(){
+  /* Gemischt, aber mit Schwerpunkt auf den Klausurthemen: jedes Thema
+     mindestens einmal, die restlichen Plätze an die Kapitel-1-Themen. */
+  var plan = THEMEN.map(function(t){ return t.id; });
+  var klausurThemen = THEMEN.filter(function(t){ return t.gruppe === "klausur"; }).map(function(t){ return t.id; });
+  while (plan.length < CHECK_ANZAHL) plan.push(waehle(klausurThemen));
+  check = { plan: mische(plan), index: 0, ergebnisse: [] };
+  checkSchritt();
+}
+
+function checkSchritt(){
+  if (check.index >= check.plan.length) return checkAuswerten();
+  var t = themaMit(check.plan[check.index]);
+  var auf = waehle(t.gen)();
+  var richtigBisher = check.ergebnisse.filter(function(e){ return e.ok; }).length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille pille-teal">Arbeits-Check · ' + (check.index+1) + " von " + CHECK_ANZAHL + "</span>"
+    + '<span class="leise">' + richtigBisher + " richtig</span></div>"
+    + '<p class="leise" style="margin:.7rem 0 0">Welches Thema? Das musst du hier selbst erkennen.</p>'
+    + aufgabeHtml(auf)
+    + eingabeHtml(auf, "c" + check.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="c-ok" type="button">Antwort abschicken</button>'
+    + '<button class="knopf knopf-still" id="c-skip" type="button">Überspringen</button></div>'
+    + '<div id="c-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  function weiter(ok){
+    check.ergebnisse.push({ id: t.id, ok: ok });
+    check.index++;
+    checkSchritt();
+  }
+  document.getElementById("c-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      document.getElementById("c-echo").innerHTML = '<div class="echo"><p>Bitte fülle alle Felder aus oder überspringe die Aufgabe.</p></div>';
+      return;
+    }
+    markieren(auf, karte, e);
+    document.getElementById("c-ok").disabled = true;
+    document.getElementById("c-skip").hidden = true;
+    document.getElementById("c-echo").innerHTML =
+      '<div class="echo ' + (e.ok ? "gut" : "nein") + '"><div class="kopfzeile"><span class="zeichen">'
+      + (e.ok ? "✓" : "✗") + "</span>" + (e.ok ? waehle(LOB) : esc(t.name) + " — schau gleich noch einmal hin.") + "</div>"
+      + "<p>" + auf.antwort + "</p></div>"
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="c-next" type="button">Weiter</button></div>';
+    document.getElementById("c-next").onclick = function(){ weiter(e.ok); };
+    document.getElementById("c-next").focus();
+  };
+  document.getElementById("c-skip").onclick = function(){ weiter(false); };
+}
+
+function checkAuswerten(){
+  var proThema = {};
+  check.ergebnisse.forEach(function(e){
+    if (!proThema[e.id]) proThema[e.id] = { richtig: 0, gesamt: 0 };
+    proThema[e.id].gesamt++;
+    if (e.ok) proThema[e.id].richtig++;
+  });
+  var richtig = check.ergebnisse.filter(function(e){ return e.ok; }).length;
+  stand.check = { richtig: richtig, gesamt: CHECK_ANZAHL, wann: new Date().toISOString().slice(0,10) };
+  /* Ein Thema, das im gemischten Test durchfällt, war nur im Zusammenhang
+     sicher. Es rutscht auf „wackelig“ — mit Absicht: Das ist die ehrlichere
+     Auskunft, und der Weg dorthin zurück ist kurz. */
+  Object.keys(proThema).forEach(function(id){
+    if (proThema[id].richtig === 0 && stand.themen[id].stand === "sicher")
+      stand.themen[id].stand = "wackelig";
+  });
+  sichern();
+
+  var urteil;
+  if (richtig >= 11) urteil = "Das ist Klassenarbeitsniveau. Mehr als eine Wiederholung in ein paar Tagen braucht es nicht.";
+  else if (richtig >= 9) urteil = "Ein gutes Ergebnis. Sieh dir die zwei, drei Wackler unten an — der Rest sitzt.";
+  else if (richtig >= 6) urteil = "Die Hälfte und mehr steht. Nimm dir gezielt die Themen vor, die unten rot sind, statt alles noch einmal zu machen.";
+  else urteil = "Das war noch schwer. Wichtig: Nicht alles gleichzeitig. Nimm dir das erste rote Thema von oben vor und arbeite es fertig — das trägt die anderen mit.";
+
+  var zeilen = Object.keys(proThema).map(function(id){
+    var t = themaMit(id), p = proThema[id];
+    var farbe = p.richtig === p.gesamt ? "pille-gruen" : (p.richtig === 0 ? "pille-rot" : "pille-gold");
+    return '<tr><td style="text-align:left">' + esc(t.name) + '</td><td><span class="pille ' + farbe + '">'
+      + p.richtig + "/" + p.gesamt + "</span></td></tr>";
+  }).join("");
+
+  zeige(
+    '<div class="karte">'
+    + '<span class="pille pille-teal">Arbeits-Check</span>'
+    + "<h2 style=\"margin-top:.6rem\">" + richtig + " von " + CHECK_ANZAHL + " richtig</h2>"
+    + '<p class="lead">' + urteil + "</p>"
+    + '<table class="werte"><tr><th style="text-align:left">Thema</th><th>Ergebnis</th></tr>' + zeilen + "</table>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt" id="c-karte" type="button">Zur Übersicht</button>'
+    + '<button class="knopf" id="c-nochmal" type="button">Noch einen Durchgang</button>'
+    + "</div></div>"
+  );
+  document.getElementById("c-karte").onclick = zeigeKarte;
+  document.getElementById("c-nochmal").onclick = checkStarten;
+}
+
+/* ==========================================================================
+   9 — Bedienung außen herum
+   ========================================================================== */
+document.getElementById("knopf-karte").onclick = function(){
+  if (stand.diagnose === null && zahlSicher() === 0) zeigeStart(); else zeigeKarte();
+};
+document.getElementById("knopf-thema").onclick = function(){
+  var dunkel = document.documentElement.getAttribute("data-thema") === "dunkel";
+  document.documentElement.setAttribute("data-thema", dunkel ? "hell" : "dunkel");
+  document.getElementById("knopf-thema").textContent = dunkel ? "☾" : "☀";
+  try { localStorage.setItem("mu-7b-thema", dunkel ? "hell" : "dunkel"); } catch (e) {}
+};
+document.getElementById("knopf-reset").onclick = function(){
+  if (!window.confirm("Wirklich alles zurücksetzen? Dein Fortschritt auf diesem Gerät geht dabei verloren.")) return;
+  stand = leererStand();
+  sichern();
+  zeigeStart();
+};
+
+/* Enter schickt ab — auf dem iPad spart das den Griff zum Knopf. */
+document.addEventListener("keydown", function(e){
+  if (e.key !== "Enter" || e.shiftKey || e.ctrlKey || e.metaKey) return;
+  var ziel = e.target;
+  if (ziel && ziel.tagName === "BUTTON") return;
+  var knopf = buehne.querySelector(".knopf-haupt:not([disabled])");
+  if (knopf){ e.preventDefault(); knopf.click(); }
+});
+
+/* Beim Öffnen: gespeicherte Darstellung, dann die passende Ansicht. */
+(function start(){
+  var t = null;
+  try { t = localStorage.getItem("mu-7b-thema"); } catch (e) {}
+  if (t !== "hell" && t !== "dunkel"){
+    var dunkel = false;
+    try { dunkel = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) {}
+    t = dunkel ? "dunkel" : "hell";
+  }
+  document.documentElement.setAttribute("data-thema", t);
+  document.getElementById("knopf-thema").textContent = t === "dunkel" ? "☀" : "☾";
+  document.getElementById("kopf-unter").textContent = countdownText();
+  zeigeStart();
+})();
+</script>
+
+</body>
+</html>
