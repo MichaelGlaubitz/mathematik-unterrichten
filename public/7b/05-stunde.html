@@ -385,80 +385,6 @@ body[data-versuch="teiler"] [data-versuch="ohm"]{display:none !important}
 #speicherHinweis .knopf{margin-top:.6rem}
 #speicherStand{font-size:.76rem; color:#5a6570; white-space:nowrap; padding:.2rem .3rem}
 #speicherStand.schlecht{color:#c62828; font-weight:700}
-
-/* --- Zusaetze dieser Stunde ---------------------------------------- */
-.quelle{font-size:.86rem; color:#607080; font-style:italic; margin:.35rem 0 .1rem}
-.hinweiszeile{font-size:.88rem; color:#607080}
-ol.teilaufgaben{margin:.4rem 0 .5rem; padding-left:1.5rem}
-ol.teilaufgaben>li{margin:.32rem 0}
-.stern{color:#e07000; font-weight:700; font-size:1.1em; margin-left:.15rem}
-.bedienfeld .reglerblock + .reglerblock{margin-top:.7rem; padding-top:.7rem;
-  border-top:1px dashed #e6cfae}
-.bedienfeld .reglerblock .sprungzeile{margin:.45rem 0 .1rem}
-canvas#c-modell,canvas#c-strahl{width:100%; height:auto; background:#fff;
-  border:1px solid var(--linie); border-radius:12px}
-/* Die Begruendungs-Weiche - wie in bau_prop.py. */
-/* Zwischenspeicher: Warnung, Fortsetzungshinweis, Speicherstand. */
-#speicherWarnung{margin:0 0 1rem; padding:.9rem 1.1rem; border:2px solid #c62828;
-  border-left:8px solid #c62828; border-radius:12px; background:#fdecea; color:#8d2417}
-#speicherWarnung b{color:#8d2417}
-#speicherWarnung p{margin:.4rem 0 0}
-#speicherHinweis{margin:0 0 1rem; padding:.75rem 1.1rem; border:1px solid #ffb74d;
-  border-left:8px solid #e07000; border-radius:12px; background:#fff8ec; color:#5a4020}
-#speicherHinweis .knopf{margin-top:.6rem}
-#speicherStand{font-size:.76rem; color:#5a6570; white-space:nowrap; padding:.2rem .3rem}
-#speicherStand.schlecht{color:#c62828; font-weight:700}
-/* Lueckensatz-Geruest (Phase 4) und die freiwillige Zeichnung in A1. */
-.geruest{margin:.7rem 0; padding:.7rem .9rem; border:1px solid #cfd8e0;
-  border-left:6px solid #1565c0; border-radius:10px; background:#f7fafc; line-height:2.1}
-.geruest p{margin:.25rem 0}
-input.luecke-feld{width:5.2rem; font:inherit; text-align:center; padding:.25rem;
-  border:1px solid var(--linie); border-bottom:2px solid #1565c0; border-radius:6px;
-  background:#fffde7; margin:0 .2rem}
-details.zusatzzeichnung{margin:.8rem 0 .2rem; border:1px dashed var(--linie);
-  border-radius:10px; padding:.5rem .8rem; background:#fafbfc}
-details.zusatzzeichnung summary{cursor:pointer; color:#5a6570; font-size:.94rem}
-.vertiefung{display:none}
-.vertiefung.offen{display:block; margin:1.2rem 0 .4rem; padding:.9rem 1.1rem;
-  border:1px solid #a5d6a7; border-left:7px solid #2e7d32; border-radius:12px;
-  background:#f2faf3; animation:vertiefung-auf .5s ease}
-.vertiefung h4{margin:0 0 .5rem; color:#1b5e20}
-.vertiefung details.v-loesung{margin-top:.7rem; border:1px solid #cfe3d0; border-radius:9px;
-  background:#fff; padding:.5rem .8rem}
-.vertiefung details.v-loesung summary{cursor:pointer; font-weight:600; color:#1b5e20}
-@keyframes vertiefung-auf{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
-.aufgabe table{width:100%; border-collapse:collapse; margin:.5rem 0 .6rem;
-  font-size:.98rem}
-.aufgabe table th{text-align:left; background:#f2f6f9; color:#33414d;
-  font-weight:700; padding:.32rem .55rem; border:1px solid #dbe3ea;
-  white-space:nowrap}
-.aufgabe table td{padding:.32rem .55rem; border:1px solid #dbe3ea;
-  text-align:center}
-@media (max-width:560px){ .aufgabe table{font-size:.86rem} }
-
-/* --- Der grosse Abgabeknopf ---------------------------------------- */
-/* Er ist absichtlich unverhaeltnismaessig gross. Am 01.09. sind sechzehn
-   von dreissig Abgaben angekommen; der Rest ist an drei Schritten und
-   einem Teilen-Dialog gescheitert. Ein Ziel, das man nicht verfehlen
-   kann, ist hier kein Schmuck, sondern die Funktion. */
-.abgabeknopf{display:block; width:100%; margin:.7rem 0 .5rem; min-height:4.4rem;
-  padding:1.25rem 1rem; font:700 1.5rem/1.15 inherit; letter-spacing:.03em;
-  color:#fff; background:#1b7f3b; border:none; border-bottom:5px solid #14602c;
-  border-radius:16px; cursor:pointer}
-.abgabeknopf:active{transform:translateY(2px); border-bottom-width:3px}
-.abgabeknopf:disabled{background:#8fa79a; border-bottom-color:#75897f; cursor:default}
-.abgabeknopf.fertig{background:#0b5aa0; border-bottom-color:#08447a; font-size:1.25rem}
-@media (max-width:560px){ .abgabeknopf{font-size:1.3rem} }
-/* Die Standzeile darunter. Sie ist das einzige, was nach dem Druck etwas
-   sagt - deshalb gross genug, um sie nicht zu uebersehen. */
-.abgabestand{margin:.2rem 0 .6rem; padding:.6rem .8rem; border-radius:10px;
-  font-size:1rem; background:#f2f6f9; border:1px solid #dbe3ea; color:#33414d}
-.abgabestand.gut{background:#eaf6ec; border-color:#a5d6a7; color:#1b5e20}
-.abgabestand.warnung{background:#fff8ec; border-color:#ffb74d; color:#5a4020}
-.abgabestand.schlecht{background:#fdecea; border-color:#e59d97; color:#8d2417}
-details#abgabe-notweg{margin-top:.8rem; border:1px dashed var(--linie);
-  border-radius:10px; padding:.5rem .8rem; background:#fafbfc}
-details#abgabe-notweg summary{cursor:pointer; color:#5a6570; font-size:.94rem}
 /* ===== SCHLANKER RAHMEN ================================================
    Kopf und Fuss kosten Hoehe auf JEDEM Schirm, nicht nur einmal. Gemessen
    waren es 89 px Kopf von 760 px Fensterhoehe im iPad-Querformat.
@@ -517,6 +443,56 @@ body.kopf-offen #kopfPunkte{background:var(--blau,#0b5aa0); color:#fff}
   color:var(--blau,#0b5aa0); margin:.6rem 0 .1rem; line-height:1.1}
 
 @media print{ .wachschirm{display:none !important} }
+
+/* --- Zusaetze dieser Stunde ---------------------------------------- */
+.quelle{font-size:.86rem; color:#607080; font-style:italic; margin:.35rem 0 .1rem}
+.hinweiszeile{font-size:.88rem; color:#607080}
+ol.teilaufgaben{margin:.4rem 0 .5rem; padding-left:1.5rem}
+ol.teilaufgaben>li{margin:.32rem 0}
+.stern{color:#e07000; font-weight:700; font-size:1.1em; margin-left:.15rem}
+.bedienfeld .reglerblock + .reglerblock{margin-top:.7rem; padding-top:.7rem;
+  border-top:1px dashed #e6cfae}
+.bedienfeld .reglerblock .sprungzeile{margin:.45rem 0 .1rem}
+canvas#c-modell,canvas#c-strahl{width:100%; height:auto; background:#fff;
+  border:1px solid var(--linie); border-radius:12px}
+/* Die Begruendungs-Weiche - wie in bau_prop.py. */
+/* Zwischenspeicher: Warnung, Fortsetzungshinweis, Speicherstand. */
+#speicherWarnung{margin:0 0 1rem; padding:.9rem 1.1rem; border:2px solid #c62828;
+  border-left:8px solid #c62828; border-radius:12px; background:#fdecea; color:#8d2417}
+#speicherWarnung b{color:#8d2417}
+#speicherWarnung p{margin:.4rem 0 0}
+#speicherHinweis{margin:0 0 1rem; padding:.75rem 1.1rem; border:1px solid #ffb74d;
+  border-left:8px solid #e07000; border-radius:12px; background:#fff8ec; color:#5a4020}
+#speicherHinweis .knopf{margin-top:.6rem}
+#speicherStand{font-size:.76rem; color:#5a6570; white-space:nowrap; padding:.2rem .3rem}
+#speicherStand.schlecht{color:#c62828; font-weight:700}
+/* Lueckensatz-Geruest (Phase 4) und die freiwillige Zeichnung in A1. */
+.geruest{margin:.7rem 0; padding:.7rem .9rem; border:1px solid #cfd8e0;
+  border-left:6px solid #1565c0; border-radius:10px; background:#f7fafc; line-height:2.1}
+.geruest p{margin:.25rem 0}
+input.luecke-feld{width:5.2rem; font:inherit; text-align:center; padding:.25rem;
+  border:1px solid var(--linie); border-bottom:2px solid #1565c0; border-radius:6px;
+  background:#fffde7; margin:0 .2rem}
+details.zusatzzeichnung{margin:.8rem 0 .2rem; border:1px dashed var(--linie);
+  border-radius:10px; padding:.5rem .8rem; background:#fafbfc}
+details.zusatzzeichnung summary{cursor:pointer; color:#5a6570; font-size:.94rem}
+.vertiefung{display:none}
+.vertiefung.offen{display:block; margin:1.2rem 0 .4rem; padding:.9rem 1.1rem;
+  border:1px solid #a5d6a7; border-left:7px solid #2e7d32; border-radius:12px;
+  background:#f2faf3; animation:vertiefung-auf .5s ease}
+.vertiefung h4{margin:0 0 .5rem; color:#1b5e20}
+.vertiefung details.v-loesung{margin-top:.7rem; border:1px solid #cfe3d0; border-radius:9px;
+  background:#fff; padding:.5rem .8rem}
+.vertiefung details.v-loesung summary{cursor:pointer; font-weight:600; color:#1b5e20}
+@keyframes vertiefung-auf{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+.aufgabe table{width:100%; border-collapse:collapse; margin:.5rem 0 .6rem;
+  font-size:.98rem}
+.aufgabe table th{text-align:left; background:#f2f6f9; color:#33414d;
+  font-weight:700; padding:.32rem .55rem; border:1px solid #dbe3ea;
+  white-space:nowrap}
+.aufgabe table td{padding:.32rem .55rem; border:1px solid #dbe3ea;
+  text-align:center}
+@media (max-width:560px){ .aufgabe table{font-size:.86rem} }
 </style>
 </head>
 <body>
@@ -1680,44 +1656,23 @@ body.kopf-offen #kopfPunkte{background:var(--blau,#0b5aa0); color:#fff}
         <input id="i-klasse" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="7b" value="7b"></div>
     </div>
 
-    <p style="margin:.9rem 0 .1rem" class="sprache-standard"><b>Namen eintragen, dann auf den gro&#223;en Knopf.</b>
-    Mehr ist nicht zu tun &#8212; keine Datei suchen, keine Mail schreiben.</p>
-    <p style="margin:.9rem 0 .1rem" class="sprache-einfach"><b>Schreib deinen Namen. Dann dr&#252;ck auf den gro&#223;en Knopf.</b>
-    Mehr musst du nicht tun. Du musst keine Datei suchen. Du musst keine Mail schreiben.</p>
+    <p style="margin:.9rem 0 .2rem"><b>So geht die Abgabe &#8211; drei Schritte:</b></p>
+    <ol style="margin-top:.2rem">
+      <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">&#128196; Protokoll speichern</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Eine Datei mit allen Antworten, Zeichnungen und Zeitstempeln. Landet in &#8222;Downloads&#8220; bzw. in der Dateien-App.</span></li>
+      <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">&#9993; Senden / Teilen</button><br>
+        <span style="font-size:.88rem;color:#4a5560">&#214;ffnet den Teilen-Dialog &#8594; <b>Mail</b> w&#228;hlen &#8594; die Datei ist als Anhang dabei. Empf&#228;nger:
+        <b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
+      <li><b>Kontrollieren:</b> Steht euer Name in der Mail? Ist der Anhang dabei? Dann senden.</li>
+    </ol>
 
-    <button class="abgabeknopf" id="k-abgeben">JETZT ABGEBEN</button>
-
-    <p class="abgabestand" id="abgabe-stand" role="status" aria-live="polite"><span
-      class="sprache-standard">Noch nicht abgegeben.</span><span
-      class="sprache-einfach">Du hast noch nicht abgegeben.</span></p>
-
-    <details id="abgabe-notweg">
-      <summary><span class="sprache-standard">Der Knopf geht nicht? Andere Wege</span><span
-        class="sprache-einfach">Der Knopf geht nicht? Hier sind andere Wege.</span></summary>
-
-      <p style="margin:.7rem 0 .2rem"><b>Weg 1 &#8211; Datei speichern und selbst schicken:</b></p>
-      <ol style="margin-top:.2rem">
-        <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">&#128196; Protokoll speichern</button><br>
-          <span style="font-size:.88rem;color:#4a5560" class="sprache-standard">Eine Datei mit allen Antworten, Zeichnungen und Zeitstempeln. Landet in &#8222;Downloads&#8220; bzw. in der Dateien-App.</span><span
-          style="font-size:.88rem;color:#4a5560" class="sprache-einfach">Das erzeugt eine Datei. Darin stehen alle deine Antworten und Zeichnungen. Sie landet in &#8222;Downloads&#8220; oder in der Dateien-App.</span></li>
-        <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">&#9993; Senden / Teilen</button><br>
-          <span style="font-size:.88rem;color:#4a5560" class="sprache-standard">&#214;ffnet den Teilen-Dialog &#8594; <b>Mail</b> w&#228;hlen &#8594; die Datei ist als Anhang dabei. Empf&#228;nger:</span><span
-          style="font-size:.88rem;color:#4a5560" class="sprache-einfach">Es &#246;ffnet sich ein Fenster. W&#228;hle dort <b>Mail</b>. Die Datei h&#228;ngt schon dran. Schick sie an:</span>
-          <span style="font-size:.88rem;color:#4a5560"><b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
-      </ol>
-
-      <p style="margin-top:.7rem">
-        <button class="knopf" id="k-json">Rohdaten als JSON</button>
-        <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
-        <button class="knopf" id="k-kopieren">Text kopieren</button>
-      </p>
-      <p class="videohinweis sprache-standard" id="mail-hinweis">Wenn auch das nicht
-      funktioniert: Protokoll speichern und Herrn Glaubitz Bescheid sagen &#8212; die Datei
-      bleibt auf dem iPad und geht nicht verloren.</p>
-      <p class="videohinweis sprache-einfach">Geht auch das nicht? Dann speichere das
-      Protokoll und sag Herrn Glaubitz Bescheid. Die Datei bleibt auf deinem iPad.
-      Sie geht nicht verloren.</p>
-    </details>
+    <p style="margin-top:.7rem">
+      <button class="knopf" id="k-json">Rohdaten als JSON</button>
+      <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
+      <button class="knopf" id="k-kopieren">Text kopieren</button>
+    </p>
+    <p class="videohinweis" id="mail-hinweis">Wenn &#8222;Senden / Teilen&#8220; nicht funktioniert: Protokoll
+    speichern, dann selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b> schreiben und die Datei anh&#228;ngen.</p>
   </div>
 
 
@@ -4913,238 +4868,6 @@ function aufbauSchritte(box) {
 
 /* ---------- Start ---------- */
 zeige(0);
-
-/* ---------- Begründungs-Weiche für die, die sauber durchkommen ---------- */
-(function begruendungsWeiche() {
-  const boxen = Array.from(document.querySelectorAll(".vertiefung"));
-  if (!boxen.length) return;
-
-  /* Wer den Hilfeknopf gedrückt hat, gehört nicht zu dieser Gruppe. In der
-     Erfassungsphase (true), damit es auch dann greift, wenn der Knopf sein
-     eigenes Ereignis stoppt. */
-  document.addEventListener("click", function (ev) {
-    const t = ev.target;
-    const k = t && t.closest ? t.closest(".hilfeknopf") : null;
-    if (!k) return;
-    const p = k.closest("section.phase");
-    if (p) p.dataset.hilfeGenutzt = "1";
-  }, true);
-
-  /* Die Sperren der Phase - ohne die der Vertiefung selbst. Sonst wartete die
-     Bedingung auf eine Antwort, die es ohne das Aufdecken gar nicht geben kann. */
-  function sperren(p) {
-    return Array.from(p.querySelectorAll("details[data-fuer]"))
-      .filter(d => !d.closest(".vertiefung"));
-  }
-
-  function pruefePhase(p) {
-    const box = p.querySelector(".vertiefung");
-    if (!box || box.classList.contains("offen")) return;
-    if (p.dataset.hilfeGenutzt === "1") return;
-    const s = sperren(p);
-    if (!s.length || !s.every(d => d.classList.contains("frei"))) return;
-    box.classList.add("offen");
-    /* Ruhig hinrollen: Ohne das steht die Frage unter dem Rand und wird
-       schlicht nicht gesehen. */
-    setTimeout(function () {
-      box.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 120);
-  }
-
-  /* Nachlaufend prüfen: Die Sperren werden beim Tippen laufend neu bewertet;
-     würde die Frage im selben Moment aufspringen, spränge sie mitten im Satz. */
-  let warten = null;
-  document.addEventListener("input", function (ev) {
-    const t = ev.target;
-    const p = t && t.closest ? t.closest("section.phase") : null;
-    if (!p || !p.querySelector(".vertiefung")) return;
-    clearTimeout(warten);
-    warten = setTimeout(function () { pruefePhase(p); }, 1200);
-  }, true);
-
-  /* ---- Eigene, kleine Sperre für die Musterantwort der Vertiefung ----
-     Warum nicht die der Vorlage (details.gesperrt mit data-fuer)? Weil
-     pruefe_html.mjs jede Sperre ausfüllen und aufgehen sehen will - und die
-     Felder der Vertiefung sind zum Zeitpunkt der Prüfung noch verborgen.
-     Eine Sperre, die der Prüfer nicht ausüben kann, ist eine ungeprüfte
-     Sperre; die will ich nicht ausliefern.
-
-     Diese hier prüft schlichter als die der Vorlage: nur die Länge, keine
-     Dublettenerkennung. Das ist vertretbar, weil sie eine freiwillige
-     Zusatzfrage schützt und keine bewertete Aufgabe - und weil sie ohnehin
-     nur denen begegnet, die die ganze Phase aus eigener Kraft gelöst haben. */
-  boxen.forEach(function (box) {
-    const d = box.querySelector("details.v-loesung");
-    if (!d) return;
-    const feld = document.getElementById(d.dataset.feld || "");
-    const note = document.createElement("p");
-    note.className = "videohinweis";
-    note.innerHTML =
-      '<span class="sprache-standard">Erst deine eigene Antwort &#8212; dann geht das auf.</span>' +
-      '<span class="sprache-einfach">Schreib erst deine eigene Antwort. Dann geht das auf.</span>';
-    note.style.display = "none";
-    d.parentNode.insertBefore(note, d.nextSibling);
-
-    function reichtAus() {
-      return !!feld && feld.value.trim().length >= 60;
-    }
-
-    /* Am KLICK abfangen, nicht am toggle: toggle läuft erst, nachdem der
-       Browser das <details> schon geöffnet hat - die Lösung blitzt dann kurz
-       auf, bevor sie wieder zuklappt. preventDefault() verhindert das
-       Öffnen von vornherein. Gilt auch für Tastaturbedienung, weil Enter und
-       Leertaste auf einem summary ebenfalls ein click-Ereignis auslösen. */
-    d.querySelector("summary").addEventListener("click", function (ev) {
-      if (d.open) { note.style.display = "none"; return; }   /* Zuklappen immer */
-      if (reichtAus()) { note.style.display = "none"; return; }
-      ev.preventDefault();
-      note.style.display = "";
-    });
-
-    /* Rückfall für den Fall, dass ein Browser das <details> auf anderem Weg
-       öffnet (etwa über die Suchfunktion der Seite). */
-    d.addEventListener("toggle", function () {
-      if (!d.open || reichtAus()) return;
-      d.open = false;
-      note.style.display = "";
-    });
-  });
-})();
-
-/* ---------- JETZT ABGEBEN --------------------------------------------
-   Ein Knopf. Er schickt das Protokoll an den Briefkasten (siehe
-   mathematik-unterrichten/abgabe/) und sagt in einem Satz, was passiert
-   ist.
-
-   Die eine Regel, die alles andere bestimmt: Der Knopf laesst niemanden
-   mit leeren Haenden stehen. Geht das Senden schief - kein Netz, Dienst
-   aus, Adresse nicht eingetragen, Schul-WLAN sperrt -, dann speichert
-   derselbe Druck das Protokoll auf das Geraet und sagt das deutlich.
-   Ein Knopf, der stumm nichts tut, waere schlimmer als gar keiner.
-   ------------------------------------------------------------------ */
-(function abgeben() {
-  const knopf = document.getElementById("k-abgeben");
-  const stand = document.getElementById("abgabe-stand");
-  if (!knopf || !stand) return;
-  const notweg = document.getElementById("abgabe-notweg");
-
-  /* Die Adresse laesst sich ohne Neubauen umbiegen - dafuer ist der
-     Node-Zwilling auf dem Lehrer-Laptop da:
-       ...-stunde.html?abgabe=http://192.168.x.x:8741             */
-  const gesetzt = "https://abgabe.michaelglaubitz-barton.workers.dev";
-  const dienst = ((new URLSearchParams(location.search)).get("abgabe") || gesetzt || "")
-    .trim().replace(/\/+$/, "");
-
-  /* Dieselbe Rechnung wie im Dienst. Der Briefkasten nimmt die laufende
-     Woche und ihre beiden Nachbarn an - eine um Tage falsch gestellte
-     iPad-Uhr faellt damit nicht auf, eine um Monate falsche schon. */
-  function isoWoche(d) {
-    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const tag = t.getUTCDay() || 7;
-    t.setUTCDate(t.getUTCDate() + 4 - tag);
-    const jahr = t.getUTCFullYear();
-    const kw = Math.ceil(((t - new Date(Date.UTC(jahr, 0, 1))) / 86400000 + 1) / 7);
-    return jahr + "-W" + String(kw).padStart(2, "0");
-  }
-
-  function melden(html, art) {
-    stand.className = "abgabestand" + (art ? " " + art : "");
-    stand.innerHTML = html;
-  }
-  function uhr() {
-    const d = new Date();
-    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
-  }
-
-  /* Eigene Namenspruefung: Die der Vorlage schreibt ihre Meldung nach
-     #mail-hinweis, und der steckt jetzt im zugeklappten Notweg - dort
-     saehe sie niemand. */
-  function nameFehltHier() {
-    if (namen()) return false;
-    melden("<b>Zuerst den Namen eintragen.</b> Sonst weiß Herr Glaubitz nicht, "
-           + "von wem das Protokoll kommt.", "schlecht");
-    const el = document.getElementById("i-name");
-    if (el) { el.focus(); el.scrollIntoView({ block: "center" }); }
-    return true;
-  }
-
-  function aufsGeraet(html, grund, satz) {
-    herunterladen(dateiname() + ".html", html, "text/html");
-    exportiert = true; chipMalen();
-    protokolliere("abgabe", "notweg", "Senden nicht moeglich (" + grund
-      + ") - Protokoll auf das Geraet gespeichert");
-    melden("<b>Das Senden hat nicht geklappt.</b> " + satz
-      + "<br>Deine Arbeit ist <b>nicht verloren</b>: Sie liegt jetzt als Datei "
-      + "<b>" + dateiname() + ".html</b> auf dem iPad (Dateien-App, Ordner „Downloads“). "
-      + "Sag Herrn Glaubitz Bescheid.", "warnung");
-    if (notweg) notweg.open = true;
-  }
-
-  const GRUENDE = {
-    "woche": "Die Uhr dieses iPads zeigt ein falsches Datum.",
-    "name-fehlt": "Der Name fehlt.",
-    "klasse": "Im Feld „Klasse“ steht etwas anderes als 7b.",
-    "zu-gross": "Das Protokoll ist zu groß.",
-    "leer": "Es war noch nichts auszufüllen da.",
-    "zu-oft": "Von diesem iPad kamen schon sehr viele Abgaben.",
-    "tageslimit": "Der Briefkasten ist für heute voll.",
-  };
-
-  async function senden() {
-    if (nameFehltHier()) return;
-    erfassenAlle();
-    const html = protokollHtml();
-
-    if (!dienst) {
-      aufsGeraet(html, "keine Adresse eingetragen", "Für diese Stunde ist noch kein Briefkasten eingerichtet.");
-      return;
-    }
-
-    const vorher = knopf.textContent;
-    knopf.disabled = true;
-    knopf.textContent = "Wird gesendet …";
-    melden("Einen Moment – das Protokoll geht gerade raus.");
-
-    const abbruch = new AbortController();
-    const wecker = setTimeout(() => abbruch.abort(), 20000);
-    try {
-      const antwort = await fetch(dienst + "/v1/abgabe", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          klasse: klasse() || "7b",
-          kennung: "quotientengleichheit-7b",
-          name: namen(),
-          woche: isoWoche(new Date()),
-          inhalt: html,
-        }),
-        signal: abbruch.signal,
-      });
-      const d = await antwort.json().catch(() => ({}));
-      if (antwort.ok && d.ok) {
-        exportiert = true; chipMalen();
-        protokolliere("abgabe", "gesendet", "Protokoll abgegeben um " + uhr());
-        melden("<b>✔ Abgegeben um " + uhr() + ".</b> Herr Glaubitz hat dein Protokoll. "
-          + "Du kannst das Fenster jetzt schließen.", "gut");
-        knopf.className = "abgabeknopf fertig";
-        knopf.textContent = "✔ ABGEGEBEN – noch einmal senden";
-        return;
-      }
-      aufsGeraet(html, d.grund || ("HTTP " + antwort.status),
-                 GRUENDE[d.grund] || "Der Briefkasten hat die Abgabe nicht angenommen.");
-      knopf.textContent = vorher;
-    } catch (e) {
-      aufsGeraet(html, (e && e.name === "AbortError") ? "Zeitüberschreitung" : "kein Netz",
-                 "Das iPad kommt gerade nicht ins Netz.");
-      knopf.textContent = vorher;
-    } finally {
-      clearTimeout(wecker);
-      knopf.disabled = false;
-    }
-  }
-
-  knopf.addEventListener("click", senden);
-})();
 </script>
 <script>
 /* ===== SCHLANKER RAHMEN =================================================
@@ -5466,343 +5189,103 @@ zeige(0);
     if (!document.hidden) setTimeout(pruefen, 400);
   });
 })();
-</script><!-- anpassen:auf -->
-<style>
-/* ===========================================================================
-   Aussehen des Anpassungs-Editors. Gehoert zu anpassen.js.
 
-   Alles hier haengt an `body.anp-an` oder an `.anp-*`. Im Unterricht ist
-   der Editor aus, und dann darf keine einzige Regel greifen - eine Anzeige,
-   die im Bearbeitungszustand an der Wand haengt, waere schlimmer als gar
-   kein Editor.
-   =========================================================================== */
+/* ---------- Begründungs-Weiche für die, die sauber durchkommen ---------- */
+(function begruendungsWeiche() {
+  const boxen = Array.from(document.querySelectorAll(".vertiefung"));
+  if (!boxen.length) return;
 
-/* --- Warnung bei verwaisten Eintraegen -------------------------------
-   Sichtbar, nicht in der Konsole: Im Unterricht hat niemand die Konsole
-   offen, und eine Anpassung, die ins Leere greift, muss auffallen. */
-.anp-warnung{position:fixed;left:50%;top:52px;transform:translateX(-50%);z-index:80;
-  background:#fef2f2;border:1px solid #fecaca;border-left:7px solid #dc2626;
-  color:#7f1d1d;border-radius:11px;padding:9px 15px;font-size:14px;font-weight:600;
-  max-width:70vw;cursor:pointer;box-shadow:0 3px 12px rgba(15,23,42,.18)}
-@media print{.anp-warnung{display:none}}
+  /* Wer den Hilfeknopf gedrückt hat, gehört nicht zu dieser Gruppe. In der
+     Erfassungsphase (true), damit es auch dann greift, wenn der Knopf sein
+     eigenes Ereignis stoppt. */
+  document.addEventListener("click", function (ev) {
+    const t = ev.target;
+    const k = t && t.closest ? t.closest(".hilfeknopf") : null;
+    if (!k) return;
+    const p = k.closest("section.phase");
+    if (p) p.dataset.hilfeGenutzt = "1";
+  }, true);
 
-
-
-</style>
-<script>
-window.ANPASSUNGEN = {"fassung": 1, "eintraege": []};
-/* ===========================================================================
-   Anpassungen: im Anzeigefenster bearbeiten, im Bauskript bleiben.
-
-   Zwei Teile in einer Datei, weil sie dieselbe Adressierung brauchen:
-
-   1. ANWENDER - laeuft in jeder Anzeige, auch im Unterricht. Er liest
-      window.ANPASSUNGEN und legt die Aenderungen auf die erzeugte Seite.
-   2. EDITOR - laeuft nur, wenn er gerufen wird (Taste E). Er schreibt
-      genau die Eintraege, die der Anwender wieder liest.
-
-   WARUM NICHT IN DIE ERZEUGTE DATEI SCHREIBEN: Jede Anzeige entsteht aus
-   einem Bauskript. Wer die HTML-Datei bearbeitet, verliert die Aenderung
-   beim naechsten Bau - und merkt es erst im Unterricht. Deshalb liegt die
-   Aenderung in einer eigenen Datei neben dem Bauskript, und der Bau legt
-   sie jedes Mal wieder auf.
-
-   WARUM DIE ANWENDUNG IM BROWSER GESCHIEHT und nicht in Python: Es gibt
-   drei Bauwege (Wandfassung, Projektion, Selbstlernstunde) mit drei
-   verschiedenen Strukturen, aber nur EINEN Zustand, in dem alle drei
-   gleich aussehen - den fertigen DOM. Ein Anwender dort bedient alle drei;
-   drei Anwender in Python muessten dreimal gepflegt werden.
-
-   DIE HEIKLE STELLE ist das Wiederfinden eines Elements nach einem Neubau.
-   Ein Pfad allein genuegt nicht: Kommt eine Folie dazu, zeigt er auf das
-   falsche Element, und die Aenderung landet lautlos woanders. Deshalb
-   traegt jeder Eintrag zusaetzlich einen Fingerabdruck seines Inhalts.
-   Stimmt er nicht, wird NICHT geraten: Der Eintrag gilt als verwaist und
-   wird gemeldet - sichtbar, nicht nur in der Konsole.
-   =========================================================================== */
-(function () {
-  "use strict";
-
-  /* --- Fingerabdruck: kurz, stabil, nur aus dem sichtbaren Text ---------
-     Absichtlich nicht ueber das HTML: Ein geaenderter Umbruch oder ein
-     zusaetzliches <b> soll den Eintrag nicht verwaisen lassen. Der Text
-     traegt die Bedeutung. */
-  function fingerabdruck(el) {
-    var t = (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 160);
-    var h = 5381;
-    for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
-    return h.toString(36);
+  /* Die Sperren der Phase - ohne die der Vertiefung selbst. Sonst wartete die
+     Bedingung auf eine Antwort, die es ohne das Aufdecken gar nicht geben kann. */
+  function sperren(p) {
+    return Array.from(p.querySelectorAll("details[data-fuer]"))
+      .filter(d => !d.closest(".vertiefung"));
   }
 
-  /* --- Adressierung ----------------------------------------------------
-     Behaelter = Folie (.slide) oder Karte (.karte/.teil), je nach Anzeige.
-     Innerhalb davon adressiert eine Kette von Kind-Indizes. */
-  var BEHAELTER = ".slide, .karte, .teil";
-
-  function behaelterListe() {
-    return Array.prototype.slice.call(document.querySelectorAll(BEHAELTER))
-      .filter(function (b) { return !b.closest(".anp-leiste"); });
+  function pruefePhase(p) {
+    const box = p.querySelector(".vertiefung");
+    if (!box || box.classList.contains("offen")) return;
+    if (p.dataset.hilfeGenutzt === "1") return;
+    const s = sperren(p);
+    if (!s.length || !s.every(d => d.classList.contains("frei"))) return;
+    box.classList.add("offen");
+    /* Ruhig hinrollen: Ohne das steht die Frage unter dem Rand und wird
+       schlicht nicht gesehen. */
+    setTimeout(function () {
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
   }
 
-  function behaelterName(b) {
-    if (b.dataset.marke) return b.dataset.marke;
-    var i = behaelterListe().indexOf(b);
-    return "#" + (i + 1);
-  }
+  /* Nachlaufend prüfen: Die Sperren werden beim Tippen laufend neu bewertet;
+     würde die Frage im selben Moment aufspringen, spränge sie mitten im Satz. */
+  let warten = null;
+  document.addEventListener("input", function (ev) {
+    const t = ev.target;
+    const p = t && t.closest ? t.closest("section.phase") : null;
+    if (!p || !p.querySelector(".vertiefung")) return;
+    clearTimeout(warten);
+    warten = setTimeout(function () { pruefePhase(p); }, 1200);
+  }, true);
 
-  function behaelterFinden(name) {
-    var liste = behaelterListe();
-    if (name.charAt(0) === "#") return liste[parseInt(name.slice(1), 10) - 1] || null;
-    for (var i = 0; i < liste.length; i++)
-      if (liste[i].dataset.marke === name) return liste[i];
-    return null;
-  }
+  /* ---- Eigene, kleine Sperre für die Musterantwort der Vertiefung ----
+     Warum nicht die der Vorlage (details.gesperrt mit data-fuer)? Weil
+     pruefe_html.mjs jede Sperre ausfüllen und aufgehen sehen will - und die
+     Felder der Vertiefung sind zum Zeitpunkt der Prüfung noch verborgen.
+     Eine Sperre, die der Prüfer nicht ausüben kann, ist eine ungeprüfte
+     Sperre; die will ich nicht ausliefern.
 
-  /* window.einpassen zieht NACHTRAEGLICH ein <div class="buehne"> in die
-     Folie und haengt alle Kinder dort hinein, um sie als Block zu
-     skalieren. Damit aendert sich die Tiefe jedes Elements, je nachdem, ob
-     die Einpassung schon gelaufen ist: derselbe Kasten hiess erst „1" und
-     danach „0/1". Zwei Adressen fuer ein Element - und schon legt der
-     Editor beim zweiten Klick einen zweiten Eintrag an.
+     Diese hier prüft schlichter als die der Vorlage: nur die Länge, keine
+     Dublettenerkennung. Das ist vertretbar, weil sie eine freiwillige
+     Zusatzfrage schützt und keine bewertete Aufgabe - und weil sie ohnehin
+     nur denen begegnet, die die ganze Phase aus eigener Kraft gelöst haben. */
+  boxen.forEach(function (box) {
+    const d = box.querySelector("details.v-loesung");
+    if (!d) return;
+    const feld = document.getElementById(d.dataset.feld || "");
+    const note = document.createElement("p");
+    note.className = "videohinweis";
+    note.innerHTML =
+      '<span class="sprache-standard">Erst deine eigene Antwort &#8212; dann geht das auf.</span>' +
+      '<span class="sprache-einfach">Schreib erst deine eigene Antwort. Dann geht das auf.</span>';
+    note.style.display = "none";
+    d.parentNode.insertBefore(note, d.nextSibling);
 
-     Die Buehne ist Technik, kein Inhalt. Deshalb ist sie hier die Wurzel,
-     wenn es sie gibt, und faellt aus dem Pfad heraus. */
-  function inhaltsWurzel(b) {
-    return b.querySelector(":scope > .buehne") || b;
-  }
-
-  function pfadVon(el, b) {
-    var w = inhaltsWurzel(b), teile = [];
-    while (el && el !== w) {
-      var p = el.parentNode;
-      if (!p) return null;
-      teile.unshift(Array.prototype.indexOf.call(p.children, el));
-      el = p;
-    }
-    return el === w ? teile.join("/") : null;
-  }
-
-  function elementAn(b, pfad) {
-    var el = inhaltsWurzel(b), teile = pfad === "" ? [] : pfad.split("/");
-    for (var i = 0; i < teile.length; i++) {
-      el = el.children[parseInt(teile[i], 10)];
-      if (!el) return null;
-    }
-    return el;
-  }
-
-  /* Erst am Pfad suchen, dann - wenn der Fingerabdruck widerspricht - im
-     ganzen Behaelter nach dem Fingerabdruck. So ueberlebt ein Eintrag das
-     Einfuegen eines Geschwisterelements, ohne je zu raten. */
-  function elementFinden(e) {
-    var b = behaelterFinden(e.behaelter);
-    if (!b) return null;
-    var el = elementAn(b, e.pfad);
-    if (el && fingerabdruck(el) === e.fp) return el;
-    var alle = b.querySelectorAll("*");
-    for (var i = 0; i < alle.length; i++)
-      if (fingerabdruck(alle[i]) === e.fp) return alle[i];
-    return null;
-  }
-
-  /* ==================== 1 · ANWENDER ==================== */
-
-  var VERWAIST = [];
-  /* Bleibt leer, wenn der Editor herausgeschnitten wurde - siehe die Marken
-     weiter unten. */
-  var EDITOR = {};
-
-  /* Der Urzustand jedes beruehrten Elternteils, damit anwenden() BELIEBIG
-     OFT laufen kann und immer dasselbe Ergebnis liefert. Ohne das wandert
-     ein Element beim Bearbeiten mit jedem Aufruf eine Stelle weiter: Der
-     Editor wendet nach jedem Klick neu an, und „eine Position nach oben"
-     waere nach dem dritten Klick drei Positionen. */
-  var URZUSTAND = new Map();
-
-  function merkeReihenfolge(p) {
-    if (p && !URZUSTAND.has(p)) URZUSTAND.set(p, Array.prototype.slice.call(p.children));
-  }
-
-  function urzustandHerstellen() {
-    URZUSTAND.forEach(function (kinder, p) {
-      kinder.forEach(function (k) { if (k.parentNode === p) p.appendChild(k); });
-    });
-    /* Eingesetzte Bilder wieder heraus und verdraengte SVG zurueck - sonst
-       bliebe ein zurueckgenommenes Bild stehen und die Zeichnung darunter
-       verborgen, bis jemand neu laedt. */
-    document.querySelectorAll("img[data-anp-bild]").forEach(function (b) { b.remove(); });
-    document.querySelectorAll("[data-anp-ersetzt]").forEach(function (s) {
-      s.style.display = ""; delete s.dataset.anpErsetzt;
-    });
-    document.querySelectorAll("[data-anp], [data-anp-weg]").forEach(function (el) {
-      el.style.display = ""; el.style.fontSize = ""; el.style.maxWidth = "";
-      delete el.dataset.anp; delete el.dataset.anpWeg;
-    });
-  }
-
-  /* Ein Bild einsetzen oder austauschen.
-
-     Drei Faelle, und nur der erste ist offensichtlich:
-
-     1. Das Element IST ein Bild - Quelle tauschen, fertig.
-     2. Es enthaelt ein <svg>. Das sind die gerechneten Koordinatensysteme
-        und der QR-Code. „Austauschen" heisst hier: das SVG verbergen und
-        das Bild an seine Stelle setzen - nicht danebenhaengen, sonst
-        stehen Zeichnung und Bild nebeneinander und niemand weiss, welches
-        gilt. Verborgen, nicht geloescht: Der Urzustand muss herstellbar
-        bleiben.
-     3. Sonst wird ein Bild angehaengt.
-
-     In allen Faellen als BLOCK mit eigener Zeile. Ein Bild ohne
-     display:block landet in der Textzeile und schiebt sich neben die
-     Ueberschrift - so gesehen bei der ersten Probe. */
-  function bildSetzen(el, quelle) {
-    if (el.tagName === "IMG") { el.src = quelle; return; }
-    var vorhanden = el.querySelector(":scope > img[data-anp-bild]");
-    if (!vorhanden) {
-      vorhanden = document.createElement("img");
-      vorhanden.dataset.anpBild = "1";
-      var svg = el.tagName === "svg" ? el : el.querySelector("svg");
-      if (svg) {
-        svg.dataset.anpErsetzt = "1";
-        svg.style.display = "none";
-        svg.parentNode.insertBefore(vorhanden, svg);
-      } else {
-        el.appendChild(vorhanden);
-      }
-    }
-    vorhanden.src = quelle;
-    vorhanden.style.display = "block";
-    vorhanden.style.maxWidth = "100%";
-    vorhanden.style.height = "auto";
-    vorhanden.style.margin = "0.6em auto 0";
-  }
-
-  function anwenden() {
-    var daten = window.ANPASSUNGEN;
-    urzustandHerstellen();
-    if (!daten || !daten.eintraege || !daten.eintraege.length) return;
-    VERWAIST = [];
-    document.querySelectorAll(".anp-warnung").forEach(function (w) { w.remove(); });
-
-    /* Von aussen nach innen: flache Pfade zuerst.
-
-       Wer ein Element UND eines seiner Kinder aendert, aendert mit dem Kind
-       auch den Textinhalt des Elternteils - und damit dessen Fingerabdruck.
-       Kam das Kind zuerst, erkannte der Elternteil sich selbst nicht mehr
-       und galt als verwaist: An der 7b-Wandfassung ging so ein ganzer
-       Absatz verloren, waehrend die Zeile darin ankam.
-
-       Der Elternteil setzt seinen Inhalt ohnehin als Ganzes; ihn zuerst zu
-       legen ist auch der Reihenfolge nach richtig. */
-    var reihe = daten.eintraege.slice().sort(function (a, b) {
-      return (a.pfad === "" ? 0 : a.pfad.split("/").length)
-           - (b.pfad === "" ? 0 : b.pfad.split("/").length);
-    });
-
-    /* Ein Eintrag, der UNTERHALB eines anderen liegt, welcher seinen Inhalt
-       als Ganzes setzt, ist wirkungslos: Der Elternteil bringt den Text des
-       Kindes schon mit. Das ist kein Fehler und darf nicht als verwaist
-       gemeldet werden - sonst steht eine rote Warnung an der Wand, obwohl
-       genau das dasteht, was gewollt war. */
-    function verdecktVon(e) {
-      return reihe.some(function (a) {
-        return a !== e && a.behaelter === e.behaelter
-            && typeof (a.was || {}).text === "string"
-            && a.pfad !== "" && e.pfad.indexOf(a.pfad + "/") === 0;
-      });
+    function reichtAus() {
+      return !!feld && feld.value.trim().length >= 60;
     }
 
-    reihe.forEach(function (e) {
-      if (verdecktVon(e)) return;
-      var el = elementFinden(e);
-      if (!el) { VERWAIST.push(e); return; }
-      var w = e.was || {};
-
-      if (w.weg) { el.style.display = "none"; el.dataset.anpWeg = "1"; return; }
-      if (typeof w.text === "string") el.innerHTML = w.text;
-      if (w.groesse) {
-        /* Erst zuruecksetzen, dann messen, dann rechnen. Ein `em`-Wert waere
-           falsch: em zaehlt gegen die ELTERNgroesse, und die Ueberschrift
-           einer Folie steht bei 66 px in einem Koerper mit 16 px - aus
-           „1,18 mal so gross" wuerde 18,88 px. Gemessen wird die Groesse,
-           die das Blatt dem Element gibt; sie haengt am Format, also wird
-           bei jeder Fensteraenderung neu gemessen. */
-        el.style.fontSize = "";
-        var basis = parseFloat(getComputedStyle(el).fontSize) || 0;
-        if (basis) el.style.fontSize = (basis * w.groesse).toFixed(2) + "px";
-      }
-      if (w.breite) {
-        el.style.maxWidth = "";
-        var p = el.parentNode, voll = p ? p.getBoundingClientRect().width : 0;
-        var ist = el.getBoundingClientRect().width;
-        if (voll > 0 && ist > 0)
-          el.style.maxWidth = Math.max(5, (ist * w.breite / voll) * 100).toFixed(2) + "%";
-      }
-      if (w.bild) bildSetzen(el, w.bild);
-      if (typeof w.rang === "number" && w.rang !== 0) {
-        var pp = el.parentNode;
-        merkeReihenfolge(pp);
-        var k = Array.prototype.slice.call(pp.children);
-        var von = k.indexOf(el), nach = Math.max(0, Math.min(k.length - 1, von + w.rang));
-        if (nach !== von) {
-          if (nach > von) pp.insertBefore(el, k[nach].nextSibling);
-          else pp.insertBefore(el, k[nach]);
-        }
-      }
-      el.dataset.anp = "1";
+    /* Am KLICK abfangen, nicht am toggle: toggle läuft erst, nachdem der
+       Browser das <details> schon geöffnet hat - die Lösung blitzt dann kurz
+       auf, bevor sie wieder zuklappt. preventDefault() verhindert das
+       Öffnen von vornherein. Gilt auch für Tastaturbedienung, weil Enter und
+       Leertaste auf einem summary ebenfalls ein click-Ereignis auslösen. */
+    d.querySelector("summary").addEventListener("click", function (ev) {
+      if (d.open) { note.style.display = "none"; return; }   /* Zuklappen immer */
+      if (reichtAus()) { note.style.display = "none"; return; }
+      ev.preventDefault();
+      note.style.display = "";
     });
 
-    if (VERWAIST.length) melde();
-    /* Die Einpassung muss nach jeder Aenderung neu rechnen - sonst steht
-       die Folie in der Groesse da, die sie vor dem Loeschen hatte. */
-    if (typeof window.einpassen === "function") {
-      var on = document.querySelector(".slide.on");
-      if (on) window.einpassen(on);
-    }
-  }
-
-  /* Verwaiste Eintraege sind kein Randfall, sondern die eine Art, wie
-     dieses Verfahren schiefgeht. Deshalb stehen sie auf dem Bildschirm,
-     nicht in der Konsole, die im Unterricht niemand offen hat. */
-  function melde() {
-    var d = document.createElement("div");
-    d.className = "anp-warnung";
-    /* Kein Hinweis auf die Taste E: Auf der Website ist der Editor
-       herausgeschnitten, und ein Text, der zu einer Taste raet, die nichts
-       tut, schickt einen im Unterricht auf die falsche Faehrte. */
-    d.textContent = VERWAIST.length + " Anpassung" + (VERWAIST.length > 1 ? "en" : "")
-      + " findet ihr Element nicht mehr und wurde nicht angewandt.";
-    d.onclick = function () { d.remove(); };
-    document.body.appendChild(d);
-  }
-
-  /* ==================== 2 · EDITOR ====================
-     ALLES ZWISCHEN DEN BEIDEN MARKEN IST NUR FUER DEN EIGENEN RECHNER.
-
-     Beim Uebertragen auf die Website wird dieser Abschnitt herausgeschnitten
-     (`ohneEditor()` in Werkzeuge/github_dienst.mjs). Was oben steht - der
-     Anwender - bleibt: Die Anpassungen sollen im Netz ja wirken, sonst
-     waere das Bearbeiten sinnlos. Nur bearbeiten koennen soll dort niemand.
-
-     Deshalb darf der Anwender NICHTS aus diesem Abschnitt aufrufen. Wer
-     hier eine Funktion ergaenzt und sie oben benutzt, merkt es nicht auf
-     dem eigenen Rechner - sondern erst, wenn die Anzeige im Unterricht von
-     der Website geladen wird und mit einem Fehler stehenbleibt. */
-  
-
-  if (document.readyState === "loading")
-    document.addEventListener("DOMContentLoaded", anwenden);
-  else anwenden();
-
-  /* Der Editor haengt sich hier an, WENN es ihn gibt. Auf der Website ist
-     EDITOR leer - dann fehlt `umschalten`, und die Taste E tut nichts. */
-  window.ANPASSEN = Object.assign({ anwenden: anwenden,
-                                    verwaist: function () { return VERWAIST; } },
-                                  EDITOR);
+    /* Rückfall für den Fall, dass ein Browser das <details> auf anderem Weg
+       öffnet (etwa über die Suchfunktion der Seite). */
+    d.addEventListener("toggle", function () {
+      if (!d.open || reichtAus()) return;
+      d.open = false;
+      note.style.display = "";
+    });
+  });
 })();
-
 </script>
-<!-- anpassen:zu -->
 </body>
 </html>
