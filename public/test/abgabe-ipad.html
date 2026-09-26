@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Test: Abgabe per Mail auf dem iPad</title>
+<style>
+  :root { --blau:#0b5aa0; --gruen:#1b7f3b; --linie:#cfd8e0; --grau:#5a6570; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:16px; font:17px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+         color:#1d2630; background:#f4f7fa; }
+  main { max-width:760px; margin:0 auto; }
+  h1 { font-size:1.45rem; margin:.2rem 0 .4rem; color:var(--blau); }
+  h2 { font-size:1.1rem; margin:1.4rem 0 .5rem; color:var(--blau); }
+  p { margin:.4rem 0; }
+  .karte { background:#fff; border:1px solid var(--linie); border-radius:14px; padding:14px 16px; margin:12px 0; }
+  label { font-weight:600; display:block; margin-bottom:.25rem; }
+  input { width:100%; font:inherit; padding:.55rem .6rem; border:1px solid var(--linie); border-radius:9px; background:#fffde7; }
+  .zeile { display:flex; gap:12px; flex-wrap:wrap; }
+  .zeile > div { flex:1 1 200px; }
+  button { font:inherit; cursor:pointer; }
+  .gross { display:block; width:100%; margin:.4rem 0 .2rem; padding:1rem; font-weight:700; font-size:1.2rem;
+           color:#fff; background:var(--gruen); border:none; border-bottom:4px solid #14602c; border-radius:14px; }
+  .mittel { display:block; width:100%; margin:.35rem 0; padding:.7rem .9rem; text-align:left;
+            background:#fff; color:var(--blau); border:2px solid var(--blau); border-radius:12px; }
+  .mittel b { color:#1d2630; }
+  .klein { font-size:.9rem; color:var(--grau); }
+  ol { margin:.3rem 0 .3rem 1.2rem; padding:0; }
+  li { margin:.25rem 0; }
+  table { border-collapse:collapse; width:100%; font-size:.93rem; }
+  th, td { border:1px solid var(--linie); padding:.35rem .45rem; text-align:left; vertical-align:top; }
+  th { background:#eef3f7; }
+  #protokoll { font:13px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space:pre-wrap; background:#0f1720;
+               color:#d7e3ee; border-radius:10px; padding:10px 12px; min-height:5rem; max-height:22rem; overflow:auto; }
+  .ok { color:#7bd88f; } .fehler { color:#ff8a80; } .info { color:#9ecbff; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Test: Abgabe per Mail auf dem iPad</h1>
+  <p class="klein">Nur zum Ausprobieren auf einem Schul-iPad. Diese Seite schickt nichts
+  von selbst ab und speichert nichts auf einem Server: Alles geht nur über die Mail-App des iPads,
+  und gesendet wird erst, wenn Sie in der Mail auf „Senden“ tippen.</p>
+
+  <div class="karte">
+    <div class="zeile">
+      <div><label for="name">Name</label><input id="name" value="Test Glaubitz"></div>
+      <div><label for="stunde">Stunde</label><input id="stunde" value="4"></div>
+    </div>
+    <p class="klein" style="margin-top:.6rem">Die Testdatei ist ein Protokoll mit etwa 300 kB, so groß wie ein echtes.</p>
+  </div>
+
+  <h2>So wäre es für die Kinder (Vorschlag)</h2>
+  <div class="karte">
+    <button class="gross" id="v-vorschlag">✉ Per Mail abgeben</button>
+    <p class="klein">Ein Tipp: Adresse wird kopiert, der Teilen-Dialog öffnet sich mit der Datei und dem
+    Text. Dann <b>Mail</b> wählen, ins Feld „An“ lange tippen → <b>Einfügen</b>, senden.</p>
+  </div>
+
+  <h2>Einzelne Varianten zum Vergleich</h2>
+  <div class="karte">
+    <button class="mittel" id="v-a"><b>A</b> · Teilen: Datei + kurzer Text + Betreff (ohne Kopieren)</button>
+    <button class="mittel" id="v-b"><b>B</b> · Wie A, vorher Adresse kopieren und darauf warten</button>
+    <button class="mittel" id="v-c"><b>C</b> · Nur die Datei teilen, ohne Text und Betreff</button>
+    <button class="mittel" id="v-d"><b>D</b> · Mail-Link: Empfänger, Betreff, Text vorausgefüllt – ohne Anhang</button>
+    <button class="mittel" id="v-e"><b>E</b> · Nur die Adresse kopieren (zum Prüfen des Einfügens)</button>
+  </div>
+
+  <h2>Worauf achten</h2>
+  <div class="karte">
+    <table>
+      <tr><th>Frage</th><th>Wo sieht man es?</th></tr>
+      <tr><td>Erscheint <b>Mail</b> im Teilen-Dialog?</td><td>Teilen-Dialog</td></tr>
+      <tr><td>Ist die Datei <b>angehängt</b>?</td><td>Mail-Entwurf (unten ein Symbol mit dem Dateinamen)</td></tr>
+      <tr><td>Steht der <b>Betreff</b> „Abgabe 7b · Stunde 4 · Name“ drin – oder ist er leer?</td><td>Mail-Entwurf, Zeile „Betreff“</td></tr>
+      <tr><td>Steht der <b>Text</b> „Hallo Herr Glaubitz, …“ drin?</td><td>Mail-Entwurf</td></tr>
+      <tr><td>Lässt sich die <b>Adresse einfügen</b> (Feld „An“ lange tippen → Einfügen)?</td><td>Mail-Entwurf</td></tr>
+      <tr><td>Kommt die Mail <b>vollständig an</b> (mit Anhang, der sich öffnen lässt)?</td><td>Ihr Postfach</td></tr>
+    </table>
+    <p class="klein" style="margin-top:.5rem">Am einfachsten: jede Variante an sich selbst schicken. Das Protokoll unten
+    hält fest, was die Seite gemeldet hat – bitte am Ende mit „Protokoll kopieren“ in eine Mail einfügen
+    oder abfotografieren.</p>
+  </div>
+
+  <h2>Protokoll</h2>
+  <div id="protokoll"></div>
+  <p><button class="mittel" id="p-kopieren" style="text-align:center">Protokoll kopieren</button></p>
+</main>
+
+<script>
+"use strict";
+const ADRESSE = "michael.glaubitz@ae-gym.de";
+const TITEL_STUNDE = { "4": "Doppelt so viel – doppelt so teuer?", "5": "Die Zahl, die in jeder Zeile gleich bleibt" };
+const aus = document.getElementById("protokoll");
+
+function zeit() { const d = new Date(); return d.toTimeString().slice(0, 8); }
+function log(text, art) {
+  const z = document.createElement("div");
+  z.className = art || "";
+  z.textContent = zeit() + "  " + text;
+  aus.appendChild(z);
+  aus.scrollTop = aus.scrollHeight;
+}
+function name() { return document.getElementById("name").value.trim() || "Ohne Namen"; }
+function stunde() { return document.getElementById("stunde").value.trim() || "?"; }
+function betreff() { return "Abgabe 7b · Stunde " + stunde() + " · " + name(); }
+function text() {
+  const t = TITEL_STUNDE[stunde()];
+  return "Hallo Herr Glaubitz,\n\nhier meine Abgabe von Stunde " + stunde() + (t ? " („" + t + "“)" : "") + ".\n\n"
+       + "Viele Grüße\n" + name();
+}
+function dateiname() { return "Protokoll_test-abgabe-7b_" + name().replace(/[^\wÄÖÜäöüß-]+/g, "_") + ".html"; }
+
+/* Eine Testdatei in der Groesse eines echten Protokolls (~300 kB): etwas Text und
+   Fuellzeilen. Kein Kind, keine echten Daten. */
+function testdatei() {
+  const fuell = [];
+  for (let i = 0; i < 2600; i++) fuell.push("<tr><td>" + i + "</td><td>Testzeile – Füllinhalt, damit die Datei so groß ist wie ein echtes Protokoll.</td></tr>");
+  const html = "<!DOCTYPE html><html lang='de'><head><meta charset='utf-8'><title>" + betreff() + "</title></head><body>"
+    + "<h1>Testprotokoll</h1><p>Name: " + name() + " · Stunde " + stunde() + " · erzeugt " + new Date().toLocaleString("de-DE") + "</p>"
+    + "<p>Diese Datei prüft nur den Abgabeweg. Wenn Sie sie öffnen können, ist der Anhang vollständig angekommen.</p>"
+    + "<table>" + fuell.join("") + "</table></body></html>";
+  return new File([html], dateiname(), { type: "text/html" });
+}
+
+function kannTeilen(daten) {
+  try { return !!(navigator.canShare && navigator.canShare(daten)); } catch (e) { return false; }
+}
+
+async function teilen(daten, marke) {
+  const f = daten.files ? " mit Datei " + daten.files[0].name + " (" + Math.round(daten.files[0].size / 1024) + " kB)" : "";
+  if (!navigator.share) { log(marke + ": navigator.share gibt es hier nicht.", "fehler"); return false; }
+  if (daten.files && !kannTeilen(daten)) {
+    log(marke + ": canShare sagt NEIN für diese Kombination" + f + ".", "fehler");
+    return false;
+  }
+  log(marke + ": öffne Teilen-Dialog" + f + (daten.title ? ", Betreff gesetzt" : "") + (daten.text ? ", Text gesetzt" : "") + " …", "info");
+  try {
+    await navigator.share(daten);
+    log(marke + ": Teilen abgeschlossen (die Seite erfährt nicht, ob Mail gewählt oder gesendet wurde).", "ok");
+    return true;
+  } catch (e) {
+    log(marke + ": Teilen mit Fehler beendet – " + (e && e.name) + ": " + (e && e.message)
+        + (e && e.name === "AbortError" ? " (abgebrochen oder Dialog geschlossen)" : "")
+        + (e && e.name === "NotAllowedError" ? " (keine Erlaubnis – meist: der Tipp gilt nicht mehr als Tipp)" : ""), "fehler");
+    return false;
+  }
+}
+
+async function kopieren(warten, marke) {
+  if (!navigator.clipboard || !navigator.clipboard.writeText) {
+    log(marke + ": Zwischenablage-Schnittstelle fehlt.", "fehler");
+    return false;
+  }
+  const p = navigator.clipboard.writeText(ADRESSE)
+    .then(() => { log(marke + ": Adresse kopiert.", "ok"); return true; })
+    .catch(e => { log(marke + ": Kopieren fehlgeschlagen – " + (e && e.name) + ": " + (e && e.message), "fehler"); return false; });
+  return warten ? await p : true;
+}
+
+// Vorschlag: kopieren OHNE zu warten (damit der Tipp fuer das Teilen gueltig bleibt), dann sofort teilen
+document.getElementById("v-vorschlag").addEventListener("click", () => {
+  kopieren(false, "Vorschlag");
+  teilen({ title: betreff(), text: text(), files: [testdatei()] }, "Vorschlag");
+});
+document.getElementById("v-a").addEventListener("click", () => {
+  teilen({ title: betreff(), text: text(), files: [testdatei()] }, "A");
+});
+document.getElementById("v-b").addEventListener("click", async () => {
+  await kopieren(true, "B");
+  teilen({ title: betreff(), text: text(), files: [testdatei()] }, "B");
+});
+document.getElementById("v-c").addEventListener("click", () => {
+  teilen({ files: [testdatei()] }, "C");
+});
+document.getElementById("v-d").addEventListener("click", () => {
+  const url = "mailto:" + ADRESSE + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(text());
+  log("D: öffne Mail-Link (" + url.length + " Zeichen). Anhang ist bei diesem Weg nicht möglich.", "info");
+  location.href = url;
+});
+document.getElementById("v-e").addEventListener("click", () => { kopieren(true, "E"); });
+document.getElementById("p-kopieren").addEventListener("click", () => {
+  const t = aus.innerText;
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error("keine Zwischenablage")))
+    .then(() => log("Protokoll kopiert (" + t.length + " Zeichen).", "ok"))
+    .catch(e => log("Protokoll kopieren fehlgeschlagen – " + e.message, "fehler"));
+});
+
+// Geraet beim Laden festhalten
+log("Gerät: " + navigator.userAgent, "info");
+log("Sicherer Kontext: " + window.isSecureContext + " · navigator.share: " + !!navigator.share
+    + " · canShare: " + !!navigator.canShare + " · Zwischenablage: " + !!(navigator.clipboard && navigator.clipboard.writeText), "info");
+try {
+  const probe = testdatei();
+  log("Testdatei: " + probe.name + ", " + Math.round(probe.size / 1024) + " kB · canShare(Datei + Text + Betreff): "
+      + kannTeilen({ title: "x", text: "x", files: [probe] }) + " · canShare(nur Datei): " + kannTeilen({ files: [probe] }), "info");
+} catch (e) { log("Testdatei nicht erzeugbar: " + e.message, "fehler"); }
+</script>
+</body>
+</html>
