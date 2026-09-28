@@ -51,7 +51,24 @@
     <p class="klein" style="margin-top:.6rem">Die Testdatei ist ein Protokoll mit etwa 300 kB, so groß wie ein echtes.</p>
   </div>
 
-  <h2>So wäre es für die Kinder (Vorschlag)</h2>
+  <h2>Neu: Abgabe über IServ (ohne Mail-App)</h2>
+  <div class="karte">
+    <p class="klein" style="margin-top:0">Die iPads haben keine Mail-App eingerichtet, also läuft die Abgabe über
+    IServ im Browser. Der große Knopf speichert das Protokoll in „Downloads“ und öffnet gleich danach IServ mit
+    einer neuen Mail. Offen ist nur, ob IServ Empfänger, Betreff und Text <b>vorausfüllt</b>. Dafür gibt es unten
+    drei Varianten der Adresse. Bitte in IServ angemeldet sein (einmal ae-gym.de öffnen und anmelden).</p>
+    <button class="gross" id="i-vorschlag">📄 Protokoll speichern und IServ-Mail öffnen</button>
+    <p class="klein">Dann in IServ: <b>Anhang → Hochladen</b> → „Durchsuchen“ bzw. „Dateien“ → <b>Downloads</b> →
+    die Datei <span id="i-dateiname">Protokoll_….html</span> wählen → senden.</p>
+    <button class="mittel" id="i-a"><b>I-A</b> · IServ-Mail mit <code>?to=…&amp;subject=…&amp;body=…</code></button>
+    <button class="mittel" id="i-b"><b>I-B</b> · IServ-Mail mit <code>?to=mailto:…</code> (so ruft ein Browser IServ als Mail-Programm auf)</button>
+    <button class="mittel" id="i-c"><b>I-C</b> · IServ-Mail leer öffnen (nur zum Vergleich)</button>
+    <button class="mittel" id="i-kopie"><b>I-D</b> · Betreff und Text kopieren (falls nichts vorausgefüllt wird)</button>
+    <p class="klein">Bitte notieren: Bei welcher Variante stehen <b>An</b>, <b>Betreff</b> und <b>Text</b> schon drin?
+    Lässt sich die Datei aus „Downloads“ anhängen?</p>
+  </div>
+
+  <h2>Mit Mail-App (Vorschlag vom 26.09.)</h2>
   <div class="karte">
     <button class="gross" id="v-vorschlag">✉ Per Mail abgeben</button>
     <p class="klein">Ein Tipp: Adresse wird kopiert, der Teilen-Dialog öffnet sich mit der Datei und dem
@@ -180,6 +197,47 @@ document.getElementById("v-d").addEventListener("click", () => {
   location.href = url;
 });
 document.getElementById("v-e").addEventListener("click", () => { kopieren(true, "E"); });
+
+// --- IServ-Weg: Datei speichern, dann eine neue Mail im IServ-Webmailer oeffnen -----------------
+const ISERV = "https://ae-gym.de/iserv/mail/compose";
+function iservAdresse(art) {
+  if (art === "a")
+    return ISERV + "?to=" + encodeURIComponent(ADRESSE) + "&subject=" + encodeURIComponent(betreff())
+         + "&body=" + encodeURIComponent(text());
+  if (art === "b") {
+    const mailto = "mailto:" + ADRESSE + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(text());
+    return ISERV + "?to=" + encodeURIComponent(mailto);
+  }
+  return ISERV;
+}
+function speichern(marke) {
+  const f = testdatei();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(f); a.download = f.name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+  document.getElementById("i-dateiname").textContent = f.name;
+  log(marke + ": Protokoll gespeichert als " + f.name + " (" + Math.round(f.size / 1024) + " kB) - Dateien-App → Downloads.", "ok");
+}
+function iservOeffnen(art, marke) {
+  const url = iservAdresse(art);
+  const fenster = window.open(url, "_blank");
+  log(marke + ": öffne IServ (" + url.length + " Zeichen)" + (fenster ? "" : " - neues Fenster blockiert, öffne hier") + ".", fenster ? "info" : "fehler");
+  if (!fenster) location.href = url;
+}
+document.getElementById("i-vorschlag").addEventListener("click", () => {
+  speichern("IServ-Vorschlag");
+  iservOeffnen("a", "IServ-Vorschlag");
+});
+document.getElementById("i-a").addEventListener("click", () => iservOeffnen("a", "I-A"));
+document.getElementById("i-b").addEventListener("click", () => iservOeffnen("b", "I-B"));
+document.getElementById("i-c").addEventListener("click", () => iservOeffnen("c", "I-C"));
+document.getElementById("i-kopie").addEventListener("click", () => {
+  const t = "Betreff: " + betreff() + "\n\n" + text();
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error("keine Zwischenablage")))
+    .then(() => log("I-D: Betreff und Text kopiert.", "ok"))
+    .catch(e => log("I-D: Kopieren fehlgeschlagen – " + e.message, "fehler"));
+});
 document.getElementById("p-kopieren").addEventListener("click", () => {
   const t = aus.innerText;
   (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error("keine Zwischenablage")))
