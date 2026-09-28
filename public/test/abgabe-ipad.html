@@ -51,7 +51,25 @@
     <p class="klein" style="margin-top:.6rem">Die Testdatei ist ein Protokoll mit etwa 300 kB, so groß wie ein echtes.</p>
   </div>
 
-  <h2>Neu: Abgabe über IServ (ohne Mail-App)</h2>
+  <h2>Neu (Runde 2): IServ-Mail über die Verfassen-Adresse</h2>
+  <div class="karte">
+    <p class="klein" style="margin-top:0">IServ öffnet eine neue Mail unter
+    <code>/iserv/mail/compose/&lt;eigenes Konto&gt;/&lt;Kennung&gt;?fresh=true</code>. Diese Varianten prüfen, ob eine
+    <b>selbst erzeugte</b> Kennung geht, ob <b>Empfänger, Betreff und Text</b> übernommen werden und ob das eigene
+    Konto im Pfad <b>nötig</b> ist. Jede Variante erzeugt eine neue Kennung.</p>
+    <label for="konto">Eigenes IServ-Konto (beim Kind wäre das seine Schuladresse)</label>
+    <input id="konto" value="michael.glaubitz@ae-gym.de">
+    <button class="mittel" id="j-a"><b>J-A</b> · Konto + neue Kennung + <code>fresh=true</code> (ohne Vorausfüllen)</button>
+    <button class="mittel" id="j-b"><b>J-B</b> · wie J-A, dazu <code>&amp;to=…&amp;subject=…&amp;body=…</code></button>
+    <button class="mittel" id="j-c"><b>J-C</b> · wie J-A, dazu <code>&amp;to=mailto:…?subject=…&amp;body=…</code></button>
+    <button class="mittel" id="j-d"><b>J-D</b> · nur Konto, ohne Kennung: <code>compose/&lt;Konto&gt;?fresh=true&amp;to=…</code></button>
+    <button class="mittel" id="j-e"><b>J-E</b> · ohne Konto, nur Kennung: <code>compose/&lt;Kennung&gt;?fresh=true&amp;to=…</code></button>
+    <button class="gross" id="j-vorschlag" style="font-size:1.05rem">📄 Protokoll speichern und Variante J-B öffnen</button>
+    <p class="klein">Bitte notieren: Welche Variante öffnet ein Verfassen-Fenster (statt des Posteingangs)? Stehen
+    darin An, Betreff und Text? Die Adresse, die geöffnet wurde, steht unten im Protokoll.</p>
+  </div>
+
+  <h2>Runde 1: Abgabe über IServ (ohne Mail-App)</h2>
   <div class="karte">
     <p class="klein" style="margin-top:0">Die iPads haben keine Mail-App eingerichtet, also läuft die Abgabe über
     IServ im Browser. Der große Knopf speichert das Protokoll in „Downloads“ und öffnet gleich danach IServ mit
@@ -232,6 +250,41 @@ document.getElementById("i-vorschlag").addEventListener("click", () => {
 document.getElementById("i-a").addEventListener("click", () => iservOeffnen("a", "I-A"));
 document.getElementById("i-b").addEventListener("click", () => iservOeffnen("b", "I-B"));
 document.getElementById("i-c").addEventListener("click", () => iservOeffnen("c", "I-C"));
+// --- Runde 2: Verfassen-Adresse wie IServ selbst sie baut ---------------------------------------
+function kennung() {
+  const u = (crypto.randomUUID ? crypto.randomUUID()
+    : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); }));
+  return "%3C" + u + "@ae-gym.de%3E";      // genau wie IServ: nur die spitzen Klammern kodiert
+}
+function vorfuellen(art) {
+  if (art === "mailto")
+    return "&to=" + encodeURIComponent("mailto:" + ADRESSE + "?subject=" + encodeURIComponent(betreff())
+                                       + "&body=" + encodeURIComponent(text()));
+  return "&to=" + encodeURIComponent(ADRESSE) + "&subject=" + encodeURIComponent(betreff())
+       + "&body=" + encodeURIComponent(text());
+}
+function verfassen(variante) {
+  const konto = document.getElementById("konto").value.trim();
+  const basis = "https://ae-gym.de/iserv/mail/compose/";
+  const id = kennung();
+  return {
+    a: basis + konto + "/" + id + "?fresh=true",
+    b: basis + konto + "/" + id + "?fresh=true" + vorfuellen("normal"),
+    c: basis + konto + "/" + id + "?fresh=true" + vorfuellen("mailto"),
+    d: basis + konto + "?fresh=true" + vorfuellen("normal"),
+    e: basis + id + "?fresh=true" + vorfuellen("normal"),
+  }[variante];
+}
+function jOeffnen(v) {
+  const url = verfassen(v);
+  const fenster = window.open(url, "_blank");
+  log("J-" + v.toUpperCase() + ": öffne " + url, fenster ? "info" : "fehler");
+  if (!fenster) location.href = url;
+}
+["a", "b", "c", "d", "e"].forEach(v => document.getElementById("j-" + v).addEventListener("click", () => jOeffnen(v)));
+document.getElementById("j-vorschlag").addEventListener("click", () => { speichern("J-Vorschlag"); jOeffnen("b"); });
+
 document.getElementById("i-kopie").addEventListener("click", () => {
   const t = "Betreff: " + betreff() + "\n\n" + text();
   (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error("keine Zwischenablage")))
