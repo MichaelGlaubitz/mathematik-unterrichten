@@ -53,35 +53,57 @@
   body.ruhe h1{flex:1;display:flex;align-items:center;justify-content:center;
     text-align:center;font-size:clamp(30px,9vw,64px);color:var(--accent)}
   body.ruhe .karten,body.ruhe .hinweis{display:none}
-  /* Zeichenauftrag: ein Feld im Seitenverhaeltnis der Kacheln an der Wand
-     (4:3), dicke Linie, zwei Knoepfe. */
+  /* Zeichenauftrag: Das Feld nimmt den ganzen Schirm ein. Die Frage steht
+     an der Wand und hier nicht noch einmal. Das Feld bleibt 4:3 wie die
+     Kacheln an der Wand (sonst zeigte die Kachel ein gestauchtes Bild);
+     die Knoepfe stehen quer rechts daneben, hochkant darunter. Die Groesse
+     rechnet passeFeld() aus, weil CSS allein „so gross wie moeglich, aber
+     4:3" nicht zuverlaessig kann. */
   /* Die Klasse am body heisst anders als die am Feld - sonst traefe
      .zeichnen{display:none} den body selbst, und die Seite waere leer. */
-  .zeichnen{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
-  body.zeichenauftrag .zeichnen{display:flex}
-  body.zeichenauftrag .karten{display:none}
-  /* Immer 4:3, hochkant wie quer: die Breite ist das Kleinere aus voller
-     Breite und dem, was 62 % der Hoehe bei 4:3 zulassen. Sonst wuerde das
-     Feld im Querformat breit und flach - und die Kachel an der Wand
-     zeigte ein gestauchtes Bild. */
-  canvas.feld{width:min(100%,calc(62vh * 4 / 3));aspect-ratio:4/3;height:auto;
-    background:#fff;border:2px solid var(--line);border-radius:14px;
-    touch-action:none;display:block;margin:0 auto}
-  .werkzeuge{display:flex;gap:10px}
-  .werkzeuge button{flex:1;font:inherit;font-size:17px;font-weight:800;padding:14px;
-    border-radius:14px;border:2px solid var(--line);background:var(--panel);color:inherit;
-    cursor:pointer}
-  .werkzeuge button.haupt{flex:2;background:var(--accent);border-color:var(--accent);color:#fff}
+  .zeichnen{display:none}
+  body.zeichenauftrag{overflow:hidden;-webkit-user-select:none;user-select:none;
+    -webkit-touch-callout:none}
+  body.zeichenauftrag > header,body.zeichenauftrag h1,
+  body.zeichenauftrag .karten,body.zeichenauftrag #hinweis{display:none}
+  body.zeichenauftrag .zeichnen{display:flex;flex-direction:column;gap:10px;
+    position:fixed;inset:0;background:var(--bg);
+    padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right))
+            max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+  .feldrahmen{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+  .feldinnen{position:relative}
+  canvas.feld{display:block;width:100%;height:100%;background:#fff;
+    border:2px solid var(--line);border-radius:12px;touch-action:none}
+  .werkzeuge{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+  .werkzeuge button{font:inherit;font-size:16px;font-weight:800;min-height:48px;padding:0 14px;
+    border-radius:12px;border:2px solid var(--line);background:var(--panel);color:inherit;
+    cursor:pointer;touch-action:manipulation}
+  .werkzeuge button.haupt{background:var(--accent);border-color:var(--accent);color:#fff;padding:0 22px}
   .werkzeuge button:disabled{opacity:.5;cursor:default}
   /* Stift und Radierer: ein Umschalter, der gewaehlte ist gefuellt. */
-  .werkzeuge button.art{flex:0 0 auto;padding:14px 16px}
   .werkzeuge button.art[aria-pressed="true"]{background:#eef2ff;border-color:var(--accent);color:var(--accent)}
   @media (prefers-color-scheme:dark){
     .werkzeuge button.art[aria-pressed="true"]{background:#25306b;color:#c7d2fe}
   }
+  /* Farben: runde Felder, das gewaehlte mit dickem Rand. */
+  .farben{display:flex;gap:8px;justify-content:center}
+  .werkzeuge button.farbe{width:48px;padding:0;border-radius:50%;border:3px solid var(--line)}
+  .werkzeuge button.farbe[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--panel)}
+  #zhinweis{order:-1;flex-basis:100%;text-align:center;font-size:14px;line-height:1.35;
+    color:var(--muted);min-height:1.35em}
+  #zhinweis b{color:var(--ink)}
+  #zhinweis.fehler{color:#b91c1c}
+  @media (orientation:landscape){
+    body.zeichenauftrag .zeichnen{flex-direction:row}
+    .werkzeuge{flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;
+      width:136px;flex:0 0 auto;overflow-y:auto}
+    .werkzeuge button{width:100%;padding:0 8px}
+    .farben{flex-wrap:wrap}
+    .werkzeuge button.farbe{width:48px}
+    #zhinweis{order:0;flex-basis:auto;text-align:left}
+    .werkzeuge button.haupt{margin-top:auto;padding:0 8px}
+  }
   /* Beim Radieren zeigt ein Ring, wie gross der Radierer ist. */
-  .feldrahmen{position:relative;width:min(100%,calc(62vh * 4 / 3));margin:0 auto}
-  .feldrahmen canvas.feld{width:100%}
   .ring{position:absolute;border:2px solid var(--accent);border-radius:50%;
     pointer-events:none;display:none;transform:translate(-50%,-50%)}
 </style>
@@ -96,14 +118,19 @@
 <h1 id="frage">Abstimmung</h1>
 <div class="karten" id="karten"></div>
 <div class="zeichnen" id="zeichnen">
-  <div class="feldrahmen">
-    <canvas class="feld" id="feld" width="640" height="480" aria-label="Zeichenfeld"></canvas>
-    <div class="ring" id="ring"></div>
+  <div class="feldrahmen" id="feldrahmen">
+    <div class="feldinnen" id="feldinnen">
+      <canvas class="feld" id="feld" width="1280" height="960" aria-label="Zeichenfeld"></canvas>
+      <div class="ring" id="ring"></div>
+    </div>
   </div>
   <div class="werkzeuge">
     <button type="button" class="art" id="stift" aria-pressed="true" title="Stift">&#9998; Stift</button>
     <button type="button" class="art" id="radierer" aria-pressed="false" title="Radierer">&#9003; Radierer</button>
+    <div class="farben" id="farben"></div>
     <button type="button" id="loeschen">Alles löschen</button>
+    <button type="button" id="vollbild" hidden>&#x26F6; Vollbild</button>
+    <div id="zhinweis" aria-live="polite"></div>
     <button type="button" class="haupt" id="senden">Abschicken</button>
   </div>
 </div>
@@ -173,10 +200,14 @@ window.addEventListener("load", () => {
   });
 });
 
+/* Im Zeichenauftrag ist der Hinweiskasten ausgeblendet; dort steht derselbe
+   Text klein in der Knopfleiste (#zhinweis). */
 function zeigeHinweis(html, klasse){
   $("hinweis").className = "hinweis" + (klasse ? " " + klasse : "");
   $("hinweis").innerHTML = html;
   $("hinweis").hidden = false;
+  $("zhinweis").className = klasse || "";
+  $("zhinweis").innerHTML = html;
 }
 
 function baueKarten(optionen){
@@ -244,8 +275,9 @@ async function hole(){
       stand.schluessel = d.schluessel;
       baueKarten(d.optionen || []);
       $("hinweis").hidden = true;
+      $("zhinweis").textContent = "";
       feldLeeren();
-      waehleWerkzeug(STIFT);
+      waehleWerkzeug(false);
       meinBildDa = false;
     }
     stand.offen = d.offen;
@@ -292,38 +324,66 @@ async function hole(){
 }
 
 /* ------------------------------------------------------------------
-   Zeichenauftrag. Das Feld hat 640 x 480 Bildpunkte, egal wie gross es
-   auf dem Schirm steht - so sehen alle Kacheln an der Wand gleich aus.
-   Die Linie ist dick, weil eine Kachel dort klein ist.
+   Zeichenauftrag. Das Feld rechnet intern mit 1280 x 960 Bildpunkten,
+   damit die Schrift auch auf dem ganzen Schirm nicht pixelig wird.
+   Abgeschickt wird es auf 640 x 480 verkleinert (bildDaten) - so sehen
+   alle Kacheln an der Wand gleich aus, und das Bild bleibt unter der
+   Grenze des Dienstes. Die Linie ist dick, weil eine Kachel dort klein
+   ist: 7 Bildpunkte im abgeschickten Bild.
    ------------------------------------------------------------------ */
 const feld = $("feld");
 const ctx = feld.getContext("2d");
-let malt = false, leerBild = true, meinBildDa = false;
+const MASS = feld.width / 640;                  /* intern : abgeschickt */
+let leerBild = true, meinBildDa = false;
 
 /* Radieren heisst: mit Weiss uebermalen, breit. Das Bild ist ohnehin ein
    weisses PNG - an der Wand sieht man keinen Unterschied zu nie Gemaltem. */
-const STIFT = { breite: 7, farbe: "#0f172a" };
-const RADIERER = { breite: 36, farbe: "#fff" };
-let werkzeug = STIFT;
+const STIFT_BREITE = 7 * MASS, RADIER_BREITE = 36 * MASS;
+const FARBEN = [["#0f172a", "Schwarz"], ["#2563eb", "Blau"],
+                ["#dc2626", "Rot"], ["#16a34a", "Grün"]];
+let farbe = FARBEN[0][0], radiert = false;
 
-function waehleWerkzeug(w){
-  werkzeug = w;
-  $("stift").setAttribute("aria-pressed", String(w === STIFT));
-  $("radierer").setAttribute("aria-pressed", String(w === RADIERER));
+function waehleWerkzeug(radieren){
+  radiert = radieren;
+  $("stift").setAttribute("aria-pressed", String(!radiert));
+  $("radierer").setAttribute("aria-pressed", String(radiert));
+  [...$("farben").children].forEach(b =>
+    b.setAttribute("aria-pressed", String(!radiert && b.dataset.farbe === farbe)));
 }
-$("stift").onclick = () => waehleWerkzeug(STIFT);
-$("radierer").onclick = () => waehleWerkzeug(RADIERER);
+FARBEN.forEach(([wert, name]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "farbe"; b.title = name;
+  b.setAttribute("aria-label", name);
+  b.dataset.farbe = wert; b.style.background = wert;
+  b.onclick = () => { farbe = wert; waehleWerkzeug(false); };   /* Farbe heisst Stift */
+  $("farben").append(b);
+});
+$("stift").onclick = () => waehleWerkzeug(false);
+$("radierer").onclick = () => waehleWerkzeug(true);
+waehleWerkzeug(false);
 
 function zeigeRing(e){
   const ring = $("ring");
-  if (werkzeug !== RADIERER || !e){ ring.style.display = "none"; return; }
+  if (!radiert || !e){ ring.style.display = "none"; return; }
   const r = feld.getBoundingClientRect();
-  const d = RADIERER.breite * r.width / feld.width;
+  const d = RADIER_BREITE * r.width / feld.width;
   ring.style.width = ring.style.height = d + "px";
   ring.style.left = (e.clientX - r.left) + "px";
   ring.style.top = (e.clientY - r.top) + "px";
   ring.style.display = "block";
 }
+
+/* So gross wie moeglich, aber 4:3 - bei jeder Groessenaenderung neu,
+   also auch beim Drehen des iPads und beim Wechsel ins Vollbild. Das
+   Bild selbst bleibt dabei stehen: Nur die Anzeige wird gestreckt. */
+function passeFeld(){
+  const r = $("feldrahmen").getBoundingClientRect();
+  const b = Math.floor(Math.min(r.width, r.height * 4 / 3));
+  $("feldinnen").style.width = b + "px";
+  $("feldinnen").style.height = Math.floor(b * 3 / 4) + "px";
+}
+if (window.ResizeObserver) new ResizeObserver(passeFeld).observe($("feldrahmen"));
+window.addEventListener("resize", passeFeld);
 
 function feldLeeren(){
   ctx.fillStyle = "#fff";
@@ -336,36 +396,115 @@ function punkt(e){
   return [(e.clientX - r.left) * feld.width / r.width,
           (e.clientY - r.top) * feld.height / r.height];
 }
+
+/* --- Der Strich -------------------------------------------------------
+   Frueher wurde bei jeder Bewegung der ganze bisherige Strich neu
+   gezogen; bei langen Strichen wurde das zaeh. Jetzt kommt je Bewegung
+   nur das neue Stueck dazu, als Kurve durch die Mittelpunkte - das
+   glaettet die Ecken. getCoalescedEvents liefert die Zwischenpunkte, die
+   der Apple Pencil zwischen zwei Bildern des Schirms misst.
+
+   Handballen: Wer mit dem Stift schreibt, legt die Hand ab. Eine
+   Beruehrung mit dem Finger zaehlt deshalb nicht, solange der Stift
+   gerade (bis 2 s zuvor) im Einsatz war; und setzt der Stift auf,
+   waehrend schon ein Finger malt, wird dessen Strich zurueckgenommen. */
+let aktiv = null, aktivArt = "", p0 = null, m0 = null;
+let stiftZuletzt = 0, vorFinger = null;
+
+function strichStil(){
+  ctx.lineWidth = radiert ? RADIER_BREITE : STIFT_BREITE;
+  ctx.strokeStyle = ctx.fillStyle = radiert ? "#fff" : farbe;
+}
+function weiter(p){
+  const m = [(p0[0] + p[0]) / 2, (p0[1] + p[1]) / 2];
+  ctx.beginPath(); ctx.moveTo(m0[0], m0[1]);
+  ctx.quadraticCurveTo(p0[0], p0[1], m[0], m[1]); ctx.stroke();
+  m0 = m; p0 = p;
+}
 feld.addEventListener("pointerdown", e => {
-  if (!stand.offen) return;
-  malt = true;
-  feld.setPointerCapture(e.pointerId);
-  const [x, y] = punkt(e);
-  ctx.lineWidth = werkzeug.breite; ctx.strokeStyle = werkzeug.farbe;
-  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 0.1, y); ctx.stroke();
-  if (werkzeug === STIFT) leerBild = false;
-  zeigeRing(e);
   e.preventDefault();
+  if (!stand.offen) return;
+  const stift = e.pointerType === "pen";
+  if (stift) stiftZuletzt = Date.now();
+  else if (e.pointerType === "touch" && Date.now() - stiftZuletzt < 2000) return;
+  if (aktiv !== null){
+    if (!(stift && aktivArt === "touch")) return;   /* ein Strich zur Zeit */
+    if (vorFinger) ctx.putImageData(vorFinger, 0, 0);
+  }
+  vorFinger = e.pointerType === "touch"
+    ? ctx.getImageData(0, 0, feld.width, feld.height) : null;
+  aktiv = e.pointerId; aktivArt = e.pointerType;
+  try { feld.setPointerCapture(e.pointerId); } catch (_){}
+  strichStil();
+  p0 = m0 = punkt(e);
+  ctx.beginPath(); ctx.arc(p0[0], p0[1], ctx.lineWidth / 2, 0, 2 * Math.PI); ctx.fill();
+  if (!radiert) leerBild = false;
+  zeigeRing(e);
 });
 feld.addEventListener("pointermove", e => {
-  if (!malt) return;
-  const [x, y] = punkt(e);
-  ctx.lineTo(x, y); ctx.stroke();
+  if (e.pointerId !== aktiv) return;
+  if (aktivArt === "pen") stiftZuletzt = Date.now();
+  const liste = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+  for (const z of (liste.length ? liste : [e])) weiter(punkt(z));
   zeigeRing(e);
 });
-const malEnde = () => { malt = false; zeigeRing(null); };
+const malEnde = e => {
+  if (e.pointerId !== aktiv) return;
+  ctx.beginPath(); ctx.moveTo(m0[0], m0[1]); ctx.lineTo(p0[0], p0[1]); ctx.stroke();
+  if (aktivArt === "pen") stiftZuletzt = Date.now();
+  aktiv = null; vorFinger = null;
+  zeigeRing(null);
+};
 feld.addEventListener("pointerup", malEnde);
 feld.addEventListener("pointercancel", malEnde);
 $("loeschen").onclick = feldLeeren;
 
+/* --- Vollbild ---------------------------------------------------------
+   Blendet die Adressleiste aus. Der Knopf erscheint nur, wo der Browser
+   es kann (iPad ja, iPhone nein). */
+const WURZEL = document.documentElement;
+if (document.fullscreenEnabled || document.webkitFullscreenEnabled) $("vollbild").hidden = false;
+const imVollbild = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+$("vollbild").onclick = () => {
+  try {
+    const r = imVollbild()
+      ? (document.exitFullscreen || document.webkitExitFullscreen).call(document)
+      : (WURZEL.requestFullscreen || WURZEL.webkitRequestFullscreen).call(WURZEL);
+    if (r && r.catch) r.catch(() => {});
+  } catch (_){}
+};
+const vollbildText = () => {
+  $("vollbild").innerHTML = imVollbild() ? "&#x2715; Vollbild aus" : "&#x26F6; Vollbild";
+  passeFeld();
+};
+document.addEventListener("fullscreenchange", vollbildText);
+document.addEventListener("webkitfullscreenchange", vollbildText);
+
+/* Verkleinert auf 640 x 480. Passt ein sehr buntes Bild dann noch nicht
+   unter die Grenze des Dienstes (160 000 Zeichen), wird es kleiner. */
+function bildDaten(){
+  for (const b of [640, 560, 480]){
+    const c = document.createElement("canvas");
+    c.width = b; c.height = b * 3 / 4;
+    const x = c.getContext("2d");
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+    x.drawImage(feld, 0, 0, c.width, c.height);
+    const d = c.toDataURL("image/png");
+    if (d.length <= 158000) return d;
+  }
+  return null;
+}
+
 $("senden").onclick = async () => {
   if (!stand.offen){ zeigeHinweis("Der Auftrag ist <b>geschlossen</b>.", "fehler"); return; }
   if (leerBild){ zeigeHinweis("Da ist noch nichts gezeichnet."); return; }
+  const daten = bildDaten();
+  if (!daten){ zeigeHinweis("Das Bild ist zu voll zum Senden. Radiere etwas weg.", "fehler"); return; }
   $("senden").disabled = true;
   try {
     const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/bild", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ geraet: GERAET, daten: feld.toDataURL("image/png"),
+      body: JSON.stringify({ geraet: GERAET, daten,
                              schluessel: stand.schluessel }),
     });
     const d = await a.json();
@@ -396,6 +535,7 @@ function zeichnenStand(d){
     ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
   $("loeschen").disabled = !d.offen;
   $("stift").disabled = $("radierer").disabled = !d.offen;
+  [...$("farben").children].forEach(b => { b.disabled = !d.offen; });
   $("senden").disabled = !d.offen;
   if (d.meins && d.meins.frei) zeigeHinweis("Dein Bild <b>hängt an der Wand</b>.");
   else if (!d.offen) zeigeHinweis(d.meins ? "Der Auftrag ist geschlossen. Dein Bild ist da."
