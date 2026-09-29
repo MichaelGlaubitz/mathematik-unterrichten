@@ -73,6 +73,17 @@
     cursor:pointer}
   .werkzeuge button.haupt{flex:2;background:var(--accent);border-color:var(--accent);color:#fff}
   .werkzeuge button:disabled{opacity:.5;cursor:default}
+  /* Stift und Radierer: ein Umschalter, der gewaehlte ist gefuellt. */
+  .werkzeuge button.art{flex:0 0 auto;padding:14px 16px}
+  .werkzeuge button.art[aria-pressed="true"]{background:#eef2ff;border-color:var(--accent);color:var(--accent)}
+  @media (prefers-color-scheme:dark){
+    .werkzeuge button.art[aria-pressed="true"]{background:#25306b;color:#c7d2fe}
+  }
+  /* Beim Radieren zeigt ein Ring, wie gross der Radierer ist. */
+  .feldrahmen{position:relative;width:min(100%,calc(62vh * 4 / 3));margin:0 auto}
+  .feldrahmen canvas.feld{width:100%}
+  .ring{position:absolute;border:2px solid var(--accent);border-radius:50%;
+    pointer-events:none;display:none;transform:translate(-50%,-50%)}
 </style>
 </head>
 <body>
@@ -85,8 +96,13 @@
 <h1 id="frage">Abstimmung</h1>
 <div class="karten" id="karten"></div>
 <div class="zeichnen" id="zeichnen">
-  <canvas class="feld" id="feld" width="640" height="480" aria-label="Zeichenfeld"></canvas>
+  <div class="feldrahmen">
+    <canvas class="feld" id="feld" width="640" height="480" aria-label="Zeichenfeld"></canvas>
+    <div class="ring" id="ring"></div>
+  </div>
   <div class="werkzeuge">
+    <button type="button" class="art" id="stift" aria-pressed="true" title="Stift">&#9998; Stift</button>
+    <button type="button" class="art" id="radierer" aria-pressed="false" title="Radierer">&#9003; Radierer</button>
     <button type="button" id="loeschen">Alles löschen</button>
     <button type="button" class="haupt" id="senden">Abschicken</button>
   </div>
@@ -229,6 +245,7 @@ async function hole(){
       baueKarten(d.optionen || []);
       $("hinweis").hidden = true;
       feldLeeren();
+      waehleWerkzeug(STIFT);
       meinBildDa = false;
     }
     stand.offen = d.offen;
@@ -283,11 +300,35 @@ const feld = $("feld");
 const ctx = feld.getContext("2d");
 let malt = false, leerBild = true, meinBildDa = false;
 
+/* Radieren heisst: mit Weiss uebermalen, breit. Das Bild ist ohnehin ein
+   weisses PNG - an der Wand sieht man keinen Unterschied zu nie Gemaltem. */
+const STIFT = { breite: 7, farbe: "#0f172a" };
+const RADIERER = { breite: 36, farbe: "#fff" };
+let werkzeug = STIFT;
+
+function waehleWerkzeug(w){
+  werkzeug = w;
+  $("stift").setAttribute("aria-pressed", String(w === STIFT));
+  $("radierer").setAttribute("aria-pressed", String(w === RADIERER));
+}
+$("stift").onclick = () => waehleWerkzeug(STIFT);
+$("radierer").onclick = () => waehleWerkzeug(RADIERER);
+
+function zeigeRing(e){
+  const ring = $("ring");
+  if (werkzeug !== RADIERER || !e){ ring.style.display = "none"; return; }
+  const r = feld.getBoundingClientRect();
+  const d = RADIERER.breite * r.width / feld.width;
+  ring.style.width = ring.style.height = d + "px";
+  ring.style.left = (e.clientX - r.left) + "px";
+  ring.style.top = (e.clientY - r.top) + "px";
+  ring.style.display = "block";
+}
+
 function feldLeeren(){
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, feld.width, feld.height);
-  ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.lineJoin = "round";
-  ctx.strokeStyle = "#0f172a";
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
   leerBild = true;
 }
 function punkt(e){
@@ -300,16 +341,19 @@ feld.addEventListener("pointerdown", e => {
   malt = true;
   feld.setPointerCapture(e.pointerId);
   const [x, y] = punkt(e);
+  ctx.lineWidth = werkzeug.breite; ctx.strokeStyle = werkzeug.farbe;
   ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 0.1, y); ctx.stroke();
-  leerBild = false;
+  if (werkzeug === STIFT) leerBild = false;
+  zeigeRing(e);
   e.preventDefault();
 });
 feld.addEventListener("pointermove", e => {
   if (!malt) return;
   const [x, y] = punkt(e);
   ctx.lineTo(x, y); ctx.stroke();
+  zeigeRing(e);
 });
-const malEnde = () => { malt = false; };
+const malEnde = () => { malt = false; zeigeRing(null); };
 feld.addEventListener("pointerup", malEnde);
 feld.addEventListener("pointercancel", malEnde);
 $("loeschen").onclick = feldLeeren;
@@ -351,6 +395,7 @@ function zeichnenStand(d){
   $("stand").textContent = d.eingereicht
     ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
   $("loeschen").disabled = !d.offen;
+  $("stift").disabled = $("radierer").disabled = !d.offen;
   $("senden").disabled = !d.offen;
   if (d.meins && d.meins.frei) zeigeHinweis("Dein Bild <b>hängt an der Wand</b>.");
   else if (!d.offen) zeigeHinweis(d.meins ? "Der Auftrag ist geschlossen. Dein Bild ist da."
