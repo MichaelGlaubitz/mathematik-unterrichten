@@ -121,20 +121,18 @@
   .textfeld{position:absolute;margin:0;padding:0;border:0;border-radius:0;background:transparent;
     outline:2px dashed var(--accent);outline-offset:3px;line-height:1;
     -webkit-user-select:text;user-select:text}
-  /* Namentliche Runde: vier graue Kaestchen in den Ecken fuer die
-     Schueler-ID. Sie liegen UEBER dem Feld und lassen die Stifte durch
-     (pointer-events), gehoeren also nicht zur Zeichnung - der Radierer und
-     „Alles loeschen" nehmen sie nicht mit. Ins abgeschickte Bild kommen
-     sie erst in bildDaten(), genau an dieselbe Stelle. multiply laesst
-     die Schrift darin in voller Farbe stehen. Masse in Prozent von
-     640 x 480: 88 Bildpunkte Kante, 8 Abstand vom Rand. */
-  .idk{position:absolute;display:none;width:13.75%;height:18.333%;border-radius:6px;
-    background:#d1d5db;mix-blend-mode:multiply;pointer-events:none}
+  /* Namentliche Runde: ein graues Kaestchen oben links fuer die
+     Schueler-ID. Es liegt UEBER dem Feld und laesst die Stifte durch
+     (pointer-events), gehoert also nicht zur Zeichnung - der Radierer und
+     „Alles loeschen" nehmen es nicht mit. Ins abgeschickte Bild kommt es
+     erst in bildDaten(), genau an dieselbe Stelle. multiply laesst die
+     Schrift darin in voller Farbe stehen. Masse in Prozent von 640 x 480:
+     88 Bildpunkte Kante, 8 Abstand vom Rand. */
+  .idk{position:absolute;display:none;left:1.25%;top:1.667%;width:13.75%;height:18.333%;
+    border-radius:6px;background:#d1d5db;mix-blend-mode:multiply;pointer-events:none}
   .idk span{position:absolute;left:6%;top:3%;font:700 11px/1 -apple-system,Segoe UI,Roboto,sans-serif;
     color:#6b7280}
   .feldinnen.namentlich .idk{display:block}
-  .idk.lo{left:1.25%;top:1.667%}  .idk.ro{right:1.25%;top:1.667%}
-  .idk.lu{left:1.25%;bottom:1.667%} .idk.ru{right:1.25%;bottom:1.667%}
   /* Beim Radieren zeigt ein Ring, wie gross der Radierer ist. */
   .ring{position:absolute;border:2px solid var(--accent);border-radius:50%;
     pointer-events:none;display:none;transform:translate(-50%,-50%)}
@@ -153,8 +151,7 @@
   <div class="feldrahmen" id="feldrahmen">
     <div class="feldinnen" id="feldinnen">
       <canvas class="feld" id="feld" width="1280" height="960" aria-label="Zeichenfeld"></canvas>
-      <div class="idk lo"><span>ID</span></div><div class="idk ro"><span>ID</span></div>
-      <div class="idk lu"><span>ID</span></div><div class="idk ru"><span>ID</span></div>
+      <div class="idk"><span>ID</span></div>
       <div class="ring" id="ring"></div>
       <input type="text" class="textfeld" id="textfeld" hidden aria-label="Text"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -637,11 +634,10 @@ document.addEventListener("fullscreenchange", vollbildText);
 document.addEventListener("webkitfullscreenchange", vollbildText);
 
 /* --- Namentliche Runde ------------------------------------------------
-   Die Wand schaltet sie ein; dann stehen in allen vier Ecken graue
-   Kaestchen fuer die Schueler-ID (zwei handgeschriebene Ziffern). Vier,
-   damit die ID auch dann noch lesbar ist, wenn in eine Ecke hineingemalt
-   wurde. Im abgeschickten Bild liegen sie an derselben Stelle wie auf dem
-   Schirm (CSS .idk) - Kante 88, Abstand 8, gemessen in 640 x 480. */
+   Die Wand schaltet sie ein; dann steht oben links ein graues Kaestchen
+   fuer die Schueler-ID (zwei handgeschriebene Ziffern). Im abgeschickten
+   Bild liegt es an derselben Stelle wie auf dem Schirm (CSS .idk) -
+   Kante 88, Abstand 8, gemessen in 640 x 480. */
 const ID_KANTE = 88, ID_RAND = 8;
 let namentlich = false;
 
@@ -649,20 +645,19 @@ function setzeNamentlich(an){
   if (an === namentlich) return;
   namentlich = an;
   $("feldinnen").classList.toggle("namentlich", an);
-  if (an) zeigeHinweis("Schreib deine <b>Schüler-ID</b> in die grauen Kästchen.");
+  if (an) zeigeHinweis("Schreib deine <b>Schüler-ID</b> in das graue Kästchen oben links.");
 }
 function idKaestchen(x, s){
-  const k = ID_KANTE * s, r = ID_RAND * s, w = x.canvas.width, h = x.canvas.height;
-  const ecken = [[r, r], [w - r - k, r], [r, h - r - k], [w - r - k, h - r - k]];
+  const k = ID_KANTE * s, r = ID_RAND * s;
   x.save();
   x.globalCompositeOperation = "multiply";
   x.fillStyle = "#d1d5db";
-  for (const [ex, ey] of ecken) x.fillRect(ex, ey, k, k);
+  x.fillRect(r, r, k, k);
   x.globalCompositeOperation = "source-over";
   x.fillStyle = "#6b7280";
   x.font = "700 " + Math.round(9 * s) + "px sans-serif";
   x.textBaseline = "top";
-  for (const [ex, ey] of ecken) x.fillText("ID", ex + 5 * s, ey + 3 * s);
+  x.fillText("ID", r + 5 * s, r + 3 * s);
   x.restore();
 }
 
@@ -730,7 +725,7 @@ function zeichnenStand(d){
   else if (!d.offen) zeigeHinweis(d.meins ? "Der Auftrag ist geschlossen. Dein Bild ist da."
                                           : "Der Auftrag ist <b>geschlossen</b>.");
   else if (!meinBildDa && $("hinweis").hidden)
-    zeigeHinweis(namentlich ? "Schreib deine <b>Schüler-ID</b> in die grauen Kästchen."
+    zeigeHinweis(namentlich ? "Schreib deine <b>Schüler-ID</b> in das graue Kästchen oben links."
                             : "Zeichne, dann mit dem <b>Papierflieger</b> abschicken.");
 }
 
