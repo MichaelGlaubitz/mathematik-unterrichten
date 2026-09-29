@@ -103,6 +103,12 @@
     #zhinweis{order:0;flex-basis:auto;text-align:left}
     .werkzeuge button.haupt{margin-top:auto;padding:0 8px}
   }
+  /* Texteingabe: sitzt genau dort, wo der Text ins Bild kommt; Schrift
+     und Farbe setzt textAn(). Gestrichelter Rand, damit man sieht, wo
+     man schreibt. */
+  .textfeld{position:absolute;margin:0;padding:0;border:0;border-radius:0;background:transparent;
+    outline:2px dashed var(--accent);outline-offset:3px;line-height:1;
+    -webkit-user-select:text;user-select:text}
   /* Beim Radieren zeigt ein Ring, wie gross der Radierer ist. */
   .ring{position:absolute;border:2px solid var(--accent);border-radius:50%;
     pointer-events:none;display:none;transform:translate(-50%,-50%)}
@@ -122,11 +128,14 @@
     <div class="feldinnen" id="feldinnen">
       <canvas class="feld" id="feld" width="1280" height="960" aria-label="Zeichenfeld"></canvas>
       <div class="ring" id="ring"></div>
+      <input type="text" class="textfeld" id="textfeld" hidden aria-label="Text"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
   </div>
   <div class="werkzeuge">
     <button type="button" class="art" id="stift" aria-pressed="true" title="Stift">&#9998; Stift</button>
     <button type="button" class="art" id="radierer" aria-pressed="false" title="Radierer">&#9003; Radierer</button>
+    <button type="button" class="art" id="textknopf" aria-pressed="false" title="Text mit der Tastatur">Aa Text</button>
     <div class="farben" id="farben"></div>
     <button type="button" id="loeschen">Alles löschen</button>
     <button type="button" id="vollbild" hidden>&#x26F6; Vollbild</button>
@@ -277,7 +286,7 @@ async function hole(){
       $("hinweis").hidden = true;
       $("zhinweis").textContent = "";
       feldLeeren();
-      waehleWerkzeug(false);
+      waehleWerkzeug("stift");
       meinBildDa = false;
     }
     stand.offen = d.offen;
@@ -341,30 +350,105 @@ let leerBild = true, meinBildDa = false;
 const STIFT_BREITE = 7 * MASS, RADIER_BREITE = 36 * MASS;
 const FARBEN = [["#0f172a", "Schwarz"], ["#2563eb", "Blau"],
                 ["#dc2626", "Rot"], ["#16a34a", "Grün"]];
-let farbe = FARBEN[0][0], radiert = false;
+let farbe = FARBEN[0][0];
+let modus = "stift";                            /* "stift" | "radierer" | "text" */
 
-function waehleWerkzeug(radieren){
-  radiert = radieren;
-  $("stift").setAttribute("aria-pressed", String(!radiert));
-  $("radierer").setAttribute("aria-pressed", String(radiert));
+function waehleWerkzeug(m){
+  modus = m;
+  $("stift").setAttribute("aria-pressed", String(modus === "stift"));
+  $("radierer").setAttribute("aria-pressed", String(modus === "radierer"));
+  $("textknopf").setAttribute("aria-pressed", String(modus === "text"));
+  /* Die Farbe gilt fuer Stift und Text; beim Radieren ist keine gewaehlt. */
   [...$("farben").children].forEach(b =>
-    b.setAttribute("aria-pressed", String(!radiert && b.dataset.farbe === farbe)));
+    b.setAttribute("aria-pressed", String(modus !== "radierer" && b.dataset.farbe === farbe)));
+  feld.style.cursor = modus === "text" ? "text" : "";
 }
 FARBEN.forEach(([wert, name]) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "farbe"; b.title = name;
   b.setAttribute("aria-label", name);
   b.dataset.farbe = wert; b.style.background = wert;
-  b.onclick = () => { farbe = wert; waehleWerkzeug(false); };   /* Farbe heisst Stift */
+  /* Farbe heisst Stift - ausser man schreibt gerade Text. */
+  b.onclick = () => { farbe = wert; waehleWerkzeug(modus === "text" ? "text" : "stift"); };
   $("farben").append(b);
 });
-$("stift").onclick = () => waehleWerkzeug(false);
-$("radierer").onclick = () => waehleWerkzeug(true);
-waehleWerkzeug(false);
+$("stift").onclick = () => waehleWerkzeug("stift");
+$("radierer").onclick = () => waehleWerkzeug("radierer");
+$("textknopf").onclick = () => waehleWerkzeug("text");
+waehleWerkzeug("stift");
+
+/* --- Text -------------------------------------------------------------
+   Die iPads haben eine Hardware-Tastatur; die Bildschirmtastatur bleibt
+   damit weg. Antippen setzt ein Eingabefeld an die Stelle, Enter schreibt
+   den Text in der gewaehlten Farbe ins Bild. Danach gehoert er zum Bild
+   wie ein Strich - der Radierer nimmt ihn wieder weg. Esc verwirft.
+   Tippt man woanders hin oder auf einen Knopf, wird das Offene vorher
+   gesetzt, damit nichts Geschriebenes verloren geht. Was nicht mehr in
+   die Zeile passt, bricht am rechten Rand um. */
+const TEXT_GROESSE = 28 * MASS;                 /* 28 Bildpunkte im abgeschickten Bild */
+const SCHRIFTART = "-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const textfeld = $("textfeld");
+let textOrt = null, textFarbe = farbe;
+
+function textAn(p){
+  textFertig();
+  /* Nicht ganz am rechten Rand anfangen - sonst passt kein Wort hin. */
+  textOrt = [Math.min(p[0], feld.width * 0.75), p[1]];
+  textFarbe = farbe;
+  const r = feld.getBoundingClientRect(), s = r.width / feld.width;
+  const h = TEXT_GROESSE * 1.3 * s;
+  textfeld.style.font = "600 " + (TEXT_GROESSE * s) + "px " + SCHRIFTART;
+  textfeld.style.color = textFarbe;
+  textfeld.style.left = textOrt[0] * s + "px";
+  textfeld.style.top = (textOrt[1] * s - h / 2) + "px";
+  textfeld.style.height = h + "px";
+  textfeld.style.width = (r.width - textOrt[0] * s - 6) + "px";
+  textfeld.value = "";
+  textfeld.hidden = false;
+  textfeld.focus();
+}
+function umbrechen(text, breite){
+  const zeilen = [];
+  let z = "";
+  for (const w of text.split(/\s+/)){
+    const probe = z ? z + " " + w : w;
+    if (z && ctx.measureText(probe).width > breite){ zeilen.push(z); z = w; }
+    else z = probe;
+  }
+  if (z) zeilen.push(z);
+  return zeilen;
+}
+function textFertig(){
+  if (!textOrt) return;
+  const ort = textOrt, text = textfeld.value.trim();
+  textOrt = null;                               /* vor blur - sonst ruft blur hier erneut an */
+  textfeld.hidden = true;
+  textfeld.blur();
+  if (!text) return;
+  ctx.save();
+  ctx.font = "600 " + TEXT_GROESSE + "px " + SCHRIFTART;
+  ctx.fillStyle = textFarbe;
+  ctx.textBaseline = "middle";
+  umbrechen(text, feld.width - ort[0] - 8 * MASS).forEach((z, i) =>
+    ctx.fillText(z, ort[0], ort[1] + i * TEXT_GROESSE * 1.25));
+  ctx.restore();
+  leerBild = false;
+}
+function textAbbrechen(){
+  textOrt = null;
+  textfeld.value = "";
+  textfeld.hidden = true;
+  textfeld.blur();
+}
+textfeld.addEventListener("keydown", e => {
+  if (e.key === "Enter"){ e.preventDefault(); textFertig(); }
+  else if (e.key === "Escape"){ e.preventDefault(); textAbbrechen(); }
+});
+textfeld.addEventListener("blur", textFertig);
 
 function zeigeRing(e){
   const ring = $("ring");
-  if (!radiert || !e){ ring.style.display = "none"; return; }
+  if (modus !== "radierer" || !e){ ring.style.display = "none"; return; }
   const r = feld.getBoundingClientRect();
   const d = RADIER_BREITE * r.width / feld.width;
   ring.style.width = ring.style.height = d + "px";
@@ -386,6 +470,7 @@ if (window.ResizeObserver) new ResizeObserver(passeFeld).observe($("feldrahmen")
 window.addEventListener("resize", passeFeld);
 
 function feldLeeren(){
+  textAbbrechen();
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, feld.width, feld.height);
   ctx.lineCap = "round"; ctx.lineJoin = "round";
@@ -412,8 +497,9 @@ let aktiv = null, aktivArt = "", p0 = null, m0 = null;
 let stiftZuletzt = 0, vorFinger = null;
 
 function strichStil(){
-  ctx.lineWidth = radiert ? RADIER_BREITE : STIFT_BREITE;
-  ctx.strokeStyle = ctx.fillStyle = radiert ? "#fff" : farbe;
+  const weg = modus === "radierer";
+  ctx.lineWidth = weg ? RADIER_BREITE : STIFT_BREITE;
+  ctx.strokeStyle = ctx.fillStyle = weg ? "#fff" : farbe;
 }
 function weiter(p){
   const m = [(p0[0] + p[0]) / 2, (p0[1] + p[1]) / 2];
@@ -424,6 +510,7 @@ function weiter(p){
 feld.addEventListener("pointerdown", e => {
   e.preventDefault();
   if (!stand.offen) return;
+  if (modus === "text"){ if (aktiv === null) textAn(punkt(e)); return; }
   const stift = e.pointerType === "pen";
   if (stift) stiftZuletzt = Date.now();
   else if (e.pointerType === "touch" && Date.now() - stiftZuletzt < 2000) return;
@@ -438,7 +525,7 @@ feld.addEventListener("pointerdown", e => {
   strichStil();
   p0 = m0 = punkt(e);
   ctx.beginPath(); ctx.arc(p0[0], p0[1], ctx.lineWidth / 2, 0, 2 * Math.PI); ctx.fill();
-  if (!radiert) leerBild = false;
+  if (modus === "stift") leerBild = false;
   zeigeRing(e);
 });
 feld.addEventListener("pointermove", e => {
@@ -497,6 +584,7 @@ function bildDaten(){
 
 $("senden").onclick = async () => {
   if (!stand.offen){ zeigeHinweis("Der Auftrag ist <b>geschlossen</b>.", "fehler"); return; }
+  textFertig();                                 /* offener Text geht mit */
   if (leerBild){ zeigeHinweis("Da ist noch nichts gezeichnet."); return; }
   const daten = bildDaten();
   if (!daten){ zeigeHinweis("Das Bild ist zu voll zum Senden. Radiere etwas weg.", "fehler"); return; }
@@ -534,7 +622,8 @@ function zeichnenStand(d){
   $("stand").textContent = d.eingereicht
     ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
   $("loeschen").disabled = !d.offen;
-  $("stift").disabled = $("radierer").disabled = !d.offen;
+  $("stift").disabled = $("radierer").disabled = $("textknopf").disabled = !d.offen;
+  if (!d.offen) textAbbrechen();
   [...$("farben").children].forEach(b => { b.disabled = !d.offen; });
   $("senden").disabled = !d.offen;
   if (d.meins && d.meins.frei) zeigeHinweis("Dein Bild <b>hängt an der Wand</b>.");
