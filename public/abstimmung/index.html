@@ -389,12 +389,14 @@ let leerBild = true, meinBildDa = false;
 
 /* Radieren heisst: mit Weiss uebermalen, breit. Das Bild ist ohnehin ein
    weisses PNG - an der Wand sieht man keinen Unterschied zu nie Gemaltem. */
-const RADIER_BREITE = 36 * MASS;
 /* Stiftdicken in Bildpunkten des abgeschickten Bildes; mittel ist die
    alte feste Dicke und vorgewaehlt. Duenner als 4 liest man an der Wand
-   kaum noch. */
-const DICKEN = [[4, "dünn"], [7, "mittel"], [12, "dick"]];
-let stiftBreite = 7 * MASS;
+   kaum noch. Die Dicke gilt auch fuer den Radierer (Wunsch der Klasse),
+   aber mit eigener Breite: Ein Radierer so schmal wie der Stift zwaenge
+   dazu, jeden Strich genau nachzufahren. Mittel ist die alte feste
+   Radierbreite. */
+const DICKEN = [[4, "dünn", 12], [7, "mittel", 36], [12, "dick", 72]];
+let stiftBreite = 7 * MASS, radierBreite = 36 * MASS;
 const FARBEN = [["#0f172a", "Schwarz"], ["#2563eb", "Blau"], ["#dc2626", "Rot"],
                 ["#16a34a", "Grün"], ["#ea580c", "Orange"], ["#9333ea", "Lila"]];
 let farbe = FARBEN[0][0];
@@ -411,20 +413,22 @@ function waehleWerkzeug(m){
   $("dicken").style.setProperty("--dfarbe", farbe);
   feld.style.cursor = modus === "text" ? "text" : "";
 }
-DICKEN.forEach(([breite, name]) => {
+DICKEN.forEach(([breite, name, radier]) => {
   const b = document.createElement("button");
-  b.type = "button"; b.className = "dicke"; b.title = "Stift " + name;
-  b.setAttribute("aria-label", "Stift " + name);
+  b.type = "button"; b.className = "dicke"; b.title = name;
+  b.setAttribute("aria-label", name);
   b.setAttribute("aria-pressed", String(breite * MASS === stiftBreite));
   const p = document.createElement("span");
   p.className = "punkt";
   p.style.width = p.style.height = Math.round(breite * 1.5) + "px";
   b.append(p);
-  /* Dicke waehlen heisst: mit dem Stift weiter. */
+  /* Dicke waehlen heisst: mit Stift oder Radierer weiter - wer radiert,
+     radiert in der neuen Breite; aus dem Text geht es zum Stift. */
   b.onclick = () => {
     stiftBreite = breite * MASS;
+    radierBreite = radier * MASS;
     [...$("dicken").children].forEach(k => k.setAttribute("aria-pressed", String(k === b)));
-    waehleWerkzeug("stift");
+    waehleWerkzeug(modus === "radierer" ? "radierer" : "stift");
   };
   $("dicken").append(b);
 });
@@ -519,7 +523,7 @@ function zeigeRing(e){
   const ring = $("ring");
   if (modus !== "radierer" || !e){ ring.style.display = "none"; return; }
   const r = feld.getBoundingClientRect();
-  const d = RADIER_BREITE * r.width / feld.width;
+  const d = radierBreite * r.width / feld.width;
   ring.style.width = ring.style.height = d + "px";
   ring.style.left = (e.clientX - r.left) + "px";
   ring.style.top = (e.clientY - r.top) + "px";
@@ -656,7 +660,7 @@ let vorStrich = null, leerVorStrich = true, strichKasten = null;
 
 function strichStil(){
   const weg = modus === "radierer";
-  ctx.lineWidth = weg ? RADIER_BREITE : stiftBreite;
+  ctx.lineWidth = weg ? radierBreite : stiftBreite;
   ctx.strokeStyle = ctx.fillStyle = weg ? "#fff" : farbe;
 }
 function dehne(p){
