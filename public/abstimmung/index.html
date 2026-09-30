@@ -77,7 +77,7 @@
   canvas.feld{display:block;width:100%;height:100%;background:#fff;
     border:2px solid var(--line);border-radius:12px;touch-action:none}
   /* Knopfleiste: nur Symbole, in Gruppen zu hoechstens drei (Werkzeug,
-     Dicke, Farben, Loeschen/Vollbild). Hochkant stehen die Gruppen
+     Dicke, Farben, Rueckgaengig/Wiederherstellen/Loeschen, Vollbild). Hochkant stehen die Gruppen
      nebeneinander unter dem Feld, quer untereinander in einer Spalte
      rechts - dort je Gruppe eine Reihe von drei Knoepfen. Was ein Knopf
      tut, sagen title und aria-label. */
@@ -169,8 +169,14 @@
     <div class="gruppe" id="dicken"></div>
     <div class="gruppe" id="farben"></div>
     <div class="gruppe">
+      <button type="button" id="zurueck" title="Rückgängig" aria-label="Rückgängig" disabled>
+        <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button type="button" id="vor" title="Wiederherstellen" aria-label="Wiederherstellen" disabled>
+        <svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
       <button type="button" id="loeschen" title="Alles löschen" aria-label="Alles löschen">
         <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v5M14 11v5"/></svg></button>
+    </div>
+    <div class="gruppe">
       <button type="button" id="vollbild" hidden title="Vollbild" aria-label="Vollbild"></button>
     </div>
     <div id="zhinweis" aria-live="polite"></div>
@@ -488,10 +494,14 @@ function textFertig(){
   ctx.font = "600 " + TEXT_GROESSE + "px " + SCHRIFTART;
   ctx.fillStyle = textFarbe;
   ctx.textBaseline = "middle";
-  umbrechen(text, feld.width - ort[0] - 8 * MASS).forEach((z, i) =>
-    ctx.fillText(z, ort[0], ort[1] + i * TEXT_GROESSE * 1.25));
+  const zeilen = umbrechen(text, feld.width - ort[0] - 8 * MASS);
+  const oben = ort[1] - TEXT_GROESSE;
+  schritt(kasten(ort[0] - 4, oben, feld.width,
+                 ort[1] + (zeilen.length - 1) * TEXT_GROESSE * 1.25 + TEXT_GROESSE), () => {
+    zeilen.forEach((z, i) => ctx.fillText(z, ort[0], ort[1] + i * TEXT_GROESSE * 1.25));
+    leerBild = false;
+  });
   ctx.restore();
-  leerBild = false;
 }
 function textAbbrechen(){
   textOrt = null;
@@ -528,12 +538,98 @@ function passeFeld(){
 if (window.ResizeObserver) new ResizeObserver(passeFeld).observe($("feldrahmen"));
 window.addEventListener("resize", passeFeld);
 
+/* --- Rueckgaengig und Wiederherstellen --------------------------------
+   Ein Schritt ist ein Strich, ein gesetzter Text oder „Alles loeschen".
+   Gespeichert wird nicht das ganze Bild (1280 x 960 sind fast 5 MB je
+   Stand - zu viel fuer ein iPad), sondern nur der Ausschnitt, den der
+   Schritt beruehrt hat, einmal davor und einmal danach. Zurueck legt das
+   Davor wieder hin, vor das Danach. Wer nach einem Zurueck neu malt,
+   verwirft die Schritte, die noch vor ihm lagen. Eine neue Frage leert
+   den Verlauf. Obergrenze: 60 Schritte oder rund 60 MB - was zuerst
+   erreicht ist; dann faellt der aelteste heraus. */
+const VERLAUF_SCHRITTE = 60, VERLAUF_BYTES = 60e6;
+let verlauf = [], wiederholbar = [];
+
+function kasten(x0, y0, x1, y1){
+  const x = Math.max(0, Math.floor(x0)), y = Math.max(0, Math.floor(y0));
+  const w = Math.min(feld.width, Math.ceil(x1)) - x, h = Math.min(feld.height, Math.ceil(y1)) - y;
+  return w > 0 && h > 0 ? { x, y, w, h } : null;
+}
+function ausschnitt(bild, k){
+  const aus = new ImageData(k.w, k.h);
+  for (let y = 0; y < k.h; y++){
+    const von = ((k.y + y) * bild.width + k.x) * 4;
+    aus.data.set(bild.data.subarray(von, von + k.w * 4), y * k.w * 4);
+  }
+  return aus;
+}
+function merke(s){
+  verlauf.push(s);
+  wiederholbar = [];
+  let bytes = verlauf.reduce((n, v) => n + v.vor.data.length * 2, 0);
+  while (verlauf.length > VERLAUF_SCHRITTE || (verlauf.length > 1 && bytes > VERLAUF_BYTES))
+    bytes -= verlauf.shift().vor.data.length * 2;
+  verlaufKnoepfe();
+}
+/* Schritt mit vorab bekanntem Ausschnitt (Text, Alles loeschen). */
+function schritt(k, malen){
+  if (!k){ malen(); return; }
+  const leerVor = leerBild, vor = ctx.getImageData(k.x, k.y, k.w, k.h);
+  malen();
+  merke({ x: k.x, y: k.y, vor, nach: ctx.getImageData(k.x, k.y, k.w, k.h),
+          leerVor, leerNach: leerBild });
+}
+function zurueck(){
+  if (aktiv !== null || !verlauf.length) return;
+  const s = verlauf.pop();
+  ctx.putImageData(s.vor, s.x, s.y);
+  leerBild = s.leerVor;
+  wiederholbar.push(s);
+  verlaufKnoepfe();
+}
+function vorwaerts(){
+  if (aktiv !== null || !wiederholbar.length) return;
+  const s = wiederholbar.pop();
+  ctx.putImageData(s.nach, s.x, s.y);
+  leerBild = s.leerNach;
+  verlauf.push(s);
+  verlaufKnoepfe();
+}
+function verlaufKnoepfe(){
+  $("zurueck").disabled = !stand.offen || !verlauf.length;
+  $("vor").disabled = !stand.offen || !wiederholbar.length;
+}
+$("zurueck").onclick = zurueck;
+$("vor").onclick = vorwaerts;
+/* Hardware-Tastatur: Cmd/Strg+Z zurueck, mit Umschalt (oder Strg+Y)
+   wieder vor. Nicht im Textfeld - dort gilt sein eigenes Rueckgaengig. */
+document.addEventListener("keydown", e => {
+  if (!document.body.classList.contains("zeichenauftrag") || !stand.offen) return;
+  if (e.target === textfeld || !(e.metaKey || e.ctrlKey)) return;
+  const t = e.key.toLowerCase();
+  if (t === "z" && !e.shiftKey){ e.preventDefault(); zurueck(); }
+  else if ((t === "z" && e.shiftKey) || t === "y"){ e.preventDefault(); vorwaerts(); }
+});
+
 function feldLeeren(){
   textAbbrechen();
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, feld.width, feld.height);
   ctx.lineCap = "round"; ctx.lineJoin = "round";
   leerBild = true;
+  verlauf = []; wiederholbar = [];
+  verlaufKnoepfe();
+}
+/* „Alles loeschen" ist ein Schritt wie jeder andere - aus Versehen
+   getippt, holt Zurueck das Bild wieder. */
+function allesLoeschen(){
+  textAbbrechen();
+  if (leerBild) return;
+  schritt(kasten(0, 0, feld.width, feld.height), () => {
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, feld.width, feld.height);
+    leerBild = true;
+  });
 }
 function punkt(e){
   const r = feld.getBoundingClientRect();
@@ -553,17 +649,27 @@ function punkt(e){
    gerade (bis 2 s zuvor) im Einsatz war; und setzt der Stift auf,
    waehrend schon ein Finger malt, wird dessen Strich zurueckgenommen. */
 let aktiv = null, aktivArt = "", p0 = null, m0 = null;
-let stiftZuletzt = 0, vorFinger = null;
+let stiftZuletzt = 0;
+/* Fuer Rueckgaengig: das ganze Bild vor dem Strich (auch die Rueckfalllage
+   fuer den Handballen) und der Kasten, den der Strich bisher beruehrt hat. */
+let vorStrich = null, leerVorStrich = true, strichKasten = null;
 
 function strichStil(){
   const weg = modus === "radierer";
   ctx.lineWidth = weg ? RADIER_BREITE : stiftBreite;
   ctx.strokeStyle = ctx.fillStyle = weg ? "#fff" : farbe;
 }
+function dehne(p){
+  const r = ctx.lineWidth / 2 + 2, k = strichKasten;
+  if (!k){ strichKasten = [p[0] - r, p[1] - r, p[0] + r, p[1] + r]; return; }
+  k[0] = Math.min(k[0], p[0] - r); k[1] = Math.min(k[1], p[1] - r);
+  k[2] = Math.max(k[2], p[0] + r); k[3] = Math.max(k[3], p[1] + r);
+}
 function weiter(p){
   const m = [(p0[0] + p[0]) / 2, (p0[1] + p[1]) / 2];
   ctx.beginPath(); ctx.moveTo(m0[0], m0[1]);
   ctx.quadraticCurveTo(p0[0], p0[1], m[0], m[1]); ctx.stroke();
+  dehne(p);
   m0 = m; p0 = p;
 }
 feld.addEventListener("pointerdown", e => {
@@ -575,15 +681,19 @@ feld.addEventListener("pointerdown", e => {
   else if (e.pointerType === "touch" && Date.now() - stiftZuletzt < 2000) return;
   if (aktiv !== null){
     if (!(stift && aktivArt === "touch")) return;   /* ein Strich zur Zeit */
-    if (vorFinger) ctx.putImageData(vorFinger, 0, 0);
+    ctx.putImageData(vorStrich, 0, 0);              /* Handballen zuruecknehmen */
+    leerBild = leerVorStrich;
+  } else {
+    vorStrich = ctx.getImageData(0, 0, feld.width, feld.height);
+    leerVorStrich = leerBild;
   }
-  vorFinger = e.pointerType === "touch"
-    ? ctx.getImageData(0, 0, feld.width, feld.height) : null;
+  strichKasten = null;
   aktiv = e.pointerId; aktivArt = e.pointerType;
   try { feld.setPointerCapture(e.pointerId); } catch (_){}
   strichStil();
   p0 = m0 = punkt(e);
   ctx.beginPath(); ctx.arc(p0[0], p0[1], ctx.lineWidth / 2, 0, 2 * Math.PI); ctx.fill();
+  dehne(p0);
   if (modus === "stift") leerBild = false;
   zeigeRing(e);
 });
@@ -598,12 +708,17 @@ const malEnde = e => {
   if (e.pointerId !== aktiv) return;
   ctx.beginPath(); ctx.moveTo(m0[0], m0[1]); ctx.lineTo(p0[0], p0[1]); ctx.stroke();
   if (aktivArt === "pen") stiftZuletzt = Date.now();
-  aktiv = null; vorFinger = null;
+  aktiv = null;
+  const k = strichKasten && kasten(...strichKasten);
+  if (k) merke({ x: k.x, y: k.y, vor: ausschnitt(vorStrich, k),
+                 nach: ctx.getImageData(k.x, k.y, k.w, k.h),
+                 leerVor: leerVorStrich, leerNach: leerBild });
+  vorStrich = null; strichKasten = null;
   zeigeRing(null);
 };
 feld.addEventListener("pointerup", malEnde);
 feld.addEventListener("pointercancel", malEnde);
-$("loeschen").onclick = feldLeeren;
+$("loeschen").onclick = allesLoeschen;
 
 /* --- Vollbild ---------------------------------------------------------
    Blendet die Adressleiste aus. Der Knopf erscheint nur, wo der Browser
@@ -721,6 +836,7 @@ function zeichnenStand(d){
   if (!d.offen) textAbbrechen();
   [...$("farben").children, ...$("dicken").children].forEach(b => { b.disabled = !d.offen; });
   $("senden").disabled = !d.offen;
+  verlaufKnoepfe();
   if (d.meins && d.meins.frei) zeigeHinweis("Dein Bild <b>hängt an der Wand</b>.");
   else if (!d.offen) zeigeHinweis(d.meins ? "Der Auftrag ist geschlossen. Dein Bild ist da."
                                           : "Der Auftrag ist <b>geschlossen</b>.");
