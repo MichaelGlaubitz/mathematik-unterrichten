@@ -103,6 +103,21 @@
   /* Farben: runde Felder, das gewaehlte mit dickem Rand. */
   .werkzeuge button.farbe{border-radius:50%;border:3px solid var(--line)}
   .werkzeuge button.farbe[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--panel)}
+  /* Beliebige Farbe: ein Regenbogenkreis. Darueber liegt unsichtbar der
+     Farbwaehler des Browsers (auf dem iPad Apples Raster/Spektrum), damit
+     ein echtes Antippen ihn oeffnet. Nach der Wahl zeigt ein Punkt in der
+     Mitte die Farbe. */
+  .spektrum{position:relative;width:48px;height:48px;border-radius:50%;border:3px solid var(--line);
+    background:conic-gradient(#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#3b82f6,#8b5cf6,#ec4899,#ef4444);
+    display:flex;align-items:center;justify-content:center}
+  .spektrum .mitte{display:none;width:20px;height:20px;border-radius:50%;
+    background:var(--sfarbe,#fff);box-shadow:0 0 0 2px #fff}
+  .spektrum.eigen .mitte{display:block}
+  .spektrum.an{border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--panel)}
+  .spektrum input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
+    opacity:0;cursor:pointer}
+  .spektrum.aus{opacity:.5}
+  .spektrum.aus input{cursor:default}
   #zhinweis{order:-1;flex-basis:100%;text-align:center;font-size:14px;line-height:1.35;
     color:var(--muted);min-height:1.35em}
   #zhinweis b{color:var(--ink)}
@@ -408,8 +423,10 @@ function waehleWerkzeug(m){
   $("radierer").setAttribute("aria-pressed", String(modus === "radierer"));
   $("textknopf").setAttribute("aria-pressed", String(modus === "text"));
   /* Die Farbe gilt fuer Stift und Text; beim Radieren ist keine gewaehlt. */
-  [...$("farben").children].forEach(b =>
+  [...$("farben").querySelectorAll("button")].forEach(b =>
     b.setAttribute("aria-pressed", String(modus !== "radierer" && b.dataset.farbe === farbe)));
+  spektrum.classList.toggle("an",
+    modus !== "radierer" && !FARBEN.some(([wert]) => wert === farbe));
   $("dicken").style.setProperty("--dfarbe", farbe);
   feld.style.cursor = modus === "text" ? "text" : "";
 }
@@ -441,6 +458,22 @@ FARBEN.forEach(([wert, name]) => {
   b.onclick = () => { farbe = wert; waehleWerkzeug(modus === "text" ? "text" : "stift"); };
   $("farben").append(b);
 });
+/* Siebtes Feld: jede beliebige Farbe. „input" kommt schon waehrend des
+   Waehlens, so faerbt sich die Mitte gleich mit. Weiss geht auch - es
+   wirkt dann wie der Radierer. */
+const spektrum = document.createElement("label");
+spektrum.className = "spektrum";
+spektrum.title = "Beliebige Farbe";
+spektrum.innerHTML = '<span class="mitte"></span>'
+  + '<input type="color" value="#0891b2" aria-label="Beliebige Farbe">';
+const spektrumWahl = spektrum.querySelector("input");
+spektrumWahl.addEventListener("input", () => {
+  farbe = spektrumWahl.value.toLowerCase();
+  spektrum.style.setProperty("--sfarbe", farbe);
+  spektrum.classList.add("eigen");
+  waehleWerkzeug(modus === "text" ? "text" : "stift");
+});
+$("farben").append(spektrum);
 $("stift").onclick = () => waehleWerkzeug("stift");
 $("radierer").onclick = () => waehleWerkzeug("radierer");
 $("textknopf").onclick = () => waehleWerkzeug("text");
@@ -838,7 +871,9 @@ function zeichnenStand(d){
   $("loeschen").disabled = !d.offen;
   $("stift").disabled = $("radierer").disabled = $("textknopf").disabled = !d.offen;
   if (!d.offen) textAbbrechen();
-  [...$("farben").children, ...$("dicken").children].forEach(b => { b.disabled = !d.offen; });
+  [...$("farben").querySelectorAll("button"), ...$("dicken").children].forEach(b => { b.disabled = !d.offen; });
+  spektrumWahl.disabled = !d.offen;
+  spektrum.classList.toggle("aus", !d.offen);
   $("senden").disabled = !d.offen;
   verlaufKnoepfe();
   if (d.meins && d.meins.frei) zeigeHinweis("Dein Bild <b>hängt an der Wand</b>.");
