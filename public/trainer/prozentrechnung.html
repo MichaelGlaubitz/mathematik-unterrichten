@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Prozentrechnung Klasse 7 — Trainer für die Klassenarbeit</title>
-<meta name="description" content="Übungsprogramm zur Prozentrechnung in Klasse 7: Diagnose, Erklärung, Üben und Re-Test mit immer neuen Aufgaben. Ohne Anmeldung — der Lernstand bleibt auf dem Gerät.">
+<meta name="description" content="Übungsprogramm zur Prozentrechnung in Klasse 7: Diagnose, Vormachen, Üben und Re-Test mit immer neuen Aufgaben. Ohne Anmeldung — der Lernstand bleibt auf dem Gerät.">
 <!--
   ===========================================================================
   Prozentrechnung Klasse 7 — Trainer für die Klassenarbeit
@@ -326,6 +326,20 @@ svg.gefaess{max-width:160px}
 table.werte.mini{width:auto; margin:.15rem 0; font-size:.95rem}
 table.werte.mini th, table.werte.mini td{padding:.15rem .5rem}
 /* --- Zusätze dieses Trainers ---------------------------------------------- */
+.ablauf{display:flex; flex-wrap:wrap; gap:.4rem; margin:.2rem 0 1.1rem}
+.ablauf span{display:inline-flex; align-items:center; gap:.45rem; padding:.3rem .75rem .3rem .3rem;
+  border:1px solid var(--linie); border-radius:999px; background:var(--flaeche-2); font-weight:600; font-size:.92rem}
+.ablauf b{display:inline-grid; place-items:center; width:1.5rem; height:1.5rem; border-radius:50%;
+  background:var(--akzent); color:#fff; font-size:.82rem}
+/* Vormachen: Schritte erscheinen nacheinander, die Rechnung wird „geschrieben“ */
+.schritte.vor .schritt, #erk-schritte svg.bild, #erk-schritte .echo{animation:herein .4s ease both}
+.rechnung.schreiben{clip-path:inset(-6px 100% -6px 0); animation:schreiben 1.4s linear .3s forwards}
+@keyframes herein{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+@keyframes schreiben{to{clip-path:inset(-6px 0 -6px 0)}}
+@media (prefers-reduced-motion:reduce){
+  .schritte.vor .schritt, #erk-schritte svg.bild, #erk-schritte .echo{animation:none}
+  .rechnung.schreiben{clip-path:none; animation:none}
+}
 .termin{margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; font-size:.95rem}
 .termin input{font:inherit; padding:.25rem .45rem; border:1px solid var(--linie-stark); border-radius:.45rem;
   background:var(--flaeche); color:var(--text)}
@@ -1736,7 +1750,7 @@ var stand = laden();
 function leererStand(){
   var t = {};
   THEMEN.forEach(function(th){ t[th.id] = { stand: "unbekannt", runden: 0, letzte: null }; });
-  return { fassung: 1, diagnose: null, themen: t, check: null, termin: null };
+  return { fassung: 1, diagnose: null, themen: t, check: null, termin: null, ton: false };
 }
 function laden(){
   try {
@@ -1891,6 +1905,8 @@ function wahlBinden(wurzel, beiAuswahl){
 var buehne = document.getElementById("buehne");
 
 function zeige(html){
+  vor = null;
+  schweigen();
   buehne.innerHTML = html;
   ringZeichnen();
   window.scrollTo(0, 0);
@@ -1923,23 +1939,8 @@ function zeigeStart(){
   zeige(
     '<div class="karte">'
     + "<h2>Hallo.</h2>"
-    + '<p class="lead">Dieses Programm bringt dich Thema für Thema durch alles, was in einer ' + KONFIG.art + ' zur Prozentrechnung vorkommt — ' + KONFIG.bogen + '. '
-    + "Es sagt dir zuerst, wo du stehst, erklärt dann in Ruhe, lässt dich üben und prüft am Ende mit neuen Aufgaben nach, ob es wirklich sitzt.</p>"
-    + '<div class="hinweis"><strong id="start-termin">' + esc(countdownText()) + "</strong> "
-    + "Du musst nicht alles auf einmal machen. Der Trainer merkt sich auf diesem Gerät, wie weit du bist."
-    + '<div class="termin"><label for="termin">Wann schreibst du die Arbeit? (freiwillig)</label>'
-    + '<input id="termin" type="date" value="' + esc(stand.termin || "") + '"></div></div>'
-    + "<h3 style=\"margin-top:1.1rem\">So läuft es ab</h3>"
-    + '<ol style="margin:.5rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
-    + "<li><strong>Diagnose</strong> — " + 2 * THEMEN.length + " kurze Aufgaben, quer durch alle Themen. Keine Note, keine Zeit, kein Publikum.</li>"
-    + "<li><strong>Landkarte</strong> — du siehst, was schon sitzt und was noch nicht.</li>"
-    + "<li><strong>Erklärung</strong> — für jedes offene Thema eine vollständige Musterlösung, Schritt für Schritt.</li>"
-    + "<li><strong>Üben</strong> — mit Hinweis beim ersten Fehler und der ganzen Rechnung beim zweiten.</li>"
-    + "<li><strong>Re-Test</strong> — neue Aufgaben, neue Zahlen. Drei von vier genügen.</li>"
-    + "<li><strong>Bestätigung</strong> — das Thema wird grün, und du siehst schwarz auf weiß, was du jetzt kannst.</li>"
-    + "</ol>"
-    + '<p style="color:var(--text-leise)">Lege Zettel und Stift bereit. Bei den Grundlagen rechnest du ohne Taschenrechner — '
-    + "später darfst du ihn nehmen, wenn die Zahlen krumm werden.</p>"
+    + '<p class="lead">Erst schauen wir, was du schon kannst. Was noch fehlt, mache ich dir vor — dann bist du dran.</p>'
+    + '<div class="ablauf"><span><b>1</b>Diagnose</span><span><b>2</b>Vormachen</span><span><b>3</b>Üben</span><span><b>4</b>Re-Test</span></div>'
     + '<div class="reihe">'
     + (begonnen
         ? '<button class="knopf knopf-haupt knopf-gross" id="k-weiter" type="button">Weitermachen</button>'
@@ -1947,8 +1948,11 @@ function zeigeStart(){
         : '<button class="knopf knopf-haupt knopf-gross" id="k-diagnose" type="button">Diagnose starten</button>'
           + '<button class="knopf" id="k-karte" type="button">Ohne Diagnose zur Themenliste</button>')
     + "</div>"
-    + '<p class="leise" style="margin-top:1rem">Alles bleibt auf deinem Gerät. Es wird nichts verschickt und nichts ausgewertet. '
-    + "Wenn du an einer Stelle wirklich hängst, frag im Unterricht nach; genau dafür ist er da.</p>"
+    + '<p class="leise" style="margin-top:.8rem">Die Diagnose: ' + 2 * THEMEN.length + " kurze Aufgaben. Keine Note, keine Uhr. Lege Zettel und Stift bereit.</p>"
+    + '<div class="hinweis" style="margin-top:1.1rem"><strong id="start-termin">' + esc(countdownText()) + "</strong>"
+    + '<div class="termin"><label for="termin">Wann schreibst du die Arbeit? (freiwillig)</label>'
+    + '<input id="termin" type="date" value="' + esc(stand.termin || "") + '"></div></div>'
+    + '<p class="leise" style="margin-top:1rem">Dein Stand bleibt auf diesem Gerät. Es wird nichts verschickt.</p>'
     + "</div>"
   );
   var a = document.getElementById("k-diagnose"); if (a) a.onclick = diagnoseStarten;
@@ -2007,8 +2011,7 @@ function diagnoseSchritt(){
     + '<button class="knopf knopf-haupt" id="d-ok" type="button">Antwort abschicken</button>'
     + '<button class="knopf knopf-still" id="d-nix" type="button">Weiß ich nicht</button>'
     + "</div>"
-    + '<p class="leise" style="margin-top:.9rem">Hier gibt es keine Rückmeldung — das ist Absicht. '
-    + "Die Diagnose soll ein ehrliches Bild geben, kein Training. „Weiß ich nicht“ ist eine gültige und nützliche Antwort.</p>"
+    + '<p class="leise" style="margin-top:.9rem">Rückmeldung gibt es erst nach der Diagnose. „Weiß ich nicht“ ist erlaubt.</p>'
     + "</div>"
   );
 
@@ -2139,7 +2142,7 @@ function zeigeKarte(){
 
 /* --- Ein Thema durcharbeiten --------------------------------------------- */
 var sitzung = null;
-var PHASEN = ["Ankommen","Erklärung","Üben","Re-Test","Geschafft"];
+var PHASEN = ["Ankommen","Vormachen","Üben","Re-Test","Geschafft"];
 
 function phasenleiste(jetzt){
   return '<div class="phasen">' + PHASEN.map(function(p, i){
@@ -2157,13 +2160,13 @@ function zeigeAnkommen(){
   var s = stand.themen[t.id];
   var gruss;
   if (s.stand === "sicher")
-    gruss = "Dieses Thema hast du schon bestanden. Eine Auffrischung schadet trotzdem nie — besonders kurz vor der " + KONFIG.art + ".";
+    gruss = "Das hast du schon bestanden. Auffrischen schadet nie.";
   else if (s.stand === "wackelig")
-    gruss = "In der Diagnose war eine von zwei Aufgaben richtig. Das heißt: Der Gedanke ist da, es fehlt die Sicherheit. Das ist die schnellste Sorte Baustelle.";
+    gruss = "In der Diagnose war eine von zwei Aufgaben richtig. Der Gedanke ist da — es fehlt nur die Sicherheit.";
   else if (s.stand === "offen")
-    gruss = "In der Diagnose hat das hier noch nicht geklappt. Kein Grund zur Sorge — dafür ist das Programm da. Wir gehen es von vorn an, in Ruhe und mit vollständiger Rechnung.";
+    gruss = "In der Diagnose hat das noch nicht geklappt. Kein Problem: Ich mache es dir vor.";
   else
-    gruss = "Dieses Thema ist noch nicht geprüft. Wir fangen einfach vorn an.";
+    gruss = "Noch nicht geprüft. Ich mache es dir einfach vor.";
 
   zeige(
     '<div class="karte">'
@@ -2173,13 +2176,9 @@ function zeigeAnkommen(){
     + '<h2 style="margin-top:.6rem">' + esc(t.name) + "</h2>"
     + '<p class="leise">' + esc(t.unter) + (t.buch ? " · " + esc(t.buch) : "") + "</p>"
     + '<div class="hinweis hinweis-gold" style="margin-top:1rem">' + gruss + "</div>"
-    + "<h3 style=\"margin-top:1.2rem\">Warum das zählt</h3>"
-    + "<p>" + t.warum + "</p>"
-    + "<h3>Was du danach kannst</h3>"
-    + '<ul style="margin:.4rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
-    + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul>"
+    + '<p class="leise" style="margin:.9rem 0 1rem">' + t.warum + "</p>"
     + '<div class="reihe">'
-    + '<button class="knopf knopf-haupt knopf-gross" id="t-los" type="button">Los geht\'s</button>'
+    + '<button class="knopf knopf-haupt knopf-gross" id="t-los" type="button">Zeig es mir</button>'
     + (s.stand === "sicher" ? '<button class="knopf" id="t-direkt" type="button">Direkt zum Re-Test</button>' : "")
     + '<button class="knopf knopf-still" id="t-zurueck" type="button">Zurück zur Übersicht</button>'
     + "</div></div>"
@@ -2190,58 +2189,177 @@ function zeigeAnkommen(){
   document.getElementById("t-zurueck").onclick = zeigeKarte;
 }
 
-/* Die Erklärung: ein vollständig durchgerechnetes Beispiel, Schritt für
-   Schritt aufdeckbar. Wer alles auf einmal sieht, liest es nicht. */
+/* Vormachen: Ein Beispiel läuft von allein ab — Schritt für Schritt, wie an
+   der Tafel. WARUM: Eine Erklärung wird nicht gelesen, einer Vorführung
+   schaut man zu. Die Regel und der Stolperstein kommen deshalb erst danach.
+   Wer mag, schaltet den Ton dazu: die Stimme des Geräts, nur Stimmen, die
+   ohne Netz sprechen — es bleibt dabei, dass nichts übertragen wird. */
+var vor = null;       /* die laufende Vorführung */
+
+var NENNER_WORT = { 2: "Halbe", 4: "Viertel", 5: "Fünftel", 10: "Zehntel", 20: "Zwanzigstel",
+                    25: "Fünfundzwanzigstel", 50: "Fünfzigstel", 100: "Hundertstel" };
+
+/* Aus dem HTML eines Schritts wird ein Satz zum Vorlesen: 84 € : 105 = 0,80 €
+   → „84 Euro geteilt durch 105 ist 0,80 Euro“. */
+function sprechtext(html){
+  var d = document.createElement("div");
+  d.innerHTML = String(html).replace(/<br\s*\/?>/g, ". ");
+  [].slice.call(d.querySelectorAll(".br")).forEach(function(b){
+    var z = b.children[0].textContent.trim(), n = b.children[1].textContent.trim();
+    b.textContent = " " + (/^\d+$/.test(z) && NENNER_WORT[n] ? z + " " + NENNER_WORT[n] : z + " durch " + n) + " ";
+  });
+  return d.textContent
+    .replace(/\u00a0/g, " ")
+    .replace(/ : /g, " geteilt durch ").replace(/ · /g, " mal ").replace(/ = /g, " ist ")
+    .replace(/ − /g, " minus ").replace(/\+/g, " plus ")
+    .replace(/%/g, " Prozent").replace(/€/g, " Euro")
+    .replace(/ → /g, " wird zu ").replace(/ — /g, ", ").replace(/[„“]/g, "")
+    .replace(/\s+/g, " ").trim();
+}
+function stimme(){
+  try {
+    if (!window.speechSynthesis || typeof SpeechSynthesisUtterance === "undefined") return null;
+    var alle = window.speechSynthesis.getVoices().filter(function(v){ return /^de/i.test(v.lang) && v.localService; });
+    return alle[0] || null;
+  } catch (e) { return null; }
+}
+function schweigen(){
+  try { if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+}
+
 function zeigeErklaerung(){
   var t = themaMit(sitzung.id);
-  var macher = t.gen[sitzung.runde % t.gen.length];
+  var macher = t.gen[((sitzung.runde || 0) + (sitzung.beispiele || 0)) % t.gen.length];
   var auf = macher();
   sitzung.beispiel = auf;
-  sitzung.gezeigt = 0;
 
   zeige(
     '<div class="karte">'
     + phasenleiste(1)
     + '<h2>' + esc(t.name) + "</h2>"
-    + '<div class="hinweis"><strong>Das Wichtigste in einem Satz:</strong> ' + t.merksatz + "</div>"
-    + '<div class="hinweis hinweis-rot"><strong>Typischer Stolperstein:</strong> ' + t.stolperstein + "</div>"
-    + "<h3 style=\"margin-top:1.2rem\">Ein Beispiel, ganz durchgerechnet</h3>"
+    + '<p class="leise" style="margin:.1rem 0 .7rem">Schau zu — ich mache es dir vor.</p>'
     + aufgabeHtml(auf)
-    + '<div id="erk-schritte"></div>'
-    + '<div class="reihe" style="margin-top:1rem">'
-    + '<button class="knopf knopf-haupt" id="e-mehr" type="button">Ersten Schritt zeigen</button>'
-    + '<button class="knopf knopf-still" id="e-alles" type="button">Alle Schritte auf einmal</button>'
+    + '<div id="erk-schritte" aria-live="polite"></div>'
+    + '<div class="reihe" style="margin-top:1rem" id="e-steuer">'
+    + '<button class="knopf" id="e-pause" type="button">Anhalten</button>'
+    + '<button class="knopf knopf-still" id="e-ton" type="button" hidden></button>'
+    + '<button class="knopf knopf-still" id="e-alles" type="button">Alles auf einmal</button>'
     + "</div>"
-    + '<div class="reihe" style="margin-top:.6rem" id="e-weiter-reihe" hidden>'
-    + '<button class="knopf knopf-haupt knopf-gross" id="e-weiter" type="button">Verstanden — jetzt selbst</button>'
-    + "</div></div>"
+    + '<div id="e-ende" hidden>'
+    + '<div class="hinweis"><strong>Merk dir:</strong> ' + t.merksatz + "</div>"
+    + '<div class="hinweis hinweis-rot"><strong>Achtung, Falle:</strong> ' + t.stolperstein + "</div>"
+    + '<div class="reihe" style="margin-top:.8rem">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="e-weiter" type="button" disabled>Jetzt du</button>'
+    + '<button class="knopf" id="e-nochmal" type="button">Noch ein Beispiel</button>'
+    + "</div></div></div>"
   );
 
   var ziel = document.getElementById("erk-schritte");
-  function nachlegen(){
-    var sch = auf.schritte[sitzung.gezeigt];
-    ziel.insertAdjacentHTML("beforeend",
-      '<ol class="schritte" style="margin-top:0"><li class="schritt"><span class="nr">' + (sitzung.gezeigt+1) + "</span>"
-      + '<span class="was">' + sch.was + '</span><span class="rechnung">' + sch.r + "</span></li></ol>");
-    sitzung.gezeigt++;
-    if (sitzung.gezeigt >= auf.schritte.length) fertig();
-    else document.getElementById("e-mehr").textContent = "Nächster Schritt (" + (sitzung.gezeigt+1) + " von " + auf.schritte.length + ")";
+  var ruhig = false;
+  try { ruhig = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  var lauf = vor = { i: 0, uhr: null, pause: false, fertig: false, gen: 0 };
+
+  function lebt(){ return vor === lauf && document.getElementById("erk-schritte") === ziel; }
+  /* Zeit zum Mitlesen, wenn kein Ton läuft */
+  function dauer(html){ return Math.min(4800, 1200 + sprechtext(html).length * 45); }
+
+  /* Mit Ton geht es weiter, wenn der Satz zu Ende ist — ohne Ton nach einer Lesepause. */
+  function sagen(html, danach){
+    var g = lauf.gen, st = stand.ton ? stimme() : null;
+    if (!st){
+      lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) danach(); }, dauer(html));
+      return;
+    }
+    var u = new SpeechSynthesisUtterance(sprechtext(html));
+    u.voice = st; u.lang = st.lang; u.rate = 0.95;
+    var erledigt = false;
+    function weiter(){
+      if (erledigt) return;
+      erledigt = true;
+      if (!lebt() || lauf.gen !== g || lauf.pause) return;
+      clearTimeout(lauf.uhr);
+      lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) danach(); }, 350);
+    }
+    u.onend = weiter; u.onerror = weiter;
+    lauf.uhr = setTimeout(weiter, dauer(html) * 3);      /* Notnagel: Manche Geräte melden kein Ende. */
+    window.speechSynthesis.speak(u);
   }
-  function fertig(){
-    document.getElementById("e-mehr").hidden = true;
-    document.getElementById("e-alles").hidden = true;
+
+  function schrittZeigen(sch, nr, sofort){
+    var bewegt = !sofort && !ruhig;
+    var zeit = Math.min(2200, 500 + sprechtext(sch.r).length * 30);
+    ziel.insertAdjacentHTML("beforeend",
+      '<ol class="schritte' + (bewegt ? " vor" : "") + '" style="margin-top:0"><li class="schritt"><span class="nr">' + nr + "</span>"
+      + '<span class="was">' + sch.was + '</span><span class="rechnung' + (bewegt ? " schreiben" : "") + '"'
+      + (bewegt ? ' style="animation-duration:' + zeit + 'ms"' : "") + ">" + sch.r + "</span></li></ol>");
+  }
+  function naechster(){
+    if (!lebt() || lauf.pause) return;
+    if (lauf.i >= auf.schritte.length) return ende(false);
+    var sch = auf.schritte[lauf.i];
+    schrittZeigen(sch, lauf.i + 1, false);
+    lauf.i++;
+    sagen(sch.was + (/[.?!:]$/.test(sch.was) ? " " : ". ") + sch.r, naechster);
+  }
+  function ende(stumm){
+    if (lauf.fertig) return;
+    lauf.fertig = true;
+    clearTimeout(lauf.uhr);
     if (auf.bildNachher) ziel.insertAdjacentHTML("beforeend", auf.bildNachher());
     ziel.insertAdjacentHTML("beforeend", '<div class="echo gut"><p><strong>Ergebnis:</strong> ' + auf.antwort + "</p></div>");
-    document.getElementById("e-weiter-reihe").hidden = false;
+    document.getElementById("e-steuer").hidden = true;
+    document.getElementById("e-ende").hidden = false;
+    document.getElementById("e-weiter").disabled = false;
+    if (!stumm && stand.ton && stimme()) sagen("Ergebnis: " + auf.antwort + " Merk dir: " + t.merksatz, function(){});
   }
-  document.getElementById("e-mehr").onclick = nachlegen;
+  function starten(){
+    lauf.gen++;
+    clearTimeout(lauf.uhr);
+    schweigen();
+    ziel.innerHTML = "";
+    lauf.i = 0; lauf.pause = false;
+    document.getElementById("e-pause").textContent = "Anhalten";
+    var g = lauf.gen;
+    /* kurze Pause: Manche Browser verschlucken einen Satz direkt nach dem Abbrechen des vorigen. */
+    lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) sagen(auf.frage, naechster); }, 500);
+  }
+  function tonKnopf(){
+    var k = document.getElementById("e-ton");
+    if (!k) return;
+    k.hidden = !stimme();
+    k.textContent = stand.ton ? "🔊 Ton an" : "🔇 Ton aus";
+  }
+
+  document.getElementById("e-pause").onclick = function(){
+    lauf.pause = !lauf.pause;
+    this.textContent = lauf.pause ? "Weiter" : "Anhalten";
+    if (lauf.pause){ lauf.gen++; clearTimeout(lauf.uhr); schweigen(); }
+    else naechster();
+  };
+  document.getElementById("e-ton").onclick = function(){
+    stand.ton = !stand.ton;
+    sichern();
+    tonKnopf();
+    starten();
+  };
   document.getElementById("e-alles").onclick = function(){
-    while (sitzung.gezeigt < auf.schritte.length) nachlegen();
+    lauf.gen++;
+    clearTimeout(lauf.uhr);
+    schweigen();
+    while (lauf.i < auf.schritte.length){ schrittZeigen(auf.schritte[lauf.i], lauf.i + 1, true); lauf.i++; }
+    ende(true);
   };
   document.getElementById("e-weiter").onclick = function(){
     sitzung.index = 0; sitzung.ergebnisse = []; sitzung.versuch = 0;
     zeigeUeben();
   };
+  document.getElementById("e-nochmal").onclick = function(){
+    sitzung.beispiele = (sitzung.beispiele || 0) + 1;
+    zeigeErklaerung();
+  };
+  try { if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = tonKnopf; } catch (e) {}
+  tonKnopf();
+  starten();
 }
 
 /* Üben: drei Aufgaben, mit Hinweis beim ersten und voller Rechnung beim
@@ -2357,7 +2475,7 @@ function zeigeUebergang(){
     + "Drei richtige genügen, damit das Thema als sicher gilt.</p>"
     + '<div class="hinweis"><strong>Warum ohne Hilfe?</strong> Weil in der ' + KONFIG.art + ' auch niemand danebensteht. '
     + "Und weil du erst dann weißt, dass du es kannst, wenn du es einmal allein geschafft hast. "
-    + "Geht es schief, ist nichts verloren — dann erkläre ich es dir noch einmal anders.</div>"
+    + "Geht es schief, ist nichts verloren — dann mache ich es dir noch einmal vor.</div>"
     + '<div class="reihe">'
     + '<button class="knopf knopf-haupt knopf-gross" id="r-los" type="button">Re-Test starten</button>'
     + '<button class="knopf knopf-still" id="r-mehr" type="button">Lieber noch etwas üben</button>'
@@ -2486,10 +2604,9 @@ function retestAuswerten(){
         ? "Zwei von vier: Die Hälfte stimmt schon. Meistens fehlt genau ein Schritt, und den finden wir jetzt."
         : (richtig === 1
           ? "Eine richtige Antwort ist mehr als keine — aber es fehlt noch etwas Grundsätzliches. Gehen wir es anders an."
-          : "Diesmal hat keine gepasst. Das heißt nicht, dass du es nicht kannst; es heißt, dass die Erklärung noch nicht bei dir angekommen ist. Also nehmen wir eine andere.")) + "</p>"
-    + '<div class="hinweis"><strong>So geht es weiter:</strong> ein neues Beispiel, vollständig durchgerechnet, '
-    + "danach wieder drei Übungsaufgaben mit Hinweisen — und dann ein frischer Re-Test. "
-    + "Es gibt keine Begrenzung, wie oft du das machen darfst.</div>"
+          : "Diesmal hat keine gepasst. Das heißt nicht, dass du es nicht kannst; es heißt, dass ein Beispiel noch nicht gereicht hat. Also nehmen wir ein neues.")) + "</p>"
+    + '<div class="hinweis"><strong>So geht es weiter:</strong> Ich mache dir ein neues Beispiel vor. '
+    + "Danach übst du wieder — und dann kommt ein frischer Re-Test. So oft du willst.</div>"
     + '<div class="reihe">'
     + '<button class="knopf knopf-haupt knopf-gross" id="w-erk" type="button">Neues Beispiel ansehen</button>'
     + '<button class="knopf knopf-still" id="w-karte" type="button">Später weitermachen</button>'
@@ -2641,14 +2758,14 @@ function zeigeInfo(){
     + "<ul>"
     + "<li><strong>Diagnose zuerst.</strong> " + 2 * THEMEN.length + " kurze Aufgaben zeigen, welche der " + zahlwort(THEMEN.length)
     + " Themen sicher sind und welche nicht. Geübt wird danach nur, was offen ist.</li>"
-    + "<li><strong>Erklärung am Beispiel.</strong> Zu jedem Thema gibt es die eine Regel, den typischen Fehler und eine vollständig durchgerechnete Aufgabe.</li>"
+    + "<li><strong>Vormachen statt Erklären.</strong> Zu jedem Thema läuft eine durchgerechnete Aufgabe Schritt für Schritt von allein ab — auf Wunsch mit Ton. Danach folgen die eine Regel und der typische Fehler.</li>"
     + "<li><strong>Üben mit Rückmeldung.</strong> Beim ersten Fehler kommt ein Hinweis, beim zweiten der ganze Rechenweg.</li>"
     + "<li><strong>Re-Test mit neuen Zahlen.</strong> Jede Aufgabe wird beim Aufruf neu erzeugt. Ein Thema gilt erst als sicher, "
     + "wenn es ohne Hilfe gelingt — auswendig gelernte Lösungen helfen nicht.</li>"
     + "<li><strong>Falsche Antworten mit Absicht.</strong> Bei Auswahlaufgaben entspricht jede falsche Möglichkeit einem Fehler, der bei diesem Thema typisch ist.</li>"
     + "</ul>"
     + "<h3>Daten</h3>"
-    + "<p>Es gibt keine Anmeldung und kein Konto. Der Lernstand liegt nur im Speicher dieses Browsers; es wird nichts übertragen und nichts ausgewertet. "
+    + "<p>Es gibt keine Anmeldung und kein Konto. Der Lernstand liegt nur im Speicher dieses Browsers; es wird nichts übertragen und nichts ausgewertet. Der Ton kommt von der Stimme des Geräts, nicht aus dem Netz. "
     + "Wer die Browserdaten löscht oder das Gerät wechselt, beginnt von vorn.</p>"
     + "<h3>Wer dahintersteht</h3>"
     + '<p>Der Trainer stammt von Michael Glaubitz, mathematik-unterrichten.de (<a href="/ueber">Über</a>). '
