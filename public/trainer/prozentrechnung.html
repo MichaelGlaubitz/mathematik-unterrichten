@@ -333,7 +333,8 @@ table.werte.mini th, table.werte.mini td{padding:.15rem .5rem}
   background:var(--akzent); color:#fff; font-size:.82rem}
 /* Vormachen: Schritte erscheinen nacheinander, die Rechnung wird „geschrieben“ */
 .schritte.vor .schritt, #erk-schritte svg.bild, #erk-schritte .echo{animation:herein .4s ease both}
-.rechnung.schreiben{clip-path:inset(-6px 100% -6px 0); animation:schreiben 1.4s linear .3s forwards}
+.rechnung.wartet{visibility:hidden}
+.rechnung.schreiben{clip-path:inset(-6px 100% -6px 0); animation:schreiben 1.4s linear forwards}
 @keyframes herein{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
 @keyframes schreiben{to{clip-path:inset(-6px 0 -6px 0)}}
 @media (prefers-reduced-motion:reduce){
@@ -1700,7 +1701,7 @@ var THEMEN = [
     id: "aendern", name: "Zunahme und Abnahme", unter: "der neue Wert in einem Schritt",
     gruppe: "klausur", gen: G_AENDERN,
     warum: "Rabatte, Preiserhöhungen, Mehrwertsteuer: Die meisten Textaufgaben der Arbeit handeln von Werten, die sich um einen Prozentsatz ändern.",
-    merksatz: "Zunahme um p&nbsp;%: mal (100&nbsp;% + p&nbsp;%). Abnahme um p&nbsp;%: mal (100&nbsp;% − p&nbsp;%). Aus +7&nbsp;% wird der Faktor 1,07, aus −14&nbsp;% der Faktor 0,86.",
+    merksatz: "Steigt etwas um 7&nbsp;%, rechnest du mal 1,07. Sinkt es um 14&nbsp;%, rechnest du mal 0,86. Der Faktor ist immer 100&nbsp;% plus oder minus die Änderung, als Kommazahl geschrieben.",
     stolperstein: "Nur mit der Änderung malnehmen: 90&nbsp;€ · 0,06 ist der Rabatt, nicht der neue Preis. Und: „um 20&nbsp;% gesenkt“ ist etwas anderes als „auf 20&nbsp;% gesenkt“.",
     koennen: ["zu einer Zunahme oder Abnahme den Faktor angeben",
               "den neuen Wert in einem Schritt berechnen",
@@ -2196,6 +2197,15 @@ function zeigeAnkommen(){
    ohne Netz sprechen — es bleibt dabei, dass nichts übertragen wird. */
 var vor = null;       /* die laufende Vorführung */
 
+/* Pausen der Vorführung in Millisekunden. WARUM eigene Pausen: Die Stimmen der
+   Geräte machen am Satzende kaum eine, und zwischen zwei Schritten gar keine —
+   dann klingt die Rechnung wie ein einziger Satz. */
+var PAUSEN = {
+  satz:    600,    /* zwischen zwei Sätzen desselben Abschnitts            */
+  zeile:   900,    /* zwischen der Ansage eines Schritts und seiner Rechnung */
+  schritt: 1800    /* nach der Aufgabe, nach jedem Schritt, vor dem Merksatz */
+};
+
 var NENNER_WORT = { 2: "Halbe", 4: "Viertel", 5: "Fünftel", 10: "Zehntel", 20: "Zwanzigstel",
                     25: "Fünfundzwanzigstel", 50: "Fünfzigstel", 100: "Hundertstel" };
 
@@ -2211,10 +2221,10 @@ function sprechtext(html){
   return d.textContent
     .replace(/\u00a0/g, " ")
     .replace(/ : /g, " geteilt durch ").replace(/ · /g, " mal ").replace(/ = /g, " ist ")
-    .replace(/ − /g, " minus ").replace(/\+/g, " plus ")
+    .replace(/ − /g, " minus ").replace(/−(?=\d)/g, "minus ").replace(/\+/g, " plus ")
     .replace(/%/g, " Prozent").replace(/€/g, " Euro")
     .replace(/ → /g, " wird zu ").replace(/ — /g, ", ").replace(/[„“]/g, "")
-    .replace(/\s+/g, " ").trim();
+    .replace(/\s+/g, " ").replace(/\.( ?\.)+/g, ".").trim();
 }
 function stimme(){
   try {
@@ -2223,6 +2233,7 @@ function stimme(){
     return alle[0] || null;
   } catch (e) { return null; }
 }
+stimme();     /* schon beim Laden fragen: Manche Browser liefern die Stimmenliste erst beim zweiten Mal */
 function schweigen(){
   try { if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
 }
@@ -2261,56 +2272,78 @@ function zeigeErklaerung(){
 
   function lebt(){ return vor === lauf && document.getElementById("erk-schritte") === ziel; }
   /* Zeit zum Mitlesen, wenn kein Ton läuft */
-  function dauer(html){ return Math.min(4800, 1200 + sprechtext(html).length * 45); }
+  function lesezeit(html){ return Math.min(4200, 600 + sprechtext(html).length * 45); }
+  function spaeter(ms, was){
+    var g = lauf.gen;
+    lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) was(); }, ms);
+  }
 
-  /* Mit Ton geht es weiter, wenn der Satz zu Ende ist — ohne Ton nach einer Lesepause. */
-  function sagen(html, danach){
+  /* Ein Abschnitt: Satz für Satz gesprochen, dazwischen PAUSEN.satz, danach
+     `pause`. Ohne Ton vergeht stattdessen die Zeit zum Mitlesen. */
+  function abschnitt(html, pause, danach){
     var g = lauf.gen, st = stand.ton ? stimme() : null;
-    if (!st){
-      lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) danach(); }, dauer(html));
-      return;
+    if (!st) return spaeter(lesezeit(html) + pause / 2, danach);
+    var saetze = (sprechtext(html).match(/[^.?!]+[.?!]*/g) || [])
+      .map(function(s){ return s.trim(); }).filter(function(s){ return /[0-9A-Za-zÄÖÜäöüß]/.test(s); });
+    var k = 0;
+    function einer(){
+      if (k >= saetze.length) return spaeter(pause, danach);
+      var u = new SpeechSynthesisUtterance(saetze[k++]);
+      u.voice = st; u.lang = st.lang; u.rate = 0.95;
+      var erledigt = false;
+      function weiter(){
+        if (erledigt) return;
+        erledigt = true;
+        if (!lebt() || lauf.gen !== g || lauf.pause) return;
+        clearTimeout(lauf.uhr);
+        if (k >= saetze.length) spaeter(pause, danach); else spaeter(PAUSEN.satz, einer);
+      }
+      u.onend = weiter; u.onerror = weiter;
+      lauf.uhr = setTimeout(weiter, 2500 + u.text.length * 180);     /* Notnagel: Manche Geräte melden kein Ende. */
+      window.speechSynthesis.speak(u);
     }
-    var u = new SpeechSynthesisUtterance(sprechtext(html));
-    u.voice = st; u.lang = st.lang; u.rate = 0.95;
-    var erledigt = false;
-    function weiter(){
-      if (erledigt) return;
-      erledigt = true;
-      if (!lebt() || lauf.gen !== g || lauf.pause) return;
-      clearTimeout(lauf.uhr);
-      lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) danach(); }, 350);
-    }
-    u.onend = weiter; u.onerror = weiter;
-    lauf.uhr = setTimeout(weiter, dauer(html) * 3);      /* Notnagel: Manche Geräte melden kein Ende. */
-    window.speechSynthesis.speak(u);
+    einer();
   }
 
   function schrittZeigen(sch, nr, sofort){
-    var bewegt = !sofort && !ruhig;
     var zeit = Math.min(2200, 500 + sprechtext(sch.r).length * 30);
     ziel.insertAdjacentHTML("beforeend",
-      '<ol class="schritte' + (bewegt ? " vor" : "") + '" style="margin-top:0"><li class="schritt"><span class="nr">' + nr + "</span>"
-      + '<span class="was">' + sch.was + '</span><span class="rechnung' + (bewegt ? " schreiben" : "") + '"'
-      + (bewegt ? ' style="animation-duration:' + zeit + 'ms"' : "") + ">" + sch.r + "</span></li></ol>");
+      '<ol class="schritte' + (!sofort && !ruhig ? " vor" : "") + '" style="margin-top:0"><li class="schritt"><span class="nr">' + nr + "</span>"
+      + '<span class="was">' + sch.was + '</span><span class="rechnung' + (sofort ? "" : " wartet") + '"'
+      + ' style="animation-duration:' + zeit + 'ms">' + sch.r + "</span></li></ol>");
+  }
+  /* Die Rechnung des Schritts erscheint: geschrieben, wenn sie an der Reihe
+     ist — sofort, wenn angehalten oder abgekürzt wird. */
+  function aufdecken(geschrieben){
+    [].slice.call(ziel.querySelectorAll(".rechnung.wartet")).forEach(function(r){
+      r.classList.remove("wartet");
+      if (geschrieben && !ruhig) r.classList.add("schreiben");
+    });
   }
   function naechster(){
     if (!lebt() || lauf.pause) return;
+    aufdecken(false);
     if (lauf.i >= auf.schritte.length) return ende(false);
     var sch = auf.schritte[lauf.i];
     schrittZeigen(sch, lauf.i + 1, false);
     lauf.i++;
-    sagen(sch.was + (/[.?!:]$/.test(sch.was) ? " " : ". ") + sch.r, naechster);
+    abschnitt(sch.was, PAUSEN.zeile, function(){
+      aufdecken(true);
+      abschnitt(sch.r, PAUSEN.schritt, naechster);
+    });
   }
   function ende(stumm){
     if (lauf.fertig) return;
     lauf.fertig = true;
     clearTimeout(lauf.uhr);
+    aufdecken(false);
     if (auf.bildNachher) ziel.insertAdjacentHTML("beforeend", auf.bildNachher());
     ziel.insertAdjacentHTML("beforeend", '<div class="echo gut"><p><strong>Ergebnis:</strong> ' + auf.antwort + "</p></div>");
     document.getElementById("e-steuer").hidden = true;
     document.getElementById("e-ende").hidden = false;
     document.getElementById("e-weiter").disabled = false;
-    if (!stumm && stand.ton && stimme()) sagen("Ergebnis: " + auf.antwort + " Merk dir: " + t.merksatz, function(){});
+    if (!stumm && stand.ton && stimme())
+      abschnitt("Ergebnis: " + auf.antwort, PAUSEN.schritt, function(){ abschnitt("Merk dir: " + t.merksatz, 0, function(){}); });
   }
   function starten(){
     lauf.gen++;
@@ -2319,9 +2352,8 @@ function zeigeErklaerung(){
     ziel.innerHTML = "";
     lauf.i = 0; lauf.pause = false;
     document.getElementById("e-pause").textContent = "Anhalten";
-    var g = lauf.gen;
     /* kurze Pause: Manche Browser verschlucken einen Satz direkt nach dem Abbrechen des vorigen. */
-    lauf.uhr = setTimeout(function(){ if (lebt() && lauf.gen === g && !lauf.pause) sagen(auf.frage, naechster); }, 500);
+    spaeter(500, function(){ abschnitt(auf.frage, PAUSEN.schritt, naechster); });
   }
   function tonKnopf(){
     var k = document.getElementById("e-ton");
@@ -2333,7 +2365,7 @@ function zeigeErklaerung(){
   document.getElementById("e-pause").onclick = function(){
     lauf.pause = !lauf.pause;
     this.textContent = lauf.pause ? "Weiter" : "Anhalten";
-    if (lauf.pause){ lauf.gen++; clearTimeout(lauf.uhr); schweigen(); }
+    if (lauf.pause){ lauf.gen++; clearTimeout(lauf.uhr); schweigen(); aufdecken(false); }
     else naechster();
   };
   document.getElementById("e-ton").onclick = function(){
@@ -2346,6 +2378,7 @@ function zeigeErklaerung(){
     lauf.gen++;
     clearTimeout(lauf.uhr);
     schweigen();
+    aufdecken(false);
     while (lauf.i < auf.schritte.length){ schrittZeigen(auf.schritte[lauf.i], lauf.i + 1, true); lauf.i++; }
     ende(true);
   };
