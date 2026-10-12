@@ -159,7 +159,7 @@ export const werkzeuge: Werkzeug[] = [
     titel: 'Nullstellen der Taylorpolynome',
     kurz: 'Wohin wandern die komplexen Nullstellen hoher Taylorpolynome von eˣ, cosh x oder 1/(1+x²)?',
     beschreibung:
-      'Zeigt die komplexen Nullstellen der Taylorpolynome von sechs reell nullstellenfreien Funktionen bis Grad 300, vorab in Intervallarithmetik berechnet und damit garantiert richtig. Sichtbar werden die Szegő-Kurve bei eˣ, die Konvergenzkreise nach Jentzsch bei 1/cosh x und 1/(1+x²) und der Satz von Hurwitz bei cosh x. Ein Vergleich mit gewöhnlicher Gleitkommarechnung zeigt, ab welchem Grad naive Nullstellensuche falsche Bilder liefert.',
+      'Zeigt die komplexen Nullstellen der Taylorpolynome von sechs reell nullstellenfreien Funktionen bis Grad 300, vorab in Intervallarithmetik berechnet und damit garantiert richtig. Sichtbar werden die Szegő-Kurve bei eˣ samt der nullstellenfreien Parabel nach Saff und Varga, Szegős Grenzmengen bei cosh x und 2 + sin x, die Konvergenzkreise nach Jentzsch bei 1/cosh x und 1/(1+x²) und der Satz von Hurwitz. Mit Quellenangaben. Ein Vergleich mit gewöhnlicher Gleitkommarechnung zeigt, ab welchem Grad naive Nullstellensuche falsche Bilder liefert.',
     kategorie: 'Darstellung',
     stufe: 'Oberstufe (Vertiefung) – Studium',
     rolle: 'Regie',

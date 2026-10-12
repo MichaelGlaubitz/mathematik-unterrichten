@@ -34,6 +34,7 @@
   .tn-werte dd { margin: 0; font-variant-numeric: tabular-nums; }
   .tn-warn { color: var(--gold); font-weight: 600; }
   .tn-ansicht { margin-top: .9rem; }
+  .tn-quellen { margin: .6rem 0 0; padding-left: 1.2rem; display: grid; gap: .5rem; font-size: .92rem; color: var(--text-leise); }
   .tn-klein { font-size: .8rem; color: var(--text-schwach); margin: .8rem 0 0; }
 </style>
 </head>
@@ -77,6 +78,7 @@
           <label><input type="checkbox" id="tn-z-zert" checked><span class="tn-farbe" style="background:var(--akzent)"></span><span>Nullstellen, zertifiziert</span></label>
           <label><input type="checkbox" id="tn-z-kurve" checked><span class="tn-farbe" style="background:var(--teal);border-radius:2px;height:.3rem"></span><span id="tn-kurve-text">Grenzkurve</span></label>
           <label><input type="checkbox" id="tn-z-f" checked><span class="tn-farbe" style="border:2px solid var(--rot)"></span><span id="tn-f-text">Nullstellen von f</span></label>
+          <label><input type="checkbox" id="tn-z-parabel"><span class="tn-farbe" style="border:2px dashed var(--gruen)"></span><span id="tn-parabel-text">nullstellenfreie Parabel (Saff–Varga)</span></label>
           <label><input type="checkbox" id="tn-z-double"><span class="tn-farbe" style="background:var(--gold)"></span><span>zum Vergleich: Gleitkomma (double)</span></label>
         </div>
       </div>
@@ -86,6 +88,18 @@
       </div>
     </aside>
   </div>
+  <section class="wz-karte wz-abstand" aria-labelledby="tn-quellen-titel">
+    <h2 id="tn-quellen-titel">Quellen</h2>
+    <ul class="tn-quellen">
+      <li><a href="https://ar5iv.labs.arxiv.org/html/math-ph/0605066" rel="noopener">P. Bleher, R. Mallison: Zeros of Sections of Exponential Sums</a> (arXiv math-ph/0605066). Szegős Grenzmengen für eˣ, sin und cos; Verallgemeinerung auf Exponentialsummen wie 2 + sin x.</li>
+      <li><a href="https://arxiv.org/abs/1208.5186" rel="noopener">A. R. Vargas: Zeros of Sections of Some Power Series</a> (Masterarbeit, Dalhousie University, 2012). Überblick über Szegő 1924, Grenzkurven für Exponentialintegrale und Besselfunktionen.</li>
+      <li><a href="https://arxiv.org/html/1503.04262" rel="noopener">A. R. Vargas: Newman–Rivlin asymptotics for partial sums of power series</a> (arXiv 1503.04262). Fehlerfunktions-Asymptotik nahe ζ = 1, nullstellenfreie Parabel nach Saff und Varga.</li>
+      <li><a href="https://arxiv.org/abs/1610.03387v1" rel="noopener">A. R. Vargas: Scaling Limits for Partial Sums of Power Series</a> (arXiv 1610.03387, 2016). Skalierungsgrenzwerte; die Breitenvermutung von Saff und Varga ist teilweise bestätigt.</li>
+      <li><a href="https://emis.dsd.sztaki.hu/journals/ETNA/vol.30.2008/pp128-143.dir/abstr128-143.pdf" rel="noopener">R. S. Varga, A. J. Carpenter, B. W. Lewis: The Dynamical Motion of the Zeros of the Partial Sums of eᶻ</a> (ETNA 30, 2008). Gleichverteilung im Winkel, Abweichung höchstens K · log n.</li>
+      <li><a href="https://www.math.kent.edu/~varga/pub/abstract_1.html" rel="noopener">R. S. Varga: Semi-infinite and infinite strips free of zeros</a> (Rend. Sem. Mat. Torino 11, 1952). Nullstellenfreier Streifen für sin, cos und ihre Teilsummen.</li>
+    </ul>
+    <p class="tn-klein">Die Übertragung von Szegős cos-Ergebnis auf cosh (über cosh z = cos(iz)) und auf 2 + sin x ist hier hergeleitet, nicht wörtlich zitiert. Sie wurde an den berechneten Nullstellen geprüft: Bei Grad 300 liegt jede höchstens 0,036 von der eingezeichneten Menge entfernt, so nah wie bei eˣ.</p>
+  </section>
 </main>
 
 <script>
@@ -112,13 +126,18 @@ function szegoe(N) {
 }
 const SZ = szegoe(1600);
 function wurzel(x, y) { const r = Math.hypot(x, y); return [Math.sqrt((r + x) / 2), (y < 0 ? -1 : 1) * Math.sqrt(Math.max(0, (r - x) / 2))]; }
+// cosh: rechte Hälfte der Szegő-Kurve, ihr Spiegelbild am Ursprung, Strecke auf der imaginären Achse bis ±i/e
+const SZ_RECHTS = SZ.filter(([x]) => x >= 0);
+const COSH = [SZ_RECHTS, SZ_RECHTS.map(([x, y]) => [-x, -y]), [[0, -1 / Math.E], [0, 1 / Math.E]]];
+// sin (und 2 + sin): dieselbe Menge, um −90° gedreht (ζ ↦ −iζ)
+const SIN = COSH.map(C => C.map(([x, y]) => [y, -x]));
 const GAUSS = (() => { const A = [], B = []; for (const [x, y] of SZ) { const [a, b] = wurzel(-x, -y); A.push([a, b]); B.push([-a, -b]); } return [A, B]; })();
 const kreis = R => { const p = []; for (let i = 0; i <= 720; i++) { const t = 2 * Math.PI * i / 720; p.push([R * Math.cos(t), R * Math.sin(t)]); } return p; };
 
 const F = {
   exp: { name: 'eˣ', skala: n => n, cn: 'n',
     formel: 's<sub>n</sub>(z) = Σ<sub>k≤n</sub> z<sup>k</sup>/k!',
-    text: 'eˣ hat in ganz ℂ keine Nullstelle. Deshalb laufen die Nullstellen von s<sub>n</sub> ins Unendliche, ungefähr linear mit n. Teilt man durch n, häufen sie sich auf der Szegő-Kurve |ζ·e<sup>1−ζ</sup>| = 1 mit |ζ| ≤ 1 (Szegő 1924). Nahe der Spitze bei ζ = 1 ist die Konvergenz am langsamsten.',
+    text: 'eˣ hat in ganz ℂ keine Nullstelle. Deshalb laufen die Nullstellen von s<sub>n</sub> ins Unendliche, ungefähr linear mit n. Teilt man durch n, häufen sie sich auf der Szegő-Kurve |ζ·e<sup>1−ζ</sup>| = 1 mit |ζ| ≤ 1 (Szegő 1924). Nahe der Spitze bei ζ = 1 ist die Konvergenz am langsamsten; das erklärt die Asymptotik von Newman und Rivlin. Saff und Varga haben gezeigt, dass kein s<sub>n</sub> eine Nullstelle in der Parabel y² ≤ 4(x+1), x > −1 hat (Schalter „Parabel“).',
     kurven: () => [SZ], kurveText: 'Szegő-Kurve', f: null, fText: 'Nullstellen von f: keine' },
   gauss: { name: 'e<sup>−x²</sup>', skala: n => Math.sqrt(n / 2), cn: '√(n/2)',
     formel: 's<sub>n</sub>(z) = Σ<sub>k≤n/2</sub> (−z²)<sup>k</sup>/k!',
@@ -126,12 +145,12 @@ const F = {
     kurven: () => GAUSS, kurveText: 'Bild der Szegő-Kurve unter ζ ↦ √(−ζ)', f: null, fText: 'Nullstellen von f: keine' },
   cosh: { name: 'cosh x', skala: n => n, cn: 'n',
     formel: 's<sub>n</sub>(z) = Σ<sub>2k≤n</sub> z<sup>2k</sup>/(2k)!',
-    text: 'Reell nullstellenfrei, komplex aber nicht: cosh hat die Nullstellen iπ(k+½) auf der imaginären Achse. In der ungeskalierten Ansicht zeigt sich der Satz von Hurwitz: Nahe dem Ursprung rücken die Nullstellen von s<sub>n</sub> auf die von cosh. Für die skalierte Ansicht ist keine bewiesene Grenzkurve eingezeichnet.',
-    kurven: null, f: k => [0, Math.PI * (k + .5)], fArt: 'null', fText: 'Nullstellen von cosh: iπ(k+½)' },
+    text: 'Reell nullstellenfrei, komplex aber nicht: cosh hat die Nullstellen iπ(k+½) auf der imaginären Achse. Szegő hat 1924 die Grenzmenge für cos bestimmt; wegen cosh z = cos(iz) gilt sie hier um 90° gedreht: die rechte Hälfte der Szegő-Kurve, ihr Spiegelbild am Ursprung und die Strecke von −i/e bis i/e. Auf der Strecke sitzen die echten Nullstellen, die nach Hurwitz gegen iπ(k+½) gehen (ungeskalierte Ansicht); die Nullstellen auf den Bögen laufen ins Unendliche.',
+    kurven: () => COSH, kurveText: 'Grenzmenge nach Szegő (gedreht)', f: k => [0, Math.PI * (k + .5)], fArt: 'null', fText: 'Nullstellen von cosh: iπ(k+½)' },
   zweisin: { name: '2 + sin x', skala: n => n, cn: 'n',
     formel: 's<sub>n</sub>(z) = 2 + Σ<sub>2k+1≤n</sub> (−1)<sup>k</sup> z<sup>2k+1</sup>/(2k+1)!',
-    text: 'Auf ℝ gilt 2 + sin x ≥ 1. Die komplexen Nullstellen liegen bei −π/2 + 2πk ± i·ln(2+√3). Bei geradem n fällt der höchste Term weg, s<sub>n</sub> hat dann nur n−1 Nullstellen. Hurwitz gilt ungeskaliert wie bei cosh; eine Grenzkurve ist nicht eingezeichnet.',
-    kurven: null, f: k => [-Math.PI / 2 + 2 * Math.PI * k, L32], fArt: 'null', fText: 'Nullstellen von f: −π/2 + 2πk ± i·ln(2+√3)' },
+    text: 'Auf ℝ gilt 2 + sin x ≥ 1. Die komplexen Nullstellen liegen bei −π/2 + 2πk ± i·ln(2+√3). Die Konstante 2 wächst nicht mit n; skaliert bleibt deshalb Szegős Grenzmenge für sin: zwei Bögen und die reelle Strecke [−1/e, 1/e], auf die die echten Nullstellen zusammenrücken. Allgemein behandeln Bleher und Mallison solche Exponentialsummen. Bei geradem n fällt der höchste Term weg, s<sub>n</sub> hat dann nur n−1 Nullstellen.',
+    kurven: () => SIN, kurveText: 'Grenzmenge nach Szegő für sin', f: k => [-Math.PI / 2 + 2 * Math.PI * k, L32], fArt: 'null', fText: 'Nullstellen von f: −π/2 + 2πk ± i·ln(2+√3)' },
   sech: { name: '1 / cosh x', skala: () => 1, cn: '1',
     formel: 's<sub>n</sub>(z) = Σ<sub>2k≤n</sub> E<sub>2k</sub> z<sup>2k</sup>/(2k)!',
     text: 'Die Koeffizienten sind Eulerzahlen. Die Pole bei ±iπ/2 begrenzen den Konvergenzradius auf π/2. Nach dem Satz von Jentzsch (1916) ist jeder Punkt des Konvergenzkreises Häufungspunkt von Nullstellen der Teilsummen. Eine Skalierung ist hier nicht nötig.',
@@ -164,7 +183,7 @@ $('tn-roh').addEventListener('click', () => { zustand.ansicht = 'roh'; zoom = 1;
 $('tn-plus').addEventListener('click', () => { zoom *= 1.25; zeichnen(); });
 $('tn-minus').addEventListener('click', () => { zoom /= 1.25; zeichnen(); });
 $('tn-reset').addEventListener('click', () => { zoom = 1; zeichnen(); });
-for (const id of ['tn-z-zert', 'tn-z-kurve', 'tn-z-f', 'tn-z-double']) $(id).addEventListener('change', zeichnen);
+for (const id of ['tn-z-zert', 'tn-z-kurve', 'tn-z-f', 'tn-z-parabel', 'tn-z-double']) $(id).addEventListener('change', zeichnen);
 document.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
@@ -253,10 +272,21 @@ function zeichnen() {
     for (const C of f.kurven()) { ctx.beginPath(); C.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))); ctx.stroke(); }
     ctx.globalAlpha = 1;
   }
+  if ($('tn-z-parabel').checked && zustand.f === 'exp') {
+    // Rand der Parabel y² = 4(x+1); in der skalierten Ansicht ζ = z/n
+    const t = roh ? 1 : n, P = [];
+    const ymax = Math.max(Math.abs(B[2]), Math.abs(B[3])) * t;
+    for (let i = 0; i <= 400; i++) { const y = -ymax + 2 * ymax * i / 400; P.push([(y * y / 4 - 1) / t, y / t]); }
+    ctx.beginPath(); P.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)));
+    ctx.lineTo(W, Y(P[P.length - 1][1])); ctx.lineTo(W, Y(P[0][1])); ctx.closePath();
+    ctx.fillStyle = farbe('--gruen'); ctx.globalAlpha = .08; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.beginPath(); P.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)));
+    ctx.strokeStyle = farbe('--gruen'); ctx.lineWidth = beamer ? 2.5 : 1.8; ctx.setLineDash([6, 5]); ctx.stroke(); ctx.setLineDash([]);
+  }
   if ($('tn-z-f').checked && f.f) {
     const teiler = roh || ohneSkala(f) ? 1 : f.skala(n);
     ctx.strokeStyle = farbe('--rot'); ctx.lineWidth = 2;
-    const r = beamer ? 8 : 6;
+    const r = (teiler === 1 ? 1 : .5) * (beamer ? 8 : 6);
     for (let k = -80; k <= 80; k++) {
       const p = f.f(k); if (!p) continue;
       for (const [px, py] of [[p[0], p[1]], [p[0], -p[1]]]) {
@@ -303,6 +333,8 @@ function aktualisieren() {
   $('tn-text').innerHTML = f.text;
   $('tn-kurve-text').textContent = f.kurven ? f.kurveText + (zustand.ansicht === 'roh' && !ohneSkala(f) ? ' (nur skaliert)' : '') : 'Grenzkurve: keine eingezeichnet';
   $('tn-z-kurve').disabled = !f.kurven;
+  $('tn-z-parabel').disabled = zustand.f !== 'exp';
+  $('tn-parabel-text').textContent = zustand.f === 'exp' ? 'nullstellenfreie Parabel (Saff–Varga)' : 'nullstellenfreie Parabel: nur bei eˣ';
   $('tn-f-text').textContent = f.fText; $('tn-z-f').disabled = !f.f;
   const cn = ohneSkala(f) ? '1' : f.cn + ' = ' + WZ.zahl(f.skala(n), 3);
   const abw = d.dev;
