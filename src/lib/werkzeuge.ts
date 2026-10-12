@@ -81,6 +81,18 @@ export const werkzeuge: Werkzeug[] = [
     hintergrund: { text: 'Methode: Think – Pair – Share', href: '/methoden#think-pair-share' },
   },
   {
+    slug: 'lautstaerke-warner',
+    titel: 'Lautstärke-Warner',
+    kurz: 'Der Geräuschpegel als großer Balken – rot mit Warnton, wenn es zu laut wird.',
+    beschreibung:
+      'Misst über das Mikrofon des Rechners den Geräuschpegel im Raum und zeigt ihn als Balken mit einstellbarer Schwelle. Liegt der Pegel drei Messungen hintereinander darüber, wird der Bildschirm rot und ein Warnton erklingt, bis es wieder leiser ist. So sieht die Klasse selbst, wann Arbeitslautstärke in Lärm kippt. Das Mikrofon wird nur gemessen, nicht aufgenommen; nichts verlässt den Rechner.',
+    kategorie: 'Unterrichtsablauf',
+    stufe: 'alle',
+    rolle: 'Regie',
+    medium: 'Beamer',
+    schlagwoerter: ['lautstärke', 'lärm', 'lärmampel', 'geräuschpegel', 'mikrofon', 'arbeitslautstärke', 'klassenführung'],
+  },
+  {
     slug: 'zufalls-gruppen',
     titel: 'Zufallsgruppen & Aufrufen',
     kurz: 'Sichtbar zufällige Gruppen und faires Aufrufen ohne Meldefinger.',
