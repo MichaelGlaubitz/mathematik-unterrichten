@@ -155,6 +155,18 @@ export const werkzeuge: Werkzeug[] = [
     hintergrund: { text: 'Variation Theory', href: '/blog/variation-theory-kurz-erklaert' },
   },
   {
+    slug: 'taylor-nullstellen',
+    titel: 'Nullstellen der Taylorpolynome',
+    kurz: 'Wohin wandern die komplexen Nullstellen hoher Taylorpolynome von eˣ, cosh x oder 1/(1+x²)?',
+    beschreibung:
+      'Zeigt die komplexen Nullstellen der Taylorpolynome von sechs reell nullstellenfreien Funktionen bis Grad 300, vorab in Intervallarithmetik berechnet und damit garantiert richtig. Sichtbar werden die Szegő-Kurve bei eˣ, die Konvergenzkreise nach Jentzsch bei 1/cosh x und 1/(1+x²) und der Satz von Hurwitz bei cosh x. Ein Vergleich mit gewöhnlicher Gleitkommarechnung zeigt, ab welchem Grad naive Nullstellensuche falsche Bilder liefert.',
+    kategorie: 'Darstellung',
+    stufe: 'Oberstufe (Vertiefung) – Studium',
+    rolle: 'Regie',
+    medium: 'Beamer',
+    schlagwoerter: ['taylorpolynom', 'nullstellen', 'komplexe zahlen', 'szegő-kurve', 'exponentialfunktion', 'potenzreihe', 'konvergenzradius', 'numerik'],
+  },
+  {
     slug: 'bruchstreifen',
     titel: 'Bruchstreifen',
     kurz: 'Brüche als Streifen, Kreis und Punkt auf dem Zahlenstrahl – nebeneinander.',
