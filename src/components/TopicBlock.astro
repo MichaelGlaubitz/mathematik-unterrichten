@@ -2,6 +2,7 @@
 import AlgebraWbThemenKurz from './AlgebraWbThemenKurz.astro';
 import BruchDezimalProzentThemenKarten from './BruchDezimalProzentThemenKarten.astro';
 import UnterthemenClusterGrid from './UnterthemenClusterGrid.astro';
+import MaterialHinweis from './MaterialHinweis.astro';
 // Themenblock fuer die /themen-Uebersicht.
 // View-Modell wird in der Seite vorberechnet (siehe themen/index.astro).
 export interface TopicBlockProps {
@@ -113,6 +114,8 @@ const wbThemaAutoHref = generatorUebungHref ? `${generatorUebungHref}?muAuto=1` 
         <span class="link-arrow whitespace-nowrap text-sm">Zum Verlauf </span>
       </a>
     )}
+
+    <MaterialHinweis slug={slug} />
 
     {wbKompakt && whiteboard.length > 0 && (
       <a

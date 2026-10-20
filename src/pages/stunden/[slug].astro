@@ -2,6 +2,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { abstimmungsLink } from '../../lib/abstimmung';
+import MaterialHinweis from '../../components/MaterialHinweis.astro';
+import { themaSlug } from '../../lib/material';
 
 export async function getStaticPaths() {
   const stunden = await getCollection('stunden', ({ data }) => !data.entwurf);
@@ -69,6 +71,8 @@ const gesamt = d.phasen.reduce((summe, p) => summe + p.dauer, 0);
         <p class="text-sm leading-relaxed text-ink-800 dark:text-ink-100">{d.stundenziel}</p>
       </aside>
     </header>
+
+    <MaterialHinweis slug={themaSlug(d.thema)} />
 
     <!-- Vorbereitung -->
     <section class="mb-10 grid gap-5 sm:grid-cols-2">

@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { materialien, type Material } from '../lib/material';
+
+// Drei Reihen, in dieser Reihenfolge; jede mit einem Satz, was sie von gewöhnlichem Material unterscheidet.
+const reihen: { name: Material['reihe']; text: string }[] = [
+  { name: 'Echter Fall', text: 'Kontexte, in denen die Mathematik wirklich das Werkzeug ist – mit belegten Sachdaten. Was für die Aufgaben erfunden ist, steht im Lehrkraft-PDF.' },
+  { name: 'KLAR-Diagnose', text: 'Erst sichtbar machen, was die Klasse schon kann. Jede falsche Antwort steht für einen bestimmten Denkfehler, die Klassenübersicht nennt das Gegenmittel.' },
+  { name: 'Üben', text: 'Grundfertigkeiten in Aufgabenketten, in denen sich von Aufgabe zu Aufgabe genau eine Sache ändert.' },
+];
+
+const gemeinsam = [
+  { titel: 'Offline und ohne Konto', text: 'Eine einzige HTML-Datei. Sie läuft in jedem aktuellen Browser, lädt nichts nach und braucht keine Anmeldung.' },
+  { titel: 'Keine Daten verlassen das Gerät', text: 'Lernbericht und Klassenübersicht entstehen im Browser. Die Lernenden geben nur einen kurzen Code ab, ein Kürzel genügt.' },
+  { titel: 'Hilfe statt Raten', text: 'Fehler bekommen eine Rückmeldung, die sie beim Namen nennt. „Ich komme nicht weiter“ führt in Mini-Schritten zur Lösung.' },
+  { titel: 'Mit Lehrkraft-PDF', text: 'Ablauf nach dem KLAR-Konzept, Erwartungshorizont, Denkfehler mit Gegenmittel, Quellen. Auf dem iPad im Querformat geprüft.' },
+];
+---
+
+<BaseLayout
+  sourceFile="src/pages/material.astro"
+  title="Interaktives Material"
+  beschreibung="Interaktive HTML-Materialien für den Mathematikunterricht: echte Fälle, KLAR-Diagnosestunden und Übungswerkstätten für iPad und PC – offline, ohne Konto, mit Lehrkraft-PDF."
+>
+  <section class="container-wide pt-12 pb-8">
+    <p class="text-sm font-semibold uppercase tracking-wide text-accent-700 dark:text-accent-100">Für iPad und PC</p>
+    <h1 class="mt-2 font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-ink-900 dark:text-ink-50">
+      Material, das sich <span class="bg-gradient-to-r from-accent-600 via-teal-600 to-violet-600 bg-clip-text text-transparent dark:from-sky-300 dark:via-teal-200 dark:to-fuchsia-300">selbst trägt</span>
+    </h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 dark:text-ink-300">
+      Interaktive Dateien, die eine Klasse allein durcharbeiten kann – mit Diagnose, gestufter Hilfe und einer
+      Klassenübersicht für Sie. Gebaut nach denselben Grundsätzen wie alles auf dieser Seite, aber als fertiges Paket.
+    </p>
+  </section>
+
+  <section class="container-wide pb-10">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {gemeinsam.map((g) => (
+        <div class="rounded-xl border border-ink-200/90 bg-surface/70 p-5 dark:border-white/[0.08] dark:bg-white/[0.02]">
+          <h2 class="font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">{g.titel}</h2>
+          <p class="mt-1.5 text-sm leading-relaxed text-ink-700 dark:text-ink-300">{g.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {reihen.map((r) => (
+    <section class="container-wide pb-12" id={r.name === 'Echter Fall' ? 'faelle' : r.name === 'KLAR-Diagnose' ? 'diagnose' : 'ueben'} style="scroll-margin-top: 5rem">
+      <h2 class="font-serif text-2xl font-semibold text-ink-900 dark:text-ink-50">{r.name}</h2>
+      <p class="mt-2 max-w-2xl text-ink-700 dark:text-ink-300">{r.text}</p>
+      <div class="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {materialien.filter((m) => m.reihe === r.name).map((m) => (
+          <article class="flex flex-col overflow-hidden rounded-xl border border-ink-200/90 bg-surface/85 shadow-sm mu-dark-glass-panel" id={m.id}>
+            {m.trailer ? (
+              <video
+                class="aspect-video w-full bg-ink-900 object-cover"
+                src={m.trailer}
+                poster={`/material/${m.id}-poster.jpg`}
+                controls
+                preload="none"
+                playsinline
+                aria-label={`Trailer zu „${m.titel}“`}
+              ></video>
+            ) : (
+              <img
+                src={`/material/${m.id}-band.jpg`}
+                alt={`Titelbild „${m.titel}“`}
+                width="1200"
+                height="675"
+                loading="lazy"
+                decoding="async"
+                class="aspect-video w-full object-cover"
+              />
+            )}
+            <div class="flex flex-1 flex-col p-5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="badge-accent">{m.klasse}</span>
+                <span class="text-xs text-ink-500 dark:text-ink-400">{m.thema}</span>
+              </div>
+              <h3 class="mt-3 font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">{m.titel}</h3>
+              <p class="mt-2 leading-relaxed text-ink-700 dark:text-ink-300">{m.kurz}</p>
+              <ul class="mt-3 flex-1 space-y-1 text-sm text-ink-700 dark:text-ink-300">
+                {m.merkmale.map((x) => <li class="flex gap-2"><span aria-hidden="true" class="text-teal-600 dark:text-teal-300">✓</span>{x}</li>)}
+              </ul>
+              <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+                <span class="font-semibold text-ink-900 dark:text-ink-50">{m.preis}</span>
+                {m.eduki ? (
+                  <a href={m.eduki} target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-accent-600 to-accent-500 px-4 py-2 text-sm font-medium text-white shadow-md transition hover:brightness-105 dark:from-sky-500 dark:to-teal-400">
+                    Auf eduki ansehen <span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <span class="rounded-md border border-ink-200 px-3 py-1.5 text-sm text-ink-500 dark:border-white/15 dark:text-ink-400">Erscheint in Kürze auf eduki</span>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <section class="container-wide pb-20">
+    <div class="flex flex-col gap-6 rounded-2xl border border-ink-200/90 bg-surface/80 p-6 sm:flex-row sm:items-center sm:p-8 mu-dark-glass-panel">
+      <img
+        src="/michael-glaubitz-avatar.jpg"
+        alt="Dr. Michael Glaubitz"
+        width="400"
+        height="400"
+        loading="lazy"
+        decoding="async"
+        class="h-24 w-24 flex-none rounded-full object-cover shadow-md ring-1 ring-ink-200/80 dark:ring-white/10"
+      />
+      <div>
+        <p class="font-serif text-xl font-semibold text-ink-900 dark:text-ink-50">Wie das Material entsteht</p>
+        <p class="mt-2 leading-relaxed text-ink-700 dark:text-ink-300">
+          Programm und Texte entstehen mit KI-Unterstützung (Claude); Sachdaten, Rechnungen, Aufgabenfolgen und Rückmeldungen
+          prüfe ich selbst – aus über 30 Jahren Unterricht und als Fachleiter Mathematik. Jede Datei wird vor der Veröffentlichung
+          mit echten Klicks durchgespielt. Anders als die übrigen Inhalte dieser Seite stehen diese Materialien nicht unter
+          CC BY-SA; sie sind über eduki erhältlich.
+        </p>
+        <p class="mt-3 text-sm"><a href="/konzept" class="link-arrow">Das KLAR-Konzept </a></p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

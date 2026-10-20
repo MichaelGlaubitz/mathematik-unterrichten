@@ -1,0 +1,31 @@
+---
+/**
+ * Hinweis auf interaktives Material zum Thema (Themen- und Stundenseiten).
+ * Zeigt nichts, wenn es zum Thema kein Material gibt.
+ */
+import { materialZuThema } from '../lib/material';
+
+const { slug } = Astro.props as { slug: string };
+const liste = materialZuThema(slug);
+---
+
+{liste.length > 0 && (
+  <a
+    href="/material"
+    class="mb-6 flex flex-wrap items-start gap-x-3 gap-y-1 rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 transition hover:border-teal-400 dark:border-teal-400/25 dark:bg-teal-400/[0.07] dark:hover:border-teal-400/50"
+  >
+    <span aria-hidden="true" class="text-lg leading-none">📱</span>
+    <span class="min-w-0 flex-1">
+      <span class="block text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">
+        Interaktives Material für iPad und PC
+      </span>
+      <span class="mt-0.5 block font-serif text-lg font-semibold text-ink-900 dark:text-ink-50">
+        {liste.map((m) => m.titel).join(' · ')}
+      </span>
+      <span class="mt-1 block text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+        {liste.length === 1 ? liste[0].kurz : 'Offline, ohne Konto, mit Klassenübersicht und Lehrkraft-PDF.'}
+      </span>
+    </span>
+    <span class="link-arrow whitespace-nowrap text-sm">Zum Material </span>
+  </a>
+)}
