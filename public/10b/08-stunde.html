@@ -146,6 +146,11 @@ details.frei>summary{color:var(--gruen)}
 .zwerkzeug .knopf:disabled{opacity:.38; cursor:default}
 .zwerkzeug .knopf.nurbild{min-width:44px; justify-content:center; padding:.3rem}
 .zwerkzeug .knopf.zform{min-width:44px; justify-content:center; font-size:1.05rem}
+/* Radiusfeld des Kreises: nur sichtbar, solange der Kreis gewaehlt ist. */
+.zwerkzeug .zradius{display:inline-flex; align-items:center; gap:.3rem; min-height:44px;
+  padding:0 .45rem; font-size:.85rem; border:1px solid var(--linie); border-radius:8px; background:#fff}
+.zwerkzeug .zradius input{width:4.2em; min-height:34px; font:inherit; font-size:.95rem;
+  padding:.15rem .35rem; border:1px solid #c3ccd4; border-radius:6px; text-align:right}
 .zwerkzeug .ztrenn{display:inline-block; width:1px; height:1.7rem; background:var(--linie); margin:0 .25rem}
 .zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem; width:100%}
 /* Farbknopf: der Farbfleck IST die Beschriftung, ein Wort braucht er nicht. */
@@ -1982,7 +1987,8 @@ function chipMalen() {
 }
 
 /* ---------- Zeichenfelder (Touch / Stift) – Mathematik-Werkzeuge ----------
-   Werkzeuge: Freihand · Punkt (Kreuz/Punkt) · Strecke · Gerade durch zwei Punkte.
+   Werkzeuge: Freihand · Punkt (Kreuz/Punkt) · Strecke · Gerade durch zwei Punkte
+   · Kreis (Mittelpunkt und Rand, auf Wunsch mit vorgegebenem Radius).
    Hintergrund: Punktraster · Koordinatengitter (blassgrau) · Koordinatensystem
    mit setzbarem Ursprung und skalierbaren Achsen. Dazu Einrasten auf Gitterpunkte,
    Rückgängig und Wiederherstellen.
@@ -1992,6 +1998,7 @@ function chipMalen() {
      {art:"punkt",   farbe, form:"kreuz"|"punkt", p:{x,y}}
      {art:"strecke", farbe, breite, a:{x,y}, b:{x,y}}
      {art:"gerade",  farbe, breite, a:{x,y}, b:{x,y}}   (über das Feld verlängert)
+     {art:"kreis",   farbe, breite, m:{x,y}, r}          (r in Werten der x-Achse)
 
    ALLE Koordinaten sind KOORDINATENWERTE, keine Pixel: (16 | 120) heißt
    16 auf der Rechtsachse und 120 auf der Hochachse – gleich wie die Achsen
@@ -2245,7 +2252,9 @@ function aufbauZeichnung(box) {
            + '<circle cx="15.5" cy="4.5" r="2.2" fill="currentColor" stroke="none"/>',
     gerade:  '<path d="M2 15 18 5"/><path d="M2 15l3.4-.6M2 15l.6-3.4"/>'
            + '<path d="M18 5l-3.4.6M18 5l-.6 3.4"/>',
-    duenn:   '<path d="M3 10h14" stroke-width="1.4"/>',
+    kreis:   '<circle cx="10" cy="10" r="7.4"/><path d="M10 10l5.2-5.2" stroke-width="1.5"/>'
+           + '<circle cx="10" cy="10" r="1.7" fill="currentColor" stroke="none"/>',
+    duenn:  '<path d="M3 10h14" stroke-width="1.4"/>',
     dick:    '<path d="M3 10h14" stroke-width="4.6"/>',
     rasterP: '<g fill="currentColor" stroke="none">'
            + '<circle cx="5" cy="5" r="1.3"/><circle cx="10" cy="5" r="1.3"/><circle cx="15" cy="5" r="1.3"/>'
@@ -2315,6 +2324,9 @@ function aufbauZeichnung(box) {
     : knopf("strecke", "Strecke", () => setzeWerkzeug("strecke"), "w" + zid, "Strecke von Punkt zu Punkt");
   const kGerade  = schaltung ? null
     : knopf("gerade", "Gerade", () => setzeWerkzeug("gerade"), "w" + zid, "Gerade durch zwei Punkte");
+  const kKreis   = schaltung ? null
+    : knopf("kreis", "Kreis", () => setzeWerkzeug("kreis"), "w" + zid,
+        "Kreis: Mittelpunkt aufsetzen und bis zum Rand ziehen – oder Mittelpunkt und Randpunkt antippen");
 
   /* --- Werkzeuge der Schaltskizze -------------------------------------- */
   let kLeitung = null, kZeiger = null, kDrehen = null, kEntfernen = null;
@@ -2351,6 +2363,43 @@ function aufbauZeichnung(box) {
     kForm.title = t; kForm.setAttribute("aria-label", t);
   }, null, "Punkte als Kreuz — tippen für Punkt");
   if (kForm) kForm.classList.add("zform");
+
+  /* Radius vorgeben: nur sichtbar, solange der Kreis gewaehlt ist, und nur
+     auf Gitter oder Achsen - auf dem Punktraster gibt es keine Einheit, in
+     der eine Zahl etwas bedeuten wuerde. Leer heisst: mit dem Finger ziehen.
+     Das Feld bekommt bewusst KEIN type-Attribut. Sonst faende es die Seite
+     ueber input[type=text] als Antwortfeld - mit Sperrpruefung, Einfuege-
+     Erfassung und Eintrag im gespeicherten Zustand. */
+  let zRadius = null, rEingabe = null, rEinheit = null;
+  if (!schaltung) {
+    zRadius = document.createElement("label");
+    zRadius.className = "zradius";
+    zRadius.title = "Radius vorgeben – leer lassen, um den Kreis aufzuziehen";
+    zRadius.innerHTML = "<span>r =</span>";
+    rEingabe = document.createElement("input");
+    rEingabe.inputMode = "decimal";
+    rEingabe.autocomplete = "off";
+    rEingabe.placeholder = "frei";
+    rEingabe.setAttribute("aria-label",
+      "Radius vorgeben – leer lassen, um den Kreis mit dem Finger aufzuziehen");
+    zRadius.appendChild(rEingabe);
+    rEinheit = document.createElement("span");
+    zRadius.appendChild(rEinheit);
+    wz.appendChild(zRadius);
+  }
+  function radiusFeldZeigen() {
+    if (!zRadius) return;
+    zRadius.style.display = (z.werkzeug === "kreis" && z.grund !== "punkte") ? "" : "none";
+    rEinheit.textContent = z.grund === "gitter" ? "Kästchen" : "";
+  }
+  /* Der vorgegebene Radius in Werten der x-Achse - oder null fuer "ziehen".
+     Auf dem Gitter wird in Kaestchen gezaehlt, auf den Achsen in Werten. */
+  function radiusAusFeld() {
+    if (!rEingabe || zRadius.style.display === "none") return null;
+    const v = parseFloat((rEingabe.value || "").replace(",", "."));
+    if (!isFinite(v) || v <= 0) return null;
+    return z.grund === "gitter" ? v * z.sx : v;
+  }
 
   trenner();
   const kDuenn = knopf("duenn", "", () => z.breite = 2, "b" + zid, "dünner Strich");
@@ -2533,9 +2582,10 @@ function aufbauZeichnung(box) {
   const ctx = cv.getContext("2d");
 
   function setzeWerkzeug(w) {
-    z.werkzeug = w; z.warte = null;
+    z.werkzeug = w; z.warte = null; z.vorschau = null; z.kreisDruck = false;
     if (w !== "ursprung") kNull.classList.remove("aktivw");
     if (kForm) kForm.style.display = (w === "punkt") ? "" : "none";
+    radiusFeldZeigen();
     /* Ein anderes Werkzeug hebt die Bauteilwahl auf - sonst leuchtete in der
        Palette noch ein Teil, das gar nicht mehr gesetzt wird. */
     if (w !== "bauteil" && z.palette)
@@ -2561,6 +2611,7 @@ function aufbauZeichnung(box) {
     /* Ohne Achsen gibt es nichts einzuteilen: Der Knopf verschwindet, und ein
        offenes Feld klappt zu - sonst stuenden dort Regler ohne Wirkung. */
     achsFeldZeigen(g !== "punkte");
+    radiusFeldZeigen();
     protokolliere("zeichnung", zid, "Hintergrund gewechselt: " +
       (g === "achsen" ? "Koordinatensystem" : g === "gitter" ? "Koordinatengitter" : "Punktraster"));
     malen();
@@ -2633,7 +2684,10 @@ function aufbauZeichnung(box) {
     if (z.grund === "punkte") malPunktraster();
     else malGitter(z.grund === "achsen");
     ctx.lineCap = "round"; ctx.lineJoin = "round";
-    z.elemente.forEach(malElement);
+    /* NICHT forEach(malElement): forEach reicht den Index als zweites
+       Argument durch, und malElement liest ihn als "blass". Dann erschien
+       jedes Element ausser dem ersten mit 55 % Deckkraft. */
+    z.elemente.forEach(el => malElement(el));
     if (z.vorschau) malElement(z.vorschau, true);
     if (z.warte) {                                  /* gesetzter erster Punkt */
       ctx.fillStyle = "#ef6c00";
@@ -2657,9 +2711,19 @@ function aufbauZeichnung(box) {
       }
       ctx.restore();
     }
+    /* Beim Kreis sagt die Statuszeile, was als Naechstes kommt, und waehrend
+       des Aufziehens den Radius. Auf dem Touchscreen gibt es keinen Tooltip -
+       ohne diesen Satz fände niemand heraus, dass man auch ziehen kann. */
+    let kreisZeile = "";
+    if (z.werkzeug === "kreis") {
+      if (z.vorschau && z.vorschau.art === "kreis")
+        kreisZeile = z.grund === "punkte" ? "" : " · r " + radiusAnzeige(z.vorschau.r);
+      else if (z.warte) kreisZeile = " · jetzt den Rand antippen oder hinziehen";
+      else if (!(z.letzterPunkt && z.grund === "achsen")) kreisZeile = " · Mittelpunkt antippen";
+    }
     status.textContent = z.elemente.length + (z.elemente.length === 1 ? " Element" : " Elemente")
       + (z.papierkorb.length ? " · " + z.papierkorb.length + " zurückgenommen" : "")
-      + (z.letzterPunkt && z.grund === "achsen" ? " · zuletzt " + z.letzterPunkt : "");
+      + (kreisZeile || (z.letzterPunkt && z.grund === "achsen" ? " · zuletzt " + z.letzterPunkt : ""));
     kZurueck.disabled = !z.elemente.length;
     kVor.disabled = !z.papierkorb.length;
   }
@@ -2765,6 +2829,25 @@ function aufbauZeichnung(box) {
     } else if (el.art === "gerade") {
       const p = geradeRand({ x: gx(el.a.x), y: gy(el.a.y) }, { x: gx(el.b.x), y: gy(el.b.y) });
       if (p) { ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); ctx.lineTo(p[1].x, p[1].y); ctx.stroke(); }
+    } else if (el.art === "kreis") {
+      /* Der Radius haengt an der x-Achse: So bleibt ein Kreis auch dann
+         rund, wenn die Achsen verschieden eingeteilt sind - ein Zirkel auf
+         Papier fragt auch nicht nach der y-Skala. */
+      const mx = gx(el.m.x), my = gy(el.m.y), rp = el.r / z.sx * z.ehx;
+      ctx.beginPath(); ctx.arc(mx, my, rp, 0, 2 * Math.PI); ctx.stroke();
+      /* Der Mittelpunkt bleibt als kleines Kreuz stehen - wie das Einstichloch
+         des Zirkels. Ohne ihn laesst sich die Konstruktion nicht nachpruefen. */
+      const k = 6;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(mx - k, my); ctx.lineTo(mx + k, my);
+      ctx.moveTo(mx, my - k); ctx.lineTo(mx, my + k);
+      ctx.stroke();
+      /* Beim Aufziehen zeigt eine gestrichelte Linie den Radius. */
+      if (blass && el.rand) {
+        ctx.setLineDash([6, 5]);
+        ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(gx(el.rand.x), gy(el.rand.y)); ctx.stroke();
+      }
     } else if (el.art === "leitung") {
       ctx.beginPath();
       el.punkte.forEach((pt, i) => i ? ctx.lineTo(gx(pt.x), gy(pt.y)) : ctx.moveTo(gx(pt.x), gy(pt.y)));
@@ -2908,6 +2991,42 @@ function aufbauZeichnung(box) {
     return "(" + achsZahl(p.x) + " | " + achsZahl(p.y) + ")";
   }
 
+  /* ---------- Kreis ---------- */
+  /* "= 2,5" oder "≈ 1,41": Ein Kreis durch einen schraeg liegenden
+     Gitterpunkt hat einen krummen Radius, und das soll man sehen. */
+  function radiusText(r) {
+    const g = Math.round(r * 100) / 100;
+    return (Math.abs(g - r) < 1e-6 ? "= " : "≈ ") + achsZahl(g);
+  }
+  /* Auf den Achsen in Werten, auf dem Gitter in Kaestchen. */
+  function radiusAnzeige(r) {
+    return z.grund === "gitter" ? radiusText(r / z.sx) + " Kästchen" : radiusText(r);
+  }
+  /* Radius in Werten der x-Achse aus dem Abstand auf dem Schirm. */
+  function radiusZu(m, rand) {
+    return Math.hypot(gx(rand.x) - gx(m.x), gy(rand.y) - gy(m.y)) / z.ehx * z.sx;
+  }
+  function kreisVorschau(rand) {
+    const m = z.warte;
+    if (!m || Math.hypot(gx(rand.x) - gx(m.x), gy(rand.y) - gy(m.y)) < 6) {
+      z.vorschau = null; return;
+    }
+    z.vorschau = { art: "kreis", farbe: z.farbe, breite: z.breite, m: m,
+                   r: radiusZu(m, rand), rand: rand };
+  }
+  function kreisNeu(m, r) {
+    z.warte = null; z.vorschau = null; z.kreisDruck = false;
+    const el = { art: "kreis", farbe: z.farbe, breite: z.breite, m: m, r: +r.toFixed(6) };
+    /* Wie beim Punkt: Mittelpunkt und Radius gehen ins Protokoll, denn genau
+       daran sieht die Lehrkraft, ob die Konstruktion stimmt. */
+    const t = z.grund === "achsen" ? "Kreis um " + wertePaar(m) + " mit r " + radiusText(el.r)
+            : z.grund === "gitter" ? "Kreis mit r " + radiusAnzeige(el.r)
+            : "Kreis gezeichnet";
+    if (z.grund === "achsen") z.letzterPunkt = "Kreis um " + wertePaar(m) + ", r " + radiusText(el.r);
+    neu(el);
+    protokolliere("zeichnung", zid, t);
+  }
+
   cv.addEventListener("pointerdown", e => {
     e.preventDefault();
     try { cv.setPointerCapture(e.pointerId); } catch (x) { }
@@ -2970,6 +3089,25 @@ function aufbauZeichnung(box) {
       }
       return;
     }
+    /* Kreis wie mit dem Zirkel: Mittelpunkt aufsetzen und bis zum Rand
+       ziehen - oder erst den Mittelpunkt antippen und dann den Rand.
+       Festgelegt wird der Kreis erst beim LOSLASSEN, nicht beim Aufsetzen:
+       So laesst sich der Radius auf dem Touchscreen nachstellen, solange der
+       Finger liegt. Bei Strecke und Gerade legt schon das Aufsetzen fest -
+       dort gibt es keinen Radius zu treffen.
+       Steht im Radiusfeld eine Zahl, genuegt ein Tipp auf den Mittelpunkt. */
+    if (z.werkzeug === "kreis") {
+      /* Die Bildschirmtastatur des Radiusfelds soll nicht ueber der
+         Zeichnung stehen bleiben. */
+      if (rEingabe && document.activeElement === rEingabe) rEingabe.blur();
+      const rFest = radiusAusFeld();
+      if (rFest) { kreisNeu(p, rFest); return; }
+      z.kreisDruck = true;
+      z.kreisNeuerMittelpunkt = !z.warte;
+      if (!z.warte) z.warte = p;
+      kreisVorschau(p);
+      malen(); return;
+    }
     /* Strecke und Gerade: erster Klick merkt, zweiter Klick legt fest.
        Der Mindestabstand wird in Pixeln geprüft, damit er von der Skala unabhängig ist. */
     if (!z.warte) { z.warte = p; malen(); return; }
@@ -2993,6 +3131,14 @@ function aufbauZeichnung(box) {
       const p = pos(e);
       z.vorschau = { art: z.werkzeug, farbe: z.farbe, breite: z.breite, a: z.warte, b: p };
       malen();
+    }
+    /* Kreis aufziehen - mit gedruecktem Finger, oder mit der Maus schon
+       beim blossen Hinfahren nach dem ersten Klick. */
+    if (z.warte && z.werkzeug === "kreis") {
+      if (z.kreisDruck) e.preventDefault();
+      kreisVorschau(pos(e));
+      malen();
+      return;
     }
     /* Bauteil unter dem Finger mitziehen. */
     if (z.werkzeug === "zeiger" && z.zieht && z.auswahl) {
@@ -3026,6 +3172,24 @@ function aufbauZeichnung(box) {
       malen();
       return;
     }
+    if (z.werkzeug === "kreis") {
+      /* Nur hingefahren, nicht gedrueckt (Maus verlaesst das Feld): die
+         Vorschau verschwinden lassen, der Mittelpunkt bleibt stehen. */
+      if (!z.kreisDruck) {
+        if (z.vorschau) { z.vorschau = null; malen(); }
+        return;
+      }
+      z.kreisDruck = false;
+      const el = z.vorschau;
+      z.vorschau = null;
+      if (el && el.art === "kreis") { kreisNeu(el.m, el.r); return; }
+      /* Ohne Ziehen losgelassen: Beim ersten Mal ist das der Mittelpunkt -
+         er bleibt orange stehen und wartet auf den Rand. Ein zweiter Tipp auf
+         denselben Mittelpunkt nimmt ihn wieder weg, wie bei der Strecke. */
+      if (!z.kreisNeuerMittelpunkt) z.warte = null;
+      malen();
+      return;
+    }
     if (z.werkzeug === "zeiger") {
       if (z.zieht && z.auswahl) {
         protokolliere("zeichnung", zid,
@@ -3049,6 +3213,11 @@ function aufbauZeichnung(box) {
     if (z.werkzeug === "leitung") {
       z.warte = null; z.letztePos = null; z.vorschau = null; malen(); return;
     }
+    /* Auch kein halber Kreis: Ein abgebrochenes Aufziehen hinterlaesst nichts. */
+    if (z.werkzeug === "kreis") {
+      if (z.kreisDruck && z.kreisNeuerMittelpunkt) z.warte = null;
+      z.kreisDruck = false; z.vorschau = null; malen(); return;
+    }
     fertig();
   });
 
@@ -3061,6 +3230,7 @@ function aufbauZeichnung(box) {
     z.einrasten = (g !== "punkte");
     rastenZeigen();
     achsFeldZeigen(g !== "punkte");
+    radiusFeldZeigen();
   }
 }
 function zeichnungBild(zid) {
