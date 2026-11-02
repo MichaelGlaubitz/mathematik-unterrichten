@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betrag und Koordinatensystem · Mathematik 7b · Lernpfad</title>
+<!--
+  ============================================================================
+  VORLAGE: Lernpfad-Doppelstunde (eine HTML-Datei, offline)
+  ============================================================================
+  Gebaut mit Stundenregie/bau-7b/lernpfad_koordinatensystem.py (7b, S19, Di 03.11.2026). Phasen als
+  <section class="phase" data-titel="..." data-min="..."> ; Reihenfolge im
+  Dokument = Reihenfolge der Stunde; letzte Section ist immer das Lehrerblatt.
+
+  Konventionen, an denen die Mechanik hängt:
+  * Auswertbare Felder: id="..." UND data-label="Klartext" (keine Feldliste).
+  * Messtabellen: <table class="messtabelle" id data-label>, Zeile 2 = <input>.
+  * Musterlösungen: <details class="gesperrt" data-fuer="id1,id2" data-min="40">
+    (Zeichnungen als "zeichnung:zid").
+  * Zeichenfelder: <div class="zeichenfeld" data-zid data-titel data-label data-hoehe>.
+  * Multiple Choice: <div class="mc" id data-label> + mc(...) im Skript + .rueck.
+  WEGE (neu):
+  * Diagnose: sechs Fragen in der Konstante DIAGNOSE (3 x "voraus", 3 x "kern").
+    Vorschlag: höchstens 1 von 3 "voraus" richtig -> auffrischen;
+    sonst alle 3 "kern" richtig -> vertiefen;
+    sonst standard. Schüler dürfen abweichen; beides wird protokolliert.
+  * Wegabhängige Blöcke: data-pfad="auffrischen" | "standard" | "vertiefen"
+    oder Kommaliste ("standard,vertiefen"). Ohne data-pfad = für alle.
+    Eine ID darf nur EINMAL vorkommen – geteilte Teile mit Kommaliste markieren,
+    nicht kopieren.
+  * Gestufte Hilfen: <div class="hilfen" id="h-xyz" data-feld="t-xyz">
+    <details class="hilfe"><summary>Hilfe 1 · …</summary>…</details> …</div>
+    Stufe k öffnet sich erst nach Stufe k-1; jedes Öffnen wird mit dem
+    Feldstand protokolliert. Hilfen sind KEINE Musterlösung.
+  KEINE externen Skripte, KEINE Bibliotheken, KEIN localStorage ohne try/catch.
+  ============================================================================
+-->
+<style>
+
+:root{
+  --blau:#0b5aa0; --blau-hell:#e8f1f9; --blau-mittel:#8fbde0;
+  --rot:#c62828; --gruen:#2e7d32; --orange:#ef6c00;
+  --grau:#f4f6f8; --linie:#d3dae0; --text:#1a2229;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text); background:#fff; line-height:1.55; font-size:17px;
+}
+header{
+  position:sticky; top:0; z-index:50; background:#fff;
+  border-bottom:2px solid var(--blau); padding:.5rem .9rem;
+}
+.kopf{display:flex; align-items:center; gap:.8rem; flex-wrap:wrap}
+.kopf h1{font-size:1.05rem; margin:0; color:var(--blau); flex:1 1 auto}
+.kopf h1 span{color:#607080; font-weight:400}
+.knopf{
+  font:inherit; font-size:.9rem; padding:.35rem .8rem; border-radius:999px;
+  border:1.5px solid var(--blau); background:#fff; color:var(--blau); cursor:pointer;
+}
+.knopf:hover{background:var(--blau-hell)}
+.knopf.voll{background:var(--blau); color:#fff}
+.knopf.voll:hover{background:#094a85}
+.knopf.klein{font-size:.82rem; padding:.25rem .6rem}
+.uhr{font-variant-numeric:tabular-nums; font-weight:700; font-size:1.1rem; min-width:4.2rem; text-align:center}
+.uhr.knapp{color:var(--rot)}
+.balken{height:5px; background:var(--linie); border-radius:3px; margin-top:.45rem; overflow:hidden}
+.balken>div{height:100%; background:var(--blau); width:0%; transition:width .3s}
+.pillen{display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.45rem}
+.pille{
+  font-size:.74rem; padding:.15rem .5rem; border-radius:999px;
+  background:var(--grau); border:1px solid var(--linie); cursor:pointer; white-space:nowrap;
+}
+.pille.aktiv{background:var(--blau); color:#fff; border-color:var(--blau)}
+.pille.fertig{background:#e6f4ea; border-color:#a8d5b5}
+main{max-width:1000px; margin:0 auto; padding:1.1rem .9rem 6rem}
+section.phase{display:none}
+section.phase.aktiv{display:block}
+h2{font-size:1.5rem; color:var(--blau); margin:.2rem 0 .3rem}
+h3{font-size:1.12rem; margin:1.4rem 0 .4rem}
+.zeitnote{font-size:.85rem; color:#607080; margin:0 0 1rem}
+.karte{background:var(--grau); border:1px solid var(--linie); border-radius:12px; padding:.9rem 1.1rem; margin:1rem 0}
+.karte.blau{background:var(--blau-hell); border-color:var(--blau-mittel)}
+.karte.merk{background:#fff8e1; border-color:#ffd54f}
+.karte.warn{background:#fff3e0; border-color:#ffb74d}
+.karte h4{margin:.1rem 0 .5rem; font-size:1rem; text-transform:uppercase; letter-spacing:.04em; color:var(--blau)}
+.karte.merk h4{color:#8d6e00}
+ol,ul{padding-left:1.3rem}
+li{margin:.3rem 0}
+.zwei{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+@media (max-width:780px){.zwei{grid-template-columns:1fr}}
+canvas{max-width:100%; border-radius:8px; background:#fff; border:1px solid var(--linie); display:block}
+label.reg{display:block; font-size:.9rem; font-weight:600; margin:.7rem 0 .1rem}
+input[type=range]{width:100%; accent-color:var(--blau)}
+.anzeige{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:#101418; color:#7dff9b;
+  padding:.5rem .8rem; border-radius:8px; font-size:1.25rem; display:inline-block; min-width:9rem; text-align:right;
+  border:3px solid #2b3238;
+}
+.anzeige small{color:#9fb; font-size:.7em}
+.werte{display:flex; gap:.9rem; flex-wrap:wrap; align-items:center; margin:.6rem 0}
+.tag{background:#fff; border:1px solid var(--linie); border-radius:8px; padding:.35rem .7rem; font-size:.9rem}
+.tag b{color:var(--blau)}
+table{border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.95rem}
+th,td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+th{background:var(--blau-hell)}
+td input{width:100%; border:none; font:inherit; text-align:center; background:#fffde7; padding:.25rem}
+td input:focus{outline:2px solid var(--blau)}
+td.ok{background:#e6f4ea}
+td.ok input{background:#e6f4ea}
+td.fast{background:#fff8e1}
+td.fast input{background:#fff8e1}
+textarea{width:100%; font:inherit; padding:.5rem; border:1px solid var(--linie); border-radius:8px; min-height:4.5rem; background:#fffde7}
+.mc{margin:.5rem 0}
+.mc button{
+  display:block; width:100%; text-align:left; font:inherit; margin:.3rem 0; padding:.5rem .8rem;
+  border:1.5px solid var(--linie); border-radius:9px; background:#fff; cursor:pointer;
+}
+.mc button:hover{border-color:var(--blau)}
+.mc button.richtig{background:#e6f4ea; border-color:var(--gruen)}
+.mc button.falsch{background:#fdecea; border-color:var(--rot)}
+.rueck{font-size:.92rem; margin:.35rem 0 0; padding:.5rem .7rem; border-radius:8px; display:none}
+.rueck.zeig{display:block}
+.rueck.gut{background:#e6f4ea; border-left:4px solid var(--gruen)}
+.rueck.schlecht{background:#fdecea; border-left:4px solid var(--rot)}
+details{border:1px solid var(--linie); border-radius:9px; padding:.5rem .8rem; margin:.6rem 0; background:#fff}
+details[open]{background:#fbfcfd}
+summary{cursor:pointer; font-weight:600; color:var(--blau)}
+.videobox{position:relative; padding-top:56.25%; background:#000; border-radius:10px; overflow:hidden}
+.videobox iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.videohinweis{font-size:.85rem; color:#607080; margin:.3rem 0 0}
+.nav{
+  position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--linie);
+  padding:.55rem .9rem; display:flex; gap:.6rem; justify-content:space-between; align-items:center; z-index:60;
+}
+.nav .mitte{font-size:.85rem; color:#607080}
+.aufgabe{border-left:4px solid var(--blau); padding:.1rem 0 .1rem .8rem; margin:1.2rem 0}
+.aufgabe .nr{
+  display:inline-block; background:var(--blau); color:#fff; font-weight:700; font-size:.8rem;
+  padding:.1rem .5rem; border-radius:5px; margin-right:.4rem;
+}
+.stern{color:var(--orange); font-size:.85rem}
+.quizfrage{border:1px solid var(--linie); border-radius:10px; padding:.7rem .9rem; margin:.8rem 0}
+.punkte{font-size:1.3rem; font-weight:700; color:var(--blau)}
+.lehrer{display:none; background:#f3e5f5; border:1px solid #ce93d8; border-radius:10px; padding:.7rem .9rem; margin:.8rem 0; font-size:.93rem}
+body.lehrermodus .lehrer{display:block}
+.lehrer h4{color:#6a1b9a; margin:.1rem 0 .4rem; font-size:.95rem; text-transform:uppercase; letter-spacing:.04em}
+.fertigmarke{color:var(--gruen); font-weight:700}
+svg.schaltung{background:#fff; border:1px solid var(--linie); border-radius:8px; max-width:100%; height:auto}
+details.gesperrt{background:#f7f7f8; border-style:dashed}
+details.gesperrt>summary{color:#8a949e; cursor:not-allowed}
+details.frei>summary{color:var(--gruen)}
+.schloss{font-size:.85rem; color:#8a949e; font-weight:400}
+.zeichenfeld{border:1px solid var(--linie); border-radius:10px; padding:.5rem; background:#fff; margin:.6rem 0}
+.zeichenfeld canvas{width:100%; height:auto; background:#fff; border:1px dashed #c3ccd4; border-radius:6px; touch-action:none; cursor:crosshair; display:block}
+.zwerkzeug{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
+.zwerkzeug .knopf{padding:.28rem .7rem; font-size:.85rem}
+.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff}
+.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem}
+.zstatus{font-size:.82rem; color:#607080}
+#protokollChip{font-size:.8rem; padding:.2rem .55rem; background:#e6f4ea; border:1px solid #a8d5b5; border-radius:999px; white-space:nowrap}
+#protokollChip.warn{background:#fff3e0; border-color:#ffb74d}
+.bild{background:#fff; border:1px solid var(--linie); border-radius:12px; padding:.6rem .9rem 0; margin:1rem 0; text-align:center}
+.bild svg{width:100%; max-width:520px; height:auto; display:block; margin:0 auto}
+.bildtext{font-size:.9rem; color:#4a5560; text-align:left; margin:.2rem 0 .8rem; line-height:1.45}
+.wegchip{font-size:.8rem; padding:.2rem .55rem; background:var(--blau-hell); border:1px solid var(--blau-mittel); border-radius:999px; white-space:nowrap; cursor:pointer}
+.wegknoepfe{display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin:.6rem 0}
+@media (max-width:780px){.wegknoepfe{grid-template-columns:1fr}}
+.wegknopf{font:inherit; text-align:left; padding:.7rem .8rem; border:2px solid var(--linie); border-radius:12px; background:#fff; cursor:pointer}
+.wegknopf b{display:block; color:var(--blau); font-size:1.05rem}
+.wegknopf span{display:block; font-size:.88rem; color:#4a5560; margin-top:.2rem}
+.wegknopf.empfohlen{border-color:#ffd54f; background:#fffbea}
+.wegknopf.empfohlen b::after{content:"  · empfohlen"; color:#8d6e00; font-size:.8rem; font-weight:600}
+.wegknopf.gewaehlt{border-color:var(--blau); background:var(--blau-hell); box-shadow:0 0 0 2px var(--blau) inset}
+.mc.fest button{cursor:default}
+body[data-weg="auffrischen"] .weghinweis, body[data-weg="standard"] .weghinweis,
+body[data-weg="vertiefen"] .weghinweis{display:none}
+.hilfen{margin:.4rem 0}
+.hilfen details.hilfe{border-color:#ffe082; background:#fffdf3; margin:.35rem 0}
+.hilfen details.hilfe>summary{color:#8d6e00}
+.hilfen details.hilfe.zu{opacity:.55}
+.hilfen details.hilfe.zu>summary{cursor:not-allowed}
+.hilfenote{font-weight:400; font-size:.85rem; color:#8a949e}
+body.lehrermodus [data-pfad]{display:block !important; outline:2px dashed #ce93d8; outline-offset:4px; margin-top:1.6rem}
+body.lehrermodus [data-pfad]::before{content:"nur Weg: " attr(data-pfad); display:block; font-size:.75rem; font-weight:700; color:#6a1b9a; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem}
+body.lehrermodus .weghinweis{display:none}
+.videohalt{border:1px solid var(--linie); border-radius:12px; padding:.7rem .9rem; margin:1rem 0; background:#fff}
+.videohalt video{width:100%; max-height:62vh; border-radius:8px; background:#000; display:block}
+.videostatus{font-size:.88rem; color:#4a5560; margin:.4rem 0 .2rem}
+.videohalt .ersatz{display:none}
+.videohalt.ersatzmodus .ersatz{display:block}
+.haltfrage{display:none; border-left:4px solid #ffb74d; background:#fff8e1; border-radius:8px; padding:.5rem .8rem; margin:.6rem 0}
+.haltfrage.sichtbar{display:block}
+.haltfrage.erledigt{border-left-color:var(--gruen); background:#f3faf4}
+.haltkopf{margin:0 0 .2rem}
+.haltzeit{font-size:.8rem; color:#8a949e}
+.weiterknopf{margin-top:.4rem}
+.weiterknopf:disabled{opacity:.45; cursor:not-allowed}
+body.lehrermodus .haltfrage{display:block}
+body.lehrermodus .videohalt .ersatz{display:block; outline:2px dashed #ce93d8; outline-offset:4px}
+/* ---- Anmeldeschirm (aus den Selbstlernstunden übernommen) ---- */
+.anmeldeschirm{position:fixed; inset:0; z-index:900; background:#f4f6f8;
+  display:flex; align-items:center; justify-content:center; padding:1.2rem}
+.anmeldekarte{background:#fff; border:1px solid var(--linie); border-top:6px solid var(--blau);
+  border-radius:14px; padding:1.6rem 1.8rem; max-width:30rem; width:100%;
+  box-shadow:0 6px 28px rgba(20,32,42,.13)}
+.anmeldekarte h2{margin:0 0 .5rem}
+.anmeldekarte p{margin:.4rem 0}
+.anmeldezeile{display:flex; gap:.7rem; align-items:center; margin:1.1rem 0 .4rem; flex-wrap:wrap}
+#i-code{font:inherit; font-size:2.1rem; font-weight:700; letter-spacing:.35em;
+  width:7rem; text-align:center; padding:.45rem .1rem .45rem .5rem;
+  border:2px solid var(--blau-mittel); border-radius:10px; background:#fffde7;
+  font-variant-numeric:tabular-nums}
+#i-code:focus{outline:3px solid var(--blau); outline-offset:1px}
+.anmelde-rueck{font-size:.92rem; min-height:1.3rem; margin:.2rem 0 0}
+.anmelde-rueck.gut{color:var(--gruen); font-weight:600}
+.anmelde-rueck.schlecht{color:var(--rot); font-weight:600}
+.anmeldekarte .fuss{font-size:.85rem; color:#607080; margin-top:1.1rem;
+  border-top:1px solid var(--linie); padding-top:.7rem}
+/* hidden muss auch Elemente mit eigener display-Regel verbergen (z. B. .aufgabe .nr) */
+[hidden]{display:none !important}
+/* ---- Rundweg-Tabelle: Koordinaten als Text ---- */
+#tab-mess{min-width:34rem}
+#tab-mess input{width:100%; min-width:4.6rem; font-variant-numeric:tabular-nums}
+.knopf{min-height:44px}
+.knopf.klein{min-height:36px}
+@media print{
+  .videohalt video,.videostatus,.weiterknopf{display:none !important}
+  .videohalt .ersatz,.haltfrage{display:block !important}
+  [data-pfad]{display:block !important; border-left:3px solid #ce93d8; padding-left:.5rem}
+  [data-pfad]::before{content:"nur Weg: " attr(data-pfad); display:block; font-size:.75rem; font-weight:700; color:#6a1b9a}
+  .weghinweis{display:none !important}
+  header,.nav,.pillen,.balken{display:none}
+  section.phase{display:block !important; page-break-after:always}
+  body{font-size:11pt}
+  .lehrer{display:block}
+}
+</style>
+</head>
+<body>
+
+<!-- Anmeldung: zweistellige Zahl von der Tafel (KW 45). Keine Sperre: „Ohne Zahl weiter“
+     legt das Skript selbst an. Der Zeitpunkt der Anmeldung ist der Anwesenheitsnachweis. -->
+<div class="anmeldeschirm" id="anmeldeschirm">
+  <div class="anmeldekarte">
+    <h2>Anmeldung zur Stunde</h2>
+    <p>An der Tafel steht eine <b>zweistellige Zahl</b>. Tragt sie hier ein. Dann geht es los.</p>
+    <div class="anmeldezeile">
+      <input id="i-code" inputmode="numeric" pattern="[0-9]*" maxlength="2"
+             autocomplete="off" aria-label="Zweistellige Zahl von der Tafel">
+      <button class="knopf voll" id="k-anmelden">Anmelden</button>
+    </div>
+    <p class="anmelde-rueck" id="anmelde-rueck" role="status" aria-live="polite"></p>
+    <p style="margin:.9rem 0 0"><button class="knopf klein" id="k-lehrkraft"
+       style="background:transparent;border:1px dashed var(--linie);color:#5a6570">Lehrkraft: Zahl anzeigen</button></p>
+    <p class="fuss">Der Zeitpunkt eurer Anmeldung steht im Protokoll. So sieht Herr Glaubitz,
+    wer wann angefangen hat. Ihr könnt die Zahl nicht sehen? Dann fragt nach. Ratet nicht.</p>
+  </div>
+</div>
+
+<header>
+  <div class="kopf">
+    <h1>Betrag und Koordinatensystem <span>· Mathematik · 7b</span></h1>
+    <div id="wegChip" class="wegchip" title="Weg ändern">Weg: –</div>
+    <div id="protokollChip">Protokoll: 0 Einträge</div>
+    <div class="uhr" id="uhr">--:--</div>
+    <button class="knopf klein" id="uhrKnopf">Pause</button>
+    <button class="knopf klein" id="lehrerKnopf">Lehrer-Ansicht</button>
+  </div>
+  <div class="balken"><div id="balken"></div></div>
+  <div class="pillen" id="pillen"></div>
+</header>
+
+<main>
+
+<!-- ================= PHASE 0: START ================= -->
+<section class="phase aktiv" data-titel="Start" data-min="4">
+  <h2>Wie weit vom Weg? Links, rechts, oben, unten</h2>
+  <p class="zeitnote">Diese Doppelstunde führt sich selbst. Ihr arbeitet allein oder zu zweit an einem
+  Gerät. Unten rechts geht es weiter.</p>
+
+  <div class="bild">
+    <svg viewBox="0 0 520 240" role="img" aria-label="Koordinatensystem mit vier Feldern und Zahlengerade"><rect x="150" y="18" width="102" height="102" fill="#e8f3fb"/><rect x="31.0" y="18" width="119.0" height="102" fill="#fdf3e1"/><rect x="31.0" y="120" width="119.0" height="102" fill="#eef7ea"/><rect x="150" y="120" width="102" height="102" fill="#f6ecf7"/><line x1="31.0" y1="222.0" x2="31.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="48.0" y1="222.0" x2="48.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="65.0" y1="222.0" x2="65.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="82.0" y1="222.0" x2="82.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="99.0" y1="222.0" x2="99.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="116.0" y1="222.0" x2="116.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="133.0" y1="222.0" x2="133.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="150.0" y1="222.0" x2="150.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="167.0" y1="222.0" x2="167.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="184.0" y1="222.0" x2="184.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="201.0" y1="222.0" x2="201.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="218.0" y1="222.0" x2="218.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="235.0" y1="222.0" x2="235.0" y2="18.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="252.0" y1="222.0" x2="252.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="222.0" x2="252.0" y2="222.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="205.0" x2="252.0" y2="205.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="31.0" y1="188.0" x2="252.0" y2="188.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="171.0" x2="252.0" y2="171.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="31.0" y1="154.0" x2="252.0" y2="154.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="137.0" x2="252.0" y2="137.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="31.0" y1="120.0" x2="252.0" y2="120.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="103.0" x2="252.0" y2="103.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="31.0" y1="86.0" x2="252.0" y2="86.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="69.0" x2="252.0" y2="69.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="31.0" y1="52.0" x2="252.0" y2="52.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="31.0" y1="35.0" x2="252.0" y2="35.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="31.0" y1="18.0" x2="252.0" y2="18.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="25.0" y1="120.0" x2="262.0" y2="120.0" stroke="#1a2229" stroke-width="1.6"/><path d="M266.0,120.0 l-9,-4 v8 z" fill="#1a2229"/><line x1="150.0" y1="228.0" x2="150.0" y2="8.0" stroke="#1a2229" stroke-width="1.6"/><path d="M150.0,4.0 l-4,9 h8 z" fill="#1a2229"/><text x="264.0" y="138.0" font-size="11" font-style="italic">x</text><text x="158.0" y="12.0" font-size="11" font-style="italic">y</text><text x="48.0" y="136.0" font-size="11" text-anchor="middle">−3</text><text x="82.0" y="136.0" font-size="11" text-anchor="middle">−2</text><text x="116.0" y="136.0" font-size="11" text-anchor="middle">−1</text><text x="184.0" y="136.0" font-size="11" text-anchor="middle">1</text><text x="218.0" y="136.0" font-size="11" text-anchor="middle">2</text><text x="252.0" y="136.0" font-size="11" text-anchor="middle">3</text><text x="144.0" y="226.0" font-size="11" text-anchor="end">−3</text><text x="144.0" y="192.0" font-size="11" text-anchor="end">−2</text><text x="144.0" y="158.0" font-size="11" text-anchor="end">−1</text><text x="144.0" y="90.0" font-size="11" text-anchor="end">1</text><text x="144.0" y="56.0" font-size="11" text-anchor="end">2</text><text x="144.0" y="22.0" font-size="11" text-anchor="end">3</text><line x1="213.0" y1="64.0" x2="223.0" y2="74.0" stroke="#0b7fc4" stroke-width="2.2"/><line x1="213.0" y1="74.0" x2="223.0" y2="64.0" stroke="#0b7fc4" stroke-width="2.2"/><line x1="60.0" y1="47.0" x2="70.0" y2="57.0" stroke="#e07b00" stroke-width="2.2"/><line x1="60.0" y1="57.0" x2="70.0" y2="47.0" stroke="#e07b00" stroke-width="2.2"/><line x1="94.0" y1="183.0" x2="104.0" y2="193.0" stroke="#2e7d32" stroke-width="2.2"/><line x1="94.0" y1="193.0" x2="104.0" y2="183.0" stroke="#2e7d32" stroke-width="2.2"/><line x1="179.0" y1="200.0" x2="189.0" y2="210.0" stroke="#8e24aa" stroke-width="2.2"/><line x1="179.0" y1="210.0" x2="189.0" y2="200.0" stroke="#8e24aa" stroke-width="2.2"/><text x="236" y="40" font-size="13" fill="#0b7fc4">1.</text><text x="34" y="40" font-size="13" fill="#e07b00">2.</text><text x="34" y="214" font-size="13" fill="#2e7d32">3.</text><text x="236" y="214" font-size="13" fill="#8e24aa">4.</text><line x1="282.0" y1="150" x2="498.0" y2="150" stroke="#1a2229" stroke-width="1.6"/><path d="M506.0,150 l-9,-4 v8 z" fill="#1a2229"/><line x1="300" y1="144" x2="300" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="300" y="172" font-size="13" text-anchor="middle" fill="#c62828">−3</text><line x1="330" y1="144" x2="330" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="330" y="172" font-size="13" text-anchor="middle" fill="#c62828">−2</text><line x1="360" y1="144" x2="360" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="360" y="172" font-size="13" text-anchor="middle" fill="#c62828">−1</text><line x1="390" y1="144" x2="390" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="390" y="172" font-size="13" text-anchor="middle" fill="#1a2229">0</text><line x1="420" y1="144" x2="420" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="420" y="172" font-size="13" text-anchor="middle" fill="#1a2229">1</text><line x1="450" y1="144" x2="450" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="450" y="172" font-size="13" text-anchor="middle" fill="#1a2229">2</text><line x1="480" y1="144" x2="480" y2="156" stroke="#1a2229" stroke-width="1.3"/><text x="480" y="172" font-size="13" text-anchor="middle" fill="#1a2229">3</text><line x1="390" y1="128" x2="330" y2="128" stroke="#c62828" stroke-width="3"/><path d="M328,128 l9,-5 v10 z" fill="#c62828"/><line x1="390" y1="128" x2="450" y2="128" stroke="#0b7fc4" stroke-width="3"/><path d="M452,128 l-9,-5 v10 z" fill="#0b7fc4"/><text x="360" y="118" font-size="13" text-anchor="middle" fill="#c62828">2 weit</text><text x="420" y="118" font-size="13" text-anchor="middle" fill="#0b7fc4">2 weit</text><text x="390" y="60" font-size="15" text-anchor="middle" font-weight="700">gleich weit weg,</text><text x="390" y="80" font-size="15" text-anchor="middle" font-weight="700">aber −2 &lt; 2</text></svg>
+    <p class="bildtext"><b>Die Frage dieser Doppelstunde:</b> Wie beschreibt man genau, wo etwas liegt,
+    wenn es auch links von der Null und unter der Null liegen kann?</p>
+  </div>
+
+  <div class="karte blau"><h4>Wo wir stehen</h4>
+  <p><b>Letzte Stunde</b> (Mi 28.10.) ging es um die Zahlengerade. Ablesen hat fast überall geklappt:
+  24 von 27 Bildern hatten alle fünf Zahlen richtig. Auch die kleinste Zahl (−2,3) fanden 25 von 27.</p>
+  <p><b>Nicht mehr geschafft</b> haben wir: Zahlen ordnen, den <b>Betrag</b> und den Merksatz.
+  Das holen wir heute vorn nach. Danach kommt das <b>Koordinatensystem mit vier Feldern</b>.</p></div>
+
+  <div class="aufgabe">
+    <p><span class="nr">0</span> <b>Zum Aufwärmen (aus Kapitel 2).</b> Mit welchem Faktor rechnet ihr?<br>
+    a) Ein Preis <b>steigt um 0,8 %</b>. &nbsp; b) Ein Preis <b>sinkt um 3,5 %</b>.<br>
+    Schreibt beide Schritte auf: zuerst den neuen Prozentsatz, dann den Faktor.</p>
+    <textarea id="t-start" data-label="Aufwärmen Faktor" placeholder="a) 100 % + … = … % → : 100 → …"></textarea>
+    <details class="gesperrt" data-fuer="t-start" data-min="12"><summary>Lösung Aufwärmen</summary>
+      <p>a) 100 % + 0,8 % = 100,8 % <b>→ : 100 →</b> <b>1,008</b><br>
+      b) 100 % − 3,5 % = 96,5 % <b>→ : 100 →</b> <b>0,965</b></p>
+      <p>Der zweite Schritt fehlt oft: 100,8 ist noch kein Faktor. Erst nach dem Teilen durch 100 könnt ihr damit malnehmen.</p></details>
+  </div>
+
+  <h3>Ihr könnt danach …</h3>
+  <ol>
+    <li>Zahlen mit Minus <b>ordnen</b> und den <b>Betrag</b> einer Zahl angeben;</li>
+    <li>Punkte im Koordinatensystem mit <b>vier Quadranten</b> eintragen und ablesen: P(x | y), zuerst x, dann y;</li>
+    <li>ohne Zeichnung sagen, in welchem Quadranten ein Punkt liegt und wie weit er von einer Achse entfernt ist.</li>
+  </ol>
+
+  <div class="karte">
+    <h4>Spielregeln</h4>
+    <ul>
+      <li>Nach dem Einstieg kommt ein <b>kurzer Check</b> mit sechs Fragen. Danach schlägt euch die Seite
+      einen von drei <b>Wegen</b> vor: <i>Auffrischen</i>, <i>Standard</i> oder <i>Vertiefen</i>.
+      Ihr dürft auch einen anderen wählen. Alle Wege führen zum selben Ziel und zum selben Exit-Ticket.</li>
+      <li>Jede Phase hat eine Zeitangabe. Sie ist ein Vorschlag, kein Befehl. Ihr arbeitet in eurem Tempo.</li>
+      <li><b>Die Lösungen sind verschlossen</b> 🔒. Sie öffnen sich erst, wenn eure eigene Antwort
+      dasteht. Eine gelesene Lösung fühlt sich richtig an. Eine selbst gedachte sitzt.</li>
+      <li>Bei manchen Aufgaben gibt es <b>Hilfen in Stufen</b>. Nehmt sie ruhig, aber eine nach der
+      anderen. Oft reicht die erste.</li>
+      <li>Alles wird <b>mitprotokolliert</b>, auch welche Hilfen ihr geöffnet habt. Eine ehrliche falsche
+      Antwort ist besser als eine abgeschriebene richtige.</li>
+      <li>Ein Heft oder ein Zettel zum Mitrechnen hilft. Das Buch braucht ihr nicht: Alle Buchaufgaben stehen hier.</li>
+      <li>Am Ende speichert ihr das Protokoll und schickt es an Herrn Glaubitz. Alles passiert <b>in der Stunde</b>.</li>
+    </ul>
+  </div>
+
+  <div class="lehrer">
+    <h4>Für die Lehrkraft</h4>
+    <p><b>Die Zahl 45 groß an die Tafel</b> (Kalenderwoche). Sie ist die Anmeldung und damit der
+    Anwesenheitsnachweis; „Ohne Zahl weiter“ sperrt niemanden aus und wird als solches protokolliert.
+    Kennwort der Lehrer-Ansicht und für „Lehrkraft: Zahl anzeigen“: <code>sumdideldum</code>.</p>
+    <p>Keine Vorbereitung, kein Versuch, kein Ausdruck, kein Buch nötig. Aufgabe 0 ist der Faktor-Starter, den die
+    Auswertung vom 28.10. empfiehlt: beide Schritte sichtbar (101,5 % → : 100 → 1,015). Die Lehrer-Ansicht zeigt alle
+    drei Wege gleichzeitig (lila gerahmt); Strg+P druckt die ganze Stunde.</p>
+  </div>
+</section>
+
+<!-- ================= PHASE 1: EINSTIEG ================= -->
+<section class="phase" data-titel="Einstieg" data-min="5">
+  <h2>1 · Zwei Schätze auf dem Schulhof</h2>
+  <p class="zeitnote">5 Minuten · zuerst raten, dann prüfen</p>
+
+  <div class="bild"><svg viewBox="0 0 520 360" role="img" aria-label="Schulhof mit Brunnen und zwei Wegen, ohne Schätze"><rect x="20.0" y="10.400000000000006" width="480" height="339.2" fill="#f1f8ee"/><rect x="20.0" y="170.4" width="480" height="19.2" fill="#efe2c4"/><rect x="250.4" y="10.400000000000006" width="19.2" height="339.2" fill="#efe2c4"/><line x1="20.0" y1="349.6" x2="20.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="52.0" y1="349.6" x2="52.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="84.0" y1="349.6" x2="84.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="116.0" y1="349.6" x2="116.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="148.0" y1="349.6" x2="148.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="180.0" y1="349.6" x2="180.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="212.0" y1="349.6" x2="212.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="244.0" y1="349.6" x2="244.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="276.0" y1="349.6" x2="276.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="308.0" y1="349.6" x2="308.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="340.0" y1="349.6" x2="340.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="372.0" y1="349.6" x2="372.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="404.0" y1="349.6" x2="404.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="436.0" y1="349.6" x2="436.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="468.0" y1="349.6" x2="468.0" y2="20.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="349.6" x2="484.0" y2="349.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="317.6" x2="484.0" y2="317.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="285.6" x2="484.0" y2="285.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="253.6" x2="484.0" y2="253.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="221.6" x2="484.0" y2="221.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="189.6" x2="484.0" y2="189.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="157.6" x2="484.0" y2="157.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="125.6" x2="484.0" y2="125.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="93.6" x2="484.0" y2="93.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="61.6" x2="484.0" y2="61.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="20.0" y1="29.6" x2="484.0" y2="29.6" stroke="#e3e9ee" stroke-width="0.6"/><line x1="14.0" y1="180.0" x2="494.0" y2="180.0" stroke="#1a2229" stroke-width="1.6"/><path d="M498.0,180.0 l-9,-4 v8 z" fill="#1a2229"/><line x1="260.0" y1="355.6" x2="260.0" y2="10.0" stroke="#1a2229" stroke-width="1.6"/><path d="M260.0,6.0 l-4,9 h8 z" fill="#1a2229"/><text x="496.0" y="198.0" font-size="11" font-style="italic">x</text><text x="268.0" y="14.0" font-size="11" font-style="italic">y</text><text x="36.0" y="196.0" font-size="11" text-anchor="middle">−7</text><text x="68.0" y="196.0" font-size="11" text-anchor="middle">−6</text><text x="100.0" y="196.0" font-size="11" text-anchor="middle">−5</text><text x="132.0" y="196.0" font-size="11" text-anchor="middle">−4</text><text x="164.0" y="196.0" font-size="11" text-anchor="middle">−3</text><text x="196.0" y="196.0" font-size="11" text-anchor="middle">−2</text><text x="228.0" y="196.0" font-size="11" text-anchor="middle">−1</text><text x="292.0" y="196.0" font-size="11" text-anchor="middle">1</text><text x="324.0" y="196.0" font-size="11" text-anchor="middle">2</text><text x="356.0" y="196.0" font-size="11" text-anchor="middle">3</text><text x="388.0" y="196.0" font-size="11" text-anchor="middle">4</text><text x="420.0" y="196.0" font-size="11" text-anchor="middle">5</text><text x="452.0" y="196.0" font-size="11" text-anchor="middle">6</text><text x="484.0" y="196.0" font-size="11" text-anchor="middle">7</text><text x="254.0" y="344.0" font-size="11" text-anchor="end">−5</text><text x="254.0" y="312.0" font-size="11" text-anchor="end">−4</text><text x="254.0" y="280.0" font-size="11" text-anchor="end">−3</text><text x="254.0" y="248.0" font-size="11" text-anchor="end">−2</text><text x="254.0" y="216.0" font-size="11" text-anchor="end">−1</text><text x="254.0" y="152.0" font-size="11" text-anchor="end">1</text><text x="254.0" y="120.0" font-size="11" text-anchor="end">2</text><text x="254.0" y="88.0" font-size="11" text-anchor="end">3</text><text x="254.0" y="56.0" font-size="11" text-anchor="end">4</text><text x="254.0" y="24.0" font-size="11" text-anchor="end">5</text><circle cx="260" cy="180" r="14" fill="#b3d9f2" stroke="#0b7fc4" stroke-width="2.5"/><text x="278" y="166" font-size="13" fill="#0b5aa0">Brunnen (0 | 0)</text><text x="272" y="32.80000000000001" font-size="13" fill="#7a5a1a">Nord-Süd-Weg (y-Achse)</text><text x="362.4" y="212" font-size="13" fill="#7a5a1a">Ost-West-Weg (x-Achse)</text><text x="32.80000000000001" y="36.0" font-size="16" font-weight="700">N ↑</text></svg>
+    <p class="bildtext">Ein Schulhof von oben. In der Mitte steht der Brunnen. Durch ihn laufen zwei Wege:
+    der <b>Nord-Süd-Weg</b> und der <b>Ost-West-Weg</b>. Ein Kästchen ist ein Schritt.
+    Zwei Schätze sind versteckt: <b>Schatz A bei (−4 | 1)</b> und <b>Schatz B bei (3 | −2)</b>.
+    Wie bisher gilt: die erste Zahl für rechts oder links, die zweite für oben oder unten.</p></div>
+
+  <h3>Eure Prognose</h3>
+  <p>Welcher Schatz liegt <b>weiter vom Nord-Süd-Weg</b> entfernt?</p>
+  <div class="mc" id="mc-prognose" data-label="Prognose"></div>
+  <div class="rueck" id="rueck-prognose"></div>
+
+  <h3>Eure Begründung</h3>
+  <p>Wie habt ihr entschieden? Ein Satz genügt.</p>
+  <textarea id="t-vermutung" data-label="Begründung zum Einstieg" placeholder="Ich glaube …, weil …"></textarea>
+
+  <div class="lehrer"><h4>Was der Einstieg aufdeckt</h4>
+  <p>Die Falle ist „3 ist größer als −4, also ist B weiter weg“: <i>größer</i> (weiter rechts) wird mit <i>weiter
+  entfernt</i> verwechselt. Genau das trennt der Betrag. Wer B wählt, weil B 2 unter dem Ost-West-Weg liegt, hat die
+  Achsen verwechselt. Aufgelöst wird am Modell im Kern (Auftrag 2) und noch einmal beim Merksatz: Abstand zur
+  y-Achse = |x|, also 4 gegen 3.</p></div>
+</section>
+
+<!-- ================= PHASE 2: CHECK ================= -->
+<section class="phase" data-titel="Check" data-min="7" id="phase-diagnose">
+  <h2>2 · Kurzer Check: Welcher Weg passt zu euch?</h2>
+  <p class="zeitnote">7 Minuten · sechs Fragen, ehrlich beantworten · es gibt keine Note</p>
+
+  <div class="karte blau"><h4>So funktioniert es</h4>
+  <p>Jede Frage hat <b>einen</b> Versuch. Ihr seht sofort, ob es stimmt. Danach schlägt euch die Seite
+  einen Weg vor. Raten lohnt sich nicht: Ein zu schwerer Weg kostet mehr Zeit, als er bringt.</p></div>
+
+  <div id="diagnose"></div>
+  <p><button class="knopf voll" id="k-auswerten" disabled>Auswerten</button>
+     <span class="videohinweis" id="diag-stand">Noch 6 Fragen offen.</span></p>
+
+  <div id="wegwahl" style="display:none">
+    <div class="karte merk" id="weg-vorschlag"></div>
+    <div class="wegknoepfe">
+      <button class="wegknopf" data-weg="auffrischen"><b>Auffrischen</b><span>Zuerst die Zahlengerade wiederholen. Dann vorgerechnete Beispiele und kleine Schritte.</span></button>
+      <button class="wegknopf" data-weg="standard"><b>Standard</b><span>Direkt an die Buchaufgaben: ordnen, den Rundweg ablesen, die Lage beschreiben. Zwei Hilfen sind da.</span></button>
+      <button class="wegknopf" data-weg="vertiefen"><b>Vertiefen</b><span>Dieselben Buchaufgaben ohne Hilfen, dazu: Wo steht im Buch etwas ungenau?</span></button>
+    </div>
+    <div class="rueck" id="rueck-weg"></div>
+  </div>
+
+  <div class="lehrer"><h4>Diagnose</h4>
+  <p>Fragen 1–3 prüfen das zwingende Vorwissen: Ablesen mit Schrittweite und Minus (28.10.: zwei Kacheln ohne Minus),
+  Ordnen bei gleichem Ganzzahlteil (−3,2 gegen −3,05, wie −2,3 gegen −2,05 in PL 3: 2 von 27 falsch) und „zuerst x,
+  dann y“ im ersten Quadranten (Kl. 5/6, Kap. 1). Fragen 4–6 prüfen, ob der Kern schon fast sitzt, ohne die Wörter
+  „Betrag“ und „Quadrant“. Regel: höchstens 1 von 3 beim Vorwissen → <i>Auffrischen</i>; sonst alle 3 beim Kern →
+  <i>Vertiefen</i>; sonst <i>Standard</i>. Vorschlag und Wahl stehen beide im Protokoll.</p></div>
+</section>
+
+<!-- ================= PHASE 3: KERN ================= -->
+<section class="phase" data-titel="Kern" data-min="14">
+  <h2>3 · Abstand zur Null – und das ganze Koordinatensystem</h2>
+  <p class="zeitnote">14 Minuten · an zwei Modellen schieben, ablesen, vergleichen</p>
+
+  <div class="karte warn" data-pfad="auffrischen">
+    <h4>Erst kurz auffrischen: die Zahlengerade</h4>
+    <p>Rechts von der Null stehen die positiven Zahlen, links die negativen. Von der Null aus liegen sie
+    <b>spiegelbildlich</b>: −3 ist genauso weit links wie 3 rechts.</p>
+    <p><b>Weiter rechts heißt größer.</b> Deshalb ist −5 &lt; −2: −5 steht weiter links.</p>
+    <p><b>Ablesen:</b> Zuerst fragen: Wie viel ist ein Kästchen? Ist ein Kästchen 0,5, dann sind 4 Kästchen links von der
+    Null 4 · 0,5 = 2, also <b>−2</b>. Links von der Null kommt immer ein Minus davor.</p>
+    <p><b>Mini-Auftrag:</b> a) Welche Zahl ist kleiner: −4 oder −1? &nbsp; b) Ein Kästchen ist 0,5. Welche Zahl liegt
+    3 Kästchen links von der Null?</p>
+    <textarea id="t-auffr" data-label="Auffrischen – Mini-Auftrag"></textarea>
+    <details class="gesperrt" data-fuer="t-auffr" data-min="6"><summary>Kontrolle</summary>
+      <p>a) <b>−4</b> ist kleiner, es steht weiter links. &nbsp; b) 3 · 0,5 = 1,5, links von der Null: <b>−1,5</b>.</p></details>
+  </div>
+
+  <h3>Modell 1: Wie weit ist eine Zahl von der Null weg?</h3>
+  <p>Schiebt den Regler. Der rote Pfeil zeigt den <b>Abstand zur Null</b>. Der helle Punkt ist die Zahl, die genauso
+  weit weg auf der anderen Seite liegt.</p>
+  <canvas id="c-betrag" width="900" height="210"></canvas>
+  <div><label class="reg">Zahl a = <span id="l-zahl">2</span></label>
+    <input type="range" id="r-zahl" min="-6" max="6" value="2" step="0.5"></div>
+  <div class="werte">
+    <div class="tag">Zahl: <b id="a-zahl">–</b></div>
+    <div class="tag">Abstand zur Null: <b id="a-abstand">–</b></div>
+    <div class="tag">gleich weit weg: <b id="a-gegen">–</b></div>
+  </div>
+
+  <h3>Modell 2: Das Koordinatensystem mit vier Feldern</h3>
+  <p>Mit den Reglern setzt ihr den Punkt P. Der Pfeil zeigt den Weg vom Ursprung (0 | 0): <b>zuerst x</b>
+  (nach rechts oder links), <b>dann y</b> (nach oben oder unten). Die Achsen teilen die Ebene in vier Felder.
+  Sie heißen <b>Quadranten</b>.</p>
+  <canvas id="c-modell" width="900" height="640"></canvas>
+  <div class="zwei">
+    <div><label class="reg">x = <span id="l-x">2</span></label>
+      <input type="range" id="r-x" min="-5" max="5" value="2" step="0.5"></div>
+    <div><label class="reg">y = <span id="l-y">1</span></label>
+      <input type="range" id="r-y" min="-5" max="5" value="1" step="0.5"></div>
+  </div>
+  <div class="werte">
+    <div class="tag">Punkt: <b id="a-punkt">–</b></div>
+    <div class="tag">Lage: <b id="a-quadrant">–</b></div>
+    <div class="tag">Weg: <b id="a-weg">–</b></div>
+    <div class="tag">Abstand zur y-Achse: <b id="a-absy">–</b></div>
+    <div class="tag">Abstand zur x-Achse: <b id="a-absx">–</b></div>
+  </div>
+
+  <div class="karte"><h4>Aufträge</h4>
+  <ol><li><b>Modell 1.</b> Stellt a = −3,5 ein. Wie weit ist −3,5 von der Null weg? Welche andere Zahl ist genauso weit
+  weg? Stellt dann −2 und −2,5 ein: Welche Zahl ist <i>kleiner</i>? Welche ist <i>weiter</i> von der Null weg?</li>
+  <li><b>Modell 2.</b> Stellt P auf Schatz A (−4 | 1), dann auf Schatz B (3 | −2). Notiert jedes Mal: das Feld, den Weg
+  vom Brunnen und den Abstand zum Nord-Süd-Weg (das ist die y-Achse). War eure Prognose richtig?</li></ol></div>
+
+  <label class="reg">Notiz zu Auftrag 1:</label>
+  <textarea id="t-k1" data-label="Kern – Auftrag 1 (Abstand zur Null)"></textarea>
+  <label class="reg">Notiz zu Auftrag 2:</label>
+  <textarea id="t-k2" data-label="Kern – Auftrag 2 (die Schätze)"></textarea>
+
+  <details class="gesperrt" data-fuer="t-k1,t-k2" data-min="30">
+    <summary>Kontrolle – erst nach eigenen Notizen öffnen</summary>
+    <p><b>1.</b> −3,5 ist <b>3,5</b> von der Null weg. Genauso weit weg ist <b>3,5</b>. −2,5 ist <b>kleiner</b> als −2
+    (weiter links), aber <b>weiter</b> von der Null weg (2,5 gegen 2). Kleiner und weiter weg ist bei negativen Zahlen dasselbe.</p>
+    <p><b>2.</b> Schatz A (−4 | 1): <b>links oben</b> (2. Quadrant), 4 nach links, dann 1 nach oben, <b>4 Schritte</b> vom
+    Nord-Süd-Weg. Schatz B (3 | −2): <b>rechts unten</b> (4. Quadrant), 3 nach rechts, dann 2 nach unten, <b>3 Schritte</b>
+    vom Nord-Süd-Weg. <b>A liegt weiter weg</b>, obwohl −4 kleiner ist als 3.</p>
+  </details>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">K3</span> <span class="stern">★</span> Findet alle Punkte, die von der y-Achse <b>3</b> Schritte und
+    von der x-Achse <b>2</b> Schritte entfernt sind. Wie viele gibt es? In welchen Quadranten liegen sie? Was haben ihre
+    Koordinaten gemeinsam, und worin unterscheiden sie sich?</p>
+    <textarea id="t-k3" data-label="Kern – Auftrag 3 (Vertiefen)"></textarea>
+    <details class="gesperrt" data-fuer="t-k3" data-min="40"><summary>Kontrolle K3</summary>
+      <p>Es sind <b>vier</b> Punkte, in jedem Quadranten einer: (3 | 2) im 1., (−3 | 2) im 2., (−3 | −2) im 3. und
+      (3 | −2) im 4. Quadranten. Die Zahlen ohne Vorzeichen sind immer 3 und 2: Die <b>Abstände</b> sind gleich. Nur die
+      <b>Vorzeichen</b> unterscheiden sich, und sie entscheiden über das Feld. Die vier Punkte sind Ecken eines Rechtecks
+      um den Ursprung.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Zu den Modellen</h4>
+  <p>Beide Modelle rechnen exakt (Schritt 0,5). Modell 1 legt den Betrag als Abstand an, bevor das Wort fällt; das Wort
+  kommt im Merksatz. Modell 2 zeigt den Weg immer in der Reihenfolge x, dann y, und nennt bei x = 0 oder y = 0 die Achse
+  statt eines Quadranten (das braucht V1 ★). Im Herumgehen bei Auftrag 1 fragen: <i>„Kleiner oder weiter weg – ist das
+  dasselbe?“</i></p></div>
+</section>
+
+<!-- ================= PHASE 4: EUER WEG ================= -->
+<section class="phase" data-titel="Euer Weg" data-min="20">
+  <h2>4 · Ordnen und ablesen</h2>
+  <p class="zeitnote">20 Minuten · jeder Weg anders, das Ziel ist dasselbe: der Rundweg aus dem Buch (S. 78)</p>
+
+  <!-- AUFFRISCHEN -->
+  <div data-pfad="auffrischen">
+    <div class="karte blau"><h4>Weg Auffrischen · vorgerechnet: Zahlen ordnen (Buch S. 75 Nr. 4 a)</h4>
+    <p>Ordnet der Größe nach, mit der kleinsten Zahl zuerst: <b>8 &nbsp; −2 &nbsp; 1,5 &nbsp; −2,3 &nbsp; −2,05</b></p>
+    <ol>
+      <li><b>Zuerst die negativen Zahlen.</b> Sie sind alle kleiner als die positiven: −2, −2,3 und −2,05.</li>
+      <li><b>Bei negativen Zahlen ist die kleiner, die weiter von der Null weg ist.</b> 2,3 ist weiter weg als 2,05 und
+      2,05 weiter als 2. Also: −2,3 &lt; −2,05 &lt; −2.</li>
+      <li><b>Dann die positiven:</b> 1,5 &lt; 8.</li>
+      <li><b>Ergebnis:</b> −2,3 &lt; −2,05 &lt; −2 &lt; 1,5 &lt; 8.</li>
+    </ol>
+    <div class="bild"><svg viewBox="0 0 520 120" role="img" aria-label="Zahlengerade von −2,5 bis −1,9"><line x1="18" y1="80" x2="504.0" y2="80" stroke="#1a2229" stroke-width="1.6"/><path d="M510.0,80 l-9,-4 v8 z" fill="#1a2229"/><line x1="30.0" y1="72" x2="30.0" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="30.0" y="104" font-size="13" text-anchor="middle">−2,5</text><line x1="68.3" y1="75" x2="68.3" y2="85" stroke="#1a2229" stroke-width="0.9"/><line x1="106.7" y1="72" x2="106.7" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="106.7" y="104" font-size="13" text-anchor="middle">−2,4</text><line x1="145.0" y1="75" x2="145.0" y2="85" stroke="#1a2229" stroke-width="0.9"/><line x1="183.3" y1="72" x2="183.3" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="183.3" y="104" font-size="13" text-anchor="middle">−2,3</text><line x1="221.7" y1="75" x2="221.7" y2="85" stroke="#1a2229" stroke-width="0.9"/><line x1="260.0" y1="72" x2="260.0" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="260.0" y="104" font-size="13" text-anchor="middle">−2,2</text><line x1="298.3" y1="75" x2="298.3" y2="85" stroke="#1a2229" stroke-width="0.9"/><line x1="336.7" y1="72" x2="336.7" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="336.7" y="104" font-size="13" text-anchor="middle">−2,1</text><line x1="375.0" y1="75" x2="375.0" y2="85" stroke="#1a2229" stroke-width="0.9"/><line x1="413.3" y1="72" x2="413.3" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="413.3" y="104" font-size="13" text-anchor="middle">−2</text><line x1="451.7" y1="75" x2="451.7" y2="85" stroke="#1a2229" stroke-width="0.9"/><line x1="490.0" y1="72" x2="490.0" y2="88" stroke="#1a2229" stroke-width="1.4"/><text x="490.0" y="104" font-size="13" text-anchor="middle">−1,9</text><circle cx="183.3" cy="80" r="6" fill="#e07b00"/><text x="183.3" y="60" font-size="15" font-weight="700" text-anchor="middle" fill="#e07b00">−2,3</text><circle cx="375.0" cy="80" r="6" fill="#e07b00"/><text x="379.0" y="60" font-size="15" font-weight="700" text-anchor="end" fill="#e07b00">−2,05</text><circle cx="413.3" cy="80" r="6" fill="#e07b00"/><text x="409.3" y="60" font-size="15" font-weight="700" text-anchor="start" fill="#e07b00">−2</text><text x="30" y="24" font-size="13" fill="#4a5560">← kleiner</text><text x="490" y="24" font-size="13" text-anchor="end" fill="#4a5560">größer →</text></svg>
+      <p class="bildtext">Die Zahlengerade mit der Lupe: Ein Strich ist hier 0,05. −2,3 steht am weitesten links.</p></div></div>
+    <div class="aufgabe">
+      <p><span class="nr">W1</span> <b>Buch S. 75 Nr. 4 b.</b> Ordnet: <b>−1,5 &nbsp; 0,04 &nbsp; −0,1 &nbsp; −0,9 &nbsp; −2,1</b>.
+      Schritt 1 ist schon gemacht: Die negativen Zahlen sind −1,5, −0,1, −0,9 und −2,1. Nur 0,04 ist positiv.</p>
+      <textarea id="t-w1" data-label="Weg Auffrischen – W1" placeholder="… < … < … < … < 0,04"></textarea>
+      <div class="hilfen" id="h-w1" data-feld="t-w1">
+        <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Welche der vier negativen Zahlen ist am weitesten von der Null weg? Die kommt ganz nach vorn.</p></details>
+        <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Die Abstände zur Null sind 1,5, 0,1, 0,9 und 2,1. Sortiert sie vom größten zum kleinsten Abstand.</p></details>
+        <details class="hilfe"><summary>Hilfe 3 · Teillösung</summary><p>Ganz vorn steht −2,1, ganz hinten 0,04. Jetzt fehlen noch die drei Zahlen dazwischen.</p></details>
+      </div>
+      <details class="gesperrt" data-fuer="t-w1" data-min="15"><summary>Lösung W1</summary>
+        <p><b>−2,1 &lt; −1,5 &lt; −0,9 &lt; −0,1 &lt; 0,04</b>. Achtung bei −0,1 und −0,9: −0,9 ist weiter von der Null weg,
+        also kleiner.</p></details>
+    </div>
+    <div class="karte blau"><h4>Vorgerechnet: Punkte ablesen (Buch S. 78, Beispiel a)</h4>
+    <div class="bild"><svg viewBox="0 0 400 340" role="img" aria-label="Punkte A und B ablesen" style="max-width:360px"><line x1="32.0" y1="330.0" x2="32.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="60.0" y1="330.0" x2="60.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="88.0" y1="330.0" x2="88.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="116.0" y1="330.0" x2="116.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="144.0" y1="330.0" x2="144.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="172.0" y1="330.0" x2="172.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="200.0" y1="330.0" x2="200.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="228.0" y1="330.0" x2="228.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="256.0" y1="330.0" x2="256.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="284.0" y1="330.0" x2="284.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="312.0" y1="330.0" x2="312.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="340.0" y1="330.0" x2="340.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="368.0" y1="330.0" x2="368.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="330.0" x2="368.0" y2="330.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="302.0" x2="368.0" y2="302.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="274.0" x2="368.0" y2="274.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="246.0" x2="368.0" y2="246.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="218.0" x2="368.0" y2="218.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="190.0" x2="368.0" y2="190.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="162.0" x2="368.0" y2="162.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="134.0" x2="368.0" y2="134.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="106.0" x2="368.0" y2="106.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="78.0" x2="368.0" y2="78.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="50.0" x2="368.0" y2="50.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="22.0" x2="368.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="26.0" y1="190.0" x2="378.0" y2="190.0" stroke="#1a2229" stroke-width="1.6"/><path d="M382.0,190.0 l-9,-4 v8 z" fill="#1a2229"/><line x1="200.0" y1="336.0" x2="200.0" y2="12.0" stroke="#1a2229" stroke-width="1.6"/><path d="M200.0,8.0 l-4,9 h8 z" fill="#1a2229"/><text x="380.0" y="208.0" font-size="12" font-style="italic">x</text><text x="208.0" y="16.0" font-size="12" font-style="italic">y</text><text x="32.0" y="206.0" font-size="12" text-anchor="middle">−3</text><text x="88.0" y="206.0" font-size="12" text-anchor="middle">−2</text><text x="144.0" y="206.0" font-size="12" text-anchor="middle">−1</text><text x="256.0" y="206.0" font-size="12" text-anchor="middle">1</text><text x="312.0" y="206.0" font-size="12" text-anchor="middle">2</text><text x="368.0" y="206.0" font-size="12" text-anchor="middle">3</text><text x="194.0" y="306.0" font-size="12" text-anchor="end">−2</text><text x="194.0" y="250.0" font-size="12" text-anchor="end">−1</text><text x="194.0" y="138.0" font-size="12" text-anchor="end">1</text><text x="194.0" y="82.0" font-size="12" text-anchor="end">2</text><text x="194.0" y="26.0" font-size="12" text-anchor="end">3</text><line x1="60.0" y1="78" x2="60.0" y2="190" stroke="#e07b00" stroke-width="2" stroke-dasharray="5 4"/><line x1="60.0" y1="78" x2="200" y2="78" stroke="#0b7fc4" stroke-width="2" stroke-dasharray="5 4"/><text x="60.0" y="222" font-size="13" text-anchor="middle" fill="#e07b00">x = −2,5</text><text x="208" y="72" font-size="13" fill="#0b7fc4">y = 2</text><line x1="55.0" y1="73.0" x2="65.0" y2="83.0" stroke="#1a2229" stroke-width="2.2"/><line x1="55.0" y1="83.0" x2="65.0" y2="73.0" stroke="#1a2229" stroke-width="2.2"/><text x="50.0" y="70" font-size="15" text-anchor="end">A</text><line x1="83.0" y1="241.0" x2="93.0" y2="251.0" stroke="#1a2229" stroke-width="2.2"/><line x1="83.0" y1="251.0" x2="93.0" y2="241.0" stroke="#1a2229" stroke-width="2.2"/><text x="97" y="251" font-size="15">B</text></svg></div>
+    <ol>
+      <li><b>x zuerst:</b> Von A senkrecht auf die x-Achse gehen. Dort steht −2,5. A liegt <b>links</b>, also mit Minus.</li>
+      <li><b>Dann y:</b> Von A waagerecht auf die y-Achse gehen. Dort steht 2. A liegt <b>oben</b>, also ohne Minus.</li>
+      <li><b>Ergebnis:</b> A(−2,5 | 2). Genauso B: senkrecht −2, waagerecht −1, also <b>B(−2 | −1)</b>.</li>
+    </ol></div>
+    <div class="karte warn"><h4>Für W2: so geht es bei B</h4>
+    <p>Im Rundweg unten liegt B 1 nach rechts und 1,5 nach oben, das sind zwei Kästchen nach rechts und drei Kästchen nach oben: <b>B(1 | 1,5)</b>.
+    A(2 | 1) steht im Buch. Die anderen lest ihr selbst ab.</p></div>
+  </div>
+
+  <!-- STANDARD und VERTIEFEN -->
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <p><span class="nr">S1</span> <b>Buch S. 75 Nr. 4 b.</b> Ordnet der Größe nach. Beginnt mit der kleinsten Zahl:
+    <b>−1,5 &nbsp; 0,04 &nbsp; −0,1 &nbsp; −0,9 &nbsp; −2,1</b></p>
+    <textarea id="t-ordnen" data-label="S1 – Ordnen (Buch S. 75 Nr. 4 b)" placeholder="… < … < …"></textarea>
+    <div class="hilfen" id="h-ordnen" data-feld="t-ordnen" data-pfad="standard">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Welche Zahl steht auf der Zahlengeraden am weitesten links?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Bei negativen Zahlen ist die kleiner, die weiter von der Null weg ist: −0,9 liegt weiter links als −0,1.</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-ordnen" data-min="15"><summary>Lösung S1</summary>
+      <p><b>−2,1 &lt; −1,5 &lt; −0,9 &lt; −0,1 &lt; 0,04</b>.</p></details>
+  </div>
+
+  <!-- FÜR ALLE: der Rundweg, Buch S. 78 a -->
+  <div class="aufgabe">
+    <p><span class="nr" data-pfad="auffrischen">W2</span><span class="nr" data-pfad="standard,vertiefen">S2</span>
+    <b>Der Rundweg (Buch S. 78, a).</b> Startet bei A(2 | 1) und geht den Weg in Pfeilrichtung.
+    Lest die Koordinaten ab. Schreibt sie so: <b>−2|1</b> oder <b>(−2 | 1)</b>. Ein Kästchen ist 0,5.</p>
+    <div class="bild"><svg viewBox="0 0 420 440" role="img" aria-label="Rundweg A bis N im Koordinatensystem" style="max-width:420px"><rect x="200" y="24.0" width="168" height="196.0" fill="#dcecf8"/><line x1="32.0" y1="416.0" x2="32.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="60.0" y1="416.0" x2="60.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="88.0" y1="416.0" x2="88.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="116.0" y1="416.0" x2="116.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="144.0" y1="416.0" x2="144.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="172.0" y1="416.0" x2="172.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="200.0" y1="416.0" x2="200.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="228.0" y1="416.0" x2="228.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="256.0" y1="416.0" x2="256.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="284.0" y1="416.0" x2="284.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="312.0" y1="416.0" x2="312.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="340.0" y1="416.0" x2="340.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="368.0" y1="416.0" x2="368.0" y2="24.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="416.0" x2="368.0" y2="416.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="388.0" x2="368.0" y2="388.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="360.0" x2="368.0" y2="360.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="332.0" x2="368.0" y2="332.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="304.0" x2="368.0" y2="304.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="276.0" x2="368.0" y2="276.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="248.0" x2="368.0" y2="248.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="220.0" x2="368.0" y2="220.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="192.0" x2="368.0" y2="192.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="164.0" x2="368.0" y2="164.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="136.0" x2="368.0" y2="136.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="108.0" x2="368.0" y2="108.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="80.0" x2="368.0" y2="80.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="32.0" y1="52.0" x2="368.0" y2="52.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="32.0" y1="24.0" x2="368.0" y2="24.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="26.0" y1="220.0" x2="378.0" y2="220.0" stroke="#1a2229" stroke-width="1.6"/><path d="M382.0,220.0 l-9,-4 v8 z" fill="#1a2229"/><line x1="200.0" y1="422.0" x2="200.0" y2="14.0" stroke="#1a2229" stroke-width="1.6"/><path d="M200.0,10.0 l-4,9 h8 z" fill="#1a2229"/><text x="380.0" y="238.0" font-size="12" font-style="italic">x</text><text x="208.0" y="18.0" font-size="12" font-style="italic">y</text><text x="32.0" y="236.0" font-size="12" text-anchor="middle">−3</text><text x="88.0" y="236.0" font-size="12" text-anchor="middle">−2</text><text x="144.0" y="236.0" font-size="12" text-anchor="middle">−1</text><text x="256.0" y="236.0" font-size="12" text-anchor="middle">1</text><text x="312.0" y="236.0" font-size="12" text-anchor="middle">2</text><text x="368.0" y="236.0" font-size="12" text-anchor="middle">3</text><text x="194.0" y="392.0" font-size="12" text-anchor="end">−3</text><text x="194.0" y="336.0" font-size="12" text-anchor="end">−2</text><text x="194.0" y="280.0" font-size="12" text-anchor="end">−1</text><text x="194.0" y="168.0" font-size="12" text-anchor="end">1</text><text x="194.0" y="112.0" font-size="12" text-anchor="end">2</text><text x="194.0" y="56.0" font-size="12" text-anchor="end">3</text><path d="M312.0,164.0 L256.0,136.0 L200.0,108.0 L144.0,80.0 L88.0,52.0 L88.0,108.0 L88.0,164.0 L88.0,220.0 L88.0,276.0 L144.0,332.0 L200.0,388.0 L228.0,332.0 L256.0,276.0 L284.0,220.0 Z" fill="none" stroke="#e07b00" stroke-width="2.5"/><path d="M9,0 L-7,-7 L-7,7 Z" fill="#c62828" transform="translate(284.0 150.0) rotate(-153.43)"/><line x1="307.0" y1="159.0" x2="317.0" y2="169.0" stroke="#1a2229" stroke-width="2.2"/><line x1="307.0" y1="169.0" x2="317.0" y2="159.0" stroke="#1a2229" stroke-width="2.2"/><text x="322.0" y="160.0" font-size="15" font-weight="700" fill="#c62828">A</text><line x1="251.0" y1="131.0" x2="261.0" y2="141.0" stroke="#1a2229" stroke-width="2.2"/><line x1="251.0" y1="141.0" x2="261.0" y2="131.0" stroke="#1a2229" stroke-width="2.2"/><text x="264.0" y="126.0" font-size="15" font-weight="700" fill="#c62828">B</text><line x1="195.0" y1="103.0" x2="205.0" y2="113.0" stroke="#1a2229" stroke-width="2.2"/><line x1="195.0" y1="113.0" x2="205.0" y2="103.0" stroke="#1a2229" stroke-width="2.2"/><text x="209.0" y="99.0" font-size="15" font-weight="700" fill="#c62828">C</text><line x1="139.0" y1="75.0" x2="149.0" y2="85.0" stroke="#1a2229" stroke-width="2.2"/><line x1="139.0" y1="85.0" x2="149.0" y2="75.0" stroke="#1a2229" stroke-width="2.2"/><text x="150.0" y="70.0" font-size="15" font-weight="700" fill="#c62828">D</text><line x1="83.0" y1="47.0" x2="93.0" y2="57.0" stroke="#1a2229" stroke-width="2.2"/><line x1="83.0" y1="57.0" x2="93.0" y2="47.0" stroke="#1a2229" stroke-width="2.2"/><text x="70.0" y="46.0" font-size="15" font-weight="700" fill="#c62828">E</text><line x1="83.0" y1="103.0" x2="93.0" y2="113.0" stroke="#1a2229" stroke-width="2.2"/><line x1="83.0" y1="113.0" x2="93.0" y2="103.0" stroke="#1a2229" stroke-width="2.2"/><text x="70.0" y="112.0" font-size="15" font-weight="700" fill="#c62828">F</text><line x1="83.0" y1="159.0" x2="93.0" y2="169.0" stroke="#1a2229" stroke-width="2.2"/><line x1="83.0" y1="169.0" x2="93.0" y2="159.0" stroke="#1a2229" stroke-width="2.2"/><text x="70.0" y="168.0" font-size="15" font-weight="700" fill="#c62828">G</text><line x1="83.0" y1="215.0" x2="93.0" y2="225.0" stroke="#1a2229" stroke-width="2.2"/><line x1="83.0" y1="225.0" x2="93.0" y2="215.0" stroke="#1a2229" stroke-width="2.2"/><text x="70.0" y="214.0" font-size="15" font-weight="700" fill="#c62828">H</text><line x1="83.0" y1="271.0" x2="93.0" y2="281.0" stroke="#1a2229" stroke-width="2.2"/><line x1="83.0" y1="281.0" x2="93.0" y2="271.0" stroke="#1a2229" stroke-width="2.2"/><text x="72.0" y="294.0" font-size="15" font-weight="700" fill="#c62828">I</text><line x1="139.0" y1="327.0" x2="149.0" y2="337.0" stroke="#1a2229" stroke-width="2.2"/><line x1="139.0" y1="337.0" x2="149.0" y2="327.0" stroke="#1a2229" stroke-width="2.2"/><text x="128.0" y="348.0" font-size="15" font-weight="700" fill="#c62828">J</text><line x1="195.0" y1="383.0" x2="205.0" y2="393.0" stroke="#1a2229" stroke-width="2.2"/><line x1="195.0" y1="393.0" x2="205.0" y2="383.0" stroke="#1a2229" stroke-width="2.2"/><text x="208.0" y="408.0" font-size="15" font-weight="700" fill="#c62828">K</text><line x1="223.0" y1="327.0" x2="233.0" y2="337.0" stroke="#1a2229" stroke-width="2.2"/><line x1="223.0" y1="337.0" x2="233.0" y2="327.0" stroke="#1a2229" stroke-width="2.2"/><text x="238.0" y="342.0" font-size="15" font-weight="700" fill="#c62828">L</text><line x1="251.0" y1="271.0" x2="261.0" y2="281.0" stroke="#1a2229" stroke-width="2.2"/><line x1="251.0" y1="281.0" x2="261.0" y2="271.0" stroke="#1a2229" stroke-width="2.2"/><text x="266.0" y="288.0" font-size="15" font-weight="700" fill="#c62828">M</text><line x1="279.0" y1="215.0" x2="289.0" y2="225.0" stroke="#1a2229" stroke-width="2.2"/><line x1="279.0" y1="225.0" x2="289.0" y2="215.0" stroke="#1a2229" stroke-width="2.2"/><text x="292.0" y="240.0" font-size="15" font-weight="700" fill="#c62828">N</text></svg>
+      <p class="bildtext">Nach Buch S. 78: dieselben Punkte A bis N, neu gezeichnet. Ein Kästchen ist 0,5, die Achsen sind
+      in ganzen Schritten beschriftet.</p></div>
+    <div style="overflow-x:auto">
+    <table class="messtabelle" id="tab-mess" data-label="Rundweg – Koordinaten">
+      <tr><th>Punkt</th><td>C</td><td>E</td><td>H</td><td>I</td><td>J</td><td>K</td><td>L</td><td>N</td></tr>
+      <tr><th>(x | y)</th>
+        <td><input id="m-c" data-soll="0|2" data-tol="0.01"></td>
+        <td><input id="m-e" data-soll="-2|3" data-tol="0.01"></td>
+        <td><input id="m-h" data-soll="-2|0" data-tol="0.01"></td>
+        <td><input id="m-i" data-soll="-2|-1" data-tol="0.01"></td>
+        <td><input id="m-j" data-soll="-1|-2" data-tol="0.01"></td>
+        <td><input id="m-k" data-soll="0|-3" data-tol="0.01"></td>
+        <td><input id="m-l" data-soll="0,5|-2" data-tol="0.01"></td>
+        <td><input id="m-n" data-soll="1,5|0" data-tol="0.01"></td>
+      </tr>
+    </table></div>
+    <button class="knopf voll" id="k-pruefe-mess">Punkte prüfen &amp; einzeichnen</button>
+    <div class="rueck" id="rueck-mess"></div>
+    <canvas id="c-diagramm" width="900" height="560"></canvas>
+    <p class="videohinweis">Grün: richtig eingezeichnet. Rot: Dort landet euer Punkt, er stimmt noch nicht. Leere Felder zeichnet die Seite nicht.
+    D, F, G und M dürft ihr freiwillig im Heft ablesen.</p>
+    <div class="hilfen" id="h-rundweg" data-feld="tab-mess" data-pfad="auffrischen,standard">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Wie viel ist ein Kästchen? Und liegt der Punkt links oder rechts von der y-Achse, oben oder unten?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Liegt ein Punkt genau auf einer Achse, ist eine Koordinate 0. C liegt auf der y-Achse: kein Schritt nach rechts oder links, also x = 0.</p></details>
+    </div>
+  </div>
+
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <p><span class="nr">S3</span> <b>Buch S. 78, b.</b> Beschreibt die Lage der Punkte R, S und T. In welchem Feld liegen sie?<br>
+    R hat eine negative x-Koordinate und eine positive y-Koordinate. S hat eine positive x-Koordinate und eine negative
+    y-Koordinate. T hat zwei negative Koordinaten.</p>
+    <textarea id="t-lage" data-label="S3 – Lage von R, S, T"></textarea>
+    <div class="hilfen" id="h-lage" data-feld="t-lage" data-pfad="standard">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Negative x-Koordinate heißt: links oder rechts? Negative y-Koordinate: oben oder unten?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>R: links und oben. Sucht dieses Feld im Modell 2. Die Felder sind gegen den Uhrzeigersinn gezählt, das 1. ist rechts oben.</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-lage" data-min="30"><summary>Lösung S3</summary>
+      <p>R liegt <b>links oben</b>, im <b>2. Quadranten</b>. S liegt <b>rechts unten</b>, im <b>4. Quadranten</b>.
+      T liegt <b>links unten</b>, im <b>3. Quadranten</b>.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">V1</span> <span class="stern">★</span> Das Buch sagt (S. 78): <i>„Die Koordinatenachsen
+    unterteilen die Ebene in vier Quadranten.“</i> In welchem Quadranten liegen dann C, H, K und N aus dem Rundweg?
+    Und der Ursprung (0 | 0)? Schreibt eine genaue Regel: Wann liegt ein Punkt in welchem Quadranten, und wann in keinem?</p>
+    <textarea id="t-v1" data-label="Weg Vertiefen – V1" style="min-height:6rem"></textarea>
+    <details class="gesperrt" data-fuer="t-v1" data-min="60"><summary>Lösung V1</summary>
+      <p>C(0 | 2) und K(0 | −3) liegen <b>auf der y-Achse</b>, H(−2 | 0) und N(1,5 | 0) <b>auf der x-Achse</b>. Sie liegen in
+      <b>keinem</b> Quadranten, der Ursprung auch nicht. Die Achsen sind die Grenzen der Felder, sie gehören zu keinem.</p>
+      <p><b>Regel:</b> 1. Quadrant: x &gt; 0 und y &gt; 0. 2.: x &lt; 0, y &gt; 0. 3.: x &lt; 0, y &lt; 0. 4.: x &gt; 0, y &lt; 0.
+      Ist eine Koordinate 0, liegt der Punkt auf einer Achse. Das Buch fragt in Nr. 2 deshalb nur nach Punkten ohne 0.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Drei Wege, ein Ziel</h4><p><i>Auffrischen</i> bekommt Ordnen (S. 75 Nr. 4 a) und Ablesen
+  (S. 78 Beispiel) vorgerechnet, ordnet 4 b mit erledigtem ersten Schritt (W1, drei Hilfen) und liest den Rundweg mit
+  vorgemachtem B ab (W2). <i>Standard</i> ordnet 4 b, liest den Rundweg ab und beschreibt die Lage von R, S, T, je zwei
+  Hilfen. <i>Vertiefen</i> macht dasselbe ohne Hilfen und präzisiert in V1 den Buchsatz von den vier Quadranten. Alle
+  kommen mit den acht Rundweg-Punkten beim Merksatz an. Im Herumgehen: Wer bei L „−2|0,5“ hat, hat x und y vertauscht –
+  „zuerst x, wie im Alphabet“. Wer bei H oder K ein Kästchen danebenliegt, hat die Schrittweite 0,5 übersehen.</p></div>
+</section>
+
+<!-- ================= PHASE 5: MERKSATZ ================= -->
+<section class="phase" data-titel="Merksatz" data-min="6">
+  <h2>5 · Der Merksatz</h2>
+  <p class="zeitnote">6 Minuten · ins Heft, neue Überschrift: 4.2 Betrag · 4.3 Koordinatensystem</p>
+
+  <div class="karte merk"><h4>Merksatz (Buch S. 74, 77, 78)</h4>
+  <p style="font-size:1.12rem"><b>Negative Zahlen liegen spiegelbildlich links von der Null. So wird auch das
+  Koordinatensystem vollständig: Es hat vier Quadranten, und jeder Punkt heißt P(x | y), zuerst x, dann y.</b></p>
+  <ul>
+    <li><b>Ordnen:</b> Je weiter rechts eine Zahl steht, desto größer ist sie: −5 &lt; −2.</li>
+    <li><b>Betrag:</b> |a| ist der Abstand von a zur Null. |−2| = 2 und |2| = 2, |0| = 0. Ein Betrag ist nie negativ.
+    Von zwei negativen Zahlen ist die mit dem größeren Betrag die kleinere.</li>
+    <li><b>Koordinaten:</b> x sagt rechts (+) oder links (−), y sagt oben (+) oder unten (−). Die Vorzeichen verraten
+    den Quadranten: 1. (+ | +), 2. (− | +), 3. (− | −), 4. (+ | −). Ist eine Koordinate 0, liegt der Punkt auf einer
+    Achse. Der Abstand zur y-Achse ist |x|, der Abstand zur x-Achse ist |y|.</li>
+  </ul></div>
+
+  <div class="bild"><svg viewBox="0 0 480 320" role="img" aria-label="Die vier Quadranten mit Beispielpunkten"><rect x="240" y="12.799999999999983" width="207.0" height="147.20000000000002" fill="#e8f3fb"/><rect x="33.0" y="12.799999999999983" width="207.0" height="147.20000000000002" fill="#fdf3e1"/><rect x="33.0" y="160" width="207.0" height="147.20000000000002" fill="#eef7ea"/><rect x="240" y="160" width="207.0" height="147.20000000000002" fill="#f6ecf7"/><line x1="33.0" y1="307.2" x2="33.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="56.0" y1="307.2" x2="56.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="79.0" y1="307.2" x2="79.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="102.0" y1="307.2" x2="102.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="125.0" y1="307.2" x2="125.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="148.0" y1="307.2" x2="148.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="171.0" y1="307.2" x2="171.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="194.0" y1="307.2" x2="194.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="217.0" y1="307.2" x2="217.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="240.0" y1="307.2" x2="240.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="263.0" y1="307.2" x2="263.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="286.0" y1="307.2" x2="286.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="309.0" y1="307.2" x2="309.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="332.0" y1="307.2" x2="332.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="355.0" y1="307.2" x2="355.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="378.0" y1="307.2" x2="378.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="401.0" y1="307.2" x2="401.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="424.0" y1="307.2" x2="424.0" y2="22.0" stroke="#e3e9ee" stroke-width="1.2"/><line x1="447.0" y1="307.2" x2="447.0" y2="22.0" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="307.2" x2="447.0" y2="307.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="284.2" x2="447.0" y2="284.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="261.2" x2="447.0" y2="261.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="238.2" x2="447.0" y2="238.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="215.2" x2="447.0" y2="215.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="192.2" x2="447.0" y2="192.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="169.2" x2="447.0" y2="169.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="146.2" x2="447.0" y2="146.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="123.2" x2="447.0" y2="123.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="100.2" x2="447.0" y2="100.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="77.2" x2="447.0" y2="77.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="54.2" x2="447.0" y2="54.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="33.0" y1="31.2" x2="447.0" y2="31.2" stroke="#e3e9ee" stroke-width="0.6"/><line x1="27.0" y1="160.0" x2="457.0" y2="160.0" stroke="#1a2229" stroke-width="1.6"/><path d="M461.0,160.0 l-9,-4 v8 z" fill="#1a2229"/><line x1="240.0" y1="313.2" x2="240.0" y2="12.0" stroke="#1a2229" stroke-width="1.6"/><path d="M240.0,8.0 l-4,9 h8 z" fill="#1a2229"/><text x="459.0" y="178.0" font-size="12" font-style="italic">x</text><text x="248.0" y="16.0" font-size="12" font-style="italic">y</text><text x="56.0" y="176.0" font-size="12" text-anchor="middle">−4</text><text x="102.0" y="176.0" font-size="12" text-anchor="middle">−3</text><text x="148.0" y="176.0" font-size="12" text-anchor="middle">−2</text><text x="194.0" y="176.0" font-size="12" text-anchor="middle">−1</text><text x="286.0" y="176.0" font-size="12" text-anchor="middle">1</text><text x="332.0" y="176.0" font-size="12" text-anchor="middle">2</text><text x="378.0" y="176.0" font-size="12" text-anchor="middle">3</text><text x="424.0" y="176.0" font-size="12" text-anchor="middle">4</text><text x="234.0" y="302.0" font-size="12" text-anchor="end">−3</text><text x="234.0" y="256.0" font-size="12" text-anchor="end">−2</text><text x="234.0" y="210.0" font-size="12" text-anchor="end">−1</text><text x="234.0" y="118.0" font-size="12" text-anchor="end">1</text><text x="234.0" y="72.0" font-size="12" text-anchor="end">2</text><text x="234.0" y="26.0" font-size="12" text-anchor="end">3</text><text x="345.8" y="33.5" font-size="15" font-weight="700" text-anchor="middle" fill="#0b5aa0">1. Quadrant (+ | +)</text><text x="134.2" y="33.5" font-size="15" font-weight="700" text-anchor="middle" fill="#a35a00">2. Quadrant (− | +)</text><text x="134.2" y="295.70000000000005" font-size="15" font-weight="700" text-anchor="middle" fill="#2e7d32">3. Quadrant (− | −)</text><text x="345.8" y="295.70000000000005" font-size="15" font-weight="700" text-anchor="middle" fill="#7b1fa2">4. Quadrant (+ | −)</text><line x1="373.0" y1="63.0" x2="383.0" y2="73.0" stroke="#1a2229" stroke-width="2.2"/><line x1="373.0" y1="73.0" x2="383.0" y2="63.0" stroke="#1a2229" stroke-width="2.2"/><text x="386" y="60" font-size="14">P(3 | 2)</text><line x1="143.0" y1="86.0" x2="153.0" y2="96.0" stroke="#1a2229" stroke-width="2.2"/><line x1="143.0" y1="96.0" x2="153.0" y2="86.0" stroke="#1a2229" stroke-width="2.2"/><text x="156" y="83.0" font-size="14">Q(−2 | 1,5)</text><line x1="97.0" y1="247.0" x2="107.0" y2="257.0" stroke="#1a2229" stroke-width="2.2"/><line x1="97.0" y1="257.0" x2="107.0" y2="247.0" stroke="#1a2229" stroke-width="2.2"/><text x="110" y="244" font-size="14">R(−3 | −2)</text><line x1="281.0" y1="270.0" x2="291.0" y2="280.0" stroke="#1a2229" stroke-width="2.2"/><line x1="281.0" y1="280.0" x2="291.0" y2="270.0" stroke="#1a2229" stroke-width="2.2"/><text x="294" y="267.0" font-size="14">S(1 | −2,5)</text><text x="246" y="153" font-size="13">(0 | 0)</text></svg>
+    <p class="bildtext">Die vier Quadranten. Der Punkt (0 | 0) heißt <b>Koordinatenursprung</b>.</p></div>
+
+  <div class="karte"><h4>Und zurück zu den Schätzen</h4>
+  <p>Schatz A (−4 | 1) liegt |−4| = <b>4</b> Schritte vom Nord-Süd-Weg weg, Schatz B (3 | −2) nur |3| = <b>3</b>.
+  A liegt also weiter weg, obwohl −4 die kleinere Zahl ist. <b>Kleiner</b> und <b>weiter weg</b> sind zwei verschiedene
+  Fragen: Die erste beantwortet die Zahlengerade, die zweite der Betrag.</p></div>
+
+  <h3>Selbstcheck</h3>
+  <p>Welche Aussage stimmt?</p>
+  <div class="mc" id="mc-check" data-label="Selbstcheck"></div>
+  <div class="rueck" id="rueck-check"></div>
+
+  <div class="lehrer"><h4>Sicherung</h4><p>Tafel: Zahlengerade mit |−2| = |2| = 2 (zwei Pfeile von der Null), daneben das
+  Achsenkreuz mit den vier Quadranten und ihren Vorzeichen. Der Satz „Von zwei negativen Zahlen ist die mit dem größeren
+  Betrag die kleinere“ ist Buch S. 77 Nr. 5 c; A5 ★ lässt ihn begründen.</p></div>
+</section>
+
+<!-- ================= PHASE 6: AUFGABEN ================= -->
+<section class="phase" data-titel="Aufgaben" data-min="17">
+  <h2>6 · Aufgaben</h2>
+  <p class="zeitnote">17 Minuten · A1–A3 für alle · die Lösungen jeweils darunter</p>
+
+  <div class="aufgabe">
+    <p><span class="nr">A1</span> <b>Buch S. 78 Nr. 2.</b> a) Gebt ohne Zeichnung an, in welchem Quadranten die Punkte liegen:<br>
+    A(2,7 | −3,2) · B(−6,1 | 2,4) · C(−2 | −3,1) · D(1 | 0,2) · E(−0,5 | −0,4) · F(4,4 | −2,2) · G(−1 | 1)<br>
+    b) Wie kann man einfach erkennen, in welchem Quadranten ein Punkt liegt? Begründet.</p>
+    <textarea id="t-a1" data-label="A1" placeholder="A: … Quadrant, B: …"></textarea>
+    <details class="gesperrt" data-fuer="t-a1" data-min="30"><summary>Lösung A1</summary>
+      <p><b>a)</b> A: 4. · B: 2. · C: 3. · D: 1. · E: 3. · F: 4. · G: 2. Quadrant.</p>
+      <p><b>b)</b> An den <b>Vorzeichen</b>: Das Vorzeichen von x sagt rechts oder links, das von y oben oder unten.
+      Wie groß die Zahlen sind, spielt keine Rolle. (+ | +) ist der 1., (− | +) der 2., (− | −) der 3., (+ | −) der 4. Quadrant.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="auffrischen">
+    <p><span class="nr">A2a</span> Vorbereitung für A2 (<b>Buch S. 77 Nr. 1 a</b>). Welche Zahl hat den größten Betrag?<br>
+    <b>−2,5 &nbsp; 4,1 &nbsp; 22/7 &nbsp; −2,9 &nbsp; −5,01</b> &nbsp; (22/7 ist ungefähr 3,14.)</p>
+    <textarea id="t-a2a" data-label="A2a (Auffrischen)"></textarea>
+    <details class="gesperrt" data-fuer="t-a2a" data-min="5"><summary>Lösung A2a</summary>
+      <p><b>−5,01</b>: Sie ist 5,01 von der Null weg, weiter als alle anderen. Das Minus zählt beim Betrag nicht.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A2</span> <b>Buch S. 77 Nr. 2 a, b</b> (das blaue Kästchen): <b>0,6 &nbsp; −1,1 &nbsp; 2,4 &nbsp; −3,6 &nbsp; 1,8</b><br>
+    a) Ordnet von der kleinsten zur größten Zahl. &nbsp; b) Ordnet vom kleinsten zum größten <b>Betrag</b>.</p>
+    <textarea id="t-a2" data-label="A2" placeholder="a) … < …   b) |…| < |…|"></textarea>
+    <details class="gesperrt" data-fuer="t-a2" data-min="30"><summary>Lösung A2</summary>
+      <p><b>a)</b> −3,6 &lt; −1,1 &lt; 0,6 &lt; 1,8 &lt; 2,4<br>
+      <b>b)</b> |0,6| &lt; |−1,1| &lt; |1,8| &lt; |2,4| &lt; |−3,6|, denn 0,6 &lt; 1,1 &lt; 1,8 &lt; 2,4 &lt; 3,6.</p>
+      <p>−3,6 steht in a) ganz vorn und in b) ganz hinten: die kleinste Zahl, aber der größte Betrag.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A3</span> <b>Buch S. 79 Nr. 3 a</b>, ohne Zeichnung: A(−2 | 4) · B(3 | 2) · C(−2 | −4) · D(7 | −2)<br>
+    (1) Welcher Punkt liegt am höchsten? (2) Welcher am tiefsten? (3) Welcher am weitesten links? (4) Welcher am weitesten rechts?<br>
+    (5) Dazu: Welche Punkte liegen <b>gleich weit von der x-Achse</b> entfernt? Wie weit?</p>
+    <textarea id="t-a3" data-label="A3" style="min-height:6rem"></textarea>
+    <div class="hilfen" id="h-a3" data-feld="t-a3">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Welche der beiden Koordinaten sagt etwas über oben und unten? Welche über links und rechts?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Für (1) und (2) vergleicht nur die y-Werte: 4, 2, −4, −2. Für (3) und (4) nur die x-Werte: −2, 3, −2, 7. Für (5) den Abstand zur x-Achse, also den Betrag von y.</p></details>
+      <details class="hilfe"><summary>Hilfe 3 · Teillösung</summary><p>(1) ist A, denn 4 ist der größte y-Wert. Bei (2): Welche Zahl ist kleiner, −4 oder −2? Bei (3) gibt es eine Überraschung: Schaut, ob zwei Punkte dieselbe x-Koordinate haben. Bei (5): |4| und |−4|, |2| und |−2|.</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-a3" data-min="40"><summary>Lösung A3</summary>
+      <p>(1) <b>A</b> (y = 4) · (2) <b>C</b> (y = −4, die kleinste Zahl) · (3) <b>A und C</b> zugleich, beide haben x = −2 ·
+      (4) <b>D</b> (x = 7).</p>
+      <p>(5) <b>A und C</b> liegen beide <b>4</b> von der x-Achse entfernt (|4| = |−4| = 4), A darüber, C darunter.
+      <b>B und D</b> liegen beide <b>2</b> entfernt (|2| = |−2| = 2).</p>
+      <p>Wer bei (2) A oder B nennt, hat „4 ist größer“ gedacht und das Minus übersehen. Am tiefsten ist der kleinste y-Wert.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <p><span class="nr">A4</span> <span class="stern">★</span> <b>Buch S. 79 Nr. 4.</b> Zeichnet die Punkte A(2,5 | −3,5),
+    B(6,5 | −4,5), C(3,5 | 1,5) und D(−0,5 | 2,5) in das Koordinatensystem. Verbindet A, B, C, D und wieder A.
+    Welche Figur entsteht? Begründet.</p>
+    <div class="zeichenfeld" data-zid="a4" data-koord="-2,8,-6,4" data-titel="Viereck A4" data-label="Zeichnung A4"></div>
+    <textarea id="t-a4" data-label="A4" placeholder="Es entsteht ein …, weil …"></textarea>
+    <details class="gesperrt" data-fuer="t-a4" data-min="25"><summary>Lösung A4</summary>
+      <p>Ein <b>Parallelogramm</b>. Von A nach B geht es 4 nach rechts und 1 nach unten, von D nach C ebenfalls 4 nach rechts
+      und 1 nach unten. Von A nach D geht es 3 nach links und 6 nach oben, von B nach C ebenso. Gegenüberliegende Seiten sind
+      also parallel und gleich lang. Ein Rechteck ist es nicht: Die Ecken sind keine rechten Winkel.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">A5</span> <span class="stern">★</span> <b>Buch S. 77 Nr. 3 a und Nr. 5 c, d.</b> Begründet oder widerlegt
+    mit einem Gegenbeispiel.<br>
+    (3 a) Der Betrag einer Zahl ist nie negativ.<br>
+    (5 c) Von zwei negativen Zahlen ist diejenige die kleinere Zahl, die den größeren Betrag hat.<br>
+    (5 d) Für zwei beliebige Zahlen a und b gilt: Wenn a &lt; b, dann ist |a| &lt; |b|.</p>
+    <textarea id="t-a5" data-label="A5" style="min-height:7rem"></textarea>
+    <details class="gesperrt" data-fuer="t-a5" data-min="60"><summary>Lösung A5</summary>
+      <p><b>(3 a) wahr.</b> Der Betrag ist ein Abstand. Ein Abstand kann 0 sein (bei der Null) oder positiv, aber nie negativ.</p>
+      <p><b>(5 c) wahr.</b> Negative Zahlen liegen links von der Null. Je größer der Betrag, desto weiter links liegt die Zahl,
+      und weiter links heißt kleiner. Beispiel: |−7| = 7 &gt; 3 = |−3|, und −7 &lt; −3.</p>
+      <p><b>(5 d) falsch.</b> Gegenbeispiel: −5 &lt; 2, aber |−5| = 5 &gt; 2 = |2|. Für zwei <b>positive</b> Zahlen stimmt der Satz,
+      für zwei negative gilt sogar das Gegenteil (siehe 5 c).</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Differenzierung &amp; Bewertung</h4><p>Minimum für alle: A1–A3. <b>A3 misst das Stundenziel</b>
+  (Koordinaten lesen, oben/unten mit Minus, Betrag als Abstand zur Achse). Die Falle in (3), zwei Punkte zugleich am weitesten
+  links, steht so im Buch. Drei Hilfen bei A3 und danach ein richtiges Exit-Ticket heißt: Ziel mit Unterstützung erreicht.</p></div>
+</section>
+
+<!-- ================= PHASE 7: QUIZ ================= -->
+<section class="phase" data-titel="Quiz" data-min="6">
+  <h2>7 · Quiz: sitzt es?</h2>
+  <p class="zeitnote">6 Minuten · 8 Fragen, sofortige Rückmeldung</p>
+  <div id="quiz"></div>
+  <div class="karte blau" id="quiz-ergebnis" style="display:none">
+    <h4>Ergebnis</h4>
+    <p><span class="punkte" id="quiz-punkte">0 / 8</span> <span id="quiz-text"></span></p>
+  </div>
+  <div class="lehrer"><h4>Die tragenden Fragen</h4><p>3 (kleiner gegen weiter weg), 6 (Punkt auf der Achse) und 7 (was die
+  x-Koordinate allein verrät). Wer 3 falsch hat, ordnet negative Zahlen noch nach ihrem Betrag.</p></div>
+</section>
+
+<!-- ================= PHASE 8: ABSCHLUSS ================= -->
+<section class="phase" data-titel="Abschluss" data-min="5">
+  <h2>8 · Exit-Ticket &amp; Abgabe</h2>
+  <p class="zeitnote">5 Minuten · für alle Wege dieselben Fragen</p>
+
+  <div class="karte merk">
+    <h4>Zwei Aufgaben, dann ist Schluss</h4>
+    <p><b>1.</b> Der Punkt P liegt <b>4 Schritte links</b> von der y-Achse und <b>1,5 Schritte über</b> der x-Achse.
+    Schreibt P mit Koordinaten. In welchem Quadranten liegt P?</p>
+    <textarea id="t-exit1" data-label="Exit-Ticket 1" placeholder="P( … | … ), … Quadrant"></textarea>
+    <p style="margin-top:.8rem"><b>2.</b> Gegeben ist Q(−2,5 | −3). Beschreibt den Weg vom Ursprung zu Q in Worten.
+    Welche der beiden Koordinaten ist die kleinere Zahl? Welche hat den größeren Betrag?</p>
+    <textarea id="t-exit2" data-label="Exit-Ticket 2" placeholder="Zuerst … , dann … . Kleiner ist … , den größeren Betrag hat …"></textarea>
+  </div>
+
+  <div class="karte">
+    <h4>Und was war unklar?</h4>
+    <textarea id="t-unklar" data-label="Offene Frage" placeholder="Eine Frage, die offen geblieben ist (darf leer bleiben)"></textarea>
+  </div>
+
+  <div class="karte blau">
+    <h4>Abgabe – Protokoll an Herrn Glaubitz</h4>
+    <div class="zwei">
+      <div><label class="reg">Namen (beide, wenn zu zweit gearbeitet):</label>
+        <input id="i-name" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="Vorname Nachname, Vorname Nachname"></div>
+      <div><label class="reg">Klasse:</label>
+        <input id="i-klasse" value="7b" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="7b"></div>
+    </div>
+
+    <p style="margin:.9rem 0 .2rem"><b>So geht die Abgabe – drei Schritte:</b></p>
+    <ol style="margin-top:.2rem">
+      <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">📄 Protokoll speichern</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Eine Datei mit allen Antworten, Zeichnungen, eurem Weg und Zeitstempeln. Sie landet in „Downloads“ bzw. in der Dateien-App.</span></li>
+      <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">✉ Senden / Teilen</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Öffnet den Teilen-Dialog → <b>Mail</b> wählen → die Datei ist als Anhang dabei. Empfänger:
+        <b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
+      <li><b>Kontrollieren:</b> Steht euer Name in der Mail? Ist der Anhang dabei? Dann senden.</li>
+    </ol>
+
+    <p style="margin-top:.7rem">
+      <button class="knopf" id="k-json">Rohdaten als JSON</button>
+      <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
+      <button class="knopf" id="k-kopieren">Text kopieren</button>
+    </p>
+    <p class="videohinweis" id="mail-hinweis">Wenn „Senden / Teilen“ nicht funktioniert: Protokoll
+    speichern, dann selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b> schreiben und die Datei anhängen.</p>
+  </div>
+
+  <div class="karte"><h4>Wer noch üben will (freiwillig)</h4>
+  <p>Buch S. 77 Nr. 4 und S. 79 Nr. 6. Beide heißen „Prüfe dich!“, die Lösungen stehen hinten im Buch (S. 207 und 208).</p></div>
+
+  <p>
+    <button class="knopf" id="k-zusammenfassung">Ergebnisse am Bildschirm ansehen</button>
+    <button class="knopf" id="k-drucken">Drucken / als PDF speichern</button>
+  </p>
+  <div id="ausgabe"></div>
+
+  <div class="lehrer"><h4>Abschluss</h4><p><b>Ziel erreicht</b>, wenn Exit 1 <b>P(−4 | 1,5)</b> und den <b>2. Quadranten</b>
+  nennt und Exit 2 den Weg „2,5 nach links, dann 3 nach unten“ beschreibt, −3 als kleinere Zahl und |−3| = 3 als größeren
+  Betrag angibt. Zu erwarten in Exit 1: P(1,5 | −4) (x und y vertauscht) oder P(−4 | −1,5) (über und unter verwechselt).
+  Nächste Stunde laut Plan: S20 Zustand und Änderung („+7 heißt steigt um 7“). KA 2 am Di 24.11. prüft Kapitel 4.</p></div>
+</section>
+
+<!-- ================= LEHRERBLATT ================= -->
+<section class="phase" data-titel="⚙ Lehrerblatt" data-min="0">
+  <h2>Lehrerblatt – alles auf einen Blick</h2>
+  <p class="zeitnote">Diese Phase überspringen die Schüler; sie ist für Sie. Ausführlich: koordinatensystem-7b-lehrerblatt.pdf.</p>
+  <div class="karte blau"><h4>Was Sie tun</h4><ol>
+    <li><b>45</b> groß an die Tafel (Anmeldung). Datei verteilen (Klassenseite bzw. AirDrop). Kein Buch nötig.</li>
+    <li>Einstieg im Wortlaut: „Schatz A liegt bei (−4 | 1), Schatz B bei (3 | −2). Welcher liegt weiter vom Nord-Süd-Weg weg?“</li>
+    <li>Auftrag: „Nach dem Check wählt ihr einen Weg. Alle Wege enden beim selben Merksatz und beim selben Exit-Ticket.“</li>
+    <li>Ab Minute 16 herumgehen: im Kern „Kleiner oder weiter weg – ist das dasselbe?“, beim Rundweg „Wie viel ist ein Kästchen?“.</li>
+    <li><b>Minute 80: alle tippen oben auf „Abschluss“, egal wo sie stehen.</b> Dann Exit-Ticket, Protokoll speichern und senden lassen.</li></ol></div>
+  <h3>Zeitraster</h3>
+  <table><tr><th>Phase</th><th>Min</th><th>Auffrischen</th><th>Standard</th><th>Vertiefen</th></tr>
+  <tr><td>Start · Einstieg · Check</td><td>16</td><td colspan="3">für alle gleich (Start mit Faktor-Aufwärmen)</td></tr>
+  <tr><td>Kern</td><td>14</td><td>+ Karte „Zahlengerade“</td><td>Modelle 1, 2; Aufträge 1, 2</td><td>+ K3 ★</td></tr>
+  <tr><td>Euer Weg</td><td>20</td><td>Ordnen und Ablesen vorgerechnet, W1, Rundweg mit B vorgemacht</td><td>S1 Ordnen, S2 Rundweg, S3 Lage, mit Hilfen</td><td>S1–S3 ohne Hilfen + V1 ★</td></tr>
+  <tr><td>Merksatz</td><td>6</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td>Aufgaben</td><td>17</td><td>A1, A2a, A2, A3</td><td>A1–A3, A4 ★</td><td>A1–A5</td></tr>
+  <tr><td>Quiz · Abschluss</td><td>11</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td><b>Summe</b></td><td><b>84</b></td><td colspan="3">6 Minuten Puffer</td></tr></table>
+  <h3>Wege lesen</h3><ul>
+    <li>Vorschlag <i>Auffrischen</i>, gewählt <i>Vertiefen</i>, dann drei Hilfen bei A3 → Selbstüberschätzung, ansprechen.</li>
+    <li>Vorschlag <i>Vertiefen</i>, gewählt <i>Auffrischen</i> → Unsicherheit trotz Können, ermutigen.</li>
+    <li>Check 2 falsch (−3,05 gewählt) und Quiz 3 falsch → ordnet negative Zahlen nach dem Betrag; gezielt nachfragen.</li></ul>
+  <h3>Wenn die Zeit knapp wird</h3><ul><li>Zuerst streichen: Aufgabe 0, K3, V1, A4, A5, Quiz 5–8. Nie streichen: Check, A3, Exit-Ticket.</li></ul>
+  <h3>Womit man rechnen muss</h3><ul>
+    <li>„3 ist größer als −4, also weiter weg“: Einstieg, Kern Auftrag 1 und 2.</li>
+    <li>„−3,05 ist die kleinste Zahl“ (hinter dem Komma 05 gegen 2 gelesen): Check 2, Lupe im Weg Auffrischen.</li>
+    <li>x und y vertauscht (L als −2|0,5): „zuerst x, wie im Alphabet“; das Prüffeld meldet es.</li>
+    <li>Punkte auf einer Achse „im 1. Quadranten“: V1, Quiz 6.</li></ul>
+  <h3>Geprüfte Quellen</h3><p>Alle Zahlen sind mit modelle_koordinatensystem.py nachgerechnet. Die Rundweg-Punkte sind aus der
+  Abbildung Buch S. 78 abgelesen und gegen die drei Geraden des Wegs geprüft. Keine Videos, keine Links ins Netz.</p>
+</section>
+</main>
+
+<div class="nav">
+  <button class="knopf" id="zurueck">‹ Zurück</button>
+  <div class="mitte" id="navinfo"></div>
+  <button class="knopf voll" id="weiter">Weiter ›</button>
+</div>
+
+<script>
+"use strict";
+/* ---------- 1 Phasensteuerung ---------- */
+const phasen = Array.from(document.querySelectorAll("section.phase"));
+const pillen = document.getElementById("pillen");
+let aktuell = 0;
+let besucht = new Set([0]);
+
+phasen.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "pille";
+  b.textContent = (i < phasen.length - 1 ? i + " " : "") + p.dataset.titel;
+  b.addEventListener("click", () => zeige(i));
+  pillen.appendChild(b);
+});
+
+function zeige(i) {
+  if (i < 0 || i >= phasen.length) return;
+  phasen[aktuell].classList.remove("aktiv");
+  aktuell = i;
+  besucht.add(i);
+  phasen[aktuell].classList.add("aktiv");
+  Array.from(pillen.children).forEach((b, k) => {
+    b.classList.toggle("aktiv", k === i);
+    b.classList.toggle("fertig", k !== i && besucht.has(k));
+  });
+  document.getElementById("balken").style.width =
+    Math.round((i / (phasen.length - 2)) * 100) + "%";
+  document.getElementById("navinfo").textContent =
+    (i === phasen.length - 1) ? "Lehrerblatt (nicht für Schüler)"
+      : "Phase " + i + " von " + (phasen.length - 2);
+  document.getElementById("zurueck").disabled = (i === 0);
+  const wb = document.getElementById("weiter");
+  const letzte = (i >= phasen.length - 2);
+  wb.disabled = letzte;
+  wb.textContent = letzte ? "Fertig" : "Weiter ›";
+  starteUhr(parseInt(phasen[i].dataset.min, 10) || 0);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.getElementById("weiter").addEventListener("click", () => zeige(aktuell + 1));
+document.getElementById("zurueck").addEventListener("click", () => zeige(aktuell - 1));
+
+/* ---------- 2 Uhr ---------- */
+let rest = 0, laufend = true, ticker = null;
+const uhrEl = document.getElementById("uhr");
+function starteUhr(min) {
+  clearInterval(ticker);
+  if (!min) { uhrEl.textContent = "--:--"; uhrEl.classList.remove("knapp"); return; }
+  rest = min * 60; laufend = true;
+  document.getElementById("uhrKnopf").textContent = "Pause";
+  malUhr();
+  ticker = setInterval(() => {
+    if (!laufend) return;
+    if (rest > 0) rest--;
+    malUhr();
+  }, 1000);
+}
+function malUhr() {
+  const m = Math.floor(rest / 60), s = rest % 60;
+  uhrEl.textContent = m + ":" + String(s).padStart(2, "0");
+  uhrEl.classList.toggle("knapp", rest <= 60);
+}
+document.getElementById("uhrKnopf").addEventListener("click", (e) => {
+  laufend = !laufend;
+  e.target.textContent = laufend ? "Pause" : "Weiter";
+});
+
+/* ---------- 3 Lehrer-Ansicht ----------
+   Kennwort wie in allen Stunden: sumdideldum (Prüfsumme djb2-xor ab 5381).
+   Eine Bremsschwelle, kein Schloss: Wer den Quelltext liest, findet die Lösungen ohnehin. */
+const LEHRER_SCHLUESSEL = 4257354514;
+function pruefsumme(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function lehrerAnsicht(an) {
+  document.body.classList.toggle("lehrermodus", an);
+  document.getElementById("lehrerKnopf").textContent = an ? "Lehrer-Ansicht aus" : "Lehrer-Ansicht";
+}
+document.getElementById("lehrerKnopf").addEventListener("click", () => {
+  if (document.body.classList.contains("lehrermodus")) { lehrerAnsicht(false); return; }
+  const wort = window.prompt("Kennwort für die Lehrer-Ansicht:");
+  if (wort === null) return;
+  if (pruefsumme(String(wort).trim().toLowerCase()) === LEHRER_SCHLUESSEL) lehrerAnsicht(true);
+  else window.alert("Das Kennwort stimmt nicht.");
+});
+
+/* ---------- 4 Multiple-Choice-Baustein ---------- */
+function mc(ziel, rueckId, frage) {
+  const box = document.getElementById(ziel);
+  const rb = document.getElementById(rueckId);
+  frage.optionen.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.textContent = o.text;
+    b.addEventListener("click", () => {
+      Array.from(box.children).forEach(x => x.classList.remove("richtig", "falsch"));
+      b.classList.add(o.richtig ? "richtig" : "falsch");
+      rb.className = "rueck zeig " + (o.richtig ? "gut" : "schlecht");
+      rb.innerHTML = (o.richtig ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + o.hinweis;
+      antworten[ziel] = o.text + (o.richtig ? "  [richtig]" : "  [falsch]");
+    });
+    box.appendChild(b);
+  });
+}
+const protokollEintraege = [];
+let exportiert = false;
+const antwortenRoh = {};
+const antworten = new Proxy(antwortenRoh, {
+  set(ziel, schluessel, wert) {
+    const alt = ziel[schluessel];
+    ziel[schluessel] = wert;
+    if (alt !== wert) protokolliere("auswahl", schluessel, wert);
+    return true;
+  }
+});
+
+/* ---------- Multiple-Choice-Blöcke dieser Stunde ---------- */
+mc("mc-prognose", "rueck-prognose", {
+  optionen: [
+    { text: "Schatz B, denn 3 ist größer als −4.", richtig: false,
+      hinweis: "Größer heißt: weiter rechts. Weiter weg vom Weg ist eine andere Frage. Zählt im Kern die Schritte nach." },
+    { text: "Schatz A, denn A liegt 4 Schritte vom Weg weg, B nur 3.", richtig: true,
+      hinweis: "Genau. Für den Abstand zählt nur, wie viele Schritte, nicht ob nach links oder rechts. Dafür gibt es heute ein eigenes Wort." },
+    { text: "Schatz B, denn B liegt 2 Schritte unter dem Ost-West-Weg.", richtig: false,
+      hinweis: "Das ist der Abstand zum anderen Weg, der x-Achse. Gefragt ist der Nord-Süd-Weg." },
+    { text: "Das kann man ohne Zeichnung nicht sagen.", richtig: false,
+      hinweis: "Doch: Die erste Zahl sagt, wie weit links oder rechts vom Nord-Süd-Weg ein Punkt liegt." }
+  ]
+});
+mc("mc-check", "rueck-check", {
+  optionen: [
+    { text: "|−3| ist kleiner als |2|, weil −3 kleiner ist als 2.", richtig: false,
+      hinweis: "Kleiner und weiter weg sind zwei Fragen: |−3| = 3 ist größer als |2| = 2." },
+    { text: "−3 ist kleiner als 2, aber |−3| ist größer als |2|.", richtig: true,
+      hinweis: "Ja. −3 steht weiter links, ist aber weiter von der Null weg." },
+    { text: "Der Punkt (−3 | 2) liegt im 4. Quadranten.", richtig: false,
+      hinweis: "x negativ heißt links, y positiv heißt oben. Links oben ist der 2. Quadrant." },
+    { text: "Beim Punkt (−3 | 2) ist 2 die x-Koordinate.", richtig: false,
+      hinweis: "Zuerst kommt x, dann y: x = −3, y = 2." }
+  ]
+});
+
+/* ============================================================
+   Diagnose, Wege, gestufte Hilfen
+   ============================================================
+   Die Diagnose ist die einzige Stelle, an der eine Rückmeldung sofort und
+   ohne Sperre erscheint: die Antwort ist ja schon gegeben (ein Versuch pro
+   Frage). Danach bleibt die Auswahl fest – die Diagnose soll den ersten
+   Denkstand messen, nicht den zweiten.
+
+   rolle "voraus" = zwingendes Vorwissen, rolle "kern" = Kern schon fast da.
+   Genau drei Fragen jeder Rolle; Reihenfolge: erst voraus, dann kern.
+   Mehrheitsregel statt Ein-Fehler-Regel: ein Flüchtigkeitsfehler soll
+   niemanden auf "Auffrischen" schicken. */
+const DIAGNOSE = [
+  { rolle: "voraus", f: "Auf einer Zahlengeraden ist ein Kästchen 0,5. Ein Punkt liegt 5 Kästchen links von der Null. Welche Zahl ist es?",
+    o: ["−2,5", "2,5", "−5", "−0,5"], r: 0,
+    e: "5 · 0,5 = 2,5, und links von der Null kommt ein Minus davor: −2,5." },
+  { rolle: "voraus", f: "Welche Zahl ist die kleinste? −3,05 · −3,2 · −0,8 · 0,5",
+    o: ["−3,05", "−3,2", "−0,8", "0,5"], r: 1,
+    e: "−3,2 liegt weiter links als −3,05, denn 3,20 ist weiter von der Null weg als 3,05." },
+  { rolle: "voraus", f: "Wie kommt man vom Nullpunkt (0 | 0) zum Punkt (2 | 5)?",
+    o: ["2 nach rechts, dann 5 nach oben", "2 nach oben, dann 5 nach rechts", "5 nach rechts, dann 2 nach oben", "2 nach rechts, dann 5 nach unten"], r: 0,
+    e: "Zuerst x (nach rechts), dann y (nach oben), wie im Alphabet." },
+  { rolle: "kern", f: "Welche Zahl ist am weitesten von der Null entfernt? 5 · −7 · 6,5 · −2,5",
+    o: ["6,5", "−7", "5", "−2,5"], r: 1,
+    e: "−7 liegt 7 von der Null weg, weiter als 6,5. Für den Abstand zählt das Minus nicht." },
+  { rolle: "kern", f: "Welcher Punkt liegt links von der y-Achse?",
+    o: ["(2 | −3)", "(0 | −2)", "(−1 | 4)", "(3 | 0)"], r: 2,
+    e: "Links von der y-Achse heißt: Die erste Zahl, x, ist negativ. Das ist nur bei (−1 | 4) so." },
+  { rolle: "kern", f: "Wo liegt der Punkt (4 | −1), vom Nullpunkt aus gesehen?",
+    o: ["links oben", "rechts unten", "rechts oben", "links unten"], r: 1,
+    e: "x = 4: nach rechts. y = −1: nach unten. Also rechts unten." }
+];
+const WEGE = { auffrischen: "Auffrischen", standard: "Standard", vertiefen: "Vertiefen" };
+const WEG_BEGRUENDUNG = {
+  auffrischen: "Bei den Grundlagen hat es noch gehakt. Dieser Weg frischt sie zuerst auf und geht dann in kleineren Schritten zum selben Ziel.",
+  standard: "Die Grundlagen sitzen. Der Standardweg führt euch direkt zum Kern.",
+  vertiefen: "Die Grundlagen sitzen, und den Kern habt ihr schon fast. Dieser Weg geht schneller durch und dafür weiter hinaus."
+};
+
+/* Reine Funktion, damit das Prüfskript sie testen kann. */
+function wegVorschlag(ergebnisse) {   // [{rolle, richtig}]
+  const voraus = ergebnisse.filter(e => e.rolle === "voraus");
+  const kern = ergebnisse.filter(e => e.rolle === "kern");
+  const vRichtig = voraus.filter(e => e.richtig).length;
+  if (vRichtig <= Math.floor(voraus.length / 3)) return "auffrischen";   // 3 Fragen: höchstens 1 richtig
+  if (kern.length && kern.every(e => e.richtig)) return "vertiefen";
+  return "standard";
+}
+
+let weg = "";            // gewählter Weg
+let vorschlag = "";      // vorgeschlagener Weg
+const diagErgebnis = []; // [{nr, rolle, richtig, antwort}]
+const hilfenStand = {};  // id → Zahl geöffneter Stufen
+
+(function diagnoseAufbauen() {
+  const box = document.getElementById("diagnose");
+  if (!box) return;
+  DIAGNOSE.forEach((q, i) => {
+    const d = document.createElement("div");
+    d.className = "quizfrage diagfrage";
+    d.id = "diag-" + (i + 1);
+    d.dataset.label = "Check " + (i + 1) + (q.rolle === "voraus" ? " (Vorwissen)" : " (Kern)");
+    d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+    const mcBox = document.createElement("div"); mcBox.className = "mc";
+    const r = document.createElement("div"); r.className = "rueck";
+    q.o.forEach((t, k) => {
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.addEventListener("click", () => {
+        if (diagErgebnis[i]) return;                 // ein Versuch
+        const ok = k === q.r;
+        diagErgebnis[i] = { nr: i + 1, rolle: q.rolle, richtig: ok, antwort: t };
+        b.classList.add(ok ? "richtig" : "falsch");
+        if (!ok) mcBox.children[q.r].classList.add("richtig");
+        mcBox.classList.add("fest");
+        r.className = "rueck zeig " + (ok ? "gut" : "schlecht");
+        r.innerHTML = (ok ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + q.e;
+        antworten["diag-" + (i + 1)] = t + (ok ? "  [richtig]" : "  [falsch]");
+        diagStand();
+      });
+      mcBox.appendChild(b);
+    });
+    d.appendChild(mcBox); d.appendChild(r);
+    box.appendChild(d);
+  });
+})();
+
+function diagStand() {
+  const offen = DIAGNOSE.length - diagErgebnis.filter(Boolean).length;
+  const k = document.getElementById("k-auswerten");
+  if (k) k.disabled = offen > 0;
+  const s = document.getElementById("diag-stand");
+  if (s) s.textContent = offen ? "Noch " + offen + (offen === 1 ? " Frage" : " Fragen") + " offen." : "Alle beantwortet.";
+}
+
+function vorschlagZeigen() {
+  const v = document.getElementById("weg-vorschlag");
+  const richtig = diagErgebnis.filter(e => e && e.richtig).length;
+  v.innerHTML = "<h4>Unser Vorschlag: " + WEGE[vorschlag] + "</h4><p>" + richtig + " von " +
+    DIAGNOSE.length + " richtig. " + WEG_BEGRUENDUNG[vorschlag] +
+    " Ihr dürft einen anderen Weg wählen – das Protokoll vermerkt beides.</p>";
+  document.querySelectorAll(".wegknopf").forEach(b =>
+    b.classList.toggle("empfohlen", b.dataset.weg === vorschlag));
+  document.getElementById("wegwahl").style.display = "block";
+  const k = document.getElementById("k-auswerten");
+  if (k) { k.disabled = true; k.textContent = "Ausgewertet"; }
+}
+
+const kAuswerten = document.getElementById("k-auswerten");
+if (kAuswerten) kAuswerten.addEventListener("click", () => {
+  if (diagErgebnis.filter(Boolean).length < DIAGNOSE.length) return;
+  vorschlag = wegVorschlag(diagErgebnis);
+  protokolliere("weg-vorschlag", "diagnose", WEGE[vorschlag],
+    diagErgebnis.map(e => e.nr + ":" + (e.richtig ? "r" : "f")).join(" "));
+  vorschlagZeigen();
+});
+
+/* Weg setzen: blendet alle [data-pfad]-Blöcke passend ein oder aus.
+   data-pfad enthält eine Kommaliste, z. B. "standard,vertiefen". */
+function wegAnwenden() {
+  document.querySelectorAll("[data-pfad]").forEach(el => {
+    const liste = el.dataset.pfad.split(",").map(s => s.trim());
+    el.hidden = !weg || liste.indexOf(weg) < 0;
+  });
+  document.body.dataset.weg = weg;
+  const chip = document.getElementById("wegChip");
+  if (chip) chip.textContent = "Weg: " + (weg ? WEGE[weg] : "–");
+  document.querySelectorAll(".wegknopf").forEach(b => b.classList.toggle("gewaehlt", b.dataset.weg === weg));
+}
+function wegSetzen(neu, still) {
+  if (!WEGE[neu]) return;
+  const alt = weg;
+  weg = neu;
+  wegAnwenden();
+  if (!still && alt !== neu) {
+    protokolliere("weg-wahl", "weg", WEGE[neu],
+      (vorschlag ? "Vorschlag war " + WEGE[vorschlag] : "ohne Diagnose") + (alt ? "; vorher " + WEGE[alt] : ""));
+    const r = document.getElementById("rueck-weg");
+    if (r) {
+      r.className = "rueck zeig gut";
+      r.innerHTML = "<b>Weg " + WEGE[neu] + " gewählt.</b> " +
+        (vorschlag && neu !== vorschlag ? "Er weicht vom Vorschlag ab – das ist erlaubt. " : "") +
+        "Weiter geht es unten rechts.";
+    }
+  }
+  sperrenPruefen();
+}
+document.querySelectorAll(".wegknopf").forEach(b =>
+  b.addEventListener("click", () => wegSetzen(b.dataset.weg)));
+
+/* Hinweis in jeder Phase mit wegabhängigen Teilen, solange kein Weg gewählt ist. */
+document.querySelectorAll("section.phase").forEach(sec => {
+  const erstes = sec.querySelector("[data-pfad]");
+  if (!erstes || sec.id === "phase-diagnose") return;
+  const h = document.createElement("div");
+  h.className = "karte warn weghinweis";
+  h.innerHTML = "<h4>Hier fehlt noch euer Weg</h4><p>Ein Teil dieser Phase hängt davon ab, welchen Weg ihr " +
+    "nach dem Check wählt. </p>";
+  const b = document.createElement("button");
+  b.className = "knopf"; b.textContent = "Zum Check";
+  b.addEventListener("click", () => zeige(phasen.indexOf(document.getElementById("phase-diagnose"))));
+  h.querySelector("p").appendChild(b);
+  erstes.parentNode.insertBefore(h, erstes);
+});
+const wegChipEl = document.getElementById("wegChip");
+if (wegChipEl) wegChipEl.addEventListener("click", () => {
+  const d = document.getElementById("phase-diagnose");
+  if (d) zeige(phasen.indexOf(d));
+});
+
+/* Gestufte Hilfen: Stufe k öffnet sich erst, wenn Stufe k-1 einmal offen war.
+   Kein innerHTML-Umbau im Summary während eines Klicks (siehe Falle 1). */
+document.querySelectorAll(".hilfen").forEach(box => {
+  const id = box.id;
+  const stufen = Array.from(box.querySelectorAll("details.hilfe"));
+  hilfenStand[id] = 0;
+  stufen.forEach((d, k) => {
+    const sum = d.querySelector("summary");
+    const note = document.createElement("span");
+    note.className = "hilfenote";
+    sum.appendChild(note);
+    d._note = note;
+    sum.addEventListener("click", e => {
+      if (d.open) return;                                   // Zuklappen immer erlaubt
+      if (k > hilfenStand[id]) {                            // Vorstufe noch nicht genutzt
+        e.preventDefault();
+        protokolliere("hilfe-gesperrt", id, "Hilfe " + (k + 1) + " vor Hilfe " + k + " angeklickt");
+        return;
+      }
+      if (k === hilfenStand[id]) {
+        hilfenStand[id] = k + 1;
+        const feld = box.dataset.feld;
+        const fel = feld ? document.getElementById(feld) : null;
+        const stand = fel ? (fel.tagName === "TABLE" ? tabellenText(fel) : (fel.value || "")).trim() : "";
+        protokolliere("hilfe-geoeffnet", id, "Hilfe " + (k + 1) + " von " + stufen.length,
+          "Stand im Feld: " + (stand || "(leer)"));
+        setTimeout(hilfenMalen, 0);
+      }
+    });
+  });
+});
+function hilfenMalen() {
+  document.querySelectorAll(".hilfen").forEach(box => {
+    Array.from(box.querySelectorAll("details.hilfe")).forEach((d, k) => {
+      const zu = k > hilfenStand[box.id];
+      d.classList.toggle("zu", zu);
+      const t = zu ? " – erst Hilfe " + k + " ansehen" : "";
+      if (d._note.textContent !== t) d._note.textContent = t;
+    });
+  });
+}
+hilfenMalen();
+function hilfenText() {
+  return Object.keys(hilfenStand).filter(id => document.getElementById(id) && !document.getElementById(id).closest("[hidden]"))
+    .map(id => (FELDNAMEN[document.getElementById(id).dataset.feld] || id) + ": " + hilfenStand[id] + " von " +
+      document.getElementById(id).querySelectorAll("details.hilfe").length).join(" · ");
+}
+wegAnwenden();
+
+
+/* ============================================================
+   Video mit Haltepunkten (Baustein, an jeder Stelle einsetzbar)
+   ============================================================
+   <div class="videohalt" id="v-xyz" data-label="Erklärvideo: …" data-src="videos/xyz.mp4">
+     (darin ein Skriptblock type="application/json" class="halte" mit der Liste
+      [{"t": 18, "frage": "…", "art": "text", "min": 15, "nach": "…"},
+       {"t": 52, "frage": "…", "art": "mc", "optionen": ["…","…"], "richtig": 1, "nach": "…"}],
+      danach ein div class="ersatz" mit Standbild und demselben Inhalt als Text)
+   </div>
+   Das Video hält an jedem Haltepunkt an und läuft erst weiter, wenn die
+   Frage beantwortet ist; Vorspulen über einen offenen Haltepunkt springt
+   zurück. Lädt das Video nicht (kein Netz, Datei fehlt), erscheint der
+   Ersatz mit allen Fragen auf einmal - dieselben Felder, dasselbe Protokoll.
+   Die Antwortfelder sind normale Felder mit id und data-label: Protokoll,
+   Ergebnisliste, Zwischenspeicher und Abgabe erfassen sie ohne Zusatzcode. */
+const VIDEOS = {};
+document.querySelectorAll(".videohalt").forEach(box => {
+  const id = box.id, label = box.dataset.label || id;
+  let halte = [];
+  try { halte = JSON.parse((box.querySelector("script.halte") || {}).textContent || "[]"); }
+  catch (e) { console.error("Haltepunkte in #" + id + " sind kein gültiges JSON"); }
+  halte.sort((a, b) => a.t - b.t);
+  const ersatz = box.querySelector(".ersatz");
+  const mm = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+  const video = document.createElement("video");
+  video.controls = true; video.preload = "metadata";
+  video.setAttribute("playsinline", ""); video.setAttribute("webkit-playsinline", "");
+  if (box.dataset.poster) video.poster = box.dataset.poster;
+  if (box.dataset.src && !/\{\{/.test(box.dataset.src)) video.src = box.dataset.src;   // Platzhalter nicht laden
+  const status = document.createElement("p");
+  status.className = "videostatus";
+  box.insertBefore(video, box.firstChild);
+  box.insertBefore(status, video.nextSibling);
+
+  const fragen = halte.map((h, k) => {
+    const d = document.createElement("div");
+    d.className = "haltfrage";
+    const fid = id + "-h" + (k + 1);
+    d.innerHTML = '<p class="haltkopf"><b>Halt ' + (k + 1) + '</b> <span class="haltzeit">bei ' + mm(h.t) + '</span></p><p></p>';
+    d.children[1].innerHTML = h.frage;
+    let feld;
+    if (h.art === "mc") {
+      feld = document.createElement("input");
+      feld.type = "text"; feld.style.display = "none";
+      const mcBox = document.createElement("div"); mcBox.className = "mc";
+      (h.optionen || []).forEach((t, j) => {
+        const b = document.createElement("button");
+        b.textContent = t;
+        b.addEventListener("click", () => {
+          if (feld.value) return;                       // ein Versuch, wie im Check
+          const ok = j === h.richtig;
+          b.classList.add(ok ? "richtig" : "falsch");
+          if (!ok && mcBox.children[h.richtig]) mcBox.children[h.richtig].classList.add("richtig");
+          mcBox.classList.add("fest");
+          feld.value = t + (ok ? "  [richtig]" : "  [falsch]");
+          feld.dispatchEvent(new Event("change", { bubbles: true }));
+          beantwortet(k);
+        });
+        mcBox.appendChild(b);
+      });
+      d.appendChild(mcBox);
+    } else {
+      feld = document.createElement("textarea");
+      feld.placeholder = "Erst selbst überlegen, dann weiter …";
+      feld.addEventListener("input", () => beantwortet(k));
+      feld.addEventListener("blur", () => { if (ersatzModus && feldOk(k)) abschliessen(k); });
+    }
+    feld.id = fid; feld.dataset.label = label + " – Halt " + (k + 1);
+    d.appendChild(feld);
+    const nach = document.createElement("div");
+    nach.className = "rueck"; d.appendChild(nach);
+    const weiter = document.createElement("button");
+    weiter.className = "knopf voll weiterknopf"; weiter.textContent = "▶ Weiter im Video"; weiter.disabled = true;
+    weiter.addEventListener("click", () => {
+      if (!feldOk(k)) return;
+      abschliessen(k);
+      const p = video.play(); if (p && p.catch) p.catch(() => { });
+    });
+    d.appendChild(weiter);
+    box.insertBefore(d, ersatz || null);
+    return { d, feld, nach, weiter, h };
+  });
+
+  function feldOk(k) {
+    const f = fragen[k], v = (f.feld.value || "").trim();
+    return f.h.art === "mc" ? v.length > 0 : v.length >= (f.h.min || 15);
+  }
+  function beantwortet(k) {
+    const f = fragen[k];
+    f.weiter.disabled = !feldOk(k);
+    if (f.h.art === "mc") rueckZeigen(k);        // Auswahl ist endgültig, Rückmeldung sofort
+    if (ersatzModus && f.h.art !== "mc") { /* im Ersatz: Rückmeldung beim Verlassen des Feldes */ }
+    malen();
+  }
+  function rueckZeigen(k) {
+    const f = fragen[k];
+    if (f.h.nach && !f.nach.classList.contains("zeig")) { f.nach.className = "rueck zeig gut"; f.nach.innerHTML = f.h.nach; }
+  }
+  /* Ein Halt ist erledigt, sobald es weitergeht - per Knopf oder per ▶ mit fertiger Antwort.
+     Erst dann erscheint bei Textfragen die Rückmeldung: Sie soll nicht beim Tippen mitlesen. */
+  function abschliessen(k) {
+    const f = fragen[k];
+    if (f.d.classList.contains("erledigt") || !feldOk(k)) return;
+    protokolliere("video-halt", f.feld.id, f.feld.value.trim(), "Halt " + (k + 1) + " bei " + mm(f.h.t) + " beantwortet");
+    f.d.classList.add("erledigt"); f.weiter.style.display = "none"; rueckZeigen(k);
+    if (wartet === k) wartet = -1;
+    malen();
+  }
+  function offen() { for (let k = 0; k < fragen.length; k++) if (!feldOk(k)) return k; return -1; }
+  let ersatzModus = false, wartet = -1, gemeldetVor = {}, gesehenBis = 0;
+
+  function malen() {
+    const n = offen();
+    fragen.forEach((f, k) => {
+      const sichtbar = ersatzModus || k < n || n < 0 || k === wartet;
+      f.d.classList.toggle("sichtbar", sichtbar);
+      f.weiter.style.display = (ersatzModus || f.d.classList.contains("erledigt")) ? "none" : "";
+    });
+    status.textContent = ersatzModus
+      ? "Das Video lädt hier nicht. Lest den Text unten und beantwortet die Fragen dort – sie zählen genauso."
+      : (wartet >= 0 ? (feldOk(wartet) ? "Antwort steht – weiter mit „Weiter im Video“."
+                         : "▶ ist gesperrt: erst Halt " + (wartet + 1) + " beantworten, dann „Weiter im Video“.")
+         : n < 0 ? "Alle Haltepunkte beantwortet – ihr könnt frei spulen."
+         : (false ? ""
+            : "Das Video hält " + fragen.length + "-mal an. Nächster Halt bei " + mm(fragen[n].h.t) + "."));
+  }
+
+  video.addEventListener("timeupdate", () => {
+    const n = offen();
+    gesehenBis = Math.max(gesehenBis, video.currentTime);
+    if (n >= 0 && video.currentTime >= fragen[n].h.t - 0.05) {
+      video.pause();
+      if (Math.abs(video.currentTime - fragen[n].h.t) > 0.3) video.currentTime = fragen[n].h.t;
+      if (wartet !== n) {
+        wartet = n; malen();
+        fragen[n].d.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        protokolliere("video-halt-erreicht", fragen[n].feld.id, "Halt " + (n + 1) + " bei " + mm(fragen[n].h.t));
+      }
+    }
+  });
+  video.addEventListener("play", () => {
+    if (wartet >= 0 && feldOk(wartet)) abschliessen(wartet);
+    const n = offen();
+    if (n >= 0 && n === wartet) { video.pause(); malen(); }
+  });
+  video.addEventListener("seeking", () => {
+    const n = offen();
+    if (n >= 0 && video.currentTime > fragen[n].h.t + 0.3) {
+      video.currentTime = fragen[n].h.t;
+      if (!gemeldetVor[n]) {
+        gemeldetVor[n] = true;
+        protokolliere("video-vorgespult", fragen[n].feld.id, "Vorspulen über Halt " + (n + 1) + " zurückgesetzt");
+      }
+    }
+  });
+  video.addEventListener("ended", () => protokolliere("video-ende", id, "Video zu Ende gesehen (" + mm(video.duration || 0) + ")"));
+  video.addEventListener("loadedmetadata", () => {
+    const zuSpaet = fragen.filter(f => f.h.t >= video.duration);
+    if (zuSpaet.length) console.error("Haltepunkt nach dem Videoende in #" + id + ": " + zuSpaet.map(f => f.h.t).join(", "));
+  });
+  function zumErsatz(grund) {
+    if (ersatzModus) return;
+    ersatzModus = true;
+    box.classList.add("ersatzmodus");
+    video.style.display = "none";
+    malen();
+    protokolliere("video-ersatz", id, grund);
+  }
+  video.addEventListener("error", () => zumErsatz("Video lädt nicht (" + (video.error ? "Fehler " + video.error.code : "ohne Quelle") + ")"));
+  if (!video.getAttribute("src")) setTimeout(() => zumErsatz("keine Videoquelle eingetragen"), 0);
+  setTimeout(() => { if (!ersatzModus && video.readyState === 0 && video.networkState !== 2) zumErsatz("Video nach 10 s nicht geladen"); }, 10000);
+
+  /* Neue Quelle (auch für das Prüfskript): verlässt den Ersatz wieder. */
+  function quelleSetzen(src) {
+    ersatzModus = false; box.classList.remove("ersatzmodus"); video.style.display = "";
+    wartet = -1; video.src = src; video.load(); malen();
+  }
+  VIDEOS[id] = { video, fragen, malen, offen, quelleSetzen, ersatz: () => ersatzModus };
+  malen();
+});
+function videosAuffrischen() { Object.values(VIDEOS).forEach(v => v.fragen.forEach((f, k) => { if ((f.feld.value || "").trim()) { f.weiter.disabled = false; if (f.h.art === "mc") { const mcb = f.d.querySelector(".mc"); if (mcb) mcb.classList.add("fest"); } } })); Object.values(VIDEOS).forEach(v => v.malen()); }
+
+/* ---------- Interaktiver Kern: zwei Modelle ----------
+   Modell 1: Zahlengerade −6 … 6, Abstand zur Null (der Betrag, bevor das Wort fällt).
+   Modell 2: Koordinatensystem −5 … 5, Weg vom Ursprung (zuerst x, dann y),
+   Quadrant oder Achse, Abstände zu den Achsen. Beide exakt, Schritt 0,5. */
+function zahl(x) {
+  const r = Math.round(x * 1000) / 1000;
+  return (Object.is(r, -0) ? 0 : r).toLocaleString("de-DE", { maximumFractionDigits: 3 }).replace("-", "−");
+}
+function pfeilspitze(ctx, x, y, winkel, farbe) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(winkel); ctx.fillStyle = farbe;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-13, -6); ctx.lineTo(-13, 6); ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function lage(x, y) {
+  if (x === 0 && y === 0) return "Ursprung";
+  if (x === 0) return "auf der y-Achse";
+  if (y === 0) return "auf der x-Achse";
+  if (x > 0 && y > 0) return "1. Quadrant (rechts oben)";
+  if (x < 0 && y > 0) return "2. Quadrant (links oben)";
+  if (x < 0) return "3. Quadrant (links unten)";
+  return "4. Quadrant (rechts unten)";
+}
+function schritte(n) { return zahl(Math.abs(n)) + (Math.abs(n) === 1 ? " Schritt" : " Schritte"); }
+
+(function modellBetrag() {
+  const cv = document.getElementById("c-betrag");
+  if (!cv) return;
+  const ctx = cv.getContext("2d"), W = cv.width;
+  const r = document.getElementById("r-zahl");
+  const X = x => W / 2 + x * 68, Y0 = 130;
+  function mal() {
+    const a = +r.value;
+    document.getElementById("l-zahl").textContent = zahl(a);
+    ctx.clearRect(0, 0, W, cv.height);
+    ctx.font = "16px sans-serif"; ctx.textAlign = "center";
+    ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(X(-6.4), Y0); ctx.lineTo(X(6.4), Y0); ctx.stroke();
+    pfeilspitze(ctx, X(6.4) + 10, Y0, 0, "#1a2229");
+    for (let k = -12; k <= 12; k++) {
+      const x = k / 2, ganz = k % 2 === 0;
+      ctx.lineWidth = ganz ? 1.6 : 1;
+      ctx.beginPath(); ctx.moveTo(X(x), Y0 - (ganz ? 9 : 5)); ctx.lineTo(X(x), Y0 + (ganz ? 9 : 5)); ctx.stroke();
+      if (ganz) { ctx.fillStyle = x < 0 ? "#c62828" : "#1a2229"; ctx.fillText(zahl(x), X(x), Y0 + 30); }
+    }
+    if (a !== 0) {
+      // Spiegelzahl: hell, gestrichelt
+      ctx.strokeStyle = "#9fb3c3"; ctx.lineWidth = 3; ctx.setLineDash([7, 6]);
+      ctx.beginPath(); ctx.moveTo(X(0), Y0 - 34); ctx.lineTo(X(-a), Y0 - 34); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#fff"; ctx.strokeStyle = "#7f97aa"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(X(-a), Y0, 9, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+      // Abstand: roter Pfeil
+      ctx.strokeStyle = "#c62828"; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(X(0), Y0 - 34); ctx.lineTo(X(a), Y0 - 34); ctx.stroke();
+      pfeilspitze(ctx, X(a), Y0 - 34, a > 0 ? 0 : Math.PI, "#c62828");
+      ctx.fillStyle = "#c62828"; ctx.font = "bold 16px sans-serif";
+      ctx.fillText("Abstand " + zahl(Math.abs(a)), (X(0) + X(a)) / 2, Y0 - 46);
+    }
+    ctx.fillStyle = "#0b7fc4";
+    ctx.beginPath(); ctx.arc(X(a), Y0, 10, 0, 2 * Math.PI); ctx.fill();
+    document.getElementById("a-zahl").textContent = zahl(a);
+    document.getElementById("a-abstand").textContent = zahl(Math.abs(a));
+    document.getElementById("a-gegen").textContent = a === 0 ? "nur die 0 selbst" : zahl(-a);
+  }
+  let log = null;
+  r.addEventListener("input", () => {
+    mal(); clearTimeout(log);
+    log = setTimeout(() => protokolliere("modell", "Zahlengerade", "a = " + zahl(+r.value) + ", Abstand zur Null " + zahl(Math.abs(+r.value))), 1500);
+  });
+  mal();
+})();
+
+(function modellKoord() {
+  const cv = document.getElementById("c-modell");
+  if (!cv) return;
+  const ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+  const rX = document.getElementById("r-x"), rY = document.getElementById("r-y");
+  const u = 56, X = x => W / 2 + x * u, Y = y => H / 2 - y * u;
+  const FARBE = { 1: "#e8f3fb", 2: "#fdf3e1", 3: "#eef7ea", 4: "#f6ecf7" };
+  function mal() {
+    const x = +rX.value, y = +rY.value;
+    document.getElementById("l-x").textContent = zahl(x);
+    document.getElementById("l-y").textContent = zahl(y);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = FARBE[1]; ctx.fillRect(X(0), Y(5.3), 5.3 * u, 5.3 * u);
+    ctx.fillStyle = FARBE[2]; ctx.fillRect(X(-5.3), Y(5.3), 5.3 * u, 5.3 * u);
+    ctx.fillStyle = FARBE[3]; ctx.fillRect(X(-5.3), Y(0), 5.3 * u, 5.3 * u);
+    ctx.fillStyle = FARBE[4]; ctx.fillRect(X(0), Y(0), 5.3 * u, 5.3 * u);
+    ctx.strokeStyle = "#d3dde5";
+    for (let k = -10; k <= 10; k++) {
+      ctx.lineWidth = k % 2 ? .6 : 1.2;
+      ctx.beginPath(); ctx.moveTo(X(k / 2), Y(-5.3)); ctx.lineTo(X(k / 2), Y(5.3)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(-5.3), Y(k / 2)); ctx.lineTo(X(5.3), Y(k / 2)); ctx.stroke();
+    }
+    ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(X(-5.4), Y(0)); ctx.lineTo(X(5.4), Y(0)); ctx.moveTo(X(0), Y(-5.4)); ctx.lineTo(X(0), Y(5.4)); ctx.stroke();
+    pfeilspitze(ctx, X(5.4) + 10, Y(0), 0, "#1a2229");
+    pfeilspitze(ctx, X(0), Y(5.4) - 10, -Math.PI / 2, "#1a2229");
+    ctx.font = "15px sans-serif"; ctx.fillStyle = "#1a2229";
+    ctx.textAlign = "center";
+    for (let k = -5; k <= 5; k++) if (k) ctx.fillText(zahl(k), X(k), Y(0) + 20);
+    ctx.textAlign = "right";
+    for (let k = -5; k <= 5; k++) if (k) ctx.fillText(zahl(k), X(0) - 7, Y(k) + 5);
+    ctx.font = "italic 17px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("x", X(5.4) + 4, Y(0) + 24); ctx.fillText("y", X(0) + 10, Y(5.4));
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#0b5aa0"; ctx.fillText("1. Quadrant", X(3.3), Y(5));
+    ctx.fillStyle = "#a35a00"; ctx.fillText("2. Quadrant", X(-5.1), Y(5));
+    ctx.fillStyle = "#2e7d32"; ctx.fillText("3. Quadrant", X(-5.1), Y(-4.85));
+    ctx.fillStyle = "#7b1fa2"; ctx.fillText("4. Quadrant", X(3.3), Y(-4.85));
+    // Weg vom Ursprung: zuerst x (blau), dann y (orange)
+    if (x !== 0) {
+      ctx.strokeStyle = "#0b7fc4"; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(x), Y(0)); ctx.stroke();
+      pfeilspitze(ctx, X(x), Y(0), x > 0 ? 0 : Math.PI, "#0b7fc4");
+    }
+    if (y !== 0) {
+      ctx.strokeStyle = "#e07b00"; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(X(x), Y(0)); ctx.lineTo(X(x), Y(y)); ctx.stroke();
+      pfeilspitze(ctx, X(x), Y(y), y > 0 ? -Math.PI / 2 : Math.PI / 2, "#e07b00");
+    }
+    // Abstand zur y-Achse gestrichelt auf Höhe des Punktes
+    if (x !== 0 && y !== 0) {
+      ctx.strokeStyle = "#607080"; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(X(0), Y(y)); ctx.lineTo(X(x), Y(y)); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.fillStyle = "#1a2229";
+    ctx.beginPath(); ctx.arc(X(x), Y(y), 9, 0, 2 * Math.PI); ctx.fill();
+    ctx.font = "bold 17px sans-serif"; ctx.textAlign = x >= 0 ? "left" : "right";
+    ctx.fillText("P(" + zahl(x) + " | " + zahl(y) + ")", X(x) + (x >= 0 ? 14 : -14), Y(y) + (y >= 0 ? -12 : 24));
+    const wegX = x > 0 ? schritte(x) + " nach rechts" : x < 0 ? schritte(x) + " nach links" : "kein Schritt nach rechts oder links";
+    const wegY = y > 0 ? schritte(y) + " nach oben" : y < 0 ? schritte(y) + " nach unten" : "kein Schritt nach oben oder unten";
+    document.getElementById("a-punkt").textContent = "P(" + zahl(x) + " | " + zahl(y) + ")";
+    document.getElementById("a-quadrant").textContent = lage(x, y);
+    document.getElementById("a-weg").textContent = "zuerst " + wegX + ", dann " + wegY;
+    document.getElementById("a-absy").textContent = schritte(x);
+    document.getElementById("a-absx").textContent = schritte(y);
+  }
+  let log = null;
+  function geschoben() {
+    mal(); clearTimeout(log);
+    log = setTimeout(() => protokolliere("modell", "Koordinatensystem",
+      "P(" + zahl(+rX.value) + " | " + zahl(+rY.value) + "), " + lage(+rX.value, +rY.value)), 1500);
+  }
+  rX.addEventListener("input", geschoben);
+  rY.addEventListener("input", geschoben);
+  mal();
+})();
+
+/* ---------- Rundweg (Buch S. 78 a): Koordinaten lesen, prüfen, einzeichnen ---------- */
+function koordLesen(s) {
+  let r = String(s || "").trim().replace(/[−–—]/g, "-").replace(/\s+/g, "");
+  r = r.replace(/^[A-Za-z](?=\()/, "").replace(/^\(/, "").replace(/\)$/, "");
+  const teile = r.split(/[|;\/Il]/);
+  if (teile.length !== 2) return null;
+  const zahlform = /^[+-]?\d+([.,]\d+)?$/;
+  if (!zahlform.test(teile[0]) || !zahlform.test(teile[1])) return null;
+  return [parseFloat(teile[0].replace(",", ".")), parseFloat(teile[1].replace(",", "."))];
+}
+function rundwegZeichnen(punkte) {
+  const cv = document.getElementById("c-diagramm");
+  if (!cv) return;
+  const ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+  const u = 70, X = x => W / 2 + x * u, Y = y => H / 2 - y * u;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = "#e3e9ee";
+  for (let k = -7; k <= 7; k++) {
+    ctx.lineWidth = k % 2 ? .6 : 1.2;
+    ctx.beginPath(); ctx.moveTo(X(k / 2), Y(-3.8)); ctx.lineTo(X(k / 2), Y(3.8)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(-3.5), Y(k / 2)); ctx.lineTo(X(3.5), Y(k / 2)); ctx.stroke();
+  }
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.moveTo(X(-3.6), Y(0)); ctx.lineTo(X(3.6), Y(0)); ctx.moveTo(X(0), Y(-3.9)); ctx.lineTo(X(0), Y(3.9)); ctx.stroke();
+  ctx.font = "15px sans-serif"; ctx.fillStyle = "#1a2229"; ctx.textAlign = "center";
+  for (let k = -3; k <= 3; k++) if (k) ctx.fillText(zahl(k), X(k), Y(0) + 20);
+  ctx.textAlign = "right";
+  for (let k = -3; k <= 3; k++) if (k) ctx.fillText(zahl(k), X(0) - 7, Y(k) + 5);
+  function kreuz(x, y, farbe, name) {
+    ctx.strokeStyle = farbe; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(X(x) - 8, Y(y) - 8); ctx.lineTo(X(x) + 8, Y(y) + 8);
+    ctx.moveTo(X(x) - 8, Y(y) + 8); ctx.lineTo(X(x) + 8, Y(y) - 8); ctx.stroke();
+    ctx.fillStyle = farbe; ctx.font = "bold 17px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText(name, X(x) + 10, Y(y) - 10);
+  }
+  kreuz(2, 1, "#1a2229", "A");
+  punkte.forEach(p => { if (p.ist) kreuz(p.ist[0], p.ist[1], p.ok ? "#2e7d32" : "#c62828", p.name); });
+  ctx.fillStyle = "#607080"; ctx.font = "14px sans-serif"; ctx.textAlign = "right";
+  ctx.fillText("nur eure Punkte · den ganzen Rundweg zeigt das Bild oben", W - 10, 20);
+}
+document.getElementById("k-pruefe-mess").addEventListener("click", () => {
+  let gut = 0, ges = 0;
+  const punkte = [], vertauscht = [], vorzeichen = [], unlesbar = [];
+  const kopf = [...document.querySelectorAll("#tab-mess tr:first-child td")].map(td => td.textContent.trim());
+  document.querySelectorAll("#tab-mess input").forEach((inp, k) => {
+    ges++;
+    const td = inp.parentElement;
+    const soll = koordLesen(inp.dataset.soll), tol = parseFloat(inp.dataset.tol);
+    const ist = koordLesen(inp.value);
+    td.classList.remove("ok", "fast");
+    const name = kopf[k] || "?";
+    let ok = false;
+    if (ist) {
+      ok = Math.abs(ist[0] - soll[0]) <= tol && Math.abs(ist[1] - soll[1]) <= tol;
+      if (ok) { td.classList.add("ok"); gut++; }
+      else if (Math.abs(ist[0] - soll[1]) <= tol && Math.abs(ist[1] - soll[0]) <= tol) { td.classList.add("fast"); vertauscht.push(name); }
+      else if (Math.abs(Math.abs(ist[0]) - Math.abs(soll[0])) <= tol && Math.abs(Math.abs(ist[1]) - Math.abs(soll[1])) <= tol) { td.classList.add("fast"); vorzeichen.push(name); }
+    } else if (String(inp.value).trim()) unlesbar.push(name);
+    punkte.push({ name: name, ist: ist, ok: ok });
+  });
+  const teile = [];
+  if (vertauscht.length) teile.push("Bei " + vertauscht.join(", ") + " sind x und y vertauscht: zuerst x (rechts oder links), dann y.");
+  if (vorzeichen.length) teile.push("Bei " + vorzeichen.join(", ") + " stimmt ein Vorzeichen nicht: Welche Seite der Achse?");
+  if (unlesbar.length) teile.push("Bei " + unlesbar.join(", ") + " kann die Seite nichts lesen. Schreibt zum Beispiel −2|1.");
+  const rb = document.getElementById("rueck-mess");
+  rb.className = "rueck zeig " + (gut === ges ? "gut" : "schlecht");
+  rb.innerHTML = "<b>" + gut + " von " + ges + "</b> Punkten stimmen (grün). " +
+    (gut === ges ? "Sauber abgelesen." : (teile.join(" ") || "Prüft die roten Punkte noch einmal: Wie viel ist ein Kästchen?"));
+  antworten["messreihe"] = gut + " von " + ges + " Rundweg-Punkten richtig";
+  rundwegZeichnen(punkte);
+});
+rundwegZeichnen([]);
+
+/* ---------- Quiz: acht Fragen an den acht Stellen, an denen es klemmt ----------
+   Jede Frage: eine Aussage, vier Optionen, r = Index der richtigen,
+   e = Erklärung, die auch bei richtiger Antwort etwas hinzufügt. */
+/* ---------- 9 Quiz ---------- */
+const fragen = [
+  { f: "Wie groß ist |−6|?",
+    o: ["−6", "6", "0", "12"], r: 1,
+    e: "Der Betrag ist der Abstand zur Null: 6. Ein Abstand ist nie negativ." },
+  { f: "Welche Zahlen haben den Betrag 2,5?",
+    o: ["nur 2,5", "nur −2,5", "2,5 und −2,5", "keine"], r: 2,
+    e: "Links und rechts der Null liegt je eine Zahl im Abstand 2,5, spiegelbildlich." },
+  { f: "Welche Aussage stimmt?",
+    o: ["−7 > −3, weil 7 größer ist als 3.", "−7 < −3, weil −7 weiter links liegt.", "−7 = −3, weil beide negativ sind.", "Negative Zahlen kann man nicht vergleichen."], r: 1,
+    e: "Weiter links heißt kleiner. −7 hat den größeren Betrag, ist aber die kleinere Zahl." },
+  { f: "In welchem Quadranten liegt P(−2 | 5)?",
+    o: ["im 1.", "im 2.", "im 3.", "im 4."], r: 1,
+    e: "x negativ: links. y positiv: oben. Links oben ist der 2. Quadrant." },
+  { f: "Welcher Punkt liegt im 4. Quadranten?",
+    o: ["(−3 | 2)", "(3 | 2)", "(−3 | −2)", "(3 | −2)"], r: 3,
+    e: "Der 4. Quadrant liegt rechts unten: x positiv, y negativ." },
+  { f: "Wo liegt Q(0 | −4)?",
+    o: ["im 3. Quadranten", "im 4. Quadranten", "auf der y-Achse, in keinem Quadranten", "auf der x-Achse"], r: 2,
+    e: "x = 0: kein Schritt nach rechts oder links. Q liegt auf der y-Achse, 4 unter dem Ursprung." },
+  { f: "Ein Punkt hat die x-Koordinate −5. Was weißt du sicher?",
+    o: ["Er liegt im 3. Quadranten.", "Er liegt 5 Schritte links von der y-Achse.", "Er liegt 5 Schritte unter der x-Achse.", "Er liegt unter der x-Achse."], r: 1,
+    e: "Die x-Koordinate sagt nur rechts oder links. Ob oben oder unten, verrät erst y." },
+  { f: "Wie heißt der Punkt (0 | 0) im Koordinatensystem?",
+    o: ["Mittelpunkt", "Nullquadrant", "Koordinatenursprung", "Achsenpunkt"], r: 2,
+    e: "Koordinatenursprung, kurz Ursprung. Dort schneiden sich die beiden Achsen." }
+];
+let quizPunkte = 0, quizBeantwortet = 0;
+const quizBox = document.getElementById("quiz");
+fragen.forEach((q, i) => {
+  const d = document.createElement("div");
+  d.className = "quizfrage";
+  d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+  const mcb = document.createElement("div"); mcb.className = "mc";
+  const rb = document.createElement("div"); rb.className = "rueck";
+  let erledigt = false;
+  q.o.forEach((text, k) => {
+    const b = document.createElement("button");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (erledigt) return;
+      erledigt = true; quizBeantwortet++;
+      Array.from(mcb.children).forEach((x, j) => {
+        if (j === q.r) x.classList.add("richtig");
+      });
+      if (k !== q.r) b.classList.add("falsch"); else quizPunkte++;
+      rb.className = "rueck zeig " + (k === q.r ? "gut" : "schlecht");
+      rb.innerHTML = (k === q.r ? "<b>Richtig.</b> " : "<b>Falsch.</b> ") + q.e;
+      const erg = document.getElementById("quiz-ergebnis");
+      erg.style.display = "block";
+      document.getElementById("quiz-punkte").textContent = quizPunkte + " / " + fragen.length;
+      document.getElementById("quiz-text").textContent =
+        quizBeantwortet < fragen.length ? "(" + quizBeantwortet + " von " + fragen.length + " beantwortet)"
+          : quizPunkte >= 7 ? "– sehr gut, das sitzt."
+            : quizPunkte >= 5 ? "– solide. Schaut euch die falschen Erklärungen noch einmal an."
+              : "– noch wacklig. Geht zurück zu Phase 5 und lest den Merksatz.";
+      antworten["quiz"] = quizPunkte + " von " + fragen.length + " Quizfragen richtig";
+    });
+    mcb.appendChild(b);
+  });
+  d.appendChild(mcb); d.appendChild(rb); quizBox.appendChild(d);
+});
+
+/* ============================================================
+   10  Protokoll – läuft mit, ist nur erweiterbar
+   ============================================================ */
+const PROTOKOLL_VERSION = 3;
+const SPEICHER = "koordinatensystem-7b-protokoll-v3";   // pro Stunde eindeutig!
+const LEHRER_MAIL = "michael.glaubitz@ae-gym.de";
+const gestartet = new Date();
+
+function zwei(n) { return String(n).padStart(2, "0"); }
+function stempel(d) {
+  d = d || new Date();
+  return d.getFullYear() + "-" + zwei(d.getMonth() + 1) + "-" + zwei(d.getDate()) +
+    " " + zwei(d.getHours()) + ":" + zwei(d.getMinutes()) + ":" + zwei(d.getSeconds());
+}
+function protokolliere(art, feld, wert, zusatz) {
+  const e = {
+    nr: protokollEintraege.length + 1, zeit: stempel(), art: art,
+    feld: feld || "", wert: wert === undefined || wert === null ? "" : String(wert)
+  };
+  if (zusatz) e.zusatz = String(zusatz);
+  protokollEintraege.push(Object.freeze(e));   // bestehende Einträge werden nie verändert
+  chipMalen();
+  speichern();
+}
+function chipMalen() {
+  const c = document.getElementById("protokollChip");
+  if (!c) return;
+  c.textContent = "Protokoll: " + protokollEintraege.length + (exportiert ? " · gesichert" : " Einträge");
+  c.classList.toggle("warn", protokollEintraege.length > 4 && !exportiert);
+}
+
+/* ---------- 11 Zeichenfelder (Touch / Stift) ---------- */
+const zeichnungen = {};
+document.querySelectorAll(".zeichenfeld").forEach(aufbauZeichnung);
+
+function aufbauZeichnung(box) {
+  const zid = box.dataset.zid;
+  const hoehe = parseInt(box.dataset.hoehe || "300", 10);
+  const z = { striche: [], farbe: "#1a2229", breite: 3, letztesLog: 0 };
+  zeichnungen[zid] = z;
+
+  const wz = document.createElement("div");
+  wz.className = "zwerkzeug";
+  const titel = document.createElement("span");
+  titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
+  wz.appendChild(titel);
+
+  function knopf(text, wirkung, gruppe) {
+    const b = document.createElement("button");
+    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (gruppe) {
+        wz.querySelectorAll(".g-" + gruppe).forEach(x => x.classList.remove("aktivw"));
+        b.classList.add("aktivw");
+      }
+      wirkung();
+    });
+    wz.appendChild(b);
+    return b;
+  }
+  const kDuenn = knopf("dünn", () => z.breite = 2, "b" + zid);
+  const kDick = knopf("dick", () => z.breite = 5, "b" + zid);
+  const kSchwarz = knopf("schwarz", () => z.farbe = "#1a2229", "f" + zid);
+  knopf("rot", () => z.farbe = "#c62828", "f" + zid);
+  knopf("Strich zurück", () => {
+    if (!z.striche.length) return;
+    z.striche.pop(); malen(); protokolliere("zeichnung", zid, "Strich zurückgenommen (" + z.striche.length + " Striche)");
+    sperrenPruefen();
+  });
+  knopf("alles löschen", () => {
+    if (!z.striche.length) return;
+    protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.striche.length + " Striche)");
+    z.striche = []; malen(); sperrenPruefen();
+  });
+  kDick.classList.add("aktivw"); z.breite = 5;
+  kSchwarz.classList.add("aktivw");
+  const status = document.createElement("span");
+  status.className = "zstatus"; status.textContent = "0 Striche";
+  wz.appendChild(status);
+
+  const cv = document.createElement("canvas");
+  cv.width = 1000;
+  cv.height = Math.round(hoehe * 1000 / 900);
+  if (box.dataset.koord) {             // data-koord="xmin,xmax,ymin,ymax": quadratische Kästchen
+    z.koord = box.dataset.koord.split(",").map(Number);
+    cv.height = Math.round(cv.width / (z.koord[1] - z.koord[0]) * (z.koord[3] - z.koord[2]));
+  }
+  box.appendChild(wz); box.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  z.canvas = cv;
+
+  function malen() {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (z.koord) koordHintergrund(ctx, cv, z.koord);
+    else {
+      ctx.fillStyle = "#dde4ea";
+      for (let x = 25; x < cv.width; x += 25)
+        for (let y = 25; y < cv.height; y += 25) ctx.fillRect(x, y, 1.4, 1.4);
+    }
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const alle = z.striche.concat(z.aktuell ? [z.aktuell] : []);
+    alle.forEach(st => {
+      ctx.strokeStyle = st.farbe; ctx.lineWidth = st.breite;
+      ctx.beginPath();
+      st.punkte.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+      if (st.punkte.length === 1) { ctx.lineTo(st.punkte[0].x + .1, st.punkte[0].y + .1); }
+      ctx.stroke();
+    });
+    status.textContent = z.striche.length + (z.striche.length === 1 ? " Strich" : " Striche");
+  }
+  z.malen = malen;
+
+  function pos(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+  }
+  cv.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    try { cv.setPointerCapture(e.pointerId); } catch (x) { }
+    z.aktuell = { farbe: z.farbe, breite: z.breite, punkte: [pos(e)] };
+    malen();
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!z.aktuell) return;
+    e.preventDefault();
+    const p = pos(e), letzt = z.aktuell.punkte[z.aktuell.punkte.length - 1];
+    if (Math.abs(p.x - letzt.x) + Math.abs(p.y - letzt.y) < 1.5) return;
+    z.aktuell.punkte.push(p); malen();
+  });
+  function fertig() {
+    if (!z.aktuell) return;
+    if (z.aktuell.punkte.length >= 1) z.striche.push(z.aktuell);
+    z.aktuell = null; malen(); sperrenPruefen(); speichern();
+    const jetzt = Date.now();
+    if (z.striche.length <= 1 || jetzt - z.letztesLog > 6000) {
+      z.letztesLog = jetzt;
+      protokolliere("zeichnung", zid, z.striche.length + " Striche gezeichnet");
+    }
+  }
+  cv.addEventListener("pointerup", fertig);
+  cv.addEventListener("pointercancel", fertig);
+  cv.addEventListener("pointerleave", fertig);
+  malen();
+}
+function koordHintergrund(ctx, cv, k) {
+  const [x0, x1, y0, y1] = k, u = cv.width / (x1 - x0);
+  const X = x => (x - x0) * u, Y = y => (y1 - y) * u;
+  ctx.strokeStyle = "#e3e9ee";
+  for (let x = x0; x <= x1; x += 0.5) { ctx.lineWidth = Number.isInteger(x) ? 1.4 : .6; ctx.beginPath(); ctx.moveTo(X(x), 0); ctx.lineTo(X(x), cv.height); ctx.stroke(); }
+  for (let y = y0; y <= y1; y += 0.5) { ctx.lineWidth = Number.isInteger(y) ? 1.4 : .6; ctx.beginPath(); ctx.moveTo(0, Y(y)); ctx.lineTo(cv.width, Y(y)); ctx.stroke(); }
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, Y(0)); ctx.lineTo(cv.width, Y(0)); ctx.moveTo(X(0), 0); ctx.lineTo(X(0), cv.height); ctx.stroke();
+  ctx.fillStyle = "#1a2229"; ctx.font = "20px sans-serif"; ctx.textAlign = "center";
+  for (let x = Math.ceil(x0) + 1; x < x1; x++) if (x) ctx.fillText(String(x).replace("-", "−"), X(x), Y(0) + 24);
+  ctx.textAlign = "right";
+  for (let y = Math.ceil(y0) + 1; y < y1; y++) if (y) ctx.fillText(String(y).replace("-", "−"), X(0) - 8, Y(y) + 7);
+  ctx.font = "italic 22px sans-serif"; ctx.textAlign = "left";
+  ctx.fillText("x", cv.width - 22, Y(0) - 8); ctx.fillText("y", X(0) + 8, 22);
+}
+function zeichnungBild(zid) {
+  const z = zeichnungen[zid];
+  if (!z || !z.striche.length) return null;
+  return z.canvas.toDataURL("image/png");
+}
+
+/* ---------- 12 Lösungen sperren ---------- */
+/* Klarnamen der Felder für Sperrhinweise und Protokoll: automatisch aus
+   data-label bzw. data-titel. Kein manuelles Nachpflegen nötig. */
+const FELDNAMEN = {};
+document.querySelectorAll("[data-label]").forEach(el => {
+  if (el.id) FELDNAMEN[el.id] = el.dataset.label;
+  if (el.dataset.zid) FELDNAMEN["zeichnung:" + el.dataset.zid] = el.dataset.label;
+});
+document.querySelectorAll(".zeichenfeld").forEach(el => {
+  if (el.dataset.zid && !FELDNAMEN["zeichnung:" + el.dataset.zid])
+    FELDNAMEN["zeichnung:" + el.dataset.zid] = el.dataset.titel || el.dataset.zid;
+});
+function feldWert(feld) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return z ? z.striche.length + " Striche" : "";
+  }
+  const el = document.getElementById(feld);
+  return el ? (el.value || "").trim() : "";
+}
+function feldReicht(feld, min) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return !!z && z.striche.length >= 3;
+  }
+  const el = document.getElementById(feld);
+  if (!el) return true;
+  const v = (el.value || "").trim();
+  return v.length >= (el.tagName === "TEXTAREA" ? (min || 40) : 1);
+}
+const sperren = [];
+document.querySelectorAll("details.gesperrt").forEach(d => {
+  const sum = d.querySelector("summary");
+  const text = sum.innerHTML;
+  const felder = (d.dataset.fuer || "").split(",").filter(x => x);
+  const min = parseInt(d.dataset.min || "40", 10);
+  let warFrei = false;
+  sum.innerHTML = '<span class="sperrsymbol">🔒</span> ' + text + ' <span class="schloss"></span>';
+  const symbolEl = sum.querySelector(".sperrsymbol");
+  const noteEl = sum.querySelector(".schloss");
+
+  function istFrei() { return felder.every(f => feldReicht(f, min)); }
+
+  function pruefe() {
+    const fehlt = felder.filter(f => !feldReicht(f, min));
+    const frei = fehlt.length === 0;
+    d.classList.toggle("gesperrt", !frei);
+    d.classList.toggle("frei", frei);
+    if (!frei && d.open) d.open = false;
+    let note;
+    if (frei) note = "– jetzt vergleichen";
+    else {
+      const namen = fehlt.map(f => FELDNAMEN[f] || f);
+      note = "– zuerst ausfüllen: " + namen.join(", ");
+      if (fehlt.length === 1 && fehlt[0].indexOf("zeichnung:") !== 0) {
+        const el = document.getElementById(fehlt[0]);
+        if (el && el.tagName === "TEXTAREA")
+          note = "– noch " + Math.max(1, min - (el.value || "").trim().length) + " Zeichen in „" + (FELDNAMEN[fehlt[0]] || fehlt[0]) + "“";
+      }
+    }
+    if (symbolEl.textContent !== (frei ? "🔓" : "🔒")) symbolEl.textContent = frei ? "🔓" : "🔒";
+    if (noteEl.textContent !== note) noteEl.textContent = note;
+    if (frei && !warFrei) { warFrei = true; }
+    return frei;
+  }
+  sperren.push(pruefe);
+
+  function blockieren(e) {
+    // Wichtig: bei erlaubtem Klick darf das Summary nicht neu aufgebaut werden,
+    // sonst verwirft der Browser das Standardverhalten (Auf-/Zuklappen).
+    if (istFrei()) {
+      sperrpause = true;
+      setTimeout(() => { sperrpause = false; sperrenPruefen(); }, 0);
+      if (!d.open) {
+        const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
+        protokolliere("loesung-geoeffnet", d.dataset.fuer || "", "Stand der eigenen Antwort beim Öffnen der Lösung", schnapp);
+      }
+      return;
+    }
+    e.preventDefault();
+    d.open = false;
+    pruefe();
+    d.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" },
+      { transform: "translateX(6px)" }, { transform: "translateX(0)" }], { duration: 220 });
+    protokolliere("loesung-gesperrt", d.dataset.fuer || "", "Lösung angeklickt, aber noch nicht freigeschaltet");
+  }
+  sum.addEventListener("click", blockieren);
+  sum.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") blockieren(e); });
+});
+let sperrpause = false;
+function sperrenPruefen() { if (sperrpause) return; sperren.forEach(f => f()); }
+
+/* ---------- 13 Eingaben erfassen ---------- */
+/* Eingabefelder in Messtabellen bekommen automatisch IDs und Klarnamen
+   aus der Kopfzeile, damit jede Eingabe einzeln protokolliert wird. */
+document.querySelectorAll("table.messtabelle").forEach(tab => {
+  const kopf = [...tab.querySelectorAll("tr:first-child td, tr:first-child th")].map(t => t.textContent.trim());
+  const name = tab.dataset.label || tab.id || "Tabelle";
+  tab.querySelectorAll("input").forEach((inp, k) => {
+    if (!inp.id) inp.id = (tab.id || "tab") + "-" + k;
+    FELDNAMEN[inp.id] = name + " " + (kopf[k + 1] || k + 1);
+  });
+});
+const letzteWerte = {};
+function erfassen(el) {
+  if (!el.id) return;
+  const v = (el.value || "").trim();
+  if (letzteWerte[el.id] === v) return;
+  letzteWerte[el.id] = v;
+  protokolliere("eingabe", el.id, v);
+}
+document.querySelectorAll("textarea, input[type=text], td input, .karte input").forEach(el => {
+  if (el.type === "range") return;
+  el.addEventListener("change", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("blur", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("input", () => { sperrenPruefen(); if (el.tagName === "TEXTAREA") verzoegertErfassen(el); });
+});
+let erfassTimer = null;
+function verzoegertErfassen(el) {
+  clearTimeout(erfassTimer);
+  erfassTimer = setTimeout(() => erfassen(el), 4000);
+}
+
+/* ---------- 14 Speichern / Wiederherstellen ---------- */
+function zustand() {
+  const felderWerte = {};
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => {
+    if (el.id && el.value) felderWerte[el.id] = el.value;
+  });
+  const striche = {};
+  Object.keys(zeichnungen).forEach(zid => { striche[zid] = zeichnungen[zid].striche; });
+  return {
+    version: PROTOKOLL_VERSION, gestartet: stempel(gestartet), gespeichert: stempel(),
+    name: (document.getElementById("i-name") || {}).value || "",
+    klasse: (document.getElementById("i-klasse") || {}).value || "",
+    felder: felderWerte, striche: striche, eintraege: protokollEintraege,
+    weg: weg, vorschlag: vorschlag, diagnose: diagErgebnis.filter(Boolean), hilfen: hilfenStand
+  };
+}
+let speicherTimer = null;
+function speichern() {
+  clearTimeout(speicherTimer);
+  speicherTimer = setTimeout(() => {
+    try { localStorage.setItem(SPEICHER, JSON.stringify(zustand())); } catch (e) { }
+  }, 600);
+}
+function wiederherstellen(z) {
+  Object.keys(z.felder || {}).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
+  });
+  Object.keys(z.striche || {}).forEach(zid => {
+    if (zeichnungen[zid]) { zeichnungen[zid].striche = z.striche[zid] || []; zeichnungen[zid].malen(); }
+  });
+  (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
+  (z.diagnose || []).forEach(e => { diagErgebnis[e.nr - 1] = e; });
+  Object.keys(z.hilfen || {}).forEach(id => { if (id in hilfenStand) hilfenStand[id] = z.hilfen[id]; });
+  hilfenMalen();
+  videosAuffrischen();
+  if (z.vorschlag && WEGE[z.vorschlag]) { vorschlag = z.vorschlag; vorschlagZeigen(); }
+  if (z.weg && WEGE[z.weg]) wegSetzen(z.weg, true);
+  protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
+  sperrenPruefen(); chipMalen();
+}
+(function angebotPruefen() {
+  let z = null;
+  try { const roh = localStorage.getItem(SPEICHER); if (roh) z = JSON.parse(roh); } catch (e) { }
+  if (!z || !z.eintraege || !z.eintraege.length) return;
+  const banner = document.createElement("div");
+  banner.className = "karte warn";
+  banner.innerHTML = '<h4>Angefangenes Protokoll gefunden</h4><p>Auf diesem Gerät liegt ein Protokoll von <b>' +
+    (z.gespeichert || z.gestartet) + '</b> mit ' + z.eintraege.length + ' Einträgen' +
+    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>';
+  const w = document.createElement("button"); w.className = "knopf voll"; w.textContent = "Daran weiterarbeiten";
+  const n = document.createElement("button"); n.className = "knopf"; n.textContent = "Neu beginnen (löscht das alte)";
+  const p = document.createElement("p"); p.appendChild(w); p.appendChild(document.createTextNode(" ")); p.appendChild(n);
+  banner.appendChild(p);
+  w.addEventListener("click", () => { wiederherstellen(z); banner.remove(); });
+  n.addEventListener("click", () => {
+    try { localStorage.removeItem(SPEICHER); } catch (e) { }
+    protokolliere("neu", "", "Neues Protokoll begonnen, altes verworfen");
+    banner.remove();
+  });
+  const ziel = document.querySelector("section.phase");
+  ziel.insertBefore(banner, ziel.children[2]);
+})();
+
+/* ---------- 15 Ausgabe: Text, Protokolldatei, Versand ---------- */
+/* Alle auswertbaren Felder werden aus dem DOM gesammelt:
+   jedes Element mit data-label wird in Dokumentreihenfolge aufgenommen.
+   Damit muss beim Erstellen einer neuen Stunde keine Liste gepflegt werden. */
+function sammleFelder() {
+  const liste = [];
+  document.querySelectorAll("[data-label]").forEach(el => {
+    liste.push([el.id || el.dataset.zid || "", el.dataset.label]);
+  });
+  return liste;
+}
+function eintraegeInhalt() {
+  const liste = [];
+  sammleFelder().forEach(([id, titel]) => {
+    if (!id) return;
+    let wert = antwortenRoh[id];
+    const el = document.getElementById(id);
+    if (el && el.tagName === "TABLE") wert = tabellenText(el);
+    else if (el && el.value !== undefined) wert = el.value.trim();
+    else if (!wert && zeichnungen[id]) {
+      wert = zeichnungen[id].striche.length
+        ? zeichnungen[id].striche.length + " Striche gezeichnet (Bild im Protokoll)" : "";
+    }
+    if (!wert || !String(wert).trim()) return;
+    liste.push([titel, String(wert).trim()]);
+  });
+  return liste;
+}
+
+/* Messtabellen: Kopfzeile liefert die Beschriftung, zweite Zeile die Eingaben. */
+function tabellenText(tab) {
+  const kopf = [...tab.querySelectorAll("tr:first-child td, tr:first-child th")].map(t => t.textContent.trim());
+  const werte = [...tab.querySelectorAll("input")].map(i => (i.value || "").trim());
+  return werte.map((w, k) => w ? (kopf[k + 1] || "?") + ": " + w : null).filter(Boolean).join(" · ");
+}
+
+function namen() { return ((document.getElementById("i-name") || {}).value || "").trim(); }
+function klasse() { return ((document.getElementById("i-klasse") || {}).value || "").trim(); }
+function betreff() { return "Mathematik Betrag und Koordinatensystem – " + (namen() || "ohne Namen") + (klasse() ? " (" + klasse() + ")" : ""); }
+function dateiname() {
+  const roh = "Protokoll_Koordinatensystem_" + (namen() || "ohneNamen") + (klasse() ? "_" + klasse() : "");
+  return roh.replace(/[^A-Za-z0-9_äöüÄÖÜß-]+/g, "_").slice(0, 80);
+}
+function textFassung() {
+  let t = "Ergebnisse Mathematik – Betrag und Koordinatensystem\n";
+  t += "Namen: " + (namen() || "ohne Namen") + "\nKlasse: " + (klasse() || "–") + "\n";
+  t += "Bearbeitet: " + stempel(gestartet) + " bis " + stempel() + "\n";
+  t += "Weg: " + (weg ? WEGE[weg] : "nicht gewählt") + (vorschlag ? " (vorgeschlagen: " + WEGE[vorschlag] + ")" : "") + "\n";
+  t += "Hilfen genutzt: " + (hilfenText() || "–") + "\n";
+  t += "----------------------------------------\n";
+  eintraegeInhalt().forEach(([titel, wert]) => { t += "\n" + titel + ":\n" + wert + "\n"; });
+  const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].striche.length);
+  t += "\nZeichnungen: " + (gez.length ? gez.join(", ") + " (nur in der Protokolldatei enthalten, nicht in dieser Textmail)" : "keine");
+  t += "\nProtokolleinträge: " + protokollEintraege.length + "\n";
+  t += "----------------------------------------\n";
+  return t;
+}
+function sicher(x) {
+  return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function protokollHtml() {
+  const z = zustand();
+  const bilder = Object.keys(zeichnungen).map(zid => {
+    const d = zeichnungBild(zid);
+    return d ? '<figure><figcaption>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ' – ' + zeichnungen[zid].striche.length + ' Striche</figcaption><img src="' + d + '" alt="Zeichnung ' + sicher(zid) + '"></figure>' : "";
+  }).join("");
+  const antwortenHtml = eintraegeInhalt().map(([t, w]) =>
+    "<h3>" + sicher(t) + "</h3><p>" + sicher(w).replace(/\n/g, "<br>") + "</p>").join("");
+  const logHtml = protokollEintraege.map(e =>
+    "<tr><td>" + e.nr + "</td><td>" + sicher(e.zeit) + "</td><td>" + sicher(e.art) + "</td><td>" +
+    sicher(e.feld) + "</td><td>" + sicher(e.wert) + (e.zusatz ? "<br><i>" + sicher(e.zusatz) + "</i>" : "") + "</td></tr>").join("");
+  return '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">' +
+    '<title>' + sicher(betreff()) + '</title><style>' +
+    'body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a2229;line-height:1.5}' +
+    'h1{font-size:1.3rem;color:#0b5aa0}h2{font-size:1.05rem;color:#0b5aa0;border-bottom:1px solid #cfd8de;padding-bottom:.2rem;margin-top:2rem}' +
+    'h3{font-size:.95rem;margin:1rem 0 .2rem}p{margin:.2rem 0 .6rem}' +
+    'table{border-collapse:collapse;width:100%;font-size:.8rem}td,th{border:1px solid #cfd8de;padding:.25rem .4rem;text-align:left;vertical-align:top}' +
+    'th{background:#e8f1f9}figure{margin:1rem 0}figcaption{font-size:.85rem;color:#4a5560;margin-bottom:.2rem}' +
+    'img{max-width:100%;border:1px solid #cfd8de;border-radius:6px}' +
+    '.kopf{background:#e8f1f9;border:1px solid #8fbde0;border-radius:8px;padding:.6rem .9rem}</style></head><body>' +
+    '<h1>Mathematik – Betrag und Koordinatensystem: Protokoll der Lernpfad-Doppelstunde</h1>' +
+    '<div class="kopf"><b>Namen:</b> ' + sicher(namen() || "ohne Namen") +
+    ' &nbsp;·&nbsp; <b>Klasse:</b> ' + sicher(klasse() || "–") +
+    '<br><b>Bearbeitet:</b> ' + sicher(stempel(gestartet)) + " bis " + sicher(stempel()) +
+    ' &nbsp;·&nbsp; <b>Protokolleinträge:</b> ' + protokollEintraege.length +
+    '<br><b>Weg:</b> ' + sicher(weg ? WEGE[weg] : "nicht gewählt") +
+    (vorschlag ? ' (vorgeschlagen: ' + sicher(WEGE[vorschlag]) + ')' : '') +
+    ' &nbsp;·&nbsp; <b>Hilfen genutzt:</b> ' + sicher(hilfenText() || "–") + '</div>' +
+    '<h2>Antworten</h2>' + (antwortenHtml || "<p>keine Eingaben</p>") +
+    '<h2>Zeichnungen</h2>' + (bilder || "<p>keine Zeichnungen</p>") +
+    '<h2>Verlaufsprotokoll</h2>' +
+    '<p style="font-size:.85rem;color:#4a5560">Jeder Eintrag wurde beim Entstehen angehängt und danach nicht mehr verändert. ' +
+    'Einträge der Art <i>loesung-geoeffnet</i> und <i>hilfe-geoeffnet</i> halten fest, was in diesem Moment im eigenen Feld stand.</p>' +
+    '<table><tr><th>Nr.</th><th>Zeit</th><th>Art</th><th>Feld</th><th>Inhalt</th></tr>' + logHtml + '</table>' +
+    '<h2>Rohdaten</h2><p style="font-size:.85rem;color:#4a5560">Maschinenlesbare Fassung dieses Protokolls (JSON, ohne Bilder):</p>' +
+    '<script type="application/json" id="rohdaten">' + JSON.stringify(z).replace(/</g, "\\u003c") + '<\/script>' +
+    '<p style="font-size:.8rem;color:#607080">Erzeugt von der Lernpfad-Doppelstunde: Betrag und Koordinatensystem.</p></body></html>';
+}
+function herunterladen(name, inhalt, typ) {
+  const b = new Blob([inhalt], { type: typ });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+}
+function nameFehlt() {
+  if (namen()) return false;
+  hinweis("<b style='color:#c62828'>Bitte zuerst die Namen eintragen</b> – sonst weiß Herr Glaubitz nicht, von wem das Protokoll kommt.");
+  const el = document.getElementById("i-name"); el.focus(); el.scrollIntoView({ block: "center" });
+  return true;
+}
+function hinweis(html) { document.getElementById("mail-hinweis").innerHTML = html; }
+
+document.getElementById("k-protokoll").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "protokoll", "Protokolldatei erzeugt: " + dateiname() + ".html");
+  hinweis("<b>Protokoll gespeichert</b> als <b>" + dateiname() + ".html</b> (auf dem iPad in der Dateien-App unter „Downloads“). Jetzt Schritt 2: Senden / Teilen.");
+});
+document.getElementById("k-json").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const roh = zustand();
+  roh.zeichnungen = {};
+  Object.keys(zeichnungen).forEach(zid => { const d = zeichnungBild(zid); if (d) roh.zeichnungen[zid] = d; });
+  herunterladen(dateiname() + ".json", JSON.stringify(roh, null, 2), "application/json");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "json", "Rohdaten erzeugt: " + dateiname() + ".json");
+});
+document.getElementById("k-teilen").addEventListener("click", async () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const datei = new File([protokollHtml()], dateiname() + ".html", { type: "text/html" });
+  const daten = { title: betreff(), text: "Protokoll Mathematik – Betrag und Koordinatensystem – bitte an " + LEHRER_MAIL + " senden.\n\n" + textFassung(), files: [datei] };
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+      await navigator.share(daten);
+      exportiert = true; chipMalen();
+      protokolliere("abgabe", "teilen", "Teilen-Dialog geöffnet, Datei angehängt");
+      hinweis("Wählt im Teilen-Dialog <b>Mail</b>, tragt <b>" + LEHRER_MAIL + "</b> als Empfänger ein und sendet. Der Anhang ist euer Protokoll.");
+      return;
+    }
+  } catch (e) {
+    protokolliere("abgabe", "teilen", "Teilen abgebrochen oder nicht möglich");
+    hinweis("Teilen wurde abgebrochen. Zweiter Weg: „Protokoll speichern“, dann selbst eine Mail an <b>" + LEHRER_MAIL + "</b> schreiben und die Datei anhängen.");
+    return;
+  }
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "teilen-ersatz", "Teilen nicht verfügbar, Datei heruntergeladen");
+  hinweis("Dieses Gerät kann nicht direkt teilen. Das Protokoll wurde <b>gespeichert</b>: schreibt eine Mail an <b>" +
+    LEHRER_MAIL + "</b> und hängt die Datei <b>" + dateiname() + ".html</b> an.");
+});
+document.getElementById("k-adresse").addEventListener("click", () => {
+  kopieren(LEHRER_MAIL);
+  hinweis("Adresse <b>" + LEHRER_MAIL + "</b> kopiert – im Mailprogramm ins Feld „An“ einfügen.");
+});
+document.getElementById("k-mail").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const koerper = textFassung();
+  const url = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(koerper);
+  protokolliere("abgabe", "mailto", "Textmail geöffnet (ohne Zeichnungen)");
+  if (url.length > 1900) {
+    kopieren(koerper);
+    hinweis("Der Text ist lang und wurde <b>kopiert</b>. Mailprogramm öffnet sich – Text mit Einfügen ergänzen. <b>Achtung:</b> Zeichnungen sind in dieser Textmail nicht enthalten, dafür Schritt 1 und 2 benutzen.");
+    window.location.href = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff());
+    return;
+  }
+  window.location.href = url;
+  hinweis("<b>Achtung:</b> Diese Textmail enthält <b>keine Zeichnungen</b>. Wenn ihr bei A1 gezeichnet habt, benutzt zusätzlich Schritt 1 und 2.");
+});
+document.getElementById("k-kopieren").addEventListener("click", () => {
+  erfassenAlle(); kopieren(textFassung());
+  hinweis("<b>Text kopiert.</b> In eine Mail an <b>" + LEHRER_MAIL + "</b> einfügen. Zeichnungen fehlen darin – dafür Schritt 1 und 2.");
+});
+function erfassenAlle() {
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => { if (el.id) erfassen(el); });
+}
+function kopieren(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => notfallKopie(text));
+  } else notfallKopie(text);
+}
+function notfallKopie(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); } catch (e) { }
+  document.body.removeChild(ta);
+}
+
+document.getElementById("k-zusammenfassung").addEventListener("click", () => {
+  erfassenAlle();
+  let html = '<div class="karte blau"><h4>Meine Ergebnisse</h4>' +
+    '<p><b>Namen:</b> ' + (sicher(namen()) || "______________________") +
+    ' &nbsp;<b>Klasse:</b> ' + (sicher(klasse()) || "________") +
+    ' &nbsp;<b>Protokolleinträge:</b> ' + protokollEintraege.length + '</p>';
+  eintraegeInhalt().forEach(([t, w]) => {
+    html += '<p style="margin:.7rem 0 0"><b>' + sicher(t) + ":</b><br>" + sicher(w).replace(/\n/g, "<br>") + "</p>";
+  });
+  Object.keys(zeichnungen).forEach(zid => {
+    const d = zeichnungBild(zid);
+    if (d) html += '<p style="margin:.7rem 0 0"><b>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ':</b><br><img src="' + d + '" style="max-width:100%;border:1px solid #d3dae0;border-radius:6px"></p>';
+  });
+  html += "</div>";
+  const box = document.getElementById("ausgabe");
+  box.innerHTML = html;
+  box.scrollIntoView({ behavior: "smooth" });
+});
+document.getElementById("k-drucken").addEventListener("click", () => window.print());
+
+window.addEventListener("beforeunload", e => {
+  if (protokollEintraege.length > 4 && !exportiert) { e.preventDefault(); e.returnValue = ""; return ""; }
+});
+protokolliere("start", "", "Doppelstunde geöffnet");
+sperrenPruefen();
+
+
+
+/* ============================================================
+   Anmeldung zur Stunde (wie in den Selbstlernstunden)
+   ------------------------------------------------------------
+   Eine zweistellige Zahl von der Tafel. Der Zeitpunkt der Anmeldung
+   steht im Protokoll und ist der Anwesenheitsnachweis. Keine Sperre:
+   „Ohne Zahl weiter“ öffnet immer und wird als "anmeldung-ohne"
+   protokolliert. Nach einem Neuladen wird nicht erneut gefragt.
+
+   Automatische Prüfläufe (navigator.webdriver, z. B. pruefe_html.mjs)
+   überspringen den Schirm, weil er sonst jeden Klick abfängt. Mit
+   ?anmeldung in der Adresse erscheint er auch dort (Sichtprobe).
+   ============================================================ */
+const STUNDENCODE = "45";
+const ANGEMELDET_SCHLUESSEL = SPEICHER + "-angemeldet";
+(function anmeldung() {
+  const schirm = document.getElementById("anmeldeschirm");
+  if (!schirm) return;
+  if (navigator.webdriver && !/anmeldung/.test(location.search)) { schirm.remove(); return; }
+  const feld = document.getElementById("i-code");
+  const knopf = document.getElementById("k-anmelden");
+  const rueck = document.getElementById("anmelde-rueck");
+  let schon = false;
+  try { schon = localStorage.getItem(ANGEMELDET_SCHLUESSEL) === "ja"; } catch (e) { }
+  if (schon) { schirm.remove(); return; }
+  let versuche = 0;
+  function oeffnen(still) {
+    schirm.remove();
+    try { localStorage.setItem(ANGEMELDET_SCHLUESSEL, "ja"); } catch (e) { }
+    if (!still) protokolliere("anmeldung", "", "Zur Stunde angemeldet" + (versuche > 1 ? " (im " + versuche + ". Versuch)" : ""));
+  }
+  function pruefen() {
+    const eingabe = (feld.value || "").trim();
+    if (!/^\d{2}$/.test(eingabe)) {
+      rueck.className = "anmelde-rueck schlecht";
+      rueck.textContent = "Bitte genau zwei Ziffern eintragen. Die Zahl steht an der Tafel.";
+      feld.focus(); return;
+    }
+    versuche++;
+    if (eingabe === STUNDENCODE) {
+      rueck.className = "anmelde-rueck gut"; rueck.textContent = "Stimmt. Los geht’s.";
+      setTimeout(() => oeffnen(false), 350); return;
+    }
+    protokolliere("anmeldung-falsch", "", versuche + ". Versuch: " + eingabe + " – falsch");
+    rueck.className = "anmelde-rueck schlecht";
+    rueck.textContent = versuche < 3 ? "Das ist nicht die Zahl von der Tafel. Schaut noch einmal hin."
+      : "Immer noch nicht die richtige Zahl. Fragt kurz nach, statt weiter zu raten.";
+    feld.value = ""; feld.focus();
+  }
+  const lehrKnopf = document.getElementById("k-lehrkraft");
+  if (lehrKnopf) lehrKnopf.addEventListener("click", () => {
+    const wort = window.prompt("Kennwort für die Lehrer-Ansicht:");
+    if (wort === null) return;
+    if (pruefsumme(String(wort).trim().toLowerCase()) !== LEHRER_SCHLUESSEL) { window.alert("Das Kennwort stimmt nicht."); return; }
+    lehrerAnsicht(true);
+    feld.value = STUNDENCODE;
+    rueck.className = "anmelde-rueck gut";
+    rueck.textContent = "Zahl für die Tafel: " + STUNDENCODE + ". Anschreiben, dann „Anmelden“.";
+    lehrKnopf.style.display = "none";
+  });
+  const frei = document.createElement("button");
+  frei.type = "button"; frei.className = "knopf"; frei.id = "k-ohne-zahl"; frei.textContent = "Ohne Zahl weiter";
+  frei.addEventListener("click", () => { protokolliere("anmeldung-ohne", "", "Ohne Tafelzahl begonnen"); oeffnen(true); });
+  knopf.parentNode.appendChild(frei);
+  const hinweisOhne = document.createElement("p");
+  hinweisOhne.className = "anmelde-rueck"; hinweisOhne.style.marginTop = ".4rem";
+  hinweisOhne.textContent = "In der Stunde: die Zahl von der Tafel eintragen. „Ohne Zahl weiter“ ist für später, wenn ihr das Material allein noch einmal durchgeht.";
+  rueck.parentNode.insertBefore(hinweisOhne, rueck.nextSibling);
+  knopf.addEventListener("click", pruefen);
+  feld.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); pruefen(); } });
+  feld.addEventListener("input", () => {
+    feld.value = feld.value.replace(/\D/g, "").slice(0, 2);
+    if (rueck.textContent && feld.value.length < 2) { rueck.className = "anmelde-rueck"; rueck.textContent = ""; }
+  });
+  setTimeout(() => feld.focus(), 100);
+})();
+
+/* ---------- Start ---------- */
+zeige(0);
+</script>
+</body>
+</html>
