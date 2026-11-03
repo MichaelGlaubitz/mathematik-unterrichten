@@ -213,8 +213,8 @@ details.frei>summary{color:var(--gruen)}
   font:inherit;font-size:.86rem;background:transparent;color:#5a6570;
   border:1px dashed #c3ccd4;border-radius:8px;cursor:pointer}
 .hilfeknopf:hover{border-color:#8fa0b0;color:#33414d}
-details.gesperrt > .hilfeknopf{display:inline-block}
-details.frei > .hilfeknopf{display:none}
+details.gesperrt + .hilfeknopf{display:inline-block}
+details.frei + .hilfeknopf{display:none}
 
 /* ---- Laborbuehne: Graph und Regler gleichzeitig im Bild ----------------
    In einer Laborphase steht der Graph oben, das Bedienfeld darunter. Wer zum
@@ -4247,8 +4247,10 @@ zeige(0);
     }
 
     document.querySelectorAll("details[data-fuer]").forEach(function (d) {
-      /* Hilfeknopf anlegen - direkt hinter das summary. */
-      if (!d.querySelector(".hilfeknopf")) {
+      /* Hilfeknopf anlegen - direkt hinter den Kasten, nicht hinein:
+         im geschlossenen Kasten zeigt der Browser ihn nicht an. */
+      var nachbar = d.nextElementSibling;
+      if (!(nachbar && nachbar.classList.contains("hilfeknopf"))) {
         var k = document.createElement("button");
         k.type = "button";
         k.className = "hilfeknopf";
@@ -4270,9 +4272,7 @@ zeige(0);
               "Lösung ohne eigene Antwort geöffnet", feldstand(d));
           }
         });
-        var sum = d.querySelector("summary");
-        if (sum && sum.nextSibling) d.insertBefore(k, sum.nextSibling);
-        else d.appendChild(k);
+        d.parentNode.insertBefore(k, d.nextSibling);
       }
 
       /* Geoeffnete Loesungen sammeln - Grundlage fuer den Abgleich. */
