@@ -29,8 +29,10 @@
   WARUM GENERIERTE AUFGABEN: Ein Re-Test muss dieselbe Sache mit anderen
   Zahlen prüfen. Aus einem festen Pool käme die gemerkte Aufgabe zurück.
 
-  WARUM NICHTS ÜBERTRAGEN WIRD: Der Stand bleibt im Browser des Geräts
-  (localStorage). Kein Server, keine Anmeldung, keine Auswertung.
+  WAS DAS GERÄT VERLÄSST: Der Lernstand nie — er bleibt im Browser des
+  Geräts (localStorage), ohne Anmeldung. Übertragen wird allein eine anonyme
+  Zählung der Stationen (Abschnitt 5b, Dienst im Ordner zaehler/): je Tag und
+  Station eine Zahl, ohne Kennung, ohne Antworten.
   ===========================================================================
 -->
 <style>
@@ -1751,7 +1753,7 @@ var stand = laden();
 function leererStand(){
   var t = {};
   THEMEN.forEach(function(th){ t[th.id] = { stand: "unbekannt", runden: 0, letzte: null }; });
-  return { fassung: 1, diagnose: null, themen: t, check: null, termin: null, ton: false };
+  return { fassung: 1, diagnose: null, themen: t, check: null, termin: null, ton: false, nichtZaehlen: false };
 }
 function laden(){
   try {
@@ -1778,6 +1780,64 @@ function tageBisKlausur(){
 function zahlSicher(){
   return THEMEN.filter(function(t){ return stand.themen[t.id].stand === "sicher"; }).length;
 }
+
+/* ==========================================================================
+   5b — Zählen
+   --------------------------------------------------------------------------
+   WOZU: Der Trainer ist ein Pilot. Ob Kinder ohne Lehrkraft durchhalten und
+   bis wohin, zeigt sich nur, wenn die Stationen gezählt werden.
+
+   WAS GEMELDET WIRD: der Name einer Station — "diagnose-ende",
+   "sicher:grundwert" — in dem Augenblick, in dem sie erreicht wird. Keine
+   Kennung, kein Name, keine Antwort, kein Ergebnis einer Aufgabe. Für die
+   Zählung wird nichts auf dem Gerät abgelegt und nichts ausgelesen; gezählt
+   werden deshalb Ereignisse, nicht Geräte.
+
+   WANN NICHT GEZÄHLT WIRD: wenn es auf dem Gerät abgeschaltet ist (Seite für
+   Eltern und Lehrkräfte, oder einmal mit ?zaehlen=aus öffnen), wenn der
+   Browser „Do Not Track“ sendet, und überall außer auf der Website selbst —
+   eine Kopie auf dem eigenen Rechner zählt nicht.
+   ========================================================================== */
+var ZAEHLER = { adresse: "https://zaehler.michaelglaubitz-barton.workers.dev", trainer: "prozent" };
+var zaehlSchlange = [], zaehlUhr = null;
+
+/* Wohin gemeldet wird — oder "", wenn hier nicht gezählt wird. */
+function zaehlOrt(){
+  try {
+    if (typeof location === "undefined" || typeof navigator === "undefined") return "";
+    if (stand.nichtZaehlen) return "";
+    if (navigator.doNotTrack === "1" || navigator.globalPrivacyControl === true) return "";
+    if (location.protocol === "https:" && location.hostname === "mathematik-unterrichten.de") return ZAEHLER.adresse;
+    /* Probe gegen den Node-Zwilling: nur von localhost aus und nur mit ausdrücklicher Adresse. */
+    if (location.hostname === "localhost" || location.hostname === "127.0.0.1"){
+      var m = /[?&]zaehler=(http:\/\/(?:localhost|127\.0\.0\.1):\d+)(?:&|$)/.exec(location.search);
+      return m ? m[1] : "";
+    }
+  } catch (e) {}
+  return "";
+}
+/* Mehrere Stationen kurz hintereinander gehen als EINE Meldung hinaus. */
+function zaehle(ereignis){
+  if (!zaehlOrt()) return;
+  zaehlSchlange.push(ereignis);
+  if (!zaehlUhr) zaehlUhr = setTimeout(zaehlSenden, 2000);
+}
+function zaehlSenden(){
+  clearTimeout(zaehlUhr);
+  zaehlUhr = null;
+  var ort = zaehlOrt();
+  if (!ort){ zaehlSchlange = []; return; }
+  if (!zaehlSchlange.length) return;
+  var paket = JSON.stringify({ t: ZAEHLER.trainer, e: zaehlSchlange.splice(0, 12) });
+  try {
+    /* sendBeacon schickt reinen Text: keine Voranfrage, und die Meldung
+       kommt auch dann an, wenn die Seite gerade geschlossen wird. */
+    if (navigator.sendBeacon) navigator.sendBeacon(ort + "/v1/z", paket);
+    else fetch(ort + "/v1/z", { method: "POST", body: paket, keepalive: true, mode: "no-cors" }).catch(function(){});
+  } catch (e) {}
+  if (zaehlSchlange.length) zaehlUhr = setTimeout(zaehlSenden, 2000);
+}
+if (typeof window !== "undefined" && window.addEventListener) window.addEventListener("pagehide", zaehlSenden);
 
 /* ==========================================================================
    6 — Rückmeldung in Worten
@@ -1953,7 +2013,7 @@ function zeigeStart(){
     + '<div class="hinweis" style="margin-top:1.1rem"><strong id="start-termin">' + esc(countdownText()) + "</strong>"
     + '<div class="termin"><label for="termin">Wann schreibst du die Arbeit? (freiwillig)</label>'
     + '<input id="termin" type="date" value="' + esc(stand.termin || "") + '"></div></div>'
-    + '<p class="leise" style="margin-top:1rem">Dein Stand bleibt auf diesem Gerät. Es wird nichts verschickt.</p>'
+    + '<p class="leise" style="margin-top:1rem">Dein Stand bleibt auf diesem Gerät. Gezählt wird nur ohne Namen, wie oft der Trainer benutzt wird.</p>'
     + "</div>"
   );
   var a = document.getElementById("k-diagnose"); if (a) a.onclick = diagnoseStarten;
@@ -1974,6 +2034,7 @@ function zeigeStart(){
 var dia = null;
 
 function diagnoseStarten(){
+  zaehle("diagnose-start");
   dia = { plan: [], index: 0, treffer: {} };
   THEMEN.forEach(function(t){
     dia.treffer[t.id] = [];
@@ -2060,6 +2121,8 @@ function diagnoseAuswerten(){
 
   var offen = THEMEN.filter(function(t){ return stand.themen[t.id].stand !== "sicher"; });
   var sicher = THEMEN.length - offen.length;
+  zaehle("diagnose-ende");
+  zaehle("diagnose-sicher:" + sicher);
   var text;
   if (sicher === THEMEN.length)
     text = "Alle " + zahlwort(THEMEN.length) + " Themen sitzen bereits. Dann ist der " + KONFIG.check + " unten dein nächster Schritt — "
@@ -2186,7 +2249,7 @@ function zeigeAnkommen(){
   );
   document.getElementById("t-los").onclick = zeigeErklaerung;
   var d = document.getElementById("t-direkt");
-  if (d) d.onclick = function(){ sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest(); };
+  if (d) d.onclick = function(){ zaehle("retest:" + sitzung.id); sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest(); };
   document.getElementById("t-zurueck").onclick = zeigeKarte;
 }
 
@@ -2194,7 +2257,7 @@ function zeigeAnkommen(){
    der Tafel. WARUM: Eine Erklärung wird nicht gelesen, einer Vorführung
    schaut man zu. Die Regel und der Stolperstein kommen deshalb erst danach.
    Wer mag, schaltet den Ton dazu: die Stimme des Geräts, nur Stimmen, die
-   ohne Netz sprechen — es bleibt dabei, dass nichts übertragen wird. */
+   ohne Netz sprechen — kein Satz der Vorführung verlässt das Gerät. */
 var vor = null;       /* die laufende Vorführung */
 
 /* Pausen der Vorführung in Millisekunden. WARUM eigene Pausen: Die Stimmen der
@@ -2243,6 +2306,7 @@ function zeigeErklaerung(){
   var macher = t.gen[((sitzung.runde || 0) + (sitzung.beispiele || 0)) % t.gen.length];
   var auf = macher();
   sitzung.beispiel = auf;
+  if (!sitzung.beispiele) zaehle("vorfuehrung:" + t.id);
 
   zeige(
     '<div class="karte">'
@@ -2371,6 +2435,7 @@ function zeigeErklaerung(){
   document.getElementById("e-ton").onclick = function(){
     stand.ton = !stand.ton;
     sichern();
+    if (stand.ton) zaehle("ton");
     tonKnopf();
     starten();
   };
@@ -2383,11 +2448,13 @@ function zeigeErklaerung(){
     ende(true);
   };
   document.getElementById("e-weiter").onclick = function(){
+    zaehle("ueben:" + t.id);
     sitzung.index = 0; sitzung.ergebnisse = []; sitzung.versuch = 0;
     zeigeUeben();
   };
   document.getElementById("e-nochmal").onclick = function(){
     sitzung.beispiele = (sitzung.beispiele || 0) + 1;
+    zaehle("beispiel");
     zeigeErklaerung();
   };
   try { if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = tonKnopf; } catch (e) {}
@@ -2515,6 +2582,7 @@ function zeigeUebergang(){
     + "</div></div>"
   );
   document.getElementById("r-los").onclick = function(){
+    zaehle("retest:" + sitzung.id);
     sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest();
   };
   document.getElementById("r-mehr").onclick = function(){
@@ -2592,6 +2660,8 @@ function retestAuswerten(){
   if (bestanden) s.stand = "sicher";
   else if (richtig >= 1 && s.stand === "offen") s.stand = "wackelig";
   sichern();
+  zaehle((bestanden ? "sicher:" : "nochnicht:") + t.id);
+  if (bestanden && zahlSicher() === THEMEN.length) zaehle("alle-sicher");
 
   if (bestanden){
     var naechste = null;
@@ -2715,6 +2785,7 @@ function checkSchritt(){
 }
 
 function checkAuswerten(){
+  zaehle("check-ende");
   var proThema = {};
   check.ergebnisse.forEach(function(e){
     if (!proThema[e.id]) proThema[e.id] = { richtig: 0, gesamt: 0 };
@@ -2775,13 +2846,24 @@ document.getElementById("knopf-thema").onclick = function(){
 };
 document.getElementById("knopf-reset").onclick = function(){
   if (!window.confirm("Wirklich alles zurücksetzen? Dein Fortschritt auf diesem Gerät geht dabei verloren.")) return;
+  var ohneZaehlung = stand.nichtZaehlen;
   stand = leererStand();
+  stand.nichtZaehlen = ohneZaehlung;
   sichern();
   zeigeStart();
 };
 
 /* Auskunft für Erwachsene: was der Trainer tut, was er speichert, wer ihn gebaut hat. */
+function zaehlStandText(){
+  var dnt = false;
+  try { dnt = navigator.doNotTrack === "1" || navigator.globalPrivacyControl === true; } catch (e) {}
+  if (stand.nichtZaehlen) return "Auf diesem Gerät ist die Zählung abgeschaltet.";
+  if (zaehlOrt()) return "Auf diesem Gerät wird gezählt.";
+  return dnt ? "Dieser Browser bittet darum, nicht verfolgt zu werden — deshalb wird hier nicht gezählt."
+             : "Diese Kopie des Trainers zählt nicht.";
+}
 function zeigeInfo(){
+  zaehle("eltern");
   zeige(
     '<div class="karte info">'
     + "<h2>Für Eltern und Lehrkräfte</h2>"
@@ -2798,14 +2880,25 @@ function zeigeInfo(){
     + "<li><strong>Falsche Antworten mit Absicht.</strong> Bei Auswahlaufgaben entspricht jede falsche Möglichkeit einem Fehler, der bei diesem Thema typisch ist.</li>"
     + "</ul>"
     + "<h3>Daten</h3>"
-    + "<p>Es gibt keine Anmeldung und kein Konto. Der Lernstand liegt nur im Speicher dieses Browsers; es wird nichts übertragen und nichts ausgewertet. Der Ton kommt von der Stimme des Geräts, nicht aus dem Netz. "
+    + "<p>Es gibt keine Anmeldung und kein Konto. Der Lernstand liegt nur im Speicher dieses Browsers und verlässt das Gerät nicht. Der Ton kommt von der Stimme des Geräts, nicht aus dem Netz. "
     + "Wer die Browserdaten löscht oder das Gerät wechselt, beginnt von vorn.</p>"
+    + "<p><strong>Anonyme Zählung.</strong> Damit sichtbar wird, ob der Trainer benutzt wird und bis wohin, meldet er einzelne Stationen an einen eigenen Zähler — "
+    + "zum Beispiel „Diagnose beendet“ oder „Thema geschafft“. Gespeichert wird je Tag und Station nur eine Zahl: keine Namen, keine Antworten, keine Kennung des Geräts, "
+    + "keine IP-Adresse, kein Cookie. Google Analytics ist auf dieser Seite nicht eingebunden.</p>"
+    + '<p><span id="i-zaehlstand">' + zaehlStandText() + '</span> <button class="fuss-link" id="i-zaehlen" type="button">'
+    + (stand.nichtZaehlen ? "Zählung wieder einschalten" : "Zählung auf diesem Gerät abschalten") + "</button></p>"
     + "<h3>Wer dahintersteht</h3>"
     + '<p>Der Trainer stammt von Michael Glaubitz, mathematik-unterrichten.de (<a href="/ueber">Über</a>). '
     + 'Dies ist eine Pilotfassung. Rückmeldungen sind willkommen — auch von Lehrkräften, die den Trainer mit einer Lerngruppe einsetzen möchten: <a href="/kontakt">Kontakt</a>.</p>'
     + '<div class="reihe"><button class="knopf knopf-haupt" id="i-zurueck" type="button">Zurück</button></div>'
     + "</div>"
   );
+  document.getElementById("i-zaehlen").onclick = function(){
+    stand.nichtZaehlen = !stand.nichtZaehlen;
+    sichern();
+    document.getElementById("i-zaehlstand").textContent = zaehlStandText();
+    this.textContent = stand.nichtZaehlen ? "Zählung wieder einschalten" : "Zählung auf diesem Gerät abschalten";
+  };
   document.getElementById("i-zurueck").onclick = function(){
     if (stand.diagnose === null && zahlSicher() === 0) zeigeStart(); else zeigeKarte();
   };
@@ -2833,6 +2926,12 @@ document.addEventListener("keydown", function(e){
   document.documentElement.setAttribute("data-thema", t);
   document.getElementById("knopf-thema").textContent = t === "dunkel" ? "☀" : "☾";
   document.getElementById("kopf-unter").textContent = countdownText();
+  /* Eigene Geräte ausnehmen: einmal mit ?zaehlen=aus öffnen (zurück mit ?zaehlen=an). */
+  try {
+    var wunsch = /[?&]zaehlen=(aus|an)(?:&|$)/.exec(location.search);
+    if (wunsch){ stand.nichtZaehlen = wunsch[1] === "aus"; sichern(); }
+  } catch (e) {}
+  zaehle(stand.diagnose === null && zahlSicher() === 0 ? "besuch-neu" : "besuch-wieder");
   zeigeStart();
 })();
 </script>

@@ -1,0 +1,46 @@
+# Zaehler · Cloudflare Worker
+#
+# Einmalig einrichten (im Ordner zaehler/):
+#   npx wrangler login
+#   npx wrangler deploy
+#   npx wrangler secret put LESEN     # Leseschluessel: mindestens 16 Zeichen, frei
+#                                     # erfunden, nirgends sonst benutzt. NIE das
+#                                     # hausweite Lehrerkennwort.
+#
+# Danach steht der Dienst unter
+#   https://zaehler.<konto>.workers.dev
+# Auswertung:
+#   https://zaehler.<konto>.workers.dev/?s=<Leseschluessel>
+#   https://zaehler.<konto>.workers.dev/v1/zahlen?tage=30    (Kopfzeile x-lesen)
+#
+# Der Leseschluessel steht WEDER in dieser Datei NOCH in irgendeiner Datei der
+# Website. Er wird als Secret gesetzt und ist danach auch fuer wrangler nicht
+# mehr lesbar.
+#
+# Fehlt LESEN, zaehlt der Dienst weiter, gibt aber keine Zahlen heraus. Das
+# ist die gewollte Richtung des Fehlers.
+
+name = "zaehler"
+main = "worker.mjs"
+compatibility_date = "2025-01-01"
+
+# Die eine oeffentliche Adresse ja, Preview-URLs nein. Preview-URLs geben
+# JEDER ausgerollten Fassung eine eigene oeffentliche Adresse, die bestehen
+# bleibt — mit demselben Schluessel und demselben Speicher.
+workers_dev = true
+preview_urls = false
+
+# EIN Durable Object fuer alle Zahlen. Nur damit laesst sich verlaesslich
+# zaehlen: KV wird zu langsam konsistent. Je Trainer, Tag und Ereignis ein
+# eigener Schluessel im Objekt, damit die Wertgrenze nie zuschlaegt.
+[[durable_objects.bindings]]
+name = "BUCH"
+class_name = "Buch"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Buch"]
+
+# Beobachtung an, damit man im Zweifel sieht, ob Anfragen ankommen.
+[observability]
+enabled = true
