@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lautstärke-Warner · mathematik-unterrichten.de</title>
-<meta name="description" content="Zeigt den Geräuschpegel der Klasse als großen Balken und warnt mit rotem Bildschirm und Ton, wenn es mehrere Messungen lang zu laut ist. Läuft lokal, nichts wird aufgenommen.">
+<meta name="description" content="Zeigt den Geräuschpegel der Klasse als großen Balken und warnt mit rotem Bildschirm und Ton, wenn es mehrere Messfenster lang zu laut ist. Läuft lokal, nichts wird aufgenommen.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="werkzeug.css">
 <script src="werkzeug.js"></script>
@@ -17,7 +17,7 @@
   @keyframes lw-blinken { 50% { background: var(--flaeche); } }
 
   .lw-skala { position: relative; height: 3.2rem; background: var(--flaeche-2); border: 1px solid var(--linie-stark); border-radius: 999px; overflow: hidden; }
-  .lw-pegel { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--gruen); border-radius: 999px; transition: width 80ms linear, background-color var(--tempo) ease; }
+  .lw-pegel { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--gruen); border-radius: 999px; transition: width 120ms linear, background-color var(--tempo) ease; }
   .lw-pegel[data-stufe="ueber"] { background: var(--gold); }
   .lw-pegel[data-stufe="alarm"] { background: var(--rot); }
   .lw-marke { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--text); left: 55%; }
@@ -26,6 +26,7 @@
   .lw-status { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; border-top: 1px solid var(--linie); padding-top: 1rem; }
   .lw-status-text { font-size: 1.25rem; font-weight: 600; color: var(--text-leise); }
   .lw-status-text[data-zustand="gut"] { color: var(--gruen); }
+  .lw-status-text[data-zustand="ruhe"] { color: var(--gold); }
   .lw-status-text[data-zustand="alarm"] { color: var(--rot); }
   .lw-folge { font-size: .92rem; color: var(--text-leise); }
 
@@ -36,6 +37,10 @@
 
   .lw-start { width: 100%; justify-content: center; }
   .lw-start[data-laeuft="ja"] { background: var(--rot); border-color: var(--rot); }
+
+  .lw-knopfreihe { display: flex; gap: .6rem; margin-top: .6rem; flex-wrap: wrap; }
+  .lw-knopfreihe .wz-knopf { flex: 1 1 10rem; justify-content: center; min-height: 2.6rem; }
+  .lw-ruhe-text { margin: .7rem 0 0; font-size: .92rem; color: var(--text-leise); }
   .lw-fehler { margin-top: 1rem; border-left-color: var(--rot); }
 </style>
 </head>
@@ -43,7 +48,7 @@
 
 <main class="wz-huelle wz-schmal">
   <h1>Lautstärke-Warner</h1>
-  <p class="wz-lead">Der Balken zeigt den Geräuschpegel im Raum. Liegt er drei Messungen hintereinander über der Schwelle, wird der Bildschirm rot und ein Warnton erklingt, bis es wieder leiser ist.</p>
+  <p class="wz-lead">Der Balken zeigt den mittleren Geräuschpegel des letzten Messfensters — nicht den Augenblickswert, ein einzelner zugeschlagener Ordner reißt ihn also nicht nach oben. Liegt dieser Mittelwert drei Messfenster hintereinander über der Schwelle, wird der Bildschirm rot und ein Warnton erklingt, bis es wieder leiser ist.</p>
 
   <section class="wz-buehne lw-buehne" aria-live="polite">
     <div class="lw-warnung" id="lw-warnung">Zu laut!</div>
@@ -65,15 +70,25 @@
       <output id="lw-schwelle-wert" class="wz-zahl">55</output>
     </div>
     <div class="lw-regler">
-      <label for="lw-takt">Messintervall</label>
-      <input type="range" class="wz-schieber" id="lw-takt" min="200" max="1000" step="50" value="500">
-      <output id="lw-takt-wert" class="wz-zahl">500 ms</output>
+      <label for="lw-takt">Messfenster</label>
+      <input type="range" class="wz-schieber" id="lw-takt" min="200" max="2000" step="100" value="1000">
+      <output id="lw-takt-wert" class="wz-zahl">1000 ms</output>
+    </div>
+    <div class="lw-regler">
+      <label for="lw-ton">Warnton</label>
+      <input type="range" class="wz-schieber" id="lw-ton" min="0" max="100" step="5" value="100">
+      <output id="lw-ton-wert" class="wz-zahl">100 %</output>
     </div>
     <button type="button" class="wz-knopf wz-knopf-haupt wz-knopf-gross lw-start" id="lw-start" data-laeuft="nein">Mikrofon starten</button>
+    <div class="lw-knopfreihe">
+      <button type="button" class="wz-knopf" id="lw-ruhe" disabled>Ruhe messen</button>
+      <button type="button" class="wz-knopf" id="lw-probe">Warnton prüfen</button>
+    </div>
+    <p class="lw-ruhe-text" id="lw-ruhe-text" hidden></p>
     <div class="wz-hinweis lw-fehler" id="lw-fehler" hidden></div>
   </div>
 
-  <p class="wz-hinweis wz-abstand">Stellen Sie die Schwelle so ein, dass sie bei normaler Arbeitslautstärke gerade nicht anschlägt. Das Mikrofon wird nur gemessen, nicht aufgenommen; der Ton wird im Browser erzeugt, nichts verlässt den Rechner. Beim ersten Start fragt der Browser nach der Erlaubnis für das Mikrofon.</p>
+  <p class="wz-hinweis wz-abstand">Die Schwelle stellt „Ruhe messen“ selbst ein: fünf Sekunden Arbeitsruhe halten, dann liegt sie ein Stück über dem gemessenen Ruhepegel und schlägt bei normaler Arbeitslautstärke gerade nicht an. Steht der Warnton auf 0, warnt das Werkzeug nur mit dem Bildschirm. Das Mikrofon wird nur gemessen, nicht aufgenommen; der Ton wird im Browser erzeugt, nichts verlässt den Rechner. Beim ersten Start fragt der Browser nach der Erlaubnis für das Mikrofon.</p>
 </main>
 
 <script>
@@ -83,39 +98,85 @@ WZ.fuss('Läuft vollständig im Browser — das Mikrofon wird nur gemessen, nich
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
-  const schwelle = $('lw-schwelle'), takt = $('lw-takt');
+  const schwelle = $('lw-schwelle'), takt = $('lw-takt'), tonRegler = $('lw-ton');
   const pegel = $('lw-pegel'), marke = $('lw-marke'), skala = $('lw-skala');
-  const status = $('lw-status'), folgeText = $('lw-folge'), knopf = $('lw-start'), fehler = $('lw-fehler');
-  const NOETIGE_FOLGE = 3;
+  const status = $('lw-status'), folgeText = $('lw-folge');
+  const knopf = $('lw-start'), ruheKnopf = $('lw-ruhe'), probeKnopf = $('lw-probe');
+  const ruheText = $('lw-ruhe-text'), fehler = $('lw-fehler');
+
+  const NOETIGE_FOLGE = 3;    // so viele Messfenster über der Schwelle lösen den Alarm aus
+  const TAKT_PROBE = 50;      // alle 50 ms eine Abtastung; gemittelt wird über das Messfenster
+  const RUHE_DAUER = 5;       // Sekunden, die „Ruhe messen“ mitschneidet
+  const RUHE_ABSTAND = 12;    // so viel über dem Ruhepegel liegt die neue Schwelle
 
   const gespeichert = WZ.lies('lw-einstellungen', {});
   if (gespeichert.schwelle) schwelle.value = gespeichert.schwelle;
   if (gespeichert.takt) takt.value = gespeichert.takt;
+  if (typeof gespeichert.ton === 'number') tonRegler.value = gespeichert.ton;
 
   let audio = null, analyse = null, puffer = null, strom = null;
-  let messTimer = null, tonTimer = null, rauschen = null;
+  let probeTimer = null, messTimer = null, tonTimer = null, rauschen = null;
   let laeuft = false, folge = 0, alarm = false;
+  let ruhe = null;            // läuft eine Ruhemessung, steht hier { summe, zahl, rest, timer }
+
+  // Ringpuffer der Abtastungen eines Messfensters. Gemittelt wird über die
+  // Energien, nicht über die Dezibelwerte — nur so entspricht der Mittelwert
+  // dem tatsächlichen Schalldruck im Fenster.
+  let fenster = new Float64Array(1), fensterZahl = 0, fensterNaechst = 0;
+
+  function fensterNeu() {
+    fenster = new Float64Array(Math.max(1, Math.round(Number(takt.value) / TAKT_PROBE)));
+    fensterZahl = 0; fensterNaechst = 0;
+  }
 
   function anzeigen() {
     $('lw-schwelle-wert').textContent = schwelle.value;
     $('lw-takt-wert').textContent = takt.value + ' ms';
+    $('lw-ton-wert').textContent = Number(tonRegler.value) === 0 ? 'aus' : tonRegler.value + ' %';
     marke.style.left = schwelle.value + '%';
-    WZ.schreib('lw-einstellungen', { schwelle: Number(schwelle.value), takt: Number(takt.value) });
+    WZ.schreib('lw-einstellungen', {
+      schwelle: Number(schwelle.value), takt: Number(takt.value), ton: Number(tonRegler.value),
+    });
   }
   schwelle.addEventListener('input', anzeigen);
   takt.addEventListener('input', () => { anzeigen(); if (laeuft) messenStarten(); });
+  tonRegler.addEventListener('input', () => {
+    anzeigen();
+    // Lautstärke mitten im Alarm geändert: Ton sofort einsetzen lassen oder verstummen.
+    if (!alarm) return;
+    if (tonFaktor() > 0 && !tonTimer) { warnton(); tonTimer = setInterval(warnton, 1100); }
+    if (tonFaktor() <= 0 && tonTimer) { clearInterval(tonTimer); tonTimer = null; }
+  });
   anzeigen();
 
   function statusSetzen(text, zustand) { status.textContent = text; status.dataset.zustand = zustand; }
+  function tonFaktor() { return Number(tonRegler.value) / 100; }
 
-  // Pegel 0–100: RMS in dB, Bereich −55 dB … 0 dB linear abgebildet
-  function pegelMessen() {
+  // Energie (mittleres Quadrat) einer einzelnen Abtastung.
+  function energieMessen() {
     analyse.getByteTimeDomainData(puffer);
     let summe = 0;
     for (let i = 0; i < puffer.length; i++) { const v = (puffer[i] - 128) / 128; summe += v * v; }
-    const rms = Math.sqrt(summe / puffer.length);
-    const db = 20 * Math.log10(rms || 1e-5);
+    return summe / puffer.length;
+  }
+
+  // Pegel 0–100: RMS in dB, Bereich −55 dB … 0 dB linear abgebildet
+  function pegelAus(energie) {
+    const db = 20 * Math.log10(Math.sqrt(energie) || 1e-5);
     return Math.min(100, Math.max(0, (db + 55) / 55 * 100));
+  }
+
+  function fensterMittel() {
+    if (!fensterZahl) return 0;
+    let summe = 0;
+    for (let i = 0; i < fensterZahl; i++) summe += fenster[i];
+    return summe / fensterZahl;
+  }
+
+  function balkenZeigen(p) {
+    pegel.style.width = p + '%';
+    skala.setAttribute('aria-valuenow', String(Math.round(p)));
+    pegel.dataset.stufe = alarm ? 'alarm' : (p >= Number(schwelle.value) ? 'ueber' : 'gut');
   }
 
   function rauschpuffer(dauer) {
@@ -128,7 +189,7 @@ WZ.fuss('Läuft vollständig im Browser — das Mikrofon wird nur gemessen, nich
   // Ein Alarmstoß: zwei schräge, gleitende Töne plus hochpassgefiltertes Rauschen –
   // setzt sich gegen Klassenlärm besser durch als ein einzelner Piepton.
   function alarmstoss(t) {
-    const dauer = 0.16, ende = t + dauer + 0.02;
+    const dauer = 0.16, ende = t + dauer + 0.02, faktor = tonFaktor();
     const o1 = audio.createOscillator(), o2 = audio.createOscillator();
     o1.type = 'square'; o2.type = 'sawtooth';
     [[o1, 2400, 3600], [o2, 3300, 4400]].forEach(([o, a, b]) => {
@@ -144,15 +205,14 @@ WZ.fuss('Läuft vollständig im Browser — das Mikrofon wird nur gemessen, nich
     r.connect(filter).connect(gr).connect(audio.destination);
     [[g1, .3], [g2, .3], [gr, .18]].forEach(([g, spitze]) => {
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(spitze, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(spitze * faktor, t + 0.015);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dauer);
     });
     o1.start(t); o1.stop(ende); o2.start(t); o2.stop(ende); r.start(t); r.stop(ende);
   }
 
   function warnton() {
-    if (!audio) return;
-    if (!rauschen) rauschen = rauschpuffer(0.2);
+    if (!audio || !rauschen || tonFaktor() <= 0) return;
     const jetzt = audio.currentTime;
     alarmstoss(jetzt); alarmstoss(jetzt + 0.26); alarmstoss(jetzt + 0.52); // dreifach wie ein Rauchmelder
   }
@@ -163,27 +223,51 @@ WZ.fuss('Läuft vollständig im Browser — das Mikrofon wird nur gemessen, nich
     document.documentElement.classList.toggle('lw-zu-laut', an);
     if (an) {
       statusSetzen('Zu laut', 'alarm');
-      warnton(); tonTimer = setInterval(warnton, 1100);
+      if (tonFaktor() > 0) { warnton(); tonTimer = setInterval(warnton, 1100); }
     } else {
       statusSetzen(laeuft ? 'Läuft – im grünen Bereich' : 'Bereit', laeuft ? 'gut' : 'bereit');
       if (tonTimer) { clearInterval(tonTimer); tonTimer = null; }
     }
   }
 
+  // Jede Abtastung füllt den Ringpuffer; der Balken zeigt dessen Mittel, also
+  // genau die Zahl, über die am Ende des Messfensters entschieden wird.
+  function abtasten() {
+    if (!analyse) return;
+    const e = energieMessen();
+    fenster[fensterNaechst] = e;
+    fensterNaechst = (fensterNaechst + 1) % fenster.length;
+    if (fensterZahl < fenster.length) fensterZahl++;
+    if (ruhe) { ruhe.summe += e; ruhe.zahl++; }
+    balkenZeigen(pegelAus(fensterMittel()));
+  }
+
   function messung() {
-    const p = pegelMessen(), grenze = Number(schwelle.value);
-    pegel.style.width = p + '%';
-    skala.setAttribute('aria-valuenow', String(Math.round(p)));
+    if (ruhe) return;                       // während der Ruhemessung wird nicht gewarnt
+    const p = pegelAus(fensterMittel()), grenze = Number(schwelle.value);
     folge = p >= grenze ? Math.min(NOETIGE_FOLGE, folge + 1) : 0;
     folgeText.textContent = folge + ' / ' + NOETIGE_FOLGE + ' über der Schwelle';
     if (folge >= NOETIGE_FOLGE) alarmSetzen(true);
     else if (p < grenze) alarmSetzen(false);
-    pegel.dataset.stufe = alarm ? 'alarm' : (p >= grenze ? 'ueber' : 'gut');
+    balkenZeigen(p);
   }
 
   function messenStarten() {
+    if (probeTimer) clearInterval(probeTimer);
     if (messTimer) clearInterval(messTimer);
+    fensterNeu();
+    probeTimer = setInterval(abtasten, TAKT_PROBE);
     messTimer = setInterval(messung, Number(takt.value));
+  }
+
+  // Der AudioContext muss aus der Nutzergeste heraus geweckt werden; nach dem
+  // await auf das Mikrofon gilt die Geste als verbraucht, und ohne resume()
+  // bleibt der Warnton auf iPads stumm.
+  async function kontextSichern() {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') { try { await audio.resume(); } catch (e) { /* Ton ist Beiwerk */ } }
+    if (!rauschen) rauschen = rauschpuffer(0.2);
+    return audio;
   }
 
   async function starten() {
@@ -195,32 +279,89 @@ WZ.fuss('Läuft vollständig im Browser — das Mikrofon wird nur gemessen, nich
       fehler.hidden = false;
       return;
     }
-    audio = new (window.AudioContext || window.webkitAudioContext)();
+    await kontextSichern();
     analyse = audio.createAnalyser();
     analyse.fftSize = 2048;
     puffer = new Uint8Array(analyse.fftSize);
     audio.createMediaStreamSource(strom).connect(analyse);
     laeuft = true; folge = 0;
     knopf.textContent = 'Mikrofon stoppen'; knopf.dataset.laeuft = 'ja';
+    ruheKnopf.disabled = false;
     statusSetzen('Läuft – im grünen Bereich', 'gut');
     messenStarten();
   }
 
   function stoppen() {
     laeuft = false;
+    if (ruhe) { clearInterval(ruhe.timer); ruhe = null; ruheText.hidden = true; }
+    if (probeTimer) { clearInterval(probeTimer); probeTimer = null; }
     if (messTimer) { clearInterval(messTimer); messTimer = null; }
     alarmSetzen(false);
     if (strom) { strom.getTracks().forEach(t => t.stop()); strom = null; }
     if (audio) { audio.close(); audio = null; rauschen = null; }
-    folge = 0;
+    analyse = null; puffer = null;
+    folge = 0; fensterNeu();
     pegel.style.width = '0'; pegel.dataset.stufe = 'gut';
     skala.setAttribute('aria-valuenow', '0');
     knopf.textContent = 'Mikrofon starten'; knopf.dataset.laeuft = 'nein';
+    ruheKnopf.disabled = true;
     statusSetzen('Bereit', 'bereit');
     folgeText.textContent = '0 / ' + NOETIGE_FOLGE + ' über der Schwelle';
   }
 
+  // „Ruhe messen“: fünf Sekunden mitschneiden, was der Raum in Arbeitsruhe
+  // hergibt, und die Schwelle ein Stück darüber legen.
+  function ruheStarten() {
+    if (!laeuft || ruhe) return;
+    alarmSetzen(false);
+    folge = 0;
+    folgeText.textContent = '0 / ' + NOETIGE_FOLGE + ' über der Schwelle';
+    ruhe = { summe: 0, zahl: 0, rest: RUHE_DAUER, timer: null };
+    ruheKnopf.disabled = true;
+    ruheText.hidden = false;
+    ruheText.textContent = 'Jetzt Arbeitsruhe halten – noch ' + RUHE_DAUER + ' s.';
+    statusSetzen('Ruhe messen', 'ruhe');
+    ruhe.timer = setInterval(() => {
+      ruhe.rest -= 1;
+      if (ruhe.rest > 0) { ruheText.textContent = 'Jetzt Arbeitsruhe halten – noch ' + ruhe.rest + ' s.'; return; }
+      ruheBeenden();
+    }, 1000);
+  }
+
+  function ruheBeenden() {
+    const daten = ruhe;
+    ruhe = null;
+    clearInterval(daten.timer);
+    ruheKnopf.disabled = !laeuft;
+    statusSetzen(laeuft ? 'Läuft – im grünen Bereich' : 'Bereit', laeuft ? 'gut' : 'bereit');
+    if (!daten.zahl) { ruheText.textContent = 'Es kam keine Messung an – bitte noch einmal versuchen.'; return; }
+    const ruhepegel = pegelAus(daten.summe / daten.zahl);
+    const neu = Math.min(100, Math.max(1, Math.round(ruhepegel + RUHE_ABSTAND)));
+    schwelle.value = String(neu);
+    anzeigen();
+    ruheText.textContent = ruhepegel + RUHE_ABSTAND > 100
+      ? 'Ruhepegel ' + Math.round(ruhepegel) + ' – dafür war es zu laut. Schwelle auf ' + neu + ' gesetzt, bitte von Hand prüfen.'
+      : 'Ruhepegel ' + Math.round(ruhepegel) + ' gemessen, Schwelle auf ' + neu + ' gesetzt.';
+  }
+
+  async function tonPruefen() {
+    if (tonFaktor() <= 0) {
+      ruheText.hidden = false;
+      ruheText.textContent = 'Der Warnton steht auf 0 – das Werkzeug warnt dann nur mit dem Bildschirm.';
+      return;
+    }
+    await kontextSichern();
+    warnton();
+    if (!laeuft && audio) {
+      // Nur zum Prüfen geöffneter Kontext: nach dem Stoß wieder schließen.
+      const k = audio;
+      setTimeout(() => { if (!laeuft && audio === k) { k.close(); audio = null; rauschen = null; } }, 1500);
+    }
+  }
+
   knopf.addEventListener('click', () => { if (laeuft) stoppen(); else starten(); });
+  ruheKnopf.addEventListener('click', ruheStarten);
+  probeKnopf.addEventListener('click', tonPruefen);
 })();
 </script>
 </body>
