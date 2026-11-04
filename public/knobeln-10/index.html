@@ -1,51 +1,390 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Knobelsprünge 10 Lösungen</title><style>
-:root { --grund:#f6f7fb; --karte:#fff; --text:#1a1a1a; --leise:#5a6170; --akzent:#1f3a68; --rand:#d6dbe6; --gut:#e6f2ea; --gutrand:#2e7d4f; --bild:#e8eef7; --bild2:#cfd9ea; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --grund:#12151c; --karte:#1b2029; --text:#e8eaef; --leise:#a3aab8; --akzent:#8fb0e8; --rand:#323a48; --gut:#173323; --gutrand:#5cc08a; --bild:#2a3446; --bild2:#3a4a66; } }
-:root[data-theme="dark"] { --grund:#12151c; --karte:#1b2029; --text:#e8eaef; --leise:#a3aab8; --akzent:#8fb0e8; --rand:#323a48; --gut:#173323; --gutrand:#5cc08a; --bild:#2a3446; --bild2:#3a4a66; }
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Knobelsprünge 10</title><style>
+:root { --grund:#f3f5f9; --karte:#fff; --text:#1a1a1a; --leise:#5a6170; --akzent:#1f3a68; --akzent-text:#fff;
+  --rand:#d6dbe6; --gut:#e6f2ea; --gutrand:#2e7d4f; --warn:#fff4dc; --warnrand:#b7791f; --schlecht:#fbe9e9; --schlechtrand:#b83a3a;
+  --bild:#e8eef7; --bild2:#cfd9ea; --kachel:#eef1f6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --grund:#12151c; --karte:#1b2029; --text:#e8eaef; --leise:#a3aab8;
+  --akzent:#8fb0e8; --akzent-text:#10141b; --rand:#323a48; --gut:#173323; --gutrand:#5cc08a; --warn:#3a2e14; --warnrand:#e0a84a;
+  --schlecht:#3a1c1c; --schlechtrand:#e07a7a; --bild:#2a3446; --bild2:#3a4a66; --kachel:#252b36; } }
+:root[data-theme="dark"] { --grund:#12151c; --karte:#1b2029; --text:#e8eaef; --leise:#a3aab8;
+  --akzent:#8fb0e8; --akzent-text:#10141b; --rand:#323a48; --gut:#173323; --gutrand:#5cc08a; --warn:#3a2e14; --warnrand:#e0a84a;
+  --schlecht:#3a1c1c; --schlechtrand:#e07a7a; --bild:#2a3446; --bild2:#3a4a66; --kachel:#252b36; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--grund); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 17px; line-height: 1.45; }
-main { max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; }
-h1 { font-size: 1.8rem; margin: 0 0 4px; color: var(--akzent); }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--grund); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 19px; line-height: 1.45; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 16px 16px 40px; }
+[hidden] { display: none !important; }
+h1 { font-size: 1.9rem; margin: 0 0 4px; color: var(--akzent); }
 .unter { color: var(--leise); margin: 0 0 18px; }
-.tipp { background: var(--karte); border: 1px solid var(--rand); border-left: 4px solid var(--akzent); border-radius: 10px; padding: 12px 14px; margin-bottom: 22px; }
-h2 { font-size: 1.15rem; margin: 26px 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-h2 small { font-weight: 400; color: var(--leise); font-size: .9rem; }
-details { background: var(--karte); border: 1px solid var(--rand); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
-summary { cursor: pointer; padding: 12px 14px; list-style: none; display: flex; gap: 10px; align-items: baseline; }
-summary::-webkit-details-marker { display: none; }
-summary::before { content: "▸"; color: var(--akzent); transition: transform .15s; display: inline-block; }
-details[open] summary::before { transform: rotate(90deg); }
-summary b { color: var(--akzent); min-width: 2.6em; }
-summary span { color: var(--leise); font-size: .92rem; }
-.innen { padding: 0 14px 14px; }
-.frage { margin: 0 0 8px; }
-.opt { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 6px 0 10px; color: var(--leise); font-size: .95rem; }
-.opt .richtig { color: var(--gutrand); font-weight: 700; }
-.loesung { background: var(--gut); border: 1px solid var(--gutrand); border-radius: 8px; padding: 10px 12px; }
-.loesung b { color: var(--gutrand); }
-svg.bild { display: block; max-width: 100%; height: auto; margin: 6px 0; }
+.karte { background: var(--karte); border: 1px solid var(--rand); border-radius: 14px; padding: 18px 20px; }
+.knopf { background: var(--akzent); color: var(--akzent-text); border: 0; border-radius: 10px; padding: 12px 20px; font-weight: 700; min-height: 50px; }
+.knopf.zart { background: transparent; color: var(--akzent); border: 2px solid var(--akzent); }
+.knopf:disabled { opacity: .4; cursor: default; }
+.leise-knopf { background: none; border: 0; color: var(--leise); text-decoration: underline; padding: 8px 4px; font-size: .9rem; }
+label { display: block; font-weight: 700; margin: 14px 0 6px; }
+input[type=text], input[type=password], textarea { width: 100%; font: inherit; color: var(--text); background: var(--grund);
+  border: 2px solid var(--rand); border-radius: 10px; padding: 10px 12px; }
+input:focus, textarea:focus { outline: none; border-color: var(--akzent); }
+.reihe { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+.meldung { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--warn); border: 1px solid var(--warnrand); }
+.warnung { background: var(--warn); border: 1px solid var(--warnrand); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: .92rem; }
+/* Kopfleiste */
+.leiste { position: sticky; top: 0; z-index: 5; background: var(--grund); padding: 10px 0 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.leiste .titel { font-weight: 800; color: var(--akzent); margin-right: auto; }
+.leiste .stand { color: var(--leise); font-size: .95rem; }
+.leiste .pkt { font-weight: 700; background: var(--karte); border: 1px solid var(--rand); border-radius: 999px; padding: 4px 12px; }
+.balken { height: 6px; background: var(--kachel); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+.balken i { display: block; height: 100%; background: var(--akzent); width: 0; transition: width .3s; }
+.teil { color: var(--leise); font-size: .95rem; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.nr { font-size: 1.4rem; font-weight: 800; color: var(--akzent); margin: 0 0 6px; }
+.frage { margin: 0 0 12px; }
+svg.bild { display: block; max-width: 100%; height: auto; margin: 8px 0 14px; }
 svg.bild [stroke="#222"] { stroke: var(--text); }
 svg.bild [fill="#222"] { fill: var(--text); }
 svg.bild [fill="#e8eef7"] { fill: var(--bild); }
 svg.bild [fill="#cfd9ea"] { fill: var(--bild2); }
-table.krypto { border-collapse: collapse; margin: 4px 0 10px; font-size: 1.3rem; font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.opt { text-align: left; background: var(--kachel); border: 2px solid var(--rand); border-radius: 12px; padding: 12px 14px; min-height: 54px; display: flex; gap: 10px; align-items: baseline; }
+.opt b { color: var(--akzent); }
+.opt:not(:disabled):active { transform: scale(.98); }
+.opt.gut { background: var(--gut); border-color: var(--gutrand); }
+.opt.falsch { background: var(--schlecht); border-color: var(--schlechtrand); text-decoration: line-through; opacity: .75; }
+.opt:disabled { cursor: default; }
+.rueck { margin-top: 14px; border-radius: 12px; padding: 12px 14px; border: 1px solid; }
+.rueck.gut { background: var(--gut); border-color: var(--gutrand); }
+.rueck.warn { background: var(--warn); border-color: var(--warnrand); }
+.rueck.schlecht { background: var(--schlecht); border-color: var(--schlechtrand); }
+.rueck b.kopf { display: block; margin-bottom: 4px; }
+.tipp { margin-top: 12px; background: var(--kachel); border-radius: 12px; padding: 10px 14px; }
+.unten { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+table.krypto { border-collapse: collapse; margin: 4px 0 14px; font-size: 1.5rem; font-weight: 800; }
 table.krypto td { width: 1.6em; text-align: center; }
-table.krypto tr.summe td { border-top: 2px solid var(--text); }
-table.alle { border-collapse: collapse; width: 100%; background: var(--karte); font-size: .95rem; }
-table.alle td { border: 1px solid var(--rand); padding: 6px 4px; text-align: center; }
-table.alle td i { display: block; font-style: normal; font-size: .75rem; color: var(--leise); }
-.fuss { color: var(--leise); font-size: .85rem; margin-top: 30px; }
-</style></head><body><main><h1>Knobelsprünge</h1><p class="unter">Lösungen mit Erklärung · Klasse 10</p><div class="tipp">Tippe auf eine Aufgabe, dann klappt ihre Lösung auf. Probier es erst selbst und schau dann nach. Ganz unten stehen alle Buchstaben auf einmal, zum schnellen Nachzählen.</div><h2>Teil A · Zum Warmwerden<small>je 3 Punkte</small></h2><details><summary><b>A1</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Welcher Wert ist am größten?</p><div class="opt"><span class="">(A) 0,5²</span><span class="">(B) 0,5 · 0,4</span><span class="">(C) 0,5 − 0,1</span><span class="richtig">(D) √0,5</span><span class="">(E) 0,5³</span></div><div class="loesung"><b>Richtig ist (D) √0,5.</b> √0,5 ≈ 0,71. Die anderen sind 0,25; 0,2; 0,4 und 0,125. Bei Zahlen zwischen 0 und 1 macht das Wurzelziehen größer, das Quadrieren kleiner.</div></div></details><details><summary><b>A2</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Pullover kostet 80 €. Erst wird er um 20 % teurer, später um 20 % billiger. Was kostet er dann?</p><div class="opt"><span class="richtig">(A) 76,80 €</span><span class="">(B) 78,00 €</span><span class="">(C) 80,00 €</span><span class="">(D) 81,60 €</span><span class="">(E) 84,00 €</span></div><div class="loesung"><b>Richtig ist (A) 76,80 €.</b> 80 · 1,2 = 96 und 96 · 0,8 = 76,80. Die 20 % Rabatt beziehen sich auf den höheren Preis. Falle: 80 €.</div></div></details><details><summary><b>A3</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Film beginnt um 19:48 Uhr und dauert 2,6 Stunden. Wann ist er zu Ende?</p><div class="opt"><span class="">(A) 22:06 Uhr</span><span class="richtig">(B) 22:24 Uhr</span><span class="">(C) 22:36 Uhr</span><span class="">(D) 22:48 Uhr</span><span class="">(E) 22:54 Uhr</span></div><div class="loesung"><b>Richtig ist (B) 22:24 Uhr.</b> 0,6 h = 0,6 · 60 min = 36 min. 19:48 + 2 h 36 min = 22:24. Falle: 2,6 h als 2 h 60 min lesen (22:48).</div></div></details><details><summary><b>A4</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Eine 2,5 m lange Leiter lehnt an einer senkrechten Wand. Ihr Fuß steht 0,7 m von der Wand entfernt. In welcher Höhe berührt sie die Wand?</p><div class="opt"><span class="">(A) 1,8 m</span><span class="">(B) 2,0 m</span><span class="">(C) 2,2 m</span><span class="">(D) 2,3 m</span><span class="richtig">(E) 2,4 m</span></div><div class="loesung"><b>Richtig ist (E) 2,4 m.</b> Pythagoras: 2,5² − 0,7² = 6,25 − 0,49 = 5,76 = 2,4².</div></div></details><details><summary><b>A5</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Der Durchschnitt von fünf Zahlen ist 12. Lässt man eine der Zahlen weg, ist der Durchschnitt der übrigen vier nur noch 10. Welche Zahl wurde weggelassen?</p><div class="opt"><span class="">(A) 2</span><span class="">(B) 12</span><span class="richtig">(C) 20</span><span class="">(D) 22</span><span class="">(E) 40</span></div><div class="loesung"><b>Richtig ist (C) 20.</b> Summe vorher 5 · 12 = 60, nachher 4 · 10 = 40. Weggelassen wurde 60 − 40 = 20.</div></div></details><details><summary><b>A6</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Auf welche Ziffer endet die Zahl 3<sup>2026</sup>?</p><div class="opt"><span class="">(A) 1</span><span class="">(B) 3</span><span class="">(C) 7</span><span class="richtig">(D) 9</span><span class="">(E) Das kann man ohne Rechner nicht sagen.</span></div><div class="loesung"><b>Richtig ist (D) 9.</b> Die Endziffern der Dreierpotenzen wiederholen sich: 3, 9, 7, 1, 3, 9, … 2026 = 506 · 4 + 2, also dieselbe Endziffer wie 3²: 9.</div></div></details><details><summary><b>A7</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Welchen Winkel bilden Stunden- und Minutenzeiger einer Uhr um 3:30 Uhr?</p><div class="opt"><span class="">(A) 45°</span><span class="">(B) 60°</span><span class="richtig">(C) 75°</span><span class="">(D) 90°</span><span class="">(E) 105°</span></div><div class="loesung"><b>Richtig ist (C) 75°.</b> Der Minutenzeiger steht auf der 6 (180°). Der Stundenzeiger steht schon halb zwischen 3 und 4 (105°). Unterschied: 75°. Falle: 90°.</div></div></details><details><summary><b>A8</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Zwei Würfel werden geworfen. Wie groß ist die Wahrscheinlichkeit, dass die Augensumme 7 ist?</p><div class="opt"><span class="">(A) 1/36</span><span class="">(B) 1/18</span><span class="">(C) 1/12</span><span class="">(D) 1/11</span><span class="richtig">(E) 1/6</span></div><div class="loesung"><b>Richtig ist (E) 1/6.</b> 6 der 36 gleich wahrscheinlichen Paare: (1|6), (2|5), (3|4), (4|3), (5|2), (6|1). 6/36 = 1/6. Falle: 1/11, aber die elf möglichen Summen sind nicht gleich wahrscheinlich.</div></div></details><details><summary><b>A9</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Quadrat hat einen Flächeninhalt von 50 cm². Wie lang ist seine Diagonale?</p><div class="opt"><span class="">(A) √50 cm</span><span class="richtig">(B) 10 cm</span><span class="">(C) 12,5 cm</span><span class="">(D) 25 cm</span><span class="">(E) 50 cm</span></div><div class="loesung"><b>Richtig ist (B) 10 cm.</b> d² = a² + a² = 2 · 50 cm² = 100 cm², also d = 10 cm. Falle: √50 cm ist die Seite.</div></div></details><details><summary><b>A10</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Drei aufeinanderfolgende ungerade Zahlen haben die Summe 147. Wie heißt die größte von ihnen?</p><div class="opt"><span class="">(A) 45</span><span class="">(B) 47</span><span class="">(C) 49</span><span class="richtig">(D) 51</span><span class="">(E) 53</span></div><div class="loesung"><b>Richtig ist (D) 51.</b> Die mittlere Zahl ist 147 : 3 = 49. Die drei Zahlen sind 47, 49 und 51.</div></div></details><h2>Teil B · Jetzt wird getüftelt<small>je 4 Punkte</small></h2><details><summary><b>B1</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Welche Zahl ist am größten?</p><div class="opt"><span class="">(A) 10<sup>25</sup></span><span class="">(B) 2<sup>100</sup></span><span class="">(C) 5<sup>50</sup></span><span class="">(D) 20<sup>25</sup></span><span class="richtig">(E) 3<sup>75</sup></span></div><div class="loesung"><b>Richtig ist (E) 3<sup>75</sup>.</b> Alles mit dem Exponenten 25 schreiben: 2¹⁰⁰ = (2⁴)²⁵ = 16²⁵, 5⁵⁰ = 25²⁵, 3⁷⁵ = (3³)²⁵ = 27²⁵. Die größte Basis ist 27.</div></div></details><details><summary><b>B2</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Wie viele der Zahlen von 1 bis 100 sind durch 3 oder durch 5 teilbar (oder durch beide)?</p><div class="opt"><span class="">(A) 33</span><span class="">(B) 40</span><span class="richtig">(C) 47</span><span class="">(D) 53</span><span class="">(E) 60</span></div><div class="loesung"><b>Richtig ist (C) 47.</b> 33 Zahlen sind durch 3 teilbar, 20 durch 5. Die 6 Zahlen 15, 30, …, 90 sind dabei doppelt gezählt: 33 + 20 − 6 = 47. Falle: 53.</div></div></details><details><summary><b>B3</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Auto fährt von A nach B mit 60 km/h und auf derselben Strecke zurück mit 40 km/h. Wie groß ist die Durchschnittsgeschwindigkeit für Hin- und Rückweg zusammen?</p><div class="opt"><span class="">(A) 45 km/h</span><span class="richtig">(B) 48 km/h</span><span class="">(C) 50 km/h</span><span class="">(D) 52 km/h</span><span class="">(E) 55 km/h</span></div><div class="loesung"><b>Richtig ist (B) 48 km/h.</b> Beispiel 120 km: hin 2 h, zurück 3 h. 240 km in 5 h sind 48 km/h. Falle: 50 km/h. Mit 40 km/h ist man länger unterwegs, das zählt stärker.</div></div></details><details><summary><b>B4</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Auf einer Insel sagen Ritter immer die Wahrheit, Schurken lügen immer. Du triffst drei Bewohner A, B und C. A sagt: „Wir drei sind alle Schurken.“ B sagt: „Genau einer von uns dreien ist ein Ritter.“ C sagt nichts. Wer ist ein Ritter?</p><div class="opt"><span class="">(A) nur A</span><span class="">(B) nur C</span><span class="">(C) A und C</span><span class="richtig">(D) nur B</span><span class="">(E) keiner</span></div><div class="loesung"><b>Richtig ist (D) nur B.</b> A kann kein Ritter sein, sonst wäre er ja ein Schurke. Also lügt A, und mindestens einer ist Ritter. Wäre B ein Schurke, müsste C der einzige Ritter sein, dann hätte B aber die Wahrheit gesagt. Also ist B Ritter, und zwar der einzige.</div></div></details><details><summary><b>B5</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Quadrat liegt so in einem großen Kreis, dass seine Ecken auf dem Kreis liegen. Im Quadrat liegt ein kleiner Kreis, der alle vier Seiten berührt. Wie verhalten sich die Flächeninhalte von großem und kleinem Kreis?</p><svg width="150" height="150" class="bild">
-<circle cx="75" cy="75" r="62" fill="none" stroke="#222" stroke-width="2"/>
-<rect x="31.16" y="31.16" width="87.68" height="87.68" fill="#e8eef7" stroke="#222" stroke-width="2"/>
-<circle cx="75" cy="75" r="43.84" fill="#cfd9ea" stroke="#222" stroke-width="1.6"/></svg><div class="opt"><span class="richtig">(A) 2 : 1</span><span class="">(B) √2 : 1</span><span class="">(C) π : 2</span><span class="">(D) 3 : 1</span><span class="">(E) 4 : 1</span></div><div class="loesung"><b>Richtig ist (A) 2 : 1.</b> Quadratseite s. Der kleine Radius ist s/2, der große die halbe Diagonale, also s/√2. Quadriert: s²/2 und s²/4. Verhältnis 2 : 1.</div></div></details><details><summary><b>B6</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Guthaben wächst mit festem Zinssatz und Zinseszins. Nach 10 Jahren hat es sich verdoppelt. Nach wie vielen Jahren (vom Start an) hat es sich verachtfacht?</p><div class="opt"><span class="">(A) 15</span><span class="">(B) 20</span><span class="">(C) 25</span><span class="richtig">(D) 30</span><span class="">(E) 40</span></div><div class="loesung"><b>Richtig ist (D) 30.</b> Alle 10 Jahre verdoppelt es sich: 2-fach, 4-fach, 8-fach. Dreimal verdoppeln dauert 30 Jahre. Falle: 40 Jahre, linear gedacht.</div></div></details><details><summary><b>B7</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Wie viele Diagonalen hat ein Zehneck?</p><div class="opt"><span class="">(A) 20</span><span class="richtig">(B) 35</span><span class="">(C) 40</span><span class="">(D) 45</span><span class="">(E) 70</span></div><div class="loesung"><b>Richtig ist (B) 35.</b> Von jeder Ecke gehen 7 Diagonalen aus (nicht zu sich selbst, nicht zu den zwei Nachbarn). 10 · 7 = 70, jede ist doppelt gezählt: 35. Falle: 45, da sind die 10 Seiten mitgezählt.</div></div></details><details><summary><b>B8</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Für welche Zahl x gilt (x − 3)² = (x + 5)²?</p><div class="opt"><span class="">(A) −5</span><span class="">(B) −3</span><span class="richtig">(C) −1</span><span class="">(D) 1</span><span class="">(E) Es gibt keine solche Zahl.</span></div><div class="loesung"><b>Richtig ist (C) −1.</b> Ausmultiplizieren: x² − 6x + 9 = x² + 10x + 25, also −16x = 16 und x = −1. Ohne Rechnen: x ist von 3 und von −5 gleich weit entfernt, liegt also genau in der Mitte.</div></div></details><details><summary><b>B9</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein rechtwinkliges Dreieck hat Katheten von 6 cm und 8 cm. Wie lang ist die Höhe h auf die Hypotenuse?</p><svg width="240" height="150" class="bild">
-<polygon points="20,130 220,130 92,34" fill="#e8eef7" stroke="#222" stroke-width="2"/>
-<line x1="92" y1="34" x2="92" y2="130" stroke="#222" stroke-width="1.4" stroke-dasharray="4 3"/>
-<polyline points="84.8,43.6 94.4,50.8 101.6,41.2" fill="none" stroke="#222" stroke-width="1.2"/>
-<g font-family="Aptos, Calibri, sans-serif" font-size="14" fill="#222"><text x="18" y="80">6 cm</text><text x="160" y="80">8 cm</text><text x="97" y="100">h</text></g></svg><div class="opt"><span class="">(A) 3,6 cm</span><span class="">(B) 4 cm</span><span class="">(C) 4,2 cm</span><span class="">(D) 4,5 cm</span><span class="richtig">(E) 4,8 cm</span></div><div class="loesung"><b>Richtig ist (E) 4,8 cm.</b> Die Hypotenuse ist 10 cm lang (Pythagoras). Fläche auf zwei Arten: 6 · 8 : 2 = 24 und 10 · h : 2 = 24, also h = 4,8 cm.</div></div></details><details><summary><b>B10</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Wie viele verschiedene Buchstabenfolgen (auch sinnlose) kann man aus den vier Buchstaben O, T, T, O legen?</p><div class="opt"><span class="richtig">(A) 6</span><span class="">(B) 8</span><span class="">(C) 12</span><span class="">(D) 16</span><span class="">(E) 24</span></div><div class="loesung"><b>Richtig ist (A) 6.</b> Es kommt nur darauf an, auf welche 2 der 4 Plätze die O kommen: OOTT, OTOT, OTTO, TOOT, TOTO, TTOO. Falle: 24, aber zwei gleiche Buchstaben zu tauschen ergibt nichts Neues.</div></div></details><h2>Teil C · Für Knobelprofis<small>je 5 Punkte</small></h2><details><summary><b>C1</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Wie viele Ziffern hat die Zahl 4<sup>8</sup> · 5<sup>15</sup>?</p><div class="opt"><span class="">(A) 15</span><span class="richtig">(B) 16</span><span class="">(C) 17</span><span class="">(D) 23</span><span class="">(E) 31</span></div><div class="loesung"><b>Richtig ist (B) 16.</b> 4⁸ = 2¹⁶. Dann 2¹⁶ · 5¹⁵ = 2 · (2 · 5)¹⁵ = 2 · 10¹⁵, eine 2 mit 15 Nullen: 16 Ziffern.</div></div></details><details><summary><b>C2</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Mit wie vielen Nullen endet das Produkt <span style='white-space:nowrap'>1 · 2 · 3 · … · 24 · 25</span>?</p><div class="opt"><span class="">(A) 2</span><span class="">(B) 5</span><span class="richtig">(C) 6</span><span class="">(D) 7</span><span class="">(E) 10</span></div><div class="loesung"><b>Richtig ist (C) 6.</b> Jede Endnull braucht einen Faktor 2 und einen Faktor 5. Zweien gibt es genug. Fünfen: je eine in 5, 10, 15, 20 und zwei in 25 = 5 · 5. Zusammen 6. Falle: 5.</div></div></details><details><summary><b>C3</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Rechteck hat den Umfang 34 cm und eine 13 cm lange Diagonale. Wie groß ist sein Flächeninhalt?</p><div class="opt"><span class="">(A) 30 cm²</span><span class="">(B) 48 cm²</span><span class="">(C) 56 cm²</span><span class="richtig">(D) 60 cm²</span><span class="">(E) 120 cm²</span></div><div class="loesung"><b>Richtig ist (D) 60 cm².</b> a + b = 17 und a² + b² = 169 (Pythagoras). Binomische Formel: 17² = a² + 2ab + b², also 289 = 169 + 2ab und ab = 60. Es ist das 5-mal-12-Rechteck.</div></div></details><details><summary><b>C4</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Dreht man die Ziffern von 23 um, erhält man die Spiegelzahl 32. Für wie viele zweistellige Zahlen ist die Summe aus Zahl und Spiegelzahl eine Quadratzahl?</p><div class="opt"><span class="">(A) 2</span><span class="">(B) 4</span><span class="richtig">(C) 8</span><span class="">(D) 9</span><span class="">(E) 11</span></div><div class="loesung"><b>Richtig ist (C) 8.</b> Zahl 10a + b, Spiegelzahl 10b + a, Summe 11 · (a + b). Das ist nur dann eine Quadratzahl, wenn a + b = 11 ist: 29, 38, 47, 56, 65, 74, 83, 92.</div></div></details><details><summary><b>C5</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Ein Seil liegt straff um den Äquator der Erde (Umfang rund 40 000 km). Man verlängert es um genau 1&nbsp;m und hebt es überall gleich hoch an, bis es wieder straff ist. Wie hoch über dem Boden ist es dann?</p><div class="opt"><span class="">(A) weniger als 1 mm</span><span class="">(B) etwa 2 mm</span><span class="">(C) etwa 1 cm</span><span class="">(D) etwa 5 cm</span><span class="richtig">(E) etwa 16 cm</span></div><div class="loesung"><b>Richtig ist (E) etwa 16 cm.</b> Aus U = 2πr folgt r = U : (2π). Wird U um 1 m länger, wächst r um 1 m : (2π) ≈ 0,16 m, ganz gleich, wie groß die Erde ist. Das Bauchgefühl sagt: winzig.</div></div></details><details><summary><b>C6</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Zwei Kreise mit Radius 1 gehen jeweils durch den Mittelpunkt des anderen. Wie lang ist ihre gemeinsame Sehne (gestrichelt)?</p><svg width="215" height="150" class="bild">
-<circle cx="75" cy="75" r="55" fill="none" stroke="#222" stroke-width="2"/>
-<circle cx="130" cy="75" r="55" fill="none" stroke="#222" stroke-width="2"/>
-<line x1="102.5" y1="27.37" x2="102.5" y2="122.63" stroke="#222" stroke-width="2" stroke-dasharray="5 3"/>
-<line x1="75" y1="75" x2="130" y2="75" stroke="#222" stroke-width="1.2"/>
-<circle cx="75" cy="75" r="3" fill="#222"/><circle cx="130" cy="75" r="3" fill="#222"/>
-<g font-family="Aptos, Calibri, sans-serif" font-size="14" fill="#222"><text x="58" y="95">M</text><text x="134" y="95">N</text><text x="84" y="69">1</text></g></svg><div class="opt"><span class="">(A) 1</span><span class="">(B) √2</span><span class="">(C) 3/2</span><span class="richtig">(D) √3</span><span class="">(E) 2</span></div><div class="loesung"><b>Richtig ist (D) √3.</b> M, N und ein Schnittpunkt bilden ein gleichseitiges Dreieck mit der Seite 1. Die halbe Sehne ist seine Höhe √3/2, die ganze Sehne also √3.</div></div></details><details><summary><b>C7</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Auf den Linien des Stadtplans geht man nur nach rechts oder nach oben. Wie viele verschiedene Wege gibt es von A nach B?</p><svg width="210" height="155" class="bild"><g stroke="#222" stroke-width="2.4"><line x1="20" y1="15" x2="20" y2="135"/><line x1="60" y1="15" x2="60" y2="135"/><line x1="100" y1="15" x2="100" y2="135"/><line x1="140" y1="15" x2="140" y2="135"/><line x1="180" y1="15" x2="180" y2="135"/><line x1="20" y1="15" x2="180" y2="15"/><line x1="20" y1="55" x2="180" y2="55"/><line x1="20" y1="95" x2="180" y2="95"/><line x1="20" y1="135" x2="180" y2="135"/></g><circle cx="20" cy="135" r="5" fill="#222"/><circle cx="180" cy="15" r="5" fill="#222"/><g font-family="Aptos, Calibri, sans-serif" font-size="15" font-weight="700" fill="#222"><text x="4" y="153">A</text><text x="188" y="18">B</text></g></svg><div class="opt"><span class="richtig">(A) 35</span><span class="">(B) 42</span><span class="">(C) 48</span><span class="">(D) 64</span><span class="">(E) 70</span></div><div class="loesung"><b>Richtig ist (A) 35.</b> Jeder Weg hat 4 Schritte nach rechts und 3 nach oben. Man wählt, welche 3 der 7 Schritte nach oben gehen: 7 · 6 · 5 : (3 · 2 · 1) = 35. Oder: an jede Kreuzung die Summe von links und von unten schreiben.</div></div></details><details><summary><b>C8</b><span>Lösung anzeigen</span></summary><div class="innen"><p class="frage">Eine Spielshow hat drei Türen. Hinter einer steht ein Auto, hinter den anderen je eine Ziege. Du wählst Tür 1. Der Moderator weiß, wo das Auto ist. Er öffnet immer eine der anderen Türen mit einer Ziege, hier Tür 3, und bietet dir an zu wechseln. Wie groß ist deine Gewinnchance, wenn du zu Tür 2 wechselst?</p><div class="opt"><span class="">(A) 1/6</span><span class="">(B) 1/4</span><span class="">(C) 1/3</span><span class="">(D) 1/2</span><span class="richtig">(E) 2/3</span></div><div class="loesung"><b>Richtig ist (E) 2/3.</b> Deine erste Wahl trifft nur in 1 von 3 Fällen das Auto. In den anderen 2 von 3 Fällen steht es hinter der anderen geschlossenen Tür, denn der Moderator darf das Auto nicht zeigen. Wechseln gewinnt also mit 2/3. Falle: 1/2.</div></div></details><h2>Knobelkiste<small>offene Aufgaben</small></h2><details><summary><b>K1</b>SEND + MORE = MONEY</summary><div class="innen"><p class="frage">Jeder Buchstabe steht für eine Ziffer, verschiedene Buchstaben für verschiedene Ziffern. Keine Zahl beginnt mit 0. Welche Ziffern sind es?</p><table class="krypto"><tr><td></td><td></td><td>S</td><td>E</td><td>N</td><td>D</td></tr><tr><td>+</td><td></td><td>M</td><td>O</td><td>R</td><td>E</td></tr><tr class=summe><td></td><td>M</td><td>O</td><td>N</td><td>E</td><td>Y</td></tr></table><div class="loesung">9567 + 1085 = 10652, also S = 9, E = 5, N = 6, D = 7, M = 1, O = 0, R = 8, Y = 2. Es ist die einzige Lösung. Einstieg: M = 1, weil zwei vierstellige Zahlen zusammen höchstens 19998 ergeben.</div></div></details><details><summary><b>K2</b>Genau 4 Liter</summary><div class="innen"><p class="frage">Du hast einen 3-Liter-Krug, einen 5-Liter-Krug und einen Wasserhahn, aber keine Messstriche. Wie bekommst du genau 4 Liter in den großen Krug?</p><div class="loesung">5er füllen · in den 3er gießen (im 5er bleiben 2) · 3er leeren · die 2 Liter in den 3er · 5er füllen · den 3er auffüllen, da passt nur noch 1 Liter hinein. Im 5er bleiben 4 Liter. Andere Wege sind auch richtig.</div></div></details><details><summary><b>K3</b>Die Brücke bei Nacht</summary><div class="innen"><p class="frage">Vier Personen wollen nachts über eine Brücke. Allein brauchen sie 1, 2, 5 und 10 Minuten. Höchstens zwei passen gleichzeitig auf die Brücke, und ihre einzige Taschenlampe muss jedes Mal mit. Zu zweit gehen sie im Tempo des Langsameren. Schaffen sie es in 17 Minuten?</p><div class="loesung">Ja: 1 und 2 hin (2 min) · 1 zurück (1) · 5 und 10 hin (10) · 2 zurück (2) · 1 und 2 hin (2), zusammen 17 Minuten. Der Trick: Die beiden Langsamen gehen zusammen. Schneller geht es nicht.</div></div></details><details><summary><b>K4</b>Immer eine Quadratzahl?</summary><div class="innen"><p class="frage"><span style='white-space:nowrap'>1 · 2 · 3 · 4 + 1 = 25 = 5²</span> und <span style='white-space:nowrap'>2 · 3 · 4 · 5 + 1 = 121 = 11²</span>. Ist das Produkt von vier aufeinanderfolgenden Zahlen plus 1 immer eine Quadratzahl? Probiere weiter und begründe.</p><div class="loesung">Ja. Erste Zahl n: n · (n + 3) = n² + 3n und (n + 1) · (n + 2) = n² + 3n + 2. Mit a = n² + 3n + 1 ist das Produkt (a − 1) · (a + 1) = a² − 1, plus 1 also a². Beispiel n = 3: 3 · 4 · 5 · 6 + 1 = 361 = 19².</div></div></details><details><summary><b>K5</b>Die 100 Spinde</summary><div class="innen"><p class="frage">Im Flur stehen 100 geschlossene Spinde. Schüler 1 öffnet alle. Schüler 2 schließt jeden zweiten. Schüler 3 stellt jeden dritten um (offen wird zu, zu wird offen), Schüler 4 jeden vierten und so weiter bis Schüler 100. Welche Spinde sind am Ende offen?</p><div class="loesung">Die mit einer Quadratzahl: 1, 4, 9, 16, …, 100, also 10 Spinde. Spind n wird so oft umgestellt, wie n Teiler hat. Teiler kommen in Paaren (12 = 1 · 12 = 2 · 6 = 3 · 4), nur bei Quadratzahlen steht einer allein (36 = 6 · 6). Ungerade viele Teiler heißt: offen.</div></div></details><details><summary><b>K6</b>Pizza mit 6 Schnitten</summary><div class="innen"><p class="frage">Wie viele Stücke kann man aus einer runden Pizza mit 6 geraden Schnitten höchstens bekommen? Die Stücke müssen nicht gleich groß sein. Tipp: Fang mit 1, 2 und 3 Schnitten an und suche ein Muster.</p><div class="loesung">22 Stücke. Der n-te Schnitt kann alle früheren kreuzen und schafft dann n neue Stücke: 2, 4, 7, 11, 16, 22. Allgemein n · (n + 1) : 2 + 1.</div></div></details><h2>Alle Buchstaben auf einmal</h2><details><summary><b>▦</b><span>Tabelle anzeigen</span></summary><div class="innen"><table class="alle"><tr><td><i>A1</i><b>D</b></td><td><i>A2</i><b>A</b></td><td><i>A3</i><b>B</b></td><td><i>A4</i><b>E</b></td><td><i>A5</i><b>C</b></td><td><i>A6</i><b>D</b></td><td><i>A7</i><b>C</b></td><td><i>A8</i><b>E</b></td><td><i>A9</i><b>B</b></td><td><i>A10</i><b>D</b></td></tr></table><br><table class="alle"><tr><td><i>B1</i><b>E</b></td><td><i>B2</i><b>C</b></td><td><i>B3</i><b>B</b></td><td><i>B4</i><b>D</b></td><td><i>B5</i><b>A</b></td><td><i>B6</i><b>D</b></td><td><i>B7</i><b>B</b></td><td><i>B8</i><b>C</b></td><td><i>B9</i><b>E</b></td><td><i>B10</i><b>A</b></td></tr></table><br><table class="alle"><tr><td><i>C1</i><b>B</b></td><td><i>C2</i><b>C</b></td><td><i>C3</i><b>D</b></td><td><i>C4</i><b>C</b></td><td><i>C5</i><b>E</b></td><td><i>C6</i><b>D</b></td><td><i>C7</i><b>A</b></td><td><i>C8</i><b>E</b></td></tr></table><br></div></details><p class="fuss">Punkte: Teil A je 3, Teil B je 4, Teil C je 5, zusammen 110.</p></main></body></html>
+table.krypto tr.summe td { border-top: 3px solid var(--text); }
+textarea { min-height: 130px; resize: vertical; }
+.hinweis { color: var(--leise); font-size: .9rem; margin-top: 6px; }
+.selbst { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.selbst button { background: var(--kachel); border: 2px solid var(--rand); border-radius: 999px; padding: 8px 14px; }
+.selbst button.an { border-color: var(--akzent); font-weight: 700; }
+/* Übersicht */
+.dialog { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 20; display: flex; align-items: flex-start; justify-content: center; padding: 30px 12px; overflow-y: auto; }
+.dialog .karte { width: 100%; max-width: 760px; }
+.kacheln { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; margin: 8px 0 16px; }
+.kachel { background: var(--kachel); border: 2px solid var(--rand); border-radius: 10px; padding: 10px 0; font-weight: 700; text-align: center; }
+.kachel.voll { background: var(--gut); border-color: var(--gutrand); }
+.kachel.halb { background: var(--warn); border-color: var(--warnrand); }
+.kachel.null { background: var(--schlecht); border-color: var(--schlechtrand); }
+.kachel.dran { border-style: dashed; border-color: var(--akzent); }
+.kachel.jetzt { outline: 3px solid var(--akzent); outline-offset: 1px; }
+.legende { font-size: .85rem; color: var(--leise); display: flex; gap: 14px; flex-wrap: wrap; }
+.legende span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; border: 1px solid var(--rand); background: var(--kachel); }
+.legende .l-voll::before { background: var(--gut); border-color: var(--gutrand); }
+.legende .l-halb::before { background: var(--warn); border-color: var(--warnrand); }
+.legende .l-null::before { background: var(--schlecht); border-color: var(--schlechtrand); }
+/* Ergebnis */
+.gross { font-size: 3rem; font-weight: 800; color: var(--akzent); line-height: 1.1; }
+table.erg { border-collapse: collapse; width: 100%; margin: 12px 0; }
+table.erg td, table.erg th { border-bottom: 1px solid var(--rand); padding: 8px 6px; text-align: left; }
+table.erg td.z { text-align: right; font-variant-numeric: tabular-nums; }
+.schl { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-bottom: 8px; }
+.schl div { background: var(--kachel); border-radius: 6px; text-align: center; padding: 4px 0; font-size: .85rem; }
+.schl div b { display: block; font-size: 1.1rem; }
+@media (max-width: 560px) { body { font-size: 17px; } .schl { grid-template-columns: repeat(5, 1fr); } }
+</style></head><body>
+<div class="wrap">
+<div id="warnung" class="warnung" hidden>Dein Fortschritt kann auf diesem Gerät nicht gespeichert werden (privater Modus?).
+Lade die Seite nicht neu, sonst ist alles weg.</div>
+
+<section id="anmeldeschirm">
+  <h1>Knobelsprünge</h1>
+  <p class="unter">Tüftelaufgaben für Klasse 10 · im Stil des Känguru-Wettbewerbs · Do 05.11.2026</p>
+  <div class="karte">
+    <p style="margin-top:0"><b>So geht es:</b> 28 Aufgaben mit je fünf Antworten, genau eine ist richtig.
+    Du bekommst sofort eine Rückmeldung. Richtig im ersten Versuch gibt die vollen Punkte, im zweiten Versuch die Hälfte.
+    Danach siehst du die Lösung. Teil A ist zum Warmwerden, Teil C ist knifflig, am Ende wartet die Knobelkiste.
+    <b>Ohne Taschenrechner</b>, aber mit Schmierpapier.</p>
+    <label for="i-name">Dein Name</label>
+    <input type="text" id="i-name" autocomplete="off" placeholder="Vorname Nachname">
+    <label for="i-code">Die Zahl von der Tafel</label>
+    <input type="text" id="i-code" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="zweistellig">
+    <div class="reihe">
+      <button class="knopf" id="k-anmelden">Anmelden und loslegen</button>
+      <button class="knopf zart" id="k-ohne-zahl">Ohne Zahl weiter</button>
+    </div>
+    <div id="anmelde-meldung" class="meldung" hidden></div>
+  </div>
+  <p><button class="leise-knopf" id="k-lehrkraft">Lehrkraft: Zahl und Schlüssel anzeigen</button></p>
+</section>
+
+<section id="pfad" hidden>
+  <div class="leiste">
+    <span class="titel">Knobelsprünge</span>
+    <span class="stand" id="stand"></span>
+    <span class="pkt" id="punkte"></span>
+    <button class="knopf zart" id="k-uebersicht" style="min-height:40px;padding:6px 14px">Übersicht</button>
+  </div>
+  <div class="balken"><i id="balken"></i></div>
+  <div class="karte" id="karte"></div>
+  <div class="unten">
+    <button class="knopf zart" id="k-zurueck">‹ Zurück</button>
+    <button class="knopf" id="k-weiter">Weiter ›</button>
+  </div>
+</section>
+
+<section id="ergebnis" hidden></section>
+</div>
+
+<div class="dialog" id="uebersicht" hidden><div class="karte">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <h2 style="margin:0">Alle Aufgaben</h2><button class="knopf zart" id="k-ue-zu" style="min-height:40px">Schließen</button></div>
+  <div id="kacheln"></div>
+  <div class="legende"><span class="l-voll">volle Punkte</span><span class="l-halb">halbe Punkte</span><span class="l-null">keine Punkte</span><span>offen</span></div>
+  <div class="reihe"><button class="knopf" id="k-zum-ergebnis">Zum Ergebnis</button></div>
+</div></div>
+
+<div class="dialog" id="lehrer" hidden><div class="karte">
+  <h2 style="margin-top:0">Lehrer-Ansicht</h2>
+  <div id="lehrer-zu">
+    <label for="i-kennwort">Kennwort</label>
+    <input type="password" id="i-kennwort" autocomplete="off">
+    <div class="reihe"><button class="knopf" id="k-kennwort">Öffnen</button><button class="knopf zart" id="k-lehrer-zu">Abbrechen</button></div>
+    <div id="kennwort-meldung" class="meldung" hidden>Das Kennwort stimmt nicht.</div>
+  </div>
+  <div id="lehrer-auf" hidden></div>
+</div></div>
+<script>
+const AUFG = [{"art": "mc", "nr": "A1", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Welcher Wert ist am größten?", "bild": "", "opts": ["0,5²", "0,5 · 0,4", "0,5 − 0,1", "√0,5", "0,5³"], "r": "D", "begr": "√0,5 ≈ 0,71. Die anderen sind 0,25; 0,2; 0,4 und 0,125. Bei Zahlen zwischen 0 und 1 macht das Wurzelziehen größer, das Quadrieren kleiner.", "tipp": "Rechne jeden Wert als Dezimalzahl aus. Für √0,5: Welche Zahl mal sich selbst ergibt ungefähr 0,5?", "falle": {}}, {"art": "mc", "nr": "A2", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Ein Pullover kostet 80 €. Erst wird er um 20 % teurer, später um 20 % billiger. Was kostet er dann?", "bild": "", "opts": ["76,80 €", "78,00 €", "80,00 €", "81,60 €", "84,00 €"], "r": "A", "begr": "80 · 1,2 = 96 und 96 · 0,8 = 76,80. Die 20 % Rabatt beziehen sich auf den höheren Preis. Falle: 80 €.", "tipp": "Schritt für Schritt: erst 20 % von 80 € dazu, dann 20 % vom neuen Preis weg.", "falle": {"C": "Die 20 % Rabatt werden vom höheren Preis 96 € abgezogen, nicht von 80 €."}}, {"art": "mc", "nr": "A3", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Ein Film beginnt um 19:48 Uhr und dauert 2,6 Stunden. Wann ist er zu Ende?", "bild": "", "opts": ["22:06 Uhr", "22:24 Uhr", "22:36 Uhr", "22:48 Uhr", "22:54 Uhr"], "r": "B", "begr": "0,6 h = 0,6 · 60 min = 36 min. 19:48 + 2 h 36 min = 22:24. Falle: 2,6 h als 2 h 60 min lesen (22:48).", "tipp": "Wie viele Minuten sind 0,6 Stunden?", "falle": {"D": "2,6 Stunden sind nicht 2 Stunden und 60 Minuten. Rechne 0,6 · 60 min."}}, {"art": "mc", "nr": "A4", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Eine 2,5 m lange Leiter lehnt an einer senkrechten Wand. Ihr Fuß steht 0,7 m von der Wand entfernt. In welcher Höhe berührt sie die Wand?", "bild": "", "opts": ["1,8 m", "2,0 m", "2,2 m", "2,3 m", "2,4 m"], "r": "E", "begr": "Pythagoras: 2,5² − 0,7² = 6,25 − 0,49 = 5,76 = 2,4².", "tipp": "Leiter, Wand und Boden bilden ein rechtwinkliges Dreieck. Die Leiter ist die Hypotenuse.", "falle": {}}, {"art": "mc", "nr": "A5", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Der Durchschnitt von fünf Zahlen ist 12. Lässt man eine der Zahlen weg, ist der Durchschnitt der übrigen vier nur noch 10. Welche Zahl wurde weggelassen?", "bild": "", "opts": ["2", "12", "20", "22", "40"], "r": "C", "begr": "Summe vorher 5 · 12 = 60, nachher 4 · 10 = 40. Weggelassen wurde 60 − 40 = 20.", "tipp": "Durchschnitt mal Anzahl ergibt die Summe. Wie groß ist die Summe vorher, wie groß nachher?", "falle": {"A": "2 ist nur der Unterschied der Durchschnitte. Vergleiche die Summen."}}, {"art": "mc", "nr": "A6", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Auf welche Ziffer endet die Zahl 3<sup>2026<\/sup>?", "bild": "", "opts": ["1", "3", "7", "9", "Das kann man ohne Rechner nicht sagen."], "r": "D", "begr": "Die Endziffern der Dreierpotenzen wiederholen sich: 3, 9, 7, 1, 3, 9, … 2026 = 506 · 4 + 2, also dieselbe Endziffer wie 3²: 9.", "tipp": "Schreibe die Endziffern von 3¹, 3², 3³, 3⁴, 3⁵, 3⁶ auf. Was fällt dir auf?", "falle": {"E": "Man braucht keinen Rechner: Die Endziffern wiederholen sich in einem festen Muster."}}, {"art": "mc", "nr": "A7", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Welchen Winkel bilden Stunden- und Minutenzeiger einer Uhr um 3:30 Uhr?", "bild": "", "opts": ["45°", "60°", "75°", "90°", "105°"], "r": "C", "begr": "Der Minutenzeiger steht auf der 6 (180°). Der Stundenzeiger steht schon halb zwischen 3 und 4 (105°). Unterschied: 75°. Falle: 90°.", "tipp": "Der Stundenzeiger steht um 3:30 Uhr nicht genau auf der 3. Wie weit ist er schon gewandert?", "falle": {"D": "Der Stundenzeiger steht nicht mehr auf der 3, sondern schon halb zwischen 3 und 4."}}, {"art": "mc", "nr": "A8", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Zwei Würfel werden geworfen. Wie groß ist die Wahrscheinlichkeit, dass die Augensumme 7 ist?", "bild": "", "opts": ["1/36", "1/18", "1/12", "1/11", "1/6"], "r": "E", "begr": "6 der 36 gleich wahrscheinlichen Paare: (1|6), (2|5), (3|4), (4|3), (5|2), (6|1). 6/36 = 1/6. Falle: 1/11, aber die elf möglichen Summen sind nicht gleich wahrscheinlich.", "tipp": "Schreibe alle Würfelpaare auf, die zusammen 7 ergeben. Wie viele Paare gibt es insgesamt?", "falle": {"D": "Es gibt 11 mögliche Summen, aber sie sind nicht gleich wahrscheinlich. Zähle die Paare."}}, {"art": "mc", "nr": "A9", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Ein Quadrat hat einen Flächeninhalt von 50 cm². Wie lang ist seine Diagonale?", "bild": "", "opts": ["√50 cm", "10 cm", "12,5 cm", "25 cm", "50 cm"], "r": "B", "begr": "d² = a² + a² = 2 · 50 cm² = 100 cm², also d = 10 cm. Falle: √50 cm ist die Seite.", "tipp": "Die Diagonale ist die Hypotenuse eines rechtwinkligen Dreiecks aus zwei Quadratseiten.", "falle": {"A": "√50 cm ist die Seitenlänge des Quadrats, nicht die Diagonale."}}, {"art": "mc", "nr": "A10", "teil": "A", "teilname": "Teil A · Zum Warmwerden", "pkt": 3, "text": "Drei aufeinanderfolgende ungerade Zahlen haben die Summe 147. Wie heißt die größte von ihnen?", "bild": "", "opts": ["45", "47", "49", "51", "53"], "r": "D", "begr": "Die mittlere Zahl ist 147 : 3 = 49. Die drei Zahlen sind 47, 49 und 51.", "tipp": "Nenne die mittlere Zahl m. Dann heißen die drei Zahlen m − 2, m und m + 2.", "falle": {"C": "49 ist die mittlere Zahl. Gefragt ist die größte."}}, {"art": "mc", "nr": "B1", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Welche Zahl ist am größten?", "bild": "", "opts": ["10<sup>25<\/sup>", "2<sup>100<\/sup>", "5<sup>50<\/sup>", "20<sup>25<\/sup>", "3<sup>75<\/sup>"], "r": "E", "begr": "Alles mit dem Exponenten 25 schreiben: 2¹⁰⁰ = (2⁴)²⁵ = 16²⁵, 5⁵⁰ = 25²⁵, 3⁷⁵ = (3³)²⁵ = 27²⁵. Die größte Basis ist 27.", "tipp": "Schreibe alle Zahlen als Potenz mit demselben Exponenten 25, zum Beispiel 2¹⁰⁰ = (2⁴)²⁵.", "falle": {"B": "2¹⁰⁰ sieht riesig aus, ist aber nur 16²⁵. Bring alle auf den Exponenten 25."}}, {"art": "mc", "nr": "B2", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Wie viele der Zahlen von 1 bis 100 sind durch 3 oder durch 5 teilbar (oder durch beide)?", "bild": "", "opts": ["33", "40", "47", "53", "60"], "r": "C", "begr": "33 Zahlen sind durch 3 teilbar, 20 durch 5. Die 6 Zahlen 15, 30, …, 90 sind dabei doppelt gezählt: 33 + 20 − 6 = 47. Falle: 53.", "tipp": "Zähle die Vielfachen von 3 und die von 5. Welche Zahlen hast du dabei doppelt gezählt?", "falle": {"D": "Die Zahlen 15, 30, 45, … hast du doppelt gezählt."}}, {"art": "mc", "nr": "B3", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Ein Auto fährt von A nach B mit 60 km/h und auf derselben Strecke zurück mit 40 km/h. Wie groß ist die Durchschnittsgeschwindigkeit für Hin- und Rückweg zusammen?", "bild": "", "opts": ["45 km/h", "48 km/h", "50 km/h", "52 km/h", "55 km/h"], "r": "B", "begr": "Beispiel 120 km: hin 2 h, zurück 3 h. 240 km in 5 h sind 48 km/h. Falle: 50 km/h. Mit 40 km/h ist man länger unterwegs, das zählt stärker.", "tipp": "Nimm eine bequeme Strecke an, zum Beispiel 120 km. Wie lange dauert der Hinweg, wie lange der Rückweg?", "falle": {"C": "50 km/h stimmt nur, wenn man mit beiden Geschwindigkeiten gleich lange fährt. Zurück ist man aber länger unterwegs."}}, {"art": "mc", "nr": "B4", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Auf einer Insel sagen Ritter immer die Wahrheit, Schurken lügen immer. Du triffst drei Bewohner A, B und C. A sagt: „Wir drei sind alle Schurken.“ B sagt: „Genau einer von uns dreien ist ein Ritter.“ C sagt nichts. Wer ist ein Ritter?", "bild": "", "opts": ["nur A", "nur C", "A und C", "nur B", "keiner"], "r": "D", "begr": "A kann kein Ritter sein, sonst wäre er ja ein Schurke. Also lügt A, und mindestens einer ist Ritter. Wäre B ein Schurke, müsste C der einzige Ritter sein, dann hätte B aber die Wahrheit gesagt. Also ist B Ritter, und zwar der einzige.", "tipp": "Kann A ein Ritter sein? Und was folgt daraus, dass A lügt?", "falle": {"E": "Wenn A lügt, sind nicht alle Schurken. Es gibt also mindestens einen Ritter.", "A": "Wäre A ein Ritter, wäre sein Satz wahr, und er wäre ein Schurke. Das geht nicht."}}, {"art": "mc", "nr": "B5", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Ein Quadrat liegt so in einem großen Kreis, dass seine Ecken auf dem Kreis liegen. Im Quadrat liegt ein kleiner Kreis, der alle vier Seiten berührt. Wie verhalten sich die Flächeninhalte von großem und kleinem Kreis?", "bild": "<svg width=\"150\" height=\"150\" class=\"bild\">\n<circle cx=\"75\" cy=\"75\" r=\"62\" fill=\"none\" stroke=\"#222\" stroke-width=\"2\"/>\n<rect x=\"31.16\" y=\"31.16\" width=\"87.68\" height=\"87.68\" fill=\"#e8eef7\" stroke=\"#222\" stroke-width=\"2\"/>\n<circle cx=\"75\" cy=\"75\" r=\"43.84\" fill=\"#cfd9ea\" stroke=\"#222\" stroke-width=\"1.6\"/><\/svg>", "opts": ["2 : 1", "√2 : 1", "π : 2", "3 : 1", "4 : 1"], "r": "A", "begr": "Quadratseite s. Der kleine Radius ist s/2, der große die halbe Diagonale, also s/√2. Quadriert: s²/2 und s²/4. Verhältnis 2 : 1.", "tipp": "Nenne die Quadratseite s. Wie groß ist der Radius des kleinen Kreises, wie groß der des großen?", "falle": {"B": "√2 : 1 ist das Verhältnis der Radien. Die Fläche wächst mit dem Quadrat des Radius."}}, {"art": "mc", "nr": "B6", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Ein Guthaben wächst mit festem Zinssatz und Zinseszins. Nach 10 Jahren hat es sich verdoppelt. Nach wie vielen Jahren (vom Start an) hat es sich verachtfacht?", "bild": "", "opts": ["15", "20", "25", "30", "40"], "r": "D", "begr": "Alle 10 Jahre verdoppelt es sich: 2-fach, 4-fach, 8-fach. Dreimal verdoppeln dauert 30 Jahre. Falle: 40 Jahre, linear gedacht.", "tipp": "Was passiert in den Jahren 10 bis 20 mit dem schon verdoppelten Betrag?", "falle": {"E": "Beim Zinseszins verdoppelt sich der schon verdoppelte Betrag erneut: 2-fach, 4-fach, 8-fach."}}, {"art": "mc", "nr": "B7", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Wie viele Diagonalen hat ein Zehneck?", "bild": "", "opts": ["20", "35", "40", "45", "70"], "r": "B", "begr": "Von jeder Ecke gehen 7 Diagonalen aus (nicht zu sich selbst, nicht zu den zwei Nachbarn). 10 · 7 = 70, jede ist doppelt gezählt: 35. Falle: 45, da sind die 10 Seiten mitgezählt.", "tipp": "Wie viele Diagonalen gehen von einer Ecke aus? Achtung: Jede Diagonale hat zwei Enden.", "falle": {"D": "45 sind alle Verbindungsstrecken zwischen den Ecken. Die 10 Seiten sind keine Diagonalen.", "E": "70 zählt jede Diagonale doppelt, einmal von jedem Ende aus."}}, {"art": "mc", "nr": "B8", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Für welche Zahl x gilt (x − 3)² = (x + 5)²?", "bild": "", "opts": ["−5", "−3", "−1", "1", "Es gibt keine solche Zahl."], "r": "C", "begr": "Ausmultiplizieren: x² − 6x + 9 = x² + 10x + 25, also −16x = 16 und x = −1. Ohne Rechnen: x ist von 3 und von −5 gleich weit entfernt, liegt also genau in der Mitte.", "tipp": "Multipliziere beide Seiten aus. Oder: Welche Zahl ist von 3 und von −5 gleich weit entfernt?", "falle": {"E": "Es gibt eine Lösung. Setze die Antworten ein und prüfe."}}, {"art": "mc", "nr": "B9", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Ein rechtwinkliges Dreieck hat Katheten von 6 cm und 8 cm. Wie lang ist die Höhe h auf die Hypotenuse?", "bild": "<svg width=\"240\" height=\"150\" class=\"bild\">\n<polygon points=\"20,130 220,130 92,34\" fill=\"#e8eef7\" stroke=\"#222\" stroke-width=\"2\"/>\n<line x1=\"92\" y1=\"34\" x2=\"92\" y2=\"130\" stroke=\"#222\" stroke-width=\"1.4\" stroke-dasharray=\"4 3\"/>\n<polyline points=\"84.8,43.6 94.4,50.8 101.6,41.2\" fill=\"none\" stroke=\"#222\" stroke-width=\"1.2\"/>\n<g font-family=\"Aptos, Calibri, sans-serif\" font-size=\"14\" fill=\"#222\"><text x=\"18\" y=\"80\">6 cm<\/text><text x=\"160\" y=\"80\">8 cm<\/text><text x=\"97\" y=\"100\">h<\/text><\/g><\/svg>", "opts": ["3,6 cm", "4 cm", "4,2 cm", "4,5 cm", "4,8 cm"], "r": "E", "begr": "Die Hypotenuse ist 10 cm lang (Pythagoras). Fläche auf zwei Arten: 6 · 8 : 2 = 24 und 10 · h : 2 = 24, also h = 4,8 cm.", "tipp": "Berechne zuerst die Hypotenuse. Dann den Flächeninhalt des Dreiecks auf zwei Arten.", "falle": {}}, {"art": "mc", "nr": "B10", "teil": "B", "teilname": "Teil B · Jetzt wird getüftelt", "pkt": 4, "text": "Wie viele verschiedene Buchstabenfolgen (auch sinnlose) kann man aus den vier Buchstaben O, T, T, O legen?", "bild": "", "opts": ["6", "8", "12", "16", "24"], "r": "A", "begr": "Es kommt nur darauf an, auf welche 2 der 4 Plätze die O kommen: OOTT, OTOT, OTTO, TOOT, TOTO, TTOO. Falle: 24, aber zwei gleiche Buchstaben zu tauschen ergibt nichts Neues.", "tipp": "Auf welche Plätze kommen die beiden O? Die T füllen dann den Rest.", "falle": {"E": "24 = 4 · 3 · 2 · 1 gilt für vier verschiedene Buchstaben. Hier sind je zwei gleich."}}, {"art": "mc", "nr": "C1", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Wie viele Ziffern hat die Zahl 4<sup>8<\/sup> · 5<sup>15<\/sup>?", "bild": "", "opts": ["15", "16", "17", "23", "31"], "r": "B", "begr": "4⁸ = 2¹⁶. Dann 2¹⁶ · 5¹⁵ = 2 · (2 · 5)¹⁵ = 2 · 10¹⁵, eine 2 mit 15 Nullen: 16 Ziffern.", "tipp": "Schreibe 4⁸ als Zweierpotenz. Dann bilde möglichst viele Paare 2 · 5 = 10.", "falle": {"D": "Die Exponenten darf man nicht einfach addieren. Bilde Zehner aus 2 · 5."}}, {"art": "mc", "nr": "C2", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Mit wie vielen Nullen endet das Produkt <span style='white-space:nowrap'>1 · 2 · 3 · … · 24 · 25<\/span>?", "bild": "", "opts": ["2", "5", "6", "7", "10"], "r": "C", "begr": "Jede Endnull braucht einen Faktor 2 und einen Faktor 5. Zweien gibt es genug. Fünfen: je eine in 5, 10, 15, 20 und zwei in 25 = 5 · 5. Zusammen 6. Falle: 5.", "tipp": "Eine Endnull entsteht aus 2 · 5. Wie viele Fünfen stecken im Produkt? Schau dir die 25 genau an.", "falle": {"B": "Die 25 = 5 · 5 enthält zwei Fünfen."}}, {"art": "mc", "nr": "C3", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Ein Rechteck hat den Umfang 34 cm und eine 13 cm lange Diagonale. Wie groß ist sein Flächeninhalt?", "bild": "", "opts": ["30 cm²", "48 cm²", "56 cm²", "60 cm²", "120 cm²"], "r": "D", "begr": "a + b = 17 und a² + b² = 169 (Pythagoras). Binomische Formel: 17² = a² + 2ab + b², also 289 = 169 + 2ab und ab = 60. Es ist das 5-mal-12-Rechteck.", "tipp": "Nenne die Seiten a und b. Was weißt du über a + b und über a² + b²? Denk an (a + b)².", "falle": {"E": "120 ist 2ab. Der Flächeninhalt ist ab."}}, {"art": "mc", "nr": "C4", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Dreht man die Ziffern von 23 um, erhält man die Spiegelzahl 32. Für wie viele zweistellige Zahlen ist die Summe aus Zahl und Spiegelzahl eine Quadratzahl?", "bild": "", "opts": ["2", "4", "8", "9", "11"], "r": "C", "begr": "Zahl 10a + b, Spiegelzahl 10b + a, Summe 11 · (a + b). Das ist nur dann eine Quadratzahl, wenn a + b = 11 ist: 29, 38, 47, 56, 65, 74, 83, 92.", "tipp": "Schreibe die Zahl als 10a + b und die Spiegelzahl als 10b + a. Addiere beide.", "falle": {}}, {"art": "mc", "nr": "C5", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Ein Seil liegt straff um den Äquator der Erde (Umfang rund 40 000 km). Man verlängert es um genau 1&nbsp;m und hebt es überall gleich hoch an, bis es wieder straff ist. Wie hoch über dem Boden ist es dann?", "bild": "", "opts": ["weniger als 1 mm", "etwa 2 mm", "etwa 1 cm", "etwa 5 cm", "etwa 16 cm"], "r": "E", "begr": "Aus U = 2πr folgt r = U : (2π). Wird U um 1 m länger, wächst r um 1 m : (2π) ≈ 0,16 m, ganz gleich, wie groß die Erde ist. Das Bauchgefühl sagt: winzig.", "tipp": "Aus U = 2πr folgt r = U : (2π). Was passiert mit r, wenn U um 1 m wächst?", "falle": {"A": "Das sagt das Bauchgefühl. Rechne mit r = U : (2π) nach."}}, {"art": "mc", "nr": "C6", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Zwei Kreise mit Radius 1 gehen jeweils durch den Mittelpunkt des anderen. Wie lang ist ihre gemeinsame Sehne (gestrichelt)?", "bild": "<svg width=\"215\" height=\"150\" class=\"bild\">\n<circle cx=\"75\" cy=\"75\" r=\"55\" fill=\"none\" stroke=\"#222\" stroke-width=\"2\"/>\n<circle cx=\"130\" cy=\"75\" r=\"55\" fill=\"none\" stroke=\"#222\" stroke-width=\"2\"/>\n<line x1=\"102.5\" y1=\"27.37\" x2=\"102.5\" y2=\"122.63\" stroke=\"#222\" stroke-width=\"2\" stroke-dasharray=\"5 3\"/>\n<line x1=\"75\" y1=\"75\" x2=\"130\" y2=\"75\" stroke=\"#222\" stroke-width=\"1.2\"/>\n<circle cx=\"75\" cy=\"75\" r=\"3\" fill=\"#222\"/><circle cx=\"130\" cy=\"75\" r=\"3\" fill=\"#222\"/>\n<g font-family=\"Aptos, Calibri, sans-serif\" font-size=\"14\" fill=\"#222\"><text x=\"58\" y=\"95\">M<\/text><text x=\"134\" y=\"95\">N<\/text><text x=\"84\" y=\"69\">1<\/text><\/g><\/svg>", "opts": ["1", "√2", "3/2", "√3", "2"], "r": "D", "begr": "M, N und ein Schnittpunkt bilden ein gleichseitiges Dreieck mit der Seite 1. Die halbe Sehne ist seine Höhe √3/2, die ganze Sehne also √3.", "tipp": "Verbinde M, N und einen der beiden Schnittpunkte. Was für ein Dreieck entsteht?", "falle": {}}, {"art": "mc", "nr": "C7", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Auf den Linien des Stadtplans geht man nur nach rechts oder nach oben. Wie viele verschiedene Wege gibt es von A nach B?", "bild": "<svg width=\"210\" height=\"155\" class=\"bild\"><g stroke=\"#222\" stroke-width=\"2.4\"><line x1=\"20\" y1=\"15\" x2=\"20\" y2=\"135\"/><line x1=\"60\" y1=\"15\" x2=\"60\" y2=\"135\"/><line x1=\"100\" y1=\"15\" x2=\"100\" y2=\"135\"/><line x1=\"140\" y1=\"15\" x2=\"140\" y2=\"135\"/><line x1=\"180\" y1=\"15\" x2=\"180\" y2=\"135\"/><line x1=\"20\" y1=\"15\" x2=\"180\" y2=\"15\"/><line x1=\"20\" y1=\"55\" x2=\"180\" y2=\"55\"/><line x1=\"20\" y1=\"95\" x2=\"180\" y2=\"95\"/><line x1=\"20\" y1=\"135\" x2=\"180\" y2=\"135\"/><\/g><circle cx=\"20\" cy=\"135\" r=\"5\" fill=\"#222\"/><circle cx=\"180\" cy=\"15\" r=\"5\" fill=\"#222\"/><g font-family=\"Aptos, Calibri, sans-serif\" font-size=\"15\" font-weight=\"700\" fill=\"#222\"><text x=\"4\" y=\"153\">A<\/text><text x=\"188\" y=\"18\">B<\/text><\/g><\/svg>", "opts": ["35", "42", "48", "64", "70"], "r": "A", "begr": "Jeder Weg hat 4 Schritte nach rechts und 3 nach oben. Man wählt, welche 3 der 7 Schritte nach oben gehen: 7 · 6 · 5 : (3 · 2 · 1) = 35. Oder: an jede Kreuzung die Summe von links und von unten schreiben.", "tipp": "Schreibe an jede Kreuzung, auf wie vielen Wegen man sie erreicht: Summe von links und von unten.", "falle": {"E": "70 ist zu viel. Jeder Weg hat genau 7 Schritte, und genau 3 davon gehen nach oben."}}, {"art": "mc", "nr": "C8", "teil": "C", "teilname": "Teil C · Für Knobelprofis", "pkt": 5, "text": "Eine Spielshow hat drei Türen. Hinter einer steht ein Auto, hinter den anderen je eine Ziege. Du wählst Tür 1. Der Moderator weiß, wo das Auto ist. Er öffnet immer eine der anderen Türen mit einer Ziege, hier Tür 3, und bietet dir an zu wechseln. Wie groß ist deine Gewinnchance, wenn du zu Tür 2 wechselst?", "bild": "", "opts": ["1/6", "1/4", "1/3", "1/2", "2/3"], "r": "E", "begr": "Deine erste Wahl trifft nur in 1 von 3 Fällen das Auto. In den anderen 2 von 3 Fällen steht es hinter der anderen geschlossenen Tür, denn der Moderator darf das Auto nicht zeigen. Wechseln gewinnt also mit 2/3. Falle: 1/2.", "tipp": "Wie oft liegst du mit der ersten Wahl richtig? Was passiert in allen anderen Fällen, wenn du wechselst?", "falle": {"D": "Der Moderator öffnet nicht zufällig eine Tür: Er zeigt nie das Auto. Das verändert die Chancen."}}, {"art": "k", "nr": "K1", "teil": "K", "teilname": "Knobelkiste · offene Aufgaben", "pkt": 0, "titel": "SEND + MORE = MONEY", "text": "Jeder Buchstabe steht für eine Ziffer, verschiedene Buchstaben für verschiedene Ziffern. Keine Zahl beginnt mit 0. Welche Ziffern sind es?", "zus": "<table class=\"krypto\"><tr><td><\/td><td><\/td><td>S<\/td><td>E<\/td><td>N<\/td><td>D<\/td><\/tr><tr><td>+<\/td><td><\/td><td>M<\/td><td>O<\/td><td>R<\/td><td>E<\/td><\/tr><tr class=summe><td><\/td><td>M<\/td><td>O<\/td><td>N<\/td><td>E<\/td><td>Y<\/td><\/tr><\/table>", "loes": "9567 + 1085 = 10652, also S = 9, E = 5, N = 6, D = 7, M = 1, O = 0, R = 8, Y = 2. Es ist die einzige Lösung. Einstieg: M = 1, weil zwei vierstellige Zahlen zusammen höchstens 19998 ergeben."}, {"art": "k", "nr": "K2", "teil": "K", "teilname": "Knobelkiste · offene Aufgaben", "pkt": 0, "titel": "Genau 4 Liter", "text": "Du hast einen 3-Liter-Krug, einen 5-Liter-Krug und einen Wasserhahn, aber keine Messstriche. Wie bekommst du genau 4 Liter in den großen Krug?", "zus": "", "loes": "5er füllen · in den 3er gießen (im 5er bleiben 2) · 3er leeren · die 2 Liter in den 3er · 5er füllen · den 3er auffüllen, da passt nur noch 1 Liter hinein. Im 5er bleiben 4 Liter. Andere Wege sind auch richtig."}, {"art": "k", "nr": "K3", "teil": "K", "teilname": "Knobelkiste · offene Aufgaben", "pkt": 0, "titel": "Die Brücke bei Nacht", "text": "Vier Personen wollen nachts über eine Brücke. Allein brauchen sie 1, 2, 5 und 10 Minuten. Höchstens zwei passen gleichzeitig auf die Brücke, und ihre einzige Taschenlampe muss jedes Mal mit. Zu zweit gehen sie im Tempo des Langsameren. Schaffen sie es in 17 Minuten?", "zus": "", "loes": "Ja: 1 und 2 hin (2 min) · 1 zurück (1) · 5 und 10 hin (10) · 2 zurück (2) · 1 und 2 hin (2), zusammen 17 Minuten. Der Trick: Die beiden Langsamen gehen zusammen. Schneller geht es nicht."}, {"art": "k", "nr": "K4", "teil": "K", "teilname": "Knobelkiste · offene Aufgaben", "pkt": 0, "titel": "Immer eine Quadratzahl?", "text": "<span style='white-space:nowrap'>1 · 2 · 3 · 4 + 1 = 25 = 5²<\/span> und <span style='white-space:nowrap'>2 · 3 · 4 · 5 + 1 = 121 = 11²<\/span>. Ist das Produkt von vier aufeinanderfolgenden Zahlen plus 1 immer eine Quadratzahl? Probiere weiter und begründe.", "zus": "", "loes": "Ja. Erste Zahl n: n · (n + 3) = n² + 3n und (n + 1) · (n + 2) = n² + 3n + 2. Mit a = n² + 3n + 1 ist das Produkt (a − 1) · (a + 1) = a² − 1, plus 1 also a². Beispiel n = 3: 3 · 4 · 5 · 6 + 1 = 361 = 19²."}, {"art": "k", "nr": "K5", "teil": "K", "teilname": "Knobelkiste · offene Aufgaben", "pkt": 0, "titel": "Die 100 Spinde", "text": "Im Flur stehen 100 geschlossene Spinde. Schüler 1 öffnet alle. Schüler 2 schließt jeden zweiten. Schüler 3 stellt jeden dritten um (offen wird zu, zu wird offen), Schüler 4 jeden vierten und so weiter bis Schüler 100. Welche Spinde sind am Ende offen?", "zus": "", "loes": "Die mit einer Quadratzahl: 1, 4, 9, 16, …, 100, also 10 Spinde. Spind n wird so oft umgestellt, wie n Teiler hat. Teiler kommen in Paaren (12 = 1 · 12 = 2 · 6 = 3 · 4), nur bei Quadratzahlen steht einer allein (36 = 6 · 6). Ungerade viele Teiler heißt: offen."}, {"art": "k", "nr": "K6", "teil": "K", "teilname": "Knobelkiste · offene Aufgaben", "pkt": 0, "titel": "Pizza mit 6 Schnitten", "text": "Wie viele Stücke kann man aus einer runden Pizza mit 6 geraden Schnitten höchstens bekommen? Die Stücke müssen nicht gleich groß sein. Tipp: Fang mit 1, 2 und 3 Schnitten an und suche ein Muster.", "zus": "", "loes": "22 Stücke. Der n-te Schnitt kann alle früheren kreuzen und schafft dann n neue Stücke: 2, 4, 7, 11, 16, 22. Allgemein n · (n + 1) : 2 + 1."}];
+const ZAHL = "45", SPEICHER = "knobeln10-2026-11-05", SCHLUESSEL = 4257354514, GESAMT = 110;
+const $ = s => document.querySelector(s);
+const zahl = x => x.toLocaleString("de-DE");
+
+/* ---------- Speicher: setzt von selbst fort, warnt, wenn er nicht geht */
+function speicherGeht() {
+  try { localStorage.setItem(SPEICHER + "-probe", "1");
+        const ok = localStorage.getItem(SPEICHER + "-probe") === "1";
+        localStorage.removeItem(SPEICHER + "-probe"); return ok; } catch (e) { return false; }
+}
+const SPEICHER_OK = speicherGeht();
+function laden() { try { const r = localStorage.getItem(SPEICHER); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+function sichern() { if (!SPEICHER_OK) return; try { localStorage.setItem(SPEICHER, JSON.stringify(S)); } catch (e) {} }
+function leer() { return { name: "", ohneZahl: false, start: null, idx: 0, a: {}, k: {}, log: [] }; }
+let S = laden() || leer();
+function protokoll(art, mehr) { S.log.push(Object.assign({ art, zeit: new Date().toISOString() }, mehr || {})); sichern(); }
+
+function pruefsumme(s) { let h = 5381; for (const c of s) h = (((h << 5) + h) ^ c.charCodeAt(0)) >>> 0; return h; }
+
+/* ---------- Punkte */
+function punkteVon(t) { const a = S.a[t.nr]; return a ? a.p : 0; }
+function punkteTeil(teil) { return AUFG.filter(t => t.teil === teil).reduce((s, t) => s + punkteVon(t), 0); }
+function punkteAlle() { return AUFG.reduce((s, t) => s + (t.art === "mc" ? punkteVon(t) : 0), 0); }
+function status(t) {
+  if (t.art === "k") { const k = S.k[t.nr]; return k && k.gezeigt ? "voll" : (k && k.text ? "dran" : ""); }
+  const a = S.a[t.nr]; if (!a) return "";
+  if (!a.fertig) return "dran";
+  return a.p === t.pkt ? "voll" : a.p > 0 ? "halb" : "null";
+}
+
+/* ---------- Ansichten */
+function zeigeTeil(id) { for (const s of ["anmeldeschirm", "pfad", "ergebnis"]) $("#" + s).hidden = s !== id; window.scrollTo(0, 0); }
+
+function karte(i) {
+  i = Math.max(0, Math.min(AUFG.length - 1, i));
+  S.idx = i; sichern();
+  zeigeTeil("pfad");
+  const t = AUFG[i];
+  $("#stand").textContent = "Aufgabe " + (i + 1) + " von " + AUFG.length;
+  $("#balken").style.width = (100 * AUFG.filter(x => status(x) === "voll" || status(x) === "halb" || status(x) === "null").length / AUFG.length) + "%";
+  $("#punkte").textContent = zahl(punkteAlle()) + " / " + GESAMT + " Punkte";
+  $("#k-zurueck").disabled = i === 0;
+  $("#k-weiter").textContent = i === AUFG.length - 1 ? "Zum Ergebnis ›" : "Weiter ›";
+  const kopf = '<div class="teil"><span>' + t.teilname + '</span><span>' + (t.pkt ? t.pkt + " Punkte" : "ohne Punkte") + '</span></div>';
+  $("#karte").innerHTML = kopf + (t.art === "mc" ? mcHtml(t) : knobelHtml(t));
+  if (t.art === "k") verdrahteKnobel(t);
+}
+
+function mcHtml(t) {
+  const a = S.a[t.nr] || { v: [], p: 0, fertig: false };
+  let h = '<div class="nr">' + t.nr + '</div><div class="frage">' + t.text + '</div>' + t.bild + '<div class="opts">';
+  t.opts.forEach((o, j) => {
+    const L = "ABCDE"[j];
+    let cls = "";
+    if (a.v.includes(L)) cls = L === t.r ? "gut" : "falsch";
+    if (a.fertig && L === t.r) cls = "gut";
+    const aus = a.fertig || a.v.includes(L) ? " disabled" : "";
+    h += '<button class="opt ' + cls + '" data-wahl="' + L + '"' + aus + '><b>(' + L + ')</b><span>' + o + '</span></button>';
+  });
+  h += '</div>' + rueckHtml(t, a);
+  if (!a.fertig && a.v.length === 0) h += '<button class="leise-knopf" id="k-tipp">💡 Tipp ansehen</button><div class="tipp" id="tipp" hidden>' + t.tipp + '</div>';
+  return h;
+}
+
+function rueckHtml(t, a) {
+  const loes = "(" + t.r + ") " + t.opts["ABCDE".indexOf(t.r)];
+  if (a.fertig && a.p === t.pkt)
+    return '<div class="rueck gut"><b class="kopf">Richtig! +' + zahl(t.pkt) + ' Punkte</b>' + t.begr + '</div>';
+  if (a.fertig && a.p > 0)
+    return '<div class="rueck gut"><b class="kopf">Richtig im zweiten Versuch: +' + zahl(a.p) + ' Punkte</b>' + t.begr + '</div>';
+  if (a.fertig)
+    return '<div class="rueck schlecht"><b class="kopf">Leider auch nicht. Richtig ist ' + loes + '.</b>' + t.begr + '</div>';
+  if (a.v.length === 1) {
+    const f = t.falle[a.v[0]];
+    return '<div class="rueck warn"><b class="kopf">Das stimmt noch nicht.</b>' + (f ? f + '<br>' : '') +
+      '<b>Tipp:</b> ' + t.tipp + '<br>Du hast noch einen Versuch. Er bringt die halben Punkte.</div>';
+  }
+  return "";
+}
+
+function waehle(L) {
+  const t = AUFG[S.idx];
+  const a = S.a[t.nr] || (S.a[t.nr] = { v: [], p: 0, fertig: false });
+  if (a.fertig || a.v.includes(L)) return;
+  a.v.push(L);
+  if (L === t.r) { a.p = a.v.length === 1 ? t.pkt : t.pkt / 2; a.fertig = true; }
+  else if (a.v.length >= 2) { a.p = 0; a.fertig = true; }
+  protokoll("antwort", { nr: t.nr, wahl: L, versuch: a.v.length, richtig: L === t.r });
+  karte(S.idx);
+  const r = document.querySelector(".rueck"); if (r) r.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function knobelHtml(t) {
+  const k = S.k[t.nr] || { text: "", gezeigt: false, selbst: "" };
+  let h = '<div class="nr">' + t.nr + ' · ' + t.titel + '</div><div class="frage">' + t.text + '</div>' + t.zus +
+    '<label for="k-' + t.nr + '">Deine Lösung oder deine Idee</label>' +
+    '<textarea id="k-' + t.nr + '" data-label="' + t.nr + '"></textarea>';
+  if (!k.gezeigt) {
+    h += '<div class="reihe"><button class="knopf zart" id="k-aufdecken">Lösung aufdecken</button></div>' +
+         '<div class="hinweis" id="aufdecken-hinweis">Schreib erst deine eigene Idee auf, dann geht die Lösung auf.</div>';
+  } else {
+    h += '<div class="rueck gut"><b class="kopf">Lösung</b>' + t.loes + '</div>' +
+      '<div class="selbst" id="selbst"><span style="align-self:center">Wie lief es?</span>' +
+      ["hatte ich", "teilweise", "noch nicht"].map(w => '<button data-selbst="' + w + '" class="' + (k.selbst === w ? "an" : "") + '">' + w + '</button>').join("") + '</div>';
+  }
+  return h;
+}
+
+function verdrahteKnobel(t) {
+  const k = S.k[t.nr] || (S.k[t.nr] = { text: "", gezeigt: false, selbst: "" });
+  const feld = $("#k-" + t.nr);
+  feld.value = k.text;
+  const knopf = $("#k-aufdecken");
+  const pruefe = () => { if (knopf) knopf.disabled = feld.value.trim().length < 3; };
+  pruefe();
+  feld.addEventListener("input", () => { k.text = feld.value; sichern(); pruefe(); });
+  feld.addEventListener("change", () => protokoll("eingabe", { nr: t.nr, text: feld.value }));
+  if (knopf) knopf.addEventListener("click", () => { k.gezeigt = true; protokoll("loesung-gezeigt", { nr: t.nr, text: feld.value }); karte(S.idx); });
+  const sel = $("#selbst");
+  if (sel) sel.addEventListener("click", e => {
+    const w = e.target.dataset && e.target.dataset.selbst; if (!w) return;
+    k.selbst = w; protokoll("selbst", { nr: t.nr, wert: w }); karte(S.idx);
+  });
+}
+
+/* ---------- Übersicht */
+function uebersicht() {
+  let h = "";
+  for (const teil of ["A", "B", "C", "K"]) {
+    const liste = AUFG.map((t, i) => [t, i]).filter(([t]) => t.teil === teil);
+    h += '<div style="margin-top:10px;font-weight:700">' + liste[0][0].teilname +
+      (teil !== "K" ? ' · ' + zahl(punkteTeil(teil)) + ' Punkte' : '') + '</div><div class="kacheln">' +
+      liste.map(([t, i]) => '<button class="kachel ' + status(t) + (i === S.idx ? " jetzt" : "") + '" data-i="' + i + '">' + t.nr + '</button>').join("") + '</div>';
+  }
+  $("#kacheln").innerHTML = h;
+  $("#uebersicht").hidden = false;
+}
+
+/* ---------- Ergebnis */
+function ergebnis() {
+  $("#uebersicht").hidden = true;
+  const mc = AUFG.filter(t => t.art === "mc");
+  const erste = mc.filter(t => S.a[t.nr] && S.a[t.nr].fertig && S.a[t.nr].p === t.pkt).length;
+  const offen = mc.filter(t => !(S.a[t.nr] && S.a[t.nr].fertig)).map(t => t.nr);
+  const kn = AUFG.filter(t => t.art === "k");
+  const zeile = (n, p, m) => '<tr><td>' + n + '</td><td class="z">' + zahl(p) + ' von ' + m + '</td></tr>';
+  const anm = S.start ? new Date(S.start).toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+  let h = '<h1>Dein Ergebnis</h1><p class="unter">' + esc(S.name) + ' · angemeldet ' + anm + (S.ohneZahl ? ' (ohne Zahl)' : '') + '</p>' +
+    '<div class="karte"><div class="gross">' + zahl(punkteAlle()) + ' <span style="font-size:1.4rem">von ' + GESAMT + ' Punkten</span></div>' +
+    '<table class="erg">' + zeile("Teil A · Zum Warmwerden", punkteTeil("A"), 30) + zeile("Teil B · Jetzt wird getüftelt", punkteTeil("B"), 40) +
+    zeile("Teil C · Für Knobelprofis", punkteTeil("C"), 40) + '</table>' +
+    '<p>Im ersten Versuch richtig: <b>' + erste + ' von 28</b>.' +
+    (offen.length ? ' Noch offen: ' + offen.join(", ") + '.' : ' Alle Aufgaben sind bearbeitet.') + '</p>' +
+    '<p>Knobelkiste: ' + kn.map(t => { const k = S.k[t.nr]; return t.nr + ' ' + (k && k.gezeigt ? (k.selbst || "angesehen") : "offen"); }).join(" · ") + '</p>' +
+    '<p class="hinweis">Zeig diese Seite deiner Lehrkraft. Mit „Ergebnis speichern“ legst du eine Datei auf dem iPad ab.</p>' +
+    '<div class="reihe"><button class="knopf" id="k-speichern">Ergebnis speichern</button>' +
+    '<button class="knopf zart" id="k-zur-aufgabe">Zurück zu den Aufgaben</button></div></div>' +
+    '<p style="margin-top:28px"><button class="leise-knopf" id="k-neu">Alles löschen und neu beginnen</button></p>';
+  $("#ergebnis").innerHTML = h;
+  zeigeTeil("ergebnis");
+  protokoll("ergebnis", { punkte: punkteAlle() });
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function speichernAlsDatei() {
+  const mc = AUFG.filter(t => t.art === "mc");
+  const zeilen = mc.map(t => { const a = S.a[t.nr]; return '<tr><td>' + t.nr + '</td><td>' + (a ? a.v.join(" → ") : "") + '</td><td>' + t.r + '</td><td>' + zahl(punkteVon(t)) + '</td></tr>'; }).join("");
+  const kn = AUFG.filter(t => t.art === "k").map(t => { const k = S.k[t.nr] || {}; return '<h3>' + t.nr + ' · ' + t.titel + ' (' + esc(k.selbst || (k.gezeigt ? "angesehen" : "offen")) + ')</h3><p>' + esc(k.text || "").replace(/\n/g, "<br>") + '</p>'; }).join("");
+  const html = '<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Knobelsprünge 10 · ' + esc(S.name) + '</title>' +
+    '<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:20px auto;padding:0 16px}td,th{border:1px solid #ccc;padding:4px 8px}table{border-collapse:collapse}</style></head><body>' +
+    '<h1>Knobelsprünge 10 · ' + esc(S.name) + '</h1><p>Angemeldet: ' + esc(S.start || "") + (S.ohneZahl ? ' (ohne Zahl)' : '') +
+    '<br>Gespeichert: ' + new Date().toISOString() + '</p><p><b>' + zahl(punkteAlle()) + ' von ' + GESAMT + ' Punkten</b> (A ' + zahl(punkteTeil("A")) + ', B ' + zahl(punkteTeil("B")) + ', C ' + zahl(punkteTeil("C")) + ')</p>' +
+    '<table><tr><th>Aufgabe</th><th>Gewählt</th><th>Richtig</th><th>Punkte</th></tr>' + zeilen + '</table><h2>Knobelkiste</h2>' + kn +
+    '<h2>Verlauf</h2><pre>' + esc(S.log.map(e => e.zeit + "  " + e.art + "  " + (e.nr || "") + " " + (e.wahl || e.wert || "")).join("\n")) + '</pre></body></html>';
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+  a.download = "Knobelsprünge 10 " + (S.name || "ohne Name").replace(/[\\/:*?"<>|]/g, "") + ".html";
+  document.body.appendChild(a); a.click(); a.remove();
+  protokoll("gespeichert");
+}
+
+/* ---------- Lehrer-Ansicht */
+function lehrerAuf() {
+  const teile = ["A", "B", "C"].map(teil => '<div class="schl">' + AUFG.filter(t => t.teil === teil).map(t => '<div>' + t.nr + '<b>' + t.r + '</b></div>').join("") + '</div>').join("");
+  $("#lehrer-auf").innerHTML = '<p>Zahl für die Tafel:</p><div class="gross">' + ZAHL + '</div><p>Lösungsschlüssel:</p>' + teile +
+    '<div class="reihe"><button class="knopf zart" id="k-lehrer-fertig">Schließen</button></div>';
+  $("#lehrer-zu").hidden = true; $("#lehrer-auf").hidden = false;
+  $("#k-lehrer-fertig").addEventListener("click", () => { $("#lehrer").hidden = true; });
+}
+
+/* ---------- Verdrahten (erst alle Knöpfe, dann ggf. überspringen) */
+function starten(mitZahl) {
+  const name = $("#i-name").value.trim();
+  const m = $("#anmelde-meldung");
+  if (name.length < 2) { m.textContent = "Bitte trag deinen Namen ein."; m.hidden = false; return; }
+  if (mitZahl && $("#i-code").value.trim() !== ZAHL) {
+    m.textContent = "Die Zahl stimmt nicht. Schau noch einmal an die Tafel. Du kannst auch „Ohne Zahl weiter“ nehmen.";
+    m.hidden = false; return;
+  }
+  S.name = name; S.ohneZahl = !mitZahl; S.start = new Date().toISOString();
+  protokoll(mitZahl ? "anmeldung" : "anmeldung-ohne", { name });
+  karte(0);
+}
+$("#k-anmelden").addEventListener("click", () => starten(true));
+$("#k-ohne-zahl").addEventListener("click", () => starten(false));
+$("#i-code").addEventListener("keydown", e => { if (e.key === "Enter") starten(true); });
+$("#k-lehrkraft").addEventListener("click", () => { $("#lehrer").hidden = false; $("#lehrer-zu").hidden = false; $("#lehrer-auf").hidden = true; $("#i-kennwort").value = ""; $("#kennwort-meldung").hidden = true; });
+$("#k-lehrer-zu").addEventListener("click", () => { $("#lehrer").hidden = true; });
+$("#k-kennwort").addEventListener("click", () => {
+  if (pruefsumme($("#i-kennwort").value.trim()) === SCHLUESSEL) lehrerAuf(); else $("#kennwort-meldung").hidden = false;
+});
+$("#i-kennwort").addEventListener("keydown", e => { if (e.key === "Enter") $("#k-kennwort").click(); });
+$("#karte").addEventListener("click", e => {
+  const b = e.target.closest("[data-wahl]"); if (b) { waehle(b.dataset.wahl); return; }
+  if (e.target.id === "k-tipp") { $("#tipp").hidden = false; e.target.hidden = true; protokoll("tipp", { nr: AUFG[S.idx].nr }); }
+});
+$("#k-zurueck").addEventListener("click", () => karte(S.idx - 1));
+$("#k-weiter").addEventListener("click", () => S.idx === AUFG.length - 1 ? ergebnis() : karte(S.idx + 1));
+$("#k-uebersicht").addEventListener("click", uebersicht);
+$("#k-ue-zu").addEventListener("click", () => { $("#uebersicht").hidden = true; });
+$("#kacheln").addEventListener("click", e => { const k = e.target.closest("[data-i]"); if (k) { $("#uebersicht").hidden = true; karte(+k.dataset.i); } });
+$("#k-zum-ergebnis").addEventListener("click", ergebnis);
+$("#ergebnis").addEventListener("click", e => {
+  if (e.target.id === "k-speichern") speichernAlsDatei();
+  if (e.target.id === "k-zur-aufgabe") karte(S.idx);
+  if (e.target.id === "k-neu" && confirm("Wirklich alles löschen? Deine Antworten und Punkte sind dann weg.")) {
+    S = leer(); sichern(); location.reload();
+  }
+});
+
+if (!SPEICHER_OK) $("#warnung").hidden = false;
+if (S.name) { protokoll("fortgesetzt"); karte(S.idx || 0); }   // nach Neuladen von selbst weiter
+</script></body></html>
