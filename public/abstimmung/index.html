@@ -151,6 +151,14 @@
   /* Beim Radieren zeigt ein Ring, wie gross der Radierer ist. */
   .ring{position:absolute;border:2px solid var(--accent);border-radius:50%;
     pointer-events:none;display:none;transform:translate(-50%,-50%)}
+  /* Schutzstift: Die umrandeten Flaechen liegen auf einer eigenen Lage
+     ueber dem Feld - schraffiert, der Inhalt bleibt fuer das Kind lesbar.
+     Geschwaerzt wird erst beim Abschicken (bildDaten). */
+  .schutzlage{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border-radius:12px}
+  .werkzeuge button#dringend[aria-pressed="true"]{background:#fee2e2;border-color:#dc2626;color:#dc2626}
+  @media (prefers-color-scheme:dark){
+    .werkzeuge button#dringend[aria-pressed="true"]{background:#450a0a;color:#fca5a5}
+  }
 </style>
 </head>
 <body>
@@ -167,6 +175,7 @@
     <div class="feldinnen" id="feldinnen">
       <canvas class="feld" id="feld" width="1280" height="960" aria-label="Zeichenfeld"></canvas>
       <div class="idk"><span>ID</span></div>
+      <canvas class="schutzlage" id="schutzlage" width="1280" height="960" aria-hidden="true"></canvas>
       <div class="ring" id="ring"></div>
       <input type="text" class="textfeld" id="textfeld" hidden aria-label="Text"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -180,6 +189,15 @@
         <svg viewBox="0 0 24 24"><path d="M7 20h13"/><path d="M4.6 13.6l8.2-8.2a2 2 0 0 1 2.8 0l3 3a2 2 0 0 1 0 2.8L10.4 19.4a2 2 0 0 1-1.4.6H8.2a2 2 0 0 1-1.4-.6l-2.2-2.2a2 2 0 0 1 0-2.8z"/><path d="M9 9.2l5.8 5.8"/></svg></button>
       <button type="button" class="art" id="textknopf" aria-pressed="false" title="Text mit der Tastatur" aria-label="Text">
         <svg viewBox="0 0 24 24"><path d="M5 7V4h14v3"/><path d="M12 4v16"/><path d="M9 20h6"/></svg></button>
+    </div>
+    <!-- Schutzstift: nur in namentlichen Runden (setzeNamentlich). -->
+    <div class="gruppe" id="schutzgruppe" hidden>
+      <button type="button" class="art" id="schutzknopf" aria-pressed="false"
+              title="Schutz: umranden, was nur die Lehrkraft sieht" aria-label="Schutz">
+        <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+      <button type="button" id="dringend" aria-pressed="false" hidden
+              title="Dringend" aria-label="Dringend">
+        <svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18v.5"/></svg></button>
     </div>
     <div class="gruppe" id="dicken"></div>
     <div class="gruppe" id="farben"></div>
@@ -415,13 +433,17 @@ let stiftBreite = 7 * MASS, radierBreite = 36 * MASS;
 const FARBEN = [["#0f172a", "Schwarz"], ["#2563eb", "Blau"], ["#dc2626", "Rot"],
                 ["#16a34a", "Grün"], ["#ea580c", "Orange"], ["#9333ea", "Lila"]];
 let farbe = FARBEN[0][0];
-let modus = "stift";                            /* "stift" | "radierer" | "text" */
+let modus = "stift";                            /* "stift" | "radierer" | "text" | "schutz" */
 
 function waehleWerkzeug(m){
   modus = m;
   $("stift").setAttribute("aria-pressed", String(modus === "stift"));
   $("radierer").setAttribute("aria-pressed", String(modus === "radierer"));
   $("textknopf").setAttribute("aria-pressed", String(modus === "text"));
+  $("schutzknopf").setAttribute("aria-pressed", String(modus === "schutz"));
+  if (modus === "schutz")
+    zeigeHinweis("<b>Umrande</b>, was nur deine Lehrkraft sehen soll – sie sieht auch, "
+                 + "von wem es kommt. Fläche antippen: Schutz weg.");
   /* Die Farbe gilt fuer Stift und Text; beim Radieren ist keine gewaehlt. */
   [...$("farben").querySelectorAll("button")].forEach(b =>
     b.setAttribute("aria-pressed", String(modus !== "radierer" && b.dataset.farbe === farbe)));
@@ -477,6 +499,13 @@ $("farben").append(spektrum);
 $("stift").onclick = () => waehleWerkzeug("stift");
 $("radierer").onclick = () => waehleWerkzeug("radierer");
 $("textknopf").onclick = () => waehleWerkzeug("text");
+$("schutzknopf").onclick = () => { textFertig(); waehleWerkzeug("schutz"); };
+$("dringend").onclick = () => {
+  dringend = !dringend;
+  schutzKnoepfe();
+  zeigeHinweis(dringend ? "Als <b>dringend</b> markiert. Deine Lehrkraft bekommt sofort Bescheid."
+                        : "Nicht mehr dringend.");
+};
 waehleWerkzeug("stift");
 
 /* --- Text -------------------------------------------------------------
@@ -656,6 +685,8 @@ function feldLeeren(){
   leerBild = true;
   verlauf = []; wiederholbar = [];
   verlaufKnoepfe();
+  schutzFlaechen = []; schutzZug = null; dringend = false;
+  schutzMalen(); schutzKnoepfe();
 }
 /* „Alles loeschen" ist ein Schritt wie jeder andere - aus Versehen
    getippt, holt Zurueck das Bild wieder. */
@@ -672,6 +703,126 @@ function punkt(e){
   const r = feld.getBoundingClientRect();
   return [(e.clientX - r.left) * feld.width / r.width,
           (e.clientY - r.top) * feld.height / r.height];
+}
+
+/* --- Schutzstift (05.11.2026) ------------------------------------------
+   Wunsch der Klassen: Was ich nur der Lehrkraft sagen will, umrande ich.
+   Die Flaeche ist hier schraffiert und bleibt lesbar. Beim Abschicken
+   entstehen ZWEI Bilder (bildDaten):
+     daten   die umrandeten Flaechen dunkel gefuellt - nur dieses Bild kann
+             je an die Wand; eine aeltere Wand zeigt also auch nur Dunkel
+     privat  das ungeschwaerzte Bild mit den Umrandungen, fuer die Lehrkraft
+   Nur in namentlichen Runden (das Werkzeug erscheint sonst gar nicht), und
+   das ID-Kaestchen geht in beiden mit: Eine private Mitteilung ist nie
+   anonym. Der Dienst nimmt „privat" ausserhalb namentlicher Runden nicht an.
+   Hoechstens fuenf Flaechen. Antippen einer Flaeche nimmt sie weg. */
+const schutzlage = $("schutzlage");
+const sctx = schutzlage.getContext("2d");
+const MAX_FLAECHEN = 5;
+let schutzFlaechen = [], schutzZug = null, schutzZeiger = null, dringend = false;
+
+const schraffur = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 24;
+  const x = c.getContext("2d");
+  x.strokeStyle = "rgba(79,70,229,.45)"; x.lineWidth = 3;
+  x.beginPath(); x.moveTo(-6, 30); x.lineTo(30, -6); x.moveTo(-6, 6); x.lineTo(6, -6);
+  x.moveTo(18, 30); x.lineTo(30, 18); x.stroke();
+  return sctx.createPattern(c, "repeat");
+})();
+function flaechenPfad(x, pts, f){
+  x.beginPath();
+  pts.forEach((p, i) => i ? x.lineTo(p[0] * f, p[1] * f) : x.moveTo(p[0] * f, p[1] * f));
+  x.closePath();
+}
+function mitte(pts){
+  let sx = 0, sy = 0; pts.forEach(p => { sx += p[0]; sy += p[1]; });
+  return [sx / pts.length, sy / pts.length];
+}
+function schutzMalen(){
+  sctx.clearRect(0, 0, schutzlage.width, schutzlage.height);
+  sctx.save();
+  sctx.lineJoin = sctx.lineCap = "round";
+  for (const pts of schutzFlaechen){
+    flaechenPfad(sctx, pts, 1);
+    sctx.fillStyle = "rgba(238,242,255,.35)"; sctx.fill();
+    sctx.fillStyle = schraffur; sctx.fill();
+    sctx.setLineDash([18, 12]); sctx.lineWidth = 6; sctx.strokeStyle = "#4f46e5"; sctx.stroke();
+    const m = mitte(pts);
+    sctx.setLineDash([]);
+    sctx.font = "700 44px sans-serif"; sctx.textAlign = "center"; sctx.textBaseline = "middle";
+    sctx.fillText("🔒", m[0], m[1]);
+  }
+  if (schutzZug && schutzZug.length > 1){
+    sctx.beginPath();
+    schutzZug.forEach((p, i) => i ? sctx.lineTo(p[0], p[1]) : sctx.moveTo(p[0], p[1]));
+    sctx.setLineDash([18, 12]); sctx.lineWidth = 6; sctx.strokeStyle = "#4f46e5"; sctx.stroke();
+  }
+  sctx.restore();
+}
+function schutzKnoepfe(){
+  if (!schutzFlaechen.length) dringend = false;
+  $("dringend").hidden = !schutzFlaechen.length;
+  $("dringend").setAttribute("aria-pressed", String(dringend));
+}
+function drinnen(p, pts){
+  let rein = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++){
+    const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) rein = !rein;
+  }
+  return rein;
+}
+function schutzStart(e){
+  if (schutzZeiger !== null) return;
+  schutzZeiger = e.pointerId;
+  try { feld.setPointerCapture(e.pointerId); } catch (_){}
+  schutzZug = [punkt(e)];
+}
+function schutzWeiter(e){
+  if (e.pointerId !== schutzZeiger) return;
+  const liste = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+  for (const z of (liste.length ? liste : [e])) schutzZug.push(punkt(z));
+  schutzMalen();
+}
+function schutzEnde(e){
+  if (e.pointerId !== schutzZeiger) return;
+  schutzZeiger = null;
+  const pts = schutzZug || []; schutzZug = null;
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const breit = Math.max(...xs) - Math.min(...xs), hoch = Math.max(...ys) - Math.min(...ys);
+  if (pts.length < 6 || (breit < 40 && hoch < 40)){
+    /* Antippen: die Flaeche darunter wieder freigeben. */
+    const i = schutzFlaechen.findIndex(f => drinnen(pts[0], f));
+    if (i >= 0){ schutzFlaechen.splice(i, 1); zeigeHinweis("Schutz entfernt."); }
+  } else if (schutzFlaechen.length >= MAX_FLAECHEN){
+    zeigeHinweis("Höchstens " + MAX_FLAECHEN + " geschützte Flächen.", "fehler");
+  } else {
+    /* Jeden dritten Punkt behalten - der Umriss bleibt glatt, die Liste klein. */
+    schutzFlaechen.push(pts.filter((_, i) => i % 3 === 0 || i === pts.length - 1));
+    zeigeHinweis("Geschützt. Nur deine Lehrkraft sieht das – <b>mit deiner ID</b>.");
+  }
+  schutzMalen(); schutzKnoepfe();
+}
+/* Beim Abschicken: Flaechen hellgrau und deckend fuellen - dasselbe Grau
+   wie das ID-Kaestchen (Michael, 05.11.2026: dunkel war zu kontraststark).
+   Deckend heisst: nichts darunter scheint durch. Der Strich rundum ist mit
+   dabei - was genau auf der Umrandung stand, ist auch weg. */
+function schwaerze(x, f){
+  x.save();
+  x.lineJoin = x.lineCap = "round";
+  x.fillStyle = x.strokeStyle = "#d1d5db"; x.lineWidth = 14 * f;
+  for (const pts of schutzFlaechen){ flaechenPfad(x, pts, f); x.fill(); x.stroke(); }
+  x.fillStyle = "#fff"; x.font = "700 " + Math.round(40 * f) + "px sans-serif";
+  x.textAlign = "center"; x.textBaseline = "middle";
+  for (const pts of schutzFlaechen){ const m = mitte(pts); x.fillText("🔒", m[0] * f, m[1] * f); }
+  x.restore();
+}
+function umrande(x, f){
+  x.save();
+  x.lineJoin = x.lineCap = "round";
+  x.setLineDash([16 * f, 10 * f]); x.lineWidth = 5 * f; x.strokeStyle = "#d97706";
+  for (const pts of schutzFlaechen){ flaechenPfad(x, pts, f); x.stroke(); }
+  x.restore();
 }
 
 /* --- Der Strich -------------------------------------------------------
@@ -713,6 +864,11 @@ feld.addEventListener("pointerdown", e => {
   e.preventDefault();
   if (!stand.offen) return;
   if (modus === "text"){ if (aktiv === null) textAn(punkt(e)); return; }
+  if (modus === "schutz"){
+    if (e.pointerType === "touch" && Date.now() - stiftZuletzt < 2000) return;   /* Handballen */
+    if (aktiv === null) schutzStart(e);
+    return;
+  }
   const stift = e.pointerType === "pen";
   if (stift) stiftZuletzt = Date.now();
   else if (e.pointerType === "touch" && Date.now() - stiftZuletzt < 2000) return;
@@ -735,6 +891,7 @@ feld.addEventListener("pointerdown", e => {
   zeigeRing(e);
 });
 feld.addEventListener("pointermove", e => {
+  if (e.pointerId === schutzZeiger){ schutzWeiter(e); return; }
   if (e.pointerId !== aktiv) return;
   if (aktivArt === "pen") stiftZuletzt = Date.now();
   const liste = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
@@ -742,6 +899,7 @@ feld.addEventListener("pointermove", e => {
   zeigeRing(e);
 });
 const malEnde = e => {
+  if (e.pointerId === schutzZeiger){ schutzEnde(e); return; }
   if (e.pointerId !== aktiv) return;
   ctx.beginPath(); ctx.moveTo(m0[0], m0[1]); ctx.lineTo(p0[0], p0[1]); ctx.stroke();
   if (aktivArt === "pen") stiftZuletzt = Date.now();
@@ -797,8 +955,15 @@ function setzeNamentlich(an){
   if (an === namentlich) return;
   namentlich = an;
   $("feldinnen").classList.toggle("namentlich", an);
-  if (an) zeigeHinweis("Schreib deine <b>Schüler-ID</b> in das graue Kästchen oben links.");
+  /* Den Schutzstift gibt es nur hier. Schon Umrandetes bleibt stehen und
+     wird beim Abschicken auch ohne „namentlich" geschwaerzt - es geht
+     dann nur nicht an die Lehrkraft (siehe senden). */
+  $("schutzgruppe").hidden = !an;
+  if (!an && modus === "schutz") waehleWerkzeug("stift");
+  if (an) zeigeHinweis(NAMEN_HINWEIS);
 }
+const NAMEN_HINWEIS = "Schreib deine <b>Schüler-ID</b> in das graue Kästchen oben links. "
+                    + "Mit dem <b>Schloss</b> umrandest du, was nur deine Lehrkraft sehen soll.";
 function idKaestchen(x, s){
   const k = ID_KANTE * s, r = ID_RAND * s;
   x.save();
@@ -815,7 +980,11 @@ function idKaestchen(x, s){
 
 /* Verkleinert auf 640 x 480. Passt ein sehr buntes Bild dann noch nicht
    unter die Grenze des Dienstes (160 000 Zeichen), wird es kleiner. */
+/* Liefert { daten, privat }: daten ist das Bild fuer die Wand (geschuetzte
+   Flaechen dunkel), privat das ungeschwaerzte fuer die Lehrkraft - nur in
+   namentlichen Runden, sonst null. Beide muessen unter die Grenze passen. */
 function bildDaten(){
+  const mitSchutz = schutzFlaechen.length > 0;
   for (const b of [640, 560, 480]){
     const c = document.createElement("canvas");
     c.width = b; c.height = b * 3 / 4;
@@ -823,8 +992,18 @@ function bildDaten(){
     x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
     x.drawImage(feld, 0, 0, c.width, c.height);
     if (namentlich) idKaestchen(x, b / 640);
+    let privat = null;
+    if (mitSchutz && namentlich){
+      const pc = document.createElement("canvas");
+      pc.width = c.width; pc.height = c.height;
+      const px = pc.getContext("2d");
+      px.drawImage(c, 0, 0);
+      umrande(px, b / feld.width);
+      privat = pc.toDataURL("image/png");
+    }
+    if (mitSchutz) schwaerze(x, b / feld.width);
     const d = c.toDataURL("image/png");
-    if (d.length <= 158000) return d;
+    if (d.length <= 158000 && (!privat || privat.length <= 158000)) return { daten: d, privat };
   }
   return null;
 }
@@ -833,23 +1012,33 @@ $("senden").onclick = async () => {
   if (!stand.offen){ zeigeHinweis("Der Auftrag ist <b>geschlossen</b>.", "fehler"); return; }
   textFertig();                                 /* offener Text geht mit */
   if (leerBild){ zeigeHinweis("Da ist noch nichts gezeichnet."); return; }
-  const daten = bildDaten();
-  if (!daten){ zeigeHinweis("Das Bild ist zu voll zum Senden. Radiere etwas weg.", "fehler"); return; }
+  const bild = bildDaten();
+  if (!bild){ zeigeHinweis("Das Bild ist zu voll zum Senden. Radiere etwas weg.", "fehler"); return; }
+  const geschwaerztOhnePrivat = schutzFlaechen.length > 0 && !bild.privat;
   $("senden").disabled = true;
   try {
+    const koerper = { geraet: GERAET, daten: bild.daten, schluessel: stand.schluessel };
+    if (bild.privat){ koerper.privat = bild.privat; koerper.dringend = dringend; }
     const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/bild", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ geraet: GERAET, daten,
-                             schluessel: stand.schluessel }),
+      body: JSON.stringify(koerper),
     });
     const d = await a.json();
     if (d.ok){
       meinBildDa = true;
-      zeigeHinweis("Dein Bild ist <b>angekommen</b>. Du kannst es ersetzen, "
-                   + "solange der Auftrag offen ist.");
+      zeigeHinweis(d.privat
+        ? "Dein Bild ist <b>angekommen</b>. Der umrandete Teil geht nur an deine Lehrkraft – "
+          + "mit deiner ID" + (dringend ? ", als <b>dringend</b>." : ".")
+        : geschwaerztOhnePrivat
+        ? "Dein Bild ist angekommen. Der umrandete Teil ist <b>abgedeckt</b> und wurde nicht "
+          + "verschickt – private Mitteilungen gehen nur in namentlichen Runden."
+        : "Dein Bild ist <b>angekommen</b>. Du kannst es ersetzen, "
+          + "solange der Auftrag offen ist.");
     } else {
       zeigeHinweis(d.grund === "voll" ? "Die Wand ist voll — 32 Bilder sind schon da."
                  : d.grund === "zu"   ? "Der Auftrag ist <b>geschlossen</b>."
+                 : d.grund === "nicht namentlich"
+                   ? "Private Mitteilungen gehen nur in <b>namentlichen</b> Runden. Nichts wurde gesendet."
                  : "Das kam nicht an. Gleich noch einmal versuchen.", "fehler");
     }
   } catch (e){
@@ -870,6 +1059,7 @@ function zeichnenStand(d){
     ? d.eingereicht + (d.eingereicht === 1 ? " Bild da" : " Bilder da") : "";
   $("loeschen").disabled = !d.offen;
   $("stift").disabled = $("radierer").disabled = $("textknopf").disabled = !d.offen;
+  $("schutzknopf").disabled = $("dringend").disabled = !d.offen;
   if (!d.offen) textAbbrechen();
   [...$("farben").querySelectorAll("button"), ...$("dicken").children].forEach(b => { b.disabled = !d.offen; });
   spektrumWahl.disabled = !d.offen;
@@ -880,7 +1070,7 @@ function zeichnenStand(d){
   else if (!d.offen) zeigeHinweis(d.meins ? "Der Auftrag ist geschlossen. Dein Bild ist da."
                                           : "Der Auftrag ist <b>geschlossen</b>.");
   else if (!meinBildDa && $("hinweis").hidden)
-    zeigeHinweis(namentlich ? "Schreib deine <b>Schüler-ID</b> in das graue Kästchen oben links."
+    zeigeHinweis(namentlich ? NAMEN_HINWEIS
                             : "Zeichne, dann mit dem <b>Papierflieger</b> abschicken.");
 }
 
