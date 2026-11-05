@@ -26,6 +26,15 @@ Seite, die sich an Kinder richtet, auch nicht in Frage.
 | `check-ende` | Arbeits-Check beendet |
 | `eltern` | Seite „Für Eltern und Lehrkräfte“ geöffnet |
 
+### Knobelsprünge 10 (`knobeln10`, seit 05.11.2026)
+
+`public/knobeln-10/` (Vertretung 10A/10B) hat eine eigene Stationsliste:
+`besuch-neu`, `besuch-wieder`, `anmeldung:zahl` (mit Tafelzahl, also im Raum)
+bzw. `anmeldung:ohne`, `aufgabe:<nr>` (a1 … c8, k1 … k6, t1 … t3, je Aufruf
+einmal), `tipp`, `tueftel:<nr>` (gelöst), `ergebnis`, `gespeichert`.
+Auswertung mit `?t=knobeln10`. Wer die Lehrer-Ansicht aufschließt, zählt auf
+diesem Gerät danach nicht mehr.
+
 Gezählt werden **Ereignisse, nicht Geräte**: Wer die Seite dreimal öffnet,
 zählt dreimal. Das ist der Preis dafür, niemanden wiederzuerkennen.
 
