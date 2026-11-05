@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Einheiten mitdenken · Mathematik 11a · Lernpfad</title>
+<!--
+  ============================================================================
+  VORLAGE: Lernpfad-Doppelstunde (eine HTML-Datei, offline)
+  ============================================================================
+  Gebaut mit Stundenregie/bau-11a/lernpfad_sachkontexte.py (11a, S15, Fr 06.11.2026). Phasen als
+  <section class="phase" data-titel="..." data-min="..."> ; Reihenfolge im
+  Dokument = Reihenfolge der Stunde; letzte Section ist immer das Lehrerblatt.
+
+  Konventionen, an denen die Mechanik hängt:
+  * Auswertbare Felder: id="..." UND data-label="Klartext" (keine Feldliste).
+  * Messtabellen: <table class="messtabelle" id data-label>, Zeile 2 = <input>.
+  * Musterlösungen: <details class="gesperrt" data-fuer="id1,id2" data-min="40">
+    (Zeichnungen als "zeichnung:zid").
+  * Zeichenfelder: <div class="zeichenfeld" data-zid data-titel data-label data-hoehe>.
+  * Multiple Choice: <div class="mc" id data-label> + mc(...) im Skript + .rueck.
+  WEGE (neu):
+  * Diagnose: sechs Fragen in der Konstante DIAGNOSE (3 x "voraus", 3 x "kern").
+    Vorschlag: höchstens 1 von 3 "voraus" richtig -> auffrischen;
+    sonst alle 3 "kern" richtig -> vertiefen;
+    sonst standard. Schüler dürfen abweichen; beides wird protokolliert.
+  * Wegabhängige Blöcke: data-pfad="auffrischen" | "standard" | "vertiefen"
+    oder Kommaliste ("standard,vertiefen"). Ohne data-pfad = für alle.
+    Eine ID darf nur EINMAL vorkommen – geteilte Teile mit Kommaliste markieren,
+    nicht kopieren.
+  * Gestufte Hilfen: <div class="hilfen" id="h-xyz" data-feld="t-xyz">
+    <details class="hilfe"><summary>Hilfe 1 · …</summary>…</details> …</div>
+    Stufe k öffnet sich erst nach Stufe k-1; jedes Öffnen wird mit dem
+    Feldstand protokolliert. Hilfen sind KEINE Musterlösung.
+  KEINE externen Skripte, KEINE Bibliotheken, KEIN localStorage ohne try/catch.
+  ============================================================================
+-->
+<style>
+
+:root{
+  --blau:#0b5aa0; --blau-hell:#e8f1f9; --blau-mittel:#8fbde0;
+  --rot:#c62828; --gruen:#2e7d32; --orange:#ef6c00;
+  --grau:#f4f6f8; --linie:#d3dae0; --text:#1a2229;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text); background:#fff; line-height:1.55; font-size:17px;
+}
+header{
+  position:sticky; top:0; z-index:50; background:#fff;
+  border-bottom:2px solid var(--blau); padding:.5rem .9rem;
+}
+.kopf{display:flex; align-items:center; gap:.8rem; flex-wrap:wrap}
+.kopf h1{font-size:1.05rem; margin:0; color:var(--blau); flex:1 1 auto}
+.kopf h1 span{color:#607080; font-weight:400}
+.knopf{
+  font:inherit; font-size:.9rem; padding:.35rem .8rem; border-radius:999px;
+  border:1.5px solid var(--blau); background:#fff; color:var(--blau); cursor:pointer;
+}
+.knopf:hover{background:var(--blau-hell)}
+.knopf.voll{background:var(--blau); color:#fff}
+.knopf.voll:hover{background:#094a85}
+.knopf.klein{font-size:.82rem; padding:.25rem .6rem}
+.uhr{font-variant-numeric:tabular-nums; font-weight:700; font-size:1.1rem; min-width:4.2rem; text-align:center}
+.uhr.knapp{color:var(--rot)}
+.balken{height:5px; background:var(--linie); border-radius:3px; margin-top:.45rem; overflow:hidden}
+.balken>div{height:100%; background:var(--blau); width:0%; transition:width .3s}
+.pillen{display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.45rem}
+.pille{
+  font-size:.74rem; padding:.15rem .5rem; border-radius:999px;
+  background:var(--grau); border:1px solid var(--linie); cursor:pointer; white-space:nowrap;
+}
+.pille.aktiv{background:var(--blau); color:#fff; border-color:var(--blau)}
+.pille.fertig{background:#e6f4ea; border-color:#a8d5b5}
+main{max-width:1000px; margin:0 auto; padding:1.1rem .9rem 6rem}
+section.phase{display:none}
+section.phase.aktiv{display:block}
+h2{font-size:1.5rem; color:var(--blau); margin:.2rem 0 .3rem}
+h3{font-size:1.12rem; margin:1.4rem 0 .4rem}
+.zeitnote{font-size:.85rem; color:#607080; margin:0 0 1rem}
+.karte{background:var(--grau); border:1px solid var(--linie); border-radius:12px; padding:.9rem 1.1rem; margin:1rem 0}
+.karte.blau{background:var(--blau-hell); border-color:var(--blau-mittel)}
+.karte.merk{background:#fff8e1; border-color:#ffd54f}
+.karte.warn{background:#fff3e0; border-color:#ffb74d}
+.karte h4{margin:.1rem 0 .5rem; font-size:1rem; text-transform:uppercase; letter-spacing:.04em; color:var(--blau)}
+.karte.merk h4{color:#8d6e00}
+ol,ul{padding-left:1.3rem}
+li{margin:.3rem 0}
+.zwei{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+@media (max-width:780px){.zwei{grid-template-columns:1fr}}
+canvas{max-width:100%; border-radius:8px; background:#fff; border:1px solid var(--linie); display:block}
+label.reg{display:block; font-size:.9rem; font-weight:600; margin:.7rem 0 .1rem}
+input[type=range]{width:100%; accent-color:var(--blau)}
+.anzeige{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:#101418; color:#7dff9b;
+  padding:.5rem .8rem; border-radius:8px; font-size:1.25rem; display:inline-block; min-width:9rem; text-align:right;
+  border:3px solid #2b3238;
+}
+.anzeige small{color:#9fb; font-size:.7em}
+.werte{display:flex; gap:.9rem; flex-wrap:wrap; align-items:center; margin:.6rem 0}
+.tag{background:#fff; border:1px solid var(--linie); border-radius:8px; padding:.35rem .7rem; font-size:.9rem}
+.tag b{color:var(--blau)}
+table{border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.95rem}
+th,td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+th{background:var(--blau-hell)}
+td input{width:100%; border:none; font:inherit; text-align:center; background:#fffde7; padding:.25rem}
+td input:focus{outline:2px solid var(--blau)}
+td.ok{background:#e6f4ea}
+td.ok input{background:#e6f4ea}
+td.fast{background:#fff8e1}
+td.fast input{background:#fff8e1}
+textarea{width:100%; font:inherit; padding:.5rem; border:1px solid var(--linie); border-radius:8px; min-height:4.5rem; background:#fffde7}
+.mc{margin:.5rem 0}
+.mc button{
+  display:block; width:100%; text-align:left; font:inherit; margin:.3rem 0; padding:.5rem .8rem;
+  border:1.5px solid var(--linie); border-radius:9px; background:#fff; cursor:pointer;
+}
+.mc button:hover{border-color:var(--blau)}
+.mc button.richtig{background:#e6f4ea; border-color:var(--gruen)}
+.mc button.falsch{background:#fdecea; border-color:var(--rot)}
+.rueck{font-size:.92rem; margin:.35rem 0 0; padding:.5rem .7rem; border-radius:8px; display:none}
+.rueck.zeig{display:block}
+.rueck.gut{background:#e6f4ea; border-left:4px solid var(--gruen)}
+.rueck.schlecht{background:#fdecea; border-left:4px solid var(--rot)}
+details{border:1px solid var(--linie); border-radius:9px; padding:.5rem .8rem; margin:.6rem 0; background:#fff}
+details[open]{background:#fbfcfd}
+summary{cursor:pointer; font-weight:600; color:var(--blau)}
+.videobox{position:relative; padding-top:56.25%; background:#000; border-radius:10px; overflow:hidden}
+.videobox iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.videohinweis{font-size:.85rem; color:#607080; margin:.3rem 0 0}
+.nav{
+  position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--linie);
+  padding:.55rem .9rem; display:flex; gap:.6rem; justify-content:space-between; align-items:center; z-index:60;
+}
+.nav .mitte{font-size:.85rem; color:#607080}
+.aufgabe{border-left:4px solid var(--blau); padding:.1rem 0 .1rem .8rem; margin:1.2rem 0}
+.aufgabe .nr{
+  display:inline-block; background:var(--blau); color:#fff; font-weight:700; font-size:.8rem;
+  padding:.1rem .5rem; border-radius:5px; margin-right:.4rem;
+}
+.stern{color:var(--orange); font-size:.85rem}
+.quizfrage{border:1px solid var(--linie); border-radius:10px; padding:.7rem .9rem; margin:.8rem 0}
+.punkte{font-size:1.3rem; font-weight:700; color:var(--blau)}
+.lehrer{display:none; background:#f3e5f5; border:1px solid #ce93d8; border-radius:10px; padding:.7rem .9rem; margin:.8rem 0; font-size:.93rem}
+body.lehrermodus .lehrer{display:block}
+.lehrer h4{color:#6a1b9a; margin:.1rem 0 .4rem; font-size:.95rem; text-transform:uppercase; letter-spacing:.04em}
+.fertigmarke{color:var(--gruen); font-weight:700}
+svg.schaltung{background:#fff; border:1px solid var(--linie); border-radius:8px; max-width:100%; height:auto}
+details.gesperrt{background:#f7f7f8; border-style:dashed}
+details.gesperrt>summary{color:#8a949e; cursor:not-allowed}
+details.frei>summary{color:var(--gruen)}
+.schloss{font-size:.85rem; color:#8a949e; font-weight:400}
+.zeichenfeld{border:1px solid var(--linie); border-radius:10px; padding:.5rem; background:#fff; margin:.6rem 0}
+.zeichenfeld canvas{width:100%; height:auto; background:#fff; border:1px dashed #c3ccd4; border-radius:6px; touch-action:none; cursor:crosshair; display:block}
+.zwerkzeug{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
+.zwerkzeug .knopf{padding:.28rem .7rem; font-size:.85rem}
+.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff}
+.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem}
+.zstatus{font-size:.82rem; color:#607080}
+#protokollChip{font-size:.8rem; padding:.2rem .55rem; background:#e6f4ea; border:1px solid #a8d5b5; border-radius:999px; white-space:nowrap}
+#protokollChip.warn{background:#fff3e0; border-color:#ffb74d}
+.bild{background:#fff; border:1px solid var(--linie); border-radius:12px; padding:.6rem .9rem 0; margin:1rem 0; text-align:center}
+.bild svg{width:100%; max-width:520px; height:auto; display:block; margin:0 auto}
+.bildtext{font-size:.9rem; color:#4a5560; text-align:left; margin:.2rem 0 .8rem; line-height:1.45}
+.wegchip{font-size:.8rem; padding:.2rem .55rem; background:var(--blau-hell); border:1px solid var(--blau-mittel); border-radius:999px; white-space:nowrap; cursor:pointer}
+.wegknoepfe{display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin:.6rem 0}
+@media (max-width:780px){.wegknoepfe{grid-template-columns:1fr}}
+.wegknopf{font:inherit; text-align:left; padding:.7rem .8rem; border:2px solid var(--linie); border-radius:12px; background:#fff; cursor:pointer}
+.wegknopf b{display:block; color:var(--blau); font-size:1.05rem}
+.wegknopf span{display:block; font-size:.88rem; color:#4a5560; margin-top:.2rem}
+.wegknopf.empfohlen{border-color:#ffd54f; background:#fffbea}
+.wegknopf.empfohlen b::after{content:"  · empfohlen"; color:#8d6e00; font-size:.8rem; font-weight:600}
+.wegknopf.gewaehlt{border-color:var(--blau); background:var(--blau-hell); box-shadow:0 0 0 2px var(--blau) inset}
+.mc.fest button{cursor:default}
+body[data-weg="auffrischen"] .weghinweis, body[data-weg="standard"] .weghinweis,
+body[data-weg="vertiefen"] .weghinweis{display:none}
+.hilfen{margin:.4rem 0}
+.hilfen details.hilfe{border-color:#ffe082; background:#fffdf3; margin:.35rem 0}
+.hilfen details.hilfe>summary{color:#8d6e00}
+.hilfen details.hilfe.zu{opacity:.55}
+.hilfen details.hilfe.zu>summary{cursor:not-allowed}
+.hilfenote{font-weight:400; font-size:.85rem; color:#8a949e}
+body.lehrermodus [data-pfad]{display:block !important; outline:2px dashed #ce93d8; outline-offset:4px; margin-top:1.6rem}
+body.lehrermodus [data-pfad]::before{content:"nur Weg: " attr(data-pfad); display:block; font-size:.75rem; font-weight:700; color:#6a1b9a; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem}
+body.lehrermodus .weghinweis{display:none}
+.videohalt{border:1px solid var(--linie); border-radius:12px; padding:.7rem .9rem; margin:1rem 0; background:#fff}
+.videohalt video{width:100%; max-height:62vh; border-radius:8px; background:#000; display:block}
+.videostatus{font-size:.88rem; color:#4a5560; margin:.4rem 0 .2rem}
+.videohalt .ersatz{display:none}
+.videohalt.ersatzmodus .ersatz{display:block}
+.haltfrage{display:none; border-left:4px solid #ffb74d; background:#fff8e1; border-radius:8px; padding:.5rem .8rem; margin:.6rem 0}
+.haltfrage.sichtbar{display:block}
+.haltfrage.erledigt{border-left-color:var(--gruen); background:#f3faf4}
+.haltkopf{margin:0 0 .2rem}
+.haltzeit{font-size:.8rem; color:#8a949e}
+.weiterknopf{margin-top:.4rem}
+.weiterknopf:disabled{opacity:.45; cursor:not-allowed}
+body.lehrermodus .haltfrage{display:block}
+body.lehrermodus .videohalt .ersatz{display:block; outline:2px dashed #ce93d8; outline-offset:4px}
+/* ---- Anmeldeschirm (aus den Selbstlernstunden übernommen) ---- */
+.anmeldeschirm{position:fixed; inset:0; z-index:900; background:#f4f6f8;
+  display:flex; align-items:center; justify-content:center; padding:1.2rem}
+.anmeldekarte{background:#fff; border:1px solid var(--linie); border-top:6px solid var(--blau);
+  border-radius:14px; padding:1.6rem 1.8rem; max-width:30rem; width:100%;
+  box-shadow:0 6px 28px rgba(20,32,42,.13)}
+.anmeldekarte h2{margin:0 0 .5rem}
+.anmeldekarte p{margin:.4rem 0}
+.anmeldezeile{display:flex; gap:.7rem; align-items:center; margin:1.1rem 0 .4rem; flex-wrap:wrap}
+#i-code{font:inherit; font-size:2.1rem; font-weight:700; letter-spacing:.35em;
+  width:7rem; text-align:center; padding:.45rem .1rem .45rem .5rem;
+  border:2px solid var(--blau-mittel); border-radius:10px; background:#fffde7;
+  font-variant-numeric:tabular-nums}
+#i-code:focus{outline:3px solid var(--blau); outline-offset:1px}
+.anmelde-rueck{font-size:.92rem; min-height:1.3rem; margin:.2rem 0 0}
+.anmelde-rueck.gut{color:var(--gruen); font-weight:600}
+.anmelde-rueck.schlecht{color:var(--rot); font-weight:600}
+.anmeldekarte .fuss{font-size:.85rem; color:#607080; margin-top:1.1rem;
+  border-top:1px solid var(--linie); padding-top:.7rem}
+/* hidden muss auch Elemente mit eigener display-Regel verbergen (z. B. .aufgabe .nr) */
+[hidden]{display:none !important}
+/* ---- Brüche, Funktionswahl, Einheitenwahl, kleine Tabellen ---- */
+.bruch{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; margin:0 .15em; line-height:1.25}
+.bruch>span:first-child{border-bottom:1.5px solid currentColor; padding:0 .25em}
+.bruch>span:last-child{padding:0 .25em}
+.funkwahl{display:flex; gap:.5rem; flex-wrap:wrap; margin:.6rem 0}
+.funkwahl .knopf.aktivw{background:var(--blau); color:#fff}
+select.einheitwahl{font:inherit; padding:.45rem .6rem; min-height:44px; border:1px solid var(--linie);
+  border-radius:8px; background:#fffde7; margin-left:.3rem}
+table.kleintab{width:auto; min-width:40%}
+table.messtabelle{display:block; overflow-x:auto}
+table.messtabelle input{min-width:3.6rem; width:4.2rem}
+.knopf{min-height:44px}
+.knopf.klein{min-height:36px}
+@media print{
+  .videohalt video,.videostatus,.weiterknopf{display:none !important}
+  .videohalt .ersatz,.haltfrage{display:block !important}
+  [data-pfad]{display:block !important; border-left:3px solid #ce93d8; padding-left:.5rem}
+  [data-pfad]::before{content:"nur Weg: " attr(data-pfad); display:block; font-size:.75rem; font-weight:700; color:#6a1b9a}
+  .weghinweis{display:none !important}
+  header,.nav,.pillen,.balken{display:none}
+  section.phase{display:block !important; page-break-after:always}
+  body{font-size:11pt}
+  .lehrer{display:block}
+}
+</style>
+</head>
+<body>
+
+<!-- Anmeldung: zweistellige Zahl von der Tafel (KW 45). Keine Sperre: „Ohne Zahl weiter“
+     legt das Skript selbst an. Der Zeitpunkt der Anmeldung ist der Anwesenheitsnachweis. -->
+<div class="anmeldeschirm" id="anmeldeschirm">
+  <div class="anmeldekarte">
+    <h2>Anmeldung zur Stunde</h2>
+    <p>An der Tafel steht eine <b>zweistellige Zahl</b>. Tragt sie hier ein. Dann geht es los.</p>
+    <div class="anmeldezeile">
+      <input id="i-code" inputmode="numeric" pattern="[0-9]*" maxlength="2"
+             autocomplete="off" aria-label="Zweistellige Zahl von der Tafel">
+      <button class="knopf voll" id="k-anmelden">Anmelden</button>
+    </div>
+    <p class="anmelde-rueck" id="anmelde-rueck" role="status" aria-live="polite"></p>
+    <p style="margin:.9rem 0 0"><button class="knopf klein" id="k-lehrkraft"
+       style="background:transparent;border:1px dashed var(--linie);color:#5a6570">Lehrkraft: Zahl anzeigen</button></p>
+    <p class="fuss">Der Zeitpunkt eurer Anmeldung steht im Protokoll. So sieht Herr Glaubitz,
+    wer wann angefangen hat. Ihr könnt die Zahl nicht sehen? Dann fragt nach. Ratet nicht.</p>
+  </div>
+</div>
+
+<header>
+  <div class="kopf">
+    <h1>Einheiten mitdenken <span>· Mathematik · 11a</span></h1>
+    <div id="wegChip" class="wegchip" title="Weg ändern">Weg: –</div>
+    <div id="protokollChip">Protokoll: 0 Einträge</div>
+    <div class="uhr" id="uhr">--:--</div>
+    <button class="knopf klein" id="uhrKnopf">Pause</button>
+    <button class="knopf klein" id="lehrerKnopf">Lehrer-Ansicht</button>
+  </div>
+  <div class="balken"><div id="balken"></div></div>
+  <div class="pillen" id="pillen"></div>
+</header>
+
+<main>
+
+<!-- ================= PHASE 0: START ================= -->
+<section class="phase aktiv" data-titel="Start" data-min="2">
+  <h2>93 % Steigung – oder doch nicht?</h2>
+  <p class="zeitnote">Diese Doppelstunde führt sich selbst. Ihr arbeitet allein oder zu zweit an einem
+  Gerät. Unten rechts geht es weiter.</p>
+
+  <div class="bild">
+    <svg viewBox="0 0 520 240" role="img" aria-label="Zwei Steigungsdreiecke: 93 Prozent und 9,3 Prozent"><polygon points="40,206 240,206 240,20.0" fill="#ffebee" stroke="#c62828" stroke-width="2.5" stroke-dasharray="7 5" stroke-linejoin="round"/><polygon points="40,206 240,206 240,187.4" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2.5" stroke-linejoin="round"/><text x="150" y="150" font-size="24" font-weight="700" fill="#c62828">93 % ?</text><text x="96" y="182" font-size="20" font-weight="700" fill="#2e7d32">9,3 %</text><text x="248" y="113.0" font-size="15" fill="#c62828">93 m</text><text x="248" y="204" font-size="15" fill="#2e7d32">9,3 m</text><text x="140.0" y="228" font-size="15" text-anchor="middle" fill="#37474f">100 m waagerecht</text><rect x="318" y="22" width="190" height="196" rx="14" fill="#101418" stroke="#2b3238" stroke-width="3"/><text x="413" y="56" font-size="17" text-anchor="middle" fill="#b0bec5">Esterbergalm</text><text x="413" y="86" font-size="18" text-anchor="middle" fill="#e0f2f1">530 m hinauf</text><text x="413" y="112" font-size="18" text-anchor="middle" fill="#e0f2f1">auf 5,7 km</text><line x1="340" y1="128" x2="486" y2="128" stroke="#37474f" stroke-width="1.5"/><text x="413" y="160" font-size="22" font-weight="700" text-anchor="middle" fill="#fff59d">530 : 5,7 ≈ 93</text><text x="413" y="196" font-size="18" text-anchor="middle" fill="#b0bec5">93 was?</text></svg>
+    <p class="bildtext">Beide Dreiecke sind maßstäblich: 100 m waagerecht, einmal 93 m und einmal 9,3 m hoch.
+    <b>Die Frage dieser Doppelstunde:</b> Eine mittlere Änderungsrate ist eine Zahl
+    <i>mit Einheit</i>. Was bedeutet sie in einer Sachaufgabe – und wie rechnet man sie richtig um?</p>
+  </div>
+
+  <div class="karte blau"><h4>Wo wir stehen</h4>
+  <p><b>Gestern</b> (Do 05.11.) ging es um den <b>Differenzenquotienten</b>:
+  <span class="bruch"><span>f(b) − f(a)</span><span>b − a</span></span>, die mittlere Änderungsrate im Intervall [a; b]. Oben und unten gilt: <b>Ende minus Anfang</b>.
+  Geometrisch ist das die Steigung der Sekante.</p>
+  <p><b>Heute</b> rechnet ihr damit in Sachaufgaben aus dem Buch: Radtour, Mountainbike-Tour, Gewinn einer Firma.
+  Dabei zählt mehr als die Zahl: <b>die Einheit</b>, <b>das Vorzeichen</b> und <b>was die Zahl über die Sache sagt</b>.
+  Am 29.10. stand beim Teich bei 14 von 17 Antworten die Einheit schon da. Das Minus fehlte aber fast überall.</p></div>
+
+  <h3>Ihr könnt danach …</h3>
+  <ol>
+    <li>in Sachaufgaben die mittlere Änderungsrate <b>mit Einheit</b> angeben (km pro h, m pro km, € pro Monat)
+    und sie <b>umrechnen</b>, auch in Prozent;</li>
+    <li>am <b>Vorzeichen</b> ablesen, ob etwas zu- oder abnimmt (Gefälle, Verlust);</li>
+    <li>sagen, was eine mittlere Rate über ein langes Intervall <b>verschweigt</b>, und Rate und Bestand auseinanderhalten.</li>
+  </ol>
+
+  <div class="karte">
+    <h4>Spielregeln</h4>
+    <ul>
+      <li>Nach dem Einstieg kommt ein <b>kurzer Check</b> mit sechs Fragen. Danach schlägt euch die Seite
+      einen von drei <b>Wegen</b> vor: <i>Auffrischen</i>, <i>Standard</i> oder <i>Vertiefen</i>.
+      Ihr dürft auch einen anderen wählen. Alle Wege führen zum selben Ziel und zum selben Exit-Ticket.</li>
+      <li>Jede Phase hat eine Zeitangabe und eine eigene Uhr. Sie ist ein Vorschlag, kein Befehl.</li>
+      <li><b>Die Lösungen sind verschlossen</b> 🔒. Sie öffnen sich erst, wenn eure eigene Antwort
+      dasteht. Eine gelesene Lösung fühlt sich richtig an. Eine selbst gedachte sitzt.</li>
+      <li>Bei manchen Aufgaben gibt es <b>Hilfen in Stufen</b>. Nehmt sie ruhig, aber eine nach der
+      anderen. Oft reicht die erste.</li>
+      <li>Alles wird <b>mitprotokolliert</b>, auch welche Hilfen ihr geöffnet habt. Eine ehrliche falsche
+      Antwort ist besser als eine abgeschriebene richtige.</li>
+      <li>Alle Zahlen aus dem Buch (Neue Wege 11, S. 95–99) stehen hier. Das Buch hilft trotzdem: Dort seht ihr die Bilder.</li>
+      <li>Rechnet auf einem Zettel oder im Heft mit. Am Ende speichert ihr das Protokoll und schickt es an Herrn Glaubitz.</li>
+    </ul>
+  </div>
+
+  <div class="lehrer">
+    <h4>Für die Lehrkraft</h4>
+    <p><b>Die Zahl 45 groß an die Tafel</b> (Kalenderwoche). Sie ist die Anmeldung und damit der
+    Anwesenheitsnachweis; „Ohne Zahl weiter“ sperrt niemanden aus und wird als solches protokolliert.
+    Kennwort der Lehrer-Ansicht und für „Lehrkraft: Zahl anzeigen“: <code>sumdideldum</code>.</p>
+    <p>Keine Vorbereitung, kein Versuch, kein Ausdruck. Der Sachstand setzt voraus, dass der Lernpfad vom
+    Do 05.11. (differenzenquotient-11a-stunde.html) lief. Wer gestern fehlte oder nicht weit kam, landet über
+    Check-Frage 1 auf <i>Auffrischen</i>; dort steht der Differenzenquotient noch einmal mit Beispiel.</p>
+  </div>
+</section>
+
+<!-- ================= PHASE 1: EINSTIEG ================= -->
+<section class="phase" data-titel="Einstieg" data-min="5">
+  <h2>1 · Der Anstieg zur Esterbergalm</h2>
+  <p class="zeitnote">5 Minuten · zuerst raten, dann prüfen · Buch S. 95 Nr. 2</p>
+
+  <div class="bild"><svg viewBox="0 0 520 300" role="img" aria-label="Höhenprofil der Mountainbike-Tour"><line x1="50.0" y1="270.0" x2="50.0" y2="20.0" stroke="#e3e9ee"/><text x="50.0" y="287" font-size="12" text-anchor="middle">0</text><line x1="106.2" y1="270.0" x2="106.2" y2="20.0" stroke="#e3e9ee"/><text x="106.2" y="287" font-size="12" text-anchor="middle">5</text><line x1="162.5" y1="270.0" x2="162.5" y2="20.0" stroke="#e3e9ee"/><text x="162.5" y="287" font-size="12" text-anchor="middle">10</text><line x1="218.8" y1="270.0" x2="218.8" y2="20.0" stroke="#e3e9ee"/><text x="218.8" y="287" font-size="12" text-anchor="middle">15</text><line x1="275.0" y1="270.0" x2="275.0" y2="20.0" stroke="#e3e9ee"/><text x="275.0" y="287" font-size="12" text-anchor="middle">20</text><line x1="331.2" y1="270.0" x2="331.2" y2="20.0" stroke="#e3e9ee"/><text x="331.2" y="287" font-size="12" text-anchor="middle">25</text><line x1="387.5" y1="270.0" x2="387.5" y2="20.0" stroke="#e3e9ee"/><text x="387.5" y="287" font-size="12" text-anchor="middle">30</text><line x1="443.8" y1="270.0" x2="443.8" y2="20.0" stroke="#e3e9ee"/><text x="443.8" y="287" font-size="12" text-anchor="middle">35</text><line x1="500.0" y1="270.0" x2="500.0" y2="20.0" stroke="#e3e9ee"/><text x="500.0" y="287" font-size="12" text-anchor="middle">40</text><line x1="50.0" y1="270.0" x2="500.0" y2="270.0" stroke="#e3e9ee"/><line x1="50.0" y1="247.3" x2="500.0" y2="247.3" stroke="#e3e9ee"/><text x="44" y="251.3" font-size="12" text-anchor="end">600</text><line x1="50.0" y1="224.5" x2="500.0" y2="224.5" stroke="#e3e9ee"/><line x1="50.0" y1="201.8" x2="500.0" y2="201.8" stroke="#e3e9ee"/><text x="44" y="205.8" font-size="12" text-anchor="end">800</text><line x1="50.0" y1="179.1" x2="500.0" y2="179.1" stroke="#e3e9ee"/><line x1="50.0" y1="156.4" x2="500.0" y2="156.4" stroke="#e3e9ee"/><text x="44" y="160.4" font-size="12" text-anchor="end">1000</text><line x1="50.0" y1="133.6" x2="500.0" y2="133.6" stroke="#e3e9ee"/><line x1="50.0" y1="110.9" x2="500.0" y2="110.9" stroke="#e3e9ee"/><text x="44" y="114.9" font-size="12" text-anchor="end">1200</text><line x1="50.0" y1="88.2" x2="500.0" y2="88.2" stroke="#e3e9ee"/><line x1="50.0" y1="65.5" x2="500.0" y2="65.5" stroke="#e3e9ee"/><text x="44" y="69.5" font-size="12" text-anchor="end">1400</text><line x1="50.0" y1="42.7" x2="500.0" y2="42.7" stroke="#e3e9ee"/><line x1="50.0" y1="20.0" x2="500.0" y2="20.0" stroke="#e3e9ee"/><text x="44" y="24.0" font-size="12" text-anchor="end">1600</text><path d="M50.0,217.7 L59.7,202.5 L65.9,188.2 L74.2,160.9 L84.4,143.4 L95.8,103.6 L101.4,93.6 L114.1,97.7 L136.1,88.9 L150.6,103.6 L162.9,116.4 L174.3,136.6 L188.4,142.7 L212.4,111.6 L231.0,90.9 L237.2,71.8 L257.0,33.6 L269.6,90.9 L288.3,138.6 L306.5,174.5 L325.6,178.4 L348.1,181.4 L358.7,166.4 L372.9,172.3 L410.6,188.0 L433.4,179.5 L454.1,202.5 L466.5,220.0 L481.0,223.2 L486.5,217.7 L486.5,270.0 L50.0,270.0 Z" fill="#d7e8f7"/><path d="M50.0,217.7 L59.7,202.5 L65.9,188.2 L74.2,160.9 L84.4,143.4 L95.8,103.6 L101.4,93.6 L114.1,97.7 L136.1,88.9 L150.6,103.6 L162.9,116.4 L174.3,136.6 L188.4,142.7 L212.4,111.6 L231.0,90.9 L237.2,71.8 L257.0,33.6 L269.6,90.9 L288.3,138.6 L306.5,174.5 L325.6,178.4 L348.1,181.4 L358.7,166.4 L372.9,172.3 L410.6,188.0 L433.4,179.5 L454.1,202.5 L466.5,220.0 L481.0,223.2 L486.5,217.7" fill="none" stroke="#0b7fc4" stroke-width="2.5"/><line x1="50.0" y1="217.7" x2="114.1" y2="97.3" stroke="#8e24aa" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="50.0" cy="217.7" r="4" fill="#c62828"/><circle cx="114.1" cy="97.3" r="4" fill="#c62828"/><circle cx="188.4" cy="142.7" r="4" fill="#c62828"/><circle cx="257.0" cy="33.6" r="4" fill="#c62828"/><circle cx="306.5" cy="174.5" r="4" fill="#c62828"/><circle cx="348.1" cy="181.4" r="4" fill="#c62828"/><circle cx="372.9" cy="172.3" r="4" fill="#c62828"/><circle cx="486.5" cy="217.7" r="4" fill="#c62828"/><text x="54.0" y="208.7" font-size="11.5" fill="#37474f" text-anchor="start">Garmisch</text><text x="118.1" y="88.3" font-size="11.5" fill="#37474f" text-anchor="start">Esterbergalm</text><text x="192.4" y="159.7" font-size="11.5" fill="#37474f" text-anchor="start">Finzalm</text><text x="261.0" y="24.6" font-size="11.5" fill="#37474f" text-anchor="start">Wallgauer Alm</text><text x="302.5" y="191.5" font-size="11.5" fill="#37474f" text-anchor="end">Wasserfall</text><text x="352.1" y="198.4" font-size="11.5" fill="#37474f" text-anchor="start">Barmsee</text><text x="376.9" y="163.3" font-size="11.5" fill="#37474f" text-anchor="start">Geroldsee</text><line x1="50.0" y1="270.0" x2="506.0" y2="270.0" stroke="#1a2229" stroke-width="1.4"/><line x1="50.0" y1="270.0" x2="50.0" y2="12" stroke="#1a2229" stroke-width="1.4"/><text x="508" y="262" font-size="12" text-anchor="end">Strecke in km</text><text x="56" y="14" font-size="12">Höhe in m</text></svg>
+    <p class="bildtext">Das Höhenprofil einer Mountainbike-Tour bei Garmisch-Partenkirchen (nach Buch S. 95,
+    nachgezeichnet). Waagerecht: gefahrene Strecke in <b>km</b>. Senkrecht: Höhe in <b>m</b>.
+    Von Garmisch (0 km, 730 m) bis zur Esterbergalm (5,7 km, 1260 m) geht es 530 m hinauf.</p></div>
+
+  <p>In einem Radforum rechnet jemand: <b>530 : 5,7 ≈ 93</b>. Der Beitrag dazu: „Die Steigung bis zur Alm ist 93 %. Das ist ja fast eine Wand!“</p>
+
+  <h3>Eure Prognose</h3>
+  <p>Wie steil ist der Weg bis zur Esterbergalm im Durchschnitt wirklich?</p>
+  <div class="mc" id="mc-prognose" data-label="Prognose"></div>
+  <div class="rueck" id="rueck-prognose"></div>
+
+  <h3>Eure Vermutung</h3>
+  <p>Was wurde mit der Zahl 93 eigentlich ausgerechnet? Schreibt die Einheit dazu. Ein Satz genügt.</p>
+  <textarea id="t-vermutung" data-label="Vermutung zum Einstieg" placeholder="93 ist …, weil …"></textarea>
+
+  <div class="lehrer"><h4>Was der Einstieg aufdeckt</h4>
+  <p>530 : 5,7 ≈ 93 ist richtig gerechnet, aber die Einheit ist <b>m pro km</b>. Prozent verlangt Höhe und Strecke in
+  derselben Einheit: 530 m : 5700 m ≈ 0,093 = <b>9,3 %</b>. 93 % wären ein Winkel von fast 43°. Aufgelöst wird das im Kern
+  (Auftrag 2) und beim Merksatz. Nicht hier vorwegnehmen.</p></div>
+</section>
+
+<!-- ================= PHASE 2: CHECK ================= -->
+<section class="phase" data-titel="Check" data-min="7" id="phase-diagnose">
+  <h2>2 · Kurzer Check: Welcher Weg passt zu euch?</h2>
+  <p class="zeitnote">7 Minuten · sechs Fragen, ehrlich beantworten · es gibt keine Note</p>
+
+  <div class="karte blau"><h4>So funktioniert es</h4>
+  <p>Jede Frage hat <b>einen</b> Versuch. Ihr seht sofort, ob es stimmt. Danach schlägt euch die Seite
+  einen Weg vor. Raten lohnt sich nicht: Ein zu schwerer Weg kostet mehr Zeit, als er bringt.
+  Rechnet ruhig auf einem Zettel mit.</p></div>
+
+  <div id="diagnose"></div>
+  <p><button class="knopf voll" id="k-auswerten" disabled>Auswerten</button>
+     <span class="videohinweis" id="diag-stand">Noch 6 Fragen offen.</span></p>
+
+  <div id="wegwahl" style="display:none">
+    <div class="karte merk" id="weg-vorschlag"></div>
+    <div class="wegknoepfe">
+      <button class="wegknopf" data-weg="auffrischen"><b>Auffrischen</b><span>Zuerst der Differenzenquotient noch einmal, dann die Radtour mit einem vorgerechneten Beispiel und kleinen Schritten.</span></button>
+      <button class="wegknopf" data-weg="standard"><b>Standard</b><span>Direkt an die Radtour aus dem Buch (S. 97 Nr. 3): rechnen, zeichnen, deuten. Zwei Hilfen sind da.</span></button>
+      <button class="wegknopf" data-weg="vertiefen"><b>Vertiefen</b><span>Dieselbe Radtour ohne Hilfen, dazu: Was misst „Steigung in Prozent“ genau?</span></button>
+    </div>
+    <div class="rueck" id="rueck-weg"></div>
+  </div>
+
+  <div class="lehrer"><h4>Diagnose</h4>
+  <p>Fragen 1–3 prüfen das zwingende Vorwissen: den Differenzenquotienten mit Vorzeichen (Stoff vom 05.11., am 29.10.
+  fehlte das Minus bei 14 von 17), Dezimalstunden (2,5 h = 2 h 30 min, gebraucht bei der Radtour) und Dezimalzahl → Prozent.
+  Fragen 4–6 prüfen, ob der Kern schon fast sitzt: Einheiten umrechnen, Durchschnitt über verschieden lange Stücke,
+  Bestand gegen Änderung. Regel: höchstens 1 von 3 beim Vorwissen → <i>Auffrischen</i>; sonst alle 3 beim Kern →
+  <i>Vertiefen</i>; sonst <i>Standard</i>. Vorschlag und Wahl stehen beide im Protokoll.</p></div>
+</section>
+
+<!-- ================= PHASE 3: KERN ================= -->
+<section class="phase" data-titel="Kern" data-min="12">
+  <h2>3 · Dieselbe Rate, verschiedene Zahlen</h2>
+  <p class="zeitnote">12 Minuten · am Modell schieben, Einheiten wechseln, vergleichen</p>
+
+  <div class="karte warn" data-pfad="auffrischen">
+    <h4>Erst kurz auffrischen: der Differenzenquotient</h4>
+    <p>Ändert sich eine Größe y, während x von a nach b läuft, dann ist die <b>mittlere Änderungsrate</b>
+    <span class="bruch"><span>f(b) − f(a)</span><span>b − a</span></span>. Oben und unten gilt dieselbe Reihenfolge: <b>Ende minus Anfang</b>. Nimmt y ab, wird das Ergebnis negativ.
+    Die Einheit ist <b>Einheit von y pro Einheit von x</b>.</p>
+    <p><b>Beispiel:</b> Ein Stausee hat am Tag 3 einen Pegel von 412 cm, am Tag 7 von 380 cm:
+    <span class="bruch"><span>380 − 412</span><span>7 − 3</span></span> = <b>−8 cm pro Tag</b>. Das Minus heißt: Der Pegel sinkt.</p>
+    <p><b>Mini-Auftrag:</b> Eine Kerze ist nach 1 Stunde 18 cm lang, nach 5 Stunden 8 cm. Berechnet die mittlere
+    Änderungsrate der Länge. Schreibt den Bruch, das Vorzeichen und die Einheit hin.</p>
+    <textarea id="t-auffr" data-label="Auffrischen – Mini-Auftrag"></textarea>
+    <details class="gesperrt" data-fuer="t-auffr" data-min="10"><summary>Kontrolle</summary>
+      <p><span class="bruch"><span>8 − 18</span><span>5 − 1</span></span> = <span class="bruch"><span>−10</span><span>4</span></span> = <b>−2,5 cm pro Stunde</b>. Die Kerze wird kürzer, deshalb negativ.
+      Wer 2,5 hat, hat das Minus verloren. Wer −10 hat, hat nicht durch die 4 Stunden geteilt.</p></details>
+  </div>
+
+  <p>Wählt eine Situation. Mit den Reglern setzt ihr <b>a</b> und <b>b</b>. Mit den Auswahlfeldern ändert ihr die
+  <b>Einheiten</b>, in denen gerechnet wird. Das Bild bleibt gleich; nur die Zahlen ändern sich.
+  Die Werte sind ausgedacht (Modellwerte).</p>
+  <div class="funkwahl" id="funkwahl">
+    <button class="knopf" data-f="fahrt">Fahrt (Weg und Zeit)</button>
+    <button class="knopf" data-f="anstieg">Anstieg (Höhe und Strecke)</button>
+  </div>
+  <canvas id="c-modell" width="900" height="420"></canvas>
+  <div class="zwei">
+    <div><label class="reg">a = <span id="l-a">0</span></label>
+      <input type="range" id="r-a" min="0" max="6" value="1" step="1"></div>
+    <div><label class="reg">b = <span id="l-b">2</span></label>
+      <input type="range" id="r-b" min="0" max="6" value="2" step="1"></div>
+  </div>
+  <div class="zwei">
+    <div><label class="reg" for="s-xein">x rechnen in:</label> <select id="s-xein" class="einheitwahl"></select></div>
+    <div><label class="reg" for="s-yein">y rechnen in:</label> <select id="s-yein" class="einheitwahl"></select></div>
+  </div>
+  <div class="werte">
+    <div class="tag">Δx = b − a: <b id="a-dx">–</b></div>
+    <div class="tag">Δy = Ende − Anfang: <b id="a-dy">–</b></div>
+    <div class="tag">Δy / Δx: <b id="a-dq">–</b></div>
+  </div>
+
+  <div class="karte"><h4>Aufträge</h4>
+  <ol><li><b>Fahrt.</b> Stellt a = 10 min und b = 20 min. Schreibt die mittlere Geschwindigkeit in <b>drei</b> Einheiten auf:
+  km pro min, km pro h und m pro min. Welche der drei Zahlen ist „die richtige“?</li>
+  <li><b>Anstieg.</b> Stellt a = 2 km und b = 3 km. Rechnet x erst in km, dann in m. Welche Zahl hat etwas mit
+  Prozent zu tun? Erklärt damit die 93 % aus dem Radforum.</li></ol></div>
+
+  <label class="reg">Notiz zu Auftrag 1:</label>
+  <textarea id="t-k1" data-label="Kern – Auftrag 1 (Fahrt, drei Einheiten)"></textarea>
+  <label class="reg">Notiz zu Auftrag 2:</label>
+  <textarea id="t-k2" data-label="Kern – Auftrag 2 (Anstieg, Prozent)"></textarea>
+
+  <details class="gesperrt" data-fuer="t-k1,t-k2" data-min="30">
+    <summary>Kontrolle – erst nach eigenen Notizen öffnen</summary>
+    <p><b>1.</b> Δy = 3 km in Δx = 10 min: <b>0,3 km pro min = 18 km pro h = 300 m pro min</b> (und = 5 m pro s).
+    Alle drei sind richtig. Es ist dieselbe Geschwindigkeit. Die Zahl allein sagt nichts; erst mit Einheit ist sie eine Antwort.
+    Beim Umrechnen rechnet man Zähler und Nenner um: 0,3 km pro min · 60 = 18 km pro 60 min = 18 km pro h.</p>
+    <p><b>2.</b> In km: 120 m pro km. In m: <b>0,12 m pro m</b>. Erst wenn oben und unten dieselbe Einheit steht, kürzt
+    sie sich weg, und 0,12 = <b>12 %</b>. Im Forum wurde m pro km ausgerechnet: 530 m : 5,7 km ≈ 93 m pro km. In Prozent:
+    530 m : 5700 m ≈ 0,093 = <b>9,3 %</b>.</p>
+  </details>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">K3</span> <span class="stern">★</span> <b>Fahrt.</b> Rechnet die Rate über [0; 60] in km pro h. Dann die
+    Raten über [0; 20] und [20; 60]. Ist die Rate über die ganze Stunde der Mittelwert der beiden Teilraten? Und bei
+    [0; 30] und [30; 60]? Erklärt, warum es einmal klappt und einmal nicht.</p>
+    <textarea id="t-k3" data-label="Kern – Auftrag 3 (Vertiefen)"></textarea>
+    <details class="gesperrt" data-fuer="t-k3" data-min="40"><summary>Kontrolle K3</summary>
+      <p>[0; 60]: 18 km in 1 h = <b>18 km pro h</b>. [0; 20]: 7 km in 20 min = 21 km pro h; [20; 60]: 11 km in 40 min =
+      16,5 km pro h. Mittelwert (21 + 16,5) : 2 = 18,75 – <b>falsch</b>. [0; 30]: 14 km pro h, [30; 60]: 22 km pro h,
+      Mittelwert 18 – <b>passt</b>.</p>
+      <p>Grund: Jede Teilrate zählt so viel, wie ihr Zeitstück lang ist. (21 · 20 + 16,5 · 40) : 60 = 18. Nur wenn alle
+      Stücke gleich lang sind, ist das gewöhnliche Mittel richtig. Bei der Radtour aus dem Buch sind die Etappen verschieden lang.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Zum Modell</h4>
+  <p>Zwei ausgedachte Wertereihen: Fahrt (0 · 4 · 7 · 7 · 12 · 16 · 18 km nach 0 … 60 min) und Anstieg (400 · 450 · 540 · 660 ·
+  700 · 690 m nach 0 … 5 km). Zwischen den Werten ist geradlinig verbunden. Die Einheitenwahl ändert nur die Rechnung, nicht
+  das Bild. Achten Sie bei Auftrag 1 darauf, ob jemand „0,3 km/h“ schreibt (Einheit aus dem Bild statt aus der Rechnung),
+  bei Auftrag 2 auf „120 %“.</p></div>
+</section>
+
+<!-- ================= PHASE 4: EUER WEG ================= -->
+<section class="phase" data-titel="Euer Weg" data-min="20">
+  <h2>4 · Eine Radtour (Buch S. 97 Nr. 3)</h2>
+  <p class="zeitnote">20 Minuten · jeder Weg anders, das Ziel ist dasselbe: die Tabelle zu Nr. 3 a</p>
+
+  <div class="zwei">
+  <div><table class="kleintab"><tr><th>Zeit in h</th><th>Weg in km</th></tr><tr><td>0</td><td>0</td></tr><tr><td>1</td><td>8</td></tr><tr><td>2,5</td><td>24</td></tr><tr><td>3</td><td>30</td></tr><tr><td>4</td><td>30</td></tr><tr><td>6</td><td>66</td></tr><tr><td>6,5</td><td>74</td></tr><tr><td>7</td><td>85</td></tr></table></div>
+  <div><p>Die Tabelle zeigt die zurückgelegte Strecke einer Radtour nach einigen Zeitintervallen (Buch S. 97).</p>
+  <p data-pfad="standard,vertiefen"><b>a)</b> Berechnet die Durchschnittsgeschwindigkeiten der gesamten Tour und in den einzelnen
+  Zeitintervallen.<br><b>b)</b> Skizziert ein Weg-Zeit-Diagramm unter der Annahme, dass in den einzelnen Etappen jeweils
+  gleichmäßig mit der berechneten Durchschnittsgeschwindigkeit gefahren wurde.<br><b>c)</b> Die Annahme in b) ist
+  unrealistisch. Erstellt ein realistisches Weg-Zeit-Diagramm.</p></div></div>
+
+  <!-- AUFFRISCHEN -->
+  <div data-pfad="auffrischen">
+    <div class="karte blau"><h4>Weg Auffrischen · vorgerechnet: die Etappe von 1 h bis 2,5 h</h4>
+    <ol>
+      <li><b>Werte ablesen:</b> nach 1 h bei 8 km, nach 2,5 h bei 24 km.</li>
+      <li><b>Strecke (Ende minus Anfang):</b> Δy = 24 km − 8 km = 16 km.</li>
+      <li><b>Zeit:</b> Δx = 2,5 h − 1 h = 1,5 h. Das sind 1 h 30 min, nicht 1 h 50 min.</li>
+      <li><b>Differenzenquotient:</b> <span class="bruch"><span>16 km</span><span>1,5 h</span></span> ≈ <b>10,67 km pro h</b>. Die Einheit kommt aus der Rechnung: km geteilt durch h.</li>
+    </ol></div>
+    <div class="aufgabe">
+      <p><span class="nr">W1</span> Jetzt die Etappe von <b>6 h</b> bis <b>6,5 h</b>. Schritt 1 ist schon gemacht: nach 6 h bei 66 km,
+      nach 6,5 h bei 74 km. Rechnet Δy, Δx und die Durchschnittsgeschwindigkeit, mit Einheit.</p>
+      <textarea id="t-w1" data-label="Weg Auffrischen – W1"></textarea>
+      <div class="hilfen" id="h-w1" data-feld="t-w1">
+        <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Wie lange dauert die Etappe? Eine halbe Stunde ist wie viel h?</p></details>
+        <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Δy = 74 km − 66 km. Δx = 6,5 h − 6 h = 0,5 h. Geteilt durch 0,5 heißt: mal 2.</p></details>
+        <details class="hilfe"><summary>Hilfe 3 · Teillösung</summary><p>Δy = 8 km in Δx = 0,5 h. In einer ganzen Stunde wären das doppelt so viele Kilometer. Jetzt nur noch die Zahl mit Einheit.</p></details>
+      </div>
+      <details class="gesperrt" data-fuer="t-w1" data-min="20"><summary>Lösung W1</summary>
+        <p>Δy = 8 km, Δx = 0,5 h, <span class="bruch"><span>8 km</span><span>0,5 h</span></span> = <b>16 km pro h</b>. Wer 8 km pro h hat, hat nicht durch 0,5 h geteilt, sondern durch 1.</p></details>
+    </div>
+    <div class="karte warn"><h4>Für W2</h4>
+    <p>Rechnet jetzt alle Etappen der Tabelle genauso, dazu die ganze Tour [0; 7]. Zwei kennt ihr schon (10,67 und 16).
+    Achtet bei [3; 4] auf die Strecke.</p></div>
+  </div>
+
+  <!-- FÜR ALLE: die Tabelle zu Nr. 3 a -->
+  <div class="aufgabe">
+    <p><span class="nr" data-pfad="auffrischen">W2</span><span class="nr" data-pfad="standard,vertiefen">3 a</span>
+    Tragt die Durchschnittsgeschwindigkeiten in <b>km pro h</b> ein, auf zwei Nachkommastellen gerundet.</p>
+    <table class="messtabelle" id="tab-rt" data-label="Nr. 3 a – Durchschnittsgeschwindigkeiten">
+      <tr><th>Zeitintervall in h</th><td>[0; 1]</td><td>[1; 2,5]</td><td>[2,5; 3]</td><td>[3; 4]</td><td>[4; 6]</td><td>[6; 6,5]</td><td>[6,5; 7]</td><td>[0; 7]</td></tr>
+      <tr><th>km pro h</th><td><input id="rt-1" data-soll="8" data-tol="0.05"></td><td><input id="rt-2" data-soll="10.67" data-tol="0.05"></td><td><input id="rt-3" data-soll="12" data-tol="0.05"></td><td><input id="rt-4" data-soll="0" data-tol="0.05"></td><td><input id="rt-5" data-soll="18" data-tol="0.05"></td><td><input id="rt-6" data-soll="16" data-tol="0.05"></td><td><input id="rt-7" data-soll="22" data-tol="0.05"></td><td><input id="rt-8" data-soll="12.14" data-tol="0.05"></td></tr>
+    </table>
+    <button class="knopf voll" id="k-pruefe-rt">Werte prüfen &amp; Diagramm zeichnen</button>
+    <div class="rueck" id="rueck-rt"></div>
+    <canvas id="c-radtour" width="900" height="380"></canvas>
+    <label class="reg">Euer Rechenweg für [3; 4] und für die ganze Tour [0; 7]:</label>
+    <textarea id="t-nr3a" data-label="Nr. 3 a – Rechenweg"></textarea>
+    <div class="hilfen" id="h-nr3a" data-feld="t-nr3a" data-pfad="auffrischen,standard">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Wie viele Kilometer kommen zwischen 3 h und 4 h dazu? Und für die ganze Tour: Wo steht der Radfahrer am Ende, wo am Anfang, und wie lange war er unterwegs?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>[3; 4]: <span class="bruch"><span>30 − 30</span><span>4 − 3</span></span>. Ganze Tour: <span class="bruch"><span>85 − 0</span><span>7 − 0</span></span>. Nicht die sieben Etappenwerte addieren und durch 7 teilen.</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-nr3a" data-min="20"><summary>Lösung 3 a</summary>
+      <p>[0; 1]: 8 · [1; 2,5]: 16 : 1,5 ≈ 10,67 · [2,5; 3]: 6 : 0,5 = 12 · [3; 4]: <b>0</b> (Pause) · [4; 6]: 36 : 2 = 18 ·
+      [6; 6,5]: 8 : 0,5 = 16 · [6,5; 7]: 11 : 0,5 = 22 · ganze Tour [0; 7]: 85 : 7 ≈ <b>12,14</b>, alles in km pro h.</p>
+      <p>Wer für die ganze Tour 12,38 hat, hat die sieben Etappenwerte gemittelt. Das ist falsch, weil die Etappen verschieden lang
+      dauern: Die zwei Stunden mit 18 km pro h zählen mehr als die halbe Stunde mit 22 km pro h.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">3 b</span> Das Diagramm oben zeichnet die Seite genau nach der Annahme aus b): in jeder Etappe gleichmäßig,
+    also eine Strecke je Etappe. Was sieht man im Diagramm bei [3; 4]? Und an den Knickstellen?</p>
+    <textarea id="t-nr3b" data-label="Nr. 3 b – Diagramm deuten"></textarea>
+    <details class="gesperrt" data-fuer="t-nr3b" data-min="30"><summary>Lösung 3 b</summary>
+      <p>Bei [3; 4] ist die Strecke <b>waagerecht</b>: Der Weg ändert sich nicht, Geschwindigkeit 0, eine Pause. Je steiler ein Stück,
+      desto schneller (am steilsten [6,5; 7] mit 22 km pro h). An den Knickstellen springt die Geschwindigkeit sofort von einem Wert
+      auf den nächsten, zum Beispiel bei 3 h von 12 auf 0 km pro h. Das kann kein Fahrrad.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <p><span class="nr">3 c</span> Zeichnet ein realistisches Weg-Zeit-Diagramm. Zeichnet zuerst die Achsen (Zeit in h, Weg in km)
+    und die acht Tabellenpunkte grob ein. Der Graph muss durch alle Punkte gehen.</p>
+    <div class="zeichenfeld" data-zid="nr3c" data-titel="Realistisches Weg-Zeit-Diagramm" data-label="Skizze 3 c" data-hoehe="300"></div>
+    <textarea id="t-nr3c" data-label="Nr. 3 c – was anders ist" placeholder="Anders als in b) ist …"></textarea>
+    <div class="hilfen" id="h-nr3c" data-feld="t-nr3c" data-pfad="standard">
+      <details class="hilfe"><summary>Hilfe 1 · Worauf schauen?</summary><p>Wie sieht der Graph aus, wenn das Rad langsam anfährt? Wenn es vor der Pause abbremst?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Satzanfang</summary><p>„Statt Knicken hat mein Graph … Vor der Pause wird er …, nach der Pause …“</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-nr3c" data-min="30"><summary>Lösung 3 c</summary>
+      <p>Der Graph geht durch alle Tabellenpunkte, hat aber <b>keine Knicke</b>: Er biegt sich weich. Vor der Pause wird er flacher
+      (abbremsen), von 3 h bis 4 h ist er waagerecht, danach wird er allmählich steiler (anfahren). Kurze flache Stellen
+      (Ampel, Anstieg) dürfen sein. Er fällt nie: Der Weg kann nicht weniger werden.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">V1</span> <span class="stern">★</span> <b>Was misst „Steigung in Prozent“ genau?</b> Am Rand von S. 95 zeichnet das Buch
+    ein Dreieck: 20 m hoch auf 100 m <b>waagerecht</b>, „Steigung: 20 %“. Im Höhenprofil zählt die x-Achse aber die
+    <b>gefahrenen</b> Kilometer, also den schrägen Weg die Straße entlang.<br>
+    a) Wie lang ist der schräge Weg im Randdreieck? Wie viel Prozent ergibt „Höhe durch schrägen Weg“?<br>
+    b) Macht das bei der Esterbergalm (9,3 %) einen Unterschied, der zählt?<br>
+    c) Bei welchen Steigungen wird der Unterschied groß? Rechnet ein Beispiel.</p>
+    <textarea id="t-v1" data-label="Weg Vertiefen – V1" style="min-height:7rem"></textarea>
+    <details class="gesperrt" data-fuer="t-v1" data-min="60"><summary>Lösung V1</summary>
+      <p><b>a)</b> Pythagoras: √(100² + 20²) ≈ 101,98 m. 20 : 101,98 ≈ <b>19,6 %</b> statt 20 %.</p>
+      <p><b>b)</b> Kaum. 9,3 % entlang der Straße sind waagerecht gerechnet etwa 9,34 %. Bei Rad- und Straßensteigungen ist der
+      Unterschied kleiner als die Ablesegenauigkeit.</p>
+      <p><b>c)</b> Bei steilen Stücken. Eine Treppe mit 45° hat waagerecht 100 % (1 m hoch auf 1 m), entlang der Treppe aber nur
+      1 : 1,41 ≈ 70,7 %. Genau gesagt: Prozent-Steigung heißt Höhe pro <i>waagerechter</i> Entfernung. Ein Höhenprofil über der
+      gefahrenen Strecke liefert Höhe pro <i>gefahrener</i> Strecke. Für flache Wege ist das fast dasselbe.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Drei Wege, ein Ziel</h4><p><i>Auffrischen</i> bekommt die Etappe [1; 2,5] vorgerechnet (Falle: 1,5 h ≠ 1 h 50 min),
+  rechnet [6; 6,5] nach (W1, drei Hilfen) und füllt dann die Tabelle (W2) mit 3 b. <i>Standard</i> rechnet 3 a, deutet 3 b und zeichnet 3 c,
+  je zwei Hilfen. <i>Vertiefen</i> macht a–c ohne Hilfen und präzisiert in V1 den Prozentbegriff des Buchs. Alle kommen mit acht Geschwindigkeiten,
+  darunter 0 und 12,14, beim Merksatz an. Im Herumgehen: Wer für die ganze Tour 12,38 einträgt, hat die Etappen gemittelt – „Hilfe 2 ansehen“.</p></div>
+</section>
+
+<!-- ================= PHASE 5: MERKSATZ ================= -->
+<section class="phase" data-titel="Merksatz" data-min="7">
+  <h2>5 · Der Merksatz</h2>
+  <p class="zeitnote">7 Minuten · ins Heft, unter den Merksatz von gestern</p>
+
+  <div class="karte merk"><h4>Merksatz: Änderungsraten in Sachaufgaben</h4>
+  <p style="font-size:1.15rem"><b>Die mittlere Änderungsrate <span class="bruch"><span>f(b) − f(a)</span><span>b − a</span></span> hat immer eine Einheit: Einheit von y pro Einheit von x.</b></p>
+  <ul>
+    <li><b>Einheit:</b> km pro h, m pro km, Tausend € pro Monat. Beim Umrechnen rechnet man Zähler und Nenner um
+    (0,3 km pro min = 18 km pro h). <b>Prozent</b> geht erst, wenn oben und unten dieselbe Einheit steht:
+    530 m auf 5,7 km = 530 m : 5700 m ≈ 9,3 %.</li>
+    <li><b>Vorzeichen:</b> Ende minus Anfang. Abnahme, Gefälle und Verlust geben eine <b>negative</b> Rate.</li>
+    <li><b>Deutung:</b> Die Rate ist ein Durchschnitt über das ganze Intervall. Über verschieden lange Stücke ist sie
+    <b>nicht</b> der Mittelwert der Teilraten. Und die Rate ist nicht der Bestand: Ein Monat mit Verlust macht den Gewinn
+    seit Jahresbeginn nicht negativ.</li>
+  </ul></div>
+
+  <div class="karte"><h4>Und zurück zur Esterbergalm</h4>
+  <p>Die 93 aus dem Forum sind <b>93 m pro km</b>. Als Steigung sind das <b>9,3 %</b>: auf 100 m Strecke gut 9 m hinauf. Steil für ein
+  Fahrrad, aber keine Wand. 93 % wären ein Winkel von fast 43°. Die Zahl war richtig gerechnet; die Einheit hat gefehlt.</p></div>
+
+  <h3>Selbstcheck</h3>
+  <p>Ein Wassertank verliert im Mittel 0,5 Liter pro Minute. Wie groß ist die mittlere Änderungsrate in Liter pro Stunde?</p>
+  <div class="mc" id="mc-check" data-label="Selbstcheck"></div>
+  <div class="rueck" id="rueck-check"></div>
+
+  <div class="lehrer"><h4>Sicherung</h4><p>Tafel: drei Spalten <b>Einheit · Vorzeichen · Deutung</b>, darunter je ein Beispiel aus der
+  Stunde: 93 m pro km = 9,3 % · Gefälle −14,1 % (Wallgauer Alm → Wasserfall) · Radtour 12,14 statt 12,38 km pro h.</p></div>
+</section>
+
+<!-- ================= PHASE 6: AUFGABEN ================= -->
+<section class="phase" data-titel="Aufgaben" data-min="18">
+  <h2>6 · Aufgaben</h2>
+  <p class="zeitnote">18 Minuten · A1–A3 für alle · die Lösungen jeweils darunter</p>
+
+  <div class="aufgabe">
+    <p><span class="nr">A1</span> <b>Buch S. 95 Nr. 2 b, c.</b> Die Stationen der Mountainbike-Tour (rote Punkte im Buch), aus dem
+    Profil abgelesen:</p>
+    <table class="kleintab"><tr><th>Station</th><th>Strecke</th><th>Höhe</th></tr><tr><td>Garmisch-Partenkirchen</td><td>0 km</td><td>730 m</td></tr><tr><td>Esterbergalm</td><td>5,7 km</td><td>1260 m</td></tr><tr><td>Finzalm</td><td>12,3 km</td><td>1060 m</td></tr><tr><td>Wallgauer Alm</td><td>18,4 km</td><td>1540 m</td></tr><tr><td>Wasserfall Bärenhöhle</td><td>22,8 km</td><td>920 m</td></tr><tr><td>Barmsee</td><td>26,5 km</td><td>890 m</td></tr><tr><td>Geroldsee</td><td>28,7 km</td><td>930 m</td></tr><tr><td>Garmisch-Partenkirchen</td><td>38,8 km</td><td>730 m</td></tr></table>
+    <p>b) Wie groß sind die Höhenänderungen von Station zu Station? Wie groß sind die durchschnittlichen Steigungen und das
+    durchschnittliche Gefälle, in Prozent auf eine Nachkommastelle? Gefälle mit Minus.</p>
+    <table class="messtabelle" id="tab-mtb" data-label="A1 – Höhenänderung und Steigung">
+      <tr><th>Etappe</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+      <tr><th>Δs in km</th><td>5,7</td><td>6,6</td><td>6,1</td><td>4,4</td><td>3,7</td><td>2,2</td><td>10,1</td></tr>
+      <tr><th>Δh in m</th><td><input id="mh-1" data-soll="530" data-tol="1"></td><td><input id="mh-2" data-soll="-200" data-tol="1"></td><td><input id="mh-3" data-soll="480" data-tol="1"></td><td><input id="mh-4" data-soll="-620" data-tol="1"></td><td><input id="mh-5" data-soll="-30" data-tol="1"></td><td><input id="mh-6" data-soll="40" data-tol="1"></td><td><input id="mh-7" data-soll="-200" data-tol="1"></td></tr>
+      <tr><th>Steigung in %</th><td><input id="mp-1" data-soll="9.3" data-tol="0.15"></td><td><input id="mp-2" data-soll="-3.0" data-tol="0.15"></td><td><input id="mp-3" data-soll="7.9" data-tol="0.15"></td><td><input id="mp-4" data-soll="-14.1" data-tol="0.15"></td><td><input id="mp-5" data-soll="-0.8" data-tol="0.15"></td><td><input id="mp-6" data-soll="1.8" data-tol="0.15"></td><td><input id="mp-7" data-soll="-2.0" data-tol="0.15"></td></tr>
+    </table>
+    <button class="knopf voll" id="k-pruefe-mtb">Werte prüfen</button>
+    <div class="rueck" id="rueck-mtb"></div>
+    <p>c) Wo geht es am steilsten bergauf, wo am steilsten bergab? Ist das dieselbe Stelle, die ihr im Profil vermuten würdet?</p>
+    <textarea id="t-a1" data-label="A1 c"></textarea>
+    <details class="gesperrt" data-fuer="t-a1" data-min="30"><summary>Lösung A1</summary>
+      <p><b>b)</b> 1: 530 m, <b>9,3 %</b> · 2: −200 m, <b>−3 %</b> · 3: 480 m, <b>7,9 %</b> · 4: −620 m, <b>−14,1 %</b> · 5: −30 m, <b>−0,8 %</b> · 6: 40 m, <b>1,8 %</b> · 7: −200 m, <b>−2 %</b>. Rechnung Etappe 4: −620 m : 4400 m ≈ −0,141 = −14,1 %.</p>
+      <p><b>c)</b> Von Station zu Station: bergauf am steilsten Etappe 1 (Garmisch → Esterbergalm, 9,3 %), bergab Etappe 4
+      (Wallgauer Alm → Wasserfall Bärenhöhle, −14,1 %). Im Profil sieht man aber Stücke, die noch steiler sind: zwischen km 3 und 4
+      und direkt hinter der Wallgauer Alm. Der Durchschnitt über eine Etappe glättet diese Stücke weg.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="auffrischen">
+    <p><span class="nr">A2a</span> Vorbereitung für A2. Die Firma notiert den Gewinn <b>seit Jahresbeginn</b>: Ende Februar 300, Ende März
+    550, Ende August 1300, Ende September 1200 (in 1000 €). Wie viel Gewinn hat die Firma <b>im März</b> gemacht? Und <b>im September</b>?</p>
+    <textarea id="t-a2a" data-label="A2a (Auffrischen)"></textarea>
+    <details class="gesperrt" data-fuer="t-a2a" data-min="20"><summary>Lösung A2a</summary>
+      <p>März: 550 − 300 = <b>250</b>, also 250 000 € Gewinn in diesem Monat. September: 1200 − 1300 = <b>−100</b>, also
+      100 000 € <b>Verlust</b> im September. Die Tabelle zeigt den Bestand; der Gewinn eines Monats ist die Änderung.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A2</span> <b>Buch S. 99 Nr. 11, Gewinn und Verlust.</b> Eine Firma für Laufschuhe hat in einem Jahr jeden Monat
+    den gesamten Gewinn seit Jahresbeginn notiert (Stand am Monatsende, zu Jahresbeginn 0):</p>
+    <table class="kleintab"><tr><th>Monat</th><td>Jan</td><td>Feb</td><td>Mär</td><td>Apr</td><td>Mai</td><td>Jun</td><td>Jul</td><td>Aug</td><td>Sep</td><td>Okt</td><td>Nov</td><td>Dez</td></tr><tr><th>Gewinn in 1000 €</th><td>100</td><td>300</td><td>550</td><td>700</td><td>1000</td><td>1200</td><td>1300</td><td>1300</td><td>1200</td><td>1100</td><td>1150</td><td>1250</td></tr></table>
+    <p>Berechnet die monatliche Gewinnzunahme bzw. Gewinnabnahme (in 1000 € pro Monat). Die Seite zeichnet das Diagramm dazu.</p>
+    <table class="messtabelle" id="tab-gewinn" data-label="A2 – monatliche Änderung">
+      <tr><th>Monat</th><td>Jan</td><td>Feb</td><td>Mär</td><td>Apr</td><td>Mai</td><td>Jun</td></tr><tr><th>Änderung</th><td><input id="gm-1" data-soll="100" data-tol="0.5"></td><td><input id="gm-2" data-soll="200" data-tol="0.5"></td><td><input id="gm-3" data-soll="250" data-tol="0.5"></td><td><input id="gm-4" data-soll="150" data-tol="0.5"></td><td><input id="gm-5" data-soll="300" data-tol="0.5"></td><td><input id="gm-6" data-soll="200" data-tol="0.5"></td></tr><tr><th>Monat</th><td>Jul</td><td>Aug</td><td>Sep</td><td>Okt</td><td>Nov</td><td>Dez</td></tr><tr><th>Änderung</th><td><input id="gm-7" data-soll="100" data-tol="0.5"></td><td><input id="gm-8" data-soll="0" data-tol="0.5"></td><td><input id="gm-9" data-soll="-100" data-tol="0.5"></td><td><input id="gm-10" data-soll="-100" data-tol="0.5"></td><td><input id="gm-11" data-soll="50" data-tol="0.5"></td><td><input id="gm-12" data-soll="100" data-tol="0.5"></td></tr>
+    </table>
+    <button class="knopf voll" id="k-pruefe-gewinn">Werte prüfen &amp; Diagramm zeichnen</button>
+    <div class="rueck" id="rueck-gewinn"></div>
+    <canvas id="c-gewinn" width="900" height="340"></canvas>
+    <label class="reg">In welchen Monaten macht die Firma Verlust? In welchem Monat wächst der Gewinn am stärksten?</label>
+    <textarea id="t-a2" data-label="A2"></textarea>
+    <details class="gesperrt" data-fuer="t-a2" data-min="30"><summary>Lösung A2</summary>
+      <p>Monatliche Änderung in 1000 € pro Monat: Jan 100 · Feb 200 · Mär 250 · Apr 150 · Mai 300 · Jun 200 · Jul 100 · Aug 0 · Sep −100 · Okt −100 · Nov 50 · Dez 100.</p>
+      <p><b>Verlust</b> im September und Oktober (je −100 000 €). Im August weder Gewinn noch Verlust (0). Am stärksten wächst der Gewinn
+      im <b>Mai</b> (+300 000 €). Das Diagramm zeigt Balken unter der Nulllinie genau dort, wo die Tabelle oben <i>kleiner</i> wird.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A3</span> <b>Die Laufschuhfirma, weitergedacht</b> (Zahlen aus A2).<br>
+    a) Berechnet die mittlere monatliche Gewinnänderung im 1. Halbjahr [0; 6] und im 2. Halbjahr [6; 12], mit Einheit, auch in € pro Monat.<br>
+    b) Berechnet sie von Ende Juli bis Ende Oktober [7; 10]. Was bedeutet das Vorzeichen für die Firma?<br>
+    c) Eine Zeitung schreibt im November: <i>„Laufschuhfirma macht Verluste – Gewinn seit Jahresbeginn unter null.“</i>
+    Was stimmt daran, was nicht? Begründet mit euren Zahlen.</p>
+    <textarea id="t-a3" data-label="A3" style="min-height:7rem"></textarea>
+    <div class="hilfen" id="h-a3" data-feld="t-a3">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Welche Werte braucht ihr für [0; 6]: den Bestand am Anfang und am Ende. Wie lang ist das Intervall? Und was steht in der Tabelle: Gewinn <i>im</i> Monat oder Gewinn <i>seit Jahresbeginn</i>?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>1. Halbjahr: <span class="bruch"><span>1200 − 0</span><span>6 − 0</span></span>. 2. Halbjahr: <span class="bruch"><span>1250 − 1200</span><span>12 − 6</span></span>. [7; 10]: <span class="bruch"><span>1100 − 1300</span><span>10 − 7</span></span>. Einheit: 1000 € pro Monat.</p></details>
+      <details class="hilfe"><summary>Hilfe 3 · Teillösung</summary><p>1. Halbjahr: 200 (in 1000 € pro Monat). 2. Halbjahr: 50 : 6. [7; 10]: −200 : 3. Für c): Wie hoch ist der Gewinn seit Jahresbeginn Ende Oktober? Ist das unter null?</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-a3" data-min="60"><summary>Lösung A3</summary>
+      <p><b>a)</b> 1. Halbjahr: (1200 − 0) : 6 = <b>200 Tausend € pro Monat = 200 000 € pro Monat</b>. 2. Halbjahr: (1250 − 1200) : 6 ≈
+      <b>8,3 Tausend € pro Monat ≈ 8 333 € pro Monat</b>. Im zweiten Halbjahr kam also fast nichts mehr dazu.</p>
+      <p><b>b)</b> (1100 − 1300) : 3 ≈ <b>−66,7 Tausend € pro Monat</b>, also im Mittel etwa 66 667 € Verlust pro Monat. Das Minus heißt:
+      Der Gewinn seit Jahresbeginn wird kleiner.</p>
+      <p><b>c)</b> „Verluste“ stimmt: im September und Oktober, und über [7; 10] ist die Rate negativ. „Unter null“ stimmt <b>nicht</b>:
+      Ende Oktober liegt der Gewinn seit Jahresbeginn bei 1 100 000 €. Eine negative <i>Rate</i> heißt, der <i>Bestand</i> sinkt, nicht,
+      dass er negativ ist.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <p><span class="nr">A4</span> <span class="stern">★</span> <b>Buch S. 99 Nr. 10, Achterbahn</b> (Vorstufe; die Näherungswerte <i>in</i> den
+    Punkten kommen nächste Woche). Ein Teilstück wird beschrieben durch f(x) = −0,125x³ + 0,5x, x und y jeweils in 10-m-Einheiten.<br>
+    a) Berechnet die y-Werte von P₀ bis P₄ (x = 0; 0,5; 1; 1,5; 2) und die mittlere Steigung von P₀ nach P₁ und von P₃ nach P₄.<br>
+    b) Rechnet P₀ → P₁ noch einmal in Metern. Ändert sich die Steigung? Warum oder warum nicht?<br>
+    c) Wie viele Meter liegt P₂ höher als P₀?</p>
+    <textarea id="t-a4" data-label="A4" style="min-height:6rem"></textarea>
+    <details class="gesperrt" data-fuer="t-a4" data-min="50"><summary>Lösung A4</summary>
+      <p><b>a)</b> f(0) = 0, f(0,5) ≈ 0,234, f(1) = 0,375, f(1,5) ≈ 0,328, f(2) = 0. P₀ → P₁: 0,234 : 0,5 ≈ <b>0,469</b> (46,9 %).
+      P₃ → P₄: (0 − 0,328) : 0,5 ≈ <b>−0,656</b> (Gefälle 65,6 %).</p>
+      <p><b>b)</b> In Metern: 2,34 m hoch auf 5 m, 2,34 : 5 ≈ 0,469. <b>Gleich.</b> Oben und unten wird mit 10 malgenommen; das kürzt sich.
+      Eine Steigung ist „m pro m“ und hat am Ende keine Einheit. Anders wäre es, wenn x in m und y in 10 m stünde.</p>
+      <p><b>c)</b> 0,375 · 10 m = <b>3,75 m</b>.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">A5</span> <span class="stern">★</span> Jemand fährt 60 km hin mit 20 km pro h und dieselben 60 km zurück mit 30 km pro h.
+    Wie groß ist die Durchschnittsgeschwindigkeit für Hin- und Rückweg? Begründet allgemein (Strecke d, Geschwindigkeiten u und v),
+    warum es nicht (u + v) : 2 ist.</p>
+    <textarea id="t-a5" data-label="A5" style="min-height:7rem"></textarea>
+    <details class="gesperrt" data-fuer="t-a5" data-min="80"><summary>Lösung A5</summary>
+      <p>Hin 3 h, zurück 2 h: 120 km in 5 h = <b>24 km pro h</b>, nicht 25.</p>
+      <p>Allgemein: Zeit d : u + d : v, Strecke 2d, also <span class="bruch"><span>2d</span><span>d : u + d : v</span></span> = <span class="bruch"><span>2uv</span><span>u + v</span></span>. Der langsame Teil dauert länger und zählt deshalb mehr.
+      Gleich wäre es nur, wenn beide Teile gleich <i>lange dauern</i> – wie in K3 und anders als bei der Radtour.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Differenzierung &amp; Bewertung</h4><p>Minimum für alle: A1–A3. <b>A3 misst das Stundenziel</b>
+  (Einheit, Vorzeichen, Bestand gegen Rate). Drei Hilfen bei A3 und danach ein richtiges Exit-Ticket heißt: Ziel mit Unterstützung erreicht.
+  A1 und A2 prüfen die Seite selbst (grün/gelb); gelb heißt Betrag richtig, Vorzeichen falsch.</p></div>
+</section>
+
+<!-- ================= PHASE 7: QUIZ ================= -->
+<section class="phase" data-titel="Quiz" data-min="7">
+  <h2>7 · Quiz: sitzt es?</h2>
+  <p class="zeitnote">7 Minuten · 8 Fragen, sofortige Rückmeldung</p>
+  <div id="quiz"></div>
+  <div class="karte blau" id="quiz-ergebnis" style="display:none">
+    <h4>Ergebnis</h4>
+    <p><span class="punkte" id="quiz-punkte">0 / 8</span> <span id="quiz-text"></span></p>
+  </div>
+  <div class="lehrer"><h4>Die tragenden Fragen</h4><p>3 (Prozent mit Vorzeichen), 4 (Pause im Durchschnitt) und 5 (Bestand und Rate).
+  Wer 8 falsch hat, rechnet mit negativen Werten noch „Ende minus Anfang“ verkehrt.</p></div>
+</section>
+
+<!-- ================= PHASE 8: ABSCHLUSS ================= -->
+<section class="phase" data-titel="Abschluss" data-min="5">
+  <h2>8 · Exit-Ticket &amp; Abgabe</h2>
+  <p class="zeitnote">5 Minuten · für alle Wege dieselben Fragen</p>
+
+  <div class="karte merk">
+    <h4>Zwei Aufgaben, dann ist Schluss</h4>
+    <p><b>1.</b> Eine Wanderin ist um 9:00 Uhr auf 340 m Höhe, um 11:30 Uhr auf 940 m. Berechnet die mittlere Änderungsrate der Höhe
+    in m pro h und in m pro min.</p>
+    <textarea id="t-exit1" data-label="Exit-Ticket 1" placeholder="Δy = … , Δx = … , also …"></textarea>
+    <p style="margin-top:.8rem"><b>2.</b> Eine Straße hat über 3 km Strecke ein durchschnittliches Gefälle von 8 %. Wie viele Höhenmeter
+    verliert man? Schreibt die mittlere Änderungsrate mit Vorzeichen in m pro km dazu.</p>
+    <textarea id="t-exit2" data-label="Exit-Ticket 2" placeholder="Man verliert … m, weil …"></textarea>
+  </div>
+
+  <div class="karte">
+    <h4>Und was war unklar?</h4>
+    <textarea id="t-unklar" data-label="Offene Frage" placeholder="Eine Frage, die offen geblieben ist (darf leer bleiben)"></textarea>
+  </div>
+
+  <div class="karte blau">
+    <h4>Abgabe – Protokoll an Herrn Glaubitz</h4>
+    <div class="zwei">
+      <div><label class="reg">Namen (beide, wenn zu zweit gearbeitet):</label>
+        <input id="i-name" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="Vorname Nachname, Vorname Nachname"></div>
+      <div><label class="reg">Klasse:</label>
+        <input id="i-klasse" value="11a" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="11a"></div>
+    </div>
+
+    <p style="margin:.9rem 0 .2rem"><b>So geht die Abgabe – drei Schritte:</b></p>
+    <ol style="margin-top:.2rem">
+      <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">📄 Protokoll speichern</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Eine Datei mit allen Antworten, Zeichnungen, eurem Weg und Zeitstempeln. Sie landet in „Downloads“ bzw. in der Dateien-App.</span></li>
+      <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">✉ Senden / Teilen</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Öffnet den Teilen-Dialog → <b>Mail</b> wählen → die Datei ist als Anhang dabei. Empfänger:
+        <b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
+      <li><b>Kontrollieren:</b> Steht euer Name in der Mail? Ist der Anhang dabei? Dann senden.</li>
+    </ol>
+
+    <p style="margin-top:.7rem">
+      <button class="knopf" id="k-json">Rohdaten als JSON</button>
+      <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
+      <button class="knopf" id="k-kopieren">Text kopieren</button>
+    </p>
+    <p class="videohinweis" id="mail-hinweis">Wenn „Senden / Teilen“ nicht funktioniert: Protokoll
+    speichern, dann selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b> schreiben und die Datei anhängen.</p>
+  </div>
+
+  <div class="karte"><h4>Zum Üben bis nächste Woche</h4>
+  <p>Buch S. 97 Nr. 3 c ins Heft (realistisches Weg-Zeit-Diagramm), wer es heute nicht geschafft hat · S. 99 Nr. 11: das Diagramm
+  der monatlichen Änderungen ins Heft.</p></div>
+
+  <p>
+    <button class="knopf" id="k-zusammenfassung">Ergebnisse am Bildschirm ansehen</button>
+    <button class="knopf" id="k-drucken">Drucken / als PDF speichern</button>
+  </p>
+  <div id="ausgabe"></div>
+
+  <div class="lehrer"><h4>Abschluss</h4><p><b>Ziel erreicht</b>, wenn Exit 1 auf <b>240 m pro h</b> und <b>4 m pro min</b> kommt
+  (600 m in 2,5 h bzw. 150 min) und Exit 2 <b>−80 m pro km</b> und <b>240 m</b> Höhenverlust nennt. Zu erwarten in Exit 1: 600 : 2,3
+  (2 h 30 min als 2,3 h) und in Exit 2: 8 · 3 = 24 m (Prozent ohne Umrechnen) oder das fehlende Minus. Nächste Stunde (KW 46, S16):
+  Von der Sekante zur Tangente – was passiert, wenn das Intervall klein wird.</p></div>
+</section>
+
+<!-- ================= LEHRERBLATT ================= -->
+<section class="phase" data-titel="⚙ Lehrerblatt" data-min="0">
+  <h2>Lehrerblatt – alles auf einen Blick</h2>
+  <p class="zeitnote">Diese Phase überspringen die Schüler; sie ist für Sie. Ausführlich: sachkontexte-11a-lehrerblatt.pdf.</p>
+  <div class="karte blau"><h4>Was Sie tun</h4><ol>
+    <li><b>45</b> groß an die Tafel (Anmeldung). Datei verteilen (Klassenseite bzw. AirDrop). Buch NW 11 darf aufliegen (Bilder S. 95, 97, 99).</li>
+    <li>Einstieg im Wortlaut: „Im Forum steht: 530 durch 5,7 ist 93 – also 93 % Steigung. Stimmt das?“</li>
+    <li>Auftrag: „Nach dem Check wählt ihr einen Weg. Alle Wege enden beim selben Merksatz und beim selben Exit-Ticket.“</li>
+    <li>Ab Minute 15 herumgehen: im Kern nach der Einheit fragen („0,3 was?“), bei Nr. 3 a nach der ganzen Tour (12,14, nicht 12,38).</li>
+    <li><b>Minute 78: alle tippen oben auf „Abschluss“, egal wo sie stehen.</b> Dann Exit-Ticket, Protokoll speichern und senden lassen.</li></ol></div>
+  <h3>Zeitraster</h3>
+  <table><tr><th>Phase</th><th>Min</th><th>Auffrischen</th><th>Standard</th><th>Vertiefen</th></tr>
+  <tr><td>Start · Einstieg · Check</td><td>14</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td>Kern</td><td>12</td><td>+ Karte „Differenzenquotient“</td><td>Aufträge 1, 2</td><td>+ K3 ★</td></tr>
+  <tr><td>Euer Weg</td><td>20</td><td>[1; 2,5] vorgerechnet, W1, W2 = 3 a, 3 b</td><td>Nr. 3 a, b, c mit Hilfen</td><td>Nr. 3 a, b, c + V1 ★</td></tr>
+  <tr><td>Merksatz</td><td>7</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td>Aufgaben</td><td>18</td><td>A1, A2a, A2, A3</td><td>A1–A3, A4 ★</td><td>A1–A5</td></tr>
+  <tr><td>Quiz · Abschluss</td><td>12</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td><b>Summe</b></td><td><b>83</b></td><td colspan="3">7 Minuten Puffer</td></tr></table>
+  <h3>Wege lesen</h3><ul>
+    <li>Vorschlag <i>Auffrischen</i>, gewählt <i>Vertiefen</i>, dann drei Hilfen bei A3 → Selbstüberschätzung, ansprechen.</li>
+    <li>Vorschlag <i>Vertiefen</i>, gewählt <i>Auffrischen</i> → Unsicherheit trotz Können, ermutigen.</li>
+    <li>Check 1 falsch → der Differenzenquotient von gestern sitzt nicht; das Protokoll vom 05.11. dazu ansehen.</li></ul>
+  <h3>Wenn die Zeit knapp wird</h3><ul><li>Zuerst streichen: K3, V1, 3 c, A4, A5, Quiz 5–8. Nie streichen: Check, A3, Exit-Ticket.</li></ul>
+  <h3>Womit man rechnen muss</h3><ul>
+    <li>„93 % Steigung“: m pro km ist nicht Prozent (Einstieg, Kern Auftrag 2).</li>
+    <li>„Ganze Tour = Mittel der Etappen“: 12,38 statt 12,14 (Nr. 3 a, K3, A5).</li>
+    <li>„Verlust heißt: Gewinn unter null“: Rate ist nicht Bestand (A2, A3 c).</li>
+    <li>„1,5 h = 1 h 50 min“: Dezimalstunden (Check 2, Auffrischen-Beispiel).</li></ul>
+  <h3>Geprüfte Quellen</h3><p>Alle Zahlen sind mit modelle_sachkontexte.py nachgerechnet. Die Stationen des Höhenprofils sind aus dem
+  Buch abgelesen (±0,1 km, ±10 m); Radtour und Gewinn stehen als Tabellen im Buch. Die Werte im Kern-Modell sind ausgedacht.
+  Keine Videos, keine Links ins Netz.</p>
+</section>
+</main>
+
+<div class="nav">
+  <button class="knopf" id="zurueck">‹ Zurück</button>
+  <div class="mitte" id="navinfo"></div>
+  <button class="knopf voll" id="weiter">Weiter ›</button>
+</div>
+
+<script>
+"use strict";
+/* ---------- 1 Phasensteuerung ---------- */
+const phasen = Array.from(document.querySelectorAll("section.phase"));
+const pillen = document.getElementById("pillen");
+let aktuell = 0;
+let besucht = new Set([0]);
+
+phasen.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "pille";
+  b.textContent = (i < phasen.length - 1 ? i + " " : "") + p.dataset.titel;
+  b.addEventListener("click", () => zeige(i));
+  pillen.appendChild(b);
+});
+
+function zeige(i) {
+  if (i < 0 || i >= phasen.length) return;
+  phasen[aktuell].classList.remove("aktiv");
+  aktuell = i;
+  besucht.add(i);
+  phasen[aktuell].classList.add("aktiv");
+  Array.from(pillen.children).forEach((b, k) => {
+    b.classList.toggle("aktiv", k === i);
+    b.classList.toggle("fertig", k !== i && besucht.has(k));
+  });
+  document.getElementById("balken").style.width =
+    Math.round((i / (phasen.length - 2)) * 100) + "%";
+  document.getElementById("navinfo").textContent =
+    (i === phasen.length - 1) ? "Lehrerblatt (nicht für Schüler)"
+      : "Phase " + i + " von " + (phasen.length - 2);
+  document.getElementById("zurueck").disabled = (i === 0);
+  const wb = document.getElementById("weiter");
+  const letzte = (i >= phasen.length - 2);
+  wb.disabled = letzte;
+  wb.textContent = letzte ? "Fertig" : "Weiter ›";
+  starteUhr(parseInt(phasen[i].dataset.min, 10) || 0);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.getElementById("weiter").addEventListener("click", () => zeige(aktuell + 1));
+document.getElementById("zurueck").addEventListener("click", () => zeige(aktuell - 1));
+
+/* ---------- 2 Uhr ---------- */
+let rest = 0, laufend = true, ticker = null;
+const uhrEl = document.getElementById("uhr");
+function starteUhr(min) {
+  clearInterval(ticker);
+  if (!min) { uhrEl.textContent = "--:--"; uhrEl.classList.remove("knapp"); return; }
+  rest = min * 60; laufend = true;
+  document.getElementById("uhrKnopf").textContent = "Pause";
+  malUhr();
+  ticker = setInterval(() => {
+    if (!laufend) return;
+    if (rest > 0) rest--;
+    malUhr();
+  }, 1000);
+}
+function malUhr() {
+  const m = Math.floor(rest / 60), s = rest % 60;
+  uhrEl.textContent = m + ":" + String(s).padStart(2, "0");
+  uhrEl.classList.toggle("knapp", rest <= 60);
+}
+document.getElementById("uhrKnopf").addEventListener("click", (e) => {
+  laufend = !laufend;
+  e.target.textContent = laufend ? "Pause" : "Weiter";
+});
+
+/* ---------- 3 Lehrer-Ansicht ----------
+   Kennwort wie in allen Stunden: sumdideldum (Prüfsumme djb2-xor ab 5381).
+   Eine Bremsschwelle, kein Schloss: Wer den Quelltext liest, findet die Lösungen ohnehin. */
+const LEHRER_SCHLUESSEL = 4257354514;
+function pruefsumme(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function lehrerAnsicht(an) {
+  document.body.classList.toggle("lehrermodus", an);
+  document.getElementById("lehrerKnopf").textContent = an ? "Lehrer-Ansicht aus" : "Lehrer-Ansicht";
+}
+document.getElementById("lehrerKnopf").addEventListener("click", () => {
+  if (document.body.classList.contains("lehrermodus")) { lehrerAnsicht(false); return; }
+  const wort = window.prompt("Kennwort für die Lehrer-Ansicht:");
+  if (wort === null) return;
+  if (pruefsumme(String(wort).trim().toLowerCase()) === LEHRER_SCHLUESSEL) lehrerAnsicht(true);
+  else window.alert("Das Kennwort stimmt nicht.");
+});
+
+/* ---------- 4 Multiple-Choice-Baustein ---------- */
+function mc(ziel, rueckId, frage) {
+  const box = document.getElementById(ziel);
+  const rb = document.getElementById(rueckId);
+  frage.optionen.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.textContent = o.text;
+    b.addEventListener("click", () => {
+      Array.from(box.children).forEach(x => x.classList.remove("richtig", "falsch"));
+      b.classList.add(o.richtig ? "richtig" : "falsch");
+      rb.className = "rueck zeig " + (o.richtig ? "gut" : "schlecht");
+      rb.innerHTML = (o.richtig ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + o.hinweis;
+      antworten[ziel] = o.text + (o.richtig ? "  [richtig]" : "  [falsch]");
+    });
+    box.appendChild(b);
+  });
+}
+const protokollEintraege = [];
+let exportiert = false;
+const antwortenRoh = {};
+const antworten = new Proxy(antwortenRoh, {
+  set(ziel, schluessel, wert) {
+    const alt = ziel[schluessel];
+    ziel[schluessel] = wert;
+    if (alt !== wert) protokolliere("auswahl", schluessel, wert);
+    return true;
+  }
+});
+
+/* ---------- Multiple-Choice-Blöcke dieser Stunde ---------- */
+mc("mc-prognose", "rueck-prognose", {
+  optionen: [
+    { text: "93 %: Der Weg ist fast so steil wie eine Wand.", richtig: false,
+      hinweis: "93 ist richtig gerechnet, aber die Einheit ist m pro km. Für Prozent müssen Höhe und Strecke dieselbe Einheit haben." },
+    { text: "Etwa 9,3 %: auf 100 m Strecke gut 9 m hinauf.", richtig: true,
+      hinweis: "Genau. Im Kern seht ihr am Modell, warum aus 93 m pro km 9,3 % werden." },
+    { text: "Etwa 0,93 %: fast flach.", richtig: false,
+      hinweis: "Zu flach. 530 m auf 5700 m sind fast ein Zehntel, nicht ein Hundertstel." },
+    { text: "Das kann man nicht ausrechnen, weil m und km nicht zusammenpassen.", richtig: false,
+      hinweis: "Doch. Man rechnet zuerst km in m um. Dann passt es." }
+  ]
+});
+mc("mc-check", "rueck-check", {
+  optionen: [
+    { text: "−30 Liter pro Stunde", richtig: true,
+      hinweis: "Ja. Eine Stunde hat 60 Minuten: −0,5 · 60 = −30. Das Minus bleibt, der Tank wird leerer." },
+    { text: "−0,5 Liter pro Stunde", richtig: false,
+      hinweis: "Dann hättet ihr nur die Einheit getauscht. In einer Stunde fließt 60-mal so viel heraus wie in einer Minute." },
+    { text: "30 Liter pro Stunde", richtig: false,
+      hinweis: "Der Betrag stimmt, das Vorzeichen nicht. Der Tank verliert Wasser: negative Rate." },
+    { text: "−0,0083 Liter pro Stunde", richtig: false,
+      hinweis: "Durch 60 geteilt statt mal 60. Prüft: Ist eine Stunde mehr oder weniger als eine Minute?" }
+  ]
+});
+
+/* ============================================================
+   Diagnose, Wege, gestufte Hilfen
+   ============================================================
+   Die Diagnose ist die einzige Stelle, an der eine Rückmeldung sofort und
+   ohne Sperre erscheint: die Antwort ist ja schon gegeben (ein Versuch pro
+   Frage). Danach bleibt die Auswahl fest – die Diagnose soll den ersten
+   Denkstand messen, nicht den zweiten.
+
+   rolle "voraus" = zwingendes Vorwissen, rolle "kern" = Kern schon fast da.
+   Genau drei Fragen jeder Rolle; Reihenfolge: erst voraus, dann kern.
+   Mehrheitsregel statt Ein-Fehler-Regel: ein Flüchtigkeitsfehler soll
+   niemanden auf "Auffrischen" schicken. */
+const DIAGNOSE = [
+  { rolle: "voraus", f: "Ein Stausee hat am Tag 3 einen Pegel von 412 cm, am Tag 7 von 380 cm. Wie groß ist die mittlere Änderung des Pegels pro Tag?",
+    o: ["−8 cm pro Tag", "8 cm pro Tag", "−32 cm pro Tag", "−4,6 cm pro Tag"], r: 0,
+    e: "(380 − 412) : (7 − 3) = −32 : 4 = −8. Ende minus Anfang, oben und unten. Der Pegel sinkt, deshalb das Minus." },
+  { rolle: "voraus", f: "Wie lange dauern 2,5 Stunden?",
+    o: ["2 h 50 min", "2 h 30 min", "2 h 5 min", "250 min"], r: 1,
+    e: "0,5 h ist eine halbe Stunde, also 30 Minuten. 2,5 h = 2 h 30 min = 150 min." },
+  { rolle: "voraus", f: "Welche Prozentangabe gehört zu der Zahl 0,045?",
+    o: ["45 %", "0,45 %", "4,5 %", "0,045 %"], r: 2,
+    e: "Prozent heißt Hundertstel: 0,045 = 4,5 Hundertstel = 4,5 %." },
+  { rolle: "kern", f: "Eine Seilbahn fährt in 4 Minuten 600 Meter nach oben. Wie viele Meter pro Sekunde sind das im Durchschnitt?",
+    o: ["150 m pro s", "10 m pro s", "0,4 m pro s", "2,5 m pro s"], r: 3,
+    e: "4 min = 240 s. 600 m : 240 s = 2,5 m pro s. 150 ist richtig, aber in m pro Minute." },
+  { rolle: "kern", f: "Jemand fährt 1 Stunde lang mit 10 km pro h und danach 2 Stunden lang mit 25 km pro h. Wie groß ist die Durchschnittsgeschwindigkeit für die ganzen 3 Stunden?",
+    o: ["17,5 km pro h", "20 km pro h", "35 km pro h", "15 km pro h"], r: 1,
+    e: "10 km + 50 km = 60 km in 3 h, also 20 km pro h. Die zwei schnellen Stunden zählen doppelt; (10 + 25) : 2 übersieht das." },
+  { rolle: "kern", f: "Ein Freibad zählt die Besucher seit der Öffnung (insgesamt): nach Woche 1: 800, nach Woche 2: 1900, nach Woche 3: 2400. In welcher Woche kamen die meisten Besucher?",
+    o: ["Woche 3", "Woche 1", "Woche 2", "Das lässt sich nicht sagen."], r: 2,
+    e: "Woche 1: 800, Woche 2: 1900 − 800 = 1100, Woche 3: 2400 − 1900 = 500. Die Tabelle zeigt den Bestand, die Besucher einer Woche sind die Änderung." }
+];
+const WEGE = { auffrischen: "Auffrischen", standard: "Standard", vertiefen: "Vertiefen" };
+const WEG_BEGRUENDUNG = {
+  auffrischen: "Bei den Grundlagen hat es noch gehakt. Dieser Weg frischt sie zuerst auf und geht dann in kleineren Schritten zum selben Ziel.",
+  standard: "Die Grundlagen sitzen. Der Standardweg führt euch direkt zum Kern.",
+  vertiefen: "Die Grundlagen sitzen, und den Kern habt ihr schon fast. Dieser Weg geht schneller durch und dafür weiter hinaus."
+};
+
+/* Reine Funktion, damit das Prüfskript sie testen kann. */
+function wegVorschlag(ergebnisse) {   // [{rolle, richtig}]
+  const voraus = ergebnisse.filter(e => e.rolle === "voraus");
+  const kern = ergebnisse.filter(e => e.rolle === "kern");
+  const vRichtig = voraus.filter(e => e.richtig).length;
+  if (vRichtig <= Math.floor(voraus.length / 3)) return "auffrischen";   // 3 Fragen: höchstens 1 richtig
+  if (kern.length && kern.every(e => e.richtig)) return "vertiefen";
+  return "standard";
+}
+
+let weg = "";            // gewählter Weg
+let vorschlag = "";      // vorgeschlagener Weg
+const diagErgebnis = []; // [{nr, rolle, richtig, antwort}]
+const hilfenStand = {};  // id → Zahl geöffneter Stufen
+
+(function diagnoseAufbauen() {
+  const box = document.getElementById("diagnose");
+  if (!box) return;
+  DIAGNOSE.forEach((q, i) => {
+    const d = document.createElement("div");
+    d.className = "quizfrage diagfrage";
+    d.id = "diag-" + (i + 1);
+    d.dataset.label = "Check " + (i + 1) + (q.rolle === "voraus" ? " (Vorwissen)" : " (Kern)");
+    d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+    const mcBox = document.createElement("div"); mcBox.className = "mc";
+    const r = document.createElement("div"); r.className = "rueck";
+    q.o.forEach((t, k) => {
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.addEventListener("click", () => {
+        if (diagErgebnis[i]) return;                 // ein Versuch
+        const ok = k === q.r;
+        diagErgebnis[i] = { nr: i + 1, rolle: q.rolle, richtig: ok, antwort: t };
+        b.classList.add(ok ? "richtig" : "falsch");
+        if (!ok) mcBox.children[q.r].classList.add("richtig");
+        mcBox.classList.add("fest");
+        r.className = "rueck zeig " + (ok ? "gut" : "schlecht");
+        r.innerHTML = (ok ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + q.e;
+        antworten["diag-" + (i + 1)] = t + (ok ? "  [richtig]" : "  [falsch]");
+        diagStand();
+      });
+      mcBox.appendChild(b);
+    });
+    d.appendChild(mcBox); d.appendChild(r);
+    box.appendChild(d);
+  });
+})();
+
+function diagStand() {
+  const offen = DIAGNOSE.length - diagErgebnis.filter(Boolean).length;
+  const k = document.getElementById("k-auswerten");
+  if (k) k.disabled = offen > 0;
+  const s = document.getElementById("diag-stand");
+  if (s) s.textContent = offen ? "Noch " + offen + (offen === 1 ? " Frage" : " Fragen") + " offen." : "Alle beantwortet.";
+}
+
+function vorschlagZeigen() {
+  const v = document.getElementById("weg-vorschlag");
+  const richtig = diagErgebnis.filter(e => e && e.richtig).length;
+  v.innerHTML = "<h4>Unser Vorschlag: " + WEGE[vorschlag] + "</h4><p>" + richtig + " von " +
+    DIAGNOSE.length + " richtig. " + WEG_BEGRUENDUNG[vorschlag] +
+    " Ihr dürft einen anderen Weg wählen – das Protokoll vermerkt beides.</p>";
+  document.querySelectorAll(".wegknopf").forEach(b =>
+    b.classList.toggle("empfohlen", b.dataset.weg === vorschlag));
+  document.getElementById("wegwahl").style.display = "block";
+  const k = document.getElementById("k-auswerten");
+  if (k) { k.disabled = true; k.textContent = "Ausgewertet"; }
+}
+
+const kAuswerten = document.getElementById("k-auswerten");
+if (kAuswerten) kAuswerten.addEventListener("click", () => {
+  if (diagErgebnis.filter(Boolean).length < DIAGNOSE.length) return;
+  vorschlag = wegVorschlag(diagErgebnis);
+  protokolliere("weg-vorschlag", "diagnose", WEGE[vorschlag],
+    diagErgebnis.map(e => e.nr + ":" + (e.richtig ? "r" : "f")).join(" "));
+  vorschlagZeigen();
+});
+
+/* Weg setzen: blendet alle [data-pfad]-Blöcke passend ein oder aus.
+   data-pfad enthält eine Kommaliste, z. B. "standard,vertiefen". */
+function wegAnwenden() {
+  document.querySelectorAll("[data-pfad]").forEach(el => {
+    const liste = el.dataset.pfad.split(",").map(s => s.trim());
+    el.hidden = !weg || liste.indexOf(weg) < 0;
+  });
+  document.body.dataset.weg = weg;
+  const chip = document.getElementById("wegChip");
+  if (chip) chip.textContent = "Weg: " + (weg ? WEGE[weg] : "–");
+  document.querySelectorAll(".wegknopf").forEach(b => b.classList.toggle("gewaehlt", b.dataset.weg === weg));
+}
+function wegSetzen(neu, still) {
+  if (!WEGE[neu]) return;
+  const alt = weg;
+  weg = neu;
+  wegAnwenden();
+  if (!still && alt !== neu) {
+    protokolliere("weg-wahl", "weg", WEGE[neu],
+      (vorschlag ? "Vorschlag war " + WEGE[vorschlag] : "ohne Diagnose") + (alt ? "; vorher " + WEGE[alt] : ""));
+    const r = document.getElementById("rueck-weg");
+    if (r) {
+      r.className = "rueck zeig gut";
+      r.innerHTML = "<b>Weg " + WEGE[neu] + " gewählt.</b> " +
+        (vorschlag && neu !== vorschlag ? "Er weicht vom Vorschlag ab – das ist erlaubt. " : "") +
+        "Weiter geht es unten rechts.";
+    }
+  }
+  sperrenPruefen();
+}
+document.querySelectorAll(".wegknopf").forEach(b =>
+  b.addEventListener("click", () => wegSetzen(b.dataset.weg)));
+
+/* Hinweis in jeder Phase mit wegabhängigen Teilen, solange kein Weg gewählt ist. */
+document.querySelectorAll("section.phase").forEach(sec => {
+  const erstes = sec.querySelector("[data-pfad]");
+  if (!erstes || sec.id === "phase-diagnose") return;
+  const h = document.createElement("div");
+  h.className = "karte warn weghinweis";
+  h.innerHTML = "<h4>Hier fehlt noch euer Weg</h4><p>Ein Teil dieser Phase hängt davon ab, welchen Weg ihr " +
+    "nach dem Check wählt. </p>";
+  const b = document.createElement("button");
+  b.className = "knopf"; b.textContent = "Zum Check";
+  b.addEventListener("click", () => zeige(phasen.indexOf(document.getElementById("phase-diagnose"))));
+  h.querySelector("p").appendChild(b);
+  erstes.parentNode.insertBefore(h, erstes);
+});
+const wegChipEl = document.getElementById("wegChip");
+if (wegChipEl) wegChipEl.addEventListener("click", () => {
+  const d = document.getElementById("phase-diagnose");
+  if (d) zeige(phasen.indexOf(d));
+});
+
+/* Gestufte Hilfen: Stufe k öffnet sich erst, wenn Stufe k-1 einmal offen war.
+   Kein innerHTML-Umbau im Summary während eines Klicks (siehe Falle 1). */
+document.querySelectorAll(".hilfen").forEach(box => {
+  const id = box.id;
+  const stufen = Array.from(box.querySelectorAll("details.hilfe"));
+  hilfenStand[id] = 0;
+  stufen.forEach((d, k) => {
+    const sum = d.querySelector("summary");
+    const note = document.createElement("span");
+    note.className = "hilfenote";
+    sum.appendChild(note);
+    d._note = note;
+    sum.addEventListener("click", e => {
+      if (d.open) return;                                   // Zuklappen immer erlaubt
+      if (k > hilfenStand[id]) {                            // Vorstufe noch nicht genutzt
+        e.preventDefault();
+        protokolliere("hilfe-gesperrt", id, "Hilfe " + (k + 1) + " vor Hilfe " + k + " angeklickt");
+        return;
+      }
+      if (k === hilfenStand[id]) {
+        hilfenStand[id] = k + 1;
+        const feld = box.dataset.feld;
+        const stand = feld ? ((document.getElementById(feld) || {}).value || "").trim() : "";
+        protokolliere("hilfe-geoeffnet", id, "Hilfe " + (k + 1) + " von " + stufen.length,
+          "Stand im Feld: " + (stand || "(leer)"));
+        setTimeout(hilfenMalen, 0);
+      }
+    });
+  });
+});
+function hilfenMalen() {
+  document.querySelectorAll(".hilfen").forEach(box => {
+    Array.from(box.querySelectorAll("details.hilfe")).forEach((d, k) => {
+      const zu = k > hilfenStand[box.id];
+      d.classList.toggle("zu", zu);
+      const t = zu ? " – erst Hilfe " + k + " ansehen" : "";
+      if (d._note.textContent !== t) d._note.textContent = t;
+    });
+  });
+}
+hilfenMalen();
+function hilfenText() {
+  return Object.keys(hilfenStand).filter(id => document.getElementById(id) && !document.getElementById(id).closest("[hidden]"))
+    .map(id => (FELDNAMEN[document.getElementById(id).dataset.feld] || id) + ": " + hilfenStand[id] + " von " +
+      document.getElementById(id).querySelectorAll("details.hilfe").length).join(" · ");
+}
+wegAnwenden();
+
+
+/* ============================================================
+   Video mit Haltepunkten (Baustein, an jeder Stelle einsetzbar)
+   ============================================================
+   <div class="videohalt" id="v-xyz" data-label="Erklärvideo: …" data-src="videos/xyz.mp4">
+     (darin ein Skriptblock type="application/json" class="halte" mit der Liste
+      [{"t": 18, "frage": "…", "art": "text", "min": 15, "nach": "…"},
+       {"t": 52, "frage": "…", "art": "mc", "optionen": ["…","…"], "richtig": 1, "nach": "…"}],
+      danach ein div class="ersatz" mit Standbild und demselben Inhalt als Text)
+   </div>
+   Das Video hält an jedem Haltepunkt an und läuft erst weiter, wenn die
+   Frage beantwortet ist; Vorspulen über einen offenen Haltepunkt springt
+   zurück. Lädt das Video nicht (kein Netz, Datei fehlt), erscheint der
+   Ersatz mit allen Fragen auf einmal - dieselben Felder, dasselbe Protokoll.
+   Die Antwortfelder sind normale Felder mit id und data-label: Protokoll,
+   Ergebnisliste, Zwischenspeicher und Abgabe erfassen sie ohne Zusatzcode. */
+const VIDEOS = {};
+document.querySelectorAll(".videohalt").forEach(box => {
+  const id = box.id, label = box.dataset.label || id;
+  let halte = [];
+  try { halte = JSON.parse((box.querySelector("script.halte") || {}).textContent || "[]"); }
+  catch (e) { console.error("Haltepunkte in #" + id + " sind kein gültiges JSON"); }
+  halte.sort((a, b) => a.t - b.t);
+  const ersatz = box.querySelector(".ersatz");
+  const mm = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+  const video = document.createElement("video");
+  video.controls = true; video.preload = "metadata";
+  video.setAttribute("playsinline", ""); video.setAttribute("webkit-playsinline", "");
+  if (box.dataset.poster) video.poster = box.dataset.poster;
+  if (box.dataset.src && !/\{\{/.test(box.dataset.src)) video.src = box.dataset.src;   // Platzhalter nicht laden
+  const status = document.createElement("p");
+  status.className = "videostatus";
+  box.insertBefore(video, box.firstChild);
+  box.insertBefore(status, video.nextSibling);
+
+  const fragen = halte.map((h, k) => {
+    const d = document.createElement("div");
+    d.className = "haltfrage";
+    const fid = id + "-h" + (k + 1);
+    d.innerHTML = '<p class="haltkopf"><b>Halt ' + (k + 1) + '</b> <span class="haltzeit">bei ' + mm(h.t) + '</span></p><p></p>';
+    d.children[1].innerHTML = h.frage;
+    let feld;
+    if (h.art === "mc") {
+      feld = document.createElement("input");
+      feld.type = "text"; feld.style.display = "none";
+      const mcBox = document.createElement("div"); mcBox.className = "mc";
+      (h.optionen || []).forEach((t, j) => {
+        const b = document.createElement("button");
+        b.textContent = t;
+        b.addEventListener("click", () => {
+          if (feld.value) return;                       // ein Versuch, wie im Check
+          const ok = j === h.richtig;
+          b.classList.add(ok ? "richtig" : "falsch");
+          if (!ok && mcBox.children[h.richtig]) mcBox.children[h.richtig].classList.add("richtig");
+          mcBox.classList.add("fest");
+          feld.value = t + (ok ? "  [richtig]" : "  [falsch]");
+          feld.dispatchEvent(new Event("change", { bubbles: true }));
+          beantwortet(k);
+        });
+        mcBox.appendChild(b);
+      });
+      d.appendChild(mcBox);
+    } else {
+      feld = document.createElement("textarea");
+      feld.placeholder = "Erst selbst überlegen, dann weiter …";
+      feld.addEventListener("input", () => beantwortet(k));
+      feld.addEventListener("blur", () => { if (ersatzModus && feldOk(k)) abschliessen(k); });
+    }
+    feld.id = fid; feld.dataset.label = label + " – Halt " + (k + 1);
+    d.appendChild(feld);
+    const nach = document.createElement("div");
+    nach.className = "rueck"; d.appendChild(nach);
+    const weiter = document.createElement("button");
+    weiter.className = "knopf voll weiterknopf"; weiter.textContent = "▶ Weiter im Video"; weiter.disabled = true;
+    weiter.addEventListener("click", () => {
+      if (!feldOk(k)) return;
+      abschliessen(k);
+      const p = video.play(); if (p && p.catch) p.catch(() => { });
+    });
+    d.appendChild(weiter);
+    box.insertBefore(d, ersatz || null);
+    return { d, feld, nach, weiter, h };
+  });
+
+  function feldOk(k) {
+    const f = fragen[k], v = (f.feld.value || "").trim();
+    return f.h.art === "mc" ? v.length > 0 : v.length >= (f.h.min || 15);
+  }
+  function beantwortet(k) {
+    const f = fragen[k];
+    f.weiter.disabled = !feldOk(k);
+    if (f.h.art === "mc") rueckZeigen(k);        // Auswahl ist endgültig, Rückmeldung sofort
+    if (ersatzModus && f.h.art !== "mc") { /* im Ersatz: Rückmeldung beim Verlassen des Feldes */ }
+    malen();
+  }
+  function rueckZeigen(k) {
+    const f = fragen[k];
+    if (f.h.nach && !f.nach.classList.contains("zeig")) { f.nach.className = "rueck zeig gut"; f.nach.innerHTML = f.h.nach; }
+  }
+  /* Ein Halt ist erledigt, sobald es weitergeht - per Knopf oder per ▶ mit fertiger Antwort.
+     Erst dann erscheint bei Textfragen die Rückmeldung: Sie soll nicht beim Tippen mitlesen. */
+  function abschliessen(k) {
+    const f = fragen[k];
+    if (f.d.classList.contains("erledigt") || !feldOk(k)) return;
+    protokolliere("video-halt", f.feld.id, f.feld.value.trim(), "Halt " + (k + 1) + " bei " + mm(f.h.t) + " beantwortet");
+    f.d.classList.add("erledigt"); f.weiter.style.display = "none"; rueckZeigen(k);
+    if (wartet === k) wartet = -1;
+    malen();
+  }
+  function offen() { for (let k = 0; k < fragen.length; k++) if (!feldOk(k)) return k; return -1; }
+  let ersatzModus = false, wartet = -1, gemeldetVor = {}, gesehenBis = 0;
+
+  function malen() {
+    const n = offen();
+    fragen.forEach((f, k) => {
+      const sichtbar = ersatzModus || k < n || n < 0 || k === wartet;
+      f.d.classList.toggle("sichtbar", sichtbar);
+      f.weiter.style.display = (ersatzModus || f.d.classList.contains("erledigt")) ? "none" : "";
+    });
+    status.textContent = ersatzModus
+      ? "Das Video lädt hier nicht. Lest den Text unten und beantwortet die Fragen dort – sie zählen genauso."
+      : (wartet >= 0 ? (feldOk(wartet) ? "Antwort steht – weiter mit „Weiter im Video“."
+                         : "▶ ist gesperrt: erst Halt " + (wartet + 1) + " beantworten, dann „Weiter im Video“.")
+         : n < 0 ? "Alle Haltepunkte beantwortet – ihr könnt frei spulen."
+         : (false ? ""
+            : "Das Video hält " + fragen.length + "-mal an. Nächster Halt bei " + mm(fragen[n].h.t) + "."));
+  }
+
+  video.addEventListener("timeupdate", () => {
+    const n = offen();
+    gesehenBis = Math.max(gesehenBis, video.currentTime);
+    if (n >= 0 && video.currentTime >= fragen[n].h.t - 0.05) {
+      video.pause();
+      if (Math.abs(video.currentTime - fragen[n].h.t) > 0.3) video.currentTime = fragen[n].h.t;
+      if (wartet !== n) {
+        wartet = n; malen();
+        fragen[n].d.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        protokolliere("video-halt-erreicht", fragen[n].feld.id, "Halt " + (n + 1) + " bei " + mm(fragen[n].h.t));
+      }
+    }
+  });
+  video.addEventListener("play", () => {
+    if (wartet >= 0 && feldOk(wartet)) abschliessen(wartet);
+    const n = offen();
+    if (n >= 0 && n === wartet) { video.pause(); malen(); }
+  });
+  video.addEventListener("seeking", () => {
+    const n = offen();
+    if (n >= 0 && video.currentTime > fragen[n].h.t + 0.3) {
+      video.currentTime = fragen[n].h.t;
+      if (!gemeldetVor[n]) {
+        gemeldetVor[n] = true;
+        protokolliere("video-vorgespult", fragen[n].feld.id, "Vorspulen über Halt " + (n + 1) + " zurückgesetzt");
+      }
+    }
+  });
+  video.addEventListener("ended", () => protokolliere("video-ende", id, "Video zu Ende gesehen (" + mm(video.duration || 0) + ")"));
+  video.addEventListener("loadedmetadata", () => {
+    const zuSpaet = fragen.filter(f => f.h.t >= video.duration);
+    if (zuSpaet.length) console.error("Haltepunkt nach dem Videoende in #" + id + ": " + zuSpaet.map(f => f.h.t).join(", "));
+  });
+  function zumErsatz(grund) {
+    if (ersatzModus) return;
+    ersatzModus = true;
+    box.classList.add("ersatzmodus");
+    video.style.display = "none";
+    malen();
+    protokolliere("video-ersatz", id, grund);
+  }
+  video.addEventListener("error", () => zumErsatz("Video lädt nicht (" + (video.error ? "Fehler " + video.error.code : "ohne Quelle") + ")"));
+  if (!video.getAttribute("src")) setTimeout(() => zumErsatz("keine Videoquelle eingetragen"), 0);
+  setTimeout(() => { if (!ersatzModus && video.readyState === 0 && video.networkState !== 2) zumErsatz("Video nach 10 s nicht geladen"); }, 10000);
+
+  /* Neue Quelle (auch für das Prüfskript): verlässt den Ersatz wieder. */
+  function quelleSetzen(src) {
+    ersatzModus = false; box.classList.remove("ersatzmodus"); video.style.display = "";
+    wartet = -1; video.src = src; video.load(); malen();
+  }
+  VIDEOS[id] = { video, fragen, malen, offen, quelleSetzen, ersatz: () => ersatzModus };
+  malen();
+});
+function videosAuffrischen() { Object.values(VIDEOS).forEach(v => v.fragen.forEach((f, k) => { if ((f.feld.value || "").trim()) { f.weiter.disabled = false; if (f.h.art === "mc") { const mcb = f.d.querySelector(".mc"); if (mcb) mcb.classList.add("fest"); } } })); Object.values(VIDEOS).forEach(v => v.malen()); }
+
+/* ---------- Interaktiver Kern: dieselbe Rate in verschiedenen Einheiten ----------
+   Zwei ausgedachte Wertereihen, geradlinig verbunden. Die Regler wählen
+   Messpunkte (Index), die Auswahlfelder nur die Einheit der Rechnung.
+   Faktor = Wert in der gewählten Einheit pro Wert in der Grundeinheit. */
+function zahl(x, st) {
+  const r = Math.round(x * 10000) / 10000;
+  return (Object.is(r, -0) ? 0 : r).toLocaleString("de-DE", { maximumFractionDigits: st === undefined ? 4 : st }).replace("-", "−");
+}
+const KONTEXTE = {
+  fahrt: { name: "Fahrt", xs: [0, 10, 20, 30, 40, 50, 60], ys: [0, 4, 7, 7, 12, 16, 18],
+           xb: "min", yb: "km", xlab: "Zeit in min", ylab: "Weg in km", ymin: 0, ymax: 20, ystep: 2,
+           xein: { "min": 1, "h": 1 / 60, "s": 60 }, yein: { "km": 1, "m": 1000 }, a: 1, b: 2 },
+  anstieg: { name: "Anstieg", xs: [0, 1, 2, 3, 4, 5], ys: [400, 450, 540, 660, 700, 690],
+             xb: "km", yb: "m", xlab: "Strecke in km", ylab: "Höhe in m", ymin: 350, ymax: 750, ystep: 50,
+             xein: { "km": 1, "m": 1000 }, yein: { "m": 1 }, a: 2, b: 3 }
+};
+let modellKontext = "fahrt";
+(function modellKern() {
+  const cv = document.getElementById("c-modell");
+  if (!cv) return;
+  const ctx = cv.getContext("2d");
+  const rA = document.getElementById("r-a"), rB = document.getElementById("r-b");
+  const sX = document.getElementById("s-xein"), sY = document.getElementById("s-yein");
+  const W = cv.width, H = cv.height, L = 64, R = 24, O = 22, U = 48;
+  function mal() {
+    const K = KONTEXTE[modellKontext];
+    const ia = +rA.value, ib = +rB.value;
+    const xa = K.xs[ia], xb = K.xs[ib], ya = K.ys[ia], yb = K.ys[ib];
+    document.getElementById("l-a").textContent = zahl(xa) + " " + K.xb;
+    document.getElementById("l-b").textContent = zahl(xb) + " " + K.xb;
+    const xmax = K.xs[K.xs.length - 1];
+    const X = x => L + x / xmax * (W - L - R);
+    const Y = y => O + (K.ymax - y) / (K.ymax - K.ymin) * (H - O - U);
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = "15px sans-serif";
+    ctx.strokeStyle = "#e6ecf0"; ctx.lineWidth = 1;
+    K.xs.forEach(x => { ctx.beginPath(); ctx.moveTo(X(x), Y(K.ymin)); ctx.lineTo(X(x), Y(K.ymax)); ctx.stroke(); });
+    for (let y = K.ymin; y <= K.ymax; y += K.ystep) { ctx.beginPath(); ctx.moveTo(X(0), Y(y)); ctx.lineTo(X(xmax), Y(y)); ctx.stroke(); }
+    ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 1.5; ctx.fillStyle = "#1a2229";
+    ctx.beginPath(); ctx.moveTo(X(0), Y(K.ymin)); ctx.lineTo(X(xmax), Y(K.ymin)); ctx.moveTo(X(0), Y(K.ymin)); ctx.lineTo(X(0), Y(K.ymax)); ctx.stroke();
+    ctx.textAlign = "center"; K.xs.forEach(x => ctx.fillText(zahl(x), X(x), Y(K.ymin) + 18));
+    ctx.textAlign = "right";
+    for (let y = K.ymin; y <= K.ymax; y += 2 * K.ystep) ctx.fillText(zahl(y), X(0) - 6, Y(y) + 5);
+    ctx.fillText(K.xlab, X(xmax), Y(K.ymin) + 38); ctx.textAlign = "left"; ctx.fillText(K.ylab, X(0) + 8, O + 4);
+    ctx.strokeStyle = "#0b7fc4"; ctx.lineWidth = 3; ctx.beginPath();
+    K.xs.forEach((x, i) => i ? ctx.lineTo(X(x), Y(K.ys[i])) : ctx.moveTo(X(x), Y(K.ys[i]))); ctx.stroke();
+    ctx.fillStyle = "#0b7fc4";
+    K.xs.forEach((x, i) => { ctx.beginPath(); ctx.arc(X(x), Y(K.ys[i]), 4, 0, 2 * Math.PI); ctx.fill(); });
+    if (ib <= ia) {
+      ["a-dx", "a-dy", "a-dq"].forEach(id => document.getElementById(id).textContent = "–");
+      ctx.fillStyle = "#c62828"; ctx.textAlign = "center"; ctx.fillText("b muss größer sein als a", W / 2, O + 24);
+      return;
+    }
+    const m = (yb - ya) / (xb - xa);
+    ctx.save(); ctx.beginPath(); ctx.rect(L, O, W - L - R, H - O - U); ctx.clip();
+    ctx.strokeStyle = "#8e24aa"; ctx.lineWidth = 2.5; ctx.beginPath();
+    ctx.moveTo(X(0), Y(ya + m * (0 - xa))); ctx.lineTo(X(xmax), Y(ya + m * (xmax - xa))); ctx.stroke(); ctx.restore();
+    ctx.strokeStyle = "#c62828"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(X(xa), Y(ya)); ctx.lineTo(X(xb), Y(ya)); ctx.lineTo(X(xb), Y(yb)); ctx.stroke();
+    const fx = K.xein[sX.value], fy = K.yein[sY.value];
+    const dx = (xb - xa) * fx, dy = (yb - ya) * fy;
+    ctx.fillStyle = "#c62828"; ctx.textAlign = "center";
+    ctx.fillText("Δx = " + zahl(dx) + " " + sX.value, (X(xa) + X(xb)) / 2, Y(ya) + (yb >= ya ? 20 : -8));
+    const rechtsFrei = X(xb) + 150 < W;
+    ctx.textAlign = rechtsFrei ? "left" : "right";
+    const flach = Math.abs(Y(ya) - Y(yb)) < 24;
+    ctx.fillText("Δy = " + zahl(dy) + " " + sY.value, X(xb) + (rechtsFrei ? 8 : -8), flach ? Y(yb) - 12 : (Y(ya) + Y(yb)) / 2 + 5);
+    ctx.fillStyle = "#1a2229";
+    [[xa, ya, "P"], [xb, yb, "Q"]].forEach(([x, y, n]) => {
+      ctx.beginPath(); ctx.arc(X(x), Y(y), 6, 0, 2 * Math.PI); ctx.fill();
+      ctx.textAlign = "right"; ctx.fillText(n, X(x) - 9, Y(y) - 9);
+    });
+    document.getElementById("a-dx").textContent = zahl(dx) + " " + sX.value;
+    document.getElementById("a-dy").textContent = zahl(dy) + " " + sY.value;
+    document.getElementById("a-dq").textContent = zahl(dy / dx) + " " + sY.value + " pro " + sX.value;
+  }
+  function fuellen(sel, ein) {
+    sel.innerHTML = "";
+    Object.keys(ein).forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = k; sel.appendChild(o); });
+  }
+  function setzeKontext(name, still) {
+    modellKontext = name;
+    const K = KONTEXTE[name];
+    [rA, rB].forEach(r => { r.min = 0; r.max = K.xs.length - 1; r.step = 1; });
+    rA.value = K.a; rB.value = K.b;
+    fuellen(sX, K.xein); fuellen(sY, K.yein);
+    document.querySelectorAll("#funkwahl .knopf").forEach(k => k.classList.toggle("aktivw", k.dataset.f === name));
+    mal();
+    if (!still) protokolliere("modell", "situation", K.name);
+  }
+  let modellLog = null;
+  function geschoben() {
+    mal();
+    clearTimeout(modellLog);
+    modellLog = setTimeout(() => protokolliere("modell", KONTEXTE[modellKontext].name,
+      "a = " + document.getElementById("l-a").textContent + ", b = " + document.getElementById("l-b").textContent +
+      ", Δy/Δx = " + document.getElementById("a-dq").textContent), 1500);
+  }
+  [rA, rB, sX, sY].forEach(e => e.addEventListener("input", geschoben));
+  [sX, sY].forEach(e => e.addEventListener("change", geschoben));
+  document.querySelectorAll("#funkwahl .knopf").forEach(k => k.addEventListener("click", () => setzeKontext(k.dataset.f)));
+  setzeKontext("fahrt", true);
+})();
+
+/* ---------- Prüftabellen: grün = richtig, gelb = Betrag richtig, Vorzeichen falsch ---------- */
+function pruefeTabelle(tabId) {
+  const eingaben = [];
+  document.querySelectorAll("#" + tabId + " input").forEach(inp => {
+    const td = inp.parentElement;
+    const soll = parseFloat(inp.dataset.soll), tol = parseFloat(inp.dataset.tol);
+    const roh = String(inp.value).trim().replace(/−/g, "-").replace(/\s/g, "").replace(",", ".");
+    const ist = parseFloat(roh);
+    td.classList.remove("ok", "fast");
+    const ok = !isNaN(ist) && Math.abs(ist - soll) <= tol;
+    const fast = !ok && !isNaN(ist) && soll !== 0 && Math.abs(Math.abs(ist) - Math.abs(soll)) <= tol;
+    if (ok) td.classList.add("ok"); else if (fast) td.classList.add("fast");
+    eingaben.push({ id: inp.id, ok: ok, fast: fast, leer: isNaN(ist), wert: ist, soll: soll });
+  });
+  return eingaben;
+}
+function rueckmelden(rueckId, eingaben, extra) {
+  const gut = eingaben.filter(e => e.ok).length, ges = eingaben.length;
+  const rb = document.getElementById(rueckId);
+  rb.className = "rueck zeig " + (gut === ges ? "gut" : "schlecht");
+  rb.innerHTML = "<b>" + gut + " von " + ges + "</b> Werten stimmen (grün). " +
+    (gut === ges ? "Sauber gerechnet." : (extra || (eingaben.some(e => e.fast)
+      ? "Gelb heißt: Betrag stimmt, Vorzeichen nicht. Ende minus Anfang!" : "Prüft die anderen Werte noch einmal.")));
+  return gut + " von " + ges;
+}
+
+/* Radtour, Buch S. 97 Nr. 3 */
+const RT_T = [0, 1, 2.5, 3, 4, 6, 6.5, 7], RT_S = [0, 8, 24, 30, 30, 66, 74, 85];
+function radtourZeichnen(eingaben) {
+  const cv = document.getElementById("c-radtour");
+  if (!cv) return;
+  const ctx = cv.getContext("2d"), W = cv.width, H = cv.height, L = 56, R = 20, O = 22, U = 44;
+  const X = x => L + x / 7.5 * (W - L - R), Y = y => O + (90 - y) / 90 * (H - O - U);
+  ctx.clearRect(0, 0, W, H); ctx.font = "15px sans-serif";
+  ctx.strokeStyle = "#e6ecf0"; ctx.lineWidth = 1;
+  for (let x = 0; x <= 7; x += 0.5) { ctx.beginPath(); ctx.moveTo(X(x), Y(0)); ctx.lineTo(X(x), Y(90)); ctx.stroke(); }
+  for (let y = 0; y <= 90; y += 10) { ctx.beginPath(); ctx.moveTo(X(0), Y(y)); ctx.lineTo(X(7.5), Y(y)); ctx.stroke(); }
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 1.5; ctx.fillStyle = "#1a2229";
+  ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(7.5), Y(0)); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(0), Y(90)); ctx.stroke();
+  ctx.textAlign = "center"; for (let x = 1; x <= 7; x++) ctx.fillText(x, X(x), Y(0) + 18);
+  ctx.textAlign = "right"; for (let y = 20; y <= 80; y += 20) ctx.fillText(y, X(0) - 6, Y(y) + 5);
+  ctx.fillText("Zeit in h", X(7.5), Y(0) + 36); ctx.textAlign = "left"; ctx.fillText("Weg in km", X(0) + 8, O + 2);
+  if (eingaben) for (let k = 0; k < 7; k++) {
+    const e = eingaben[k];
+    ctx.strokeStyle = e.ok ? "#2e7d32" : (e.leer ? "#90a4ae" : "#c62828"); ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(X(RT_T[k]), Y(RT_S[k])); ctx.lineTo(X(RT_T[k + 1]), Y(RT_S[k + 1])); ctx.stroke();
+    ctx.fillStyle = ctx.strokeStyle; ctx.textAlign = "right";
+    ctx.fillText(e.leer ? "?" : zahl(e.wert, 2), (X(RT_T[k]) + X(RT_T[k + 1])) / 2 - 6, (Y(RT_S[k]) + Y(RT_S[k + 1])) / 2 - 8);
+  }
+  ctx.fillStyle = "#1a2229";
+  RT_T.forEach((x, i) => { ctx.beginPath(); ctx.arc(X(x), Y(RT_S[i]), 5, 0, 2 * Math.PI); ctx.fill(); });
+  ctx.fillStyle = "#607080"; ctx.textAlign = "right";
+  ctx.fillText(eingaben ? "Annahme aus b): in jeder Etappe gleichmäßig" : "die Tabellenpunkte", X(7.5), Y(8));
+}
+document.getElementById("k-pruefe-rt").addEventListener("click", () => {
+  const e = pruefeTabelle("tab-rt");
+  const gesamt = e[7];
+  const extra = (!gesamt.ok && !gesamt.leer && Math.abs(gesamt.wert - 12.38) < 0.03)
+    ? "Bei der ganzen Tour habt ihr die Etappen gemittelt. Rechnet stattdessen 85 km durch 7 h."
+    : (e[1].leer || e[1].ok ? null : "Prüft [1; 2,5]: Die Etappe dauert 1,5 h.");
+  antworten["radtour"] = rueckmelden("rueck-rt", e, extra) + " Geschwindigkeiten richtig";
+  radtourZeichnen(e);
+});
+radtourZeichnen(null);
+
+/* Höhenprofil, Buch S. 95 Nr. 2 */
+document.getElementById("k-pruefe-mtb").addEventListener("click", () => {
+  const e = pruefeTabelle("tab-mtb");
+  const prozent = e.slice(7);
+  const malZehn = prozent.some(p => !p.ok && !p.leer && Math.abs(Math.abs(p.wert) - Math.abs(p.soll) * 10) < 1.6);
+  antworten["hoehenprofil"] = rueckmelden("rueck-mtb", e,
+    malZehn ? "Einige Prozentwerte sind zehnmal zu groß: Das sind m pro km. Erst km in m umrechnen." : null) + " Werte richtig";
+});
+
+/* Gewinn, Buch S. 99 Nr. 11 */
+function gewinnZeichnen(eingaben) {
+  const cv = document.getElementById("c-gewinn");
+  if (!cv) return;
+  const ctx = cv.getContext("2d"), W = cv.width, H = cv.height, L = 60, R = 16, O = 24, U = 40;
+  const Y = y => O + (350 - y) / 500 * (H - O - U), bw = (W - L - R) / 12;
+  ctx.clearRect(0, 0, W, H); ctx.font = "14px sans-serif";
+  ctx.strokeStyle = "#e6ecf0"; ctx.lineWidth = 1;
+  for (let y = -150; y <= 350; y += 50) { ctx.beginPath(); ctx.moveTo(L, Y(y)); ctx.lineTo(W - R, Y(y)); ctx.stroke(); }
+  ctx.fillStyle = "#1a2229"; ctx.textAlign = "right";
+  for (let y = -100; y <= 300; y += 100) ctx.fillText(y, L - 6, Y(y) + 5);
+  ctx.textAlign = "left"; ctx.fillText("Änderung in 1000 € pro Monat", L + 6, 14);
+  const namen = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  eingaben.forEach((e, k) => {
+    const x = L + k * bw + bw * 0.18, w = bw * 0.64;
+    if (!e.leer) {
+      ctx.fillStyle = e.ok ? "#66bb6a" : "#ef9a9a";
+      const v = Math.max(-150, Math.min(350, e.wert));
+      ctx.fillRect(x, Math.min(Y(0), Y(v)), w, Math.abs(Y(v) - Y(0)));
+    }
+    ctx.fillStyle = "#1a2229"; ctx.textAlign = "center"; ctx.fillText(namen[k], x + w / 2, H - 14);
+  });
+  ctx.strokeStyle = "#1a2229"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(W - R, Y(0)); ctx.stroke();
+}
+document.getElementById("k-pruefe-gewinn").addEventListener("click", () => {
+  const e = pruefeTabelle("tab-gewinn");
+  const bestand = e.some(p => !p.ok && !p.leer && [100, 300, 550, 700, 1000, 1200, 1300, 1300, 1200, 1100, 1150, 1250]
+    .includes(p.wert));
+  antworten["gewinn"] = rueckmelden("rueck-gewinn", e,
+    bestand ? "Manche Werte sind der Gewinn seit Jahresbeginn (Bestand). Gesucht ist die Änderung: dieser Monat minus Vormonat." : null)
+    + " Monatswerte richtig";
+  gewinnZeichnen(e);
+});
+gewinnZeichnen(Array.from({ length: 12 }, () => ({ ok: false, leer: true, wert: NaN })));
+
+/* ---------- Quiz: acht Fragen an den acht Stellen, an denen es klemmt ----------
+   Jede Frage: eine Aussage, vier Optionen, r = Index der richtigen,
+   e = Erklärung, die auch bei richtiger Antwort etwas hinzufügt. */
+/* ---------- 9 Quiz ---------- */
+const fragen = [
+  { f: "x ist die Menge in kg, f(x) sind die Kosten in €. Welche Einheit hat der Differenzenquotient?",
+    o: ["kg pro €", "€ pro kg", "€", "€ mal kg"], r: 1,
+    e: "Oben eine Differenz von Euro, unten eine Differenz von Kilogramm: € pro kg, also ein Preis." },
+  { f: "Ein Zug fährt im Durchschnitt 72 km pro h. Wie viele Meter pro Sekunde sind das?",
+    o: ["72 000 m pro s", "1,2 m pro s", "20 m pro s", "259,2 m pro s"], r: 2,
+    e: "72 km = 72 000 m, 1 h = 3600 s. 72 000 : 3600 = 20 m pro s. Kurz: km pro h geteilt durch 3,6." },
+  { f: "Eine Straße fällt auf 800 m Strecke um 48 m. Welche mittlere Steigung hat sie?",
+    o: ["6 %", "−6 %", "−0,06 %", "−60 %"], r: 1,
+    e: "−48 m : 800 m = −0,06 = −6 %. Gleiche Einheit oben und unten, dann mal 100 %. Gefälle heißt negatives Vorzeichen." },
+  { f: "Eine Radfahrerin fährt 1 h und schafft 12 km, macht 30 min Pause und fährt dann 1 h 18 km. Wie groß ist ihre Durchschnittsgeschwindigkeit über die 2,5 h?",
+    o: ["15 km pro h", "10 km pro h", "18 km pro h", "12 km pro h"], r: 3,
+    e: "30 km in 2,5 h = 12 km pro h. Die Pause zählt mit, aber nicht als dritter gleich langer Teil: (12 + 0 + 18) : 3 = 10 ist falsch." },
+  { f: "Die Zahl der Downloads einer App seit dem Start wächst im März um 500, im April nur noch um 300. Was macht die Gesamtzahl der Downloads im April?",
+    o: ["Sie sinkt.", "Sie steigt weiter, aber langsamer.", "Sie bleibt gleich.", "Sie sinkt um 200."], r: 1,
+    e: "Die Änderung ist im April positiv (+300). Der Bestand wächst also weiter. Kleiner geworden ist nur die Rate." },
+  { f: "Um 10 Uhr sind es −4 °C, um 14 Uhr +6 °C. Welche Aussage stimmt?",
+    o: ["Die Temperatur ändert sich um 2 °C.", "Die mittlere Änderungsrate ist 2,5 °C pro Stunde.",
+        "Die mittlere Änderungsrate ist 0,5 °C pro Stunde.", "Die absolute Änderung ist 10 °C pro Stunde."], r: 1,
+    e: "(6 − (−4)) : (14 − 10) = 10 : 4 = 2,5 °C pro h. Die absolute Änderung ist 10 °C, ohne „pro Stunde“." },
+  { f: "Ein Bergsteiger schafft im Mittel 300 Höhenmeter pro Stunde. Er startet auf 1200 m. Auf welcher Höhe ist er nach 2 h 30 min?",
+    o: ["1890 m", "1950 m", "1500 m", "2100 m"], r: 1,
+    e: "2 h 30 min = 2,5 h. 300 · 2,5 = 750 m, also 1950 m. Wer 1890 hat, hat 2 h 30 min als 2,3 h gerechnet." },
+  { f: "Ein Kreditkonto steht im Monat 0 bei −5000 €, im Monat 6 bei −3800 €. Wie groß ist die mittlere Änderungsrate?",
+    o: ["−200 € pro Monat", "1200 €", "+200 € pro Monat", "−1466,67 € pro Monat"], r: 2,
+    e: "(−3800 − (−5000)) : 6 = 1200 : 6 = +200 € pro Monat. Die Schulden werden kleiner, der Kontostand steigt: positive Rate." }
+];
+let quizPunkte = 0, quizBeantwortet = 0;
+const quizBox = document.getElementById("quiz");
+fragen.forEach((q, i) => {
+  const d = document.createElement("div");
+  d.className = "quizfrage";
+  d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+  const mcb = document.createElement("div"); mcb.className = "mc";
+  const rb = document.createElement("div"); rb.className = "rueck";
+  let erledigt = false;
+  q.o.forEach((text, k) => {
+    const b = document.createElement("button");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (erledigt) return;
+      erledigt = true; quizBeantwortet++;
+      Array.from(mcb.children).forEach((x, j) => {
+        if (j === q.r) x.classList.add("richtig");
+      });
+      if (k !== q.r) b.classList.add("falsch"); else quizPunkte++;
+      rb.className = "rueck zeig " + (k === q.r ? "gut" : "schlecht");
+      rb.innerHTML = (k === q.r ? "<b>Richtig.</b> " : "<b>Falsch.</b> ") + q.e;
+      const erg = document.getElementById("quiz-ergebnis");
+      erg.style.display = "block";
+      document.getElementById("quiz-punkte").textContent = quizPunkte + " / " + fragen.length;
+      document.getElementById("quiz-text").textContent =
+        quizBeantwortet < fragen.length ? "(" + quizBeantwortet + " von " + fragen.length + " beantwortet)"
+          : quizPunkte >= 7 ? "– sehr gut, das sitzt."
+            : quizPunkte >= 5 ? "– solide. Schaut euch die falschen Erklärungen noch einmal an."
+              : "– noch wacklig. Geht zurück zu Phase 5 und lest den Merksatz.";
+      antworten["quiz"] = quizPunkte + " von " + fragen.length + " Quizfragen richtig";
+    });
+    mcb.appendChild(b);
+  });
+  d.appendChild(mcb); d.appendChild(rb); quizBox.appendChild(d);
+});
+
+/* ============================================================
+   10  Protokoll – läuft mit, ist nur erweiterbar
+   ============================================================ */
+const PROTOKOLL_VERSION = 3;
+const SPEICHER = "sachkontexte-11a-protokoll-v3";   // pro Stunde eindeutig!
+const LEHRER_MAIL = "michael.glaubitz@ae-gym.de";
+const gestartet = new Date();
+
+function zwei(n) { return String(n).padStart(2, "0"); }
+function stempel(d) {
+  d = d || new Date();
+  return d.getFullYear() + "-" + zwei(d.getMonth() + 1) + "-" + zwei(d.getDate()) +
+    " " + zwei(d.getHours()) + ":" + zwei(d.getMinutes()) + ":" + zwei(d.getSeconds());
+}
+function protokolliere(art, feld, wert, zusatz) {
+  const e = {
+    nr: protokollEintraege.length + 1, zeit: stempel(), art: art,
+    feld: feld || "", wert: wert === undefined || wert === null ? "" : String(wert)
+  };
+  if (zusatz) e.zusatz = String(zusatz);
+  protokollEintraege.push(Object.freeze(e));   // bestehende Einträge werden nie verändert
+  chipMalen();
+  speichern();
+}
+function chipMalen() {
+  const c = document.getElementById("protokollChip");
+  if (!c) return;
+  c.textContent = "Protokoll: " + protokollEintraege.length + (exportiert ? " · gesichert" : " Einträge");
+  c.classList.toggle("warn", protokollEintraege.length > 4 && !exportiert);
+}
+
+/* ---------- 11 Zeichenfelder (Touch / Stift) ---------- */
+const zeichnungen = {};
+document.querySelectorAll(".zeichenfeld").forEach(aufbauZeichnung);
+
+function aufbauZeichnung(box) {
+  const zid = box.dataset.zid;
+  const hoehe = parseInt(box.dataset.hoehe || "300", 10);
+  const z = { striche: [], farbe: "#1a2229", breite: 3, letztesLog: 0 };
+  zeichnungen[zid] = z;
+
+  const wz = document.createElement("div");
+  wz.className = "zwerkzeug";
+  const titel = document.createElement("span");
+  titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
+  wz.appendChild(titel);
+
+  function knopf(text, wirkung, gruppe) {
+    const b = document.createElement("button");
+    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (gruppe) {
+        wz.querySelectorAll(".g-" + gruppe).forEach(x => x.classList.remove("aktivw"));
+        b.classList.add("aktivw");
+      }
+      wirkung();
+    });
+    wz.appendChild(b);
+    return b;
+  }
+  const kDuenn = knopf("dünn", () => z.breite = 2, "b" + zid);
+  const kDick = knopf("dick", () => z.breite = 5, "b" + zid);
+  const kSchwarz = knopf("schwarz", () => z.farbe = "#1a2229", "f" + zid);
+  knopf("rot", () => z.farbe = "#c62828", "f" + zid);
+  knopf("Strich zurück", () => {
+    if (!z.striche.length) return;
+    z.striche.pop(); malen(); protokolliere("zeichnung", zid, "Strich zurückgenommen (" + z.striche.length + " Striche)");
+    sperrenPruefen();
+  });
+  knopf("alles löschen", () => {
+    if (!z.striche.length) return;
+    protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.striche.length + " Striche)");
+    z.striche = []; malen(); sperrenPruefen();
+  });
+  kDick.classList.add("aktivw"); z.breite = 5;
+  kSchwarz.classList.add("aktivw");
+  const status = document.createElement("span");
+  status.className = "zstatus"; status.textContent = "0 Striche";
+  wz.appendChild(status);
+
+  const cv = document.createElement("canvas");
+  cv.width = 1000;
+  cv.height = Math.round(hoehe * 1000 / 900);
+  box.appendChild(wz); box.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  z.canvas = cv;
+
+  function malen() {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "#dde4ea";
+    for (let x = 25; x < cv.width; x += 25)
+      for (let y = 25; y < cv.height; y += 25) ctx.fillRect(x, y, 1.4, 1.4);
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const alle = z.striche.concat(z.aktuell ? [z.aktuell] : []);
+    alle.forEach(st => {
+      ctx.strokeStyle = st.farbe; ctx.lineWidth = st.breite;
+      ctx.beginPath();
+      st.punkte.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+      if (st.punkte.length === 1) { ctx.lineTo(st.punkte[0].x + .1, st.punkte[0].y + .1); }
+      ctx.stroke();
+    });
+    status.textContent = z.striche.length + (z.striche.length === 1 ? " Strich" : " Striche");
+  }
+  z.malen = malen;
+
+  function pos(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+  }
+  cv.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    try { cv.setPointerCapture(e.pointerId); } catch (x) { }
+    z.aktuell = { farbe: z.farbe, breite: z.breite, punkte: [pos(e)] };
+    malen();
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!z.aktuell) return;
+    e.preventDefault();
+    const p = pos(e), letzt = z.aktuell.punkte[z.aktuell.punkte.length - 1];
+    if (Math.abs(p.x - letzt.x) + Math.abs(p.y - letzt.y) < 1.5) return;
+    z.aktuell.punkte.push(p); malen();
+  });
+  function fertig() {
+    if (!z.aktuell) return;
+    if (z.aktuell.punkte.length >= 1) z.striche.push(z.aktuell);
+    z.aktuell = null; malen(); sperrenPruefen(); speichern();
+    const jetzt = Date.now();
+    if (z.striche.length <= 1 || jetzt - z.letztesLog > 6000) {
+      z.letztesLog = jetzt;
+      protokolliere("zeichnung", zid, z.striche.length + " Striche gezeichnet");
+    }
+  }
+  cv.addEventListener("pointerup", fertig);
+  cv.addEventListener("pointercancel", fertig);
+  cv.addEventListener("pointerleave", fertig);
+  malen();
+}
+function zeichnungBild(zid) {
+  const z = zeichnungen[zid];
+  if (!z || !z.striche.length) return null;
+  return z.canvas.toDataURL("image/png");
+}
+
+/* ---------- 12 Lösungen sperren ---------- */
+/* Klarnamen der Felder für Sperrhinweise und Protokoll: automatisch aus
+   data-label bzw. data-titel. Kein manuelles Nachpflegen nötig. */
+const FELDNAMEN = {};
+document.querySelectorAll("[data-label]").forEach(el => {
+  if (el.id) FELDNAMEN[el.id] = el.dataset.label;
+  if (el.dataset.zid) FELDNAMEN["zeichnung:" + el.dataset.zid] = el.dataset.label;
+});
+document.querySelectorAll(".zeichenfeld").forEach(el => {
+  if (el.dataset.zid && !FELDNAMEN["zeichnung:" + el.dataset.zid])
+    FELDNAMEN["zeichnung:" + el.dataset.zid] = el.dataset.titel || el.dataset.zid;
+});
+function feldWert(feld) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return z ? z.striche.length + " Striche" : "";
+  }
+  const el = document.getElementById(feld);
+  return el ? (el.value || "").trim() : "";
+}
+function feldReicht(feld, min) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return !!z && z.striche.length >= 3;
+  }
+  const el = document.getElementById(feld);
+  if (!el) return true;
+  const v = (el.value || "").trim();
+  return v.length >= (el.tagName === "TEXTAREA" ? (min || 40) : 1);
+}
+const sperren = [];
+document.querySelectorAll("details.gesperrt").forEach(d => {
+  const sum = d.querySelector("summary");
+  const text = sum.innerHTML;
+  const felder = (d.dataset.fuer || "").split(",").filter(x => x);
+  const min = parseInt(d.dataset.min || "40", 10);
+  let warFrei = false;
+  sum.innerHTML = '<span class="sperrsymbol">🔒</span> ' + text + ' <span class="schloss"></span>';
+  const symbolEl = sum.querySelector(".sperrsymbol");
+  const noteEl = sum.querySelector(".schloss");
+
+  function istFrei() { return felder.every(f => feldReicht(f, min)); }
+
+  function pruefe() {
+    const fehlt = felder.filter(f => !feldReicht(f, min));
+    const frei = fehlt.length === 0;
+    d.classList.toggle("gesperrt", !frei);
+    d.classList.toggle("frei", frei);
+    if (!frei && d.open) d.open = false;
+    let note;
+    if (frei) note = "– jetzt vergleichen";
+    else {
+      const namen = fehlt.map(f => FELDNAMEN[f] || f);
+      note = "– zuerst ausfüllen: " + namen.join(", ");
+      if (fehlt.length === 1 && fehlt[0].indexOf("zeichnung:") !== 0) {
+        const el = document.getElementById(fehlt[0]);
+        if (el && el.tagName === "TEXTAREA")
+          note = "– noch " + Math.max(1, min - (el.value || "").trim().length) + " Zeichen in „" + (FELDNAMEN[fehlt[0]] || fehlt[0]) + "“";
+      }
+    }
+    if (symbolEl.textContent !== (frei ? "🔓" : "🔒")) symbolEl.textContent = frei ? "🔓" : "🔒";
+    if (noteEl.textContent !== note) noteEl.textContent = note;
+    if (frei && !warFrei) { warFrei = true; }
+    return frei;
+  }
+  sperren.push(pruefe);
+
+  function blockieren(e) {
+    // Wichtig: bei erlaubtem Klick darf das Summary nicht neu aufgebaut werden,
+    // sonst verwirft der Browser das Standardverhalten (Auf-/Zuklappen).
+    if (istFrei()) {
+      sperrpause = true;
+      setTimeout(() => { sperrpause = false; sperrenPruefen(); }, 0);
+      if (!d.open) {
+        const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
+        protokolliere("loesung-geoeffnet", d.dataset.fuer || "", "Stand der eigenen Antwort beim Öffnen der Lösung", schnapp);
+      }
+      return;
+    }
+    e.preventDefault();
+    d.open = false;
+    pruefe();
+    d.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" },
+      { transform: "translateX(6px)" }, { transform: "translateX(0)" }], { duration: 220 });
+    protokolliere("loesung-gesperrt", d.dataset.fuer || "", "Lösung angeklickt, aber noch nicht freigeschaltet");
+  }
+  sum.addEventListener("click", blockieren);
+  sum.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") blockieren(e); });
+});
+let sperrpause = false;
+function sperrenPruefen() { if (sperrpause) return; sperren.forEach(f => f()); }
+
+/* ---------- 13 Eingaben erfassen ---------- */
+/* Eingabefelder in Messtabellen bekommen automatisch IDs und Klarnamen
+   aus der Kopfzeile, damit jede Eingabe einzeln protokolliert wird. */
+document.querySelectorAll("table.messtabelle").forEach(tab => {
+  const kopf = [...tab.querySelectorAll("tr:first-child td, tr:first-child th")].map(t => t.textContent.trim());
+  const name = tab.dataset.label || tab.id || "Tabelle";
+  tab.querySelectorAll("input").forEach((inp, k) => {
+    if (!inp.id) inp.id = (tab.id || "tab") + "-" + k;
+    FELDNAMEN[inp.id] = name + " " + (kopf[k + 1] || k + 1);
+  });
+});
+const letzteWerte = {};
+function erfassen(el) {
+  if (!el.id) return;
+  const v = (el.value || "").trim();
+  if (letzteWerte[el.id] === v) return;
+  letzteWerte[el.id] = v;
+  protokolliere("eingabe", el.id, v);
+}
+document.querySelectorAll("textarea, input[type=text], td input, .karte input").forEach(el => {
+  if (el.type === "range") return;
+  el.addEventListener("change", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("blur", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("input", () => { sperrenPruefen(); if (el.tagName === "TEXTAREA") verzoegertErfassen(el); });
+});
+let erfassTimer = null;
+function verzoegertErfassen(el) {
+  clearTimeout(erfassTimer);
+  erfassTimer = setTimeout(() => erfassen(el), 4000);
+}
+
+/* ---------- 14 Speichern / Wiederherstellen ---------- */
+function zustand() {
+  const felderWerte = {};
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => {
+    if (el.id && el.value) felderWerte[el.id] = el.value;
+  });
+  const striche = {};
+  Object.keys(zeichnungen).forEach(zid => { striche[zid] = zeichnungen[zid].striche; });
+  return {
+    version: PROTOKOLL_VERSION, gestartet: stempel(gestartet), gespeichert: stempel(),
+    name: (document.getElementById("i-name") || {}).value || "",
+    klasse: (document.getElementById("i-klasse") || {}).value || "",
+    felder: felderWerte, striche: striche, eintraege: protokollEintraege,
+    weg: weg, vorschlag: vorschlag, diagnose: diagErgebnis.filter(Boolean), hilfen: hilfenStand
+  };
+}
+let speicherTimer = null;
+function speichern() {
+  clearTimeout(speicherTimer);
+  speicherTimer = setTimeout(() => {
+    try { localStorage.setItem(SPEICHER, JSON.stringify(zustand())); } catch (e) { }
+  }, 600);
+}
+function wiederherstellen(z) {
+  Object.keys(z.felder || {}).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
+  });
+  Object.keys(z.striche || {}).forEach(zid => {
+    if (zeichnungen[zid]) { zeichnungen[zid].striche = z.striche[zid] || []; zeichnungen[zid].malen(); }
+  });
+  (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
+  (z.diagnose || []).forEach(e => { diagErgebnis[e.nr - 1] = e; });
+  Object.keys(z.hilfen || {}).forEach(id => { if (id in hilfenStand) hilfenStand[id] = z.hilfen[id]; });
+  hilfenMalen();
+  videosAuffrischen();
+  if (z.vorschlag && WEGE[z.vorschlag]) { vorschlag = z.vorschlag; vorschlagZeigen(); }
+  if (z.weg && WEGE[z.weg]) wegSetzen(z.weg, true);
+  protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
+  sperrenPruefen(); chipMalen();
+}
+(function angebotPruefen() {
+  let z = null;
+  try { const roh = localStorage.getItem(SPEICHER); if (roh) z = JSON.parse(roh); } catch (e) { }
+  if (!z || !z.eintraege || !z.eintraege.length) return;
+  const banner = document.createElement("div");
+  banner.className = "karte warn";
+  banner.innerHTML = '<h4>Angefangenes Protokoll gefunden</h4><p>Auf diesem Gerät liegt ein Protokoll von <b>' +
+    (z.gespeichert || z.gestartet) + '</b> mit ' + z.eintraege.length + ' Einträgen' +
+    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>';
+  const w = document.createElement("button"); w.className = "knopf voll"; w.textContent = "Daran weiterarbeiten";
+  const n = document.createElement("button"); n.className = "knopf"; n.textContent = "Neu beginnen (löscht das alte)";
+  const p = document.createElement("p"); p.appendChild(w); p.appendChild(document.createTextNode(" ")); p.appendChild(n);
+  banner.appendChild(p);
+  w.addEventListener("click", () => { wiederherstellen(z); banner.remove(); });
+  n.addEventListener("click", () => {
+    try { localStorage.removeItem(SPEICHER); } catch (e) { }
+    protokolliere("neu", "", "Neues Protokoll begonnen, altes verworfen");
+    banner.remove();
+  });
+  const ziel = document.querySelector("section.phase");
+  ziel.insertBefore(banner, ziel.children[2]);
+})();
+
+/* ---------- 15 Ausgabe: Text, Protokolldatei, Versand ---------- */
+/* Alle auswertbaren Felder werden aus dem DOM gesammelt:
+   jedes Element mit data-label wird in Dokumentreihenfolge aufgenommen.
+   Damit muss beim Erstellen einer neuen Stunde keine Liste gepflegt werden. */
+function sammleFelder() {
+  const liste = [];
+  document.querySelectorAll("[data-label]").forEach(el => {
+    liste.push([el.id || el.dataset.zid || "", el.dataset.label]);
+  });
+  return liste;
+}
+function eintraegeInhalt() {
+  const liste = [];
+  sammleFelder().forEach(([id, titel]) => {
+    if (!id) return;
+    let wert = antwortenRoh[id];
+    const el = document.getElementById(id);
+    if (el && el.tagName === "TABLE") wert = tabellenText(el);
+    else if (el && el.value !== undefined) wert = el.value.trim();
+    else if (!wert && zeichnungen[id]) {
+      wert = zeichnungen[id].striche.length
+        ? zeichnungen[id].striche.length + " Striche gezeichnet (Bild im Protokoll)" : "";
+    }
+    if (!wert || !String(wert).trim()) return;
+    liste.push([titel, String(wert).trim()]);
+  });
+  return liste;
+}
+
+/* Messtabellen: Kopfzeile liefert die Beschriftung, zweite Zeile die Eingaben. */
+function tabellenText(tab) {
+  const kopf = [...tab.querySelectorAll("tr:first-child td, tr:first-child th")].map(t => t.textContent.trim());
+  const werte = [...tab.querySelectorAll("input")].map(i => (i.value || "").trim());
+  return werte.map((w, k) => w ? (kopf[k + 1] || "?") + ": " + w : null).filter(Boolean).join(" · ");
+}
+
+function namen() { return ((document.getElementById("i-name") || {}).value || "").trim(); }
+function klasse() { return ((document.getElementById("i-klasse") || {}).value || "").trim(); }
+function betreff() { return "Mathematik Einheiten mitdenken – " + (namen() || "ohne Namen") + (klasse() ? " (" + klasse() + ")" : ""); }
+function dateiname() {
+  const roh = "Protokoll_Einheiten_mitdenken_" + (namen() || "ohneNamen") + (klasse() ? "_" + klasse() : "");
+  return roh.replace(/[^A-Za-z0-9_äöüÄÖÜß-]+/g, "_").slice(0, 80);
+}
+function textFassung() {
+  let t = "Ergebnisse Mathematik – Einheiten mitdenken\n";
+  t += "Namen: " + (namen() || "ohne Namen") + "\nKlasse: " + (klasse() || "–") + "\n";
+  t += "Bearbeitet: " + stempel(gestartet) + " bis " + stempel() + "\n";
+  t += "Weg: " + (weg ? WEGE[weg] : "nicht gewählt") + (vorschlag ? " (vorgeschlagen: " + WEGE[vorschlag] + ")" : "") + "\n";
+  t += "Hilfen genutzt: " + (hilfenText() || "–") + "\n";
+  t += "----------------------------------------\n";
+  eintraegeInhalt().forEach(([titel, wert]) => { t += "\n" + titel + ":\n" + wert + "\n"; });
+  const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].striche.length);
+  t += "\nZeichnungen: " + (gez.length ? gez.join(", ") + " (nur in der Protokolldatei enthalten, nicht in dieser Textmail)" : "keine");
+  t += "\nProtokolleinträge: " + protokollEintraege.length + "\n";
+  t += "----------------------------------------\n";
+  return t;
+}
+function sicher(x) {
+  return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function protokollHtml() {
+  const z = zustand();
+  const bilder = Object.keys(zeichnungen).map(zid => {
+    const d = zeichnungBild(zid);
+    return d ? '<figure><figcaption>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ' – ' + zeichnungen[zid].striche.length + ' Striche</figcaption><img src="' + d + '" alt="Zeichnung ' + sicher(zid) + '"></figure>' : "";
+  }).join("");
+  const antwortenHtml = eintraegeInhalt().map(([t, w]) =>
+    "<h3>" + sicher(t) + "</h3><p>" + sicher(w).replace(/\n/g, "<br>") + "</p>").join("");
+  const logHtml = protokollEintraege.map(e =>
+    "<tr><td>" + e.nr + "</td><td>" + sicher(e.zeit) + "</td><td>" + sicher(e.art) + "</td><td>" +
+    sicher(e.feld) + "</td><td>" + sicher(e.wert) + (e.zusatz ? "<br><i>" + sicher(e.zusatz) + "</i>" : "") + "</td></tr>").join("");
+  return '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">' +
+    '<title>' + sicher(betreff()) + '</title><style>' +
+    'body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a2229;line-height:1.5}' +
+    'h1{font-size:1.3rem;color:#0b5aa0}h2{font-size:1.05rem;color:#0b5aa0;border-bottom:1px solid #cfd8de;padding-bottom:.2rem;margin-top:2rem}' +
+    'h3{font-size:.95rem;margin:1rem 0 .2rem}p{margin:.2rem 0 .6rem}' +
+    'table{border-collapse:collapse;width:100%;font-size:.8rem}td,th{border:1px solid #cfd8de;padding:.25rem .4rem;text-align:left;vertical-align:top}' +
+    'th{background:#e8f1f9}figure{margin:1rem 0}figcaption{font-size:.85rem;color:#4a5560;margin-bottom:.2rem}' +
+    'img{max-width:100%;border:1px solid #cfd8de;border-radius:6px}' +
+    '.kopf{background:#e8f1f9;border:1px solid #8fbde0;border-radius:8px;padding:.6rem .9rem}</style></head><body>' +
+    '<h1>Mathematik – Einheiten mitdenken: Protokoll der Lernpfad-Doppelstunde</h1>' +
+    '<div class="kopf"><b>Namen:</b> ' + sicher(namen() || "ohne Namen") +
+    ' &nbsp;·&nbsp; <b>Klasse:</b> ' + sicher(klasse() || "–") +
+    '<br><b>Bearbeitet:</b> ' + sicher(stempel(gestartet)) + " bis " + sicher(stempel()) +
+    ' &nbsp;·&nbsp; <b>Protokolleinträge:</b> ' + protokollEintraege.length +
+    '<br><b>Weg:</b> ' + sicher(weg ? WEGE[weg] : "nicht gewählt") +
+    (vorschlag ? ' (vorgeschlagen: ' + sicher(WEGE[vorschlag]) + ')' : '') +
+    ' &nbsp;·&nbsp; <b>Hilfen genutzt:</b> ' + sicher(hilfenText() || "–") + '</div>' +
+    '<h2>Antworten</h2>' + (antwortenHtml || "<p>keine Eingaben</p>") +
+    '<h2>Zeichnungen</h2>' + (bilder || "<p>keine Zeichnungen</p>") +
+    '<h2>Verlaufsprotokoll</h2>' +
+    '<p style="font-size:.85rem;color:#4a5560">Jeder Eintrag wurde beim Entstehen angehängt und danach nicht mehr verändert. ' +
+    'Einträge der Art <i>loesung-geoeffnet</i> und <i>hilfe-geoeffnet</i> halten fest, was in diesem Moment im eigenen Feld stand.</p>' +
+    '<table><tr><th>Nr.</th><th>Zeit</th><th>Art</th><th>Feld</th><th>Inhalt</th></tr>' + logHtml + '</table>' +
+    '<h2>Rohdaten</h2><p style="font-size:.85rem;color:#4a5560">Maschinenlesbare Fassung dieses Protokolls (JSON, ohne Bilder):</p>' +
+    '<script type="application/json" id="rohdaten">' + JSON.stringify(z).replace(/</g, "\\u003c") + '<\/script>' +
+    '<p style="font-size:.8rem;color:#607080">Erzeugt von der Lernpfad-Doppelstunde: Einheiten mitdenken.</p></body></html>';
+}
+function herunterladen(name, inhalt, typ) {
+  const b = new Blob([inhalt], { type: typ });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+}
+function nameFehlt() {
+  if (namen()) return false;
+  hinweis("<b style='color:#c62828'>Bitte zuerst die Namen eintragen</b> – sonst weiß Herr Glaubitz nicht, von wem das Protokoll kommt.");
+  const el = document.getElementById("i-name"); el.focus(); el.scrollIntoView({ block: "center" });
+  return true;
+}
+function hinweis(html) { document.getElementById("mail-hinweis").innerHTML = html; }
+
+document.getElementById("k-protokoll").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "protokoll", "Protokolldatei erzeugt: " + dateiname() + ".html");
+  hinweis("<b>Protokoll gespeichert</b> als <b>" + dateiname() + ".html</b> (auf dem iPad in der Dateien-App unter „Downloads“). Jetzt Schritt 2: Senden / Teilen.");
+});
+document.getElementById("k-json").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const roh = zustand();
+  roh.zeichnungen = {};
+  Object.keys(zeichnungen).forEach(zid => { const d = zeichnungBild(zid); if (d) roh.zeichnungen[zid] = d; });
+  herunterladen(dateiname() + ".json", JSON.stringify(roh, null, 2), "application/json");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "json", "Rohdaten erzeugt: " + dateiname() + ".json");
+});
+document.getElementById("k-teilen").addEventListener("click", async () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const datei = new File([protokollHtml()], dateiname() + ".html", { type: "text/html" });
+  const daten = { title: betreff(), text: "Protokoll Mathematik – Einheiten mitdenken – bitte an " + LEHRER_MAIL + " senden.\n\n" + textFassung(), files: [datei] };
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+      await navigator.share(daten);
+      exportiert = true; chipMalen();
+      protokolliere("abgabe", "teilen", "Teilen-Dialog geöffnet, Datei angehängt");
+      hinweis("Wählt im Teilen-Dialog <b>Mail</b>, tragt <b>" + LEHRER_MAIL + "</b> als Empfänger ein und sendet. Der Anhang ist euer Protokoll.");
+      return;
+    }
+  } catch (e) {
+    protokolliere("abgabe", "teilen", "Teilen abgebrochen oder nicht möglich");
+    hinweis("Teilen wurde abgebrochen. Zweiter Weg: „Protokoll speichern“, dann selbst eine Mail an <b>" + LEHRER_MAIL + "</b> schreiben und die Datei anhängen.");
+    return;
+  }
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "teilen-ersatz", "Teilen nicht verfügbar, Datei heruntergeladen");
+  hinweis("Dieses Gerät kann nicht direkt teilen. Das Protokoll wurde <b>gespeichert</b>: schreibt eine Mail an <b>" +
+    LEHRER_MAIL + "</b> und hängt die Datei <b>" + dateiname() + ".html</b> an.");
+});
+document.getElementById("k-adresse").addEventListener("click", () => {
+  kopieren(LEHRER_MAIL);
+  hinweis("Adresse <b>" + LEHRER_MAIL + "</b> kopiert – im Mailprogramm ins Feld „An“ einfügen.");
+});
+document.getElementById("k-mail").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const koerper = textFassung();
+  const url = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(koerper);
+  protokolliere("abgabe", "mailto", "Textmail geöffnet (ohne Zeichnungen)");
+  if (url.length > 1900) {
+    kopieren(koerper);
+    hinweis("Der Text ist lang und wurde <b>kopiert</b>. Mailprogramm öffnet sich – Text mit Einfügen ergänzen. <b>Achtung:</b> Zeichnungen sind in dieser Textmail nicht enthalten, dafür Schritt 1 und 2 benutzen.");
+    window.location.href = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff());
+    return;
+  }
+  window.location.href = url;
+  hinweis("<b>Achtung:</b> Diese Textmail enthält <b>keine Zeichnungen</b>. Wenn ihr bei A1 gezeichnet habt, benutzt zusätzlich Schritt 1 und 2.");
+});
+document.getElementById("k-kopieren").addEventListener("click", () => {
+  erfassenAlle(); kopieren(textFassung());
+  hinweis("<b>Text kopiert.</b> In eine Mail an <b>" + LEHRER_MAIL + "</b> einfügen. Zeichnungen fehlen darin – dafür Schritt 1 und 2.");
+});
+function erfassenAlle() {
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => { if (el.id) erfassen(el); });
+}
+function kopieren(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => notfallKopie(text));
+  } else notfallKopie(text);
+}
+function notfallKopie(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); } catch (e) { }
+  document.body.removeChild(ta);
+}
+
+document.getElementById("k-zusammenfassung").addEventListener("click", () => {
+  erfassenAlle();
+  let html = '<div class="karte blau"><h4>Meine Ergebnisse</h4>' +
+    '<p><b>Namen:</b> ' + (sicher(namen()) || "______________________") +
+    ' &nbsp;<b>Klasse:</b> ' + (sicher(klasse()) || "________") +
+    ' &nbsp;<b>Protokolleinträge:</b> ' + protokollEintraege.length + '</p>';
+  eintraegeInhalt().forEach(([t, w]) => {
+    html += '<p style="margin:.7rem 0 0"><b>' + sicher(t) + ":</b><br>" + sicher(w).replace(/\n/g, "<br>") + "</p>";
+  });
+  Object.keys(zeichnungen).forEach(zid => {
+    const d = zeichnungBild(zid);
+    if (d) html += '<p style="margin:.7rem 0 0"><b>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ':</b><br><img src="' + d + '" style="max-width:100%;border:1px solid #d3dae0;border-radius:6px"></p>';
+  });
+  html += "</div>";
+  const box = document.getElementById("ausgabe");
+  box.innerHTML = html;
+  box.scrollIntoView({ behavior: "smooth" });
+});
+document.getElementById("k-drucken").addEventListener("click", () => window.print());
+
+window.addEventListener("beforeunload", e => {
+  if (protokollEintraege.length > 4 && !exportiert) { e.preventDefault(); e.returnValue = ""; return ""; }
+});
+protokolliere("start", "", "Doppelstunde geöffnet");
+sperrenPruefen();
+
+
+
+/* ============================================================
+   Anmeldung zur Stunde (wie in den Selbstlernstunden der 11a)
+   ------------------------------------------------------------
+   Eine zweistellige Zahl von der Tafel. Der Zeitpunkt der Anmeldung
+   steht im Protokoll und ist der Anwesenheitsnachweis. Keine Sperre:
+   „Ohne Zahl weiter“ öffnet immer und wird als "anmeldung-ohne"
+   protokolliert. Nach einem Neuladen wird nicht erneut gefragt.
+
+   Automatische Prüfläufe (navigator.webdriver, z. B. pruefe_html.mjs)
+   überspringen den Schirm, weil er sonst jeden Klick abfängt. Mit
+   ?anmeldung in der Adresse erscheint er auch dort (Sichtprobe).
+   Baustein für lernpfad_*.py; 45 setzt das Bauskript.
+   ============================================================ */
+const STUNDENCODE = "45";
+const ANGEMELDET_SCHLUESSEL = SPEICHER + "-angemeldet";
+(function anmeldung() {
+  const schirm = document.getElementById("anmeldeschirm");
+  if (!schirm) return;
+  if (navigator.webdriver && !/anmeldung/.test(location.search)) { schirm.remove(); return; }
+  const feld = document.getElementById("i-code");
+  const knopf = document.getElementById("k-anmelden");
+  const rueck = document.getElementById("anmelde-rueck");
+  let schon = false;
+  try { schon = localStorage.getItem(ANGEMELDET_SCHLUESSEL) === "ja"; } catch (e) { }
+  if (schon) { schirm.remove(); return; }
+  let versuche = 0;
+  function oeffnen(still) {
+    schirm.remove();
+    try { localStorage.setItem(ANGEMELDET_SCHLUESSEL, "ja"); } catch (e) { }
+    if (!still) protokolliere("anmeldung", "", "Zur Stunde angemeldet" + (versuche > 1 ? " (im " + versuche + ". Versuch)" : ""));
+  }
+  function pruefen() {
+    const eingabe = (feld.value || "").trim();
+    if (!/^\d{2}$/.test(eingabe)) {
+      rueck.className = "anmelde-rueck schlecht";
+      rueck.textContent = "Bitte genau zwei Ziffern eintragen. Die Zahl steht an der Tafel.";
+      feld.focus(); return;
+    }
+    versuche++;
+    if (eingabe === STUNDENCODE) {
+      rueck.className = "anmelde-rueck gut"; rueck.textContent = "Stimmt. Los geht’s.";
+      setTimeout(() => oeffnen(false), 350); return;
+    }
+    protokolliere("anmeldung-falsch", "", versuche + ". Versuch: " + eingabe + " – falsch");
+    rueck.className = "anmelde-rueck schlecht";
+    rueck.textContent = versuche < 3 ? "Das ist nicht die Zahl von der Tafel. Schaut noch einmal hin."
+      : "Immer noch nicht die richtige Zahl. Fragt kurz nach, statt weiter zu raten.";
+    feld.value = ""; feld.focus();
+  }
+  const lehrKnopf = document.getElementById("k-lehrkraft");
+  if (lehrKnopf) lehrKnopf.addEventListener("click", () => {
+    const wort = window.prompt("Kennwort für die Lehrer-Ansicht:");
+    if (wort === null) return;
+    if (pruefsumme(String(wort).trim().toLowerCase()) !== LEHRER_SCHLUESSEL) { window.alert("Das Kennwort stimmt nicht."); return; }
+    lehrerAnsicht(true);
+    feld.value = STUNDENCODE;
+    rueck.className = "anmelde-rueck gut";
+    rueck.textContent = "Zahl für die Tafel: " + STUNDENCODE + ". Anschreiben, dann „Anmelden“.";
+    lehrKnopf.style.display = "none";
+  });
+  const frei = document.createElement("button");
+  frei.type = "button"; frei.className = "knopf"; frei.id = "k-ohne-zahl"; frei.textContent = "Ohne Zahl weiter";
+  frei.addEventListener("click", () => { protokolliere("anmeldung-ohne", "", "Ohne Tafelzahl begonnen"); oeffnen(true); });
+  knopf.parentNode.appendChild(frei);
+  const hinweisOhne = document.createElement("p");
+  hinweisOhne.className = "anmelde-rueck"; hinweisOhne.style.marginTop = ".4rem";
+  hinweisOhne.textContent = "In der Stunde: die Zahl von der Tafel eintragen. „Ohne Zahl weiter“ ist für später, wenn ihr das Material allein noch einmal durchgeht.";
+  rueck.parentNode.insertBefore(hinweisOhne, rueck.nextSibling);
+  knopf.addEventListener("click", pruefen);
+  feld.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); pruefen(); } });
+  feld.addEventListener("input", () => {
+    feld.value = feld.value.replace(/\D/g, "").slice(0, 2);
+    if (rueck.textContent && feld.value.length < 2) { rueck.className = "anmelde-rueck"; rueck.textContent = ""; }
+  });
+  setTimeout(() => feld.focus(), 100);
+})();
+
+/* ---------- Start ---------- */
+zeige(0);
+</script>
+</body>
+</html>
