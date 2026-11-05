@@ -54,9 +54,12 @@
   .alarm.an{display:block}
   .alarm.dringend{background:#dc2626;animation:puls 1.2s infinite}
   @keyframes puls{50%{filter:brightness(1.25)}}
-  .handy{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
-  .handy button{font:inherit;font-size:14px;font-weight:700;padding:8px 12px;border-radius:12px;
-    border:2px solid var(--line);background:var(--panel);color:inherit;cursor:pointer}
+  /* Gleich gross wie „Alle freigeben" - auf dem Handy trifft der Finger
+     sonst daneben (Michael, 05.11.2026). Der Stand steht in eigener Zeile. */
+  .handy{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:15px;color:var(--muted)}
+  .handy button{flex:1 1 auto;min-height:48px;font:inherit;font-size:16px;font-weight:800;padding:12px;
+    border-radius:14px;border:2px solid var(--line);background:var(--panel);color:inherit;cursor:pointer}
+  .handy #pushstand{flex-basis:100%;line-height:1.4}
   .privatschirm{position:fixed;inset:0;z-index:10;background:var(--bg);display:none;
     flex-direction:column;gap:10px;
     padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
@@ -389,13 +392,35 @@ async function pushAn(fragen){
   } catch(e){ pushStand("Anmelden hat nicht geklappt: " + (e.message || e)); }
 }
 $("pushknopf").onclick = () => pushAn(true);
+/* Probe in zwei Stufen: Erst zeigt das Handy selbst eine Meldung, ganz
+   ohne Netz - kommt die nicht, sperrt eine Einstellung (Android oder
+   Chrome), nicht der Dienst. Danach die Meldung ueber den Dienst. */
 $("probeknopf").onclick = async () => {
+  let selbst = "";
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification("🔔 Probe 1: vom Handy selbst", {
+      body: "Kommt diese, sind die Meldungen erlaubt. Gleich folgt Probe 2 über den Dienst.",
+      tag: "probe-selbst" });
+    selbst = "Probe 1 vom Handy gezeigt. ";
+  } catch(e){ selbst = "Probe 1 ging nicht (" + (e.message || e) + "). "; }
+  await new Promise(r => setTimeout(r, 1500));
+  const zwei = t => pushStand(selbst + "Probe 2 über den Dienst: " + t);
   try {
     const a = await fetch(DIENST + "/v1/push/probe", { method: "POST", headers: kopf() });
     const d = await a.json();
-    pushStand(d.ok ? "Probe an " + d.gesendet + " Gerät" + (d.gesendet === 1 ? "" : "e") + " geschickt."
-                   : "Probe ging nicht.");
-  } catch(e){ pushStand("Keine Verbindung zum Dienst."); }
+    if (!d.ok) return zwei("ging nicht" + (d.grund ? " (" + d.grund + ")." : "."));
+    /* Was der Push-Kanal (bei Android: Google) je Handy geantwortet hat -
+       201 heisst angenommen; alles andere steht hier im Klartext. */
+    const liste = d.antworten || [];
+    if (d.abos === 0 && !liste.length)
+      return zwei("kein Handy angemeldet – erst „🔔 Meldungen aufs Handy“.");
+    zwei(liste.length ? liste.map(x => x.status === 0
+        ? "Fehler beim Senden: " + x.text
+        : "Antwort " + x.status + (x.status >= 200 && x.status < 300 ? " (angenommen)"
+          : x.text ? ": " + x.text : "")).join(" · ")
+      : "an " + d.gesendet + " Gerät(e) geschickt.");
+  } catch(e){ zwei("keine Verbindung zum Dienst."); }
 };
 $("raumknopf").onclick = () => {
   const r = saeubereRaum(prompt("Raumcode (steht unten rechts an der Wand):", RAUM));
