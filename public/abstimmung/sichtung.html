@@ -42,6 +42,29 @@
   .hinweis b{color:var(--ink)}
   .fehler{color:#b91c1c}
   .fuss{font-size:12px;color:var(--muted);text-align:center;line-height:1.4;margin-top:auto}
+  /* Private Mitteilungen (Schutzstift): zuerst, mit Schloss; dringende rot
+     und ganz vorn. Die Nummer bleibt die der Wand. */
+  .kachel.privat{border-color:var(--accent);order:-1}
+  .kachel.dringend{border-color:#dc2626;order:-2}
+  .kachel .schloss{position:absolute;right:6px;top:4px;font-size:13px;font-weight:800;color:#fff;
+    background:var(--accent);border-radius:6px;padding:1px 6px}
+  .kachel.dringend .schloss{background:#dc2626}
+  .alarm{display:none;border:0;width:100%;font:inherit;background:var(--accent);color:#fff;
+    border-radius:14px;padding:14px;font-weight:800;font-size:17px;text-align:center;cursor:pointer}
+  .alarm.an{display:block}
+  .alarm.dringend{background:#dc2626;animation:puls 1.2s infinite}
+  @keyframes puls{50%{filter:brightness(1.25)}}
+  .handy{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+  .handy button{font:inherit;font-size:14px;font-weight:700;padding:8px 12px;border-radius:12px;
+    border:2px solid var(--line);background:var(--panel);color:inherit;cursor:pointer}
+  .privatschirm{position:fixed;inset:0;z-index:10;background:var(--bg);display:none;
+    flex-direction:column;gap:10px;
+    padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+  .privatschirm.an{display:flex}
+  .privatschirm img{flex:1;min-height:0;width:100%;object-fit:contain;background:#fff;
+    border-radius:12px;border:3px solid var(--accent)}
+  .privatschirm.dringend img{border-color:#dc2626}
+  .privatschirm p{font-size:14px;color:var(--muted);line-height:1.4}
 </style>
 </head>
 <body>
@@ -51,17 +74,35 @@
   <span class="stand" id="stand"></span>
 </header>
 
+<button type="button" class="alarm" id="alarm"></button>
 <h1 id="auftrag">Sichtung</h1>
 <div class="knoepfe">
   <button type="button" class="haupt" id="alle">Alle freigeben</button>
   <button type="button" id="keine">Alle verbergen</button>
 </div>
+<div class="handy">
+  <button type="button" id="pushknopf">🔔 Meldungen aufs Handy</button>
+  <button type="button" id="probeknopf" hidden>Probe</button>
+  <button type="button" id="raumknopf">Raum wechseln</button>
+  <span id="pushstand"></span>
+</div>
 <div class="galerie" id="galerie"></div>
 <div class="hinweis" id="hinweis">Verbinde …</div>
+
+<div class="privatschirm" id="privatschirm">
+  <h1 id="privattitel">🔒 Private Mitteilung</h1>
+  <p>Nur hier auf diesem Gerät. An der Wand erscheint dieser Teil grau abgedeckt.</p>
+  <img id="privatbild" alt="">
+  <div class="knoepfe">
+    <button type="button" id="privatfrei">Abgedeckt zeigen</button>
+    <button type="button" class="haupt" id="privatzu">Schließen</button>
+  </div>
+</div>
 
 <p class="fuss">
   Lehrerseite. Zeigt die eingereichten Bilder <b>vor</b> der Freigabe;
   ein Tipp auf ein Bild gibt es an der Wand frei oder nimmt es zurück.
+  Bilder mit 🔒 öffnen zuerst die private Mitteilung – nur hier, nie an der Wand.
 </p>
 
 <script>
@@ -77,7 +118,12 @@
 const P = new URLSearchParams(location.search);
 const DIENST = (P.get("dienst") || "https://abstimmung.michaelglaubitz-barton.workers.dev")
                  .replace(/\/+$/, "");
-const RAUM = (P.get("raum") || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
+/* Ohne ?raum=… der zuletzt benutzte Raum - ein Lesezeichen genuegt dann
+   fuer alle Klassen; „Raum wechseln" setzt einen anderen. */
+const saeubereRaum = r => String(r || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
+const RAUM = saeubereRaum(P.get("raum") || (() => {
+  try { return localStorage.getItem("sichtung-raum"); } catch(e){ return ""; } })());
+try { if (RAUM) localStorage.setItem("sichtung-raum", RAUM); } catch(e){}
 const $ = id => document.getElementById(id);
 
 const holeSchluessel = () => { try { return localStorage.getItem("wand-lehrer") || ""; } catch(e){ return ""; } };
@@ -136,6 +182,7 @@ async function hole(){
       $("auftrag").textContent = "Gerade läuft kein Zeichenauftrag";
       $("galerie").textContent = "";
       bilder.clear();
+      alarmPruefen([]);
       zeigeHinweis(d.frage ? "An der Wand steht eine Abstimmung: <b>" + d.frage + "</b>"
                            : "Sobald an der Wand ein Zeichenauftrag steht, erscheinen die Bilder hier.");
       $("stand").textContent = "";
@@ -162,14 +209,23 @@ async function hole(){
       if (!k){
         k = document.createElement("div");
         k.className = "kachel"; k.id = "k-" + b.geraet; k.dataset.geraet = b.geraet;
-        k.innerHTML = '<span class="nr"></span>';
-        k.onclick = () => frei({ geraet: b.geraet, frei: !k.classList.contains("frei") });
+        k.innerHTML = '<span class="nr"></span><span class="schloss" hidden></span>';
+        /* Ein privates Bild oeffnet erst den geschuetzten Teil - freigeben
+           (geschwaerzt) geht dort mit einem eigenen Knopf. */
+        k.onclick = () => k.classList.contains("privat")
+          ? privatZeigen(k.dataset.geraet)
+          : frei({ geraet: k.dataset.geraet, frei: !k.classList.contains("frei") });
         $("galerie").appendChild(k);
       }
       k.querySelector(".nr").textContent = i + 1;
       k.classList.toggle("frei", !!b.frei);
+      k.classList.toggle("privat", !!b.schutz);
+      k.classList.toggle("dringend", !!b.dringend);
+      const s = k.querySelector(".schloss");
+      s.hidden = !b.schutz; s.textContent = b.dringend ? "❗ dringend" : "🔒";
       holeBild(b.geraet, b.zeit);
     });
+    alarmPruefen(liste);
     $("hinweis").hidden = liste.length > 0;
     if (!liste.length) zeigeHinweis("Noch kein Bild da.");
   } catch (e){
@@ -180,18 +236,187 @@ async function hole(){
 $("alle").onclick = () => frei({ alle: true, frei: true });
 $("keine").onclick = () => frei({ alle: true, frei: false });
 
+/* --- Private Mitteilungen (Schutzstift, 05.11.2026) --------------------
+   Der geschuetzte Teil erscheint NUR hier, gross, auf dem eigenen Geraet.
+   Die Wand bekommt ihn nie - sie hat nur das Bild mit den geschwaerzten
+   Stellen. Neue private Mitteilungen melden ein Balken oben, ein Ton und
+   (Android) ein Vibrieren; gesehen ist eine Mitteilung, sobald man sie
+   geoeffnet hat. Gemerkt je Runde und Bildzeit - ein ersetztes Bild ist
+   eine neue Mitteilung. */
+let offenesPrivat = null;
+const gesehen = new Set();
+const angekuendigt = new Set();
+const merkKey = b => (letzterSchluessel || "") + "|" + b.geraet + "|" + b.zeit;
+
+async function privatZeigen(g){
+  const k = $("k-" + g); if (!k) return;
+  try {
+    const a = await fetch(DIENST + "/v1/raum/" + RAUM + "/bild?privat=1&geraet=" + encodeURIComponent(g),
+                          { headers: kopf(), cache: "no-store" });
+    if (a.status === 403) return schluesselFragen();
+    const d = await a.json();
+    if (!d.ok) return zeigeHinweis("Der geschützte Teil ist nicht mehr da.", "fehler");
+    offenesPrivat = g;
+    $("privatbild").src = d.daten;
+    $("privattitel").textContent = (d.dringend ? "❗ Dringende Mitteilung" : "🔒 Private Mitteilung")
+                                   + " · Bild " + k.querySelector(".nr").textContent;
+    $("privatschirm").classList.toggle("dringend", !!d.dringend);
+    $("privatfrei").textContent = k.classList.contains("frei")
+      ? "Von der Wand nehmen" : "Abgedeckt zeigen";
+    $("privatschirm").classList.add("an");
+    const b = bilderStand.find(x => x.geraet === g);
+    if (b) gesehen.add(merkKey(b));
+    alarmPruefen(bilderStand);
+  } catch(e){ zeigeHinweis("Keine Verbindung zum Dienst.", "fehler"); }
+}
+$("privatzu").onclick = () => {
+  $("privatschirm").classList.remove("an");
+  $("privatbild").removeAttribute("src");
+  offenesPrivat = null;
+};
+$("privatfrei").onclick = () => {
+  const k = offenesPrivat && $("k-" + offenesPrivat); if (!k) return;
+  frei({ geraet: offenesPrivat, frei: !k.classList.contains("frei") });
+  $("privatzu").onclick();
+};
+
+let bilderStand = [];
+let tonKontext = null;
+/* Ton geht erst nach einer Beruehrung der Seite (Regel der Browser). */
+document.addEventListener("pointerdown", () => {
+  if (!tonKontext) try { tonKontext = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+}, { once: true });
+function ton(dringend){
+  if (!tonKontext) return;
+  const folge = dringend ? [880, 660, 880, 660] : [660];
+  folge.forEach((hz, i) => {
+    const o = tonKontext.createOscillator(), g = tonKontext.createGain();
+    o.frequency.value = hz; o.connect(g); g.connect(tonKontext.destination);
+    const t = tonKontext.currentTime + i * 0.22;
+    g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    o.start(t); o.stop(t + 0.21);
+  });
+}
+function alarmPruefen(liste){
+  bilderStand = liste;
+  const privat = liste.filter(b => b.schutz);
+  const offen = privat.filter(b => !gesehen.has(merkKey(b)));
+  const neu = offen.filter(b => !angekuendigt.has(merkKey(b)));
+  neu.forEach(b => angekuendigt.add(merkKey(b)));
+  const dringend = offen.some(b => b.dringend);
+  const alarm = $("alarm");
+  alarm.classList.toggle("an", offen.length > 0);
+  alarm.classList.toggle("dringend", dringend);
+  alarm.textContent = dringend ? "❗ Dringende Mitteilung – antippen"
+    : offen.length === 1 ? "🔒 Private Mitteilung – antippen"
+    : "🔒 " + offen.length + " private Mitteilungen – antippen";
+  if (neu.length){
+    const d = neu.some(b => b.dringend);
+    ton(d);
+    try { navigator.vibrate && navigator.vibrate(d ? [300, 100, 300, 100, 600] : [200]); } catch(e){}
+  }
+}
+$("alarm").onclick = () => {
+  const offen = bilderStand.filter(b => b.schutz && !gesehen.has(merkKey(b)));
+  const erst = offen.find(b => b.dringend) || offen[0];
+  if (erst) privatZeigen(erst.geraet);
+};
+
+/* Bildschirm wach halten, solange die Sichtung offen ist (Chrome kann das). */
+let wachSperre = null;
+async function wachHalten(){
+  try { if (navigator.wakeLock && !document.hidden) wachSperre = await navigator.wakeLock.request("screen"); }
+  catch(e){}
+}
+
+/* --- Meldungen aufs Handy (Web-Push) ---------------------------------
+   Der Push selbst ist leer. Der Service Worker (sw.js) fragt danach mit
+   dem Lehrerschluessel nur Raum und „dringend" ab - deshalb legt diese
+   Seite Schluessel und Dienstadresse in IndexedDB, wo er sie findet. */
+function werteSpeichern(werte){
+  return new Promise(fertig => {
+    try {
+      const r = indexedDB.open("abstimmung-sichtung", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("werte");
+      r.onsuccess = () => {
+        const tx = r.result.transaction("werte", "readwrite");
+        for (const [k, v] of Object.entries(werte)) tx.objectStore("werte").put(v, k);
+        tx.oncomplete = () => fertig(true); tx.onerror = () => fertig(false);
+      };
+      r.onerror = () => fertig(false);
+    } catch(e){ fertig(false); }
+  });
+}
+const pushStand = t => { $("pushstand").textContent = t; };
+const ausB64url = s => {
+  const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
+  return Uint8Array.from(b, c => c.charCodeAt(0));
+};
+async function pushAn(fragen){
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !window.Notification){
+    $("pushknopf").hidden = true; return pushStand("Dieser Browser kann keine Meldungen.");
+  }
+  if (!holeSchluessel()) return schluesselFragen();
+  if (Notification.permission !== "granted"){
+    if (!fragen) return;
+    if (await Notification.requestPermission() !== "granted")
+      return pushStand("Meldungen nicht erlaubt (Einstellungen der Seite).");
+  }
+  try {
+    await werteSpeichern({ schluessel: holeSchluessel(), dienst: DIENST });
+    const reg = await navigator.serviceWorker.register("sw.js");
+    await navigator.serviceWorker.ready;
+    const a = await fetch(DIENST + "/v1/push/schluessel", { headers: kopf(), cache: "no-store" });
+    if (a.status === 403) return schluesselFragen();
+    const d = await a.json();
+    if (!d.ok) return pushStand("Der Dienst kennt noch keine Meldungen.");
+    let abo = await reg.pushManager.getSubscription();
+    if (abo){
+      /* Hat der Dienst einen anderen Schluessel als das Abo, neu abonnieren. */
+      const k = abo.options && abo.options.applicationServerKey;
+      const alt = k ? btoa(String.fromCharCode(...new Uint8Array(k))) : "";
+      const neu = btoa(String.fromCharCode(...ausB64url(d.oeffentlich)));
+      if (alt && alt !== neu){ await abo.unsubscribe(); abo = null; }
+    }
+    if (!abo) abo = await reg.pushManager.subscribe({ userVisibleOnly: true,
+                                                      applicationServerKey: ausB64url(d.oeffentlich) });
+    const b = await fetch(DIENST + "/v1/push/abo", { method: "POST", headers: kopf(),
+                                                     body: JSON.stringify({ abo: abo.toJSON() }) });
+    if (!(await b.json()).ok) return pushStand("Anmelden hat nicht geklappt.");
+    $("pushknopf").textContent = "🔔 Meldungen an";
+    $("probeknopf").hidden = false;
+    pushStand("Auch bei gesperrtem Handy.");
+  } catch(e){ pushStand("Anmelden hat nicht geklappt: " + (e.message || e)); }
+}
+$("pushknopf").onclick = () => pushAn(true);
+$("probeknopf").onclick = async () => {
+  try {
+    const a = await fetch(DIENST + "/v1/push/probe", { method: "POST", headers: kopf() });
+    const d = await a.json();
+    pushStand(d.ok ? "Probe an " + d.gesendet + " Gerät" + (d.gesendet === 1 ? "" : "e") + " geschickt."
+                   : "Probe ging nicht.");
+  } catch(e){ pushStand("Keine Verbindung zum Dienst."); }
+};
+$("raumknopf").onclick = () => {
+  const r = saeubereRaum(prompt("Raumcode (steht unten rechts an der Wand):", RAUM));
+  if (!r) return;
+  const q = new URLSearchParams(location.search); q.set("raum", r);
+  location.search = q.toString();
+};
+pushAn(false);                       /* schon erlaubt: still auffrischen */
+
 if (!RAUM){
   $("auftrag").textContent = "Kein Raum angegeben";
-  zeigeHinweis("Aufruf: <b>sichtung.html?raum=…</b> — der Raumcode steht unten rechts an der Wand.", "fehler");
+  zeigeHinweis("Oben <b>Raum wechseln</b> antippen — der Raumcode steht unten rechts an der Wand.", "fehler");
 } else {
   $("raum").textContent = "Raum " + RAUM.toUpperCase();
   /* Nicht fragen, solange niemand hinsieht. Der Dienst laeuft auf dem
-     freien Cloudflare-Kontingent (100 000 Anfragen je Tag); eine
-     vergessene offene Sichtung kostet sonst 1800 Anfragen je Stunde.
-     Siehe den langen Vermerk in index.html. */
+     freien Cloudflare-Kontingent (100 000 Anfragen je Tag). Alle fuenf
+     Sekunden (Michael, 05.11.2026) sind 720 Anfragen je Stunde; ist das
+     Handy gesperrt, meldet sich der Push. Siehe den Vermerk in index.html. */
   let uhr = null;
   const anhalten = () => { clearInterval(uhr); uhr = null; };
-  const anlaufen = () => { if (!uhr){ hole(); uhr = setInterval(hole, 2000); } };
+  const anlaufen = () => { if (!uhr){ hole(); uhr = setInterval(hole, 5000); } wachHalten(); };
   anlaufen();
   document.addEventListener("visibilitychange",
     () => { if (document.hidden) anhalten(); else anlaufen(); });
