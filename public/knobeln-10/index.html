@@ -215,7 +215,62 @@ function sichern() { if (!SPEICHER_OK) return; try { localStorage.setItem(SPEICH
 function leer() { return { name: "", ohneZahl: false, start: null, idx: 0, a: {}, k: {}, t: {}, log: [] }; }
 let S = laden() || leer();
 S.t = S.t || {};
-function protokoll(art, mehr) { S.log.push(Object.assign({ art, zeit: new Date().toISOString() }, mehr || {})); sichern(); }
+function protokoll(art, mehr) { S.log.push(Object.assign({ art, zeit: new Date().toISOString() }, mehr || {})); sichern(); zaehlNach(art, mehr || {}); }
+
+/* ---------- Anonyme Zählung (Dienst zaehler/ im Website-Repo)
+   Gemeldet wird nur der Name einer Station, etwa "aufgabe:b3": kein Name,
+   keine Antwort, keine Kennung. Gezählt wird nur auf mathematik-unterrichten.de,
+   nicht bei "Do Not Track" und nicht auf Geräten, die einmal ?zaehlen=aus
+   geöffnet oder die Lehrer-Ansicht aufgeschlossen haben. */
+const ZAEHLER = { adresse: "https://zaehler.michaelglaubitz-barton.workers.dev", trainer: "knobeln10" };
+const ZAEHL_AUS = SPEICHER + "-zaehlen";
+function zaehlSchalter(an) { try { if (an) localStorage.removeItem(ZAEHL_AUS); else localStorage.setItem(ZAEHL_AUS, "aus"); } catch (e) {} }
+(function () { const m = /[?&]zaehlen=(an|aus)(?:&|$)/.exec(location.search); if (m) zaehlSchalter(m[1] === "an"); })();
+function zaehlOrt() {
+  try {
+    if (localStorage.getItem(ZAEHL_AUS) === "aus") return "";
+    if (navigator.doNotTrack === "1" || navigator.globalPrivacyControl === true) return "";
+    if (location.protocol === "https:" && location.hostname === "mathematik-unterrichten.de") return ZAEHLER.adresse;
+    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      const m = /[?&]zaehler=(http:\/\/(?:localhost|127\.0\.0\.1):\d+)(?:&|$)/.exec(location.search);
+      return m ? m[1] : "";
+    }
+  } catch (e) {}
+  return "";
+}
+let zaehlSchlange = [], zaehlUhr = null;
+const zaehlSchonDa = new Set();
+function zaehle(ereignis, nurEinmal) {
+  if (nurEinmal) { if (zaehlSchonDa.has(ereignis)) return; zaehlSchonDa.add(ereignis); }
+  if (!zaehlOrt()) return;
+  zaehlSchlange.push(ereignis);
+  if (!zaehlUhr) zaehlUhr = setTimeout(zaehlSenden, 2000);
+}
+function zaehlSenden() {
+  clearTimeout(zaehlUhr); zaehlUhr = null;
+  const ort = zaehlOrt();
+  if (!ort) { zaehlSchlange = []; return; }
+  if (!zaehlSchlange.length) return;
+  const paket = JSON.stringify({ t: ZAEHLER.trainer, e: zaehlSchlange.splice(0, 12) });
+  try {
+    if (navigator.sendBeacon) navigator.sendBeacon(ort + "/v1/z", paket);
+    else fetch(ort + "/v1/z", { method: "POST", body: paket, keepalive: true, mode: "no-cors" }).catch(() => {});
+  } catch (e) {}
+  if (zaehlSchlange.length) zaehlUhr = setTimeout(zaehlSenden, 2000);
+}
+window.addEventListener("pagehide", zaehlSenden);
+/* Aus dem Protokoll die Stationen: jede Aufgabe einmal je Aufruf der Seite. */
+function zaehlNach(art, m) {
+  const nr = m.nr ? String(m.nr).toLowerCase() : "";
+  if (art === "anmeldung") zaehle("anmeldung:zahl");
+  else if (art === "anmeldung-ohne") zaehle("anmeldung:ohne");
+  else if (art === "fortgesetzt") zaehle("besuch-wieder");
+  else if (art === "ergebnis") zaehle("ergebnis");
+  else if (art === "gespeichert") zaehle("gespeichert");
+  if (art === "tipp") zaehle("tipp");
+  if (nr && (art === "antwort" || art === "loesung-gezeigt" || nr[0] === "t")) zaehle("aufgabe:" + nr, true);
+  if (nr && nr[0] === "t" && art === "geloest") zaehle("tueftel:" + nr, true);
+}
 
 function pruefsumme(s) { let h = 5381; for (const c of s) h = (((h << 5) + h) ^ c.charCodeAt(0)) >>> 0; return h; }
 
@@ -664,7 +719,7 @@ $("#i-code").addEventListener("keydown", e => { if (e.key === "Enter") starten(t
 $("#k-lehrkraft").addEventListener("click", () => { $("#lehrer").hidden = false; $("#lehrer-zu").hidden = false; $("#lehrer-auf").hidden = true; $("#i-kennwort").value = ""; $("#kennwort-meldung").hidden = true; });
 $("#k-lehrer-zu").addEventListener("click", () => { $("#lehrer").hidden = true; });
 $("#k-kennwort").addEventListener("click", () => {
-  if (pruefsumme($("#i-kennwort").value.trim()) === SCHLUESSEL) lehrerAuf(); else $("#kennwort-meldung").hidden = false;
+  if (pruefsumme($("#i-kennwort").value.trim()) === SCHLUESSEL) { zaehlSchalter(false); lehrerAuf(); } else $("#kennwort-meldung").hidden = false;
 });
 $("#i-kennwort").addEventListener("keydown", e => { if (e.key === "Enter") $("#k-kennwort").click(); });
 $("#karte").addEventListener("click", e => {
@@ -687,4 +742,5 @@ $("#ergebnis").addEventListener("click", e => {
 
 if (!SPEICHER_OK) $("#warnung").hidden = false;
 if (S.name) { protokoll("fortgesetzt"); karte(S.idx || 0); }   // nach Neuladen von selbst weiter
+else zaehle("besuch-neu");
 </script></body></html>
