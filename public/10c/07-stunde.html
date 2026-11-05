@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wie leer ist ein Atom? · Physik 10c · Lernpfad</title>
+<!--
+  ============================================================================
+  VORLAGE: Lernpfad-Doppelstunde (eine HTML-Datei, offline)
+  ============================================================================
+  Gebaut mit Stundenregie/bau-10c/lernpfad_atome.py (10c, S9, Fr 06.11.2026). Phasen als
+  <section class="phase" data-titel="..." data-min="..."> ; Reihenfolge im
+  Dokument = Reihenfolge der Stunde; letzte Section ist immer das Lehrerblatt.
+
+  Konventionen, an denen die Mechanik hängt:
+  * Auswertbare Felder: id="..." UND data-label="Klartext" (keine Feldliste).
+  * Messtabellen: <table class="messtabelle" id data-label>, Zeile 2 = <input>.
+  * Musterlösungen: <details class="gesperrt" data-fuer="id1,id2" data-min="40">
+    (Zeichnungen als "zeichnung:zid").
+  * Zeichenfelder: <div class="zeichenfeld" data-zid data-titel data-label data-hoehe>.
+  * Multiple Choice: <div class="mc" id data-label> + mc(...) im Skript + .rueck.
+  WEGE (neu):
+  * Diagnose: sechs Fragen in der Konstante DIAGNOSE (3 x "voraus", 3 x "kern").
+    Vorschlag: höchstens 1 von 3 "voraus" richtig -> auffrischen;
+    sonst alle 3 "kern" richtig -> vertiefen;
+    sonst standard. Schüler dürfen abweichen; beides wird protokolliert.
+  * Wegabhängige Blöcke: data-pfad="auffrischen" | "standard" | "vertiefen"
+    oder Kommaliste ("standard,vertiefen"). Ohne data-pfad = für alle.
+    Eine ID darf nur EINMAL vorkommen – geteilte Teile mit Kommaliste markieren,
+    nicht kopieren.
+  * Gestufte Hilfen: <div class="hilfen" id="h-xyz" data-feld="t-xyz">
+    <details class="hilfe"><summary>Hilfe 1 · …</summary>…</details> …</div>
+    Stufe k öffnet sich erst nach Stufe k-1; jedes Öffnen wird mit dem
+    Feldstand protokolliert. Hilfen sind KEINE Musterlösung.
+  KEINE externen Skripte, KEINE Bibliotheken, KEIN localStorage ohne try/catch.
+  ============================================================================
+-->
+<style>
+
+:root{
+  --blau:#0b5aa0; --blau-hell:#e8f1f9; --blau-mittel:#8fbde0;
+  --rot:#c62828; --gruen:#2e7d32; --orange:#ef6c00;
+  --grau:#f4f6f8; --linie:#d3dae0; --text:#1a2229;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text); background:#fff; line-height:1.55; font-size:17px;
+}
+header{
+  position:sticky; top:0; z-index:50; background:#fff;
+  border-bottom:2px solid var(--blau); padding:.5rem .9rem;
+}
+.kopf{display:flex; align-items:center; gap:.8rem; flex-wrap:wrap}
+.kopf h1{font-size:1.05rem; margin:0; color:var(--blau); flex:1 1 auto}
+.kopf h1 span{color:#607080; font-weight:400}
+.knopf{
+  font:inherit; font-size:.9rem; padding:.35rem .8rem; border-radius:999px;
+  border:1.5px solid var(--blau); background:#fff; color:var(--blau); cursor:pointer;
+}
+.knopf:hover{background:var(--blau-hell)}
+.knopf.voll{background:var(--blau); color:#fff}
+.knopf.voll:hover{background:#094a85}
+.knopf.klein{font-size:.82rem; padding:.25rem .6rem}
+.uhr{font-variant-numeric:tabular-nums; font-weight:700; font-size:1.1rem; min-width:4.2rem; text-align:center}
+.uhr.knapp{color:var(--rot)}
+.balken{height:5px; background:var(--linie); border-radius:3px; margin-top:.45rem; overflow:hidden}
+.balken>div{height:100%; background:var(--blau); width:0%; transition:width .3s}
+.pillen{display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.45rem}
+.pille{
+  font-size:.74rem; padding:.15rem .5rem; border-radius:999px;
+  background:var(--grau); border:1px solid var(--linie); cursor:pointer; white-space:nowrap;
+}
+.pille.aktiv{background:var(--blau); color:#fff; border-color:var(--blau)}
+.pille.fertig{background:#e6f4ea; border-color:#a8d5b5}
+main{max-width:1000px; margin:0 auto; padding:1.1rem .9rem 6rem}
+section.phase{display:none}
+section.phase.aktiv{display:block}
+h2{font-size:1.5rem; color:var(--blau); margin:.2rem 0 .3rem}
+h3{font-size:1.12rem; margin:1.4rem 0 .4rem}
+.zeitnote{font-size:.85rem; color:#607080; margin:0 0 1rem}
+.karte{background:var(--grau); border:1px solid var(--linie); border-radius:12px; padding:.9rem 1.1rem; margin:1rem 0}
+.karte.blau{background:var(--blau-hell); border-color:var(--blau-mittel)}
+.karte.merk{background:#fff8e1; border-color:#ffd54f}
+.karte.warn{background:#fff3e0; border-color:#ffb74d}
+.karte h4{margin:.1rem 0 .5rem; font-size:1rem; text-transform:uppercase; letter-spacing:.04em; color:var(--blau)}
+.karte.merk h4{color:#8d6e00}
+ol,ul{padding-left:1.3rem}
+li{margin:.3rem 0}
+.zwei{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+@media (max-width:780px){.zwei{grid-template-columns:1fr}}
+canvas{max-width:100%; border-radius:8px; background:#fff; border:1px solid var(--linie); display:block}
+label.reg{display:block; font-size:.9rem; font-weight:600; margin:.7rem 0 .1rem}
+input[type=range]{width:100%; accent-color:var(--blau)}
+.anzeige{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:#101418; color:#7dff9b;
+  padding:.5rem .8rem; border-radius:8px; font-size:1.25rem; display:inline-block; min-width:9rem; text-align:right;
+  border:3px solid #2b3238;
+}
+.anzeige small{color:#9fb; font-size:.7em}
+.werte{display:flex; gap:.9rem; flex-wrap:wrap; align-items:center; margin:.6rem 0}
+.tag{background:#fff; border:1px solid var(--linie); border-radius:8px; padding:.35rem .7rem; font-size:.9rem}
+.tag b{color:var(--blau)}
+table{border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.95rem}
+th,td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+th{background:var(--blau-hell)}
+td input{width:100%; border:none; font:inherit; text-align:center; background:#fffde7; padding:.25rem}
+td input:focus{outline:2px solid var(--blau)}
+td.ok{background:#e6f4ea}
+td.ok input{background:#e6f4ea}
+td.fast{background:#fff8e1}
+td.fast input{background:#fff8e1}
+textarea{width:100%; font:inherit; padding:.5rem; border:1px solid var(--linie); border-radius:8px; min-height:4.5rem; background:#fffde7}
+.mc{margin:.5rem 0}
+.mc button{
+  display:block; width:100%; text-align:left; font:inherit; margin:.3rem 0; padding:.5rem .8rem;
+  border:1.5px solid var(--linie); border-radius:9px; background:#fff; cursor:pointer;
+}
+.mc button:hover{border-color:var(--blau)}
+.mc button.richtig{background:#e6f4ea; border-color:var(--gruen)}
+.mc button.falsch{background:#fdecea; border-color:var(--rot)}
+.rueck{font-size:.92rem; margin:.35rem 0 0; padding:.5rem .7rem; border-radius:8px; display:none}
+.rueck.zeig{display:block}
+.rueck.gut{background:#e6f4ea; border-left:4px solid var(--gruen)}
+.rueck.schlecht{background:#fdecea; border-left:4px solid var(--rot)}
+details{border:1px solid var(--linie); border-radius:9px; padding:.5rem .8rem; margin:.6rem 0; background:#fff}
+details[open]{background:#fbfcfd}
+summary{cursor:pointer; font-weight:600; color:var(--blau)}
+.videobox{position:relative; padding-top:56.25%; background:#000; border-radius:10px; overflow:hidden}
+.videobox iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.videohinweis{font-size:.85rem; color:#607080; margin:.3rem 0 0}
+.nav{
+  position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--linie);
+  padding:.55rem .9rem; display:flex; gap:.6rem; justify-content:space-between; align-items:center; z-index:60;
+}
+.nav .mitte{font-size:.85rem; color:#607080}
+.aufgabe{border-left:4px solid var(--blau); padding:.1rem 0 .1rem .8rem; margin:1.2rem 0}
+.aufgabe .nr{
+  display:inline-block; background:var(--blau); color:#fff; font-weight:700; font-size:.8rem;
+  padding:.1rem .5rem; border-radius:5px; margin-right:.4rem;
+}
+.stern{color:var(--orange); font-size:.85rem}
+.quizfrage{border:1px solid var(--linie); border-radius:10px; padding:.7rem .9rem; margin:.8rem 0}
+.punkte{font-size:1.3rem; font-weight:700; color:var(--blau)}
+.lehrer{display:none; background:#f3e5f5; border:1px solid #ce93d8; border-radius:10px; padding:.7rem .9rem; margin:.8rem 0; font-size:.93rem}
+body.lehrermodus .lehrer{display:block}
+.lehrer h4{color:#6a1b9a; margin:.1rem 0 .4rem; font-size:.95rem; text-transform:uppercase; letter-spacing:.04em}
+.fertigmarke{color:var(--gruen); font-weight:700}
+svg.schaltung{background:#fff; border:1px solid var(--linie); border-radius:8px; max-width:100%; height:auto}
+details.gesperrt{background:#f7f7f8; border-style:dashed}
+details.gesperrt>summary{color:#8a949e; cursor:not-allowed}
+details.frei>summary{color:var(--gruen)}
+.schloss{font-size:.85rem; color:#8a949e; font-weight:400}
+.zeichenfeld{border:1px solid var(--linie); border-radius:10px; padding:.5rem; background:#fff; margin:.6rem 0}
+.zeichenfeld canvas{width:100%; height:auto; background:#fff; border:1px dashed #c3ccd4; border-radius:6px; touch-action:none; cursor:crosshair; display:block}
+.zwerkzeug{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.1rem 0 .45rem}
+.zwerkzeug .knopf{padding:.28rem .7rem; font-size:.85rem}
+.zwerkzeug .knopf.aktivw{background:var(--blau); color:#fff}
+.zwerkzeug .titel{font-weight:700; font-size:.92rem; margin-right:.3rem}
+.zstatus{font-size:.82rem; color:#607080}
+#protokollChip{font-size:.8rem; padding:.2rem .55rem; background:#e6f4ea; border:1px solid #a8d5b5; border-radius:999px; white-space:nowrap}
+#protokollChip.warn{background:#fff3e0; border-color:#ffb74d}
+.bild{background:#fff; border:1px solid var(--linie); border-radius:12px; padding:.6rem .9rem 0; margin:1rem 0; text-align:center}
+.bild svg{width:100%; max-width:520px; height:auto; display:block; margin:0 auto}
+.bildtext{font-size:.9rem; color:#4a5560; text-align:left; margin:.2rem 0 .8rem; line-height:1.45}
+.wegchip{font-size:.8rem; padding:.2rem .55rem; background:var(--blau-hell); border:1px solid var(--blau-mittel); border-radius:999px; white-space:nowrap; cursor:pointer}
+.wegknoepfe{display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin:.6rem 0}
+@media (max-width:780px){.wegknoepfe{grid-template-columns:1fr}}
+.wegknopf{font:inherit; text-align:left; padding:.7rem .8rem; border:2px solid var(--linie); border-radius:12px; background:#fff; cursor:pointer}
+.wegknopf b{display:block; color:var(--blau); font-size:1.05rem}
+.wegknopf span{display:block; font-size:.88rem; color:#4a5560; margin-top:.2rem}
+.wegknopf.empfohlen{border-color:#ffd54f; background:#fffbea}
+.wegknopf.empfohlen b::after{content:"  · empfohlen"; color:#8d6e00; font-size:.8rem; font-weight:600}
+.wegknopf.gewaehlt{border-color:var(--blau); background:var(--blau-hell); box-shadow:0 0 0 2px var(--blau) inset}
+.mc.fest button{cursor:default}
+body[data-weg="auffrischen"] .weghinweis, body[data-weg="standard"] .weghinweis,
+body[data-weg="vertiefen"] .weghinweis{display:none}
+.hilfen{margin:.4rem 0}
+.hilfen details.hilfe{border-color:#ffe082; background:#fffdf3; margin:.35rem 0}
+.hilfen details.hilfe>summary{color:#8d6e00}
+.hilfen details.hilfe.zu{opacity:.55}
+.hilfen details.hilfe.zu>summary{cursor:not-allowed}
+.hilfenote{font-weight:400; font-size:.85rem; color:#8a949e}
+body.lehrermodus [data-pfad]{display:block !important; outline:2px dashed #ce93d8; outline-offset:4px; margin-top:1.6rem}
+body.lehrermodus [data-pfad]::before{content:"nur Weg: " attr(data-pfad); display:block; font-size:.75rem; font-weight:700; color:#6a1b9a; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem}
+body.lehrermodus .weghinweis{display:none}
+.videohalt{border:1px solid var(--linie); border-radius:12px; padding:.7rem .9rem; margin:1rem 0; background:#fff}
+.videohalt video{width:100%; max-height:62vh; border-radius:8px; background:#000; display:block}
+.videostatus{font-size:.88rem; color:#4a5560; margin:.4rem 0 .2rem}
+.videohalt .ersatz{display:none}
+.videohalt.ersatzmodus .ersatz{display:block}
+.haltfrage{display:none; border-left:4px solid #ffb74d; background:#fff8e1; border-radius:8px; padding:.5rem .8rem; margin:.6rem 0}
+.haltfrage.sichtbar{display:block}
+.haltfrage.erledigt{border-left-color:var(--gruen); background:#f3faf4}
+.haltkopf{margin:0 0 .2rem}
+.haltzeit{font-size:.8rem; color:#8a949e}
+.weiterknopf{margin-top:.4rem}
+.weiterknopf:disabled{opacity:.45; cursor:not-allowed}
+body.lehrermodus .haltfrage{display:block}
+body.lehrermodus .videohalt .ersatz{display:block; outline:2px dashed #ce93d8; outline-offset:4px}
+/* ---- Anmeldeschirm (aus den Selbstlernstunden übernommen) ---- */
+.anmeldeschirm{position:fixed; inset:0; z-index:900; background:#f4f6f8;
+  display:flex; align-items:center; justify-content:center; padding:1.2rem}
+.anmeldekarte{background:#fff; border:1px solid var(--linie); border-top:6px solid var(--blau);
+  border-radius:14px; padding:1.6rem 1.8rem; max-width:30rem; width:100%;
+  box-shadow:0 6px 28px rgba(20,32,42,.13)}
+.anmeldekarte h2{margin:0 0 .5rem}
+.anmeldekarte p{margin:.4rem 0}
+.anmeldezeile{display:flex; gap:.7rem; align-items:center; margin:1.1rem 0 .4rem; flex-wrap:wrap}
+#i-code{font:inherit; font-size:2.1rem; font-weight:700; letter-spacing:.35em;
+  width:7rem; text-align:center; padding:.45rem .1rem .45rem .5rem;
+  border:2px solid var(--blau-mittel); border-radius:10px; background:#fffde7;
+  font-variant-numeric:tabular-nums}
+#i-code:focus{outline:3px solid var(--blau); outline-offset:1px}
+.anmelde-rueck{font-size:.92rem; min-height:1.3rem; margin:.2rem 0 0}
+.anmelde-rueck.gut{color:var(--gruen); font-weight:600}
+.anmelde-rueck.schlecht{color:var(--rot); font-weight:600}
+.anmeldekarte .fuss{font-size:.85rem; color:#607080; margin-top:1.1rem;
+  border-top:1px solid var(--linie); padding-top:.7rem}
+/* hidden muss auch Elemente mit eigener display-Regel verbergen */
+[hidden]{display:none !important}
+.knopf{min-height:44px}
+.knopf.klein{min-height:36px}
+.knopf.aktivw{background:var(--blau); color:#fff}
+.knopf:disabled{opacity:.45; cursor:not-allowed}
+table.kleintab{width:100%}
+table.kleintab td{text-align:left; vertical-align:top}
+table.kleintab textarea.klein{min-height:3.2rem; font-size:.95rem}
+table.faedchen td{border:none; padding:.15rem .4rem; font-size:.92rem}
+table.faedchen td:first-child{width:1.5rem; color:var(--blau); font-weight:700}
+table.faedchen td:nth-child(2){width:7.5rem; white-space:nowrap; color:#4a5560}
+table.faedchen tr.heute td{background:#fff8e1}
+.quelle{display:inline-block; font-size:.75rem; background:#eef3f7; border:1px solid var(--linie); border-radius:5px;
+  padding:.05rem .4rem; margin-right:.3rem; color:#4a5560}
+/* ---- Filme mit Halt (YouTube, Stück für Stück) ---- */
+.filmhalt{border:2px solid #7c3aed; background:#faf5ff; border-radius:12px; padding:.8rem 1rem; margin:1rem 0}
+.filmhalt h4{margin:.1rem 0 .3rem; color:#5b21b6}
+.filmquelle{font-size:.82rem; color:#6b5a8a; margin:.1rem 0 .5rem}
+.filmnetz{font-size:.86rem; color:#7c2d12; background:#fff7ed; border-radius:8px; padding:.4rem .6rem}
+.filmrahmen{position:relative; width:100%; max-width:720px; aspect-ratio:16/9; margin:.5rem 0; background:#000;
+  border-radius:10px; overflow:hidden; display:none}
+.filmrahmen.laeuft{display:block}
+.filmrahmen iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.stueck{margin:.45rem 0; display:flex; gap:.6rem; align-items:center; flex-wrap:wrap}
+.stueckzeit{font-weight:400; font-size:.85em}
+.stuecksperre{font-size:.85rem; color:#8a949e}
+.halt2{display:none; border-left:4px solid #ffb74d; background:#fff8e1; border-radius:8px; padding:.5rem .8rem; margin:.5rem 0}
+.halt2.sichtbar{display:block}
+.halt2.fertig{border-left-color:var(--gruen); background:#f3faf4}
+body.lehrermodus .halt2{display:block}
+details.filmersatz{background:#fff}
+/* ---- Simulation Streuversuch ---- */
+#c-streu{width:100%; height:auto; background:#fff}
+.streuknoepfe{display:flex; flex-wrap:wrap; gap:.4rem 1rem; margin:.6rem 0}
+.streuknoepfe .gruppe{display:flex; flex-wrap:wrap; gap:.3rem; align-items:center}
+.planwahl{display:flex; flex-wrap:wrap; gap:.5rem; margin:.4rem 0 .6rem}
+details.genau{background:#fff3e0; border-color:#ffb74d}
+details.genau>summary{color:#a14f00}
+.karte.einstein{background:#f1f8e9; border-color:#aed581}
+.karte.einstein h4{color:#33691e}
+@media print{
+  .filmrahmen,.stueck{display:none !important}
+  .halt2{display:block !important}
+  .videohalt video,.videostatus,.weiterknopf{display:none !important}
+  .videohalt .ersatz,.haltfrage{display:block !important}
+  [data-pfad]{display:block !important; border-left:3px solid #ce93d8; padding-left:.5rem}
+  [data-pfad]::before{content:"nur Weg: " attr(data-pfad); display:block; font-size:.75rem; font-weight:700; color:#6a1b9a}
+  .weghinweis{display:none !important}
+  header,.nav,.pillen,.balken{display:none}
+  section.phase{display:block !important; page-break-after:always}
+  body{font-size:11pt}
+  .lehrer{display:block}
+}
+</style>
+</head>
+<body>
+
+<!-- Anmeldung: zweistellige Zahl von der Tafel (KW 45). Keine Sperre: „Ohne Zahl weiter“
+     legt das Skript selbst an. Der Zeitpunkt der Anmeldung ist der Anwesenheitsnachweis. -->
+<div class="anmeldeschirm" id="anmeldeschirm">
+  <div class="anmeldekarte">
+    <h2>Anmeldung zur Stunde</h2>
+    <p>An der Tafel steht eine <b>zweistellige Zahl</b>. Tragt sie hier ein. Dann geht es los.</p>
+    <div class="anmeldezeile">
+      <input id="i-code" inputmode="numeric" pattern="[0-9]*" maxlength="2"
+             autocomplete="off" aria-label="Zweistellige Zahl von der Tafel">
+      <button class="knopf voll" id="k-anmelden">Anmelden</button>
+    </div>
+    <p class="anmelde-rueck" id="anmelde-rueck" role="status" aria-live="polite"></p>
+    <p style="margin:.9rem 0 0"><button class="knopf klein" id="k-lehrkraft"
+       style="background:transparent;border:1px dashed var(--linie);color:#5a6570">Lehrkraft: Zahl anzeigen</button></p>
+    <p class="fuss">Der Zeitpunkt eurer Anmeldung steht im Protokoll. So sieht Herr Glaubitz,
+    wer wann angefangen hat. Ihr könnt die Zahl nicht sehen? Dann fragt nach. Ratet nicht.</p>
+  </div>
+</div>
+
+<header>
+  <div class="kopf">
+    <h1>Wie leer ist ein Atom? <span>· Physik · 10c</span></h1>
+    <div id="wegChip" class="wegchip" title="Weg ändern">Weg: –</div>
+    <div id="protokollChip">Protokoll: 0 Einträge</div>
+    <div class="uhr" id="uhr">--:--</div>
+    <button class="knopf klein" id="uhrKnopf">Pause</button>
+    <button class="knopf klein" id="lehrerKnopf">Lehrer-Ansicht</button>
+  </div>
+  <div class="balken"><div id="balken"></div></div>
+  <div class="pillen" id="pillen"></div>
+</header>
+
+<main>
+
+<!-- ================= PHASE 0: START ================= -->
+<section class="phase aktiv" data-titel="Start" data-min="3">
+  <h2>Wie leer ist ein Atom?</h2>
+  <p class="zeitnote">Diese Doppelstunde führt sich selbst durch. Jede und jeder arbeitet am
+  eigenen iPad und klickt sich durch die Phasen. Unten rechts geht es weiter.</p>
+
+  <div class="bild">
+    <svg viewBox="0 0 520 150" role="img" aria-label="Ein Holzscheit wird immer kleiner geteilt"><rect x="0" y="0" width="520" height="150" fill="#fbf7f0"/><g fill="#b07a45" stroke="#6d4523" stroke-width="2"><rect x="18" y="52" width="110" height="56" rx="10"/><rect x="168" y="62" width="62" height="36" rx="7"/><rect x="262" y="70" width="30" height="20" rx="4"/><rect x="322" y="75" width="12" height="9" rx="2"/></g><g fill="#6d4523"><circle cx="362" cy="80" r="2.5"/></g><g stroke="#8a6d55" stroke-width="2" fill="none" marker-end="url(#pf1)"><path d="M134 80 H160"/><path d="M236 80 H256"/><path d="M298 80 H316"/><path d="M340 80 H354"/><path d="M370 80 H400"/></g><defs><marker id="pf1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8a6d55"/></marker></defs><text x="452" y="96" font-size="54" font-weight="700" text-anchor="middle" fill="#0b5aa0">?</text><text x="73" y="132" font-size="13" text-anchor="middle" fill="#5a4636">Scheit</text><text x="199" y="132" font-size="13" text-anchor="middle" fill="#5a4636">Klotz</text><text x="277" y="132" font-size="13" text-anchor="middle" fill="#5a4636">Span</text><text x="345" y="132" font-size="13" text-anchor="middle" fill="#5a4636">Krümel</text><text x="452" y="132" font-size="13" text-anchor="middle" fill="#0b5aa0">und dann?</text></svg>
+    <p class="bildtext"><b>Die Frage dieser Doppelstunde (Buch S. 200):</b> Holz kann man immer kleiner hacken. Was bleibt
+    am Ende übrig, wenn man immer weiter zerkleinert? Und wie sieht dieses kleinste Teilchen innen aus?</p>
+  </div>
+
+  <div class="karte blau"><h4>Wo wir stehen</h4>
+  <table class="kleintab faedchen">
+    <tr><td>✓</td><td>14.08.–11.09.</td><td>Halbleiter: NTC, LDR, Diode, LED, Solarzelle</td></tr>
+    <tr><td>✓</td><td>09.10.</td><td>1. Klassenarbeit</td></tr>
+    <tr><td>✓</td><td>30.10.</td><td>Der Transformator</td></tr>
+    <tr class="heute"><td>●</td><td>heute</td><td><b>Neues Kapitel: Atome.</b> Von Dalton bis Rutherford, Kern und Hülle, Bohr im Überblick</td></tr>
+    <tr><td></td><td>ab 13.11.</td><td>Kern, Isotope, Radioaktivität</td></tr>
+    <tr><td>⚑</td><td>KW 10/2027</td><td>2. Klassenarbeit: Kernphysik</td></tr>
+  </table>
+  <p><b>Was ihr am 30.10. gezeigt habt:</b> Rechnen mit einer Formel klappt. 380 kV in Volt hatten alle 21 Antworten
+  richtig, 2300 W an 230 V fast alle. Schwerer war das <b>Warum</b>: 20 von 23 wussten, dass die Kompassnadel neben
+  der Spule ausschlägt. Nur 7 haben geschrieben, warum.</p>
+  <p><b>Heute geht es genau darum:</b> Aus einer Beobachtung einen Schluss ziehen. Rutherford hat nie ein Atom gesehen.
+  Er hat auf eine Goldfolie geschossen, gezählt und dann geschlossen, wie ein Atom innen aussieht.</p></div>
+
+  <h3>Ihr könnt danach …</h3>
+  <ol><li>beschreiben, was beim Streuversuch mit der Goldfolie passiert,</li>
+  <li>aus diesen Beobachtungen das Kern-Hülle-Modell begründen,</li>
+  <li>mit „100 000-mal kleiner“ rechnen und es mit Dingen aus dem Alltag vergleichen,</li>
+  <li>sagen, was Dalton, Thomson, Rutherford und Bohr sich jeweils unter einem Atom vorstellten.</li></ol>
+
+  <div class="karte">
+    <h4>Spielregeln</h4>
+    <ul>
+      <li>Nach dem Einstieg kommt ein <b>kurzer Check</b> mit sechs Fragen. Danach schlägt euch die Seite
+      einen von drei <b>Wegen</b> vor: <i>Auffrischen</i>, <i>Standard</i> oder <i>Vertiefen</i>.
+      Ihr dürft auch einen anderen wählen. Alle Wege führen zum selben Ziel und zum selben Exit-Ticket.</li>
+      <li>Jede Phase hat eine Zeitangabe und eine Uhr. Sie ist ein Vorschlag, kein Befehl.</li>
+      <li><b>Die Lösungen sind verschlossen</b> 🔒. Sie öffnen sich erst, wenn ihr eure eigene Antwort
+      eingetragen habt. Eine gelesene Lösung fühlt sich richtig an. Eine selbst gedachte sitzt.</li>
+      <li><b>Filme laufen in Stücken.</b> Nach jedem Stück kommt eine Frage. Das nächste Stück öffnet sich erst,
+      wenn eure Antwort dasteht. Nehmt Kopfhörer.</li>
+      <li>Bei manchen Aufgaben gibt es <b>Hilfen in Stufen</b>. Nehmt sie ruhig, aber eine nach der
+      anderen. Oft reicht die erste.</li>
+      <li>Alles wird <b>mitprotokolliert</b>, auch welche Hilfen ihr geöffnet habt. Eine ehrliche falsche Antwort ist
+      besser als eine abgeschriebene richtige.</li>
+      <li>Am Ende speichert ihr das Protokoll und schickt es an Herrn Glaubitz.</li>
+    </ul>
+  </div>
+
+  <div class="lehrer">
+    <h4>Für die Lehrkraft</h4>
+    <p>Tafelzahl <b>45</b>. Kein Material nötig (Plan B). Plan A in Phase 3 ist ein Murmel-Modellversuch, nur wenn
+    Murmeln und Pappbecher da sind (Katalog Nr. 31, Werkstatt). Filme laufen eingebettet nur über die Website oder
+    localhost:8124; als Datei geöffnet springen die Knöpfe auf YouTube. Jeder Film hat einen Ersatztext.
+    Lehrer-Ansicht (Kennwort sumdideldum) zeigt alle drei Wege gleichzeitig; Strg+P druckt alles.</p>
+  </div>
+</section>
+
+<!-- ================= PHASE 1: EINSTIEG ================= -->
+<section class="phase" data-titel="Einstieg" data-min="5">
+  <h2>1 · Was passiert, wenn man auf Gold schießt?</h2>
+  <p class="zeitnote">5 Minuten · zuerst raten, dann prüfen</p>
+
+  <div class="bild"><svg viewBox="0 0 520 224" role="img" aria-label="Streuversuch: Quelle, Goldfolie, Leuchtschirm"><rect width="520" height="224" fill="#f4f6f8"/><ellipse cx="260" cy="112" rx="150" ry="92" fill="none" stroke="#7fb3d5" stroke-width="7" opacity=".55"/><text x="400" y="30" font-size="13" fill="#2c5f86">Leuchtschirm</text><rect x="22" y="88" width="62" height="48" rx="4" fill="#78909c" stroke="#455a64" stroke-width="2"/><text x="53" y="156" font-size="12" text-anchor="middle" fill="#37474f">Quelle im</text><text x="53" y="170" font-size="12" text-anchor="middle" fill="#37474f">Bleiblock</text><rect x="84" y="108" width="14" height="8" fill="#455a64"/><g stroke="#c62828" stroke-width="2.2"><path d="M100 112 H248"/><path d="M100 106 H248"/><path d="M100 118 H248"/></g><text x="170" y="98" font-size="12" text-anchor="middle" fill="#c62828">Heliumteilchen (positiv)</text><rect x="252" y="62" width="9" height="100" fill="#f2c230" stroke="#b8860b" stroke-width="1.5"/><text x="256" y="182" font-size="12" text-anchor="middle" fill="#8d6e00">Goldfolie</text><circle cx="409.81253905924495" cy="116.59808357290241" r="3.2" fill="#ffd54f" stroke="#e65100" stroke-width="1"/><circle cx="409.8800159991467" cy="108.32098125482966" r="3.2" fill="#ffd54f" stroke="#e65100" stroke-width="1"/><circle cx="408.92129537807995" cy="123.01352307058058" r="3.2" fill="#ffd54f" stroke="#e65100" stroke-width="1"/><circle cx="408.31566169040633" cy="98.25169181242887" r="3.2" fill="#ffd54f" stroke="#e65100" stroke-width="1"/><circle cx="409.97000099998667" cy="113.83987733578664" r="3.2" fill="#ffd54f" stroke="#e65100" stroke-width="1"/><text x="330" y="118" font-size="30" font-weight="700" fill="#0b5aa0">?</text></svg>
+    <p class="bildtext">1909, im Labor von Ernest Rutherford in Manchester: Hans Geiger und Ernest Marsden lassen winzige,
+    sehr schnelle Teilchen auf eine Goldfolie fliegen. Die Teilchen sind <b>positiv geladen</b>. Es sind Heliumkerne,
+    man nennt sie auch α-Teilchen (Alpha-Teilchen). Die Folie ist dünner als ein Tausendstel Millimeter. Trotzdem
+    liegen darin Hunderte Lagen Goldatome übereinander. Ein Leuchtschirm zeigt jedes Teilchen als kleinen Lichtblitz.</p></div>
+
+  <h3>Eure Prognose</h3>
+  <p>Was passiert mit den <b>allermeisten</b> Heliumteilchen?</p>
+  <div class="mc" id="mc-prognose" data-label="Prognose"></div>
+  <div class="rueck" id="rueck-prognose"></div>
+
+  <h3>Eure Vermutung</h3>
+  <p>Was sagt euer Ergebnis darüber, wie ein Atom innen aussieht? Ein Satz. Es gibt hier kein Falsch.</p>
+  <textarea id="t-vermutung" data-label="Vermutung zum Einstieg" placeholder="Ich vermute, dass ein Atom innen …"></textarea>
+
+  <div class="lehrer"><h4>Timing &amp; Hinweise</h4>
+  <p>Der Konflikt: Metall gilt als „dicht“, also erwarten viele „bleiben stecken“ oder „prallen ab“. Nicht auflösen;
+  die Auflösung kommt in Phase 3 (Simulation) und 4 (Film). Die zweite Überraschung (sehr wenige prallen zurück)
+  ist im Einstieg bewusst noch nicht genannt.</p></div>
+</section>
+
+<!-- ================= PHASE 2: CHECK ================= -->
+<section class="phase" data-titel="Check" data-min="6" id="phase-diagnose">
+  <h2>2 · Kurzer Check: Welcher Weg passt zu euch?</h2>
+  <p class="zeitnote">6 Minuten · sechs Fragen, ehrlich beantworten. Es gibt keine Note.</p>
+
+  <div class="karte blau"><h4>So funktioniert es</h4>
+  <p>Jede Frage hat <b>einen</b> Versuch. Ihr seht sofort, ob es stimmt. Danach schlägt euch die Seite
+  einen Weg vor. Raten lohnt sich nicht: Ein zu schwerer Weg kostet mehr Zeit, als er bringt.</p></div>
+
+  <div id="diagnose"></div>
+  <p><button class="knopf voll" id="k-auswerten" disabled>Auswerten</button>
+     <span class="videohinweis" id="diag-stand">Noch 6 Fragen offen.</span></p>
+
+  <div id="wegwahl" style="display:none">
+    <div class="karte merk" id="weg-vorschlag"></div>
+    <div class="wegknoepfe">
+      <button class="wegknopf" data-weg="auffrischen"><b>Auffrischen</b><span>Zuerst Ladung, „neutral“ und Zehnerschritte
+      auffrischen. Dann erklärt ein Film den Versuch Stück für Stück.</span></button>
+      <button class="wegknopf" data-weg="standard"><b>Standard</b><span>Ihr seht den Versuch in einem echten Schullabor und
+      zieht die Schlüsse selbst, mit zwei Hilfen.</span></button>
+      <button class="wegknopf" data-weg="vertiefen"><b>Vertiefen</b><span>Ohne Hilfen. Dazu eine Frage, die das Buch übergeht:
+      Woher weiß man, dass der Kern positiv ist?</span></button>
+    </div>
+    <div class="rueck" id="rueck-weg"></div>
+  </div>
+
+  <div class="lehrer"><h4>Diagnose</h4>
+  <p>Fragen 1–3 prüfen das Vorwissen: Ladungen stoßen sich ab/ziehen sich an, „neutral“ = gleich viel + und −,
+  Zehnerschritte (m → mm; Befund vom 30.10.: mA/A und Faktor 10). Fragen 4–6 prüfen ohne Fachwort, ob der
+  Modellschluss schon fast sitzt: seltener Abpraller → kleines, hartes Hindernis; Faktor 100 000; neutral → 79 Elektronen.
+  Regel: höchstens 1 von 3 beim Vorwissen → <i>Auffrischen</i>; sonst alle 3 beim Kern → <i>Vertiefen</i>; sonst
+  <i>Standard</i>. Vorschlag und Wahl stehen beide im Protokoll.</p></div>
+</section>
+
+<!-- ================= PHASE 3: KERN ================= -->
+<section class="phase" data-titel="Kern" data-min="14">
+  <h2>3 · Rosinenkuchen oder Kern? Der Versuch im Modell</h2>
+  <p class="zeitnote">14 Minuten · erst ein kurzer Film, dann die Simulation, jede und jeder am eigenen iPad</p>
+
+  <div class="karte warn" data-pfad="auffrischen">
+    <h4>Erst kurz auffrischen</h4>
+    <ul>
+      <li><b>Ladungen:</b> Gleiche Ladungen stoßen sich ab (+ und +, − und −). Verschiedene ziehen sich an (+ und −).</li>
+      <li><b>Neutral</b> heißt nicht „keine Ladung“. Es heißt: <b>gleich viele</b> positive wie negative Ladungen.
+      Beispiel: 79 positive und 79 negative Ladungen, das ist neutral.</li>
+      <li><b>Zehnerschritte:</b> 1 m = 1000 mm. Also 100 m = 100 · 1000 mm = 100 000 mm.</li>
+    </ul>
+    <p><b>Mini-Auftrag:</b> (a) Ein Teilchen hat 6 positive Ladungen und ist neutral. Wie viele negative Ladungen hat es?
+    (b) Wie viele Millimeter sind 1 km?</p>
+    <textarea id="t-auffr" data-label="Auffrischen – Mini-Auftrag"></textarea>
+    <details class="gesperrt" data-fuer="t-auffr" data-min="8"><summary>Kontrolle</summary>
+      <p>(a) 6 negative Ladungen. (b) 1 km = 1000 m = 1000 · 1000 mm = <b>1 000 000 mm</b>.</p></details>
+  </div>
+
+  <h3>Zwei Atommodelle vor Rutherford</h3>
+  
+<div class="filmhalt" id="f-modelle" data-yt="ZD2HWNkA6WI" data-titel="Entwicklung der Atommodelle">
+  <h4>🎬 Film: Entwicklung der Atommodelle</h4>
+  <p class="filmquelle">Chemie – simpleclub · YouTube · 3:45 · wir zeigen 1:46–2:40, 2:40–3:04 · Kopfhörer, bitte.</p>
+  <p class="filmnetz" hidden>Diese Seite ist als Datei geöffnet. Dann spielt YouTube nicht in der Seite. Die Knöpfe öffnen
+  den Film deshalb auf YouTube an der richtigen Stelle. Stoppt selbst am Ende des Stücks (Zeit steht auf dem Knopf).</p>
+  <div class="filmrahmen"></div>
+  <div class="stueck" data-start="106" data-ende="160" data-nr="1"><button class="knopf voll stueckknopf" type="button">▶ Stück 1 <span class="stueckzeit">(1:46–2:40)</span></button></div><div class="halt2" data-min="15"><p class="haltkopf"><b>Halt 1.</b> Man fand später heraus: In jedem Atom stecken winzige, <b>negativ</b> geladene Teilchen, die Elektronen. Ein Atom ist aber nach außen nicht geladen. Wo könnte die <b>positive</b> Ladung sitzen? Vermutet in einem Satz.</p><textarea id="f-modelle-h1" data-label="Film Entwicklung der Atommodelle – Halt 1" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="160" data-ende="184" data-nr="2"><button class="knopf voll stueckknopf" type="button">▶ Stück 2 <span class="stueckzeit">(2:40–3:04)</span></button> <span class="stuecksperre">🔒 erst Halt 1 beantworten</span></div><div class="halt2" data-min="15"><p class="haltkopf"><b>Halt 2.</b> Thomsons Atom ist wie ein Rosinenkuchen: Der „Teig“ ist positiv, die „Rosinen“ sind die Elektronen. Was ist bei Thomson anders als bei Dalton? Ein Satz.</p><textarea id="f-modelle-h2" data-label="Film Entwicklung der Atommodelle – Halt 2" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div>
+  <details class="filmersatz"><summary>Kein Film? Hier steht, was er zeigt.</summary><p><b>Was der Film zeigt (ohne Film):</b> 1803 sagt John Dalton: Atome sind winzige, feste Kugeln. Sie lassen sich nicht teilen. Atome eines Elements sind gleich schwer und gleich groß. Rund 100 Jahre später weiß man: In Atomen gibt es negativ geladene Elektronen. Joseph John Thomson baut daraus 1904 sein Modell: Das Atom ist eine Kugel aus gleichmäßig verteilter positiver Ladung. Darin stecken die Elektronen wie Rosinen in einem Kuchen.</p></details>
+</div>
+
+  <h3>Jetzt ihr: Der Streuversuch als Simulation</h3>
+  <div class="planwahl" id="planwahl">
+    <button class="knopf aktivw" type="button" data-plan="B">Plan B · nur iPad (Simulation)</button>
+    <button class="knopf" type="button" data-plan="A">Plan A · zusätzlich mit Murmeln</button>
+  </div>
+
+  <div class="karte" id="materialschirm" hidden>
+    <h4>Plan A: Was ihr braucht</h4>
+    <ul>
+      <li>20 Murmeln · Werkstatt, Schrankfach Bastelmaterial (Labor-Katalog Nr. 31)</li>
+      <li>2 Pappbecher · ebenda (Nr. 31)</li>
+      <li>ein Schulbuch und zwei Federmäppchen · habt ihr selbst</li>
+    </ul>
+    <p class="videohinweis">Fehlt etwas? Dann bleibt bei Plan B. Die Simulation zeigt dasselbe.</p>
+    <button class="knopf voll" type="button" id="k-plan-a-los">Alles da – los</button>
+    <button class="knopf" type="button" id="k-plan-a-zurueck">Doch Plan B</button>
+  </div>
+
+  <div class="karte" id="plan-a-block" hidden>
+    <h4>Plan A: Murmeln gegen versteckte Becher</h4>
+    <ol>
+      <li>Legt das Buch wie ein Dach auf die beiden Federmäppchen. Darunter ist ein flacher Tunnel.</li>
+      <li>Tut euch für den Versuch mit dem Nachbarn zusammen. Einer stellt die zwei Becher umgedreht unter das Buch,
+      der andere schaut weg. Das Ergebnis trägt jeder auf seinem eigenen iPad ein.</li>
+      <li>Rollt 20 Murmeln einzeln aus etwa 50 cm Abstand gerade in den Tunnel, über die ganze Breite verteilt.</li>
+      <li>Zählt: Wie viele kommen gerade hinten heraus? Wie viele seitlich? Wie viele rollen zurück?</li>
+    </ol>
+    <table class="messtabelle" id="tab-plana" data-label="Plan A Murmeln">
+      <tr><th>gerade durch</th><th>seitlich abgelenkt</th><th>zurück</th></tr>
+      <tr><td><input id="pa-g" inputmode="numeric"></td><td><input id="pa-a" inputmode="numeric"></td><td><input id="pa-z" inputmode="numeric"></td></tr>
+    </table>
+    <p>Wo liegen die Becher ungefähr? Und was müsste man ändern, damit es wie bei Rutherford aussieht
+    (fast alle gerade, ganz wenige zurück)?</p>
+    <textarea id="t-plana" data-label="Plan A – Deutung"></textarea>
+    <details class="gesperrt" data-fuer="t-plana" data-min="30"><summary>Kontrolle Plan A</summary>
+      <p>Wo die meisten zurückrollen oder abprallen, liegt ein Becher. Bei euch prallen viel mehr Murmeln ab als bei
+      Rutherford, weil die Becher im Vergleich zum Tunnel riesig sind. Für Rutherfords Ergebnis müssten die Hindernisse
+      <b>winzig</b> sein und <b>weit auseinander</b> liegen, zum Beispiel Nadeln statt Becher. Genau das ist der Atomkern.</p></details>
+  </div>
+
+  <canvas id="c-streu" width="900" height="380"></canvas>
+  <div class="streuknoepfe">
+    <span class="gruppe"><b>Modell:</b>
+      <button class="knopf klein aktivw" type="button" data-modell="thomson">A · Rosinenkuchen (Thomson)</button>
+      <button class="knopf klein" type="button" data-modell="kern">B · winziger Kern (Rutherford)</button></span>
+    <span class="gruppe"><b>Folie:</b>
+      <button class="knopf klein aktivw" type="button" data-z="79">Gold (79)</button>
+      <button class="knopf klein" type="button" data-z="13">Aluminium (13)</button></span>
+    <span class="gruppe"><b>Schießen:</b>
+      <button class="knopf klein" type="button" data-n="1">1 Teilchen</button>
+      <button class="knopf klein" type="button" data-n="100">100</button>
+      <button class="knopf klein" type="button" data-n="1000">1000</button>
+      <button class="knopf klein" type="button" id="k-streu-neu">Zähler auf 0</button></span>
+  </div>
+  <div class="werte">
+    <div class="tag">gerade durch (unter 10°): <b id="z-gerade">0</b></div>
+    <div class="tag">stark abgelenkt (10° bis 90°): <b id="z-abgelenkt">0</b></div>
+    <div class="tag">zurück (über 90°): <b id="z-zurueck">0</b></div>
+    <div class="tag">geschossen: <b id="z-alle">0</b></div>
+  </div>
+  <p class="videohinweis">* Modell, keine Messwerte. Zweidimensional, nur fünf Atomlagen statt Hunderten, und der Kern wirkt
+  hier viel stärker als in Wirklichkeit. Deshalb prallen in der Simulation mehr Teilchen zurück als im echten Versuch
+  (dort nur etwa eines von vielen tausend). Der rote Punkt ist viel zu groß gezeichnet: Maßstäblich wäre er unsichtbar.</p>
+
+  <div class="karte"><h4>Aufträge</h4>
+  <ol><li>Wählt <b>Modell A</b> (Rosinenkuchen) und Gold. Schießt 1000 Teilchen. Notiert die drei Zahlen.</li>
+  <li>Stellt auf 0. Wählt <b>Modell B</b> (winziger Kern). Schießt 1000 Teilchen. Notiert die drei Zahlen.
+  Welches Modell passt zu dem, was Geiger und Marsden sahen: <i>fast alle gerade, einige stark abgelenkt, ganz wenige zurück</i>?</li></ol></div>
+
+  <label class="reg">Notiz zu Auftrag 1 (Modell A):</label>
+  <textarea id="t-k1" data-label="Kern – Auftrag 1 (Modell A)"></textarea>
+  <label class="reg">Notiz zu Auftrag 2 (Modell B) und welches Modell passt:</label>
+  <textarea id="t-k2" data-label="Kern – Auftrag 2 (Modell B)"></textarea>
+
+  <details class="gesperrt" data-fuer="t-k1,t-k2" data-min="30">
+    <summary>Kontrolle – erst nach eigenen Notizen öffnen</summary>
+    <p><b>Modell A:</b> alle 1000 gerade, 0 abgelenkt, 0 zurück. Die positive Ladung ist über das ganze Atom verteilt.
+    Sie drückt das Teilchen nur ganz schwach zur Seite, höchstens um Bruchteile eines Grades.</p>
+    <p><b>Modell B:</b> ungefähr 950 bis 970 gerade, etwa 25 bis 50 stark abgelenkt, etwa 3 bis 8 zurück (es schwankt
+    von Versuch zu Versuch). Nur Modell B passt. Ein Teilchen kann nur zurückprallen, wenn es fast frontal auf etwas
+    trifft, das <b>klein, stark geladen und schwer</b> ist. Weil das so selten passiert, muss dieses Etwas winzig sein.</p>
+  </details>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">K3</span> <span class="stern">★</span> Schießt je 1000 Teilchen mit Modell B auf <b>Gold (79)</b> und
+    auf <b>Aluminium (13)</b>. Die Zahl in Klammern ist die positive Ladung eines Kerns. Vergleicht, wie viele
+    zurückkommen. Nennt zwei Gründe, warum Rutherford Gold genommen hat.</p>
+    <textarea id="t-k3" data-label="Kern – Auftrag 3 (Vertiefen)"></textarea>
+    <details class="gesperrt" data-fuer="t-k3" data-min="40"><summary>Kontrolle K3</summary>
+      <p>Bei Aluminium kommen viel weniger zurück (meist 0 bis 2 statt etwa 5), und auch stark abgelenkt werden nur
+      wenige. Grund 1: Der Goldkern ist viel stärker geladen und stößt stärker ab. Die seltenen starken Ablenkungen werden
+      dadurch überhaupt zählbar. Grund 2: Gold lässt sich hauchdünn hämmern (Blattgold). In einer sehr dünnen Folie trifft
+      ein Teilchen höchstens auf einen Kern nahe genug. Dann sieht man, was <b>ein einzelner</b> Kern tut.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Zum Modell</h4>
+  <p>Analytische Ablenkung je Atomlage: Kern tan(θ/2) = d₀/(2b), Thomson θ ∝ b (verteilte Ladung), fünf versetzte Lagen,
+  Stoßparameter gleichverteilt. d₀ ∝ Z, auf Sichtbarkeit skaliert (Erwartung je 1000 in modelle_atome.py: Gold 960/35/5,
+  Aluminium 994/6/≈1, Thomson 1000/0/0). Nicht im Modell: Elektronen, Energieverlust, dreidimensionale Treffer. Häufige
+  Fehldeutung: „Modell A lässt alles durch, also ist das Atom bei Thomson leer.“ Nein: Bei Thomson ist das Atom voll,
+  aber „weich“; es fehlt etwas Hartes, das zurückwirft.</p></div>
+</section>
+
+<!-- ================= PHASE 4: EUER WEG ================= -->
+<section class="phase" data-titel="Euer Weg" data-min="15">
+  <h2>4 · Vom Versuch zum Modell</h2>
+  <p class="zeitnote">15 Minuten · jeder Weg anders, das Ziel ist dasselbe: die Tabelle unten</p>
+
+  <!-- AUFFRISCHEN -->
+  <div data-pfad="auffrischen">
+    <div class="karte blau"><h4>Weg Auffrischen · Schritt für Schritt</h4>
+    <p><b>Ein Gedankenexperiment aus dem Buch (S. 201, V1):</b> Ein Sack ist voll mit Styroporkugeln. Irgendwo darin
+    liegen ein paar Steine. Ihr könnt nicht hineinsehen. Ihr schießt mit Pistolenkugeln auf den Sack.</p>
+    <table class="kleintab">
+      <tr><th>Beobachtung</th><th>Schluss</th></tr>
+      <tr><td>Fast alle Kugeln fliegen gerade durch.</td><td>Im Sack ist fast überall nur Styropor. Das hält eine Kugel nicht auf.</td></tr>
+      <tr><td>Ganz wenige prallen zurück.</td><td>Irgendwo stecken kleine, harte, schwere Brocken: die Steine.</td></tr>
+      <tr><td>Es prallen nur <i>sehr</i> wenige zurück.</td><td>Die Steine sind klein, und zwischen ihnen ist viel Platz.</td></tr>
+    </table>
+    <p><b>Übertragen auf das Atom:</b> Pistolenkugeln = Heliumteilchen · Styropor = Atomhülle · Steine = Atomkerne.</p></div>
+    
+<div class="filmhalt" id="f-simple" data-yt="81kI-gmTSrA" data-titel="Rutherfords Streuversuch">
+  <h4>🎬 Film: Rutherfords Streuversuch</h4>
+  <p class="filmquelle">Chemie – simpleclub · YouTube · 4:04 · wir zeigen 0:48–1:32, 1:32–2:06, 2:06–3:32 · Kopfhörer, bitte.</p>
+  <p class="filmnetz" hidden>Diese Seite ist als Datei geöffnet. Dann spielt YouTube nicht in der Seite. Die Knöpfe öffnen
+  den Film deshalb auf YouTube an der richtigen Stelle. Stoppt selbst am Ende des Stücks (Zeit steht auf dem Knopf).</p>
+  <div class="filmrahmen"></div>
+  <div class="stueck" data-start="48" data-ende="92" data-nr="1"><button class="knopf voll stueckknopf" type="button">▶ Stück 1 <span class="stueckzeit">(0:48–1:32)</span></button></div><div class="halt2" data-min="15"><p class="haltkopf"><b>Halt 1.</b> Thomson denkt: Die positive Ladung ist im ganzen Atom verteilt, wie der Teig im Kuchen. Was erwartet er für den Versuch? Was passiert nach seinem Modell mit den Heliumteilchen?</p><textarea id="f-simple-h1" data-label="Film Rutherfords Streuversuch – Halt 1" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="92" data-ende="126" data-nr="2"><button class="knopf voll stueckknopf" type="button">▶ Stück 2 <span class="stueckzeit">(1:32–2:06)</span></button> <span class="stuecksperre">🔒 erst Halt 1 beantworten</span></div><div class="halt2" data-min="15"><p class="haltkopf"><b>Halt 2.</b> Ihr habt gesehen, was wirklich passiert. Welchen Schluss zieht ihr über die positive Ladung im Atom?</p><textarea id="f-simple-h2" data-label="Film Rutherfords Streuversuch – Halt 2" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="126" data-ende="212" data-nr="3"><button class="knopf voll stueckknopf" type="button">▶ Stück 3 <span class="stueckzeit">(2:06–3:32)</span></button> <span class="stuecksperre">🔒 erst Halt 2 beantworten</span></div>
+  <details class="filmersatz"><summary>Kein Film? Hier steht, was er zeigt.</summary><p><b>Was der Film zeigt (ohne Film):</b> Positiv geladene Heliumkerne fliegen auf eine dünne Goldfolie. Ein Leuchtschirm rund um die Folie zeigt, wo sie ankommen. Nach Thomson müssten fast alle gerade durch die Folie gehen. Fast alle tun das auch. Aber einige werden stark abgelenkt, und ein paar prallen zurück. Rutherford schließt: Die positive Ladung und fast die ganze Masse sitzen auf einem winzigen Raum in der Mitte, dem Kern. Je näher ein Heliumteilchen dem Kern kommt, desto stärker wird es abgelenkt.</p></details>
+</div>
+    <div class="aufgabe">
+      <p><span class="nr">W1</span> Ergänzt den fehlenden Schluss. (1) Fast alle Heliumteilchen fliegen gerade durch die
+      Goldfolie → Das Atom ist fast leer. (2) Ganz wenige prallen zurück → ______ . (3) Atome sind nach außen neutral, der
+      Kern ist positiv → In der Hülle sitzen negative Elektronen.</p>
+      <textarea id="t-w1" data-label="Weg Auffrischen – W1"></textarea>
+      <div class="hilfen" id="h-w1" data-feld="t-w1">
+        <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Wann prallt eine Pistolenkugel aus dem Sack zurück?</p></details>
+        <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Ein Heliumteilchen ist positiv. Zurück stößt es nur
+        etwas, das auch positiv ist und das es fast frontal trifft.</p></details>
+        <details class="hilfe"><summary>Hilfe 3 · Teillösung</summary><p>Im Atom gibt es also etwas Positives, das schwer
+        genug ist, um ein schnelles Teilchen umzudrehen. Weil das so selten passiert, ist es …</p></details>
+      </div>
+      <details class="gesperrt" data-fuer="t-w1" data-min="20"><summary>Lösung W1</summary>
+        <p>(2) → Im Atom steckt ein <b>winziger, positiv geladener und schwerer Kern</b>. Die Teilchen, die zurückprallen,
+        sind ihm fast frontal begegnet. Weil das so selten ist, muss der Kern viel kleiner als das Atom sein.</p></details>
+    </div>
+  </div>
+
+  <!-- STANDARD und VERTIEFEN: echter Versuch im Schullabor -->
+  <div data-pfad="standard,vertiefen">
+    <p>Rutherfords Gerät war ein Drehtisch mit Leuchtschirm und Mikroskop (Buch S. 201, V2). So etwas steht in
+    keiner Schule. Ein kleiner Nachbau mit Zählrohr schon: Ein Lehrer hat ihn gefilmt.</p>
+    
+<div class="filmhalt" id="f-labor" data-yt="4bunJAxTNzg" data-titel="Alphateilchen & Goldfolie">
+  <h4>🎬 Film: Alphateilchen & Goldfolie</h4>
+  <p class="filmquelle">Sehen & Verstehen · YouTube · 4:12 · wir zeigen 0:50–2:13, 2:13–3:10, 3:10–3:44 · Kopfhörer, bitte.</p>
+  <p class="filmnetz" hidden>Diese Seite ist als Datei geöffnet. Dann spielt YouTube nicht in der Seite. Die Knöpfe öffnen
+  den Film deshalb auf YouTube an der richtigen Stelle. Stoppt selbst am Ende des Stücks (Zeit steht auf dem Knopf).</p>
+  <div class="filmrahmen"></div>
+  <div class="stueck" data-start="50" data-ende="133" data-nr="1"><button class="knopf voll stueckknopf" type="button">▶ Stück 1 <span class="stueckzeit">(0:50–2:13)</span></button></div><div class="halt2" data-min="10"><p class="haltkopf"><b>Halt 1.</b> Gleich kommt eine Goldfolie zwischen Präparat und Zähler: zwei Lagen Blattgold, zusammen etwa 0,00025 mm dick. Das sind Hunderte Lagen Goldatome. Ohne Folie zählt das Gerät in einer Minute rund 680 000 Teilchen. Was vermutet ihr: Wie viele sind es mit Folie?</p><textarea id="f-labor-h1" data-label="Film Alphateilchen & Goldfolie – Halt 1" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="133" data-ende="190" data-nr="2"><button class="knopf voll stueckknopf" type="button">▶ Stück 2 <span class="stueckzeit">(2:13–3:10)</span></button> <span class="stuecksperre">🔒 erst Halt 1 beantworten</span></div><div class="halt2" data-min="20"><p class="haltkopf"><b>Halt 2.</b> Mit Folie zeigt der Zähler nach einer Minute rund 498 000. Das sind etwa drei von vier. Was heißt das für die Goldatome? Ein bis zwei Sätze.</p><textarea id="f-labor-h2" data-label="Film Alphateilchen & Goldfolie – Halt 2" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="190" data-ende="224" data-nr="3"><button class="knopf voll stueckknopf" type="button">▶ Stück 3 <span class="stueckzeit">(3:10–3:44)</span></button> <span class="stuecksperre">🔒 erst Halt 2 beantworten</span></div>
+  <details class="filmersatz"><summary>Kein Film? Hier steht, was er zeigt.</summary><p><b>Was der Film zeigt (ohne Film):</b> In einem Schullabor liegt ein schwach radioaktives Präparat, das Alphateilchen (Heliumkerne) aussendet. Ein Zählrohr zählt eine Minute lang: rund 680 000. Dann kommt eine Goldfolie dazwischen, zwei Lagen Blattgold. Wieder eine Minute: rund 498 000. Fast drei Viertel kommen also durch Hunderte Lagen Goldatome. Am Ende sieht man im Dunkeln Lichtblitze auf einem Leuchtschirm hinter der Folie.</p></details>
+</div>
+  </div>
+
+  <!-- FÜR ALLE: die gemeinsame Tabelle -->
+  <div class="aufgabe">
+    <p><span class="nr">T</span> <b>Die Tabelle für alle Wege.</b> Schreibt zu jeder Beobachtung den Schluss, den Rutherford
+    daraus zog.</p>
+    <table class="kleintab">
+      <tr><th style="width:42%">Beobachtung</th><th>Schluss</th></tr>
+      <tr><td>1 · Fast alle Heliumteilchen fliegen gerade durch die Goldfolie.</td><td><textarea id="t-s1" data-label="Tabelle – Schluss 1" class="klein"></textarea></td></tr>
+      <tr><td>2 · Wenige werden stark abgelenkt, sehr wenige prallen zurück.</td><td><textarea id="t-s2" data-label="Tabelle – Schluss 2" class="klein"></textarea></td></tr>
+      <tr><td>3 · Die Heliumteilchen sind positiv und werden <i>weggedrückt</i>.</td><td><textarea id="t-s3" data-label="Tabelle – Schluss 3" class="klein"></textarea></td></tr>
+      <tr><td>4 · Atome sind nach außen elektrisch neutral.</td><td><textarea id="t-s4" data-label="Tabelle – Schluss 4" class="klein"></textarea></td></tr>
+    </table>
+    <div class="hilfen" id="h-tab-a" data-feld="t-s2" data-pfad="auffrischen">
+      <details class="hilfe"><summary>Hilfe 1 · Zeile 1 und 2</summary><p>Schaut in eure Lösung zu W1. Zeile 1 und 2 sind dieselben Schlüsse.</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Zeile 3</summary><p>Was macht eine positive Ladung mit einer anderen positiven Ladung?
+      Und was folgt daraus für die Ladung des Kerns?</p></details>
+      <details class="hilfe"><summary>Hilfe 3 · Zeile 4</summary><p>Neutral heißt: gleich viel + und −. Der Kern ist +.
+      Dann muss irgendwo genauso viel − sein. Wo ist noch Platz im Atom?</p></details>
+    </div>
+    <div class="hilfen" id="h-tab-s" data-feld="t-s2" data-pfad="standard">
+      <details class="hilfe"><summary>Hilfe 1 · Worauf schauen?</summary><p>Zeile 1 fragt: Wie viel im Atom ist „im Weg“?
+      Zeile 2 fragt: Was muss da sein, damit etwas <i>zurück</i> kommt, und wie groß kann es höchstens sein?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Satzanfänge</summary><p>„Das Atom ist größtenteils …“ · „Es gibt einen …,
+      der sehr … ist.“ · „Gleiche Ladungen …, also ist der Kern …“ · „Die Hülle enthält so viele …“</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-s1,t-s2,t-s3,t-s4" data-min="10"><summary>Lösung Tabelle</summary>
+      <p><b>1</b> → Das Atom ist fast leer. Fast der ganze Raum lässt die Teilchen durch: die Atomhülle.<br>
+      <b>2</b> → In der Mitte sitzt ein winziger, schwerer Kern. Nur wer ihm sehr nahe kommt, wird stark abgelenkt;
+      das passiert selten, also ist der Kern sehr klein.<br>
+      <b>3</b> → Der Kern ist positiv geladen (gleiche Ladungen stoßen sich ab).<br>
+      <b>4</b> → In der Hülle sitzen so viele negative Elektronen, wie der Kern positive Ladung trägt.</p>
+      <p><b>Abgrenzung:</b> „Das Atom ist leer“ allein reicht nicht. Leer ist es nur fast: Ohne Kern käme nie ein Teilchen zurück.</p></details>
+  </div>
+
+  <!-- Nur VERTIEFEN -->
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">V1</span> <span class="stern">★</span> Das Buch (S. 200) schreibt: Der Kern muss „wegen der Abstoßung
+    der positiven Heliumteilchen positiv geladen sein“. Prüft das. Stellt euch einen <b>negativen</b> Kern vor. Er zieht
+    die Heliumteilchen an. Könnten sie dann auch stark abgelenkt werden oder sogar zurückkommen? Woher weiß man dann,
+    dass der Kern positiv ist?</p>
+    <textarea id="t-v1" data-label="Weg Vertiefen – V1" style="min-height:6rem"></textarea>
+    <details class="gesperrt" data-fuer="t-v1" data-min="60"><summary>Lösung V1</summary>
+      <p><b>Ja.</b> Ein angezogenes Teilchen schwingt um den Kern herum, so wie ein Komet um die Sonne. Kommt es nah genug,
+      wird es ebenfalls stark abgelenkt und kann sogar zurückfliegen. Die Rechnung für die Winkel ist für Anziehung und
+      Abstoßung sogar dieselbe. Rutherford schrieb das 1911 selbst: Seine Deutung hängt nicht davon ab, ob die Ladung in
+      der Mitte positiv oder negativ ist.</p>
+      <p><b>Dass der Kern positiv ist, folgt aus etwas anderem:</b> Elektronen waren seit 1897 als negative und sehr leichte
+      Teilchen bekannt. Das Atom ist neutral, und fast die ganze Masse sitzt im Kern. Also trägt der schwere Kern die
+      positive Ladung, die leichten Elektronen die negative. Das Buch macht diesen Schluss zu einfach.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Drei Wege, ein Ziel</h4><p>Alle drei enden an der Tabelle T (vier Schlüsse); sie ist die
+  Standard-Kernaufgabe. <i>Auffrischen</i>: vorgemachtes Sack-Beispiel (Buch V1), simpleclub-Film mit zwei Halten, W1 mit
+  Lücke, Tabelle mit drei Hilfen. <i>Standard</i>: echter Schulversuch (Zählrate mit und ohne Goldfolie), Tabelle mit zwei
+  Hilfen. <i>Vertiefen</i>: derselbe Film, Tabelle ohne Hilfen, V1 ★ (Vorzeichen des Kerns). Falscher Weg erkennbar an:
+  leerer Tabelle nach 10 Minuten auf Standard („Schaut euch Hilfe 1 an“), oder Vertiefen mit „Atom ist leer“ ohne Kern
+  („Was dreht ein Teilchen um?“).</p></div>
+</section>
+
+<!-- ================= PHASE 5: MERKSATZ ================= -->
+<section class="phase" data-titel="Merksatz" data-min="9">
+  <h2>5 · Wie leer ist ein Atom?</h2>
+  <p class="zeitnote">9 Minuten · ein Film für alle, dann der Merksatz ins Heft</p>
+
+  
+<div class="filmhalt" id="f-lesch" data-yt="MAoOJp-tod4" data-titel="Wie groß ist ein Atomkern? (Physik im Fußballstadion)">
+  <h4>🎬 Film: Wie groß ist ein Atomkern? (Physik im Fußballstadion)</h4>
+  <p class="filmquelle">Terra X Lesch & Co · YouTube · 3:33 · wir zeigen 0:00–0:19, 0:58–1:47, 1:47–2:56, 2:56–3:33 · Kopfhörer, bitte.</p>
+  <p class="filmnetz" hidden>Diese Seite ist als Datei geöffnet. Dann spielt YouTube nicht in der Seite. Die Knöpfe öffnen
+  den Film deshalb auf YouTube an der richtigen Stelle. Stoppt selbst am Ende des Stücks (Zeit steht auf dem Knopf).</p>
+  <div class="filmrahmen"></div>
+  <div class="stueck" data-start="0" data-ende="19" data-nr="1"><button class="knopf voll stueckknopf" type="button">▶ Stück 1 <span class="stueckzeit">(0:00–0:19)</span></button></div><div class="halt2" data-min="10"><p class="haltkopf"><b>Halt 1.</b> Harald Lesch fragt: Das Stadion ist ein Heliumatom. Wie groß wäre der Kern in der Mitte? Ein Fußball, ein Tennisball, eine Murmel oder etwas noch Kleineres? Schätzt.</p><textarea id="f-lesch-h1" data-label="Film Wie groß ist ein Atomkern? ( – Halt 1" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="58" data-ende="107" data-nr="2"><button class="knopf voll stueckknopf" type="button">▶ Stück 2 <span class="stueckzeit">(0:58–1:47)</span></button> <span class="stuecksperre">🔒 erst Halt 1 beantworten</span></div><div class="halt2" data-min="15"><p class="haltkopf"><b>Halt 2.</b> Gleich sagt Lesch, was Rutherford über die positive Ladung herausgefunden hat. Sagt es vorher selbst in einem Satz.</p><textarea id="f-lesch-h2" data-label="Film Wie groß ist ein Atomkern? ( – Halt 2" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="107" data-ende="176" data-nr="3"><button class="knopf voll stueckknopf" type="button">▶ Stück 3 <span class="stueckzeit">(1:47–2:56)</span></button> <span class="stuecksperre">🔒 erst Halt 2 beantworten</span></div><div class="halt2" data-min="8"><p class="haltkopf"><b>Halt 3.</b> Jetzt rechnet ihr, bevor die Auflösung kommt: Das Stadion ist etwa 200 m lang. Das Atom ist 100 000-mal größer als der Kern. Wie groß ist der Kern im Stadion? Mit Rechnung.</p><textarea id="f-lesch-h3" data-label="Film Wie groß ist ein Atomkern? ( – Halt 3" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="176" data-ende="213" data-nr="4"><button class="knopf voll stueckknopf" type="button">▶ Stück 4 <span class="stueckzeit">(2:56–3:33)</span></button> <span class="stuecksperre">🔒 erst Halt 3 beantworten</span></div>
+  <details class="filmersatz"><summary>Kein Film? Hier steht, was er zeigt.</summary><p><b>Was der Film zeigt (ohne Film):</b> Harald Lesch steht in einem Fußballstadion. Das Stadion soll ein Heliumatom sein, er selbst eines der beiden Elektronen. Er erzählt Rutherfords Versuch: Die meisten Heliumkerne fliegen durch die Goldfolie, als wäre sie leer. Ein paar werden so stark abgelenkt, „als ob man mit einer Kanone auf eine Zeitung schießt und die Granate abprallt“. Daraus folgt: Die positive Ladung ist auf einen winzigen Raum zusammengepresst. Am Ende zeigt er den Kern im Stadion: ein Reiskorn.</p></details>
+</div>
+
+  <div class="karte merk"><h4>Merksatz</h4>
+  <p style="font-size:1.12rem"><b>Ein Atom besteht aus einem winzigen, positiv geladenen Atomkern und einer negativ
+  geladenen Atomhülle. Der Kern ist etwa 100 000-mal kleiner als das Atom, trägt aber fast die ganze Masse.</b></p>
+  <ul><li>Fast alle Heliumteilchen fliegen gerade durch die Goldfolie → das Atom ist fast leer.</li>
+  <li>Wenige werden stark abgelenkt, sehr wenige prallen zurück → in der Mitte sitzt ein winziger, schwerer, geladener Kern.</li>
+  <li>Atome sind nach außen neutral → in der Hülle sind so viele negative Elektronen, wie der Kern positive Ladung trägt.</li></ul></div>
+
+  <div class="karte"><h4>Und zurück zur Einstiegsfrage</h4><p>Die allermeisten Heliumteilchen fliegen fast ungestört
+  durch Hunderte Lagen Goldatome. Gold ist also gar nicht „dicht“: Ein Atom ist fast leerer Raum. Das Überraschende war
+  der Rest: Ganz wenige kamen zurück. Rutherford sagte später, das sei so unglaublich gewesen, als würde eine Granate an
+  Seidenpapier abprallen.</p></div>
+
+  <details class="karte genau"><summary>★ Für Genaue: Stimmt die Jahreszahl im Buch?</summary>
+  <p>Im Buch (S. 200) steht: „Im Jahr 1917 lenkte Ernest Rutherford … Heliumteilchen auf eine Goldfolie.“ Das stimmt so nicht.
+  Den Versuch machten <b>Hans Geiger und Ernest Marsden 1909</b> in Rutherfords Labor in Manchester. <b>Rutherford deutete ihn
+  1911</b> mit dem Kern-Hülle-Modell. 1917 bis 1919 gelang Rutherford etwas anderes: Er wandelte zum ersten Mal einen Atomkern
+  künstlich in einen anderen um. Das kommt nächste Woche dran.</p></details>
+
+  <h3>Selbstcheck</h3>
+  <p>Ein Heliumteilchen fliegt <b>genau frontal</b> auf einen Goldkern zu. Was passiert?</p>
+  <div class="mc" id="mc-check" data-label="Selbstcheck"></div>
+  <div class="rueck" id="rueck-check"></div>
+
+  <div class="lehrer"><h4>Sicherung</h4><p>Tafel: Merksatz mit den drei Pfeilen Beobachtung → Schluss. Daneben die Skizze
+  Folie mit drei Bahnen (gerade, abgelenkt, zurück). Zahl an die Tafel: Atom ≈ 10⁻¹⁰ m, Kern ≈ 10⁻¹⁵ m. Anschluss
+  13.11.: Woraus besteht der Kern (Protonen, Neutronen)? Der Lesch-Film nennt beide schon.</p></div>
+</section>
+
+<!-- ================= PHASE 6: AUFGABEN ================= -->
+<section class="phase" data-titel="Aufgaben" data-min="18">
+  <h2>6 · Aufgaben</h2>
+  <p class="zeitnote">18 Minuten · A1–A3 für alle · Lösungen jeweils darunter</p>
+
+  <div class="karte blau"><h4>Vorgerechnet (Buch S. 201, Beispiel)</h4>
+  <p>Das Modell eines Atomkerns hat einen Durchmesser von 1 mm. Wie groß wäre die Atomhülle? Die Hülle ist
+  100 000-mal so groß: 1 mm · 100 000 = 100 000 mm = 100 m. Der Kern ist ein Streichholzkopf, die Hülle so groß wie ein
+  Fußballfeld.</p></div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A1</span> <span class="quelle">Buch S. 201, A1</span> Ein Heißluftballon hat einen Durchmesser von 20 m.
+    Wir stellen uns diesen als die Hülle eines Atoms vor. Gib an, wie groß in diesem Modell der Atomkern sein müsste.
+    Benenne einen alltäglichen Gegenstand in dieser Größenordnung.</p>
+    <textarea id="t-a1" data-label="A1"></textarea>
+    <details class="gesperrt" data-fuer="t-a1" data-min="15"><summary>Lösung A1</summary>
+      <p>20 m = 20 000 mm. 20 000 mm : 100 000 = <b>0,2 mm</b>. Das ist etwa ein feines Sandkorn oder ein Salzkorn.
+      Ein ganzer Heißluftballon, und in der Mitte ein Sandkorn: Das ist das Atom.</p>
+      <p><b>Abgrenzung:</b> Wer 2 mm hat, hat durch 10 000 geteilt. Wer 2 km hat, hat malgenommen statt geteilt.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="auffrischen">
+    <p><span class="nr">A2a</span> Stellt euch vor, Atome wären feste Kugeln, dicht an dicht wie Murmeln in einer Kiste
+    (so dachte Dalton). Was würde mit den Heliumteilchen an der Goldfolie passieren? Ein Satz.</p>
+    <textarea id="t-a2a" data-label="A2a (Auffrischen)"></textarea>
+    <details class="gesperrt" data-fuer="t-a2a" data-min="20"><summary>Lösung A2a</summary>
+      <p>Sie kämen nicht durch. Nach Hunderten Lagen fester Kugeln wären sie alle abgeprallt oder stecken geblieben.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A2</span> <span class="quelle">Buch S. 201, A2</span> Atome kann man sich nicht als massive Kugeln
+    vorstellen. Begründe diese Aussage mit Hilfe der Vorstellungen zum Aufbau eines Atoms, die sich aus dem
+    Rutherford'schen Streuexperiment ergeben.</p>
+    <textarea id="t-a2" data-label="A2"></textarea>
+    <details class="gesperrt" data-fuer="t-a2" data-min="40"><summary>Lösung A2</summary>
+      <p>Wären Atome massive Kugeln, käme durch Hunderte Lagen Gold kein Heliumteilchen hindurch. Im Versuch fliegen aber
+      fast alle gerade durch. Also ist das Atom fast überall durchdringbar: Fast der ganze Raum ist die Atomhülle, in der
+      nur die leichten Elektronen sind. Masse und positive Ladung sitzen im winzigen Kern, etwa 100 000-mal kleiner als das
+      Atom. Ein Atom ist also eher ein fast leerer Raum mit einem winzigen, schweren Punkt in der Mitte.</p></details>
+  </div>
+
+  <div class="aufgabe">
+    <p><span class="nr">A3</span> Bei Geiger und Marsden prallte von vielen tausend Heliumteilchen nur ungefähr
+    <b>eines</b> zurück. Erklärt, was diese Seltenheit über die Größe des Kerns im Vergleich zum Atom sagt. Und erklärt,
+    warum ein Teilchen, das zurückprallt, einem Kern sehr nahe gekommen sein muss.</p>
+    <textarea id="t-a3" data-label="A3" style="min-height:6rem"></textarea>
+    <div class="hilfen" id="h-a3" data-feld="t-a3">
+      <details class="hilfe"><summary>Hilfe 1 · Denkanstoß</summary><p>Ihr werft mit verbundenen Augen Bälle über eine große
+      Wiese. Irgendwo steht ein einziger dünner Pfosten. Wie oft trefft ihr ihn?</p></details>
+      <details class="hilfe"><summary>Hilfe 2 · Ansatz</summary><p>Zurück kommt ein Teilchen nur, wenn es fast frontal auf einen
+      Kern zufliegt. Je kleiner der Kern im Vergleich zum ganzen Atom ist, desto …</p></details>
+      <details class="hilfe"><summary>Hilfe 3 · Teillösung</summary><p>Die „Zielscheibe“ Kern ist nur ein winziger Teil der Fläche
+      eines Atoms. Fast alle Teilchen fliegen deshalb weit am Kern vorbei und merken kaum etwas. Ein Teilchen wird nur dann
+      umgedreht, wenn die Abstoßung sehr groß wird. Das ist nur der Fall, wenn …</p></details>
+    </div>
+    <details class="gesperrt" data-fuer="t-a3" data-min="60"><summary>Lösung A3</summary>
+      <p><b>Seltenheit → winziger Kern:</b> Ein Teilchen kommt nur zurück, wenn es fast genau auf einen Kern zielt. Dass das nur
+      eines von vielen tausend schafft, zeigt: Der Kern bedeckt nur einen winzigen Bruchteil der Fläche eines Atoms. Er ist
+      also sehr viel kleiner als das Atom.</p>
+      <p><b>Zurückprallen → große Nähe:</b> Die Abstoßung zwischen zwei positiven Ladungen wird umso stärker, je näher sie sich
+      kommen. Nur ganz nah am Kern ist sie groß genug, um ein schnelles Heliumteilchen anzuhalten und umzudrehen. Wer weiter weg
+      vorbeifliegt, wird nur ein bisschen abgelenkt.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <p><span class="nr">A4</span> <span class="stern">★</span> <span class="quelle">Buch S. 203, A2</span> Der Kern besteht aus
+    Teilchen, die man Protonen nennt (und Neutronen, das kommt nächste Woche). Ein unbetankter Airbus A380 hat eine Masse von
+    etwa 280 t, die beiden Piloten zusammen haben etwa eine Masse von 140 kg. Dies stellt etwa das Massenverhältnis von Proton
+    zu Elektron dar. Finde weitere Beispiele, die dieses Massenverhältnis verdeutlichen.</p>
+    <textarea id="t-a4" data-label="A4"></textarea>
+    <details class="gesperrt" data-fuer="t-a4" data-min="40"><summary>Lösung A4</summary>
+      <p>280 t = 280 000 kg. 280 000 kg : 140 kg = <b>2000</b>. Ein Proton ist also etwa 2000-mal so schwer wie ein Elektron
+      (genau: 1836-mal). Beispiele: 1 kg Mehl und ein halbes Gramm (eine Büroklammer); ein Auto mit 2 t und eine Packung
+      Zucker mit 1 kg. Deshalb steckt fast die ganze Masse eines Atoms im Kern.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="standard,vertiefen">
+    <div class="karte" style="margin-top:0"><h4>Info: Ionen (Buch S. 200)</h4><p>Meist hat ein Atom so viele Elektronen in der
+    Hülle, wie es positive Ladung im Kern hat. Dann ist es neutral. Man kann der Hülle aber Elektronen wegnehmen oder dazugeben.
+    Dann ist das Atom geladen. Man nennt es <b>Ion</b>.</p></div>
+    <p><span class="nr">A5</span> <span class="stern">★</span> <span class="quelle">Buch S. 201, A3</span> Ionen bewegen sich
+    zwischen zwei unterschiedlich geladenen Metallplatten. Die Abbildung zeigt schematisch ihre Bahn.
+    a) Gib an, welche Ladung das Ion trägt. b) Beschreibe, wie sich die Bahn durch eine weitere Ionisation bzw. durch eine
+    Vergrößerung der Masse des Ions verändert.</p>
+    <div class="bild"><svg viewBox="0 0 520 150" role="img" aria-label="Bahn eines Ions zwischen zwei geladenen Platten"><rect width="520" height="150" fill="#f7fbef"/><rect x="170" y="34" width="200" height="8" fill="#b0bec5" stroke="#607d8b"/><rect x="170" y="112" width="200" height="8" fill="#b0bec5" stroke="#607d8b"/><text x="270" y="26" font-size="18" text-anchor="middle" fill="#c62828">+</text><text x="270" y="142" font-size="20" text-anchor="middle" fill="#0b5aa0">&#8722;</text><path d="M20 78 H170 Q300 76 380 48 L500 18" fill="none" stroke="#2e7d32" stroke-width="2.5"/><path d="M80 72 L92 78 L80 84 z" fill="#2e7d32"/><text x="36" y="102" font-size="12" fill="#2e7d32">Ion</text></svg></div>
+    <textarea id="t-a5" data-label="A5"></textarea>
+    <details class="gesperrt" data-fuer="t-a5" data-min="40"><summary>Lösung A5</summary>
+      <p>a) Die Bahn biegt zur <b>positiven</b> Platte hin. Das Ion wird also angezogen: Es ist <b>negativ</b> geladen.</p>
+      <p>b) Mehr Ladung (noch ein Elektron dazu) → stärkere Anziehung → die Bahn biegt <b>stärker</b> ab. Mehr Masse → das Ion
+      ist träger → die Bahn biegt <b>schwächer</b> ab. Beides wirkt gegeneinander: Doppelte Ladung und doppelte Masse zusammen
+      ergäben wieder dieselbe Bahn.</p></details>
+  </div>
+
+  <div class="aufgabe" data-pfad="vertiefen">
+    <p><span class="nr">A6</span> <span class="stern">★</span> <span class="quelle">Buch S. 209, A2</span> Von Leuchtstofflampen
+    weißt du, dass Gas in der Lampe zu einem typischen Licht führt. Der Glasballon im Bild ist evakuiert und z. T. mit
+    Quecksilber gefüllt. Darin befindet sich ein Behälter aus hauchdünnem Glas, der mit dem Gas Radon gefüllt ist. Nach etwa
+    einer Woche hat sich in dem oberen Bereich ein Gas angesammelt. Es wird mit Hilfe des Quecksilbers in das obere dünne Rohr
+    gedrückt. Mit der Gasfüllung wirkt das dann wie eine Neonröhre. Das ausgesandte Licht ist typisch für Helium. Erkläre
+    diese Beobachtung, die Rutherford 1909 machte.</p>
+    <div class="bild"><svg viewBox="0 0 520 260" role="img" aria-label="Glasballon mit Quecksilber und Radonröhrchen"><rect width="520" height="260" fill="#f4f6f8"/><path d="M230 20 V70 Q200 80 200 110 V200 Q200 236 260 236 Q320 236 320 200 V110 Q320 80 290 70 V20" fill="#ffffff" stroke="#546e7a" stroke-width="2"/><rect x="230" y="14" width="60" height="10" fill="none" stroke="#546e7a"/><path d="M252 20 V68 M268 20 V68" stroke="#90a4ae" stroke-width="1.5"/><path d="M202 160 H318 V200 Q318 234 260 234 Q202 234 202 200 z" fill="#b3c7e6" opacity=".8"/><rect x="245" y="104" width="30" height="86" rx="10" fill="#fde7c7" stroke="#e0a85c" stroke-width="1.5"/><path d="M224 36 H214 M296 36 H306" stroke="#37474f" stroke-width="2"/><text x="330" y="40" font-size="12" fill="#37474f">dünnes Rohr mit Elektroden</text><text x="330" y="96" font-size="12" fill="#37474f">Vakuum</text><text x="330" y="150" font-size="12" fill="#37474f">dünnes Glas mit Radon</text><text x="330" y="205" font-size="12" fill="#37474f">Quecksilber</text><path d="M326 146 H282 M326 92 H300 M326 202 H316" stroke="#90a4ae" stroke-width="1"/><text x="20" y="250" font-size="11" fill="#78909c">nach Buch S. 209, B5 (vereinfacht nachgezeichnet)</text></svg></div>
+    <textarea id="t-a6" data-label="A6" style="min-height:7rem"></textarea>
+    <details class="gesperrt" data-fuer="t-a6" data-min="80"><summary>Lösung A6</summary>
+      <p>Radon ist radioaktiv und sendet α-Teilchen aus. Sie sind schnell genug, um das hauchdünne Glas zu durchdringen; das
+      Gas Radon selbst bleibt drin. Außerhalb werden sie gebremst und fangen sich je zwei Elektronen ein. So entstehen
+      neutrale Heliumatome, die sich oben sammeln. Das Leuchten zeigt das Licht von Helium. Damit war 1909 bewiesen:
+      <b>α-Teilchen sind Heliumkerne</b>, genau die Geschosse aus dem Streuversuch.</p></details>
+  </div>
+
+  <div class="lehrer"><h4>Differenzierung &amp; Bewertung</h4><p>Minimum für alle: A1–A3. A3 ist die Aufgabe, an der das
+  Stundenziel gemessen wird (Seltenheit → Größe, Rückprall → Nähe). Hilfennutzung bei A3: alle drei Hilfen und danach
+  richtige Lösung ist ein Erfolg mit Unterstützung. A5 ★ enthält die zwei gegenläufigen Wirkungen (Ladung gegen Masse).
+  A6 ★ (AFB III) setzt voraus, dass α-Teilchen Heliumkerne sind; das steht im Einstieg.</p></div>
+</section>
+
+<!-- ================= PHASE 7: BOHR ================= -->
+<section class="phase" data-titel="Bohr" data-min="6">
+  <h2>7 · Ausblick: Wo sind die Elektronen? (Bohr)</h2>
+  <p class="zeitnote">6 Minuten · Überblick, für alle</p>
+
+  <div class="bild"><svg viewBox="0 0 520 170" role="img" aria-label="Zeitstrahl der Atommodelle"><rect width="520" height="170" fill="#f4f6f8"/><path d="M20 112 H505" stroke="#0b5aa0" stroke-width="3"/><circle cx="52" cy="112" r="5" fill="#0b5aa0"/><text x="52" y="72" font-size="30" text-anchor="middle" fill="#90a4ae">?</text><text x="52" y="134" font-size="13" font-weight="700" text-anchor="middle" fill="#1a2229">Demokrit</text><text x="52" y="149" font-size="11" text-anchor="middle" fill="#4a5560">um 400 v. Chr.</text><text x="52" y="163" font-size="11" text-anchor="middle" fill="#4a5560">kleinste Teilchen</text><circle cx="154" cy="112" r="5" fill="#0b5aa0"/><circle cx="154" cy="62" r="20" fill="#90a4ae" stroke="#455a64" stroke-width="2"/><text x="154" y="134" font-size="13" font-weight="700" text-anchor="middle" fill="#1a2229">Dalton</text><text x="154" y="149" font-size="11" text-anchor="middle" fill="#4a5560">1803</text><text x="154" y="163" font-size="11" text-anchor="middle" fill="#4a5560">feste Kugel</text><circle cx="258" cy="112" r="5" fill="#0b5aa0"/><circle cx="258" cy="62" r="20" fill="#f8bbd0" stroke="#c2185b" stroke-width="1.5"/><circle cx="249" cy="54" r="3" fill="#0b5aa0"/><circle cx="266" cy="56" r="3" fill="#0b5aa0"/><circle cx="255" cy="68" r="3" fill="#0b5aa0"/><circle cx="268" cy="71" r="3" fill="#0b5aa0"/><circle cx="247" cy="71" r="3" fill="#0b5aa0"/><circle cx="260" cy="49" r="3" fill="#0b5aa0"/><text x="258" y="134" font-size="13" font-weight="700" text-anchor="middle" fill="#1a2229">Thomson</text><text x="258" y="149" font-size="11" text-anchor="middle" fill="#4a5560">1904</text><text x="258" y="163" font-size="11" text-anchor="middle" fill="#4a5560">Rosinenkuchen</text><circle cx="362" cy="112" r="5" fill="#0b5aa0"/><circle cx="362" cy="62" r="20" fill="none" stroke="#90a4ae" stroke-dasharray="3 3"/><circle cx="362" cy="62" r="2.5" fill="#c62828"/><circle cx="376" cy="52" r="2.6" fill="#0b5aa0"/><circle cx="350" cy="74" r="2.6" fill="#0b5aa0"/><text x="362" y="134" font-size="13" font-weight="700" text-anchor="middle" fill="#1a2229">Rutherford</text><text x="362" y="149" font-size="11" text-anchor="middle" fill="#4a5560">1911</text><text x="362" y="163" font-size="11" text-anchor="middle" fill="#4a5560">Kern und Hülle</text><circle cx="466" cy="112" r="5" fill="#0b5aa0"/><circle cx="466" cy="62" r="11" fill="none" stroke="#7fb3d5"/><circle cx="466" cy="62" r="20" fill="none" stroke="#7fb3d5"/><circle cx="466" cy="62" r="2.5" fill="#c62828"/><circle cx="477" cy="62" r="2.6" fill="#0b5aa0"/><circle cx="455" cy="62" r="2.6" fill="#0b5aa0"/><circle cx="466" cy="42" r="2.6" fill="#0b5aa0"/><text x="466" y="134" font-size="13" font-weight="700" text-anchor="middle" fill="#1a2229">Bohr</text><text x="466" y="149" font-size="11" text-anchor="middle" fill="#4a5560">1913</text><text x="466" y="163" font-size="11" text-anchor="middle" fill="#4a5560">Schalen</text></svg>
+    <p class="bildtext">Vier Modelle in gut 100 Jahren. Keins davon ist „falsch“. Jedes erklärt, was man zu seiner Zeit
+    beobachtet hatte, und wurde ersetzt, als eine Beobachtung nicht mehr passte.</p></div>
+
+  <div class="karte"><h4>Rutherfords Modell hat ein Problem</h4>
+  <p>Bei Rutherford kreisen die Elektronen um den Kern wie Planeten um die Sonne. Nach der Physik von damals müsste ein
+  kreisendes Elektron aber ständig Licht abgeben, dabei Energie verlieren und in Bruchteilen einer Sekunde in den Kern
+  stürzen. Atome sind aber stabil.</p>
+  <p><b>Niels Bohr, 1913:</b> Die Elektronen dürfen nur auf ganz bestimmten Bahnen um den Kern laufen. Man nennt sie heute
+  <b>Schalen</b>. Auf ihnen geben sie kein Licht ab. Licht entsteht nur, wenn ein Elektron von einer äußeren auf eine
+  innere Schale springt, und zwar mit einer ganz bestimmten Farbe. Deshalb leuchtet jedes Gas in seinem eigenen Licht.</p></div>
+
+  
+<div class="filmhalt" id="f-bohr" data-yt="6OfmF-3D51I" data-titel="Das Schalenmodell: Der Aufbau der Atome nach Bohr">
+  <h4>🎬 Film: Das Schalenmodell: Der Aufbau der Atome nach Bohr</h4>
+  <p class="filmquelle">Duden Learnattack · YouTube · 4:17 · wir zeigen 0:10–1:00, 1:00–1:46 · Kopfhörer, bitte.</p>
+  <p class="filmnetz" hidden>Diese Seite ist als Datei geöffnet. Dann spielt YouTube nicht in der Seite. Die Knöpfe öffnen
+  den Film deshalb auf YouTube an der richtigen Stelle. Stoppt selbst am Ende des Stücks (Zeit steht auf dem Knopf).</p>
+  <div class="filmrahmen"></div>
+  <div class="stueck" data-start="10" data-ende="60" data-nr="1"><button class="knopf voll stueckknopf" type="button">▶ Stück 1 <span class="stueckzeit">(0:10–1:00)</span></button></div><div class="halt2" data-min="12"><p class="haltkopf"><b>Halt 1.</b> Gleich nennt der Film zwei Regeln für die Schalen. Vermutet: Ein Elektron sitzt auf einer Schale weit außen. Ist es leichter oder schwerer vom Atom zu lösen als eines innen? Warum?</p><textarea id="f-bohr-h1" data-label="Film Das Schalenmodell: Der Aufba – Halt 1" placeholder="Erst schreiben, dann weiter im Film …"></textarea></div><div class="stueck" data-start="60" data-ende="106" data-nr="2"><button class="knopf voll stueckknopf" type="button">▶ Stück 2 <span class="stueckzeit">(1:00–1:46)</span></button> <span class="stuecksperre">🔒 erst Halt 1 beantworten</span></div>
+  <details class="filmersatz"><summary>Kein Film? Hier steht, was er zeigt.</summary><p><b>Was der Film zeigt (ohne Film):</b> Das Atom hat einen Kern und eine Hülle. In der Hülle sitzen die Elektronen auf Schalen, die man K, L, M, N … nennt. Regel 1: Je weiter eine Schale vom Kern weg ist, desto schwächer zieht der Kern. Elektronen dort lassen sich leichter entfernen. Regel 2: Je weiter außen eine Schale ist, desto mehr Elektronen passen hinein.</p></details>
+</div>
+
+  <p class="videohinweis">Noch genauer ist das Orbitalmodell: Dort sind die Elektronen keine Kügelchen auf Bahnen, sondern
+  „Wolken“, in denen sie sich aufhalten. Das kommt in der Oberstufe.</p>
+
+  <div class="lehrer"><h4>Bohr im Überblick</h4><p>Bewusst nur als Ausblick (Feinplan: „Bohr (Überblick)“). Das Buch
+  PH10 behandelt Bohr auf den Seiten 200–209 nicht. Quizfrage 6 fragt die Kernidee ab (nur bestimmte Bahnen).</p></div>
+</section>
+
+<!-- ================= PHASE 8: QUIZ ================= -->
+<section class="phase" data-titel="Quiz" data-min="6">
+  <h2>8 · Quiz: sitzt es?</h2>
+  <p class="zeitnote">6 Minuten · 8 Fragen, sofortige Rückmeldung</p>
+  <div id="quiz"></div>
+  <div class="karte blau" id="quiz-ergebnis" style="display:none">
+    <h4>Ergebnis</h4>
+    <p><span class="punkte" id="quiz-punkte">0 / 8</span> <span id="quiz-text"></span></p>
+  </div>
+  <div class="lehrer"><h4>Diagnose</h4><p>Tragend sind 2 (Rückprall → Kern), 3 (Thomson sagt „alle durch“ voraus) und 7
+  (warum die Hand nicht durch den Tisch fällt). 4 prüft die Zehnerschritte aus dem Befund vom 30.10.</p></div>
+</section>
+
+<!-- ================= PHASE 9: ABSCHLUSS ================= -->
+<section class="phase" data-titel="Abschluss" data-min="5">
+  <h2>9 · Exit-Ticket &amp; Abgabe</h2>
+  <p class="zeitnote">5 Minuten · für alle Wege dieselben Fragen</p>
+
+  <div class="karte merk">
+    <h4>Zwei Antworten, dann ist Schluss</h4>
+    <p><b>1.</b> Rutherford schließt: Ein Atom ist fast leer. Welche Beobachtung zeigt das, und warum?</p>
+    <textarea id="t-exit1" data-label="Exit-Ticket 1" placeholder="Die Beobachtung … zeigt das, weil …"></textarea>
+    <p style="margin-top:.8rem"><b>2.</b> Und welche Beobachtung zeigt, dass es trotzdem einen winzigen, schweren Kern gibt? Warum?</p>
+    <textarea id="t-exit2" data-label="Exit-Ticket 2" placeholder="Die Beobachtung … zeigt das, weil …"></textarea>
+  </div>
+
+  <div class="karte">
+    <h4>Und was war unklar?</h4>
+    <textarea id="t-unklar" data-label="Offene Frage" placeholder="Eine Frage, die offen geblieben ist (darf leer bleiben)"></textarea>
+  </div>
+
+  <div class="karte blau">
+    <h4>Abgabe – Protokoll an Herrn Glaubitz</h4>
+    <div class="zwei">
+      <div><label class="reg">Dein Name:</label>
+        <input id="i-name" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="Vorname Nachname"></div>
+      <div><label class="reg">Klasse:</label>
+        <input id="i-klasse" style="width:100%;font:inherit;padding:.5rem;border:1px solid var(--linie);border-radius:8px;background:#fffde7" placeholder="10c" value="10c"></div>
+    </div>
+
+    <p style="margin:.9rem 0 .2rem"><b>So geht die Abgabe – drei Schritte:</b></p>
+    <ol style="margin-top:.2rem">
+      <li><b>Protokoll erzeugen:</b> <button class="knopf voll" id="k-protokoll">📄 Protokoll speichern</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Eine Datei mit allen Antworten, Zeichnungen, eurem Weg und den Zeiten. Sie landet in „Downloads“ bzw. in der Dateien-App.</span></li>
+      <li><b>Verschicken:</b> <button class="knopf voll" id="k-teilen">✉ Senden / Teilen</button><br>
+        <span style="font-size:.88rem;color:#4a5560">Öffnet den Teilen-Dialog → <b>Mail</b> wählen → die Datei ist als Anhang dabei. Empfänger:
+        <b id="mailadresse">michael.glaubitz@ae-gym.de</b> <button class="knopf klein" id="k-adresse">Adresse kopieren</button></span></li>
+      <li><b>Kontrollieren:</b> Steht euer Name in der Mail? Ist der Anhang dabei? Dann senden.</li>
+    </ol>
+
+    <p style="margin-top:.7rem">
+      <button class="knopf" id="k-json">Rohdaten als JSON</button>
+      <button class="knopf" id="k-mail">Nur Text per Mail (ohne Zeichnungen)</button>
+      <button class="knopf" id="k-kopieren">Text kopieren</button>
+    </p>
+    <p class="videohinweis" id="mail-hinweis">Wenn „Senden / Teilen“ nicht funktioniert: Protokoll
+    speichern, dann selbst eine Mail an <b>michael.glaubitz@ae-gym.de</b> schreiben und die Datei anhängen.</p>
+  </div>
+
+  <div class="karte einstein">
+    <h4>Angebot für die Einstein-Zeit (wenn ihr Physik wählt)</h4>
+    <p>Wählt eins: (a) <b>Skizziert den Streuversuch</b>: Quelle, Goldfolie, Leuchtschirm und drei Bahnen (gerade, abgelenkt,
+    zurück), dazu je ein Satz, was die Bahn über das Atom verrät. (b) <b>Baut das Größenverhältnis nach</b>: Legt ein
+    Sandkorn (0,2 mm) als Kern hin und sucht, wo 20 m entfernt der Rand des Atoms wäre. Fotografiert es.
+    Foto an Herrn Glaubitz.</p>
+    <div class="zeichenfeld" data-zid="einstein" data-titel="Skizze Streuversuch (freiwillig)" data-label="Einstein-Skizze" data-hoehe="260"></div>
+  </div>
+
+  <p>
+    <button class="knopf" id="k-zusammenfassung">Ergebnisse am Bildschirm ansehen</button>
+    <button class="knopf" id="k-drucken">Drucken / als PDF speichern</button>
+  </p>
+  <div id="ausgabe"></div>
+
+  <div class="lehrer"><h4>Abschluss</h4><p>„Ziel erreicht“ im Exit-Ticket, für alle Wege gleich: Frage 1 nennt
+  <i>fast alle gehen gerade durch</i> und begründet mit „nichts im Weg“; Frage 2 nennt <i>wenige zurück/stark abgelenkt</i>
+  und begründet mit „nur etwas Kleines, Schweres, Geladenes kann umdrehen“. Nur die Beobachtung ohne „weil“: Ziel
+  teilweise. Hausaufgabe: Buch S. 201, A1 und A2, falls nicht geschafft.</p></div>
+</section>
+
+<!-- ================= LEHRERBLATT (immer letzte Section) ================= -->
+<section class="phase" data-titel="⚙ Lehrerblatt" data-min="0">
+  <h2>Lehrerblatt – alles auf einen Blick</h2>
+  <p class="zeitnote">Diese Phase überspringen die Schüler; sie ist für Sie. Ausführlich: atommodelle-10c-lehrerblatt.pdf</p>
+  <div class="karte blau"><h4>Was Sie tun müssen</h4><ol>
+    <li><b>45</b> an die Tafel. Kennwort Lehrer-Ansicht: sumdideldum.</li>
+    <li>Stunde über die Klassenseite öffnen lassen (Filme laufen nur über http eingebettet). Kopfhörer.</li>
+    <li>Plan A nur, wenn Murmeln und Pappbecher bereitliegen (Katalog Nr. 31, Werkstatt); sonst Plan B.</li>
+    <li>Ab Minute 25 herumgehen. In Phase 4 fragen: „Was dreht ein Teilchen um?“</li>
+    <li>Minute 80: alle auf „Abschluss“, egal wo sie stehen.</li></ol></div>
+  <h3>Zeitraster</h3>
+  <table><tr><th>Phase</th><th>Min</th><th>Auffrischen</th><th>Standard</th><th>Vertiefen</th></tr>
+  <tr><td>0–2 Start, Einstieg, Check</td><td>14</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td>3 Kern</td><td>14</td><td>+ Auffrischkarte</td><td>Film Modelle + Simulation</td><td>+ K3 ★</td></tr>
+  <tr><td>4 Euer Weg</td><td>15</td><td>Sack-Beispiel, Film simpleclub, W1, Tabelle (3 Hilfen)</td><td>Film Schullabor, Tabelle (2 Hilfen)</td><td>Film Schullabor, Tabelle, V1 ★</td></tr>
+  <tr><td>5 Merksatz</td><td>9</td><td colspan="3">Film Lesch, Merksatz, Selbstcheck</td></tr>
+  <tr><td>6 Aufgaben</td><td>18</td><td>A1, A2a, A2, A3</td><td>A1–A5 ★</td><td>A1–A6 ★</td></tr>
+  <tr><td>7–9 Bohr, Quiz, Abschluss</td><td>17</td><td colspan="3">für alle gleich</td></tr>
+  <tr><td><b>Summe</b></td><td><b>87</b></td><td colspan="3">3 Minuten Puffer</td></tr></table>
+  <h3>Wege lesen</h3><ul><li>Vorschlag Auffrischen, gewählt Vertiefen, dann alle Hilfen bei A3: ansprechen.</li>
+  <li>Vorschlag Vertiefen, gewählt Auffrischen: ermutigen.</li></ul>
+  <h3>Wenn die Zeit knapp wird</h3><ul><li>Zuerst streichen: Bohr-Film, A4–A6, Plan A. Nie streichen: Check, Tabelle T, A3, Exit-Ticket.</li>
+  <li>60-Minuten-Fassung (falls Einstein-Zeit vorn): Start, Check, Kern ohne Film, Euer Weg, Merksatz, A3, Exit-Ticket.</li></ul>
+  <h3>Womit man rechnen muss</h3><ul><li>„Metall ist dicht, da kommt nichts durch.“ → Zählrate im Schulversuch zeigen.</li>
+  <li>„Das Atom ist leer.“ → „Und was dreht dann ein Teilchen um?“</li></ul>
+  <h3>Geprüfte Quellen</h3><p>Fünf YouTube-Filme, am 05.11.2026 per oEmbed (einbettbar) und Storyboard geprüft, zwei davon
+  per Transkript. Ton der übrigen nicht gehört. Einzelheiten im PDF.</p>
+</section>
+</main>
+
+<div class="nav">
+  <button class="knopf" id="zurueck">‹ Zurück</button>
+  <div class="mitte" id="navinfo"></div>
+  <button class="knopf voll" id="weiter">Weiter ›</button>
+</div>
+
+<script>
+"use strict";
+/* ---------- 1 Phasensteuerung ---------- */
+const phasen = Array.from(document.querySelectorAll("section.phase"));
+const pillen = document.getElementById("pillen");
+let aktuell = 0;
+let besucht = new Set([0]);
+
+phasen.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "pille";
+  b.textContent = (i < phasen.length - 1 ? i + " " : "") + p.dataset.titel;
+  b.addEventListener("click", () => zeige(i));
+  pillen.appendChild(b);
+});
+
+function zeige(i) {
+  if (i < 0 || i >= phasen.length) return;
+  phasen[aktuell].classList.remove("aktiv");
+  aktuell = i;
+  besucht.add(i);
+  phasen[aktuell].classList.add("aktiv");
+  Array.from(pillen.children).forEach((b, k) => {
+    b.classList.toggle("aktiv", k === i);
+    b.classList.toggle("fertig", k !== i && besucht.has(k));
+  });
+  document.getElementById("balken").style.width =
+    Math.round((i / (phasen.length - 2)) * 100) + "%";
+  document.getElementById("navinfo").textContent =
+    (i === phasen.length - 1) ? "Lehrerblatt (nicht für Schüler)"
+      : "Phase " + i + " von " + (phasen.length - 2);
+  document.getElementById("zurueck").disabled = (i === 0);
+  const wb = document.getElementById("weiter");
+  const letzte = (i >= phasen.length - 2);
+  wb.disabled = letzte;
+  wb.textContent = letzte ? "Fertig" : "Weiter ›";
+  starteUhr(parseInt(phasen[i].dataset.min, 10) || 0);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.getElementById("weiter").addEventListener("click", () => zeige(aktuell + 1));
+document.getElementById("zurueck").addEventListener("click", () => zeige(aktuell - 1));
+
+/* ---------- 2 Uhr ---------- */
+let rest = 0, laufend = true, ticker = null;
+const uhrEl = document.getElementById("uhr");
+function starteUhr(min) {
+  clearInterval(ticker);
+  if (!min) { uhrEl.textContent = "--:--"; uhrEl.classList.remove("knapp"); return; }
+  rest = min * 60; laufend = true;
+  document.getElementById("uhrKnopf").textContent = "Pause";
+  malUhr();
+  ticker = setInterval(() => {
+    if (!laufend) return;
+    if (rest > 0) rest--;
+    malUhr();
+  }, 1000);
+}
+function malUhr() {
+  const m = Math.floor(rest / 60), s = rest % 60;
+  uhrEl.textContent = m + ":" + String(s).padStart(2, "0");
+  uhrEl.classList.toggle("knapp", rest <= 60);
+}
+document.getElementById("uhrKnopf").addEventListener("click", (e) => {
+  laufend = !laufend;
+  e.target.textContent = laufend ? "Pause" : "Weiter";
+});
+
+/* ---------- 3 Lehrer-Ansicht ----------
+   Kennwort wie in allen Stunden: sumdideldum (Prüfsumme djb2-xor ab 5381).
+   Eine Bremsschwelle, kein Schloss: Wer den Quelltext liest, findet die Lösungen ohnehin. */
+const LEHRER_SCHLUESSEL = 4257354514;
+function pruefsumme(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function lehrerAnsicht(an) {
+  document.body.classList.toggle("lehrermodus", an);
+  document.getElementById("lehrerKnopf").textContent = an ? "Lehrer-Ansicht aus" : "Lehrer-Ansicht";
+}
+document.getElementById("lehrerKnopf").addEventListener("click", () => {
+  if (document.body.classList.contains("lehrermodus")) { lehrerAnsicht(false); return; }
+  const wort = window.prompt("Kennwort für die Lehrer-Ansicht:");
+  if (wort === null) return;
+  if (pruefsumme(String(wort).trim().toLowerCase()) === LEHRER_SCHLUESSEL) lehrerAnsicht(true);
+  else window.alert("Das Kennwort stimmt nicht.");
+});
+
+/* ---------- 4 Multiple-Choice-Baustein ---------- */
+function mc(ziel, rueckId, frage) {
+  const box = document.getElementById(ziel);
+  const rb = document.getElementById(rueckId);
+  frage.optionen.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.textContent = o.text;
+    b.addEventListener("click", () => {
+      Array.from(box.children).forEach(x => x.classList.remove("richtig", "falsch"));
+      b.classList.add(o.richtig ? "richtig" : "falsch");
+      rb.className = "rueck zeig " + (o.richtig ? "gut" : "schlecht");
+      rb.innerHTML = (o.richtig ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + o.hinweis;
+      antworten[ziel] = o.text + (o.richtig ? "  [richtig]" : "  [falsch]");
+    });
+    box.appendChild(b);
+  });
+}
+const protokollEintraege = [];
+let exportiert = false;
+const antwortenRoh = {};
+const antworten = new Proxy(antwortenRoh, {
+  set(ziel, schluessel, wert) {
+    const alt = ziel[schluessel];
+    ziel[schluessel] = wert;
+    if (alt !== wert) protokolliere("auswahl", schluessel, wert);
+    return true;
+  }
+});
+
+/* ---------- Multiple-Choice-Blöcke dieser Stunde ---------- */
+mc("mc-prognose", "rueck-prognose", {
+  optionen: [
+    { text: "Sie bleiben in der Folie stecken. Metall ist dicht.", richtig: false,
+      hinweis: "So würde man es erwarten, wenn Atome feste Kugeln dicht an dicht wären. Genau das prüft der Versuch. Gleich seht ihr, was wirklich passiert." },
+    { text: "Sie fliegen fast ungestört hindurch.", richtig: true,
+      hinweis: "Gut vermutet. Das war die erste Überraschung. Die zweite kommt gleich in der Simulation." },
+    { text: "Sie prallen alle von der Folie zurück.", richtig: false,
+      hinweis: "Die Teilchen sind sehr schnell. Gleich seht ihr: Zurück kommt fast keins. Warum, das ist die Frage der Stunde." },
+    { text: "Etwa die Hälfte kommt durch, die andere Hälfte prallt zurück.", richtig: false,
+      hinweis: "Ein Kompromiss, aber die Wirklichkeit ist viel einseitiger. Schaut gleich auf die Zahlen." }
+  ]
+});
+mc("mc-check", "rueck-check", {
+  optionen: [
+    { text: "Es fliegt gerade durch den Kern hindurch.", richtig: false,
+      hinweis: "Der Kern ist positiv und schwer. Er stößt das positive Teilchen ab, je näher, desto stärker." },
+    { text: "Es wird immer langsamer, kehrt um und fliegt zurück.", richtig: true,
+      hinweis: "Ja. Die Abstoßung wächst, je näher es kommt. Frontal wird es ganz abgebremst und umgedreht. Das sind die seltenen Rückpraller." },
+    { text: "Es bleibt im Kern stecken.", richtig: false,
+      hinweis: "Dafür müsste es den Kern berühren. Vorher stoppt es die Abstoßung und schickt es zurück." },
+    { text: "Es wird nur ein kleines bisschen zur Seite gedrückt.", richtig: false,
+      hinweis: "So geht es den Teilchen, die weit vorbeifliegen. Frontal ist die Abstoßung am größten." }
+  ]
+});
+
+/* ============================================================
+   Diagnose, Wege, gestufte Hilfen
+   ============================================================
+   Die Diagnose ist die einzige Stelle, an der eine Rückmeldung sofort und
+   ohne Sperre erscheint: die Antwort ist ja schon gegeben (ein Versuch pro
+   Frage). Danach bleibt die Auswahl fest – die Diagnose soll den ersten
+   Denkstand messen, nicht den zweiten.
+
+   rolle "voraus" = zwingendes Vorwissen, rolle "kern" = Kern schon fast da.
+   Genau drei Fragen jeder Rolle; Reihenfolge: erst voraus, dann kern.
+   Mehrheitsregel statt Ein-Fehler-Regel: ein Flüchtigkeitsfehler soll
+   niemanden auf "Auffrischen" schicken. */
+const DIAGNOSE = [
+  { rolle: "voraus", f: "Ein positiv geladenes Kügelchen fliegt nah an einem anderen positiv geladenen Kügelchen vorbei. Was passiert?",
+    o: ["Es wird angezogen und fliegt zu ihm hin.", "Es wird abgestoßen und weggedrückt.", "Nichts. Ladungen wirken nur bei Berührung.", "Es kommt darauf an, welches Kügelchen größer ist."], r: 1,
+    e: "Gleiche Ladungen stoßen sich ab, verschiedene ziehen sich an. Das wirkt auch auf Abstand." },
+  { rolle: "voraus", f: "Ein Gegenstand ist elektrisch neutral. Was heißt das?",
+    o: ["Er enthält gar keine elektrischen Ladungen.", "Er enthält nur negative Ladungen.", "Er enthält gleich viele positive wie negative Ladungen.", "Er leitet keinen Strom."], r: 2,
+    e: "Neutral heißt: Plus und Minus gleichen sich aus. Ladungen sind trotzdem da." },
+  { rolle: "voraus", f: "Wie viele Millimeter sind 100 m?",
+    o: ["10 000 mm", "1 000 mm", "1 000 000 mm", "100 000 mm"], r: 3,
+    e: "1 m = 1000 mm. Also 100 m = 100 · 1000 mm = 100 000 mm." },
+  { rolle: "kern", f: "Ihr werft im Dunkeln 1000 Tennisbälle durch ein offenes Tor. Fast alle fliegen ungestört durch. Nur zwei kommen zurück. Was steht am ehesten im Tor?",
+    o: ["Eine Wand mit vielen kleinen Löchern", "Ein Netz über die ganze Fläche", "Ein einzelner dünner, fester Pfosten", "Gar nichts"], r: 2,
+    e: "Zurück kommt nur, was etwas Festes trifft. Dass es so selten passiert, zeigt: Das Feste ist klein. Ein Netz würde alle bremsen, „gar nichts“ keinen zurückwerfen." },
+  { rolle: "kern", f: "Ein kleiner Gegenstand ist 1 cm groß. Ein anderer ist 100 000-mal so groß. Wie groß ist er?",
+    o: ["100 m", "1 km", "10 km", "1 m"], r: 1,
+    e: "1 cm · 100 000 = 100 000 cm = 1000 m = 1 km." },
+  { rolle: "kern", f: "Ein Teilchen hat in seiner Mitte 79 positive Ladungen. Nach außen ist es neutral. Wie viele negative Ladungen hat es?",
+    o: ["0", "79", "158", "39 oder 40"], r: 1,
+    e: "Neutral heißt: gleich viel Plus wie Minus. Also 79 negative Ladungen." }
+];
+const WEGE = { auffrischen: "Auffrischen", standard: "Standard", vertiefen: "Vertiefen" };
+const WEG_BEGRUENDUNG = {
+  auffrischen: "Bei den Grundlagen hat es noch gehakt. Dieser Weg frischt sie zuerst auf und geht dann in kleineren Schritten zum selben Ziel.",
+  standard: "Die Grundlagen sitzen. Der Standardweg führt euch direkt zum Kern.",
+  vertiefen: "Die Grundlagen sitzen, und den Kern habt ihr schon fast. Dieser Weg geht schneller durch und dafür weiter hinaus."
+};
+
+/* Reine Funktion, damit das Prüfskript sie testen kann. */
+function wegVorschlag(ergebnisse) {   // [{rolle, richtig}]
+  const voraus = ergebnisse.filter(e => e.rolle === "voraus");
+  const kern = ergebnisse.filter(e => e.rolle === "kern");
+  const vRichtig = voraus.filter(e => e.richtig).length;
+  if (vRichtig <= Math.floor(voraus.length / 3)) return "auffrischen";   // 3 Fragen: höchstens 1 richtig
+  if (kern.length && kern.every(e => e.richtig)) return "vertiefen";
+  return "standard";
+}
+
+let weg = "";            // gewählter Weg
+let vorschlag = "";      // vorgeschlagener Weg
+const diagErgebnis = []; // [{nr, rolle, richtig, antwort}]
+const hilfenStand = {};  // id → Zahl geöffneter Stufen
+
+(function diagnoseAufbauen() {
+  const box = document.getElementById("diagnose");
+  if (!box) return;
+  DIAGNOSE.forEach((q, i) => {
+    const d = document.createElement("div");
+    d.className = "quizfrage diagfrage";
+    d.id = "diag-" + (i + 1);
+    d.dataset.label = "Check " + (i + 1) + (q.rolle === "voraus" ? " (Vorwissen)" : " (Kern)");
+    d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+    const mcBox = document.createElement("div"); mcBox.className = "mc";
+    const r = document.createElement("div"); r.className = "rueck";
+    q.o.forEach((t, k) => {
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.addEventListener("click", () => {
+        if (diagErgebnis[i]) return;                 // ein Versuch
+        const ok = k === q.r;
+        diagErgebnis[i] = { nr: i + 1, rolle: q.rolle, richtig: ok, antwort: t };
+        b.classList.add(ok ? "richtig" : "falsch");
+        if (!ok) mcBox.children[q.r].classList.add("richtig");
+        mcBox.classList.add("fest");
+        r.className = "rueck zeig " + (ok ? "gut" : "schlecht");
+        r.innerHTML = (ok ? "<b>Richtig.</b> " : "<b>Nicht ganz.</b> ") + q.e;
+        antworten["diag-" + (i + 1)] = t + (ok ? "  [richtig]" : "  [falsch]");
+        diagStand();
+      });
+      mcBox.appendChild(b);
+    });
+    d.appendChild(mcBox); d.appendChild(r);
+    box.appendChild(d);
+  });
+})();
+
+function diagStand() {
+  const offen = DIAGNOSE.length - diagErgebnis.filter(Boolean).length;
+  const k = document.getElementById("k-auswerten");
+  if (k) k.disabled = offen > 0;
+  const s = document.getElementById("diag-stand");
+  if (s) s.textContent = offen ? "Noch " + offen + (offen === 1 ? " Frage" : " Fragen") + " offen." : "Alle beantwortet.";
+}
+
+function vorschlagZeigen() {
+  const v = document.getElementById("weg-vorschlag");
+  const richtig = diagErgebnis.filter(e => e && e.richtig).length;
+  v.innerHTML = "<h4>Unser Vorschlag: " + WEGE[vorschlag] + "</h4><p>" + richtig + " von " +
+    DIAGNOSE.length + " richtig. " + WEG_BEGRUENDUNG[vorschlag] +
+    " Ihr dürft einen anderen Weg wählen – das Protokoll vermerkt beides.</p>";
+  document.querySelectorAll(".wegknopf").forEach(b =>
+    b.classList.toggle("empfohlen", b.dataset.weg === vorschlag));
+  document.getElementById("wegwahl").style.display = "block";
+  const k = document.getElementById("k-auswerten");
+  if (k) { k.disabled = true; k.textContent = "Ausgewertet"; }
+}
+
+const kAuswerten = document.getElementById("k-auswerten");
+if (kAuswerten) kAuswerten.addEventListener("click", () => {
+  if (diagErgebnis.filter(Boolean).length < DIAGNOSE.length) return;
+  vorschlag = wegVorschlag(diagErgebnis);
+  protokolliere("weg-vorschlag", "diagnose", WEGE[vorschlag],
+    diagErgebnis.map(e => e.nr + ":" + (e.richtig ? "r" : "f")).join(" "));
+  vorschlagZeigen();
+});
+
+/* Weg setzen: blendet alle [data-pfad]-Blöcke passend ein oder aus.
+   data-pfad enthält eine Kommaliste, z. B. "standard,vertiefen". */
+function wegAnwenden() {
+  document.querySelectorAll("[data-pfad]").forEach(el => {
+    const liste = el.dataset.pfad.split(",").map(s => s.trim());
+    el.hidden = !weg || liste.indexOf(weg) < 0;
+  });
+  document.body.dataset.weg = weg;
+  const chip = document.getElementById("wegChip");
+  if (chip) chip.textContent = "Weg: " + (weg ? WEGE[weg] : "–");
+  document.querySelectorAll(".wegknopf").forEach(b => b.classList.toggle("gewaehlt", b.dataset.weg === weg));
+}
+function wegSetzen(neu, still) {
+  if (!WEGE[neu]) return;
+  const alt = weg;
+  weg = neu;
+  wegAnwenden();
+  if (!still && alt !== neu) {
+    protokolliere("weg-wahl", "weg", WEGE[neu],
+      (vorschlag ? "Vorschlag war " + WEGE[vorschlag] : "ohne Diagnose") + (alt ? "; vorher " + WEGE[alt] : ""));
+    const r = document.getElementById("rueck-weg");
+    if (r) {
+      r.className = "rueck zeig gut";
+      r.innerHTML = "<b>Weg " + WEGE[neu] + " gewählt.</b> " +
+        (vorschlag && neu !== vorschlag ? "Er weicht vom Vorschlag ab – das ist erlaubt. " : "") +
+        "Weiter geht es unten rechts.";
+    }
+  }
+  sperrenPruefen();
+}
+document.querySelectorAll(".wegknopf").forEach(b =>
+  b.addEventListener("click", () => wegSetzen(b.dataset.weg)));
+
+/* Hinweis in jeder Phase mit wegabhängigen Teilen, solange kein Weg gewählt ist. */
+document.querySelectorAll("section.phase").forEach(sec => {
+  const erstes = sec.querySelector("[data-pfad]");
+  if (!erstes || sec.id === "phase-diagnose") return;
+  const h = document.createElement("div");
+  h.className = "karte warn weghinweis";
+  h.innerHTML = "<h4>Hier fehlt noch euer Weg</h4><p>Ein Teil dieser Phase hängt davon ab, welchen Weg ihr " +
+    "nach dem Check wählt. </p>";
+  const b = document.createElement("button");
+  b.className = "knopf"; b.textContent = "Zum Check";
+  b.addEventListener("click", () => zeige(phasen.indexOf(document.getElementById("phase-diagnose"))));
+  h.querySelector("p").appendChild(b);
+  erstes.parentNode.insertBefore(h, erstes);
+});
+const wegChipEl = document.getElementById("wegChip");
+if (wegChipEl) wegChipEl.addEventListener("click", () => {
+  const d = document.getElementById("phase-diagnose");
+  if (d) zeige(phasen.indexOf(d));
+});
+
+/* Gestufte Hilfen: Stufe k öffnet sich erst, wenn Stufe k-1 einmal offen war.
+   Kein innerHTML-Umbau im Summary während eines Klicks (siehe Falle 1). */
+document.querySelectorAll(".hilfen").forEach(box => {
+  const id = box.id;
+  const stufen = Array.from(box.querySelectorAll("details.hilfe"));
+  hilfenStand[id] = 0;
+  stufen.forEach((d, k) => {
+    const sum = d.querySelector("summary");
+    const note = document.createElement("span");
+    note.className = "hilfenote";
+    sum.appendChild(note);
+    d._note = note;
+    sum.addEventListener("click", e => {
+      if (d.open) return;                                   // Zuklappen immer erlaubt
+      if (k > hilfenStand[id]) {                            // Vorstufe noch nicht genutzt
+        e.preventDefault();
+        protokolliere("hilfe-gesperrt", id, "Hilfe " + (k + 1) + " vor Hilfe " + k + " angeklickt");
+        return;
+      }
+      if (k === hilfenStand[id]) {
+        hilfenStand[id] = k + 1;
+        const feld = box.dataset.feld;
+        const stand = feld ? ((document.getElementById(feld) || {}).value || "").trim() : "";
+        protokolliere("hilfe-geoeffnet", id, "Hilfe " + (k + 1) + " von " + stufen.length,
+          "Stand im Feld: " + (stand || "(leer)"));
+        setTimeout(hilfenMalen, 0);
+      }
+    });
+  });
+});
+function hilfenMalen() {
+  document.querySelectorAll(".hilfen").forEach(box => {
+    Array.from(box.querySelectorAll("details.hilfe")).forEach((d, k) => {
+      const zu = k > hilfenStand[box.id];
+      d.classList.toggle("zu", zu);
+      const t = zu ? " – erst Hilfe " + k + " ansehen" : "";
+      if (d._note.textContent !== t) d._note.textContent = t;
+    });
+  });
+}
+hilfenMalen();
+function hilfenText() {
+  return Object.keys(hilfenStand).filter(id => document.getElementById(id) && !document.getElementById(id).closest("[hidden]"))
+    .map(id => (FELDNAMEN[document.getElementById(id).dataset.feld] || id) + ": " + hilfenStand[id] + " von " +
+      document.getElementById(id).querySelectorAll("details.hilfe").length).join(" · ");
+}
+wegAnwenden();
+
+
+/* ============================================================
+   Video mit Haltepunkten (Baustein, an jeder Stelle einsetzbar)
+   ============================================================
+   <div class="videohalt" id="v-xyz" data-label="Erklärvideo: …" data-src="videos/xyz.mp4">
+     (darin ein Skriptblock type="application/json" class="halte" mit der Liste
+      [{"t": 18, "frage": "…", "art": "text", "min": 15, "nach": "…"},
+       {"t": 52, "frage": "…", "art": "mc", "optionen": ["…","…"], "richtig": 1, "nach": "…"}],
+      danach ein div class="ersatz" mit Standbild und demselben Inhalt als Text)
+   </div>
+   Das Video hält an jedem Haltepunkt an und läuft erst weiter, wenn die
+   Frage beantwortet ist; Vorspulen über einen offenen Haltepunkt springt
+   zurück. Lädt das Video nicht (kein Netz, Datei fehlt), erscheint der
+   Ersatz mit allen Fragen auf einmal - dieselben Felder, dasselbe Protokoll.
+   Die Antwortfelder sind normale Felder mit id und data-label: Protokoll,
+   Ergebnisliste, Zwischenspeicher und Abgabe erfassen sie ohne Zusatzcode. */
+const VIDEOS = {};
+document.querySelectorAll(".videohalt").forEach(box => {
+  const id = box.id, label = box.dataset.label || id;
+  let halte = [];
+  try { halte = JSON.parse((box.querySelector("script.halte") || {}).textContent || "[]"); }
+  catch (e) { console.error("Haltepunkte in #" + id + " sind kein gültiges JSON"); }
+  halte.sort((a, b) => a.t - b.t);
+  const ersatz = box.querySelector(".ersatz");
+  const mm = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+  const video = document.createElement("video");
+  video.controls = true; video.preload = "metadata";
+  video.setAttribute("playsinline", ""); video.setAttribute("webkit-playsinline", "");
+  if (box.dataset.poster) video.poster = box.dataset.poster;
+  if (box.dataset.src && !/\{\{/.test(box.dataset.src)) video.src = box.dataset.src;   // Platzhalter nicht laden
+  const status = document.createElement("p");
+  status.className = "videostatus";
+  box.insertBefore(video, box.firstChild);
+  box.insertBefore(status, video.nextSibling);
+
+  const fragen = halte.map((h, k) => {
+    const d = document.createElement("div");
+    d.className = "haltfrage";
+    const fid = id + "-h" + (k + 1);
+    d.innerHTML = '<p class="haltkopf"><b>Halt ' + (k + 1) + '</b> <span class="haltzeit">bei ' + mm(h.t) + '</span></p><p></p>';
+    d.children[1].innerHTML = h.frage;
+    let feld;
+    if (h.art === "mc") {
+      feld = document.createElement("input");
+      feld.type = "text"; feld.style.display = "none";
+      const mcBox = document.createElement("div"); mcBox.className = "mc";
+      (h.optionen || []).forEach((t, j) => {
+        const b = document.createElement("button");
+        b.textContent = t;
+        b.addEventListener("click", () => {
+          if (feld.value) return;                       // ein Versuch, wie im Check
+          const ok = j === h.richtig;
+          b.classList.add(ok ? "richtig" : "falsch");
+          if (!ok && mcBox.children[h.richtig]) mcBox.children[h.richtig].classList.add("richtig");
+          mcBox.classList.add("fest");
+          feld.value = t + (ok ? "  [richtig]" : "  [falsch]");
+          feld.dispatchEvent(new Event("change", { bubbles: true }));
+          beantwortet(k);
+        });
+        mcBox.appendChild(b);
+      });
+      d.appendChild(mcBox);
+    } else {
+      feld = document.createElement("textarea");
+      feld.placeholder = "Erst selbst überlegen, dann weiter …";
+      feld.addEventListener("input", () => beantwortet(k));
+      feld.addEventListener("blur", () => { if (ersatzModus && feldOk(k)) abschliessen(k); });
+    }
+    feld.id = fid; feld.dataset.label = label + " – Halt " + (k + 1);
+    d.appendChild(feld);
+    const nach = document.createElement("div");
+    nach.className = "rueck"; d.appendChild(nach);
+    const weiter = document.createElement("button");
+    weiter.className = "knopf voll weiterknopf"; weiter.textContent = "▶ Weiter im Video"; weiter.disabled = true;
+    weiter.addEventListener("click", () => {
+      if (!feldOk(k)) return;
+      abschliessen(k);
+      const p = video.play(); if (p && p.catch) p.catch(() => { });
+    });
+    d.appendChild(weiter);
+    box.insertBefore(d, ersatz || null);
+    return { d, feld, nach, weiter, h };
+  });
+
+  function feldOk(k) {
+    const f = fragen[k], v = (f.feld.value || "").trim();
+    return f.h.art === "mc" ? v.length > 0 : v.length >= (f.h.min || 15);
+  }
+  function beantwortet(k) {
+    const f = fragen[k];
+    f.weiter.disabled = !feldOk(k);
+    if (f.h.art === "mc") rueckZeigen(k);        // Auswahl ist endgültig, Rückmeldung sofort
+    if (ersatzModus && f.h.art !== "mc") { /* im Ersatz: Rückmeldung beim Verlassen des Feldes */ }
+    malen();
+  }
+  function rueckZeigen(k) {
+    const f = fragen[k];
+    if (f.h.nach && !f.nach.classList.contains("zeig")) { f.nach.className = "rueck zeig gut"; f.nach.innerHTML = f.h.nach; }
+  }
+  /* Ein Halt ist erledigt, sobald es weitergeht - per Knopf oder per ▶ mit fertiger Antwort.
+     Erst dann erscheint bei Textfragen die Rückmeldung: Sie soll nicht beim Tippen mitlesen. */
+  function abschliessen(k) {
+    const f = fragen[k];
+    if (f.d.classList.contains("erledigt") || !feldOk(k)) return;
+    protokolliere("video-halt", f.feld.id, f.feld.value.trim(), "Halt " + (k + 1) + " bei " + mm(f.h.t) + " beantwortet");
+    f.d.classList.add("erledigt"); f.weiter.style.display = "none"; rueckZeigen(k);
+    if (wartet === k) wartet = -1;
+    malen();
+  }
+  function offen() { for (let k = 0; k < fragen.length; k++) if (!feldOk(k)) return k; return -1; }
+  let ersatzModus = false, wartet = -1, gemeldetVor = {}, gesehenBis = 0;
+
+  function malen() {
+    const n = offen();
+    fragen.forEach((f, k) => {
+      const sichtbar = ersatzModus || k < n || n < 0 || k === wartet;
+      f.d.classList.toggle("sichtbar", sichtbar);
+      f.weiter.style.display = (ersatzModus || f.d.classList.contains("erledigt")) ? "none" : "";
+    });
+    status.textContent = ersatzModus
+      ? "Das Video lädt hier nicht. Lest den Text unten und beantwortet die Fragen dort – sie zählen genauso."
+      : (wartet >= 0 ? (feldOk(wartet) ? "Antwort steht – weiter mit „Weiter im Video“."
+                         : "▶ ist gesperrt: erst Halt " + (wartet + 1) + " beantworten, dann „Weiter im Video“.")
+         : n < 0 ? "Alle Haltepunkte beantwortet – ihr könnt frei spulen."
+         : (false ? ""
+            : "Das Video hält " + fragen.length + "-mal an. Nächster Halt bei " + mm(fragen[n].h.t) + "."));
+  }
+
+  video.addEventListener("timeupdate", () => {
+    const n = offen();
+    gesehenBis = Math.max(gesehenBis, video.currentTime);
+    if (n >= 0 && video.currentTime >= fragen[n].h.t - 0.05) {
+      video.pause();
+      if (Math.abs(video.currentTime - fragen[n].h.t) > 0.3) video.currentTime = fragen[n].h.t;
+      if (wartet !== n) {
+        wartet = n; malen();
+        fragen[n].d.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        protokolliere("video-halt-erreicht", fragen[n].feld.id, "Halt " + (n + 1) + " bei " + mm(fragen[n].h.t));
+      }
+    }
+  });
+  video.addEventListener("play", () => {
+    if (wartet >= 0 && feldOk(wartet)) abschliessen(wartet);
+    const n = offen();
+    if (n >= 0 && n === wartet) { video.pause(); malen(); }
+  });
+  video.addEventListener("seeking", () => {
+    const n = offen();
+    if (n >= 0 && video.currentTime > fragen[n].h.t + 0.3) {
+      video.currentTime = fragen[n].h.t;
+      if (!gemeldetVor[n]) {
+        gemeldetVor[n] = true;
+        protokolliere("video-vorgespult", fragen[n].feld.id, "Vorspulen über Halt " + (n + 1) + " zurückgesetzt");
+      }
+    }
+  });
+  video.addEventListener("ended", () => protokolliere("video-ende", id, "Video zu Ende gesehen (" + mm(video.duration || 0) + ")"));
+  video.addEventListener("loadedmetadata", () => {
+    const zuSpaet = fragen.filter(f => f.h.t >= video.duration);
+    if (zuSpaet.length) console.error("Haltepunkt nach dem Videoende in #" + id + ": " + zuSpaet.map(f => f.h.t).join(", "));
+  });
+  function zumErsatz(grund) {
+    if (ersatzModus) return;
+    ersatzModus = true;
+    box.classList.add("ersatzmodus");
+    video.style.display = "none";
+    malen();
+    protokolliere("video-ersatz", id, grund);
+  }
+  video.addEventListener("error", () => zumErsatz("Video lädt nicht (" + (video.error ? "Fehler " + video.error.code : "ohne Quelle") + ")"));
+  if (!video.getAttribute("src")) setTimeout(() => zumErsatz("keine Videoquelle eingetragen"), 0);
+  setTimeout(() => { if (!ersatzModus && video.readyState === 0 && video.networkState !== 2) zumErsatz("Video nach 10 s nicht geladen"); }, 10000);
+
+  /* Neue Quelle (auch für das Prüfskript): verlässt den Ersatz wieder. */
+  function quelleSetzen(src) {
+    ersatzModus = false; box.classList.remove("ersatzmodus"); video.style.display = "";
+    wartet = -1; video.src = src; video.load(); malen();
+  }
+  VIDEOS[id] = { video, fragen, malen, offen, quelleSetzen, ersatz: () => ersatzModus };
+  malen();
+});
+function videosAuffrischen() { Object.values(VIDEOS).forEach(v => v.fragen.forEach((f, k) => { if ((f.feld.value || "").trim()) { f.weiter.disabled = false; if (f.h.art === "mc") { const mcb = f.d.querySelector(".mc"); if (mcb) mcb.classList.add("fest"); } } })); Object.values(VIDEOS).forEach(v => v.malen()); }
+
+/* ---------- Interaktiver Kern: Streuversuch im Modell ----------
+   Dasselbe Modell wie in modelle_atome.py (dort mit 400 000 Teilchen nachgerechnet):
+   fünf versetzte Atomlagen, halber Atomabstand R = 16 px, je Lage der nächste Kern im
+   Abstand b (Stoßparameter). Kernmodell: tan(θ/2) = d0/(2b), d0 = 0,05 · Z/79 px.
+   Thomson: verteilte Ladung, θ = 1,2 · (d0/R) · (b/R), höchstens etwa 0,2° je Lage.
+   Modellwerte, keine Messwerte (Hinweis steht unter der Grafik). */
+(function streuversuch() {
+  const cv = document.getElementById("c-streu");
+  if (!cv) return;
+  const ctx = cv.getContext("2d");
+  const R = 16, LAGEN = 5, DX = 2 * R * 0.866, X0 = 430, Y0 = 30, D0_GOLD = 0.05;
+  let modell = "thomson", z = 79;
+  const zahl = { gerade: 0, abgelenkt: 0, zurueck: 0, alle: 0 };
+  let bahnen = [];
+  function teilchen() {
+    const d0 = D0_GOLD * z / 79;
+    let y = 60 + Math.random() * 260, phi = 0;
+    const punkte = [[20, y]];
+    for (let i = 0; i < LAGEN; i++) {
+      const x = X0 + i * DX;
+      const versatz = i % 2 ? R : 0;
+      const k = Math.round((y - Y0 - versatz) / (2 * R));
+      const yn = Y0 + versatz + 2 * R * k;
+      const b = y - yn, s = b >= 0 ? 1 : -1, ab = Math.abs(b);
+      const th = modell === "kern" ? (ab < 1e-12 ? Math.PI : 2 * Math.atan(d0 / (2 * ab))) : 1.2 * (d0 / R) * (ab / R);
+      phi += s * th;
+      punkte.push([x, y]);
+      if (Math.abs(phi) > Math.PI / 2 || Math.abs(phi) > 1.4) break;
+      y += DX * Math.tan(phi);
+    }
+    const [xe, ye] = punkte[punkte.length - 1];
+    const L = 700;
+    punkte.push([xe + L * Math.cos(phi), ye + L * Math.sin(phi)]);
+    const grad = Math.abs(phi) * 180 / Math.PI;
+    return { punkte, art: grad < 10 ? "gerade" : (grad <= 90 ? "abgelenkt" : "zurueck") };
+  }
+  function malen() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "#f7f9fb"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "#78909c"; ctx.fillRect(0, 170, 18, 40);
+    ctx.font = "13px sans-serif"; ctx.fillStyle = "#37474f"; ctx.textAlign = "left";
+    ctx.fillText("Quelle", 4, 226);
+    for (let i = 0; i < LAGEN; i++) {
+      const x = X0 + i * DX, versatz = i % 2 ? R : 0;
+      for (let y = Y0 + versatz; y < cv.height - 10; y += 2 * R) {
+        ctx.beginPath(); ctx.arc(x, y, R - 1, 0, 2 * Math.PI);
+        if (modell === "thomson") { ctx.fillStyle = "rgba(240,98,146,.22)"; ctx.fill(); }
+        else { ctx.strokeStyle = "rgba(120,144,156,.35)"; ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]); }
+        ctx.fillStyle = "#0b5aa0";
+        ctx.beginPath(); ctx.arc(x + 7, y - 6, 1.6, 0, 2 * Math.PI); ctx.fill();
+        ctx.beginPath(); ctx.arc(x - 6, y + 7, 1.6, 0, 2 * Math.PI); ctx.fill();
+        if (modell === "kern") { ctx.fillStyle = "#c62828"; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2 * Math.PI); ctx.fill(); }
+      }
+    }
+    /* Anflug bis zur Folie für alle blass, danach farbig: so sieht man, wohin es geht */
+    bahnen.forEach(b => {
+      ctx.strokeStyle = "rgba(120,144,156,.18)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(b.punkte[0][0], b.punkte[0][1]); ctx.lineTo(b.punkte[1][0], b.punkte[1][1]); ctx.stroke();
+    });
+    ["gerade", "abgelenkt", "zurueck"].forEach(art => bahnen.filter(b => b.art === art).forEach(b => {
+      ctx.strokeStyle = art === "gerade" ? "rgba(46,125,50,.30)" : (art === "abgelenkt" ? "rgba(239,108,0,.9)" : "rgba(198,40,40,1)");
+      ctx.lineWidth = art === "gerade" ? 1 : 2.2;
+      ctx.beginPath(); ctx.moveTo(b.punkte[1][0], b.punkte[1][1]);
+      b.punkte.slice(2).forEach(p => ctx.lineTo(p[0], p[1])); ctx.stroke();
+    }));
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#1a2229"; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "right";
+    ctx.fillText(modell === "kern" ? "Modell B: winziger Kern" : "Modell A: Rosinenkuchen", cv.width - 12, 22);
+    ctx.font = "13px sans-serif";
+    ctx.fillText((z === 79 ? "Goldfolie (79)" : "Aluminiumfolie (13)") + " · fünf Atomlagen", cv.width - 12, 40);
+    ctx.textAlign = "left"; ctx.fillStyle = "#4a5560";
+    ctx.fillText("grün: gerade · orange: stark abgelenkt · rot: zurück", 30, cv.height - 10);
+    document.getElementById("z-gerade").textContent = zahl.gerade;
+    document.getElementById("z-abgelenkt").textContent = zahl.abgelenkt;
+    document.getElementById("z-zurueck").textContent = zahl.zurueck;
+    document.getElementById("z-alle").textContent = zahl.alle;
+  }
+  function schiessen(n) {
+    for (let i = 0; i < n; i++) {
+      const b = teilchen();
+      zahl[b.art]++; zahl.alle++;
+      bahnen.push(b);
+    }
+    /* höchstens 120 gerade und 60 abgelenkte Bahnen zeigen, die Rückpraller alle (bis 40) */
+    const g = bahnen.filter(x => x.art === "gerade").slice(-120);
+    const a = bahnen.filter(x => x.art === "abgelenkt").slice(-60);
+    const r = bahnen.filter(x => x.art === "zurueck").slice(-40);
+    bahnen = g.concat(a, r);
+    malen();
+    antworten["streuversuch"] = (modell === "kern" ? "Kern" : "Thomson") + ", " + (z === 79 ? "Gold" : "Aluminium") +
+      ": " + zahl.alle + " geschossen, gerade " + zahl.gerade + ", abgelenkt " + zahl.abgelenkt + ", zurück " + zahl.zurueck;
+  }
+  function neu() { zahl.gerade = zahl.abgelenkt = zahl.zurueck = zahl.alle = 0; bahnen = []; malen(); }
+  document.querySelectorAll("[data-modell]").forEach(k => k.addEventListener("click", () => {
+    modell = k.dataset.modell;
+    document.querySelectorAll("[data-modell]").forEach(x => x.classList.toggle("aktivw", x === k));
+    neu();
+  }));
+  document.querySelectorAll("[data-z]").forEach(k => k.addEventListener("click", () => {
+    z = +k.dataset.z;
+    document.querySelectorAll("[data-z]").forEach(x => x.classList.toggle("aktivw", x === k));
+    neu();
+  }));
+  document.querySelectorAll("[data-n]").forEach(k => k.addEventListener("click", () => schiessen(+k.dataset.n)));
+  document.getElementById("k-streu-neu").addEventListener("click", neu);
+  malen();
+})();
+
+/* ---------- Filme mit Halt ----------
+   YouTube erst auf Klick (youtube-nocookie, start/end): Stück k endet vor der Auflösung,
+   danach steht Halt k. Stück k+1 öffnet erst, wenn die Antwort zu Halt k lang genug ist.
+   Unter file:// zeigt YouTube Fehler 153 - dann öffnet der Knopf den Film auf YouTube.
+   Jeder Aufruf geht als "regler" ins Protokoll (keine neue Eintragsart). */
+(function filmhalte() {
+  const DIREKT = location.protocol === "file:";
+  document.querySelectorAll(".filmhalt").forEach(box => {
+    const yt = box.dataset.yt, titel = box.dataset.titel;
+    if (DIREKT) box.querySelector(".filmnetz").hidden = false;
+    const stuecke = Array.from(box.querySelectorAll(".stueck"));
+    const halte = Array.from(box.querySelectorAll(".halt2"));
+    function beantwortet(h) {
+      const tf = h.querySelector("textarea");
+      return (tf.value || "").trim().length >= (parseInt(h.dataset.min, 10) || 10);
+    }
+    function frei(k) { for (let j = 0; j < k; j++) if (halte[j] && !beantwortet(halte[j])) return false; return true; }
+    function malen() {
+      stuecke.forEach((s, k) => {
+        const f = frei(k), b = s.querySelector("button");
+        if (b.disabled === f) b.disabled = !f;
+        const sp = s.querySelector(".stuecksperre"); if (sp) sp.style.display = f ? "none" : "";
+      });
+      halte.forEach(h => {
+        if ((h.querySelector("textarea").value || "").trim()) h.classList.add("sichtbar");
+        h.classList.toggle("fertig", beantwortet(h));
+      });
+    }
+    stuecke.forEach((s, k) => s.querySelector("button").addEventListener("click", () => {
+      if (!frei(k)) return;
+      const a = +s.dataset.start, e = +s.dataset.ende;
+      const was = titel + ", Stück " + (k + 1) + " (" + a + " bis " + e + " s)";
+      if (DIREKT) {
+        window.open("https://www.youtube.com/watch?v=" + yt + "&t=" + a + "s", "_blank", "noopener");
+        protokolliere("regler", "Film", "auf YouTube geöffnet: " + was);
+      } else {
+        const r = box.querySelector(".filmrahmen");
+        r.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + yt + "?start=" + a + "&end=" + e +
+          '&rel=0&playsinline=1&autoplay=1" title="Film" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+        r.classList.add("laeuft");
+        protokolliere("regler", "Film", "abgespielt: " + was);
+      }
+      if (halte[k]) halte[k].classList.add("sichtbar");
+    }));
+    const fe = box.querySelector(".filmersatz");
+    fe.addEventListener("toggle", () => {
+      if (!fe.open) return;
+      halte.forEach(h => h.classList.add("sichtbar"));
+      stuecke.forEach(s => { s.querySelector("button").disabled = false; });
+      protokolliere("regler", "Film", "Ersatztext geöffnet: " + titel);
+    });
+    box.addEventListener("input", malen);
+    malen();
+    setInterval(malen, 1500);
+  });
+})();
+
+/* ---------- Plan A (Murmeln) / Plan B (nur Simulation) ----------
+   Plan B ist der Normalfall. Der Weg nach A führt immer über die Materialliste. */
+(function planwahl() {
+  const schirm = document.getElementById("materialschirm"), block = document.getElementById("plan-a-block");
+  const knoepfe = document.querySelectorAll("#planwahl [data-plan]");
+  function setze(plan) {
+    knoepfe.forEach(k => k.classList.toggle("aktivw", k.dataset.plan === plan));
+    if (plan === "B") { schirm.hidden = true; block.hidden = true; }
+    antworten["plan"] = plan === "A" ? "Plan A (Murmeln)" : "Plan B (Simulation)";
+  }
+  knoepfe.forEach(k => k.addEventListener("click", () => {
+    if (k.dataset.plan === "A") { knoepfe.forEach(x => x.classList.toggle("aktivw", x === k)); schirm.hidden = false; block.hidden = true; }
+    else setze("B");
+  }));
+  document.getElementById("k-plan-a-los").addEventListener("click", () => { schirm.hidden = true; block.hidden = false; setze("A"); });
+  document.getElementById("k-plan-a-zurueck").addEventListener("click", () => setze("B"));
+})();
+
+/* ---------- Quiz: acht Fragen an den acht Stellen, an denen es klemmt ----------
+   Jede Frage: eine Aussage, vier Optionen, r = Index der richtigen,
+   e = Erklärung, die auch bei richtiger Antwort etwas hinzufügt. */
+/* ---------- 9 Quiz ---------- */
+const fragen = [
+  { f: "Was beobachteten Geiger und Marsden bei den allermeisten Heliumteilchen?",
+    o: ["Sie blieben in der Goldfolie stecken.", "Sie flogen fast ungestört hindurch.", "Sie prallten zurück.", "Sie wurden alle stark abgelenkt."], r: 1,
+    e: "Fast alle kamen durch Hunderte Lagen Gold. Daraus folgt: Das Atom ist fast leer." },
+  { f: "Warum prallten einige wenige Heliumteilchen zurück?",
+    o: ["Sie trafen auf Elektronen.", "Sie kamen einem winzigen, positiv geladenen, schweren Kern sehr nahe.", "Die Folie war an manchen Stellen dicker.", "Sie waren zu langsam."], r: 1,
+    e: "Elektronen sind viel zu leicht, um ein Heliumteilchen umzudrehen. Das wäre, als wollte ein Tischtennisball eine Kanonenkugel stoppen. Das schafft nur der schwere Kern." },
+  { f: "Wäre Thomsons Rosinenkuchenmodell richtig, dann …",
+    o: ["… würden fast alle Teilchen zurückprallen.", "… kämen alle fast gerade durch, keines käme zurück.", "… blieben alle in der Folie stecken.", "… würde die Hälfte stark abgelenkt."], r: 1,
+    e: "Bei Thomson ist die positive Ladung verteilt und wirkt deshalb nur schwach. Das zeigte Modell A in der Simulation: 1000 gerade, 0 zurück." },
+  { f: "Laut Buch passen 10 Millionen Atome hintereinander auf 1 mm. Ein Kern ist 100 000-mal kleiner. Wie viele Kerne passen hintereinander auf 1 mm?",
+    o: ["100 000", "10 Millionen", "1 Milliarde", "1 Billion"], r: 3,
+    e: "10 000 000 · 100 000 = 1 000 000 000 000, also 1 Billion. So steht es auch im Buch (S. 200)." },
+  { f: "Ein Atom gibt ein Elektron ab. Was ist es danach?",
+    o: ["ein neutrales Atom", "ein positiv geladenes Ion", "ein negativ geladenes Ion", "ein Atom eines anderen Elements"], r: 1,
+    e: "Ein Minus weniger: Jetzt überwiegt das Plus im Kern. Das Element bleibt dasselbe, weil der Kern gleich bleibt." },
+  { f: "Was änderte Niels Bohr 1913 an Rutherfords Modell?",
+    o: ["Er schaffte den Kern wieder ab.", "Die Elektronen dürfen nur auf bestimmten Bahnen (Schalen) um den Kern laufen.", "Die Elektronen sitzen bei ihm im Kern.", "Das Atom ist bei ihm wieder eine feste Kugel."], r: 1,
+    e: "Kern und Hülle bleiben. Neu ist: Nur bestimmte Bahnen sind erlaubt, und Licht entsteht beim Sprung zwischen ihnen." },
+  { f: "Wenn Atome fast leer sind: Warum fällt eure Hand nicht durch den Tisch?",
+    o: ["Weil sich die Atomkerne berühren.", "Weil sich die Elektronenhüllen von Hand und Tisch elektrisch abstoßen.", "Weil Luft dazwischen ist.", "Weil der Tisch doch aus festen Kugeln besteht."], r: 1,
+    e: "Die negativen Hüllen stoßen sich ab, lange bevor sich Kerne nahe kommen. „Fast leer“ heißt nicht „ohne Wirkung“: Elektrische Kräfte füllen den Raum." },
+  { f: "Wie heißt im Buch der durchdringbare Bereich um den Kern?",
+    o: ["Atomkern", "Leuchtschirm", "Atomhülle", "Goldfolie"], r: 2,
+    e: "Atomhülle. In ihr sind die Elektronen. Sie macht fast den ganzen Raum des Atoms aus." }
+];
+let quizPunkte = 0, quizBeantwortet = 0;
+const quizBox = document.getElementById("quiz");
+fragen.forEach((q, i) => {
+  const d = document.createElement("div");
+  d.className = "quizfrage";
+  d.innerHTML = "<p><b>" + (i + 1) + ".</b> " + q.f + "</p>";
+  const mcb = document.createElement("div"); mcb.className = "mc";
+  const rb = document.createElement("div"); rb.className = "rueck";
+  let erledigt = false;
+  q.o.forEach((text, k) => {
+    const b = document.createElement("button");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (erledigt) return;
+      erledigt = true; quizBeantwortet++;
+      Array.from(mcb.children).forEach((x, j) => {
+        if (j === q.r) x.classList.add("richtig");
+      });
+      if (k !== q.r) b.classList.add("falsch"); else quizPunkte++;
+      rb.className = "rueck zeig " + (k === q.r ? "gut" : "schlecht");
+      rb.innerHTML = (k === q.r ? "<b>Richtig.</b> " : "<b>Falsch.</b> ") + q.e;
+      const erg = document.getElementById("quiz-ergebnis");
+      erg.style.display = "block";
+      document.getElementById("quiz-punkte").textContent = quizPunkte + " / " + fragen.length;
+      document.getElementById("quiz-text").textContent =
+        quizBeantwortet < fragen.length ? "(" + quizBeantwortet + " von " + fragen.length + " beantwortet)"
+          : quizPunkte >= 7 ? "– sehr gut, das sitzt."
+            : quizPunkte >= 5 ? "– solide. Schaut euch die falschen Erklärungen noch einmal an."
+              : "– noch wacklig. Geht zurück zu Phase 5 und lest den Merksatz.";
+      antworten["quiz"] = quizPunkte + " von " + fragen.length + " Quizfragen richtig";
+    });
+    mcb.appendChild(b);
+  });
+  d.appendChild(mcb); d.appendChild(rb); quizBox.appendChild(d);
+});
+
+/* ============================================================
+   10  Protokoll – läuft mit, ist nur erweiterbar
+   ============================================================ */
+const PROTOKOLL_VERSION = 3;
+const SPEICHER = "atommodelle-10c-protokoll-v3";   // pro Stunde eindeutig!
+const LEHRER_MAIL = "michael.glaubitz@ae-gym.de";
+const gestartet = new Date();
+
+function zwei(n) { return String(n).padStart(2, "0"); }
+function stempel(d) {
+  d = d || new Date();
+  return d.getFullYear() + "-" + zwei(d.getMonth() + 1) + "-" + zwei(d.getDate()) +
+    " " + zwei(d.getHours()) + ":" + zwei(d.getMinutes()) + ":" + zwei(d.getSeconds());
+}
+function protokolliere(art, feld, wert, zusatz) {
+  const e = {
+    nr: protokollEintraege.length + 1, zeit: stempel(), art: art,
+    feld: feld || "", wert: wert === undefined || wert === null ? "" : String(wert)
+  };
+  if (zusatz) e.zusatz = String(zusatz);
+  protokollEintraege.push(Object.freeze(e));   // bestehende Einträge werden nie verändert
+  chipMalen();
+  speichern();
+}
+function chipMalen() {
+  const c = document.getElementById("protokollChip");
+  if (!c) return;
+  c.textContent = "Protokoll: " + protokollEintraege.length + (exportiert ? " · gesichert" : " Einträge");
+  c.classList.toggle("warn", protokollEintraege.length > 4 && !exportiert);
+}
+
+/* ---------- 11 Zeichenfelder (Touch / Stift) ---------- */
+const zeichnungen = {};
+document.querySelectorAll(".zeichenfeld").forEach(aufbauZeichnung);
+
+function aufbauZeichnung(box) {
+  const zid = box.dataset.zid;
+  const hoehe = parseInt(box.dataset.hoehe || "300", 10);
+  const z = { striche: [], farbe: "#1a2229", breite: 3, letztesLog: 0 };
+  zeichnungen[zid] = z;
+
+  const wz = document.createElement("div");
+  wz.className = "zwerkzeug";
+  const titel = document.createElement("span");
+  titel.className = "titel"; titel.textContent = box.dataset.titel || "Zeichnung";
+  wz.appendChild(titel);
+
+  function knopf(text, wirkung, gruppe) {
+    const b = document.createElement("button");
+    b.className = "knopf klein" + (gruppe ? " g-" + gruppe : "");
+    b.textContent = text;
+    b.addEventListener("click", () => {
+      if (gruppe) {
+        wz.querySelectorAll(".g-" + gruppe).forEach(x => x.classList.remove("aktivw"));
+        b.classList.add("aktivw");
+      }
+      wirkung();
+    });
+    wz.appendChild(b);
+    return b;
+  }
+  const kDuenn = knopf("dünn", () => z.breite = 2, "b" + zid);
+  const kDick = knopf("dick", () => z.breite = 5, "b" + zid);
+  const kSchwarz = knopf("schwarz", () => z.farbe = "#1a2229", "f" + zid);
+  knopf("rot", () => z.farbe = "#c62828", "f" + zid);
+  knopf("Strich zurück", () => {
+    if (!z.striche.length) return;
+    z.striche.pop(); malen(); protokolliere("zeichnung", zid, "Strich zurückgenommen (" + z.striche.length + " Striche)");
+    sperrenPruefen();
+  });
+  knopf("alles löschen", () => {
+    if (!z.striche.length) return;
+    protokolliere("zeichnung", zid, "Zeichenfeld geleert (vorher " + z.striche.length + " Striche)");
+    z.striche = []; malen(); sperrenPruefen();
+  });
+  kDick.classList.add("aktivw"); z.breite = 5;
+  kSchwarz.classList.add("aktivw");
+  const status = document.createElement("span");
+  status.className = "zstatus"; status.textContent = "0 Striche";
+  wz.appendChild(status);
+
+  const cv = document.createElement("canvas");
+  cv.width = 1000;
+  cv.height = Math.round(hoehe * 1000 / 900);
+  box.appendChild(wz); box.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  z.canvas = cv;
+
+  function malen() {
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "#dde4ea";
+    for (let x = 25; x < cv.width; x += 25)
+      for (let y = 25; y < cv.height; y += 25) ctx.fillRect(x, y, 1.4, 1.4);
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const alle = z.striche.concat(z.aktuell ? [z.aktuell] : []);
+    alle.forEach(st => {
+      ctx.strokeStyle = st.farbe; ctx.lineWidth = st.breite;
+      ctx.beginPath();
+      st.punkte.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+      if (st.punkte.length === 1) { ctx.lineTo(st.punkte[0].x + .1, st.punkte[0].y + .1); }
+      ctx.stroke();
+    });
+    status.textContent = z.striche.length + (z.striche.length === 1 ? " Strich" : " Striche");
+  }
+  z.malen = malen;
+
+  function pos(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+  }
+  cv.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    try { cv.setPointerCapture(e.pointerId); } catch (x) { }
+    z.aktuell = { farbe: z.farbe, breite: z.breite, punkte: [pos(e)] };
+    malen();
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!z.aktuell) return;
+    e.preventDefault();
+    const p = pos(e), letzt = z.aktuell.punkte[z.aktuell.punkte.length - 1];
+    if (Math.abs(p.x - letzt.x) + Math.abs(p.y - letzt.y) < 1.5) return;
+    z.aktuell.punkte.push(p); malen();
+  });
+  function fertig() {
+    if (!z.aktuell) return;
+    if (z.aktuell.punkte.length >= 1) z.striche.push(z.aktuell);
+    z.aktuell = null; malen(); sperrenPruefen(); speichern();
+    const jetzt = Date.now();
+    if (z.striche.length <= 1 || jetzt - z.letztesLog > 6000) {
+      z.letztesLog = jetzt;
+      protokolliere("zeichnung", zid, z.striche.length + " Striche gezeichnet");
+    }
+  }
+  cv.addEventListener("pointerup", fertig);
+  cv.addEventListener("pointercancel", fertig);
+  cv.addEventListener("pointerleave", fertig);
+  malen();
+}
+function zeichnungBild(zid) {
+  const z = zeichnungen[zid];
+  if (!z || !z.striche.length) return null;
+  return z.canvas.toDataURL("image/png");
+}
+
+/* ---------- 12 Lösungen sperren ---------- */
+/* Klarnamen der Felder für Sperrhinweise und Protokoll: automatisch aus
+   data-label bzw. data-titel. Kein manuelles Nachpflegen nötig. */
+const FELDNAMEN = {};
+document.querySelectorAll("[data-label]").forEach(el => {
+  if (el.id) FELDNAMEN[el.id] = el.dataset.label;
+  if (el.dataset.zid) FELDNAMEN["zeichnung:" + el.dataset.zid] = el.dataset.label;
+});
+document.querySelectorAll(".zeichenfeld").forEach(el => {
+  if (el.dataset.zid && !FELDNAMEN["zeichnung:" + el.dataset.zid])
+    FELDNAMEN["zeichnung:" + el.dataset.zid] = el.dataset.titel || el.dataset.zid;
+});
+function feldWert(feld) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return z ? z.striche.length + " Striche" : "";
+  }
+  const el = document.getElementById(feld);
+  return el ? (el.value || "").trim() : "";
+}
+function feldReicht(feld, min) {
+  if (feld.indexOf("zeichnung:") === 0) {
+    const z = zeichnungen[feld.slice(10)];
+    return !!z && z.striche.length >= 3;
+  }
+  const el = document.getElementById(feld);
+  if (!el) return true;
+  const v = (el.value || "").trim();
+  return v.length >= (el.tagName === "TEXTAREA" ? (min || 40) : 1);
+}
+const sperren = [];
+document.querySelectorAll("details.gesperrt").forEach(d => {
+  const sum = d.querySelector("summary");
+  const text = sum.innerHTML;
+  const felder = (d.dataset.fuer || "").split(",").filter(x => x);
+  const min = parseInt(d.dataset.min || "40", 10);
+  let warFrei = false;
+  sum.innerHTML = '<span class="sperrsymbol">🔒</span> ' + text + ' <span class="schloss"></span>';
+  const symbolEl = sum.querySelector(".sperrsymbol");
+  const noteEl = sum.querySelector(".schloss");
+
+  function istFrei() { return felder.every(f => feldReicht(f, min)); }
+
+  function pruefe() {
+    const fehlt = felder.filter(f => !feldReicht(f, min));
+    const frei = fehlt.length === 0;
+    d.classList.toggle("gesperrt", !frei);
+    d.classList.toggle("frei", frei);
+    if (!frei && d.open) d.open = false;
+    let note;
+    if (frei) note = "– jetzt vergleichen";
+    else {
+      const namen = fehlt.map(f => FELDNAMEN[f] || f);
+      note = "– zuerst ausfüllen: " + namen.join(", ");
+      if (fehlt.length === 1 && fehlt[0].indexOf("zeichnung:") !== 0) {
+        const el = document.getElementById(fehlt[0]);
+        if (el && el.tagName === "TEXTAREA")
+          note = "– noch " + Math.max(1, min - (el.value || "").trim().length) + " Zeichen in „" + (FELDNAMEN[fehlt[0]] || fehlt[0]) + "“";
+      }
+    }
+    if (symbolEl.textContent !== (frei ? "🔓" : "🔒")) symbolEl.textContent = frei ? "🔓" : "🔒";
+    if (noteEl.textContent !== note) noteEl.textContent = note;
+    if (frei && !warFrei) { warFrei = true; }
+    return frei;
+  }
+  sperren.push(pruefe);
+
+  function blockieren(e) {
+    // Wichtig: bei erlaubtem Klick darf das Summary nicht neu aufgebaut werden,
+    // sonst verwirft der Browser das Standardverhalten (Auf-/Zuklappen).
+    if (istFrei()) {
+      sperrpause = true;
+      setTimeout(() => { sperrpause = false; sperrenPruefen(); }, 0);
+      if (!d.open) {
+        const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
+        protokolliere("loesung-geoeffnet", d.dataset.fuer || "", "Stand der eigenen Antwort beim Öffnen der Lösung", schnapp);
+      }
+      return;
+    }
+    e.preventDefault();
+    d.open = false;
+    pruefe();
+    d.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" },
+      { transform: "translateX(6px)" }, { transform: "translateX(0)" }], { duration: 220 });
+    protokolliere("loesung-gesperrt", d.dataset.fuer || "", "Lösung angeklickt, aber noch nicht freigeschaltet");
+  }
+  sum.addEventListener("click", blockieren);
+  sum.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") blockieren(e); });
+});
+let sperrpause = false;
+function sperrenPruefen() { if (sperrpause) return; sperren.forEach(f => f()); }
+
+/* ---------- 13 Eingaben erfassen ---------- */
+/* Eingabefelder in Messtabellen bekommen automatisch IDs und Klarnamen
+   aus der Kopfzeile, damit jede Eingabe einzeln protokolliert wird. */
+document.querySelectorAll("table.messtabelle").forEach(tab => {
+  const kopf = [...tab.querySelectorAll("tr:first-child td, tr:first-child th")].map(t => t.textContent.trim());
+  const name = tab.dataset.label || tab.id || "Tabelle";
+  tab.querySelectorAll("input").forEach((inp, k) => {
+    if (!inp.id) inp.id = (tab.id || "tab") + "-" + k;
+    FELDNAMEN[inp.id] = name + " " + (kopf[k + 1] || k + 1);
+  });
+});
+const letzteWerte = {};
+function erfassen(el) {
+  if (!el.id) return;
+  const v = (el.value || "").trim();
+  if (letzteWerte[el.id] === v) return;
+  letzteWerte[el.id] = v;
+  protokolliere("eingabe", el.id, v);
+}
+document.querySelectorAll("textarea, input[type=text], td input, .karte input").forEach(el => {
+  if (el.type === "range") return;
+  el.addEventListener("change", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("blur", () => { erfassen(el); sperrenPruefen(); });
+  el.addEventListener("input", () => { sperrenPruefen(); if (el.tagName === "TEXTAREA") verzoegertErfassen(el); });
+});
+let erfassTimer = null;
+function verzoegertErfassen(el) {
+  clearTimeout(erfassTimer);
+  erfassTimer = setTimeout(() => erfassen(el), 4000);
+}
+
+/* ---------- 14 Speichern / Wiederherstellen ---------- */
+function zustand() {
+  const felderWerte = {};
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => {
+    if (el.id && el.value) felderWerte[el.id] = el.value;
+  });
+  const striche = {};
+  Object.keys(zeichnungen).forEach(zid => { striche[zid] = zeichnungen[zid].striche; });
+  return {
+    version: PROTOKOLL_VERSION, gestartet: stempel(gestartet), gespeichert: stempel(),
+    name: (document.getElementById("i-name") || {}).value || "",
+    klasse: (document.getElementById("i-klasse") || {}).value || "",
+    felder: felderWerte, striche: striche, eintraege: protokollEintraege,
+    weg: weg, vorschlag: vorschlag, diagnose: diagErgebnis.filter(Boolean), hilfen: hilfenStand
+  };
+}
+let speicherTimer = null;
+function speichern() {
+  clearTimeout(speicherTimer);
+  speicherTimer = setTimeout(() => {
+    try { localStorage.setItem(SPEICHER, JSON.stringify(zustand())); } catch (e) { }
+  }, 600);
+}
+function wiederherstellen(z) {
+  Object.keys(z.felder || {}).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = z.felder[id]; letzteWerte[id] = String(z.felder[id]).trim(); }
+  });
+  Object.keys(z.striche || {}).forEach(zid => {
+    if (zeichnungen[zid]) { zeichnungen[zid].striche = z.striche[zid] || []; zeichnungen[zid].malen(); }
+  });
+  (z.eintraege || []).forEach(e => protokollEintraege.push(Object.freeze(e)));
+  (z.diagnose || []).forEach(e => { diagErgebnis[e.nr - 1] = e; });
+  Object.keys(z.hilfen || {}).forEach(id => { if (id in hilfenStand) hilfenStand[id] = z.hilfen[id]; });
+  hilfenMalen();
+  videosAuffrischen();
+  if (z.vorschlag && WEGE[z.vorschlag]) { vorschlag = z.vorschlag; vorschlagZeigen(); }
+  if (z.weg && WEGE[z.weg]) wegSetzen(z.weg, true);
+  protokolliere("wiederhergestellt", "", "Protokoll aus dem Zwischenspeicher fortgesetzt (" + (z.eintraege || []).length + " frühere Einträge)");
+  sperrenPruefen(); chipMalen();
+}
+(function angebotPruefen() {
+  let z = null;
+  try { const roh = localStorage.getItem(SPEICHER); if (roh) z = JSON.parse(roh); } catch (e) { }
+  if (!z || !z.eintraege || !z.eintraege.length) return;
+  const banner = document.createElement("div");
+  banner.className = "karte warn";
+  banner.innerHTML = '<h4>Angefangenes Protokoll gefunden</h4><p>Auf diesem Gerät liegt ein Protokoll von <b>' +
+    (z.gespeichert || z.gestartet) + '</b> mit ' + z.eintraege.length + ' Einträgen' +
+    (z.name ? ' (' + z.name.replace(/</g, "&lt;") + ')' : '') + '.</p>';
+  const w = document.createElement("button"); w.className = "knopf voll"; w.textContent = "Daran weiterarbeiten";
+  const n = document.createElement("button"); n.className = "knopf"; n.textContent = "Neu beginnen (löscht das alte)";
+  const p = document.createElement("p"); p.appendChild(w); p.appendChild(document.createTextNode(" ")); p.appendChild(n);
+  banner.appendChild(p);
+  w.addEventListener("click", () => { wiederherstellen(z); banner.remove(); });
+  n.addEventListener("click", () => {
+    try { localStorage.removeItem(SPEICHER); } catch (e) { }
+    protokolliere("neu", "", "Neues Protokoll begonnen, altes verworfen");
+    banner.remove();
+  });
+  const ziel = document.querySelector("section.phase");
+  ziel.insertBefore(banner, ziel.children[2]);
+})();
+
+/* ---------- 15 Ausgabe: Text, Protokolldatei, Versand ---------- */
+/* Alle auswertbaren Felder werden aus dem DOM gesammelt:
+   jedes Element mit data-label wird in Dokumentreihenfolge aufgenommen.
+   Damit muss beim Erstellen einer neuen Stunde keine Liste gepflegt werden. */
+function sammleFelder() {
+  const liste = [];
+  document.querySelectorAll("[data-label]").forEach(el => {
+    liste.push([el.id || el.dataset.zid || "", el.dataset.label]);
+  });
+  return liste;
+}
+function eintraegeInhalt() {
+  const liste = [];
+  sammleFelder().forEach(([id, titel]) => {
+    if (!id) return;
+    let wert = antwortenRoh[id];
+    const el = document.getElementById(id);
+    if (el && el.tagName === "TABLE") wert = tabellenText(el);
+    else if (el && el.value !== undefined) wert = el.value.trim();
+    else if (!wert && zeichnungen[id]) {
+      wert = zeichnungen[id].striche.length
+        ? zeichnungen[id].striche.length + " Striche gezeichnet (Bild im Protokoll)" : "";
+    }
+    if (!wert || !String(wert).trim()) return;
+    liste.push([titel, String(wert).trim()]);
+  });
+  return liste;
+}
+
+/* Messtabellen: Kopfzeile liefert die Beschriftung, zweite Zeile die Eingaben. */
+function tabellenText(tab) {
+  const kopf = [...tab.querySelectorAll("tr:first-child td, tr:first-child th")].map(t => t.textContent.trim());
+  const werte = [...tab.querySelectorAll("input")].map(i => (i.value || "").trim());
+  return werte.map((w, k) => w ? (kopf[k + 1] || "?") + ": " + w : null).filter(Boolean).join(" · ");
+}
+
+function namen() { return ((document.getElementById("i-name") || {}).value || "").trim(); }
+function klasse() { return ((document.getElementById("i-klasse") || {}).value || "").trim(); }
+function betreff() { return "Physik Wie leer ist ein Atom – " + (namen() || "ohne Namen") + (klasse() ? " (" + klasse() + ")" : ""); }
+function dateiname() {
+  const roh = "Protokoll_atommodelle-10c_" + (namen() || "ohneNamen") + (klasse() ? "_" + klasse() : "");
+  return roh.replace(/[^A-Za-z0-9_äöüÄÖÜß-]+/g, "_").slice(0, 80);
+}
+function textFassung() {
+  let t = "Ergebnisse Physik – Wie leer ist ein Atom\n";
+  t += "Namen: " + (namen() || "ohne Namen") + "\nKlasse: " + (klasse() || "–") + "\n";
+  t += "Bearbeitet: " + stempel(gestartet) + " bis " + stempel() + "\n";
+  t += "Weg: " + (weg ? WEGE[weg] : "nicht gewählt") + (vorschlag ? " (vorgeschlagen: " + WEGE[vorschlag] + ")" : "") + "\n";
+  t += "Hilfen genutzt: " + (hilfenText() || "–") + "\n";
+  t += "----------------------------------------\n";
+  eintraegeInhalt().forEach(([titel, wert]) => { t += "\n" + titel + ":\n" + wert + "\n"; });
+  const gez = Object.keys(zeichnungen).filter(z => zeichnungen[z].striche.length);
+  t += "\nZeichnungen: " + (gez.length ? gez.join(", ") + " (nur in der Protokolldatei enthalten, nicht in dieser Textmail)" : "keine");
+  t += "\nProtokolleinträge: " + protokollEintraege.length + "\n";
+  t += "----------------------------------------\n";
+  return t;
+}
+function sicher(x) {
+  return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function protokollHtml() {
+  const z = zustand();
+  const bilder = Object.keys(zeichnungen).map(zid => {
+    const d = zeichnungBild(zid);
+    return d ? '<figure><figcaption>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ' – ' + zeichnungen[zid].striche.length + ' Striche</figcaption><img src="' + d + '" alt="Zeichnung ' + sicher(zid) + '"></figure>' : "";
+  }).join("");
+  const antwortenHtml = eintraegeInhalt().map(([t, w]) =>
+    "<h3>" + sicher(t) + "</h3><p>" + sicher(w).replace(/\n/g, "<br>") + "</p>").join("");
+  const logHtml = protokollEintraege.map(e =>
+    "<tr><td>" + e.nr + "</td><td>" + sicher(e.zeit) + "</td><td>" + sicher(e.art) + "</td><td>" +
+    sicher(e.feld) + "</td><td>" + sicher(e.wert) + (e.zusatz ? "<br><i>" + sicher(e.zusatz) + "</i>" : "") + "</td></tr>").join("");
+  return '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">' +
+    '<title>' + sicher(betreff()) + '</title><style>' +
+    'body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a2229;line-height:1.5}' +
+    'h1{font-size:1.3rem;color:#0b5aa0}h2{font-size:1.05rem;color:#0b5aa0;border-bottom:1px solid #cfd8de;padding-bottom:.2rem;margin-top:2rem}' +
+    'h3{font-size:.95rem;margin:1rem 0 .2rem}p{margin:.2rem 0 .6rem}' +
+    'table{border-collapse:collapse;width:100%;font-size:.8rem}td,th{border:1px solid #cfd8de;padding:.25rem .4rem;text-align:left;vertical-align:top}' +
+    'th{background:#e8f1f9}figure{margin:1rem 0}figcaption{font-size:.85rem;color:#4a5560;margin-bottom:.2rem}' +
+    'img{max-width:100%;border:1px solid #cfd8de;border-radius:6px}' +
+    '.kopf{background:#e8f1f9;border:1px solid #8fbde0;border-radius:8px;padding:.6rem .9rem}</style></head><body>' +
+    '<h1>Physik – Wie leer ist ein Atom: Protokoll der Lernpfad-Doppelstunde</h1>' +
+    '<div class="kopf"><b>Namen:</b> ' + sicher(namen() || "ohne Namen") +
+    ' &nbsp;·&nbsp; <b>Klasse:</b> ' + sicher(klasse() || "–") +
+    '<br><b>Bearbeitet:</b> ' + sicher(stempel(gestartet)) + " bis " + sicher(stempel()) +
+    ' &nbsp;·&nbsp; <b>Protokolleinträge:</b> ' + protokollEintraege.length +
+    '<br><b>Weg:</b> ' + sicher(weg ? WEGE[weg] : "nicht gewählt") +
+    (vorschlag ? ' (vorgeschlagen: ' + sicher(WEGE[vorschlag]) + ')' : '') +
+    ' &nbsp;·&nbsp; <b>Hilfen genutzt:</b> ' + sicher(hilfenText() || "–") + '</div>' +
+    '<h2>Antworten</h2>' + (antwortenHtml || "<p>keine Eingaben</p>") +
+    '<h2>Zeichnungen</h2>' + (bilder || "<p>keine Zeichnungen</p>") +
+    '<h2>Verlaufsprotokoll</h2>' +
+    '<p style="font-size:.85rem;color:#4a5560">Jeder Eintrag wurde beim Entstehen angehängt und danach nicht mehr verändert. ' +
+    'Einträge der Art <i>loesung-geoeffnet</i> und <i>hilfe-geoeffnet</i> halten fest, was in diesem Moment im eigenen Feld stand.</p>' +
+    '<table><tr><th>Nr.</th><th>Zeit</th><th>Art</th><th>Feld</th><th>Inhalt</th></tr>' + logHtml + '</table>' +
+    '<h2>Rohdaten</h2><p style="font-size:.85rem;color:#4a5560">Maschinenlesbare Fassung dieses Protokolls (JSON, ohne Bilder):</p>' +
+    '<script type="application/json" id="rohdaten">' + JSON.stringify(z).replace(/</g, "\\u003c") + '<\/script>' +
+    '<p style="font-size:.8rem;color:#607080">Erzeugt von der Lernpfad-Doppelstunde: Wie leer ist ein Atom.</p></body></html>';
+}
+function herunterladen(name, inhalt, typ) {
+  const b = new Blob([inhalt], { type: typ });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+}
+function nameFehlt() {
+  if (namen()) return false;
+  hinweis("<b style='color:#c62828'>Bitte zuerst die Namen eintragen</b> – sonst weiß Herr Glaubitz nicht, von wem das Protokoll kommt.");
+  const el = document.getElementById("i-name"); el.focus(); el.scrollIntoView({ block: "center" });
+  return true;
+}
+function hinweis(html) { document.getElementById("mail-hinweis").innerHTML = html; }
+
+document.getElementById("k-protokoll").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "protokoll", "Protokolldatei erzeugt: " + dateiname() + ".html");
+  hinweis("<b>Protokoll gespeichert</b> als <b>" + dateiname() + ".html</b> (auf dem iPad in der Dateien-App unter „Downloads“). Jetzt Schritt 2: Senden / Teilen.");
+});
+document.getElementById("k-json").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const roh = zustand();
+  roh.zeichnungen = {};
+  Object.keys(zeichnungen).forEach(zid => { const d = zeichnungBild(zid); if (d) roh.zeichnungen[zid] = d; });
+  herunterladen(dateiname() + ".json", JSON.stringify(roh, null, 2), "application/json");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "json", "Rohdaten erzeugt: " + dateiname() + ".json");
+});
+document.getElementById("k-teilen").addEventListener("click", async () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const datei = new File([protokollHtml()], dateiname() + ".html", { type: "text/html" });
+  const daten = { title: betreff(), text: "Protokoll Physik – Wie leer ist ein Atom – bitte an " + LEHRER_MAIL + " senden.\n\n" + textFassung(), files: [datei] };
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+      await navigator.share(daten);
+      exportiert = true; chipMalen();
+      protokolliere("abgabe", "teilen", "Teilen-Dialog geöffnet, Datei angehängt");
+      hinweis("Wählt im Teilen-Dialog <b>Mail</b>, tragt <b>" + LEHRER_MAIL + "</b> als Empfänger ein und sendet. Der Anhang ist euer Protokoll.");
+      return;
+    }
+  } catch (e) {
+    protokolliere("abgabe", "teilen", "Teilen abgebrochen oder nicht möglich");
+    hinweis("Teilen wurde abgebrochen. Zweiter Weg: „Protokoll speichern“, dann selbst eine Mail an <b>" + LEHRER_MAIL + "</b> schreiben und die Datei anhängen.");
+    return;
+  }
+  herunterladen(dateiname() + ".html", protokollHtml(), "text/html");
+  exportiert = true; chipMalen();
+  protokolliere("abgabe", "teilen-ersatz", "Teilen nicht verfügbar, Datei heruntergeladen");
+  hinweis("Dieses Gerät kann nicht direkt teilen. Das Protokoll wurde <b>gespeichert</b>: schreibt eine Mail an <b>" +
+    LEHRER_MAIL + "</b> und hängt die Datei <b>" + dateiname() + ".html</b> an.");
+});
+document.getElementById("k-adresse").addEventListener("click", () => {
+  kopieren(LEHRER_MAIL);
+  hinweis("Adresse <b>" + LEHRER_MAIL + "</b> kopiert – im Mailprogramm ins Feld „An“ einfügen.");
+});
+document.getElementById("k-mail").addEventListener("click", () => {
+  if (nameFehlt()) return;
+  erfassenAlle();
+  const koerper = textFassung();
+  const url = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff()) + "&body=" + encodeURIComponent(koerper);
+  protokolliere("abgabe", "mailto", "Textmail geöffnet (ohne Zeichnungen)");
+  if (url.length > 1900) {
+    kopieren(koerper);
+    hinweis("Der Text ist lang und wurde <b>kopiert</b>. Mailprogramm öffnet sich – Text mit Einfügen ergänzen. <b>Achtung:</b> Zeichnungen sind in dieser Textmail nicht enthalten, dafür Schritt 1 und 2 benutzen.");
+    window.location.href = "mailto:" + LEHRER_MAIL + "?subject=" + encodeURIComponent(betreff());
+    return;
+  }
+  window.location.href = url;
+  hinweis("<b>Achtung:</b> Diese Textmail enthält <b>keine Zeichnungen</b>. Wenn ihr bei A1 gezeichnet habt, benutzt zusätzlich Schritt 1 und 2.");
+});
+document.getElementById("k-kopieren").addEventListener("click", () => {
+  erfassenAlle(); kopieren(textFassung());
+  hinweis("<b>Text kopiert.</b> In eine Mail an <b>" + LEHRER_MAIL + "</b> einfügen. Zeichnungen fehlen darin – dafür Schritt 1 und 2.");
+});
+function erfassenAlle() {
+  document.querySelectorAll("textarea, input[type=text], td input").forEach(el => { if (el.id) erfassen(el); });
+}
+function kopieren(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => notfallKopie(text));
+  } else notfallKopie(text);
+}
+function notfallKopie(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); } catch (e) { }
+  document.body.removeChild(ta);
+}
+
+document.getElementById("k-zusammenfassung").addEventListener("click", () => {
+  erfassenAlle();
+  let html = '<div class="karte blau"><h4>Meine Ergebnisse</h4>' +
+    '<p><b>Namen:</b> ' + (sicher(namen()) || "______________________") +
+    ' &nbsp;<b>Klasse:</b> ' + (sicher(klasse()) || "________") +
+    ' &nbsp;<b>Protokolleinträge:</b> ' + protokollEintraege.length + '</p>';
+  eintraegeInhalt().forEach(([t, w]) => {
+    html += '<p style="margin:.7rem 0 0"><b>' + sicher(t) + ":</b><br>" + sicher(w).replace(/\n/g, "<br>") + "</p>";
+  });
+  Object.keys(zeichnungen).forEach(zid => {
+    const d = zeichnungBild(zid);
+    if (d) html += '<p style="margin:.7rem 0 0"><b>' + sicher(FELDNAMEN["zeichnung:" + zid] || zid) +
+      ':</b><br><img src="' + d + '" style="max-width:100%;border:1px solid #d3dae0;border-radius:6px"></p>';
+  });
+  html += "</div>";
+  const box = document.getElementById("ausgabe");
+  box.innerHTML = html;
+  box.scrollIntoView({ behavior: "smooth" });
+});
+document.getElementById("k-drucken").addEventListener("click", () => window.print());
+
+window.addEventListener("beforeunload", e => {
+  if (protokollEintraege.length > 4 && !exportiert) { e.preventDefault(); e.returnValue = ""; return ""; }
+});
+protokolliere("start", "", "Doppelstunde geöffnet");
+sperrenPruefen();
+
+
+
+/* ============================================================
+   Anmeldung zur Stunde (Baustein aus bau-11a)
+   ------------------------------------------------------------
+   Eine zweistellige Zahl von der Tafel. Der Zeitpunkt der Anmeldung
+   steht im Protokoll und ist der Anwesenheitsnachweis. Keine Sperre:
+   „Ohne Zahl weiter“ öffnet immer und wird als "anmeldung-ohne"
+   protokolliert. Nach einem Neuladen wird nicht erneut gefragt.
+
+   Automatische Prüfläufe (navigator.webdriver, z. B. pruefe_html.mjs)
+   überspringen den Schirm, weil er sonst jeden Klick abfängt. Mit
+   ?anmeldung in der Adresse erscheint er auch dort (Sichtprobe).
+   Baustein für lernpfad_*.py; 45 setzt das Bauskript.
+   ============================================================ */
+const STUNDENCODE = "45";
+const ANGEMELDET_SCHLUESSEL = SPEICHER + "-angemeldet";
+(function anmeldung() {
+  const schirm = document.getElementById("anmeldeschirm");
+  if (!schirm) return;
+  if (navigator.webdriver && !/anmeldung/.test(location.search)) { schirm.remove(); return; }
+  const feld = document.getElementById("i-code");
+  const knopf = document.getElementById("k-anmelden");
+  const rueck = document.getElementById("anmelde-rueck");
+  let schon = false;
+  try { schon = localStorage.getItem(ANGEMELDET_SCHLUESSEL) === "ja"; } catch (e) { }
+  if (schon) { schirm.remove(); return; }
+  let versuche = 0;
+  function oeffnen(still) {
+    schirm.remove();
+    try { localStorage.setItem(ANGEMELDET_SCHLUESSEL, "ja"); } catch (e) { }
+    if (!still) protokolliere("anmeldung", "", "Zur Stunde angemeldet" + (versuche > 1 ? " (im " + versuche + ". Versuch)" : ""));
+  }
+  function pruefen() {
+    const eingabe = (feld.value || "").trim();
+    if (!/^\d{2}$/.test(eingabe)) {
+      rueck.className = "anmelde-rueck schlecht";
+      rueck.textContent = "Bitte genau zwei Ziffern eintragen. Die Zahl steht an der Tafel.";
+      feld.focus(); return;
+    }
+    versuche++;
+    if (eingabe === STUNDENCODE) {
+      rueck.className = "anmelde-rueck gut"; rueck.textContent = "Stimmt. Los geht’s.";
+      setTimeout(() => oeffnen(false), 350); return;
+    }
+    protokolliere("anmeldung-falsch", "", versuche + ". Versuch: " + eingabe + " – falsch");
+    rueck.className = "anmelde-rueck schlecht";
+    rueck.textContent = versuche < 3 ? "Das ist nicht die Zahl von der Tafel. Schaut noch einmal hin."
+      : "Immer noch nicht die richtige Zahl. Fragt kurz nach, statt weiter zu raten.";
+    feld.value = ""; feld.focus();
+  }
+  const lehrKnopf = document.getElementById("k-lehrkraft");
+  if (lehrKnopf) lehrKnopf.addEventListener("click", () => {
+    const wort = window.prompt("Kennwort für die Lehrer-Ansicht:");
+    if (wort === null) return;
+    if (pruefsumme(String(wort).trim().toLowerCase()) !== LEHRER_SCHLUESSEL) { window.alert("Das Kennwort stimmt nicht."); return; }
+    lehrerAnsicht(true);
+    feld.value = STUNDENCODE;
+    rueck.className = "anmelde-rueck gut";
+    rueck.textContent = "Zahl für die Tafel: " + STUNDENCODE + ". Anschreiben, dann „Anmelden“.";
+    lehrKnopf.style.display = "none";
+  });
+  const frei = document.createElement("button");
+  frei.type = "button"; frei.className = "knopf"; frei.id = "k-ohne-zahl"; frei.textContent = "Ohne Zahl weiter";
+  frei.addEventListener("click", () => { protokolliere("anmeldung-ohne", "", "Ohne Tafelzahl begonnen"); oeffnen(true); });
+  knopf.parentNode.appendChild(frei);
+  const hinweisOhne = document.createElement("p");
+  hinweisOhne.className = "anmelde-rueck"; hinweisOhne.style.marginTop = ".4rem";
+  hinweisOhne.textContent = "In der Stunde: die Zahl von der Tafel eintragen. „Ohne Zahl weiter“ ist für später, wenn ihr das Material allein noch einmal durchgeht.";
+  rueck.parentNode.insertBefore(hinweisOhne, rueck.nextSibling);
+  knopf.addEventListener("click", pruefen);
+  feld.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); pruefen(); } });
+  feld.addEventListener("input", () => {
+    feld.value = feld.value.replace(/\D/g, "").slice(0, 2);
+    if (rueck.textContent && feld.value.length < 2) { rueck.className = "anmelde-rueck"; rueck.textContent = ""; }
+  });
+  setTimeout(() => feld.focus(), 100);
+})();
+
+/* ---------- Start ---------- */
+zeige(0);
+</script>
+</body>
+</html>
