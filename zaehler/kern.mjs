@@ -51,14 +51,12 @@
    Fehlers.
    ============================================================ */
 
-/* Trainer, die melden duerfen. Ein neuer Trainer kommt hier dazu. */
-export const TRAINER = ["prozent"];
-
-/* Die Stationen. Die Reihenfolge ist die des Wegs durch den Trainer
-   und zugleich die der Auswertung. `zusatz: true` heisst: Das Ereignis
-   traegt ein Thema ("sicher:grundwert") oder eine Zahl
-   ("diagnose-sicher:4") hinter dem Doppelpunkt. */
-export const EREIGNISSE = [
+/* Die Stationen je Seite. Die Reihenfolge ist die des Wegs durch die
+   Seite und zugleich die der Auswertung. `zusatz: true` heisst: Das
+   Ereignis traegt ein Thema ("sicher:grundwert") oder eine Zahl
+   ("diagnose-sicher:4") hinter dem Doppelpunkt. Eine neue Seite kommt
+   hier mit ihrer eigenen Liste dazu. */
+const PROZENT = [
   { name: "besuch-neu",      text: "Seite geöffnet, noch ohne Stand" },
   { name: "besuch-wieder",   text: "Seite geöffnet, mit Stand" },
   { name: "diagnose-start",  text: "Diagnose begonnen" },
@@ -75,7 +73,25 @@ export const EREIGNISSE = [
   { name: "check-ende",      text: "Arbeits-Check beendet" },
   { name: "eltern",          text: "Seite für Eltern und Lehrkräfte geöffnet" },
 ];
-const BEKANNT = new Map(EREIGNISSE.map((e) => [e.name, e]));
+
+/* Knobelsprünge 10 (public/knobeln-10/, Vertretung 05.11.2026). Die
+   Tafelzahl trennt die Klasse im Raum ("zahl") von allen anderen ("ohne"). */
+const KNOBELN10 = [
+  { name: "besuch-neu",    text: "Seite geöffnet, noch ohne Stand" },
+  { name: "besuch-wieder", text: "Seite geöffnet, mit Stand" },
+  { name: "anmeldung",     text: "Angemeldet (zahl = mit Tafelzahl, ohne = ohne Zahl)", zusatz: true },
+  { name: "aufgabe",       text: "Aufgabe bearbeitet", zusatz: true },
+  { name: "tipp",          text: "Tipp angesehen" },
+  { name: "tueftel",       text: "Tüftelaufgabe gelöst", zusatz: true },
+  { name: "ergebnis",      text: "Ergebnisseite geöffnet" },
+  { name: "gespeichert",   text: "Ergebnis gespeichert" },
+];
+
+export const EREIGNISSE_JE = { prozent: PROZENT, knobeln10: KNOBELN10 };
+export const TRAINER = Object.keys(EREIGNISSE_JE);
+export const EREIGNISSE = PROZENT;
+const BEKANNT_JE = Object.fromEntries(TRAINER.map((t) =>
+  [t, new Map(EREIGNISSE_JE[t].map((e) => [e.name, e]))]));
 const ZUSATZ_RE = /^[a-z0-9]{1,12}$/;
 
 export const MAX_KOERPER = 2000;              // Zeichen je Meldung
@@ -123,10 +139,12 @@ export function tagVor(d, n) { return tagIn(new Date(d.getTime() - n * 86400000)
 /* Ein gemeldetes Ereignis ist entweder ein bekannter Name oder ein
    bekannter Name mit erlaubtem Zusatz. Alles andere faellt weg —
    sonst liesse sich ueber den Zaehlernamen beliebiger Text ablegen. */
-export function ereignisPruefen(roh) {
+export function ereignisPruefen(roh, trainer = "prozent") {
   if (typeof roh !== "string" || roh.length > 40) return null;
+  const bekannt = BEKANNT_JE[trainer];
+  if (!bekannt) return null;
   const [name, zusatz, mehr] = roh.split(":");
-  const e = BEKANNT.get(name);
+  const e = bekannt.get(name);
   if (!e || mehr !== undefined) return null;
   if (zusatz === undefined) return e.zusatz ? null : name;
   if (!e.zusatz || !ZUSATZ_RE.test(zusatz)) return null;
@@ -170,9 +188,9 @@ export async function lies(buch, trainer, tage, jetzt) {
 
 /* Die Zeilen der Auswertung in der Reihenfolge des Wegs; Ereignisse
    mit Zusatz bekommen eine Summenzeile und je Zusatz eine eigene. */
-export function zeilen(summe) {
+export function zeilen(summe, trainer = "prozent") {
   const raus = [];
-  for (const e of EREIGNISSE) {
+  for (const e of EREIGNISSE_JE[trainer] || []) {
     if (!e.zusatz) { raus.push({ ereignis: e.name, text: e.text, n: summe[e.name] || 0, stufe: 0 }); continue; }
     const teile = Object.keys(summe).filter((k) => k.startsWith(e.name + ":")).sort((a, b) =>
       a.localeCompare(b, "de", { numeric: true }));
@@ -188,7 +206,7 @@ function seiteBauen(daten, tageSpalten, jetzt) {
   /* heute zuerst: Auf dem Handy steht das Neueste dann ohne Wischen da */
   for (let i = 0; i < tageSpalten; i++) spalten.push(tagVor(jetzt, i));
   const kopf = spalten.map((t) => "<th>" + esc(t.slice(8) + "." + t.slice(5, 7) + ".") + "</th>").join("");
-  const reihen = zeilen(daten.summe).map((z) => {
+  const reihen = zeilen(daten.summe, daten.trainer).map((z) => {
     const zellen = spalten.map((t) => {
       const tag = daten.tage[t] || {};
       const n = z.stufe === 0 && !(z.ereignis in tag)
@@ -247,7 +265,7 @@ export async function bearbeite(req, buch, geheim, jetzt = new Date()) {
     const tag = tagIn(jetzt);
     let gezaehlt = 0;
     for (const rohEreignis of d.e.slice(0, MAX_JE_MELDUNG)) {
-      const ereignis = ereignisPruefen(rohEreignis);
+      const ereignis = ereignisPruefen(rohEreignis, d.t);
       if (ereignis && (await zaehle(buch, d.t, tag, ereignis))) gezaehlt++;
     }
     return json({ ok: true, gezaehlt });
@@ -264,7 +282,7 @@ export async function bearbeite(req, buch, geheim, jetzt = new Date()) {
     if (!TRAINER.includes(trainer)) return json({ ok: false, grund: "trainer" }, 404);
     const tage = Math.max(1, Math.min(TAGE_MAX, Number(url.searchParams.get("tage")) || TAGE_STANDARD));
     const daten = await lies(buch, trainer, tage, jetzt);
-    if (pfad === "/v1/zahlen") return json({ ok: true, ...daten, zeilen: zeilen(daten.summe) });
+    if (pfad === "/v1/zahlen") return json({ ok: true, ...daten, zeilen: zeilen(daten.summe, trainer) });
     return new Response(seiteBauen(daten, Math.min(tage, 14), jetzt), {
       headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
                  "referrer-policy": "no-referrer" },

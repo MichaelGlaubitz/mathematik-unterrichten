@@ -117,7 +117,26 @@ pruefe("Seite nennt die Stationen", seite.includes("Diagnose begonnen") && seite
 pruefe("Seite nennt den Schlüssel nicht", seite.includes(LESEN), false);
 pruefe("Ping nennt keinen Schlüssel und keine Zahl",
   await antwort(await ruf(hole("/v1/ping"))),
-  { status: 200, ok: true, dienst: "zaehler", trainer: ["prozent"], lesen: true, schluesselZuKurz: false });
+  { status: 200, ok: true, dienst: "zaehler", trainer: ["prozent", "knobeln10"], lesen: true, schluesselZuKurz: false });
+
+console.log("\nKnobelsprünge 10: eigene Stationen");
+pruefe("Anmeldung mit Tafelzahl", ereignisPruefen("anmeldung:zahl", "knobeln10"), "anmeldung:zahl");
+pruefe("Aufgabe mit Nummer", ereignisPruefen("aufgabe:c8", "knobeln10"), "aufgabe:c8");
+pruefe("Station des Prozent-Trainers gilt hier nicht", ereignisPruefen("diagnose-start", "knobeln10"), null);
+pruefe("Station von Knobeln gilt beim Prozent-Trainer nicht", ereignisPruefen("tueftel:t1", "prozent"), null);
+pruefe("unbekannte Seite", ereignisPruefen("besuch-neu", "bruch"), null);
+pruefe("Meldung von Knobeln",
+  await antwort(await ruf(melde({ t: "knobeln10", e: ["besuch-neu", "anmeldung:ohne", "aufgabe:a1", "sicher:grundwert"] }))),
+  { status: 200, ok: true, gezaehlt: 3 });
+const kz = await antwort(await ruf(hole("/v1/zahlen?t=knobeln10&s=" + LESEN)));
+pruefe("Knobeln getrennt vom Prozent-Trainer", kz.summe, { "anmeldung:ohne": 1, "aufgabe:a1": 1, "besuch-neu": 1 });
+pruefe("Zeilen in der Reihenfolge der Knobel-Stationen",
+  kz.zeilen.filter((x) => x.stufe === 0).map((x) => x.ereignis),
+  ["besuch-neu", "besuch-wieder", "anmeldung", "aufgabe", "tipp", "tueftel", "ergebnis", "gespeichert"]);
+pruefe("Prozent-Zahlen unverändert", (await antwort(await ruf(hole("/v1/zahlen?s=" + LESEN)))).summe["besuch-neu"], 2);
+const kseite = await (await ruf(hole("/?t=knobeln10&s=" + LESEN))).text();
+pruefe("Knobel-Seite nennt ihre Stationen, nicht die fremden",
+  kseite.includes("Tüftelaufgabe gelöst") && !kseite.includes("Diagnose begonnen"), true);
 
 console.log("\nÜber Tagesgrenzen");
 buch = neuesBuch();
