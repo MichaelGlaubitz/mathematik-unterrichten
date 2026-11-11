@@ -40,7 +40,7 @@ const DIALOG = {
   ],
 
   geogebra: {
-    sicht: [-1.25, 7.0, -3.7, 2.25],
+    sicht: [-2.4, 7.0, -3.75, 2.3],
     befehle: [
       "rr=0.76", "bb=2.2",
       "schiene=Segment((0,rr),(6.1,rr))",
@@ -55,26 +55,28 @@ const DIALOG = {
       "start=Segment((0,-0.12),(0,0.12))",
       "flaeche=Polygon((0,-1.0),(sw,-1.0),(sw,-1.0-bb),(0,-1.0-bb))",
       "oben=Polygon((sw-rr,-1.0),(sw+rr,-1.0),(sw+rr,-1.0-bb),(sw-rr,-1.0-bb))",
-      "bmass=Segment((-0.3,-1.0),(-0.3,-1.0-bb))",
+      "bmass=Segment((-0.25,-1.0),(-0.25,-1.0-bb))",
+      "tB=Text(\"b = 2,20 m\",(-2.35,-2.2))",
+      "tD=Text(\"d = 1,52 m\",(sw-0.62,1.62))",
       "umass=Segment((0,-3.45),(pi*2*rr,-3.45))",
-      "tSeite=Text(\"Seitenansicht\",(-1.1,1.85))",
-      "tOben=Text(\"Draufsicht (von oben)\",(-1.1,-0.55))"
+      "tSeite=Text(\"Seitenansicht\",(-2.35,1.9))",
+      "tOben=Text(\"Draufsicht (von oben)\",(-2.35,-0.55))"
     ],
     startwerte: { Rw: [0, 0.76] },
     ziehbar: ["Rw"],
-    sichtbar: ["boden","walze","Rw","Mk","speiche","spur","dmS","start","tSeite"],
+    sichtbar: ["boden","walze","Rw","Mk","speiche","spur","dmS","tD","start","tSeite"],
     stil: {
       boden:{farbe:"matt", dicke:2},
       walze:{farbe:"gold", dicke:5, fuellung:0.15},
-      Rw:{farbe:"hellgold", punkt:7, name:"Achse"},
+      Rw:{farbe:"hellgold", punkt:7},
       Mk:{farbe:"leucht", punkt:6},
       speiche:{farbe:"leucht", dicke:3},
       spur:{farbe:"hellgold", dicke:8},
-      dmS:{farbe:"matt", dicke:2, strich:"gestrichelt", name:"d = 1,52 m"},
+      dmS:{farbe:"matt", dicke:2, strich:"gestrichelt"},
       start:{farbe:"matt", dicke:3},
       flaeche:{farbe:"hellgold", dicke:3, fuellung:0.3},
       oben:{farbe:"gold", dicke:4, fuellung:0.45},
-      bmass:{farbe:"matt", dicke:2, name:"b = 2,20 m"},
+      bmass:{farbe:"matt", dicke:2}, tB:{farbe:"matt"}, tD:{farbe:"matt"},
       umass:{farbe:"leucht", dicke:3, strich:"gestrichelt", name:"u"},
       tSeite:{farbe:"matt"}, tOben:{farbe:"matt"}
     }
@@ -102,7 +104,7 @@ const DIALOG = {
         {text:"ein Parallelogramm mit schiefen Seiten", hinweis:"Die Walze fährt gerade nach vorn und steht dabei quer zur Fahrtrichtung. Wären die Seiten dann schief?"}
       ],
       richtig:"Recht so. Von oben gesehen hinterlässt die [[Walze|oben]] eine [[rechteckige Fläche|flaeche]]. Eine Seite ist die [[Breite $2{,}20$ m|bmass]].",
-      zeigeNachRichtig:["flaeche","oben","bmass","tOben"] },
+      zeigeNachRichtig:["flaeche","oben","bmass","tB","tOben"] },
 
     { id:"laenge", typ:"wahl",
       text:"Und wie lang ist die andere Seite des Rechtecks nach genau einer Umdrehung?",
