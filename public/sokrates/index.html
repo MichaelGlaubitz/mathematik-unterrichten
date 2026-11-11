@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Am Umkreis – ein Gespräch mit Sokrates</title>
+
+<!-- Schriften -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<!-- KaTeX für Formeln -->
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+
+<!-- GeoGebra -->
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+
+<style>
+  :root{
+    --bg:#0A0A0C; --panel:#121114; --rand:#2a2416;
+    --gold:#D4AF37; --hellgold:#F2D27A; --creme:#EDE6D6; --matt:#9A8F78; --tinte:#120E06;
+    --leucht:#FFF6D7; --kupfer:#CD7F32;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--creme);
+    font-family:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;font-size:18px;line-height:1.5}
+  body{background:radial-gradient(ellipse at 70% 40%, #1d1a12 0%, var(--bg) 60%) fixed}
+  .seite{display:flex;flex-direction:column;min-height:100%;max-width:1500px;margin:0 auto;padding:18px 24px}
+  header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;border-bottom:1px solid var(--rand);padding-bottom:10px}
+  h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;color:var(--gold);font-size:2.1rem;margin:0;letter-spacing:.01em}
+  .fortschritt{color:var(--matt);font-size:.95rem;white-space:nowrap}
+  main{flex:1;display:grid;grid-template-columns:minmax(380px,1fr) minmax(380px,1.05fr);gap:28px;padding-top:18px}
+  .dialog{display:flex;flex-direction:column;min-width:0}
+  .zeichnung{position:relative;min-height:420px;border:1px solid var(--rand);border-radius:6px;overflow:hidden;background:var(--bg)}
+  #ggb{position:absolute;inset:0}
+  #ggb .GeoGebraFrame, #ggb .applet_scaler, #ggb .appletParameters{border:0 !important;box-shadow:none !important;background:var(--bg) !important}
+  #ggb .GeoGebraFrame *{outline:none}
+  .sprecher{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;color:var(--gold);font-size:1.45rem;margin:0 0 4px}
+  .rede{font-size:1.08rem}
+  .rede p{margin:0 0 .6em}
+  .antwort{margin-top:6px;color:var(--hellgold);font-style:italic;min-height:1.5em}
+  .antwort p{margin:0 0 .5em}
+  .antwort .zitat{font-style:normal;color:var(--creme)}
+  .werte{margin-top:12px;padding:10px 14px;border-left:2px solid var(--gold);background:rgba(212,175,55,.05);font-size:1rem}
+  .werte:empty{display:none}
+  .wert{display:flex;justify-content:space-between;gap:16px}
+  .wert .zahl{color:var(--hellgold);font-variant-numeric:tabular-nums;font-weight:600}
+  .schueler{margin-top:auto;padding-top:18px}
+  .optionen{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  button{font:inherit;cursor:pointer;border-radius:4px}
+  .option{text-align:left;background:var(--gold);color:var(--tinte);border:0;padding:8px 14px;font-weight:700;font-size:1rem}
+  .option:hover{background:var(--hellgold)}
+  .option.falsch{background:#5a4a2a;color:var(--creme);opacity:.75}
+  .hinweis{color:var(--matt);font-style:italic}
+  .zahlfeld{display:flex;gap:8px;align-items:center;margin-top:4px}
+  .zahlfeld input{font:inherit;width:9em;padding:7px 10px;background:#1e1a10;color:var(--hellgold);border:1px solid var(--gold);border-radius:4px}
+  .nav{display:flex;gap:10px;margin-top:14px;align-items:center}
+  .nav .weiter{background:var(--gold);color:var(--tinte);border:0;padding:8px 18px;font-weight:700}
+  .nav .weiter:disabled{opacity:.25;cursor:default}
+  .nav .zurueck{background:transparent;color:var(--matt);border:1px solid var(--rand);padding:7px 12px}
+  .begriff{color:var(--hellgold);border-bottom:1px dashed var(--gold);cursor:pointer;padding:0 1px;border-radius:2px}
+  .begriff:hover,.begriff:focus{background:rgba(242,210,122,.15);outline:none}
+  .begriff.inaktiv{color:inherit;border-bottom:0;cursor:default;background:none}
+  .karte{max-width:780px}
+  .karte h2{font-family:"Cormorant Garamond",Georgia,serif;color:var(--gold);font-size:1.5rem;margin:.2em 0 .3em}
+  .karte ul{margin:.2em 0 1em 1.1em;padding:0}
+  .karte li{margin:.15em 0}
+  .aufgabe{border:1px solid var(--rand);padding:12px 16px;background:rgba(212,175,55,.04);margin-bottom:14px}
+  .start{background:var(--gold);color:var(--tinte);border:0;padding:10px 22px;font-weight:700;font-size:1.05rem}
+  .tipp{color:var(--matt);font-size:.9rem;margin-top:8px}
+  .katex{font-size:1.04em}
+  @media (max-width:900px){
+    main{grid-template-columns:1fr}
+    .zeichnung{min-height:60vh;order:-1}
+    h1{font-size:1.6rem}
+  }
+</style>
+</head>
+<body>
+<div class="seite">
+  <header>
+    <h1 id="titel"></h1>
+    <div class="fortschritt" id="fortschritt"></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+
+<script>
+/* =====================================================================
+   DIALOGDATEN  –  nur dieser Teil muss für ein neues Gespräch geändert werden
+   ---------------------------------------------------------------------
+   Textauszeichnung:
+     $...$            Formel (KaTeX), $$...$$ abgesetzte Formel
+     [[Text|obj]]     anklickbarer Begriff, lässt GeoGebra-Objekt(e) aufblinken
+                      (mehrere Objekte mit Komma: [[Strecken|mA,mB,mC]])
+     Leerzeile        neuer Absatz
+   Schritt-Typen:  "rede"  ·  "probieren"  ·  "wahl"  ·  "zahl"
+   ===================================================================== */
+const DIALOG = {
+  titel: "Am Umkreis – ein Gespräch mit Sokrates",
+  lehrer: "Sokrates",
+  schueler: "Timaios",
+
+  aufgabe: "Bestimme die Punkte $M$ auf dem Umkreis eines Dreiecks $ABC$, für die die Summe $$f(M) = MA^2 + MB^2 + MC^2$$ (a) minimal, (b) maximal ist.",
+  vorwissen: [
+    "Vektoren addieren, Ortsvektoren",
+    "Skalarprodukt, insbesondere $|\\vec a + \\vec b|^2 = \\vec a^{\\,2} + 2\\,\\vec a\\cdot\\vec b + \\vec b^{\\,2}$",
+    "Schwerpunkt eines Dreiecks",
+    "Umkreis und Umkreismittelpunkt",
+    "Dreiecksungleichung"
+  ],
+
+  geogebra: {
+    sicht: [-4.7, 4.7, -4.5, 4.5],             // xmin, xmax, ymin, ymax (wird 1:1 eingepasst)
+    befehle: [
+      "O=(0,0)", "kreis=Circle(O,3.6)",
+      "A=3.6*(cos(210°),sin(210°))", "B=3.6*(cos(10°),sin(10°))", "C=3.6*(cos(150°),sin(150°))",
+      "dreieck=Polygon(A,B,C)",
+      "M=Point(kreis)",
+      "S=Centroid(dreieck)",
+      "mA=Segment(M,A)", "mB=Segment(M,B)", "mC=Segment(M,C)", "mS=Segment(M,S)",
+      "Mmin=O+3.6*UnitVector(Vector(O,S))", "Mmax=O-3.6*UnitVector(Vector(O,S))",
+      "sOS=Segment(Mmin,Mmax)",
+      "fM=Distance(M,A)^2+Distance(M,B)^2+Distance(M,C)^2",
+      "lb=3*Distance(M,S)^2+Distance(S,A)^2+Distance(S,B)^2+Distance(S,C)^2",
+      "fmin=Distance(Mmin,A)^2+Distance(Mmin,B)^2+Distance(Mmin,C)^2",
+      "fmax=Distance(Mmax,A)^2+Distance(Mmax,B)^2+Distance(Mmax,C)^2"
+    ],
+    startwerte: { M: [3.6*Math.cos(0.4*Math.PI), 3.6*Math.sin(0.4*Math.PI)] },
+    ziehbar: ["M"],
+    sichtbar: ["kreis","dreieck","A","B","C","O","M","mA","mB","mC"],
+    stil: {
+      kreis:   {farbe:"gold", dicke:5},
+      dreieck: {farbe:"matt", dicke:3, fuellung:0.08},
+      A:{farbe:"creme", punkt:6, name:"A"}, B:{farbe:"creme", punkt:6, name:"B"}, C:{farbe:"creme", punkt:6, name:"C"},
+      O:{farbe:"matt", punkt:4, name:"O"},
+      M:{farbe:"hellgold", punkt:8, name:"M"},
+      S:{farbe:"leucht", punkt:6, name:"S"},
+      mA:{farbe:"hellgold", dicke:4}, mB:{farbe:"hellgold", dicke:4}, mC:{farbe:"hellgold", dicke:4},
+      mS:{farbe:"leucht", dicke:3, strich:"gestrichelt"},
+      Mmin:{farbe:"leucht", punkt:7, name:"M_{min}"}, Mmax:{farbe:"leucht", punkt:7, name:"M_{max}"},
+      sOS:{farbe:"leucht", dicke:2, strich:"gestrichelt"}
+    }
+  },
+
+  werte: [
+    {text:"$f(M) = MA^2 + MB^2 + MC^2$", objekt:"fM", ab:"probieren"},
+    {text:"$3\\,MS^2 + (SA^2 + SB^2 + SC^2)$", objekt:"lb", ab:"zerlegung", wann:"richtig"},
+    {text:"$f(M_{\\min})$", objekt:"fmin", ab:"minimum", wann:"richtig"},
+    {text:"$f(M_{\\max})$", objekt:"fmax", ab:"maximum", wann:"richtig"}
+  ],
+
+  schritte: [
+    { id:"aufgabe", typ:"rede",
+      text:"Heute eine schwierigere Aufgabe, Timaios. Gegeben ist ein [[Dreieck $ABC$|dreieck]] mit seinem [[Umkreis|kreis]]. Für einen [[Punkt $M$|M]] auf dem Umkreis sei $f(M) = MA^2 + MB^2 + MC^2$.\n\nFür welche Punkte $M$ ist $f(M)$ am kleinsten – und für welche am größten?" },
+
+    { id:"probieren", typ:"probieren",
+      text:"Beginnen wir mit Probieren. Ziehe den [[Punkt $M$|M]] auf dem Kreis herum und beobachte $f(M)$ unten bei den Messwerten. Wo etwa liegt das Minimum, wo das Maximum?",
+      hinweis:"Ziehe $M$ auf dem Kreis." },
+
+    { id:"schwerpunkt", typ:"wahl",
+      text:"Das Probieren zeigt uns ungefähr den Ort, doch nicht den Grund. Drei Quadrate zu drei Ecken – das ruft nach einem Punkt, der zu allen drei Ecken in einem besonderen Gleichgewicht steht.\n\nFür welchen Punkt $P$ gilt $\\overrightarrow{PA} + \\overrightarrow{PB} + \\overrightarrow{PC} = \\vec 0$?",
+      optionen:[
+        {text:"den Schwerpunkt $S$", richtig:true},
+        {text:"den Umkreismittelpunkt $O$", hinweis:"Für [[$O$|O]] sind die drei Vektoren zwar gleich lang – doch heben sie sich auch auf? Denk an den Punkt, an dem man ein Dreieck aus Pappe balancieren kann."},
+        {text:"den Höhenschnittpunkt $H$", hinweis:"Der Höhenschnittpunkt hat mit rechten Winkeln zu tun, nicht mit Gleichgewicht. Denk an den Punkt, an dem man ein Dreieck aus Pappe balancieren kann."}
+      ],
+      richtig:"Recht so. Für den [[Schwerpunkt $S$|S]] heben sich die drei Vektoren zu den Ecken auf.",
+      zeigeNachRichtig:["S"] },
+
+    { id:"zerlegung", typ:"wahl",
+      text:"Schreibe $\\overrightarrow{MA} = \\overrightarrow{MS} + \\overrightarrow{SA}$, ebenso für $B$ und $C$. Quadrierst du und addierst die drei Gleichungen, so entstehen $3\\,MS^2$, dann $SA^2 + SB^2 + SC^2$ und ein gemischter Teil.\n\nWelcher Teil fällt weg?",
+      optionen:[
+        {text:"der gemischte Teil $2\\,\\overrightarrow{MS}\\cdot\\bigl(\\overrightarrow{SA}+\\overrightarrow{SB}+\\overrightarrow{SC}\\bigr)$", richtig:true},
+        {text:"der Teil $3\\,MS^2$"},
+        {text:"der Teil $SA^2 + SB^2 + SC^2$"}
+      ],
+      falsch:"Welcher Teil enthält die Summe $\\overrightarrow{SA}+\\overrightarrow{SB}+\\overrightarrow{SC}$ – und was wissen wir über diese Summe?",
+      richtig:"Genau, denn $\\overrightarrow{SA}+\\overrightarrow{SB}+\\overrightarrow{SC} = \\vec 0$. Es bleibt $$f(M) = 3\\,MS^2 + \\bigl(SA^2 + SB^2 + SC^2\\bigr).$$",
+      zeigeNachRichtig:["mS"] },
+
+    { id:"pruefen", typ:"probieren",
+      text:"Prüfe es nach: Ziehe [[$M$|M]] und vergleiche unten die beiden ersten Werte. Stimmen $f(M)$ und $3\\,MS^2 + (SA^2 + SB^2 + SC^2)$ immer überein?",
+      hinweis:"Ziehe $M$ und vergleiche die Werte." },
+
+    { id:"folgerung", typ:"wahl",
+      text:"Die Klammer $(SA^2 + SB^2 + SC^2)$ hängt gar nicht von $M$ ab. Wann ist $f(M)$ also am kleinsten?",
+      optionen:[
+        {text:"wenn $M$ möglichst nahe bei $S$ liegt", richtig:true},
+        {text:"wenn $M$ möglichst nahe bei $A$ liegt"},
+        {text:"wenn $M$ möglichst weit von $O$ entfernt ist", hinweis:"Alle Punkte des Kreises sind gleich weit von $O$ entfernt – das kann also nichts entscheiden."}
+      ],
+      falsch:"Nur ein Summand verändert sich, wenn $M$ wandert. Welcher?",
+      richtig:"So ist es. Wir müssen nur noch den Abstand [[$MS$|mS]] so klein wie möglich machen." },
+
+    { id:"minimum", typ:"wahl",
+      text:"Welcher Punkt eines Kreises liegt einem Punkt $S$ in seinem Inneren am nächsten?",
+      optionen:[
+        {text:"der Schnittpunkt der Halbgeraden von $O$ durch $S$ mit dem Kreis", richtig:true},
+        {text:"der Fußpunkt des Lotes von $S$ auf die längste Seite"},
+        {text:"die Ecke des Dreiecks, die $S$ am nächsten liegt", hinweis:"Eine Ecke liegt zwar auf dem Kreis – aber muss sie deshalb der nächste Kreispunkt sein?"}
+      ],
+      falsch:"Stell dir Kreise um $S$ vor, die wachsen, bis sie den Umkreis berühren. Wo berührt ein solcher Kreis zuerst?",
+      richtig:"Richtig. Für jeden Kreispunkt $M$ gilt nach der Dreiecksungleichung $MS \\ge OM - OS = R - OS$, wobei $R$ der Radius ist – mit Gleichheit genau auf der [[Geraden $OS$|sOS]], auf der Seite von $S$. Dort liegt [[$M_{\\min}$|Mmin]].",
+      zeigeNachRichtig:["Mmin","sOS"] },
+
+    { id:"maximum", typ:"wahl",
+      text:"Und wo ist $f(M)$ am größten?",
+      optionen:[
+        {text:"im zweiten Schnittpunkt der Geraden $OS$ mit dem Kreis", richtig:true},
+        {text:"in der Ecke, die am weitesten von $S$ entfernt ist"}
+      ],
+      falsch:"Am größten wird $f$, wenn $MS$ am größten wird. Eine Ecke liegt auf dem Kreis – aber ist sie der fernste Kreispunkt von $S$?",
+      richtig:"Ja. Hier gilt $MS \\le OM + OS = R + OS$, mit Gleichheit auf der anderen Seite von $O$: in [[$M_{\\max}$|Mmax]].",
+      zeigeNachRichtig:["Mmax"] },
+
+    { id:"sonderfall", typ:"wahl",
+      text:"Eine Sonderfrage zum Schluss: Was geschieht, wenn $S$ und $O$ zusammenfallen?",
+      optionen:[
+        {text:"dann ist $f(M)$ für alle $M$ gleich groß", richtig:true},
+        {text:"dann gibt es nur ein Maximum, aber kein Minimum"},
+        {text:"dann liegt das Minimum in einer Ecke"}
+      ],
+      falsch:"Ist $S$ der Mittelpunkt des Kreises – wie weit ist dann jeder Kreispunkt von $S$ entfernt?",
+      richtig:"Recht so. Dann ist $MS = R$ für jeden Kreispunkt, und $f(M)$ ist konstant. Das ist genau beim gleichseitigen Dreieck der Fall." },
+
+    { id:"loesung", typ:"rede",
+      text:"So haben wir die Lösung gefunden, Timaios: Zeichne die Gerade durch [[$O$|O]] und [[$S$|S]].\n\n(a) Das Minimum liegt in ihrem Schnittpunkt [[$M_{\\min}$|Mmin]] mit dem Umkreis auf der Seite von $S$,\n(b) das Maximum im gegenüberliegenden Schnittpunkt [[$M_{\\max}$|Mmax]].\n\nDiese Gerade ist übrigens die Eulergerade des Dreiecks." }
+  ]
+};
+
+/* =====================================================================
+   ENGINE  –  muss für neue Gespräche nicht verändert werden
+   ===================================================================== */
+const FARBEN = {gold:"#D4AF37", hellgold:"#F2D27A", creme:"#EDE6D6", matt:"#9A8F78", leucht:"#FFF6D7", kupfer:"#CD7F32", gruen:"#7FB069", rot:"#C0504D"};
+const LEUCHT = "#FFF6D7";
+let api = null, schritt = -1, zustand = [], gemischt = {}, gruppen = {};
+const $ = s => document.querySelector(s);
+const hex = c => FARBEN[c] || c || FARBEN.creme;
+const rgb = h => { h = h.replace('#',''); return [0,2,4].map(i => parseInt(h.substr(i,2),16)); };
+const zahl = v => (Math.round(v*100)/100).toFixed(2).replace('.', ',');
+
+/* ---- Text mit Formeln und Begriffen ---- */
+function rich(src){
+  let s = String(src).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/\[\[(.+?)\|([\w,]+)\]\]([.,;:!?)]*)/g, (m,l,o,p) => `<span style="white-space:nowrap"><span class="begriff" tabindex="0" data-obj="${o}">${l}</span>${p}</span>`);
+  return s.split(/\n\s*\n/).map(p => '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
+}
+function formeln(el){
+  if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError:false});
+  el.querySelectorAll('.begriff').forEach(b => {
+    b.onclick = () => { if (!b.classList.contains('inaktiv')) blinke(b.dataset.obj.split(',')); };
+    b.onkeydown = e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); b.click(); } };
+  });
+  begriffeAktualisieren(el);
+}
+function begriffeAktualisieren(root){
+  if (!api) return;
+  (root||document).querySelectorAll('.begriff').forEach(b => {
+    const ok = b.dataset.obj.split(',').every(o => api.exists(o) && api.getVisible(o));
+    b.classList.toggle('inaktiv', !ok);
+  });
+}
+
+/* ---- Sichtbarkeit ---- */
+function idx(id){ return DIALOG.schritte.findIndex(s => s.id === id); }
+function sichtbareObjekte(){
+  const v = new Set(DIALOG.geogebra.sichtbar);
+  DIALOG.schritte.forEach((s,i) => {
+    if (i < schritt || (i === schritt)) (s.zeige||[]).forEach(o => v.add(o));
+    if (i < schritt || (i === schritt && zustand[i]==='richtig')) (s.zeigeNachRichtig||[]).forEach(o => v.add(o));
+  });
+  return v;
+}
+function wertAktiv(w){
+  const i = idx(w.ab); if (i < 0) return true;
+  if (schritt > i) return true;
+  if (schritt === i) return w.wann !== 'richtig' || zustand[i] === 'richtig';
+  return false;
+}
+function sichtAnwenden(){
+  if (!api) return;
+  const v = sichtbareObjekte();
+  Object.keys(DIALOG.geogebra.stil).concat(DIALOG.geogebra.sichtbar).forEach(o => {
+    if (!api.exists(o)) return;
+    const an = v.has(o);
+    api.setVisible(o, an);
+    (gruppen[o]||[]).forEach(t => api.setVisible(t, an));
+  });
+  begriffeAktualisieren();
+  werteZeichnen();
+}
+
+/* ---- Messwerte ---- */
+function werteZeichnen(){
+  const box = $('#werte'); if (!box) return;
+  const aktiv = (DIALOG.werte||[]).filter(wertAktiv);
+  const schluessel = aktiv.map(w => w.objekt).join('|');
+  if (box.dataset.k !== schluessel){
+    box.dataset.k = schluessel;
+    box.innerHTML = aktiv.map(w => `<div class="wert"><span>${w.text}</span><span class="zahl" data-obj="${w.objekt}"></span></div>`).join('');
+    formeln(box);
+  }
+  werteAktualisieren();
+}
+let werteGeplant = false;
+function werteAktualisieren(){
+  if (!api) return;
+  document.querySelectorAll('.wert .zahl').forEach(z => { z.textContent = '= ' + zahl(api.getValue(z.dataset.obj)); });
+}
+
+/* ---- Blinken ---- */
+const blinkend = new Set();
+function blinke(objs){
+  if (!api) return;
+  objs.forEach(o => {
+    if (!api.exists(o) || blinkend.has(o)) return;
+    const ziele = [o].concat(gruppen[o]||[]);
+    const alt = ziele.map(t => ({t, farbe:api.getColor(t), dicke:api.getLineThickness(t), punkt:api.getPointSize(t), typ:api.getObjectType(t)}));
+    blinkend.add(o);
+    let n = 0;
+    const tick = () => {
+      const an = n % 2 === 0;
+      alt.forEach(a => {
+        if (an){
+          const [r,g,b] = rgb(LEUCHT); api.setColor(a.t, r,g,b);
+          if (a.typ === 'point') api.setPointSize(a.t, Math.min(9, (a.punkt||5)+3));
+          else api.setLineThickness(a.t, Math.min(13, (a.dicke||3)+6));
+        } else {
+          const [r,g,b] = rgb(a.farbe); api.setColor(a.t, r,g,b);
+          if (a.typ === 'point') api.setPointSize(a.t, a.punkt); else api.setLineThickness(a.t, a.dicke);
+        }
+      });
+      n++;
+      if (n < 6) setTimeout(tick, 230); else blinkend.delete(o);
+    };
+    tick();
+  });
+}
+
+/* ---- Ablauf ---- */
+function mische(arr, seed){
+  const a = arr.map((x,i)=>({x,i})); let s = seed*9301+49297;
+  for (let i=a.length-1;i>0;i--){ s=(s*9301+49297)%233280; const j=Math.floor(s/233280*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function zeigeStart(){
+  schritt = -1;
+  $('#fortschritt').textContent = '';
+  $('#dialog').innerHTML = `
+    <div class="karte">
+      <div class="sprecher">Die Aufgabe</div>
+      <div class="aufgabe rede">${rich(DIALOG.aufgabe)}</div>
+      ${DIALOG.vorwissen && DIALOG.vorwissen.length ? `<h2>Was du dafür brauchst</h2><ul>${DIALOG.vorwissen.map(v => '<li>'+rich(v).replace(/^<p>|<\/p>$/g,'')+'</li>').join('')}</ul>` : ''}
+      <button class="start" id="los">Gespräch beginnen ▸</button>
+      <div class="tipp">Gelb unterstrichene Begriffe im Gespräch kannst du anklicken – das Element leuchtet dann in der Zeichnung auf.</div>
+    </div>`;
+  formeln($('#dialog'));
+  $('#los').onclick = () => geheZu(0);
+  sichtAnwenden();
+}
+function geheZu(i){
+  schritt = i;
+  if (zustand[i] === undefined) zustand[i] = (DIALOG.schritte[i].typ === 'wahl' || DIALOG.schritte[i].typ === 'zahl') ? 'offen' : 'richtig';
+  const s = DIALOG.schritte[i];
+  (s.beimStart||[]).forEach(c => api && api.evalCommand(c));
+  zeichne();
+}
+function zeichne(fehl){
+  const s = DIALOG.schritte[schritt], N = DIALOG.schritte.length;
+  $('#fortschritt').textContent = `Schritt ${schritt+1} von ${N}`;
+  const geloest = zustand[schritt] === 'richtig';
+  let antwort = '';
+  if (geloest && s.richtig) antwort = rich(s.richtig);
+  else if (fehl) antwort = fehl;
+
+  let unten = '';
+  if (s.typ === 'wahl' && !geloest){
+    if (!gemischt[schritt]) gemischt[schritt] = s.mischen === false ? s.optionen.map((x,i)=>({x,i})) : mische(s.optionen, schritt+3);
+    unten = `<div class="optionen">${gemischt[schritt].map(o => `<button class="option${(zustand['f'+schritt]||[]).includes(o.i)?' falsch':''}" data-i="${o.i}">${rich(o.x.text).replace(/^<p>|<\/p>$/g,'')}</button>`).join('')}</div>`;
+  } else if (s.typ === 'zahl' && !geloest){
+    unten = `<div class="zahlfeld"><input id="eingabe" inputmode="decimal" autocomplete="off" placeholder="Zahl"><button class="option" id="pruefen">Prüfen</button></div>`;
+  } else if (s.typ === 'probieren'){
+    unten = `<div class="hinweis">${rich(s.hinweis || 'Probiere es in der Zeichnung aus.').replace(/^<p>|<\/p>$/g,'')}</div>`;
+  }
+  const letzter = schritt === N-1;
+  $('#dialog').innerHTML = `
+    <div class="sprecher">${DIALOG.lehrer}</div>
+    <div class="rede">${rich(s.text)}</div>
+    <div class="antwort">${antwort}</div>
+    <div class="werte" id="werte"></div>
+    <div class="schueler">
+      <div class="sprecher">${DIALOG.schueler}</div>
+      ${unten}
+      <div class="nav">
+        ${schritt > 0 ? '<button class="zurueck" id="zurueck">◂ zurück</button>' : '<button class="zurueck" id="zurueck">◂ Aufgabe</button>'}
+        <button class="weiter" id="weiter" ${geloest ? '' : 'disabled'}>${letzter ? 'Von vorn' : 'Weiter ▸'}</button>
+      </div>
+    </div>`;
+  sichtAnwenden();
+  formeln($('#dialog'));
+  document.querySelectorAll('.option[data-i]').forEach(b => b.onclick = () => waehle(+b.dataset.i));
+  if ($('#pruefen')){
+    const pr = () => pruefeZahl();
+    $('#pruefen').onclick = pr;
+    $('#eingabe').onkeydown = e => { if (e.key === 'Enter') pr(); };
+    $('#eingabe').focus({preventScroll:true});
+  }
+  $('#weiter').onclick = () => { if (letzter){ zustand = []; gemischt = {}; startwerte(); zeigeStart(); } else geheZu(schritt+1); };
+  $('#zurueck').onclick = () => { if (schritt > 0) geheZu(schritt-1); else zeigeStart(); };
+}
+function richtigGeloest(){
+  const s = DIALOG.schritte[schritt];
+  zustand[schritt] = 'richtig';
+  (s.nachRichtig||[]).forEach(c => api && api.evalCommand(c));
+  zeichne();
+}
+function waehle(i){
+  const s = DIALOG.schritte[schritt], o = s.optionen[i];
+  if (o.richtig) return richtigGeloest();
+  const f = zustand['f'+schritt] = (zustand['f'+schritt]||[]); if (!f.includes(i)) f.push(i);
+  const zitat = rich(o.text).replace(/^<p>|<\/p>$/g,'');
+  const hinweis = o.hinweis || s.falsch || 'Denk noch einmal nach.';
+  zeichne(`<p>Du sagst: <span class="zitat">${zitat}</span>?</p>` + rich(hinweis));
+}
+function pruefeZahl(){
+  const s = DIALOG.schritte[schritt];
+  const roh = $('#eingabe').value.trim().replace(/−/g,'-').replace(',', '.');
+  const v = parseFloat(roh);
+  if (roh === '' || isNaN(v)) return;
+  if (Math.abs(v - s.loesung) <= (s.toleranz || 1e-9)) return richtigGeloest();
+  zeichne(`<p>Du sagst ${zahl(v).replace(/,00$/,'').replace('-','−')}?</p>` + rich(s.falsch || 'Prüfe es noch einmal.'));
+}
+
+/* ---- GeoGebra ---- */
+function startwerte(){
+  if (!api) return;
+  const sw = DIALOG.geogebra.startwerte || {};
+  Object.keys(sw).forEach(o => { const v = sw[o]; if (Array.isArray(v)) api.setCoords(o, v[0], v[1]); else api.setValue(o, v); });
+}
+function sichtEinpassen(){
+  if (!api) return;
+  const el = $('#ggb'); const w = el.clientWidth, h = el.clientHeight;
+  api.setSize(w, h);
+  const [x0,x1,y0,y1] = DIALOG.geogebra.sicht;
+  const sx = w/(x1-x0), sy = h/(y1-y0), sc = Math.min(sx, sy);
+  const cx = (x0+x1)/2, cy = (y0+y1)/2, hx = w/sc/2, hy = h/sc/2;
+  api.setCoordSystem(cx-hx, cx+hx, cy-hy, cy+hy);
+  window._soll = {xmin: cx-hx, inv: 1/sc};
+}
+function ggbBereit(a){
+  api = a;
+  try { api.setErrorDialogsActive(false); } catch(e){}
+  api.setAxesVisible(false,false); api.setGridVisible(false);
+  try { api.setGraphicsOptions(1, {bgColor:'#0A0A0C'}); } catch(e){}
+  DIALOG.geogebra.befehle.forEach(c => api.evalCommand(c));
+  // Polygone: Kanten mitführen
+  api.getAllObjectNames().forEach(o => {
+    if (api.getObjectType(o) === 'segment'){
+      const m = (api.getCommandString(o,false)||'').match(/,\s*(\w+)\]\s*$/);
+      if (m && DIALOG.geogebra.stil[m[1]] && /Segment\[/.test(api.getCommandString(o,false))) (gruppen[m[1]] = gruppen[m[1]]||[]).push(o);
+    }
+  });
+  api.getAllObjectNames().forEach(o => { api.setLabelVisible(o,false); api.setVisible(o,false); });
+  const st = DIALOG.geogebra.stil;
+  Object.keys(st).forEach(o => {
+    if (!api.exists(o)) return;
+    const s = st[o], [r,g,b] = rgb(hex(s.farbe));
+    const ziele = [o].concat(gruppen[o]||[]);
+    ziele.forEach(t => {
+      api.setColor(t, r,g,b);
+      if (s.dicke) api.setLineThickness(t, s.dicke);
+      if (s.strich === 'gestrichelt') api.setLineStyle(t, 1);
+      if (s.strich === 'gepunktet') api.setLineStyle(t, 3);
+    });
+    if (s.punkt) api.setPointSize(o, s.punkt);
+    if (s.fuellung !== undefined) api.setFilling(o, s.fuellung);
+    if (s.name){ api.setCaption(o, s.name); api.setLabelVisible(o, true); api.setLabelStyle(o, 3); }
+  });
+  const ziehbar = new Set(DIALOG.geogebra.ziehbar||[]);
+  api.getAllObjectNames().forEach(o => api.setFixed(o, !ziehbar.has(o), ziehbar.has(o)));
+  startwerte();
+  sichtEinpassen();
+  api.registerUpdateListener(() => { if (!werteGeplant){ werteGeplant = true; requestAnimationFrame(() => { werteGeplant = false; werteAktualisieren(); }); } });
+  // Ansicht gegen Zoomen/Verschieben sichern
+  setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);
+  $('#ggb').addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, {capture:true, passive:false});
+  if (schritt < 0) zeigeStart(); else zeichne();
+}
+
+window.addEventListener('load', () => {
+  document.title = DIALOG.titel;
+  $('#titel').textContent = DIALOG.titel;
+  zeigeStart();
+  const el = $('#ggb');
+  const applet = new GGBApplet({
+    appName:'classic', width: el.clientWidth, height: el.clientHeight,
+    showToolBar:false, showAlgebraInput:false, showMenuBar:false, showResetIcon:false,
+    enableRightClick:false, enableShiftDragZoom:false, enableLabelDrags:false,
+    showZoomButtons:false, showFullscreenButton:false, enableUndoRedo:false,
+    allowStyleBar:false, preventFocus:true, errorDialogsActive:false,
+    borderColor:'#0A0A0C', perspective:'G', language:'de', useBrowserForJS:false,
+    appletOnLoad: ggbBereit
+  }, true);
+  applet.inject('ggb');
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(sichtEinpassen, 150); });
+});
+</script>
+</body>
+</html>
