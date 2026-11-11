@@ -98,7 +98,7 @@ function reglerZeichnen(){
     box.dataset.k = k;
     box.innerHTML = aktiv.map(w => `<label class="regel"><span>${w.text}</span><input type="range" min="${w.min}" max="${w.max}" step="${w.schritt||0.01}" data-obj="${w.objekt}"></label>`).join('');
     formeln(box);
-    box.querySelectorAll('input').forEach(r => r.oninput = () => { if (api) api.setValue(r.dataset.obj, parseFloat(r.value)); });
+    box.querySelectorAll('input').forEach((r,i) => r.oninput = () => { if (!api) return; const w = aktiv[i]; if (w.setze) api.evalCommand(w.setze.replace(/#/g, '(' + parseFloat(r.value) + ')')); else api.setValue(r.dataset.obj, parseFloat(r.value)); });
   }
   if (api) box.querySelectorAll('input').forEach(r => { if (document.activeElement !== r) r.value = api.getValue(r.dataset.obj); });
 }
@@ -524,7 +524,9 @@ window.addEventListener('load', () => {
     z.insertAdjacentHTML('beforeend', '<button class="klein ansicht" id="ansicht" title="Ansicht zurücksetzen">⟲ Ansicht</button><div class="drehhinweis">Zum Drehen in die Zeichnung ziehen</div>');
     $('#ansicht').onclick = ansichtZuruecksetzen;
   }
-  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(sichtEinpassen, 150); });
+  let t; const neu = () => { clearTimeout(t); t = setTimeout(() => { if (DREI) { if (api) api.setSize(el.clientWidth, el.clientHeight); } else sichtEinpassen(); }, 120); };
+  window.addEventListener('resize', neu);
+  if (window.ResizeObserver) new ResizeObserver(neu).observe(el);
 });
 window.SOKRATES = { get api(){ return api; }, themaSetzen, geheZu, blinke };
 })();
