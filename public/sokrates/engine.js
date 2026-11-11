@@ -14,6 +14,7 @@ const PALETTE = {
 };
 let thema = document.documentElement.dataset.thema === 'hell' ? 'hell' : 'dunkel';
 const F = () => PALETTE[thema];
+const DREI = !!(typeof DIALOG !== 'undefined' && DIALOG.geogebra && DIALOG.geogebra.dim3);
 let api = null, schritt = -1, zustand = [], gemischt = {}, gruppen = {};
 const $ = s => document.querySelector(s);
 const hex = c => F()[c] || c || F().creme;
@@ -87,15 +88,28 @@ function werteZeichnen(){
   }
   werteAktualisieren();
 }
+function reglerZeichnen(){
+  const box = $('#regler'); if (!box) return;
+  const aktiv = (DIALOG.regler||[]).filter(wertAktiv);
+  const k = aktiv.map(w => w.objekt).join('|');
+  if (box.dataset.k !== k){
+    box.dataset.k = k;
+    box.innerHTML = aktiv.map(w => `<label class="regel"><span>${w.text}</span><input type="range" min="${w.min}" max="${w.max}" step="${w.schritt||0.01}" data-obj="${w.objekt}"></label>`).join('');
+    formeln(box);
+    box.querySelectorAll('input').forEach(r => r.oninput = () => { if (api) api.setValue(r.dataset.obj, parseFloat(r.value)); });
+  }
+  if (api) box.querySelectorAll('input').forEach(r => { if (document.activeElement !== r) r.value = api.getValue(r.dataset.obj); });
+}
 function werteAktualisieren(){
   if (!api) return;
+  reglerZeichnen();
   document.querySelectorAll('.wert .zahl').forEach(z => { z.textContent = '= ' + zahl(api.getValue(z.dataset.obj), +z.dataset.st) + (z.dataset.e ? ' ' + z.dataset.e : ''); });
 }
 
 /* ---- Farben (auch beim Themenwechsel) ---- */
 function stileAnwenden(nurFarbe){
   if (!api) return;
-  try { api.setGraphicsOptions(1, {bgColor: F().bg}); } catch(e){}
+  try { api.setGraphicsOptions(DREI ? 3 : 1, {bgColor: F().bg}); } catch(e){}
   const st = DIALOG.geogebra.stil;
   Object.keys(st).forEach(o => {
     if (!api.exists(o)) return;
@@ -335,6 +349,8 @@ function zeichne(fehl, fehlQuelle){
     <div class="rede">${rich(s.text)}</div>
     <div class="antwort">${antwort}</div>
     <div class="werte" id="werte"></div>
+    <div class="reglerbox" id="regler"></div>
+    ${letzter && DIALOG.hefteintrag ? `<div class="heft" id="heft"><div class="heft-kopf"><span>Hefteintrag</span><span class="heft-hinweis">Übertrage ihn von Hand in dein Heft.</span></div>${rich(DIALOG.hefteintrag)}</div>` : ''}
     <div class="schueler">
       <div class="sprecher">${nm(DIALOG.schueler)}</div>
       ${unten}
@@ -345,6 +361,8 @@ function zeichne(fehl, fehlQuelle){
     </div>`;
   sichtAnwenden();
   formeln($('#dialog'));
+  const heft = $('#heft');
+  if (heft) ['copy','cut','contextmenu','selectstart','dragstart'].forEach(ev => heft.addEventListener(ev, e => e.preventDefault()));
   document.querySelectorAll('.option[data-i]').forEach(b => b.onclick = () => waehle(+b.dataset.i));
   if ($('#pruefen')){
     const pr = () => pruefeZahl();
@@ -403,10 +421,21 @@ function startwerte(){
   const sw = DIALOG.geogebra.startwerte || {};
   Object.keys(sw).forEach(o => { const v = sw[o]; if (Array.isArray(v)) api.setCoords(o, v[0], v[1]); else api.setValue(o, v); });
 }
+function ansichtAttr(){
+  const a = DIALOG.geogebra.ansicht3d || {};
+  const el = $('#ggb'); const f = Math.min(el.clientWidth / 700, el.clientHeight / 520);
+  return `xZero="${a.x0||0}" yZero="${a.y0||0}" zZero="${a.z0||0}" scale="${((a.massstab||50)*f).toFixed(2)}" xAngle="${a.kippen===undefined?20:a.kippen}" zAngle="${a.drehen===undefined?-60:a.drehen}" `;
+}
+function ansichtZuruecksetzen(){
+  if (!api || !DREI) return;
+  const el = $('#ggb'); api.setSize(el.clientWidth, el.clientHeight);
+  api.setXML(api.getXML().replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>'));
+}
 function sichtEinpassen(){
   if (!api) return;
   const el = $('#ggb'); const w = el.clientWidth, h = el.clientHeight;
   api.setSize(w, h);
+  if (DREI) return;
   const [x0,x1,y0,y1] = DIALOG.geogebra.sicht;
   const sx = w/(x1-x0), sy = h/(y1-y0), sc = Math.min(sx, sy);
   const cx = (x0+x1)/2, cy = (y0+y1)/2, hx = w/sc/2, hy = h/sc/2;
@@ -416,24 +445,33 @@ function sichtEinpassen(){
 function ggbBereit(a){
   api = a;
   try { api.setErrorDialogsActive(false); } catch(e){}
-  api.setAxesVisible(false,false); api.setGridVisible(false);
+  if (DREI){
+    try { api.setPerspective('T'); } catch(e){}
+    let x = api.getXML();
+    x = x.replace(/<plate show="true"\/>/,'<plate show="false"/>').replace(/<axis id="(\d)" show="true"/g,'<axis id="$1" show="false"').replace(/axes="true"/g,'axes="false"').replace(/grid="true"/g,'grid="false"');
+    x = x.replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>');
+    api.setXML(x);
+  } else { api.setAxesVisible(false,false); api.setGridVisible(false); }
   DIALOG.geogebra.befehle.forEach(c => api.evalCommand(c));
   // Polygone: Kanten mitführen
+  const stilNamen = Object.keys(DIALOG.geogebra.stil);
+  const befehl = {}; stilNamen.forEach(n => { if (api.exists(n)) befehl[n] = api.getCommandString(n,false) || ''; });
   api.getAllObjectNames().forEach(o => {
-    if (api.getObjectType(o) === 'segment'){
-      const cs = api.getCommandString(o,false) || '';
-      const m = cs.match(/,\s*(\w+)\s*[\])]\s*$/);
-      if (m && DIALOG.geogebra.stil[m[1]] && /^\s*(Segment|Strecke)/.test(cs)) (gruppen[m[1]] = gruppen[m[1]]||[]).push(o);
-    }
+    if (DIALOG.geogebra.stil[o] || api.getObjectType(o) === 'point') return;
+    const cs = api.getCommandString(o,false) || '';
+    const m = cs.match(/,\s*([\wÄÖÜäöüß]+)\s*[\])]\s*$/);
+    let eltern = (m && DIALOG.geogebra.stil[m[1]] && /^\s*(Segment|Strecke|Polygon|Vieleck)/.test(cs)) ? m[1] : null;
+    if (!eltern && cs) eltern = stilNamen.find(n => befehl[n] === cs) || null;
+    if (eltern) (gruppen[eltern] = gruppen[eltern]||[]).push(o);
   });
   api.getAllObjectNames().forEach(o => { api.setLabelVisible(o,false); api.setVisible(o,false); });
   stileAnwenden(false);
   const ziehbar = new Set(DIALOG.geogebra.ziehbar||[]);
   api.getAllObjectNames().forEach(o => api.setFixed(o, !ziehbar.has(o), ziehbar.has(o)));
   startwerte();
-  sichtEinpassen();
+  if (DREI) ansichtZuruecksetzen(); else sichtEinpassen();
   api.registerUpdateListener(() => { if (!werteGeplant){ werteGeplant = true; requestAnimationFrame(() => { werteGeplant = false; werteAktualisieren(); }); } });
-  setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);
+  if (!DREI) setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);
   $('#ggb').addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, {capture:true, passive:false});
   if (schritt < 0) zeigeStart(); else zeichne();
 }
@@ -447,15 +485,20 @@ window.addEventListener('load', () => {
   zeigeStart();
   const el = $('#ggb');
   const applet = new GGBApplet({
-    appName:'classic', width: el.clientWidth, height: el.clientHeight,
+    appName: DREI ? '3d' : 'classic', width: el.clientWidth, height: el.clientHeight,
     showToolBar:false, showAlgebraInput:false, showMenuBar:false, showResetIcon:false,
     enableRightClick:false, enableShiftDragZoom:false, enableLabelDrags:false,
     showZoomButtons:false, showFullscreenButton:false, enableUndoRedo:false,
     allowStyleBar:false, preventFocus:true, errorDialogsActive:false,
-    borderColor: F().bg, perspective:'G', language:'de', useBrowserForJS:false,
+    borderColor: F().bg, perspective: DREI ? 'T' : 'G', language:'de', useBrowserForJS:false,
     appletOnLoad: ggbBereit
   }, true);
   applet.inject('ggb');
+  if (DREI){
+    const z = document.querySelector('.zeichnung');
+    z.insertAdjacentHTML('beforeend', '<button class="klein ansicht" id="ansicht" title="Ansicht zurücksetzen">⟲ Ansicht</button><div class="drehhinweis">Zum Drehen in die Zeichnung ziehen</div>');
+    $('#ansicht').onclick = ansichtZuruecksetzen;
+  }
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(sichtEinpassen, 150); });
 });
 window.SOKRATES = { get api(){ return api; }, themaSetzen, geheZu, blinke };

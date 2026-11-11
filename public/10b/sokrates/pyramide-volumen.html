@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Das Volumen der Pyramide – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Das Volumen der Pyramide – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Ein Prisma hat das Volumen $V = G \\cdot h$. Wie groß ist das Volumen einer Pyramide mit derselben Grundfläche $G$ und derselben Höhe $h$?\n\nZum Schluss berechnen wir damit das Volumen der Cheopspyramide.",
+  vorwissen: [
+    "Volumen von Würfel und Quader: Grundfläche mal Höhe",
+    "Begriffe Grundfläche, Spitze und Höhe einer Pyramide"
+  ],
+  hefteintrag: "Das Volumen der Pyramide\n\nEin Würfel mit der Kantenlänge $a$ lässt sich in drei gleich große Pyramiden zerlegen. Jede hat die Grundfläche $G = a^2$ und die Höhe $h = a$. Also gilt $V = \\frac{1}{3}\\,a^3 = \\frac{1}{3}\\,G \\cdot h$.\n\nVerschiebt man die Spitze parallel zur Grundfläche, so bleiben alle Querschnitte gleich groß, also auch das Volumen (Prinzip von Cavalieri). Darum gilt für jede Pyramide:\n$$V = \\frac{1}{3} \\cdot G \\cdot h$$\n\nBeispiel Cheopspyramide: $a = 230$ m, $h = 146$ m\n$V = \\frac{1}{3} \\cdot (230 \\text{ m})^2 \\cdot 146 \\text{ m} \\approx 2\\,574\\,467 \\text{ m}^3$",
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-4.3, y0:-1.2, z0:-1.2, massstab:46, kippen:18, drehen:-62},
+    befehle: [
+      "lam=0", "sx=0",
+      "wfl=Polygon((0,0,0),(3,0,0),(3,3,0),(0,3,0))",
+      "wuerfel=Prism(wfl,(0,0,3))",
+      "pyrU=Pyramid((0,0,0)+lam*(0,0,-1.6),(3,0,0)+lam*(0,0,-1.6),(3,3,0)+lam*(0,0,-1.6),(0,3,0)+lam*(0,0,-1.6),(3,3,3)+lam*(0,0,-1.6))",
+      "pyrL=Pyramid((0,0,0)+lam*(-1.6,0,0),(0,3,0)+lam*(-1.6,0,0),(0,3,3)+lam*(-1.6,0,0),(0,0,3)+lam*(-1.6,0,0),(3,3,3)+lam*(-1.6,0,0))",
+      "pyrV=Pyramid((0,0,0)+lam*(0,-1.6,0),(3,0,0)+lam*(0,-1.6,0),(3,0,3)+lam*(0,-1.6,0),(0,0,3)+lam*(0,-1.6,0),(3,3,3)+lam*(0,-1.6,0))",
+      "Spitze=(3,3,3)+lam*(0.8,0.8,0.8)",
+      "vW=27", "vU=27/3",
+      "pyrS=Pyramid((7,0,0),(10,0,0),(10,3,0),(7,3,0),(8.5+sx,1.5,3))",
+      "hS=Segment((8.5+sx,1.5,3),(8.5+sx,1.5,0))"
+    ],
+    ziehbar: [],
+    sichtbar: ["wuerfel","pyrU","pyrL","pyrV"],
+    stil: {
+      wuerfel:{farbe:"matt", dicke:2, fuellung:0, strich:"gestrichelt"},
+      pyrU:{farbe:"gold", dicke:3, fuellung:0.55},
+      pyrL:{farbe:"kupfer", dicke:3, fuellung:0.55},
+      pyrV:{farbe:"wasser", dicke:3, fuellung:0.55},
+      Spitze:{farbe:"leucht", punkt:6},
+      pyrS:{farbe:"hellgold", dicke:3, fuellung:0.45},
+      hS:{farbe:"leucht", dicke:3, strich:"gestrichelt", name:"h"}
+    }
+  },
+
+  regler: [
+    {text:"auseinanderziehen", objekt:"lam", min:0, max:1, schritt:0.01, ab:"zerlegen"},
+    {text:"Spitze verschieben", objekt:"sx", min:-3, max:3, schritt:0.05, ab:"cavalieri"}
+  ],
+  werte: [
+    {text:"Volumen des Würfels ($a = 3$)", objekt:"vW", ab:"zerlegen"},
+    {text:"Volumen der schiefen Pyramide", objekt:"pyrS", ab:"cavalieri"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Ein Prisma, etwa ein [[Würfel|wuerfel]], hat das Volumen Grundfläche mal Höhe. Eine Pyramide auf derselben Grundfläche läuft nach oben spitz zu – sie ist also kleiner.\n\nDoch um wie viel kleiner? Das wollen wir heute herausfinden." },
+
+    { id:"zerlegen", typ:"probieren",
+      text:"Sieh genau hin: Der [[Würfel|wuerfel]] ist aus Pyramiden zusammengesetzt. Ziehe den Regler „auseinanderziehen“, und drehe die Zeichnung mit dem Finger, um sie von allen Seiten zu sehen.\n\nWie viele Pyramiden sind es?",
+      hinweis:"Ziehe am Regler und drehe die Zeichnung." },
+
+    { id:"anzahl", typ:"wahl",
+      text:"Aus wie vielen Pyramiden besteht der Würfel?",
+      optionen:[
+        {text:"aus drei", richtig:true},
+        {text:"aus sechs", hinweis:"Ein Würfel hat sechs Flächen. Doch zähle die farbigen Körper genau – sind es so viele?"},
+        {text:"aus zwei"}
+      ],
+      falsch:"Zähle die Farben: die [[goldene|pyrU]], die [[kupferne|pyrL]] und die [[blaue|pyrV]] Pyramide.",
+      richtig:"Richtig: drei. Sie haben alle dieselbe [[Spitze|Spitze]] – eine Ecke des Würfels.",
+      zeigeNachRichtig:["Spitze"] },
+
+    { id:"gleich", typ:"wahl",
+      text:"Sind die drei Pyramiden gleich groß? Betrachte ihre Grundflächen und ihre Höhen.",
+      optionen:[
+        {text:"Ja. Jede hat eine Würfelfläche als Grundfläche und die Kante $a$ als Höhe.", richtig:true},
+        {text:"Nein, die [[untere|pyrU]] ist größer, weil sie unten liegt.", hinweis:"Drehe die Zeichnung so, dass eine andere Pyramide unten liegt. Ändert sich dadurch ihre Größe?"},
+        {text:"Nein, jede ist anders geformt."}
+      ],
+      falsch:"Jede Pyramide steht auf einer Würfelfläche. Und die Spitze liegt jeweils genau über einer Ecke dieser Fläche – wie hoch ist sie dann?",
+      richtig:"So ist es. Alle drei haben die Grundfläche $G = a^2$ und die Höhe $h = a$. Man kann sie durch Drehen ineinander überführen: Sie sind deckungsgleich." },
+
+    { id:"drittel", typ:"wahl",
+      text:"Was folgt daraus für das Volumen einer dieser Pyramiden?",
+      optionen:[
+        {text:"$V = \\frac{1}{3}\\,a^3 = \\frac{1}{3}\\,G \\cdot h$", richtig:true},
+        {text:"$V = \\frac{1}{2}\\,G \\cdot h$", hinweis:"Dann würden schon zwei Pyramiden den Würfel füllen. Wie viele waren es?"},
+        {text:"$V = \\frac{1}{6}\\,G \\cdot h$"}
+      ],
+      falsch:"Drei gleiche Teile füllen den Würfel vollständig. Welcher Bruchteil ist dann ein Teil?",
+      richtig:"Vortrefflich. Eine Pyramide ist ein Drittel des Würfels. Hier: $27 : 3 = 9$." },
+
+    { id:"cavalieri", typ:"wahl",
+      text:"Doch diese Pyramiden sind besonders: Ihre Spitze liegt über einer Ecke. Gilt die Formel auch für [[andere Pyramiden|pyrS]]?\n\nVerschiebe die Spitze mit dem Regler. Was geschieht mit dem Volumen?",
+      optionen:[
+        {text:"Es bleibt gleich.", richtig:true},
+        {text:"Es wird größer, je schiefer die Pyramide ist.", hinweis:"Die Pyramide wird zwar schief, aber die [[Höhe|hS]] bleibt dieselbe. Lies den Messwert ab, während du verschiebst."},
+        {text:"Es wird kleiner."}
+      ],
+      falsch:"Beobachte den Messwert, während du die Spitze verschiebst.",
+      richtig:"Recht so. Denk dir die Pyramide aus vielen dünnen Scheiben gestapelt, wie ein Stapel Bierdeckel. Schiebst du sie zur Seite, bleibt jede Scheibe gleich groß – und damit das Volumen. Das ist das Prinzip von Cavalieri.",
+      zeige:["pyrS","hS"] },
+
+    { id:"allgemein", typ:"wahl",
+      text:"Welche Formel gilt also für jede Pyramide mit Grundfläche $G$ und Höhe $h$?",
+      optionen:[
+        {text:"$V = \\frac{1}{3} \\cdot G \\cdot h$", richtig:true},
+        {text:"$V = G \\cdot h$", hinweis:"Das ist das Volumen des Prismas. Die Pyramide war kleiner."},
+        {text:"$V = \\frac{1}{3} \\cdot G \\cdot s$, mit der Seitenkante $s$", hinweis:"Für das Volumen zählt die Höhe – der senkrechte Abstand der Spitze von der Grundfläche."}
+      ],
+      falsch:"Erinnere dich an den Würfel und an Cavalieri.",
+      richtig:"Genau: $V = \\frac{1}{3} \\cdot G \\cdot h$. Eine Pyramide hat ein Drittel des Volumens eines Prismas mit gleicher Grundfläche und gleicher Höhe." },
+
+    { id:"cheops", typ:"zahl",
+      text:"Nun zur Cheopspyramide in Ägypten. Ihre quadratische Grundfläche hat die Seitenlänge $230$ m, ihre Höhe betrug $146$ m. Berechne ihr Volumen auf ganze Kubikmeter.",
+      einheit:"m³", loesung:2574467, toleranz:1, tausender:true,
+      falsch:"Rechne $V = \\frac{1}{3} \\cdot 230^2 \\cdot 146$. Die Grundfläche ist ein Quadrat.",
+      richtig:"Vortrefflich: $V = \\frac{1}{3} \\cdot 52\\,900 \\text{ m}^2 \\cdot 146 \\text{ m} \\approx 2\\,574\\,467$ m³ – gut zweieinhalb Millionen Kubikmeter Stein." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Drei gleiche Pyramiden füllen einen Würfel, und Verschieben der Spitze ändert das Volumen nicht. Für jede Pyramide gilt darum $$V = \\frac{1}{3} \\cdot G \\cdot h.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

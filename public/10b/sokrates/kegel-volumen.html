@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Das Volumen des Kegels – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Das Volumen des Kegels – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Ein Kegel und ein Zylinder haben dieselbe kreisförmige Grundfläche mit dem Radius $r$ und dieselbe Höhe $h$. Wie groß ist das Volumen des Kegels?\n\nZum Schluss berechnen wir damit das Volumen eines Sandhaufens.",
+  vorwissen: [
+    "Volumen des Zylinders: $V = \\pi \\cdot r^2 \\cdot h$",
+    "Volumen der Pyramide: $V = \\frac{1}{3} \\cdot G \\cdot h$",
+    "Flächeninhalt des Kreises: $A = \\pi \\cdot r^2$"
+  ],
+  hefteintrag: "Das Volumen des Kegels\n\nEin Kegel lässt sich durch Pyramiden mit regelmäßigen $n$-Ecken als Grundfläche immer genauer annähern. Für jede gilt $V = \\frac{1}{3}\\,G \\cdot h$. Je mehr Ecken, desto mehr nähert sich die Grundfläche dem Kreis $G = \\pi r^2$. Darum gilt:\n$$V_{\\text{Kegel}} = \\frac{1}{3} \\cdot \\pi r^2 \\cdot h$$\nEin Kegel hat ein Drittel des Volumens eines Zylinders mit gleicher Grundfläche und gleicher Höhe.\n\nBeispiel Sandhaufen: $r = 2$ m, $h = 1{,}5$ m\n$V = \\frac{1}{3} \\cdot \\pi \\cdot (2 \\text{ m})^2 \\cdot 1{,}5 \\text{ m} = 2\\,\\pi \\text{ m}^3 \\approx 6{,}28 \\text{ m}^3$",
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-4, y0:0, z0:-1.6, massstab:40, kippen:16, drehen:-75},
+    befehle: [
+      "ecken=4", "rk=3", "hk=4",
+      "kegel=Cone((0,0,0),(0,0,hk),rk)",
+      "zyl=Cylinder((8,0,0),(8,0,hk),rk)",
+      "ecke=Sequence((rk*cos(2*pi*nn/ecken),rk*sin(2*pi*nn/ecken),0),nn,0,ecken-1)",
+      "basis=Polygon(ecke)",
+      "seiten=Sequence(Polygon(Element(ecke,nn),Element(ecke,Mod(nn,ecken)+1),(0,0,hk)),nn,1,ecken)",
+      "vPyr=1/3*(ecken/2*rk^2*sin(2*pi/ecken))*hk",
+      "vKegel=1/3*pi*rk^2*hk", "vZyl=pi*rk^2*hk",
+      "hSeg=Segment((0,0,0),(0,0,hk))",
+      "rSeg=Segment((0,0,0),(rk,0,0))"
+    ],
+    ziehbar: [],
+    sichtbar: ["kegel","zyl"],
+    stil: {
+      kegel:{farbe:"gold", dicke:2, fuellung:0.25},
+      zyl:{farbe:"matt", dicke:2, fuellung:0.18},
+      basis:{farbe:"kupfer", dicke:2, fuellung:0.5},
+      seiten:{farbe:"kupfer", dicke:2, fuellung:0.55},
+      hSeg:{farbe:"leucht", dicke:3, strich:"gestrichelt", name:"h"},
+      rSeg:{farbe:"leucht", dicke:3, name:"r"}
+    }
+  },
+
+  regler: [
+    {text:"Ecken der Grundfläche", objekt:"ecken", min:3, max:60, schritt:1, ab:"annaehern"}
+  ],
+  werte: [
+    {text:"Anzahl der Ecken", objekt:"ecken", ab:"annaehern", stellen:0},
+    {text:"Volumen der Pyramide", objekt:"vPyr", ab:"annaehern"},
+    {text:"Volumen des Kegels", objekt:"vKegel", ab:"grenze", wann:"richtig"},
+    {text:"Volumen des Zylinders", objekt:"vZyl", ab:"grenze", wann:"richtig"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Hier stehen ein [[Kegel|kegel]] und ein [[Zylinder|zyl]]. Beide haben denselben [[Radius $r$|rSeg]] und dieselbe [[Höhe $h$|hSeg]]. Drehe die Zeichnung mit dem Finger, um sie von allen Seiten zu sehen.\n\nDas Volumen des Zylinders kennst du: $V = \\pi \\cdot r^2 \\cdot h$. Doch wie groß ist das Volumen des Kegels?",
+      zeige:["hSeg","rSeg"] },
+
+    { id:"vermutung", typ:"wahl",
+      text:"Erinnere dich an die Pyramide: Sie hatte ein Drittel des Volumens eines Prismas. Der Kegel läuft ebenfalls von einer Grundfläche zu einer Spitze zusammen. Was vermutest du?",
+      mischen:false,
+      optionen:[
+        {text:"Der Kegel hat ein Drittel des Zylindervolumens.", richtig:true},
+        {text:"Der Kegel hat die Hälfte des Zylindervolumens."},
+        {text:"Das lässt sich nicht vergleichen, denn der Kegel hat keine Ecken."}
+      ],
+      falsch:"Eine Vermutung darf auch falsch sein – doch prüfe sie. Was ist der Kegel, wenn nicht eine Pyramide mit sehr vielen Ecken?",
+      richtig:"Eine kühne Vermutung. Prüfen wir sie." },
+
+    { id:"annaehern", typ:"probieren",
+      text:"Stelle in den [[Kegel|kegel]] eine [[Pyramide|seiten,basis]] mit derselben Spitze. Ihre Grundfläche ist ein regelmäßiges Vieleck in der Kreisfläche. Erhöhe mit dem Regler die Zahl der Ecken und beobachte die Messwerte.",
+      hinweis:"Ziehe den Regler und beobachte das Volumen der Pyramide.",
+      zeige:["basis","seiten"] },
+
+    { id:"grenze", typ:"wahl",
+      text:"Was geschieht, wenn die Zahl der Ecken immer größer wird?",
+      optionen:[
+        {text:"Die Pyramide füllt den Kegel immer besser aus, und ihr Volumen nähert sich dem des Kegels.", richtig:true},
+        {text:"Die Pyramide wird irgendwann größer als der Kegel.", hinweis:"Die Ecken liegen immer auf dem Kreis, die Pyramide bleibt also im Kegel. Kann sie dann größer werden?"},
+        {text:"Das Volumen der Pyramide bleibt gleich."}
+      ],
+      falsch:"Schau auf die Messwerte bei $3$, bei $12$ und bei $60$ Ecken.",
+      richtig:"Recht so. Bei $60$ Ecken ist der Unterschied schon kaum noch zu sehen. Vergleiche die Messwerte des Kegels und des Zylinders.",
+      nachRichtig:["SetValue(ecken,60)"] },
+
+    { id:"formel", typ:"wahl",
+      text:"Jede dieser Pyramiden hat das Volumen $\\frac{1}{3} \\cdot G \\cdot h$. Ihre Grundfläche $G$ nähert sich dem Kreis. Welche Formel gilt also für den Kegel?",
+      optionen:[
+        {text:"$V = \\frac{1}{3} \\cdot \\pi r^2 \\cdot h$", richtig:true},
+        {text:"$V = \\frac{1}{3} \\cdot 2\\pi r \\cdot h$", hinweis:"$2\\pi r$ ist der Umfang des Kreises, keine Fläche. Welche Grundfläche hat der Kegel?"},
+        {text:"$V = \\pi r^2 \\cdot h$", hinweis:"Das ist das Volumen des Zylinders."}
+      ],
+      falsch:"Setze für $G$ die Kreisfläche ein.",
+      richtig:"Vortrefflich: $$V_{\\text{Kegel}} = \\frac{1}{3} \\cdot \\pi r^2 \\cdot h.$$ Deine Vermutung war richtig: Der Kegel hat ein Drittel des Zylindervolumens. Prüfe es an den Messwerten: $37{,}70 \\cdot 3 = 113{,}10$." },
+
+    { id:"sand", typ:"zahl",
+      text:"Ein Sandhaufen hat die Form eines Kegels mit dem Radius $2$ m und der Höhe $1{,}5$ m. Wie viele Kubikmeter Sand sind es? Runde auf zwei Nachkommastellen.",
+      einheit:"m³", loesung:6.2832, toleranz:0.011,
+      falsch:"Rechne $\\frac{1}{3} \\cdot \\pi \\cdot 2^2 \\cdot 1{,}5$. Das Quadrat gilt nur für den Radius.",
+      richtig:"Richtig: $V = \\frac{1}{3} \\cdot \\pi \\cdot 4 \\text{ m}^2 \\cdot 1{,}5 \\text{ m} = 2\\,\\pi \\text{ m}^3 \\approx 6{,}28$ m³." },
+
+    { id:"doppelt", typ:"wahl",
+      text:"Eine letzte Probe deines Verständnisses: Was geschieht mit dem Volumen des Kegels, wenn man seinen Radius verdoppelt und die Höhe gleich lässt?",
+      optionen:[
+        {text:"Es vervierfacht sich.", richtig:true},
+        {text:"Es verdoppelt sich.", hinweis:"Der Radius steht in der Formel im Quadrat. Was wird aus $(2r)^2$?"},
+        {text:"Es verachtfacht sich.", hinweis:"Achtmal so groß würde es, wenn auch die Höhe sich verdoppelte."}
+      ],
+      falsch:"Setze $2r$ statt $r$ in die Formel ein.",
+      richtig:"Genau, denn $(2r)^2 = 4r^2$. Ein doppelt so breiter Sandhaufen gleicher Höhe enthält viermal so viel Sand." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Der [[Kegel|kegel]] ist wie eine Pyramide mit unendlich vielen Ecken. Darum gilt $$V = \\frac{1}{3} \\cdot \\pi r^2 \\cdot h,$$ ein Drittel des [[Zylinders|zyl]]. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

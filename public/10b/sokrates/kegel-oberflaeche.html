@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Oberfläche des Kegels – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Die Oberfläche des Kegels – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Ein Kegel hat den Radius $r = 3$ cm und die Höhe $h = 4$ cm.\n\nWie groß ist seine Oberfläche? Wir wickeln dazu seinen Mantel ab.",
+  vorwissen: [
+    "Satz des Pythagoras",
+    "Umfang und Flächeninhalt des Kreises",
+    "Kreisausschnitt (Sektor): Bruchteil eines Vollkreises"
+  ],
+  hefteintrag: "Die Oberfläche des Kegels\nGegeben: $r = 3$ cm, $h = 4$ cm\n\nMantellinie nach Pythagoras: $s = \\sqrt{r^2 + h^2} = \\sqrt{9 + 16} \\text{ cm} = 5 \\text{ cm}$\n\nAbgewickelt ist der Mantel ein Kreisausschnitt mit dem Radius $s$. Sein Bogen ist so lang wie der Umfang der Grundfläche, $2\\pi r$. Er ist also der Bruchteil $\\frac{2\\pi r}{2\\pi s} = \\frac{r}{s}$ des Vollkreises:\n$\\alpha = \\frac{r}{s} \\cdot 360° = \\frac{3}{5} \\cdot 360° = 216°$\n$M = \\frac{r}{s} \\cdot \\pi s^2 = \\pi\\, r\\, s = 15\\,\\pi \\text{ cm}^2 \\approx 47{,}12 \\text{ cm}^2$\n\n$G = \\pi r^2 = 9\\,\\pi \\text{ cm}^2 \\approx 28{,}27 \\text{ cm}^2$\n$O = G + M = \\pi r^2 + \\pi r s = 24\\,\\pi \\text{ cm}^2 \\approx 75{,}40 \\text{ cm}^2$",
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-2.5, y0:0, z0:-1.5, massstab:34, kippen:30, drehen:-70},
+    befehle: [
+      "lam=0", "rk=3", "hk=4", "sk=sqrt(rk^2+hk^2)",
+      "th0=asin(rk/sk)", "th=th0+lam*(pi/2-th0)",
+      "rho=sk*sin(th)", "psi=pi*rk/rho", "zs=sk*cos(th)",
+      "mantel=Surface(vv*rho*cos(uu),vv*rho*sin(uu),zs*(1-vv),uu,-psi,psi,vv,0,1)",
+      "Spitze=(0,0,zs)",
+      "naht=Segment(Spitze,(rho*cos(psi),rho*sin(psi),0))",
+      "bogen=Curve(rho*cos(tt),rho*sin(tt),0,tt,-psi,psi)",
+      "Bm=(rho-rk*cos(pi*lam),0,rk*sin(pi*lam))",
+      "boden=Circle(Bm,rk,Vector((sin(pi*lam),0,cos(pi*lam))))",
+      "hSeg=Segment((0,0,0),(0,0,hk))",
+      "rSeg=Segment((0,0,0),(rk,0,0))",
+      "sSeg=Segment((0,0,hk),(rk,0,0))",
+      "voll=Circle((0,0,0),sk)",
+      "winkel=2*psi*180/pi", "bogenl=2*psi*rho"
+    ],
+    ziehbar: [],
+    sichtbar: ["mantel","boden","bogen","naht"],
+    stil: {
+      mantel:{farbe:"gold", dicke:1, fuellung:0.55},
+      boden:{farbe:"kupfer", dicke:4, fuellung:0.5},
+      bogen:{farbe:"hellgold", dicke:5},
+      naht:{farbe:"hellgold", dicke:3},
+      Spitze:{farbe:"leucht", punkt:5},
+      hSeg:{farbe:"wasser", dicke:4, name:"h = 4"},
+      rSeg:{farbe:"wasser", dicke:4, name:"r = 3"},
+      sSeg:{farbe:"leucht", dicke:4, name:"s"},
+      voll:{farbe:"matt", dicke:2, strich:"gestrichelt"}
+    }
+  },
+
+  regler: [
+    {text:"Mantel abwickeln", objekt:"lam", min:0, max:1, schritt:0.01, ab:"abwickeln"}
+  ],
+  werte: [
+    {text:"Länge des Bogens", objekt:"bogenl", ab:"abwickeln", einheit:"cm"},
+    {text:"Winkel des Mantelstücks", objekt:"winkel", ab:"abwickeln", einheit:"°", stellen:1}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Hier steht ein Kegel mit dem [[Radius $r = 3$ cm|rSeg]] und der [[Höhe $h = 4$ cm|hSeg]]. Drehe ihn mit dem Finger, um ihn von allen Seiten zu sehen.\n\nSeine Oberfläche besteht aus der kreisförmigen [[Grundfläche|boden]] und dem gewölbten [[Mantel|mantel]]. Die Grundfläche ist leicht – doch wie berechnet man den Mantel?",
+      zeige:["hSeg","rSeg"] },
+
+    { id:"s", typ:"zahl",
+      text:"Zuerst brauchen wir die [[Mantellinie $s$|sSeg]]: die Strecke von der Spitze zum Rand der Grundfläche. Berechne sie.",
+      einheit:"cm", loesung:5, toleranz:0.01,
+      falsch:"[[Radius|rSeg]], [[Höhe|hSeg]] und [[Mantellinie|sSeg]] bilden ein rechtwinkliges Dreieck. Die Mantellinie ist die Hypotenuse.",
+      richtig:"Richtig: $s = \\sqrt{3^2 + 4^2} \\text{ cm} = 5$ cm.",
+      zeige:["sSeg"] },
+
+    { id:"abwickeln", typ:"probieren",
+      text:"Nun schneiden wir den Mantel an der [[Naht|naht]] auf und wickeln ihn ab. Ziehe am Regler, bis er flach daliegt, und beobachte die Messwerte.",
+      hinweis:"Ziehe am Regler „Mantel abwickeln“.",
+      verberge:["hSeg","rSeg","sSeg"] },
+
+    { id:"figur", typ:"wahl",
+      text:"Welche Figur entsteht, wenn der [[Mantel|mantel]] flach daliegt?",
+      optionen:[
+        {text:"ein Kreisausschnitt mit dem Radius $s$", richtig:true},
+        {text:"ein Dreieck", hinweis:"Schau auf den [[Rand|bogen]]: Ist er gerade oder gebogen?"},
+        {text:"ein Halbkreis mit dem Radius $r$", hinweis:"Wie weit ist jeder Punkt des Randes von der Spitze entfernt – $r$ oder $s$?"}
+      ],
+      falsch:"Jeder Punkt des Randes war vor dem Abwickeln genau eine Mantellinie von der Spitze entfernt.",
+      richtig:"Recht so. Der Mantel ist ein Kreisausschnitt, ein Stück des [[Vollkreises mit Radius $s = 5$ cm|voll]].",
+      beimStart:["SetValue(lam,1)"],
+      zeigeNachRichtig:["voll"] },
+
+    { id:"bogenlaenge", typ:"wahl",
+      text:"Wie lang ist der [[Bogen|bogen]] des Kreisausschnitts? Achte beim Abwickeln auf den Messwert.",
+      optionen:[
+        {text:"so lang wie der Umfang der Grundfläche, $2\\pi r$", richtig:true},
+        {text:"so lang wie der Umfang des Vollkreises, $2\\pi s$", hinweis:"Dann wäre der Mantel ein ganzer Kreis. Ist er das?"},
+        {text:"so lang wie die Mantellinie $s$"}
+      ],
+      falsch:"Vor dem Abwickeln lag der Bogen ringsum an der [[Grundfläche|boden]] an.",
+      richtig:"Genau. Der Bogen bleibt beim Abwickeln gleich lang: $2\\pi \\cdot 3 \\text{ cm} \\approx 18{,}85$ cm. Er lag ja rund um die Grundfläche." },
+
+    { id:"winkel", typ:"zahl",
+      text:"Welchen Bruchteil des Vollkreises nimmt der Ausschnitt also ein? Das Verhältnis der Bögen ist $\\frac{2\\pi r}{2\\pi s} = \\frac{r}{s}$. Berechne damit den Mittelpunktswinkel $\\alpha$ in Grad.",
+      einheit:"°", loesung:216, toleranz:0.5,
+      falsch:"$\\frac{r}{s} = \\frac{3}{5}$. Nimm diesen Bruchteil von $360°$.",
+      richtig:"Vortrefflich: $\\alpha = \\frac{3}{5} \\cdot 360° = 216°$. Das zeigt auch der Messwert." },
+
+    { id:"formel", typ:"wahl",
+      text:"Der Mantel ist also der Bruchteil $\\frac{r}{s}$ der Kreisfläche $\\pi s^2$. Welche Formel ergibt sich?",
+      optionen:[
+        {text:"$M = \\pi \\, r \\, s$", richtig:true},
+        {text:"$M = \\pi \\, s^2$", hinweis:"Das ist der ganze Vollkreis. Der Mantel ist nur ein Teil davon."},
+        {text:"$M = \\pi \\, r^2$", hinweis:"Das ist die Grundfläche."}
+      ],
+      falsch:"Rechne $\\frac{r}{s} \\cdot \\pi s^2$ und kürze.",
+      richtig:"Recht so: $\\frac{r}{s} \\cdot \\pi s^2 = \\pi\\, r\\, s$. Ein $s$ kürzt sich weg." },
+
+    { id:"mantel", typ:"zahl",
+      text:"Berechne den Mantel $M = \\pi\\, r\\, s$. Runde auf zwei Nachkommastellen.",
+      einheit:"cm²", loesung:47.124, toleranz:0.06,
+      falsch:"Setze $r = 3$ cm und $s = 5$ cm ein.",
+      richtig:"Richtig: $M = 15\\,\\pi \\text{ cm}^2 \\approx 47{,}12$ cm²." },
+
+    { id:"oberflaeche", typ:"zahl",
+      text:"Und die ganze Oberfläche $O = G + M$? Runde auf zwei Nachkommastellen.",
+      einheit:"cm²", loesung:75.398, toleranz:0.06,
+      falsch:"Die [[Grundfläche|boden]] ist $\\pi r^2 = 9\\pi$ cm². Addiere den Mantel.",
+      richtig:"Vortrefflich: $O = 9\\pi + 15\\pi = 24\\,\\pi \\text{ cm}^2 \\approx 75{,}40$ cm²." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Abgewickelt ist der [[Mantel|mantel]] ein Kreisausschnitt mit dem Radius $s$, dessen [[Bogen|bogen]] so lang ist wie der Umfang der [[Grundfläche|boden]]. Darum gilt $$O = \\pi r^2 + \\pi\\, r\\, s.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

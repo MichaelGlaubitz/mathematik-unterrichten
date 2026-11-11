@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Oberfläche der Pyramide – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Die Oberfläche der Pyramide – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Eine quadratische Pyramide hat die Grundkante $a = 6$ cm und die Höhe $h = 4$ cm.\n\nWie viel Pappe braucht man, um sie zu basteln? Berechne ihre Oberfläche.",
+  vorwissen: [
+    "Flächeninhalt von Quadrat und Dreieck: $A = \\frac{1}{2} \\cdot g \\cdot h_g$",
+    "Satz des Pythagoras",
+    "Netz eines Körpers"
+  ],
+  hefteintrag: "Die Oberfläche der Pyramide\nGegeben: quadratische Pyramide, $a = 6$ cm, $h = 4$ cm\n\nDas Netz besteht aus der Grundfläche (Quadrat) und vier gleichschenkligen Dreiecken, dem Mantel: $O = G + M$.\n\nDie Höhe der Seitendreiecke ist die Seitenhöhe $h_s$, nicht die Körperhöhe $h$. Im Steigungsdreieck gilt nach Pythagoras:\n$h_s = \\sqrt{h^2 + \\left(\\frac{a}{2}\\right)^2} = \\sqrt{4^2 + 3^2} \\text{ cm} = 5 \\text{ cm}$\n\n$G = a^2 = 36 \\text{ cm}^2$\n$M = 4 \\cdot \\frac{1}{2} \\cdot a \\cdot h_s = 4 \\cdot \\frac{1}{2} \\cdot 6 \\text{ cm} \\cdot 5 \\text{ cm} = 60 \\text{ cm}^2$\n$O = G + M = 96 \\text{ cm}^2$\n\nAllgemein: $O = a^2 + 2\\,a\\,h_s$",
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-3, y0:-3, z0:-1.5, massstab:30, kippen:28, drehen:-58},
+    befehle: [
+      "auf=0",
+      "PA=(0,0,0)", "PB=(6,0,0)", "PC=(6,6,0)", "PD=(0,6,0)", "PS=(3,3,4)",
+      "pyr=Pyramid(PA,PB,PC,PD,PS)",
+      "netz=Net(pyr,auf)",
+      "Fp=(3,3,0)", "Mab=(3,0,0)",
+      "hoehe=Segment(PS,Fp)",
+      "seitenhoehe=Segment(PS,Mab)",
+      "halbe=Segment(Fp,Mab)",
+      "stdr=Polygon(PS,Fp,Mab)"
+    ],
+    ziehbar: [],
+    sichtbar: ["netz"],
+    stil: {
+      netz:{farbe:"gold", dicke:3, fuellung:0.4},
+      hoehe:{farbe:"wasser", dicke:4, name:"h = 4"},
+      seitenhoehe:{farbe:"leucht", dicke:4, name:"h_s"},
+      halbe:{farbe:"hellgold", dicke:4, name:"a/2 = 3"},
+      stdr:{farbe:"leucht", dicke:1, fuellung:0.35},
+      Fp:{farbe:"matt", punkt:4}
+    }
+  },
+
+  regler: [
+    {text:"aufklappen", objekt:"auf", min:0, max:1, schritt:0.01, ab:"netz"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Hier steht eine [[Pyramide|netz]] mit quadratischer Grundfläche: Die Grundkante ist $6$ cm lang, die Höhe beträgt $4$ cm. Drehe sie mit dem Finger, um sie von allen Seiten zu sehen.\n\nWie viel Pappe braucht man, um sie zu basteln?" },
+
+    { id:"netz", typ:"probieren",
+      text:"Klappe die Pyramide mit dem Regler auf, bis sie flach daliegt. So erhältst du ihr Netz.",
+      hinweis:"Ziehe am Regler „aufklappen“ und drehe die Zeichnung." },
+
+    { id:"teile", typ:"wahl",
+      text:"Aus welchen Flächen besteht das [[Netz|netz]]?",
+      optionen:[
+        {text:"aus einem Quadrat und vier gleichschenkligen Dreiecken", richtig:true},
+        {text:"aus fünf Dreiecken", hinweis:"Schau auf die Mitte des Netzes: Welche Form hat die Grundfläche?"},
+        {text:"aus einem Quadrat und vier rechtwinkligen Dreiecken", hinweis:"Vergleiche die beiden Schenkel eines Seitendreiecks: Sind sie gleich lang? Und steht irgendwo ein rechter Winkel?"}
+      ],
+      falsch:"Klappe das Netz auf und zähle die Flächen.",
+      richtig:"Recht so. Die vier Dreiecke bilden den Mantel $M$, das Quadrat die Grundfläche $G$. Es gilt $O = G + M$." },
+
+    { id:"hoehe", typ:"wahl",
+      text:"Für ein Dreieck brauchst du Grundseite und Höhe. Die Grundseite ist $a = 6$ cm. Ist die Höhe eines Seitendreiecks gleich der [[Körperhöhe $h = 4$ cm|hoehe]]?",
+      optionen:[
+        {text:"Nein. Die Höhe des Seitendreiecks ist länger.", richtig:true},
+        {text:"Ja, beide sind $4$ cm.", hinweis:"Die Körperhöhe steht senkrecht in der Mitte der Pyramide. Das Seitendreieck aber ist geneigt – ist seine Höhe dann gleich lang?"},
+        {text:"Nein. Die Höhe des Seitendreiecks ist kürzer."}
+      ],
+      falsch:"Vergleiche die senkrechte [[Körperhöhe|hoehe]] mit der schrägen Seitenfläche. Welche Strecke ist länger – die senkrechte oder die schräge?",
+      richtig:"Genau. Die Höhe des Seitendreiecks heißt [[Seitenhöhe $h_s$|seitenhoehe]]. Sie läuft schräg von der Spitze zur Mitte einer Grundkante. Zusammen mit der [[Körperhöhe|hoehe]] und der [[halben Grundkante|halbe]] bildet sie ein [[rechtwinkliges Dreieck|stdr]].",
+      beimStart:["SetValue(auf,0)"],
+      zeige:["hoehe"],
+      zeigeNachRichtig:["seitenhoehe","halbe","stdr","Fp"] },
+
+    { id:"hs", typ:"zahl",
+      text:"Berechne die [[Seitenhöhe $h_s$|seitenhoehe]] mit dem Satz des Pythagoras.",
+      einheit:"cm", loesung:5, toleranz:0.01,
+      falsch:"Die Katheten sind die [[Körperhöhe $4$ cm|hoehe]] und die [[halbe Grundkante $3$ cm|halbe]]. $h_s$ ist die Hypotenuse.",
+      richtig:"Vortrefflich: $h_s = \\sqrt{4^2 + 3^2} \\text{ cm} = \\sqrt{25} \\text{ cm} = 5$ cm." },
+
+    { id:"dreieck", typ:"zahl",
+      text:"Wie groß ist die Fläche eines Seitendreiecks?",
+      einheit:"cm²", loesung:15, toleranz:0.01,
+      falsch:"$A = \\frac{1}{2} \\cdot a \\cdot h_s = \\frac{1}{2} \\cdot 6 \\cdot 5$.",
+      richtig:"Richtig: $\\frac{1}{2} \\cdot 6 \\text{ cm} \\cdot 5 \\text{ cm} = 15$ cm²." },
+
+    { id:"mantel", typ:"zahl",
+      text:"Und der ganze Mantel $M$?",
+      einheit:"cm²", loesung:60, toleranz:0.01,
+      falsch:"Der Mantel besteht aus vier gleichen Dreiecken.",
+      richtig:"Gut: $M = 4 \\cdot 15 \\text{ cm}^2 = 60$ cm²." },
+
+    { id:"oberflaeche", typ:"zahl",
+      text:"Nun die ganze Oberfläche $O = G + M$.",
+      einheit:"cm²", loesung:96, toleranz:0.01,
+      falsch:"Die Grundfläche ist ein Quadrat mit $a = 6$ cm. Addiere sie zum Mantel.",
+      richtig:"Vortrefflich: $O = 36 \\text{ cm}^2 + 60 \\text{ cm}^2 = 96$ cm². Ohne Klebelaschen braucht man also $96$ cm² Pappe." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Die Oberfläche der Pyramide ist $O = G + M$. Für die Seitendreiecke brauchst du die [[Seitenhöhe $h_s$|seitenhoehe]], die du mit Pythagoras aus der [[Körperhöhe|hoehe]] und der [[halben Grundkante|halbe]] berechnest.\n\nFür eine quadratische Pyramide gilt $$O = a^2 + 2\\,a\\,h_s.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>
