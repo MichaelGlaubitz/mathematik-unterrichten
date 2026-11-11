@@ -583,7 +583,7 @@ function sichtEinpassen(){
     if (f && api.exists(f) && api.getVisible(f)) { cx = api.getXcoord(f); cy = api.getYcoord(f); }
     const hx = (x1-x0)/2/zoom, hy = (y1-y0)/2/zoom;
     x0 = cx-hx; x1 = cx+hx; y0 = cy-hy; y1 = cy+hy;
-    if (dx) { dx = schoeneSchritt(dx/zoom); dy = schoeneSchritt(dy/zoom); }
+    if (dx) { dx = schoeneSchritt((x1-x0)/7); dy = schoeneSchritt((y1-y0)/7); }
   }
   if (DIALOG.geogebra.achsen && dx) { try { api.setAxisSteps(1, dx, dy); } catch(e){} }
   if (DIALOG.geogebra.frei){
