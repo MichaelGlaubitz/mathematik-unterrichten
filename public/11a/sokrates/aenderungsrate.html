@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Von der Sekante zur Tangente – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Von der Sekante zur Tangente – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Professionelle Bungee-Springer springen gern von der $216$ m hohen Bloukrans-Brücke in Südafrika. Die ersten vier Sekunden sind ungefähr ein freier Fall mit der Fallstrecke $$s(t) = 5\\,t^2 \\quad (0 \\le t \\le 4),$$ $t$ in Sekunden, $s$ in Metern. Danach bremst das Seil den Springer ab.\n\n(1) In welcher Höhe beginnt das Abbremsen?\n(2) Welche Geschwindigkeit hat der Springer nach vier Sekunden?",
+  vorwissen: [
+    "Mittlere Änderungsrate: der Differenzenquotient $\\dfrac{s(t_2) - s(t_1)}{t_2 - t_1}$",
+    "Steigung einer Geraden durch zwei Punkte",
+    "Binomische Formeln"
+  ],
+  hefteintrag: "Von der mittleren zur lokalen Änderungsrate\n\nBungee-Sprung: $s(t) = 5t^2$ für $0 \\le t \\le 4$\n(1) $s(4) = 80$ m, das Abbremsen beginnt in $216 \\text{ m} - 80 \\text{ m} = 136$ m Höhe.\n\nMittlere Geschwindigkeit (mittlere Änderungsrate) im Intervall $[t_1;\\,4]$:\n$\\bar v = \\dfrac{s(4) - s(t_1)}{4 - t_1}$\n$[0;4]$: $20 \\tfrac{\\text{m}}{\\text{s}}$ · $[3;4]$: $35 \\tfrac{\\text{m}}{\\text{s}}$ · $[3{,}9;4]$: $39{,}5 \\tfrac{\\text{m}}{\\text{s}}$ · $[3{,}99;4]$: $39{,}95 \\tfrac{\\text{m}}{\\text{s}}$\n\nMit $t_1 = 4 - h$: $\\dfrac{s(4) - s(4-h)}{h} = 40 - 5h \\;\\to\\; 40$ für $h \\to 0$.\n(2) Nach vier Sekunden hat der Springer die Geschwindigkeit $40 \\tfrac{\\text{m}}{\\text{s}} = 144 \\tfrac{\\text{km}}{\\text{h}}$.\n\nDie lokale Änderungsrate einer Funktion $f$ an der Stelle $a$ ist der Grenzwert des Differenzenquotienten:\n$$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$$\nGeometrisch: Die Sekanten durch $P(a\\,|\\,f(a))$ und $Q$ nähern sich der Tangente in $P$. Die lokale Änderungsrate ist die Steigung der Tangente, also die Steigung des Graphen im Punkt $P$.",
+
+  geogebra: {
+    sicht: [-0.45, 4.6, -9, 92, 1, 20],
+    frei: true,
+    achsen: {x:"t in s", y:"s in m"},
+    befehle: [
+      "fs(x)=If(0<=x<=4,5x^2)",
+      "t1=3",
+      "P=(4,80)", "Q=(t1,5t1^2)",
+      "sek=Line(Q,P)",
+      "mv=(80-5t1^2)/(4-t1)", "dt=4-t1", "ds=80-5t1^2",
+      "Ecke=(4,5t1^2)",
+      "stDt=Segment(Q,Ecke)", "stDs=Segment(Ecke,P)",
+      "tang=Line(P,P+(1,40))"
+    ],
+    ziehbar: [],
+    sichtbar: ["fs","P"],
+    stil: {
+      fs:{farbe:"gold", dicke:5},
+      P:{farbe:"leucht", punkt:7, name:"P"},
+      Q:{farbe:"hellgold", punkt:7, name:"Q"},
+      sek:{farbe:"kupfer", dicke:3},
+      stDt:{farbe:"matt", dicke:3, strich:"gestrichelt", name:"Δt"},
+      stDs:{farbe:"matt", dicke:3, strich:"gestrichelt", name:"Δs"},
+      tang:{farbe:"leucht", dicke:4}
+    }
+  },
+
+  regler: [
+    {text:"Startzeit $t_1$", objekt:"t1", min:0, max:3.999, schritt:0.001, ab:"annaehern"}
+  ],
+  werte: [
+    {text:"$t_1$", objekt:"t1", ab:"mittel", einheit:"s", stellen:3},
+    {text:"$\\Delta t = 4 - t_1$", objekt:"dt", ab:"mittel", einheit:"s", stellen:3},
+    {text:"$\\Delta s = s(4) - s(t_1)$", objekt:"ds", ab:"mittel", einheit:"m", stellen:3},
+    {text:"mittlere Geschwindigkeit $\\frac{\\Delta s}{\\Delta t}$", objekt:"mv", ab:"mittel", wann:"richtig", einheit:"m/s", stellen:3}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Ein Springer stürzt sich von der Brücke. Der [[Graph|fs]] zeigt, welche Strecke $s$ er nach $t$ Sekunden gefallen ist: $s(t) = 5t^2$.\n\nVier Sekunden fällt er frei, dann fängt ihn das Seil. Zwei Fragen: Wo beginnt das Abbremsen? Und wie schnell ist er in diesem Augenblick?" },
+
+    { id:"hoehe", typ:"zahl",
+      text:"Beginnen wir mit dem Leichten. Wie weit ist er nach vier Sekunden gefallen – und in welcher Höhe über dem Grund beginnt also das Abbremsen?",
+      einheit:"m Höhe", loesung:136, toleranz:0.5,
+      falsch:"Berechne zuerst $s(4) = 5 \\cdot 4^2$. Die Brücke ist $216$ m hoch.",
+      richtig:"Richtig: $s(4) = 80$ m, also beginnt das Abbremsen in $216 - 80 = 136$ m Höhe. Das ist der [[Punkt $P(4\\,|\\,80)$|P]] auf dem Graphen." },
+
+    { id:"mittel", typ:"zahl",
+      text:"Nun zur Geschwindigkeit. Was wir leicht berechnen können, ist eine Durchschnittsgeschwindigkeit: Strecke durch Zeit. Welche mittlere Geschwindigkeit hat er in den ersten vier Sekunden?",
+      einheit:"m/s", loesung:20, toleranz:0.01,
+      falsch:"In $4$ s fällt er $80$ m. Wie viele Meter sind das im Durchschnitt pro Sekunde?",
+      richtig:"Genau: $\\dfrac{80 \\text{ m}}{4 \\text{ s}} = 20 \\tfrac{\\text{m}}{\\text{s}}$. Das ist die Steigung der [[Sekante|sek]] durch den Ursprung und $P$. Die [[waagerechte Strecke|stDt]] ist die Zeit $\\Delta t$, die [[senkrechte|stDs]] die Strecke $\\Delta s$.",
+      beimStart:["SetValue(t1,0)"],
+      zeige:["Q","sek"], zeigeNachRichtig:["stDt","stDs"] },
+
+    { id:"dritte", typ:"zahl",
+      text:"Doch in den ersten Sekunden ist er noch langsam. Nehmen wir nur die Zeitspanne von der dritten bis zur vierten Sekunde, also das Intervall $[3;\\,4]$. Wie groß ist die mittlere Geschwindigkeit dort?",
+      einheit:"m/s", loesung:35, toleranz:0.01,
+      falsch:"$s(3) = 5 \\cdot 9 = 45$ m. In der letzten Sekunde fällt er also $80 - 45$ Meter.",
+      richtig:"Richtig: $\\dfrac{80 - 45}{4 - 3} = 35 \\tfrac{\\text{m}}{\\text{s}}$. Die [[Sekante|sek]] ist steiler geworden.",
+      beimStart:["SetValue(t1,3)"] },
+
+    { id:"genug", typ:"wahl",
+      text:"Ist $35 \\tfrac{\\text{m}}{\\text{s}}$ nun die Geschwindigkeit genau nach vier Sekunden?",
+      optionen:[
+        {text:"Nein, sie ist größer, denn der Springer wird immer schneller.", richtig:true},
+        {text:"Ja, denn wir haben die letzte Sekunde genommen.", hinweis:"In der letzten Sekunde ist er am Anfang langsamer als am Ende. Liegt sein Tempo genau bei $t = 4$ dann über oder unter dem Durchschnitt?"},
+        {text:"Nein, sie ist kleiner."}
+      ],
+      falsch:"Der [[Graph|fs]] wird immer steiler. Was heißt das für die Geschwindigkeit am Ende des Intervalls?",
+      richtig:"Recht so. $35 \\tfrac{\\text{m}}{\\text{s}}$ ist nur ein Durchschnitt. Um näher an den Augenblick $t = 4$ zu kommen, müssen wir das Zeitintervall verkleinern." },
+
+    { id:"t39", typ:"zahl",
+      text:"Nimm das Intervall $[3{,}9;\\,4]$. Wie groß ist die mittlere Geschwindigkeit?",
+      einheit:"m/s", loesung:39.5, toleranz:0.01,
+      falsch:"$s(3{,}9) = 5 \\cdot 3{,}9^2 = 76{,}05$ m, und $\\Delta t = 0{,}1$ s.",
+      richtig:"Gut: $\\dfrac{80 - 76{,}05}{0{,}1} = \\dfrac{3{,}95}{0{,}1} = 39{,}5 \\tfrac{\\text{m}}{\\text{s}}$.",
+      beimStart:["SetValue(t1,3.9)"] },
+
+    { id:"t399", typ:"zahl",
+      text:"Und im Intervall $[3{,}99;\\,4]$?",
+      einheit:"m/s", loesung:39.95, toleranz:0.005,
+      falsch:"$s(3{,}99) = 5 \\cdot 3{,}99^2 = 79{,}6005$ m, und $\\Delta t = 0{,}01$ s.",
+      richtig:"Richtig: $39{,}95 \\tfrac{\\text{m}}{\\text{s}}$. Ahnst du schon, wohin das führt?",
+      beimStart:["SetValue(t1,3.99)"] },
+
+    { id:"annaehern", typ:"probieren",
+      text:"Schiebe nun den Punkt [[$Q$|Q]] mit dem Regler immer näher an [[$P$|P]] heran, bis $t_1 = 3{,}999$. Beobachte die mittlere Geschwindigkeit – und die [[Sekante|sek]].",
+      hinweis:"Ziehe den Regler ganz nach rechts und beobachte die Werte." },
+
+    { id:"null", typ:"wahl",
+      text:"Die Werte nähern sich offenbar der Zahl $40$. Was aber geschieht, wenn das Zeitintervall die Länge $0$ hat, also $t_1 = 4$?",
+      optionen:[
+        {text:"Dann steht $\\frac{0}{0}$ da, und das ist nicht definiert. Die Geschwindigkeit ist der Wert, dem sich die Quotienten nähern.", richtig:true},
+        {text:"Dann ist die Geschwindigkeit $0$, weil in der Zeit $0$ keine Strecke zurückgelegt wird.", hinweis:"Es stimmt, dass in der Zeit $0$ keine Strecke zurückgelegt wird. Doch dann steht im Quotienten $\\frac{0}{0}$ – und ist das wirklich $0$?"},
+        {text:"Dann ist die Geschwindigkeit unendlich groß."}
+      ],
+      falsch:"Setze $t_1 = 4$ in $\\frac{s(4) - s(t_1)}{4 - t_1}$ ein. Was steht dann im Zähler, was im Nenner?",
+      richtig:"Vortrefflich. Durch $0$ dürfen wir nicht teilen. Doch wir können fragen, welchem Wert sich die mittleren Geschwindigkeiten nähern, wenn das Intervall immer kleiner wird. Diesen Grenzwert nennt man die lokale Änderungsrate – hier die Momentangeschwindigkeit." },
+
+    { id:"term", typ:"wahl",
+      text:"Prüfen wir die $40$ exakt. Setze $t_1 = 4 - h$ mit einer kleinen Zahl $h > 0$: $$\\frac{s(4) - s(4-h)}{h} = \\frac{80 - 5(4-h)^2}{h}.$$ Vereinfache mit der binomischen Formel. Was kommt heraus?",
+      optionen:[
+        {text:"$40 - 5h$", richtig:true},
+        {text:"$40$", hinweis:"Fast – doch beim Ausmultiplizieren von $5(4-h)^2$ entsteht auch ein Glied mit $h^2$. Was bleibt davon nach dem Kürzen?"},
+        {text:"$40h - 5h^2$", hinweis:"Das ist der Zähler. Teile noch durch $h$."}
+      ],
+      falsch:"$5(4-h)^2 = 5(16 - 8h + h^2) = 80 - 40h + 5h^2$. Ziehe das von $80$ ab und teile durch $h$.",
+      richtig:"Genau: $\\dfrac{40h - 5h^2}{h} = 40 - 5h$. Für $h \\to 0$ geht das gegen $40$. Nach vier Sekunden fällt der Springer also mit $40 \\tfrac{\\text{m}}{\\text{s}}$, das sind $144 \\tfrac{\\text{km}}{\\text{h}}$." },
+
+    { id:"tangente", typ:"wahl",
+      text:"Und was wird dabei aus der [[Sekante|sek]], wenn $Q$ gegen $P$ rückt?",
+      optionen:[
+        {text:"Sie nähert sich der Tangente an den Graphen im Punkt $P$.", richtig:true},
+        {text:"Sie verschwindet, weil $P$ und $Q$ zusammenfallen.", hinweis:"Durch einen einzigen Punkt geht keine bestimmte Gerade – das ist wahr. Doch die Sekanten pendeln sich auf eine bestimmte Lage ein. Welche?"},
+        {text:"Sie wird senkrecht."}
+      ],
+      falsch:"Beobachte die Sekante, während du $t_1$ gegen $4$ schiebst. Auf welche Gerade dreht sie sich ein?",
+      richtig:"Recht so. Die Sekanten nähern sich der [[Tangente|tang]] in $P$. Ihre Steigung ist der Grenzwert $40$. Man sagt: Der Graph hat im Punkt $P$ die Steigung $40$.",
+      zeigeNachRichtig:["tang"] },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Die mittlere Änderungsrate gehört zu einem Intervall und zu einer [[Sekante|sek]]. Lässt man das Intervall gegen $0$ schrumpfen, so erhält man die lokale Änderungsrate $$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h},$$ die Steigung der [[Tangente|tang]] im Punkt $P$. Schreibe dir den Hefteintrag ab.",
+      beimStart:["SetValue(t1,3.5)"] }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

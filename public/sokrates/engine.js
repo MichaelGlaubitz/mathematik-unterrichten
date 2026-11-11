@@ -116,7 +116,7 @@ function werteAktualisieren(){
 /* ---- Farben (auch beim Themenwechsel) ---- */
 function stileAnwenden(nurFarbe){
   if (!api) return;
-  try { api.setGraphicsOptions(DREI ? 3 : 1, {bgColor: F().bg}); } catch(e){}
+  try { api.setGraphicsOptions(DREI ? 3 : 1, DIALOG.geogebra.achsen ? {bgColor: F().bg, axesColor: F().matt} : {bgColor: F().bg}); } catch(e){}
   const st = DIALOG.geogebra.stil;
   Object.keys(st).forEach(o => {
     if (!api.exists(o)) return;
@@ -319,6 +319,7 @@ function zeigeStart(){
     $('#los').disabled = false;
   });
   $('#los').onclick = () => geheZu(0);
+  if (api && !DREI){ letzteSicht = JSON.stringify(aktuelleSicht()); sichtEinpassen(); }
   sichtAnwenden();
 }
 function geheZu(i){
@@ -326,6 +327,7 @@ function geheZu(i){
   if (zustand[i] === undefined) zustand[i] = (DIALOG.schritte[i].typ === 'wahl' || DIALOG.schritte[i].typ === 'zahl') ? 'offen' : 'richtig';
   const s = DIALOG.schritte[i];
   (s.beimStart||[]).forEach(c => api && api.evalCommand(c));
+  if (api && !DREI && JSON.stringify(aktuelleSicht()) !== letzteSicht){ letzteSicht = JSON.stringify(aktuelleSicht()); sichtEinpassen(); }
   zeichne();
 }
 function zeichne(fehl, fehlQuelle){
@@ -438,12 +440,23 @@ function ansichtZuruecksetzen(){
   const el = $('#ggb'); api.setSize(el.clientWidth, el.clientHeight);
   api.setXML(api.getXML().replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>'));
 }
+function aktuelleSicht(){
+  for (let i = Math.min(schritt, DIALOG.schritte.length-1); i >= 0; i--) if (DIALOG.schritte[i].sicht) return DIALOG.schritte[i].sicht;
+  return DIALOG.geogebra.sicht;
+}
+let letzteSicht = null;
 function sichtEinpassen(){
   if (!api) return;
   const el = $('#ggb'); const w = el.clientWidth, h = el.clientHeight;
   api.setSize(w, h);
   if (DREI) return;
-  const [x0,x1,y0,y1] = DIALOG.geogebra.sicht;
+  const [x0,x1,y0,y1,dx,dy] = aktuelleSicht();
+  if (DIALOG.geogebra.achsen && dx) { try { api.setAxisSteps(1, dx, dy); } catch(e){} }
+  if (DIALOG.geogebra.frei){
+    api.setCoordSystem(x0, x1, y0, y1);
+    window._soll = {xmin: x0, inv: (x1-x0)/w};
+    return;
+  }
   const sx = w/(x1-x0), sy = h/(y1-y0), sc = Math.min(sx, sy);
   const cx = (x0+x1)/2, cy = (y0+y1)/2, hx = w/sc/2, hy = h/sc/2;
   api.setCoordSystem(cx-hx, cx+hx, cy-hy, cy+hy);
@@ -458,7 +471,11 @@ function ggbBereit(a){
     x = x.replace(/<plate show="true"\/>/,'<plate show="false"/>').replace(/<axis id="(\d)" show="true"/g,'<axis id="$1" show="false"').replace(/axes="true"/g,'axes="false"').replace(/grid="true"/g,'grid="false"');
     x = x.replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>');
     api.setXML(x);
-  } else { api.setAxesVisible(false,false); api.setGridVisible(false); }
+  } else {
+    const ax = DIALOG.geogebra.achsen;
+    api.setAxesVisible(!!ax, !!ax); api.setGridVisible(false);
+    if (ax) { try { api.setAxisLabels(1, ax.x || 'x', ax.y || 'y'); } catch(e){} }
+  }
   DIALOG.geogebra.befehle.forEach(c => api.evalCommand(c));
   // Polygone: Kanten mitführen
   const stilNamen = Object.keys(DIALOG.geogebra.stil);

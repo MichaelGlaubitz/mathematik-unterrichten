@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lokale Änderungsraten mit dem GTR – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Lokale Änderungsraten mit dem GTR – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Aufgabe 3: a) Füllen Sie die Tabelle für $f(x) = x^4$ und $f(x) = \\sqrt{x}$ an den Stellen $a = 1$ und $a = 2$ mit $h = 0{,}01;\\ 0{,}001;\\ 0{,}0001;\\ 0{,}00001$ aus. „Gut“ heißt: auf vier Stellen hinter dem Komma genau, die vierte Stelle ändert sich bei kleinerem $h$ nicht mehr. Erstellen Sie eine solche Tabelle auch für $f(x) = 2x - x^2$ und $f(x) = 2^x$.\n\nb) Skizzieren Sie die Graphen und überprüfen Sie die Ergebnisse grafisch, indem Sie in den Punkten $P$ nach Augenmaß eine Tangente skizzieren und deren Steigung bestimmen.",
+  vorwissen: [
+    "Differenzenquotient $\\dfrac{f(a+h) - f(a)}{h}$",
+    "Funktionswerte mit dem GTR berechnen (Tabelle oder Funktionsterm)",
+    "Steigung einer Geraden ablesen"
+  ],
+  hefteintrag: "Aufgabe 3 – Lokale Änderungsraten mit dem GTR\nDifferenzenquotient $d(h) = \\dfrac{f(a+h) - f(a)}{h}$ für $h = 0{,}01;\\ 0{,}001;\\ 0{,}0001;\\ 0{,}00001$\n\n$f(x) = x^4$: $a = 1$: $4{,}0604;\\ 4{,}0060;\\ 4{,}0006;\\ 4{,}0001 \\to 4$\n$\\qquad a = 2$: $32{,}2408;\\ 32{,}0240;\\ 32{,}0024;\\ 32{,}0002 \\to 32$\n$f(x) = \\sqrt{x}$: $a = 1$: $0{,}4988;\\ 0{,}4999;\\ 0{,}5000;\\ 0{,}5000 \\to 0{,}5$\n$\\qquad a = 2$: $0{,}3531;\\ 0{,}3535;\\ 0{,}3535;\\ 0{,}3536 \\to \\approx 0{,}3536$\n$f(x) = 2x - x^2$: $a = 1$: $\\to 0$ (Scheitelpunkt, waagerechte Tangente) · $a = 2$: $\\to -2$\n$f(x) = 2^x$: $a = 1$: $\\to \\approx 1{,}3863$ · $a = 2$: $\\to \\approx 2{,}7726$\n\nNicht jeder Grenzwert ist eine „glatte“ Zahl. Ist er es nicht, gibt man ihn auf vier Nachkommastellen genau an.\n\nb) Eine Tangente nach Augenmaß bestätigt die Werte ungefähr. Die Rechnung ist genauer als das Ablesen.",
+
+  geogebra: {
+    sicht: [-0.6, 2.9, -2, 22, 1, 2],
+    frei: true,
+    achsen: {x:"x", y:"y"},
+    befehle: [
+      "teil=1", "aa=1", "kk=2", "hh=10^(-kk)",
+      "fg(x)=If(teil==1,x^4,If(teil==2,sqrt(x),If(teil==3,2x-x^2,2^x)))",
+      "P=(aa,fg(aa))",
+      "dq=(fg(aa+hh)-fg(aa))/hh",
+      "dqg=(fg(aa+0.000001)-fg(aa))/0.000001",
+      "tang=Line(P,P+(1,dqg))",
+      "Ta=Point(Line((aa+1,0),(aa+1,1)))",
+      "augen=Line(P,Ta)",
+      "maug=(y(Ta)-y(P))/(x(Ta)-x(P))"
+    ],
+    startwerte: { Ta: [2, 4] },
+    ziehbar: ["Ta"],
+    sichtbar: ["fg","P"],
+    stil: {
+      fg:{farbe:"gold", dicke:5},
+      P:{farbe:"leucht", punkt:7, name:"P"},
+      tang:{farbe:"leucht", dicke:4},
+      Ta:{farbe:"hellgold", punkt:8},
+      augen:{farbe:"kupfer", dicke:3, strich:"gestrichelt"}
+    }
+  },
+
+  regler: [
+    {text:"$h = 10^{-k}$, $k$:", objekt:"kk", min:2, max:5, schritt:1, ab:"x4a1"}
+  ],
+  werte: [
+    {text:"$a$", objekt:"aa", ab:"x4a1", stellen:0},
+    {text:"$h$", objekt:"hh", ab:"x4a1", stellen:5},
+    {text:"Differenzenquotient", objekt:"dq", ab:"x4a1", stellen:6},
+    {text:"Steigung deiner Geraden", objekt:"maug", ab:"augenmass", stellen:2}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Heute hilft uns der Rechner: Er berechnet den Differenzenquotienten für sehr kleine $h$ schnell und genau. Wir prüfen, ab wann sich die vierte Nachkommastelle nicht mehr ändert.\n\nNimm deinen GTR. Die Zeichnung zeigt dir zur Kontrolle denselben Wert – doch rechne zuerst selbst." },
+
+    { id:"x4a1", typ:"zahl",
+      text:"Beginnen wir mit $f(x) = x^4$ an der Stelle [[$a = 1$|P]]. Berechne mit dem GTR den Differenzenquotienten für $h = 0{,}001$. Runde auf vier Nachkommastellen.",
+      loesung:4.0060, toleranz:0.00006,
+      falsch:"Gib $\\dfrac{1{,}001^4 - 1^4}{0{,}001}$ in den Rechner ein. Achte auf Klammern.",
+      richtig:"Richtig: $4{,}0060$. Schiebe nun den Regler auf $k = 4$ und $k = 5$. Die Werte $4{,}0006$ und $4{,}00006$ laufen deutlich auf $4$ zu.",
+      beimStart:["SetValue(teil,1)","SetValue(aa,1)","SetValue(kk,3)"] },
+
+    { id:"x4a1g", typ:"zahl",
+      text:"Welche lokale Änderungsrate hat $f(x) = x^4$ also bei $a = 1$?",
+      loesung:4, toleranz:0.0001,
+      falsch:"Die Werte waren $4{,}0604$, $4{,}0060$, $4{,}0006$, $4{,}0001$. Welcher Zahl nähern sie sich?",
+      richtig:"Richtig: $4$. Hier „sieht“ man den Grenzwert." },
+
+    { id:"x4a2", typ:"zahl",
+      text:"Nun $f(x) = x^4$ bei [[$a = 2$|P]]. Berechne die Werte und gib die lokale Änderungsrate an.",
+      loesung:32, toleranz:0.0001,
+      falsch:"Für $h = 0{,}001$ ergibt sich $32{,}0240$, für $h = 0{,}0001$ schon $32{,}0024$.",
+      richtig:"Gut: $32$. Die Steigung ist an der Stelle $2$ achtmal so groß wie an der Stelle $1$ – der Graph von $x^4$ wird sehr schnell steil.",
+      beimStart:["SetValue(aa,2)","SetValue(kk,2)"] },
+
+    { id:"wurzel1", typ:"zahl",
+      text:"Jetzt $f(x) = \\sqrt{x}$ bei [[$a = 1$|P]]. Welche lokale Änderungsrate ergibt sich?",
+      sicht:[-0.3, 4.6, -0.4, 2.6, 1, 0.5],
+      loesung:0.5, toleranz:0.0001,
+      falsch:"Berechne $\\dfrac{\\sqrt{1{,}0001} - 1}{0{,}0001}$ und runde auf vier Stellen.",
+      richtig:"Richtig: $0{,}5$. Für $h = 0{,}01$ war es erst $0{,}4988$, bei $h = 0{,}0001$ schon $0{,}5000$.",
+      beimStart:["SetValue(teil,2)","SetValue(aa,1)","SetValue(kk,2)"] },
+
+    { id:"wurzel2", typ:"zahl",
+      text:"Und $f(x) = \\sqrt{x}$ bei [[$a = 2$|P]]? Gib die lokale Änderungsrate auf vier Nachkommastellen an.",
+      loesung:0.3536, toleranz:0.00011,
+      falsch:"Für $h = 0{,}01$ ergibt sich $0{,}3531$. Nimm kleinere $h$, bis sich die vierte Stelle nicht mehr ändert.",
+      richtig:"Richtig: etwa $0{,}3536$. Bemerkst du den Unterschied?",
+      beimStart:["SetValue(aa,2)","SetValue(kk,2)"] },
+
+    { id:"gut", typ:"wahl",
+      text:"Bei $\\sqrt{x}$ an der Stelle $2$ erhalten wir keine „glatte“ Zahl. Woran erkennst du, dass ein Näherungswert „gut“ ist?",
+      optionen:[
+        {text:"Die vierte Nachkommastelle ändert sich bei kleinerem $h$ nicht mehr.", richtig:true},
+        {text:"Der Wert ist eine glatte Zahl.", hinweis:"Dann gäbe es für $\\sqrt{x}$ bei $a = 2$ gar keinen guten Wert. Und doch hat der Graph dort eine Steigung."},
+        {text:"$h$ ist kleiner als $0{,}001$."}
+      ],
+      falsch:"Lies noch einmal die Aufgabe: Was soll „gut“ heißen?",
+      richtig:"Recht so. Übrigens ist der genaue Wert $\\frac{1}{2\\sqrt{2}} \\approx 0{,}35355$. Woher das kommt, lernst du bald." },
+
+    { id:"parabel", typ:"wahl",
+      text:"Weiter mit $f(x) = 2x - x^2$. Bei [[$a = 1$|P]] laufen die Differenzenquotienten gegen $0$. Was bedeutet das für den Graphen?",
+      sicht:[-1.2, 3.2, -3.4, 1.9, 1, 1],
+      optionen:[
+        {text:"Der Graph hat dort eine waagerechte Tangente – es ist der Scheitelpunkt.", richtig:true},
+        {text:"Der Graph schneidet dort die $x$-Achse.", hinweis:"Steigung $0$ und Funktionswert $0$ sind zweierlei. Wo genau liegt $P(1\\,|\\,1)$?"},
+        {text:"Die Funktion ist dort nicht definiert."}
+      ],
+      falsch:"Steigung $0$ heißt: weder steigend noch fallend.",
+      richtig:"Genau. Im Scheitelpunkt $P(1\\,|\\,1)$ ist die [[Tangente|tang]] waagerecht.",
+      beimStart:["SetValue(teil,3)","SetValue(aa,1)","SetValue(kk,3)"],
+      zeigeNachRichtig:["tang"] },
+
+    { id:"parabel2", typ:"zahl",
+      text:"Und bei [[$a = 2$|P]]?",
+      loesung:-2, toleranz:0.0001,
+      falsch:"$f(2) = 0$. Berechne $\\dfrac{f(2{,}0001) - 0}{0{,}0001}$.",
+      richtig:"Richtig: $-2$. Der Graph fällt dort.",
+      beimStart:["SetValue(aa,2)","SetValue(kk,2)"],
+      verberge:["tang"] },
+
+    { id:"expo", typ:"zahl",
+      text:"Zuletzt $f(x) = 2^x$ bei [[$a = 1$|P]]. Gib die lokale Änderungsrate auf vier Nachkommastellen an.",
+      sicht:[-1.2, 3.3, -0.6, 8.6, 1, 1],
+      loesung:1.3863, toleranz:0.00011,
+      falsch:"$\\dfrac{2^{1{,}0001} - 2}{0{,}0001} \\approx 1{,}3863$. Prüfe, ob sich die vierte Stelle bei $h = 0{,}00001$ noch ändert.",
+      richtig:"Richtig: etwa $1{,}3863$, wieder keine glatte Zahl. Bei $a = 2$ ergibt sich übrigens $2{,}7726$ – genau das Doppelte, wie auch $f(2)$ das Doppelte von $f(1)$ ist.",
+      beimStart:["SetValue(teil,4)","SetValue(aa,1)","SetValue(kk,2)"] },
+
+    { id:"augenmass", typ:"probieren",
+      text:"Nun zu b). Lege nach Augenmaß eine Tangente an den [[Graphen|fg]] in [[$P(1\\,|\\,2)$|P]]: Ziehe den [[Punkt|Ta]], bis die [[Gerade|augen]] den Graphen in $P$ gerade berührt. Lies ihre Steigung ab.",
+      hinweis:"Ziehe den Punkt, bis die Gerade wie eine Tangente aussieht.",
+      zeige:["Ta","augen"] },
+
+    { id:"vergleich", typ:"wahl",
+      text:"Vergleiche deine Steigung mit dem berechneten Wert $1{,}3863$. Was lehrt uns das?",
+      optionen:[
+        {text:"Das Augenmaß bestätigt die Rechnung ungefähr, ist aber ungenauer.", richtig:true},
+        {text:"Das Augenmaß ist genauer als die Rechnung.", hinweis:"Wie viele Nachkommastellen kannst du in der Zeichnung sicher ablesen – und wie viele liefert der Rechner?"},
+        {text:"Die beiden Werte haben nichts miteinander zu tun.", hinweis:"Die lokale Änderungsrate ist doch gerade die Steigung der Tangente. Sie beschreiben also dasselbe."}
+      ],
+      falsch:"Die lokale Änderungsrate ist die Steigung der Tangente. Welcher der beiden Wege ist genauer?",
+      richtig:"Recht so. Hier ist die genaue [[Tangente|tang]] zum Vergleich. Die Skizze dient der Kontrolle: Ein grober Rechenfehler fällt so sofort auf.",
+      zeigeNachRichtig:["tang"] },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Der GTR liefert Differenzenquotienten für sehr kleine $h$. Ändert sich die vierte Nachkommastelle nicht mehr, so ist der Näherungswert gut. Manche Grenzwerte sind glatte Zahlen ($4$, $32$, $0{,}5$, $0$, $-2$), andere nicht ($0{,}3536$, $1{,}3863$). Und eine Tangente nach Augenmaß bestätigt die Werte. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>
