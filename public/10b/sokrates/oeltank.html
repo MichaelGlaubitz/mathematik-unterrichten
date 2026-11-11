@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Öltank – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Der Öltank – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "Timaios",
+
+  aufgabe: "Ein zylindrischer Öltank hat einen Durchmesser von $30$ m und eine Höhe von $20$ m.\n\nWie viele der üblichen Haushaltstanks mit $2000$ l Fassungsvermögen können mit dem Vorrat in einem solchen Tank gefüllt werden? Schätze und rechne.",
+  vorwissen: [
+    "Volumen eines Zylinders: $V = G \\cdot h$ mit der Grundfläche $G = \\pi \\cdot r^2$",
+    "Umrechnung: $1$ m³ $= 1000$ l"
+  ],
+
+  geogebra: {
+    sicht: [-8.5, 73, -7.5, 30],
+    befehle: [
+      "hinten=Curve(15+15cos(s),4sin(s),s,0,pi)",
+      "vorn=Curve(15+15cos(s),4sin(s),s,pi,2pi)",
+      "deckel=Curve(15+15cos(s),20+4sin(s),s,0,2pi)",
+      "wandL=Segment((0,0),(0,20))", "wandR=Segment((30,0),(30,20))",
+      "dmass=Segment((0,20),(30,20))",
+      "hmass=Segment((33,0),(33,20))",
+      "haus=Polygon((-5,0),(-4,0),(-4,2),(-5,2))",
+      "tHaus=Text(\"2000 l\",(-7.6,3.2))",
+      "tSchraeg=Text(\"Schrägbild\",(-1,28.6))",
+      "tGrund=Text(\"Grundfläche von oben\",(40,28.6))",
+      "Km=(55,10)",
+      "grund=Circle(Km,15)",
+      "radius=Segment(Km,(55,25))",
+      "q1=Polygon((55,10),(70,10),(70,25),(55,25))",
+      "q2=Polygon((55,10),(55,25),(40,25),(40,10))",
+      "q3=Polygon((55,10),(40,10),(40,-5),(55,-5))",
+      "q4=Polygon((55,10),(55,-5),(70,-5),(70,10))",
+      "wuerfel=Polygon((36,0),(37,0),(37,1),(36,1))",
+      "tWuerfel=Text(\"1 m³\",(35.2,1.6))"
+    ],
+    sichtbar: ["hinten","vorn","deckel","wandL","wandR","dmass","hmass","haus","tHaus","tSchraeg"],
+    stil: {
+      hinten:{farbe:"gold", dicke:2, strich:"gestrichelt"},
+      vorn:{farbe:"gold", dicke:5}, deckel:{farbe:"gold", dicke:5},
+      wandL:{farbe:"gold", dicke:5}, wandR:{farbe:"gold", dicke:5},
+      dmass:{farbe:"matt", dicke:2, strich:"gestrichelt", name:"d = 30 m"},
+      hmass:{farbe:"matt", dicke:2, name:"h = 20 m"},
+      haus:{farbe:"leucht", dicke:3, fuellung:0.5},
+      tHaus:{farbe:"leucht"}, tSchraeg:{farbe:"matt"}, tGrund:{farbe:"matt"},
+      Km:{farbe:"matt", punkt:4},
+      grund:{farbe:"gold", dicke:5, fuellung:0.15},
+      radius:{farbe:"hellgold", dicke:4, name:"r = 15 m"},
+      q1:{farbe:"matt", dicke:2, fuellung:0.12}, q2:{farbe:"matt", dicke:2, fuellung:0.12},
+      q3:{farbe:"matt", dicke:2, fuellung:0.12}, q4:{farbe:"matt", dicke:2, fuellung:0.12},
+      wuerfel:{farbe:"hellgold", dicke:2, fuellung:0.6}, tWuerfel:{farbe:"hellgold"}
+    }
+  },
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, Timaios. Sieh dir diesen [[Öltank|vorn,deckel,wandL,wandR]] an: [[$30$ m|dmass]] breit und [[$20$ m|hmass]] hoch. Daneben, im selben Maßstab, steht ein [[Haushaltstank|haus]] mit $2000$ Litern.\n\nWie viele solcher kleinen Tanks könnte man mit dem Öl aus dem großen füllen? Wir wollen erst schätzen, dann genau rechnen." },
+
+    { id:"volumen", typ:"wahl",
+      text:"Womit beginnen wir? Wie berechnet man das Volumen eines Zylinders?",
+      optionen:[
+        {text:"Grundfläche mal Höhe", richtig:true},
+        {text:"Umfang mal Höhe", hinweis:"Umfang mal Höhe ergibt die Mantelfläche – eine Fläche, kein Rauminhalt. Wie war es beim Quader?"},
+        {text:"Durchmesser mal Höhe"}
+      ],
+      falsch:"Denk an den Quader: Dort rechnest du Länge mal Breite mal Höhe – also die Grundfläche mal die Höhe. Gilt das beim Zylinder auch?",
+      richtig:"Recht so: $V = G \\cdot h$. Die [[Grundfläche|grund]] ist hier ein Kreis mit dem [[Radius $r = 15$ m|radius]].",
+      zeigeNachRichtig:["grund","radius","Km","tGrund"] },
+
+    { id:"quadrate", typ:"wahl",
+      text:"Für die Schätzung brauchen wir die Kreisfläche nicht genau. Lege [[Quadrate mit der Seite $r$|q1,q2,q3,q4]] an den Mittelpunkt. Wie viele solcher Quadrate passen ungefähr in den [[Kreis|grund]]?",
+      optionen:[
+        {text:"gut drei", richtig:true},
+        {text:"genau vier", hinweis:"Die [[vier Quadrate|q1,q2,q3,q4]] bilden zusammen das große Quadrat um den Kreis. Der Kreis lässt aber die Ecken frei – ist er dann so groß wie alle vier?"},
+        {text:"etwa zwei", hinweis:"Schau genau hin: Der Kreis füllt jedes der vier Quadrate zu einem großen Teil, nur die Ecken bleiben frei. Ist das nur die Hälfte?"}
+      ],
+      falsch:"Der Kreis bedeckt von jedem der vier Quadrate einen großen Teil, nur nicht die äußere Ecke.",
+      richtig:"Genau. Es sind etwas mehr als drei, nämlich $\\pi \\approx 3{,}14$ Quadrate. Darum gilt $G = \\pi \\cdot r^2$. Zum Schätzen nehmen wir $G \\approx 3 \\cdot r^2$.",
+      zeige:["q1","q2","q3","q4"] },
+
+    { id:"g_schaetz", typ:"zahl",
+      text:"Schätze nun die [[Grundfläche|grund]] mit $G \\approx 3 \\cdot r^2$ und $r = 15$ m.",
+      einheit:"m²", loesung:675, toleranz:0.5, tausender:true,
+      falsch:"Rechne $3 \\cdot 15 \\cdot 15$. Vorsicht: Der Radius ist die Hälfte des Durchmessers.",
+      richtig:"Gut: $G \\approx 3 \\cdot 225 \\text{ m}^2 = 675 \\text{ m}^2$." },
+
+    { id:"v_schaetz", typ:"zahl",
+      text:"Und das geschätzte Volumen bei der Höhe von [[$20$ m|hmass]]?",
+      einheit:"m³", loesung:13500, toleranz:0.5, tausender:true,
+      falsch:"Grundfläche mal Höhe: $675 \\text{ m}^2 \\cdot 20$ m.",
+      richtig:"Richtig: etwa $13\\,500$ m³." },
+
+    { id:"liter", typ:"wahl",
+      text:"Die Haushaltstanks werden in Litern gemessen. Wie viele Liter passen in [[einen Würfel von $1$ m Kantenlänge|wuerfel]]?",
+      optionen:[
+        {text:"$1000$ Liter", richtig:true},
+        {text:"$100$ Liter"},
+        {text:"$10$ Liter"}
+      ],
+      falsch:"Ein Liter ist ein Würfel von $1$ dm $= 10$ cm Kantenlänge. Wie viele solcher kleinen Würfel passen der Länge, der Breite und der Höhe nach in einen Meterwürfel?",
+      richtig:"So ist es: $10 \\cdot 10 \\cdot 10 = 1000$ Liter passen in einen [[Kubikmeter|wuerfel]]. Ein Haushaltstank mit $2000$ l fasst also [[$2$ m³|haus]].",
+      zeige:["wuerfel","tWuerfel"] },
+
+    { id:"n_schaetz", typ:"zahl",
+      text:"Jetzt die Schätzung: Etwa wie viele Haushaltstanks lassen sich mit $13\\,500$ m³ füllen?",
+      einheit:"Tanks", loesung:6750, toleranz:0.5, tausender:true,
+      falsch:"Jeder Haushaltstank fasst $2$ m³. Wie oft passen $2$ m³ in $13\\,500$ m³?",
+      richtig:"Unsere Schätzung lautet also: rund $6750$ Haushaltstanks." },
+
+    { id:"v_genau", typ:"zahl",
+      text:"Nun genau, Timaios. Berechne $V = \\pi \\cdot r^2 \\cdot h$ mit der $\\pi$-Taste. Runde auf ganze Kubikmeter.",
+      einheit:"m³", loesung:14137, toleranz:1, tausender:true,
+      falsch:"Rechne $\\pi \\cdot 15^2 \\cdot 20$. Der Radius ist $15$ m, nicht $30$ m.",
+      richtig:"Vortrefflich: $V = \\pi \\cdot 15^2 \\cdot 20 \\text{ m}^3 = 4500\\,\\pi \\text{ m}^3 \\approx 14\\,137$ m³, also rund $14\\,137\\,167$ Liter." },
+
+    { id:"n_genau", typ:"zahl",
+      text:"Wie viele Haushaltstanks mit $2000$ l lassen sich damit vollständig füllen?",
+      einheit:"volle Tanks", loesung:7068, toleranz:0, tausender:true,
+      falsch:"Teile $14\\,137\\,167$ l durch $2000$ l. Und bedenke: Gefragt ist, wie viele Tanks ganz voll werden.",
+      richtig:"Richtig. $14\\,137\\,167 : 2000 \\approx 7068{,}6$. Es werden $7068$ Tanks voll, und ein letzter wird noch gut zur Hälfte gefüllt." },
+
+    { id:"vergleich", typ:"wahl",
+      text:"Vergleiche: Geschätzt hatten wir $6750$, gerechnet $7068$. Warum ist die Schätzung zu klein?",
+      optionen:[
+        {text:"weil $\\pi$ etwas größer als $3$ ist", richtig:true},
+        {text:"weil wir mit dem Durchmesser statt mit dem Radius gerechnet haben", hinweis:"Wir haben in beiden Rechnungen $r = 15$ m genommen. Was haben wir beim Schätzen sonst vereinfacht?"},
+        {text:"weil das Öl sich beim Umfüllen ausdehnt"}
+      ],
+      falsch:"Welche Zahl haben wir beim Schätzen gerundet?",
+      richtig:"Genau. Mit $3$ statt $3{,}14$ liegt die Schätzung um etwa $4{,}5\\,\\%$ zu niedrig. Für eine Überschlagsrechnung ist das aber ein sehr guter Wert." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, Timaios:\n\n$$V = \\pi \\cdot r^2 \\cdot h = \\pi \\cdot (15 \\text{ m})^2 \\cdot 20 \\text{ m} \\approx 14\\,137 \\text{ m}^3.$$\n\nDas sind gut $14$ Millionen Liter. Damit lassen sich $7068$ [[Haushaltstanks|haus]] ganz füllen. Und beim Schätzen hilft dir das Bild: Ein [[Kreis|grund]] ist ungefähr [[drei Quadrate|q1,q2,q3]] aus Radius mal Radius groß." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

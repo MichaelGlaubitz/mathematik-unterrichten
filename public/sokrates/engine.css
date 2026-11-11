@@ -1,0 +1,86 @@
+/* Sokrates-Gespräche – gemeinsames Aussehen, dunkel (schwarz-gold) und hell (Pergament) */
+:root{
+  --bg:#0A0A0C; --bg2:#1d1a12; --rand:#2a2416;
+  --gold:#D4AF37; --hellgold:#F2D27A; --creme:#EDE6D6; --matt:#9A8F78; --tinte:#120E06;
+  --leucht:#FFF6D7; --falschbg:#5a4a2a; --falschtext:#EDE6D6; --feld:#1e1a10;
+  --hauch:rgba(212,175,55,.05); --hover:rgba(242,210,122,.15);
+  color-scheme:dark;
+}
+:root[data-thema="hell"]{
+  --bg:#F6F1E4; --bg2:#FFFBF1; --rand:#DCCFAE;
+  --gold:#A67C12; --hellgold:#7E5A06; --creme:#2B2417; --matt:#76694F; --tinte:#FFFDF6;
+  --leucht:#C2410C; --falschbg:#E6DCC4; --falschtext:#76694F; --feld:#FFFDF6;
+  --hauch:rgba(166,124,18,.07); --hover:rgba(166,124,18,.14);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--creme);
+  font-family:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;font-size:18px;line-height:1.5}
+body{background:radial-gradient(ellipse at 70% 40%, var(--bg2) 0%, var(--bg) 60%) fixed;transition:background .3s,color .3s}
+.seite{display:flex;flex-direction:column;min-height:100vh;max-width:1500px;margin:0 auto;padding:18px 24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--rand);padding-bottom:10px;flex-wrap:wrap}
+.kopf-links{display:flex;align-items:baseline;gap:16px;min-width:0}
+.heim{color:var(--matt);text-decoration:none;font-size:.95rem;white-space:nowrap}
+.heim:hover{color:var(--hellgold)}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;color:var(--gold);font-size:2.1rem;margin:0;letter-spacing:.01em}
+.kopf-rechts{display:flex;align-items:center;gap:14px}
+.fortschritt{color:var(--matt);font-size:.95rem;white-space:nowrap}
+main{flex:1;display:grid;grid-template-columns:minmax(380px,1fr) minmax(380px,1.05fr);gap:28px;padding-top:18px}
+.dialog{display:flex;flex-direction:column;min-width:0}
+.zeichnung{position:relative;min-height:440px;border:1px solid var(--rand);border-radius:6px;overflow:hidden;background:var(--bg)}
+#ggb{position:absolute;inset:0}
+#ggb .GeoGebraFrame, #ggb .applet_scaler, #ggb .appletParameters{border:0 !important;box-shadow:none !important;background:var(--bg) !important}
+#ggb .GeoGebraFrame *{outline:none}
+#ggb div{border-color:transparent !important;box-shadow:none !important}
+.sprecher{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;color:var(--gold);font-size:1.45rem;margin:0 0 4px}
+.rede{font-size:1.08rem}
+.rede p{margin:0 0 .6em}
+.antwort{margin-top:6px;color:var(--hellgold);font-style:italic;min-height:1.5em}
+.antwort p{margin:0 0 .5em}
+.antwort .zitat{font-style:normal;color:var(--creme)}
+.werte{margin-top:12px;padding:10px 14px;border-left:2px solid var(--gold);background:var(--hauch);font-size:1rem}
+.werte:empty{display:none}
+.wert{display:flex;justify-content:space-between;gap:16px}
+.wert .zahl{color:var(--hellgold);font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.schueler{margin-top:auto;padding-top:18px}
+.optionen{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+button{font:inherit;cursor:pointer;border-radius:4px}
+.option{text-align:left;background:var(--gold);color:var(--tinte);border:0;padding:8px 14px;font-weight:700;font-size:1rem}
+.option:hover{filter:brightness(1.12)}
+.option.falsch{background:var(--falschbg);color:var(--falschtext);opacity:.8}
+.hinweis{color:var(--matt);font-style:italic}
+.zahlfeld{display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap}
+.zahlfeld input{font:inherit;width:9em;padding:7px 10px;background:var(--feld);color:var(--hellgold);border:1px solid var(--gold);border-radius:4px}
+.zahlfeld .einheit{color:var(--matt);margin-right:4px}
+.nav{display:flex;gap:10px;margin-top:14px;align-items:center}
+.nav .weiter{background:var(--gold);color:var(--tinte);border:0;padding:8px 18px;font-weight:700}
+.nav .weiter:disabled{opacity:.25;cursor:default}
+.nav .zurueck{background:transparent;color:var(--matt);border:1px solid var(--rand);padding:7px 12px}
+.begriff{color:var(--hellgold);border-bottom:1px dashed var(--gold);cursor:pointer;padding:0 1px;border-radius:2px}
+.begriff:hover,.begriff:focus{background:var(--hover);outline:none}
+.begriff.inaktiv{color:inherit;border-bottom:0;cursor:default;background:none}
+.karte{max-width:780px}
+.karte h2{font-family:"Cormorant Garamond",Georgia,serif;color:var(--gold);font-size:1.5rem;margin:.2em 0 .3em}
+.karte ul{margin:.2em 0 1em 1.1em;padding:0}
+.karte li{margin:.15em 0}
+.aufgabe{border:1px solid var(--rand);padding:12px 16px;background:var(--hauch);margin-bottom:14px}
+.start{background:var(--gold);color:var(--tinte);border:0;padding:10px 22px;font-weight:700;font-size:1.05rem}
+.tipp{color:var(--matt);font-size:.9rem;margin-top:8px}
+.katex{font-size:1.04em}
+.tw{opacity:0;transition:opacity .3s ease}
+.tw.an{opacity:1}
+.wartet{opacity:0 !important;pointer-events:none}
+.optionen,.zahlfeld,.hinweis,.nav{transition:opacity .45s ease}
+.sprecherzeile{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sprecherzeile .sprecher{margin-right:6px}
+.klein{background:transparent;border:1px solid var(--rand);color:var(--matt);font-size:.82rem;padding:2px 10px;line-height:1.6}
+.klein:hover{color:var(--hellgold);border-color:var(--gold)}
+.klein.an{color:var(--hellgold);border-color:var(--gold);background:var(--hauch)}
+.klein[hidden]{display:none}
+.rede,.antwort{cursor:default}
+.tippt .rede,.tippt .antwort{cursor:pointer}
+@media (max-width:900px){
+  main{grid-template-columns:1fr}
+  .zeichnung{min-height:55vh;order:-1}
+  h1{font-size:1.6rem}
+}

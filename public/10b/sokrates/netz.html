@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Das Zylindernetz – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Das Zylindernetz – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "Timaios",
+
+  aufgabe: "Ein Zylinder hat eine Höhe von $12$ cm und einen Radius von $10$ cm. Das Netz dieses Zylinders ist skizziert: ein Rechteck mit den Seiten $x$ und $y$, daran zwei Kreise.\n\nWie groß sind die Werte für $x$ und $y$? Berechne auch die Oberfläche des Zylinders.",
+  vorwissen: [
+    "Umfang eines Kreises: $u = 2 \\cdot \\pi \\cdot r$",
+    "Flächeninhalt eines Kreises: $A = \\pi \\cdot r^2$",
+    "Netz eines Körpers"
+  ],
+
+  geogebra: {
+    sicht: [-13, 78, -22, 34],
+    befehle: [
+      "rad=10", "hz=12", "uu=2*pi*rad",
+      "mantel=Polygon((0,0),(uu,0),(uu,hz),(0,hz))",
+      "deckel=Circle((uu/2,hz+rad),rad)",
+      "rD=Segment((uu/2,hz+rad),(uu/2+rad,hz+rad))",
+      "schiene=Segment((0,0),(66,0))",
+      "Pb=Point(schiene)",
+      "sb=x(Pb)", "umd=sb/uu",
+      "Cb=(sb,-rad)",
+      "kreis=Circle(Cb,rad)",
+      "Mk=(sb-rad*sin(sb/rad), -rad+rad*cos(sb/rad))",
+      "speiche=Segment(Cb,Mk)",
+      "abgerollt=Segment((0,0),(sb,0))",
+      "xmass=Segment((-2,0),(-2,hz))",
+      "ymass=Segment((0,2.5),(uu,2.5))"
+    ],
+    startwerte: { Pb: [0, 0] },
+    ziehbar: ["Pb"],
+    sichtbar: ["mantel","deckel","rD","kreis","Pb","xmass","ymass"],
+    stil: {
+      mantel:{farbe:"gold", dicke:4, fuellung:0.18},
+      deckel:{farbe:"gold", dicke:4, fuellung:0.18},
+      rD:{farbe:"hellgold", dicke:3, name:"r = 10 cm"},
+      kreis:{farbe:"gold", dicke:4, fuellung:0.18},
+      Pb:{farbe:"hellgold", punkt:7},
+      Mk:{farbe:"leucht", punkt:6},
+      speiche:{farbe:"leucht", dicke:3},
+      abgerollt:{farbe:"leucht", dicke:8},
+      xmass:{farbe:"matt", dicke:2, name:"x"},
+      ymass:{farbe:"matt", dicke:2, strich:"gestrichelt", name:"y"}
+    }
+  },
+
+  werte: [
+    {text:"abgerollter Weg", objekt:"sb", ab:"rollen", einheit:"cm"},
+    {text:"Umdrehungen des Kreises", objekt:"umd", ab:"rollen"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, Timaios. Stell dir eine Dose vor, $12$ cm hoch, mit einem Radius von $10$ cm. Schneidest du sie auf und legst sie flach, so erhältst du ihr Netz: ein [[Rechteck|mantel]] und zwei [[Kreise|deckel,kreis]].\n\nWir suchen die Seiten [[$x$|xmass]] und [[$y$|ymass]] des Rechtecks und danach die ganze Oberfläche." },
+
+    { id:"x", typ:"wahl",
+      text:"Beginnen wir mit der kurzen Seite [[$x$|xmass]]. Welcher Strecke an der Dose entspricht sie?",
+      optionen:[
+        {text:"der Höhe der Dose, also $12$ cm", richtig:true},
+        {text:"dem Radius, also $10$ cm", hinweis:"Der [[Radius|rD]] gehört zu den Kreisen. Wo findest du die Strecke $x$ wieder, wenn du das Rechteck zur Dose zusammenrollst?"},
+        {text:"dem Durchmesser, also $20$ cm"}
+      ],
+      falsch:"Rolle das Rechteck in Gedanken zur Dose zusammen. Die Seite $x$ steht dann senkrecht – von unten bis oben.",
+      richtig:"Recht so: $x = 12$ cm, die Höhe des Zylinders." },
+
+    { id:"rollen", typ:"probieren",
+      text:"Nun die lange Seite [[$y$|ymass]]. Der untere [[Kreis|kreis]] muss genau an das Rechteck passen. Lass ihn an der Unterkante entlang abrollen: Ziehe den [[Berührpunkt|Pb]] nach rechts, bis die [[Markierung|Mk]] nach einer ganzen Umdrehung wieder oben ankommt.\n\nWo kommt der Kreis dann an?",
+      hinweis:"Ziehe den Berührpunkt nach rechts und beobachte die Messwerte.",
+      zeige:["Mk","speiche","abgerollt"] },
+
+    { id:"y", typ:"wahl",
+      text:"Du hast gesehen: Nach einer Umdrehung hat der Kreis seinen ganzen Rand an der [[Unterkante|abgerollt]] abgelegt – und steht genau an der Ecke. Was ist also $y$?",
+      optionen:[
+        {text:"der Umfang des Kreises", richtig:true},
+        {text:"der Durchmesser des Kreises", hinweis:"Der Durchmesser ist $20$ cm. Ist die Seite $y$ nur ein wenig länger als die Seite $x$?"},
+        {text:"die Fläche des Kreises", hinweis:"$y$ ist eine Strecke. Eine Fläche kann keine Seitenlänge sein."}
+      ],
+      falsch:"Der Rand des Deckels muss rundherum genau an den Rand des Rechtecks passen. Wie heißt die Länge dieses Randes?",
+      richtig:"Genau. Die Seite $y$ legt sich beim Zusammenrollen einmal ganz um den Deckel: $y$ ist sein Umfang." },
+
+    { id:"y_wert", typ:"zahl",
+      text:"Berechne $y = 2 \\cdot \\pi \\cdot r$. Runde auf zwei Nachkommastellen.",
+      einheit:"cm", loesung:62.832, toleranz:0.06,
+      falsch:"Setze $r = 10$ cm ein: $y = 2 \\cdot \\pi \\cdot 10$ cm.",
+      richtig:"Richtig: $y = 20\\,\\pi \\text{ cm} \\approx 62{,}83$ cm.",
+      nachRichtig:["SetCoords(Pb,20*pi,0)"] },
+
+    { id:"teile", typ:"wahl",
+      text:"Jetzt zur Oberfläche. Aus welchen Teilen besteht sie?",
+      optionen:[
+        {text:"aus dem Rechteck und zwei Kreisen", richtig:true},
+        {text:"aus dem Rechteck und einem Kreis", hinweis:"Eine Dose hat einen Boden – hat sie auch einen [[Deckel|deckel]]?"},
+        {text:"nur aus dem Rechteck"}
+      ],
+      falsch:"Sieh dir das Netz an. Was gehört alles dazu?",
+      richtig:"So ist es: $O = 2 \\cdot G + M$, mit der [[Grundfläche $G$|kreis]] und der [[Mantelfläche $M$|mantel]]." },
+
+    { id:"kreis", typ:"zahl",
+      text:"Berechne zuerst die Fläche $G = \\pi \\cdot r^2$ eines [[Kreises|deckel]]. Runde auf zwei Nachkommastellen.",
+      einheit:"cm²", loesung:314.159, toleranz:0.06,
+      falsch:"Rechne $\\pi \\cdot 10^2$ – das Quadrat gilt nur für den Radius.",
+      richtig:"Richtig: $G = 100\\,\\pi \\text{ cm}^2 \\approx 314{,}16$ cm²." },
+
+    { id:"mantel", typ:"zahl",
+      text:"Nun die [[Mantelfläche|mantel]] $M = x \\cdot y$. Runde auf zwei Nachkommastellen.",
+      einheit:"cm²", loesung:753.982, toleranz:0.06,
+      falsch:"Multipliziere die beiden Seiten des Rechtecks: $12 \\text{ cm} \\cdot 62{,}83$ cm.",
+      richtig:"Gut: $M = 12 \\cdot 20\\,\\pi \\text{ cm}^2 = 240\\,\\pi \\text{ cm}^2 \\approx 753{,}98$ cm²." },
+
+    { id:"oberflaeche", typ:"zahl",
+      text:"Und die ganze Oberfläche $O = 2 \\cdot G + M$? Runde auf eine Nachkommastelle.",
+      einheit:"cm²", loesung:1382.30, toleranz:0.08, tausender:true,
+      falsch:"Zwei Kreise und ein Rechteck: $2 \\cdot 314{,}16 + 753{,}98$.",
+      richtig:"Vortrefflich: $O = 200\\,\\pi + 240\\,\\pi = 440\\,\\pi \\approx 1382{,}3$ cm²." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, Timaios. Im Netz des Zylinders ist\n\n[[$x$|xmass]] die Höhe $h = 12$ cm und [[$y$|ymass]] der Umfang $2\\pi r \\approx 62{,}83$ cm.\n\nFür die Oberfläche gilt allgemein $$O = 2\\,\\pi r^2 + 2\\,\\pi r\\,h,$$ hier also $440\\,\\pi \\approx 1382{,}3$ cm²." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

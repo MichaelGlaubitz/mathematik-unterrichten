@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Messzylinder – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Der Messzylinder – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "Timaios",
+
+  aufgabe: "a) Ein Standzylinder von $36$ mm Innendurchmesser soll als Messzylinder geeicht werden. Welchen Abstand müssen die $5$-cm³-Teilstriche haben?\n\nb) Bei einem anderen Messzylinder haben die $2$-cm³-Teilstriche einen Abstand von $4$ mm. Welchen Innendurchmesser hat dieser Zylinder?",
+  vorwissen: [
+    "Volumen eines Zylinders: $V = G \\cdot h$ mit $G = \\pi \\cdot r^2$",
+    "Einheiten: $1$ cm $= 10$ mm, Volumen in cm³, Flächen in cm²",
+    "Gleichungen nach einer Größe umstellen, Quadratwurzel"
+  ],
+
+  geogebra: {
+    sicht: [-3.4, 12.6, -1.5, 11.2],
+    befehle: [
+      "r1=1.8",
+      "glas1=Polyline((-r1,10.5),(-r1,0),(r1,0),(r1,10.5))",
+      "regler1=Segment((-2.7,0),(-2.7,10))",
+      "Fh=Point(regler1)",
+      "hF=y(Fh)", "hFmm=10*hF", "V1=pi*r1^2*hF",
+      "fluess1=Polygon((-r1,0),(r1,0),(r1,hF),(-r1,hF))",
+      "a1=5/(pi*r1^2)",
+      "striche1=Sequence(Segment((r1,k*a1),(r1+0.7,k*a1)),k,1,21)",
+      "d1=Segment((-r1,-0.7),(r1,-0.7))",
+      "regler2=Segment((8.1,-0.7),(10.2,-0.7))",
+      "Qr=Point(regler2)",
+      "r2=x(Qr)-7.5", "h2=2/(pi*r2^2)", "h2mm=10*h2", "d2mm=20*r2",
+      "glas2=Polyline((7.5-r2,10.5),(7.5-r2,0),(7.5+r2,0),(7.5+r2,10.5))",
+      "striche2=Sequence(Segment((7.5+r2,k*h2),(7.5+r2+0.6,k*h2)),k,1,floor(10.4/h2))",
+      "d2=Segment((7.5-r2,-0.7),Qr)",
+      "raster=Sequence(Segment((11.5,k*0.4),(12.1,k*0.4)),k,0,26)",
+      "tRaster=Text(\"4 mm\",(11.25,10.9))"
+    ],
+    startwerte: { Fh: [-2.7, 2.6], Qr: [9.5, -0.7] },
+    ziehbar: ["Fh","Qr"],
+    sichtbar: ["glas1","Fh","fluess1","d1"],
+    stil: {
+      glas1:{farbe:"gold", dicke:5},
+      Fh:{farbe:"hellgold", punkt:7, name:"Füllstand"},
+      fluess1:{farbe:"wasser", dicke:1, fuellung:0.45},
+      striche1:{farbe:"hellgold", dicke:3},
+      d1:{farbe:"matt", dicke:2, name:"36 mm"},
+      glas2:{farbe:"gold", dicke:5},
+      Qr:{farbe:"hellgold", punkt:7},
+      striche2:{farbe:"hellgold", dicke:3},
+      d2:{farbe:"matt", dicke:2, name:"d = ?"},
+      raster:{farbe:"matt", dicke:2},
+      tRaster:{farbe:"matt"}
+    }
+  },
+
+  werte: [
+    {text:"Füllhöhe $h$", objekt:"hFmm", ab:"fuellen", einheit:"mm", stellen:1},
+    {text:"Volumen $V$", objekt:"V1", ab:"fuellen", einheit:"cm³"},
+    {text:"Radius $r$", objekt:"r2", ab:"teil_b", einheit:"cm"},
+    {text:"Abstand der $2$-cm³-Striche", objekt:"h2mm", ab:"teil_b", einheit:"mm"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, Timaios. Hier steht ein gläserner [[Standzylinder|glas1]] mit einem [[Innendurchmesser von $36$ mm|d1]]. Wir wollen ihn zu einem Messzylinder machen: Außen sollen Teilstriche für je $5$ cm³ hinauf.\n\nWie weit müssen die Striche auseinanderliegen?" },
+
+    { id:"fuellen", typ:"probieren",
+      text:"Probieren wir zuerst. Ziehe den [[Füllstand|Fh]] auf und ab und beobachte Höhe und Volumen unten. Bei welcher Höhe sind etwa $5$ cm³ eingefüllt? Und bei $10$ cm³?",
+      hinweis:"Ziehe den Füllstand und lies die Messwerte ab." },
+
+    { id:"proportional", typ:"wahl",
+      text:"Was geschieht mit dem Volumen, wenn du die Füllhöhe verdoppelst?",
+      optionen:[
+        {text:"Es verdoppelt sich ebenfalls.", richtig:true},
+        {text:"Es vervierfacht sich.", hinweis:"Vervierfachen würde es sich, wenn der Radius doppelt so groß würde. Hier ändert sich aber nur die Höhe – der Zylinder bleibt gleich breit."},
+        {text:"Es wächst um $5$ cm³."}
+      ],
+      falsch:"$V = G \\cdot h$, und die Grundfläche $G$ bleibt immer gleich. Was folgt daraus?",
+      richtig:"Recht so. Volumen und Höhe sind proportional. Darum liegen die Teilstriche alle im gleichen Abstand. Wir müssen nur ausrechnen, wie hoch $5$ cm³ stehen." },
+
+    { id:"grundflaeche", typ:"zahl",
+      text:"Berechne zuerst die Grundfläche $G = \\pi \\cdot r^2$ in cm². Beachte die Einheit: $36$ mm sind $3{,}6$ cm. Runde auf zwei Nachkommastellen.",
+      einheit:"cm²", loesung:10.1788, toleranz:0.02,
+      falsch:"Der Radius ist die Hälfte des Durchmessers: $r = 1{,}8$ cm. Rechne dann $\\pi \\cdot 1{,}8^2$.",
+      richtig:"Gut: $G = \\pi \\cdot (1{,}8 \\text{ cm})^2 \\approx 10{,}18$ cm². Jeder Zentimeter Füllhöhe bringt also gut $10$ cm³." },
+
+    { id:"abstand", typ:"zahl",
+      text:"Welche Höhe $h$ haben $5$ cm³ in diesem Zylinder? Stelle $V = G \\cdot h$ nach $h$ um und gib das Ergebnis in Millimetern an, auf eine Nachkommastelle.",
+      einheit:"mm", loesung:4.912, toleranz:0.04,
+      falsch:"Es ist $h = V : G = 5 \\text{ cm}^3 : 10{,}18 \\text{ cm}^2$. Das Ergebnis ist in cm – rechne es noch in mm um.",
+      richtig:"Vortrefflich: $h = \\dfrac{5 \\text{ cm}^3}{10{,}18 \\text{ cm}^2} \\approx 0{,}49 \\text{ cm} \\approx 4{,}9$ mm. So weit liegen die [[Teilstriche|striche1]] auseinander.",
+      zeigeNachRichtig:["striche1"],
+      nachRichtig:["SetCoords(Fh,-2.7,5*5/(pi*1.8^2))"] },
+
+    { id:"teil_b", typ:"rede",
+      text:"Nun zum zweiten Teil, Timaios. Ein [[anderer Messzylinder|glas2]] hat [[$2$-cm³-Teilstriche|striche2]], die genau $4$ mm auseinanderliegen. Daneben steht ein [[Raster mit $4$ mm Abstand|raster]] zum Vergleich.\n\nJetzt ist umgekehrt der [[Durchmesser|d2]] gesucht.",
+      zeige:["glas2","Qr","striche2","d2","raster","tRaster"] },
+
+    { id:"probieren_b", typ:"probieren",
+      text:"Ziehe den [[Punkt am Durchmesser|Qr]], um das Glas breiter oder schmaler zu machen. Was geschieht mit den [[Teilstrichen|striche2]]? Stelle die Breite so ein, dass sie genau zum [[Raster|raster]] passen.",
+      hinweis:"Ziehe den Punkt, bis der Strichabstand 4 mm beträgt." },
+
+    { id:"g_b", typ:"zahl",
+      text:"Rechnen wir es genau aus. $2$ cm³ stehen $4$ mm $= 0{,}4$ cm hoch. Wie groß ist also die Grundfläche $G = V : h$?",
+      einheit:"cm²", loesung:5, toleranz:0.01,
+      falsch:"Teile $2$ cm³ durch $0{,}4$ cm. Achte darauf, die $4$ mm zuerst in cm umzurechnen.",
+      richtig:"Richtig: $G = 2 \\text{ cm}^3 : 0{,}4 \\text{ cm} = 5$ cm²." },
+
+    { id:"r_b", typ:"zahl",
+      text:"Aus $\\pi \\cdot r^2 = 5$ cm² folgt der Radius. Wie groß ist $r$? Runde auf zwei Nachkommastellen.",
+      einheit:"cm", loesung:1.2616, toleranz:0.006,
+      falsch:"Teile zuerst durch $\\pi$, dann ziehe die Wurzel: $r = \\sqrt{5 : \\pi}$ cm.",
+      richtig:"Gut: $r = \\sqrt{\\dfrac{5}{\\pi}} \\text{ cm} \\approx 1{,}26$ cm.",
+      nachRichtig:["SetCoords(Qr,7.5+sqrt(5/pi),-0.7)"] },
+
+    { id:"d_b", typ:"zahl",
+      text:"Welchen Innendurchmesser hat der Zylinder also, in Millimetern und auf eine Nachkommastelle?",
+      einheit:"mm", loesung:25.23, toleranz:0.1,
+      falsch:"Der Durchmesser ist doppelt so groß wie der Radius. Und $1$ cm $= 10$ mm.",
+      richtig:"Vortrefflich: $d = 2 \\cdot 1{,}26 \\text{ cm} \\approx 2{,}52 \\text{ cm} = 25{,}2$ mm." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, Timaios. Weil $V = G \\cdot h$ ist, stehen gleiche Volumina immer gleich hoch – die Teilstriche liegen gleichmäßig.\n\na) Bei $36$ mm Innendurchmesser liegen die [[$5$-cm³-Striche|striche1]] $h = 5 : (\\pi \\cdot 1{,}8^2) \\approx 4{,}9$ mm auseinander.\n\nb) Liegen [[$2$-cm³-Striche|striche2]] $4$ mm auseinander, so ist $G = 5$ cm², also $r \\approx 1{,}26$ cm und der [[Innendurchmesser|d2]] etwa $25{,}2$ mm." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>

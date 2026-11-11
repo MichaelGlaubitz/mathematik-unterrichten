@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Walze – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Die Walze – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "Timaios",
+
+  aufgabe: "Die vordere Walze eines Planierfahrzeugs hat einen Durchmesser von $1{,}52$ m und eine Breite von $2{,}20$ m.\n\nWie viel Quadratmeter werden bei einer Umdrehung der Walze planiert?",
+  vorwissen: [
+    "Umfang eines Kreises: $u = \\pi \\cdot d$",
+    "Flächeninhalt eines Rechtecks: Länge mal Breite",
+    "Zylinder: Grundfläche, Mantelfläche"
+  ],
+
+  geogebra: {
+    sicht: [-1.25, 7.0, -3.7, 2.25],
+    befehle: [
+      "rr=0.76", "bb=2.2",
+      "schiene=Segment((0,rr),(6.1,rr))",
+      "Rw=Point(schiene)",
+      "sw=x(Rw)", "umd=sw/(pi*2*rr)", "fl=sw*bb",
+      "boden=Segment((-1.1,0),(6.95,0))",
+      "walze=Circle(Rw,rr)",
+      "Mk=(sw-rr*sin(sw/rr), rr-rr*cos(sw/rr))",
+      "speiche=Segment(Rw,Mk)",
+      "spur=Segment((0,0),(sw,0))",
+      "dmS=Segment((sw-rr,rr),(sw+rr,rr))",
+      "start=Segment((0,-0.12),(0,0.12))",
+      "flaeche=Polygon((0,-1.0),(sw,-1.0),(sw,-1.0-bb),(0,-1.0-bb))",
+      "oben=Polygon((sw-rr,-1.0),(sw+rr,-1.0),(sw+rr,-1.0-bb),(sw-rr,-1.0-bb))",
+      "bmass=Segment((-0.3,-1.0),(-0.3,-1.0-bb))",
+      "umass=Segment((0,-3.45),(pi*2*rr,-3.45))",
+      "tSeite=Text(\"Seitenansicht\",(-1.1,1.85))",
+      "tOben=Text(\"Draufsicht (von oben)\",(-1.1,-0.55))"
+    ],
+    startwerte: { Rw: [0, 0.76] },
+    ziehbar: ["Rw"],
+    sichtbar: ["boden","walze","Rw","Mk","speiche","spur","dmS","start","tSeite"],
+    stil: {
+      boden:{farbe:"matt", dicke:2},
+      walze:{farbe:"gold", dicke:5, fuellung:0.15},
+      Rw:{farbe:"hellgold", punkt:7, name:"Achse"},
+      Mk:{farbe:"leucht", punkt:6},
+      speiche:{farbe:"leucht", dicke:3},
+      spur:{farbe:"hellgold", dicke:8},
+      dmS:{farbe:"matt", dicke:2, strich:"gestrichelt", name:"d = 1,52 m"},
+      start:{farbe:"matt", dicke:3},
+      flaeche:{farbe:"hellgold", dicke:3, fuellung:0.3},
+      oben:{farbe:"gold", dicke:4, fuellung:0.45},
+      bmass:{farbe:"matt", dicke:2, name:"b = 2,20 m"},
+      umass:{farbe:"leucht", dicke:3, strich:"gestrichelt", name:"u"},
+      tSeite:{farbe:"matt"}, tOben:{farbe:"matt"}
+    }
+  },
+
+  werte: [
+    {text:"Weg der Achse", objekt:"sw", ab:"rollen", einheit:"m"},
+    {text:"Umdrehungen", objekt:"umd", ab:"rollen"},
+    {text:"planierte Fläche", objekt:"fl", ab:"form", wann:"richtig", einheit:"m²"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, Timaios. Sieh dir diese [[Walze|walze]] an. Sie ist $1{,}52$ m hoch – das ist ihr [[Durchmesser|dmS]] – und $2{,}20$ m breit.\n\nWenn sie über den Boden rollt, drückt sie ihn platt. Wie viele Quadratmeter schafft sie mit einer einzigen Umdrehung?" },
+
+    { id:"rollen", typ:"probieren",
+      text:"Probieren wir es aus. Ziehe die [[Achse|Rw]] der Walze nach rechts. Die [[Markierung|Mk]] am Rand zeigt dir, wie weit sie sich gedreht hat. Eine Umdrehung ist vollendet, wenn sie wieder ganz unten den Boden berührt.\n\nWie weit ist die Walze dann gerollt?",
+      hinweis:"Ziehe die Achse, bis die Markierung wieder unten ist, und lies den Weg ab." },
+
+    { id:"form", typ:"wahl",
+      text:"Die [[Spur|spur]] am Boden ist so lang wie der Weg der Walze. Doch die Walze ist auch breit. Welche Form hat die planierte Fläche, wenn du von oben schaust?",
+      optionen:[
+        {text:"ein Rechteck", richtig:true},
+        {text:"ein Kreis", hinweis:"Der Kreis ist das, was du von der Seite siehst. Von oben siehst du eine Walze, die geradeaus fährt – welche Form hinterlässt sie?"},
+        {text:"ein Parallelogramm mit schiefen Seiten", hinweis:"Die Walze fährt gerade nach vorn und steht dabei quer zur Fahrtrichtung. Wären die Seiten dann schief?"}
+      ],
+      richtig:"Recht so. Von oben gesehen hinterlässt die [[Walze|oben]] eine [[rechteckige Fläche|flaeche]]. Eine Seite ist die [[Breite $2{,}20$ m|bmass]].",
+      zeigeNachRichtig:["flaeche","oben","bmass","tOben"] },
+
+    { id:"laenge", typ:"wahl",
+      text:"Und wie lang ist die andere Seite des Rechtecks nach genau einer Umdrehung?",
+      optionen:[
+        {text:"so lang wie der Umfang der Walze", richtig:true},
+        {text:"so lang wie der Durchmesser, also $1{,}52$ m", hinweis:"Rolle die Walze einmal ganz herum und lies den Weg ab. Ist er wirklich nur $1{,}52$ m?"},
+        {text:"so lang wie der Radius, also $0{,}76$ m"}
+      ],
+      falsch:"Jeder Punkt des Walzenrandes berührt bei einer Umdrehung einmal den Boden. Welche Strecke legt also der ganze Rand auf dem Boden ab?",
+      richtig:"Genau. Beim Abrollen legt sich der ganze Rand der Walze auf den Boden: Der Weg ist der [[Umfang $u$|umass]].",
+      zeigeNachRichtig:["umass"] },
+
+    { id:"umfang", typ:"zahl",
+      text:"Berechne den Umfang $u = \\pi \\cdot d$ der Walze. Runde auf zwei Nachkommastellen.",
+      einheit:"m", loesung:4.7752, toleranz:0.011,
+      falsch:"Rechne $u = \\pi \\cdot 1{,}52$ m. Nimm für $\\pi$ die Taste deines Taschenrechners.",
+      richtig:"Richtig: $u = \\pi \\cdot 1{,}52 \\text{ m} \\approx 4{,}78$ m. Vergleiche mit dem Weg, den du beim Rollen abgelesen hast." },
+
+    { id:"mantel", typ:"wahl",
+      text:"Eine Walze ist ein Zylinder. Welcher Teil seiner Oberfläche hat beim Rollen den Boden berührt?",
+      optionen:[
+        {text:"die Mantelfläche", richtig:true},
+        {text:"die beiden Grundflächen", hinweis:"Die Grundflächen sind die runden Seitenwände. Berühren sie den Boden?"},
+        {text:"die ganze Oberfläche"}
+      ],
+      falsch:"Woran ist die Walze mit dem Boden in Berührung – an ihren runden Seitenwänden oder an ihrer gewölbten Lauffläche?",
+      richtig:"So ist es. Die gewölbte Lauffläche heißt Mantelfläche. Bei einer Umdrehung wird sie einmal ganz auf dem Boden abgerollt, als würdest du ein Etikett von einer Dose ziehen." },
+
+    { id:"flaeche", typ:"zahl",
+      text:"Nun hast du beide Seiten des [[Rechtecks|flaeche]]: den [[Umfang|umass]] und die [[Breite|bmass]]. Wie viele Quadratmeter werden bei einer Umdrehung planiert? Runde auf eine Nachkommastelle.",
+      einheit:"m²", loesung:10.5055, toleranz:0.06,
+      falsch:"Multipliziere den Umfang mit der Breite: $4{,}78 \\text{ m} \\cdot 2{,}20$ m.",
+      richtig:"Vortrefflich: $$A = \\pi \\cdot d \\cdot b = \\pi \\cdot 1{,}52 \\text{ m} \\cdot 2{,}20 \\text{ m} \\approx 10{,}5 \\text{ m}^2.$$",
+      nachRichtig:["SetCoords(Rw,pi*1.52,0.76)"] },
+
+    { id:"strasse", typ:"wahl",
+      text:"Noch eine Probe deines Verständnisses: Eine Straße ist $100$ m lang. Ungefähr wie oft muss sich die Walze drehen, bis sie einmal die ganze Länge entlang gefahren ist?",
+      optionen:[
+        {text:"etwa $21$-mal", richtig:true},
+        {text:"etwa $66$-mal", hinweis:"Hast du durch den Durchmesser geteilt? Bei einer Umdrehung kommt die Walze aber um ihren Umfang voran."},
+        {text:"etwa $10$-mal", hinweis:"Teilst du durch die Fläche? Gefragt ist eine Länge: Wie viele Umfänge passen in $100$ m?"}
+      ],
+      falsch:"Bei jeder Umdrehung kommt die Walze um ihren Umfang von etwa $4{,}78$ m voran.",
+      richtig:"Richtig, denn $100 : 4{,}78 \\approx 20{,}9$. Gut $21$ Umdrehungen also." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, Timaios: Bei einer Umdrehung rollt die Walze ihre [[Mantelfläche|flaeche]] auf dem Boden ab. Diese ist ein Rechteck aus [[Umfang|umass]] und [[Breite|bmass]]:\n\n$$A = \\pi \\cdot d \\cdot b \\approx 10{,}5 \\text{ m}^2.$$\n\nDas ist zugleich die Formel für die Mantelfläche jedes Zylinders." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js"></script>
+</body>
+</html>
