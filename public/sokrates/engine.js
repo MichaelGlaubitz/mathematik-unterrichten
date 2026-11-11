@@ -350,7 +350,8 @@ function geheZu(i){
   const s = DIALOG.schritte[i];
   (s.beimStart||[]).forEach(c => api && api.evalCommand(c));
   koppelZurueck();
-  if (api && !DREI && JSON.stringify(aktuelleSicht()) !== letzteSicht){ letzteSicht = JSON.stringify(aktuelleSicht()); sichtEinpassen(); }
+  if (api && !DREI && JSON.stringify(aktuelleSicht()) !== letzteSicht){ letzteSicht = JSON.stringify(aktuelleSicht()); zoom = 1; sichtEinpassen(); }
+  else if (api && !DREI && zoom !== 1) sichtEinpassen();
   zeichne();
 }
 function zeichne(fehl, fehlQuelle){
@@ -370,6 +371,9 @@ function zeichne(fehl, fehlQuelle){
   } else if (s.typ === 'probieren'){
     unten = `<div class="hinweis">${rich(s.hinweis || 'Probiere es in der Zeichnung aus.').replace(/^<p>|<\/p>$/g,'')}</div>`;
   }
+  const tipps = (s.typ === 'wahl' || s.typ === 'zahl') && !geloest ? (s.tipps || (s.falsch ? [s.falsch] : [])) : [];
+  const nT = Math.min(zustand['t'+schritt] || 0, tipps.length);
+  if (tipps.length) unten += `<div class="tippzeile"><button class="klein" id="tippknopf">💡 Tipp${tipps.length > 1 ? ' ' + Math.min(nT+1, tipps.length) + '/' + tipps.length : ''}</button></div><div class="tipps" id="tipps">${tipps.slice(0,nT).map((t,i) => '<div class="tipp1"><b>Tipp ' + (i+1) + ':</b> ' + rich(t).replace(/^<p>|<\/p>$/g,'') + '</div>').join('')}</div>`;
   const letzter = schritt === N-1;
   $('#dialog').innerHTML = `
     <div class="sprecherzeile">
@@ -396,6 +400,19 @@ function zeichne(fehl, fehlQuelle){
   const heft = $('#heft');
   if (heft) ['copy','cut','contextmenu','selectstart','dragstart'].forEach(ev => heft.addEventListener(ev, e => e.preventDefault()));
   document.querySelectorAll('.option[data-i]').forEach(b => b.onclick = () => waehle(+b.dataset.i));
+  const tk = $('#tippknopf');
+  if (tk){
+    if (nT >= tipps.length) tk.disabled = true;
+    tk.onclick = () => {
+      const n = (zustand['t'+schritt] || 0); if (n >= tipps.length) return;
+      zustand['t'+schritt] = n + 1;
+      const div = document.createElement('div'); div.className = 'tipp1';
+      div.innerHTML = '<b>Tipp ' + (n+1) + ':</b> ' + rich(tipps[n]).replace(/^<p>|<\/p>$/g,'');
+      $('#tipps').appendChild(div); formeln(div);
+      if (n + 1 >= tipps.length){ tk.disabled = true; tk.textContent = '💡 Tipp'; } else tk.textContent = '💡 Tipp ' + (n+2) + '/' + tipps.length;
+      if (auto) sprich(sprechtext(tipps[n]));
+    };
+  }
   if ($('#pruefen')){
     const pr = () => pruefeZahl();
     $('#pruefen').onclick = pr;
@@ -448,6 +465,71 @@ function pruefeZahl(){
   zeichne(`<p>Du sagst ${gesagt}?</p>` + rich(s.falsch || 'Prüfe es noch einmal.'), 'Du sagst ' + gesagt + '? ' + (s.falsch || 'Prüfe es noch einmal.'));
 }
 
+/* ---- Rechner (eigener Parser, kein eval) ---- */
+function rechne(text){
+  const src = text.replace(/\s+/g,'').replace(/×|·|\*/g,'*').replace(/÷|:/g,'/').replace(/−/g,'-').replace(/,/g,'.').replace(/π|pi/gi,'π').replace(/√|wurzel|sqrt/gi,'√');
+  let i = 0;
+  const peek = () => src[i];
+  const fehler = m => { throw new Error(m); };
+  function zahlLesen(){ const m = src.slice(i).match(/^\d*\.?\d+(e[-+]?\d+)?/i); if (!m) fehler('Zahl erwartet'); i += m[0].length; return parseFloat(m[0]); }
+  function primaer(){
+    const c = peek();
+    if (c === '(') { i++; const v = ausdruck(); if (peek() !== ')') fehler('Klammer fehlt'); i++; return v; }
+    if (c === 'π') { i++; return Math.PI; }
+    if (c === '√') { i++; const v = potenz(); if (v < 0) fehler('Wurzel aus negativer Zahl'); return Math.sqrt(v); }
+    if (c !== undefined && /[\d.]/.test(c)) return zahlLesen();
+    fehler('Unerwartetes Zeichen' + (c ? ' „' + c + '“' : ''));
+  }
+  function potenz(){ const b = primaer(); if (peek() === '^') { i++; return Math.pow(b, vorzeichen()); } return b; }
+  function vorzeichen(){ if (peek() === '-') { i++; return -vorzeichen(); } if (peek() === '+') { i++; return vorzeichen(); } return potenz(); }
+  function term(){
+    let v = vorzeichen();
+    for(;;){
+      const c = peek();
+      if (c === '*') { i++; v *= vorzeichen(); }
+      else if (c === '/') { i++; const d = vorzeichen(); if (d === 0) fehler('Division durch 0'); v /= d; }
+      else if (c === '(' || c === 'π' || c === '√' || (c !== undefined && /[\d.]/.test(c))) v *= vorzeichen();
+      else return v;
+    }
+  }
+  function ausdruck(){ let v = term(); for(;;){ const c = peek(); if (c === '+') { i++; v += term(); } else if (c === '-') { i++; v -= term(); } else return v; } }
+  if (!src) fehler('Leer');
+  const v = ausdruck(); if (i < src.length) fehler('Unerwartetes Zeichen „' + src[i] + '“');
+  if (!isFinite(v)) fehler('Kein endliches Ergebnis');
+  return v;
+}
+function hilfenEinrichten(){
+  const kopf = document.querySelector('.kopf-rechts');
+  if (!kopf || $('#rechnerknopf')) return;
+  kopf.insertAdjacentHTML('afterbegin', '<button class="klein" id="merkknopf" title="Begriffe und Formeln">📘 Merkzettel</button><button class="klein" id="rechnerknopf" title="Taschenrechner">🧮 Rechner</button>');
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="tafel" id="rechner" hidden><div class="tafel-kopf"><span>Rechner</span><button class="klein" data-zu="rechner">✕</button></div>
+      <div class="rechner-zeile"><input id="rin" autocomplete="off" inputmode="text" placeholder="z. B. (1,1^2 − 2 + 1) : 0,1"><button class="option" id="rgleich">=</button></div>
+      <div class="rechner-tasten">${['(',')','^','√','π','·',':'].map(t => `<button class="klein" data-t="${t}">${t}</button>`).join('')}<button class="klein" data-t="C">C</button></div>
+      <div class="rechner-erg" id="rerg"></div><div class="rechner-verlauf" id="rverlauf"></div>
+      <div class="rechner-hinweis">Komma oder Punkt als Dezimalzeichen · Potenz mit ^ · Wurzel mit √ · Ergebnis antippen übernimmt es.</div></div>
+    <div class="tafel" id="merk" hidden><div class="tafel-kopf"><span>Merkzettel</span><button class="klein" data-zu="merk">✕</button></div><div id="merkinhalt"></div></div>`);
+  const zeige = id => { const t = $('#'+id); t.hidden = !t.hidden; if (!t.hidden && id === 'rechner') $('#rin').focus({preventScroll:true}); };
+  $('#rechnerknopf').onclick = () => zeige('rechner');
+  $('#merkknopf').onclick = () => {
+    const m = DIALOG.merkzettel || (DIALOG.vorwissen||[]).map(v => ({text:v}));
+    $('#merkinhalt').innerHTML = m.map(e => `<div class="merk1">${e.begriff ? '<b>' + e.begriff + '</b><br>' : ''}${rich(e.text).replace(/^<p>|<\/p>$/g,'')}</div>`).join('') || '<p>Noch kein Merkzettel.</p>';
+    formeln($('#merkinhalt')); zeige('merk');
+  };
+  document.querySelectorAll('[data-zu]').forEach(b => b.onclick = () => { $('#'+b.dataset.zu).hidden = true; });
+  const rin = $('#rin');
+  const los = () => {
+    let erg;
+    try { const v = rechne(rin.value); erg = v.toLocaleString('de-DE', {maximumSignificantDigits:12}); $('#rerg').textContent = '= ' + erg; $('#rerg').classList.remove('fehler');
+      $('#rverlauf').insertAdjacentHTML('afterbegin', `<div class="vz"><span>${rin.value.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span><button class="klein" data-wert="${erg}">= ${erg}</button></div>`);
+      $('#rverlauf').querySelectorAll('[data-wert]').forEach(b => b.onclick = () => { const e = $('#eingabe'); if (e) { e.value = b.dataset.wert.replace(/\./g,''); e.focus({preventScroll:true}); } else { rin.value += b.dataset.wert; } });
+    } catch(e){ $('#rerg').textContent = e.message; $('#rerg').classList.add('fehler'); }
+  };
+  $('#rgleich').onclick = los;
+  rin.onkeydown = e => { if (e.key === 'Enter') los(); };
+  document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { if (b.dataset.t === 'C') { rin.value = ''; $('#rerg').textContent = ''; } else rin.value += b.dataset.t; rin.focus({preventScroll:true}); });
+}
+
 /* ---- GeoGebra ---- */
 function startwerte(){
   if (!api) return;
@@ -468,13 +550,41 @@ function aktuelleSicht(){
   for (let i = Math.min(schritt, DIALOG.schritte.length-1); i >= 0; i--) if (DIALOG.schritte[i].sicht) return DIALOG.schritte[i].sicht;
   return DIALOG.geogebra.sicht;
 }
-let letzteSicht = null;
+let letzteSicht = null, zoom = 1, koords = false;
+function schoeneSchritt(v){ const e = Math.pow(10, Math.floor(Math.log10(v))); const m = v/e; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * e; }
+function zoome(f){
+  if (f === 0) zoom = 1; else zoom = Math.min(80, Math.max(0.5, zoom * f));
+  if (DREI){
+    if (f === 0) return ansichtZuruecksetzen();
+    api.setXML(api.getXML().replace(/(<euclidianView3D>\s*<coordSystem [^>]*scale=")([\d.]+)/, (m,a,b) => a + (parseFloat(b)*f).toFixed(3)));
+    return;
+  }
+  sichtEinpassen();
+}
+function koordPunkte(){
+  const st = DIALOG.geogebra.stil;
+  return (DIALOG.geogebra.koordinaten || Object.keys(st).filter(o => st[o].name && api && api.exists(o) && api.getObjectType(o) === 'point'));
+}
+function koordAnwenden(){
+  if (!api) return;
+  try { api.setRounding('3'); } catch(e){}
+  koordPunkte().forEach(o => { const n = (DIALOG.geogebra.stil[o]||{}).name || o; if (api.exists(o)) { api.setCaption(o, koords ? n + '(%x | %y)' : n); api.setLabelVisible(o, true); api.setLabelStyle(o, 3); } });
+  const k = $('#koordknopf'); if (k) k.classList.toggle('an', koords);
+}
 function sichtEinpassen(){
   if (!api) return;
   const el = $('#ggb'); const w = el.clientWidth, h = el.clientHeight;
   api.setSize(w, h);
   if (DREI) return;
-  const [x0,x1,y0,y1,dx,dy] = aktuelleSicht();
+  let [x0,x1,y0,y1,dx,dy] = aktuelleSicht();
+  if (zoom !== 1){
+    const f = DIALOG.geogebra.fokus;
+    let cx = (x0+x1)/2, cy = (y0+y1)/2;
+    if (f && api.exists(f) && api.getVisible(f)) { cx = api.getXcoord(f); cy = api.getYcoord(f); }
+    const hx = (x1-x0)/2/zoom, hy = (y1-y0)/2/zoom;
+    x0 = cx-hx; x1 = cx+hx; y0 = cy-hy; y1 = cy+hy;
+    if (dx) { dx = schoeneSchritt(dx/zoom); dy = schoeneSchritt(dy/zoom); }
+  }
   if (DIALOG.geogebra.achsen && dx) { try { api.setAxisSteps(1, dx, dy); } catch(e){} }
   if (DIALOG.geogebra.frei){
     api.setCoordSystem(x0, x1, y0, y1);
@@ -517,7 +627,7 @@ function ggbBereit(a){
   const ziehbar = new Set(DIALOG.geogebra.ziehbar||[]);
   api.getAllObjectNames().forEach(o => api.setFixed(o, !ziehbar.has(o), ziehbar.has(o)));
   startwerte();
-  koppelZurueck(); koppelnEinrichten();
+  koppelZurueck(); koppelnEinrichten(); koordAnwenden();
   if (DREI) ansichtZuruecksetzen(); else sichtEinpassen();
   api.registerUpdateListener(() => { if (!werteGeplant){ werteGeplant = true; requestAnimationFrame(() => { werteGeplant = false; werteAktualisieren(); }); } });
   if (!DREI) setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);
@@ -543,11 +653,11 @@ window.addEventListener('load', () => {
     appletOnLoad: ggbBereit
   }, true);
   applet.inject('ggb');
-  if (DREI){
-    const z = document.querySelector('.zeichnung');
-    z.insertAdjacentHTML('beforeend', '<button class="klein ansicht" id="ansicht" title="Ansicht zurücksetzen">⟲ Ansicht</button><div class="drehhinweis">Zum Drehen in die Zeichnung ziehen</div>');
-    $('#ansicht').onclick = ansichtZuruecksetzen;
-  }
+  const z = document.querySelector('.zeichnung');
+  z.insertAdjacentHTML('beforeend', `<div class="werkzeuge"><button class="klein" id="zplus" title="Vergrößern">＋</button><button class="klein" id="zminus" title="Verkleinern">－</button><button class="klein" id="zreset" title="Ansicht zurücksetzen">⟲</button>${DREI ? '' : '<button class="klein" id="koordknopf" title="Koordinaten der Punkte anzeigen">(x | y)</button>'}</div>` + (DREI ? '<div class="drehhinweis">Zum Drehen in die Zeichnung ziehen</div>' : ''));
+  $('#zplus').onclick = () => zoome(1.6); $('#zminus').onclick = () => zoome(1/1.6); $('#zreset').onclick = () => zoome(0);
+  if ($('#koordknopf')) $('#koordknopf').onclick = () => { koords = !koords; koordAnwenden(); };
+  hilfenEinrichten();
   let t; const neu = () => { clearTimeout(t); t = setTimeout(() => { if (DREI) { if (api) api.setSize(el.clientWidth, el.clientHeight); } else sichtEinpassen(); }, 120); };
   window.addEventListener('resize', neu);
   if (window.ResizeObserver) new ResizeObserver(neu).observe(el);

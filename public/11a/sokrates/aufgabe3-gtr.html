@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611112111">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611112123">
 </head>
 <body>
 <div class="seite">
@@ -39,10 +39,12 @@ const DIALOG = {
     "Steigung einer Geraden ablesen"
   ],
   hefteintrag: "Aufgabe 3 – Lokale Änderungsraten mit dem GTR\nDifferenzenquotient $d(h) = \\dfrac{f(a+h) - f(a)}{h}$ für $h = 0{,}01;\\ 0{,}001;\\ 0{,}0001;\\ 0{,}00001$\n\n$f(x) = x^4$: $a = 1$: $4{,}0604;\\ 4{,}0060;\\ 4{,}0006;\\ 4{,}0001 \\to 4$\n$\\qquad a = 2$: $32{,}2408;\\ 32{,}0240;\\ 32{,}0024;\\ 32{,}0002 \\to 32$\n$f(x) = \\sqrt{x}$: $a = 1$: $0{,}4988;\\ 0{,}4999;\\ 0{,}5000;\\ 0{,}5000 \\to 0{,}5$\n$\\qquad a = 2$: $0{,}3531;\\ 0{,}3535;\\ 0{,}3535;\\ 0{,}3536 \\to \\approx 0{,}3536$\n$f(x) = 2x - x^2$: $a = 1$: $\\to 0$ (Scheitelpunkt, waagerechte Tangente) · $a = 2$: $\\to -2$\n$f(x) = 2^x$: $a = 1$: $\\to \\approx 1{,}3863$ · $a = 2$: $\\to \\approx 2{,}7726$\n\nNicht jeder Grenzwert ist eine „glatte“ Zahl. Ist er es nicht, gibt man ihn auf vier Nachkommastellen genau an.\n\nb) Eine Tangente nach Augenmaß bestätigt die Werte ungefähr. Die Rechnung ist genauer als das Ablesen.",
+  merkzettel: [{"begriff": "Mittlere Änderungsrate (Differenzenquotient)", "text": "$\\dfrac{f(x_2) - f(x_1)}{x_2 - x_1} = \\dfrac{\\Delta y}{\\Delta x}$ – „Differenz durch Differenz“. Sie gehört zu einem Intervall $[x_1;\\,x_2]$."}, {"begriff": "Sekante", "text": "Gerade durch zwei Punkte des Graphen. Ihre Steigung ist die mittlere Änderungsrate."}, {"begriff": "Steigung einer Geraden", "text": "$m = \\dfrac{\\Delta y}{\\Delta x}$ – so viel steigt die Gerade, wenn man um $1$ nach rechts geht."}, {"begriff": "Schreibweise mit h", "text": "Statt $x_1 = a$ und $x_2 = a + h$ schreibt man $\\dfrac{f(a+h) - f(a)}{h}$. Dabei ist $h$ die Breite des Intervalls."}, {"begriff": "Der Limes", "text": "$\\displaystyle\\lim_{h \\to 0}$ liest man „Limes für $h$ gegen $0$“ (lat. limes = Grenze). Gemeint ist der Wert, dem sich der Term nähert, wenn $h$ immer näher an $0$ rückt – ohne dass $h$ jemals $0$ wird."}, {"begriff": "Lokale Änderungsrate", "text": "$\\displaystyle\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$. Sie gehört zu einer Stelle $a$, nicht zu einem Intervall."}, {"begriff": "Tangente", "text": "Gerade, die den Graphen im Punkt $P$ berührt und dort dieselbe Steigung hat. Ihre Steigung ist die lokale Änderungsrate."}, {"begriff": "Binomische Formeln", "text": "$(a+b)^2 = a^2 + 2ab + b^2$, $(a-b)^2 = a^2 - 2ab + b^2$"}],
 
   geogebra: {
     sicht: [-0.6, 2.9, -2, 22, 1, 2],
     frei: true,
+    fokus: "P",
     achsen: {x:"x", y:"y"},
     befehle: [
       "teil=1", "aa=1", "kk=2", "hh=10^(-kk)",
@@ -81,27 +83,27 @@ const DIALOG = {
     { id:"anfang", typ:"rede",
       text:"Sei gegrüßt, {name}. Heute hilft uns der Rechner: Er berechnet den Differenzenquotienten für sehr kleine $h$ schnell und genau. Wir prüfen, ab wann sich die vierte Nachkommastelle nicht mehr ändert.\n\nNimm deinen GTR. Die Zeichnung zeigt dir zur Kontrolle denselben Wert – doch rechne zuerst selbst." },
 
-    { id:"x4a1", typ:"zahl",
+    { id:"x4a1", tipps:["Gib in den Rechner ein: $(1{,}001^4 - 1) : 0{,}001$", "Der Rechner oben rechts: (1,001^4 − 1) : 0,001"], typ:"zahl",
       text:"Beginnen wir mit $f(x) = x^4$ an der Stelle [[$a = 1$|P]]. Berechne mit dem GTR den Differenzenquotienten für $h = 0{,}001$. Runde auf vier Nachkommastellen.",
       loesung:4.0060, toleranz:0.00006,
       falsch:"Gib $\\dfrac{1{,}001^4 - 1^4}{0{,}001}$ in den Rechner ein. Achte auf Klammern.",
       richtig:"Richtig: $4{,}0060$. Schiebe nun den Regler auf $k = 4$ und $k = 5$. Die Werte $4{,}0006$ und $4{,}00006$ laufen deutlich auf $4$ zu.",
       beimStart:["SetValue(teil,1)","SetValue(aa,1)","SetValue(kk,3)"] },
 
-    { id:"x4a1g", typ:"zahl",
+    { id:"x4a1g", tipps:["Schiebe den Regler auf $k = 5$. Wie lauten die ersten vier Nachkommastellen?"], typ:"zahl",
       text:"Welche lokale Änderungsrate hat $f(x) = x^4$ also bei $a = 1$?",
       loesung:4, toleranz:0.0001,
       falsch:"Die Werte waren $4{,}0604$, $4{,}0060$, $4{,}0006$, $4{,}0001$. Welcher Zahl nähern sie sich?",
       richtig:"Richtig: $4$. Hier „sieht“ man den Grenzwert." },
 
-    { id:"x4a2", typ:"zahl",
+    { id:"x4a2", tipps:["$f(2) = 16$. Rechne $(2{,}0001^4 - 16) : 0{,}0001$.", "Die Werte: $32{,}2408;\\ 32{,}0240;\\ 32{,}0024;\\ 32{,}0002$ – wohin?"], typ:"zahl",
       text:"Nun $f(x) = x^4$ bei [[$a = 2$|P]]. Berechne die Werte und gib die lokale Änderungsrate an.",
       loesung:32, toleranz:0.0001,
       falsch:"Für $h = 0{,}001$ ergibt sich $32{,}0240$, für $h = 0{,}0001$ schon $32{,}0024$.",
       richtig:"Gut: $32$. Die Steigung ist an der Stelle $2$ achtmal so groß wie an der Stelle $1$ – der Graph von $x^4$ wird sehr schnell steil.",
       beimStart:["SetValue(aa,2)","SetValue(kk,2)"] },
 
-    { id:"wurzel1", typ:"zahl",
+    { id:"wurzel1", tipps:["$\\sqrt{1} = 1$. Rechne $(\\sqrt{1{,}0001} - 1) : 0{,}0001$.", "Im Rechner: (√1,0001 − 1) : 0,0001"], typ:"zahl",
       text:"Jetzt $f(x) = \\sqrt{x}$ bei [[$a = 1$|P]]. Welche lokale Änderungsrate ergibt sich?",
       sicht:[-0.3, 4.6, -0.4, 2.6, 1, 0.5],
       loesung:0.5, toleranz:0.0001,
@@ -109,14 +111,14 @@ const DIALOG = {
       richtig:"Richtig: $0{,}5$. Für $h = 0{,}01$ war es erst $0{,}4988$, bei $h = 0{,}0001$ schon $0{,}5000$.",
       beimStart:["SetValue(teil,2)","SetValue(aa,1)","SetValue(kk,2)"] },
 
-    { id:"wurzel2", typ:"zahl",
+    { id:"wurzel2", tipps:["Rechne $(\\sqrt{2{,}0001} - \\sqrt{2}) : 0{,}0001$ und $(\\sqrt{2{,}00001} - \\sqrt{2}) : 0{,}00001$.", "Beide Ergebnisse beginnen mit $0{,}3535\\ldots$ bzw. $0{,}3536\\ldots$ – runde den genaueren Wert."], typ:"zahl",
       text:"Und $f(x) = \\sqrt{x}$ bei [[$a = 2$|P]]? Gib die lokale Änderungsrate auf vier Nachkommastellen an.",
       loesung:0.3536, toleranz:0.00011,
       falsch:"Für $h = 0{,}01$ ergibt sich $0{,}3531$. Nimm kleinere $h$, bis sich die vierte Stelle nicht mehr ändert.",
       richtig:"Richtig: etwa $0{,}3536$. Bemerkst du den Unterschied?",
       beimStart:["SetValue(aa,2)","SetValue(kk,2)"] },
 
-    { id:"gut", typ:"wahl",
+    { id:"gut", tipps:["Lies in der Aufgabenstellung nach, was „gut“ heißen soll."], typ:"wahl",
       text:"Bei $\\sqrt{x}$ an der Stelle $2$ erhalten wir keine „glatte“ Zahl. Woran erkennst du, dass ein Näherungswert „gut“ ist?",
       optionen:[
         {text:"Die vierte Nachkommastelle ändert sich bei kleinerem $h$ nicht mehr.", richtig:true},
@@ -126,7 +128,7 @@ const DIALOG = {
       falsch:"Lies noch einmal die Aufgabe: Was soll „gut“ heißen?",
       richtig:"Recht so. Übrigens ist der genaue Wert $\\frac{1}{2\\sqrt{2}} \\approx 0{,}35355$. Woher das kommt, lernst du bald." },
 
-    { id:"parabel", typ:"wahl",
+    { id:"parabel", tipps:["Steigung $0$: Steigt der Graph dort, oder fällt er?", "Wo hat eine nach unten geöffnete Parabel ihren höchsten Punkt?"], typ:"wahl",
       text:"Weiter mit $f(x) = 2x - x^2$. Bei [[$a = 1$|P]] laufen die Differenzenquotienten gegen $0$. Was bedeutet das für den Graphen?",
       sicht:[-1.2, 3.2, -3.4, 1.9, 1, 1],
       optionen:[
@@ -139,7 +141,7 @@ const DIALOG = {
       beimStart:["SetValue(teil,3)","SetValue(aa,1)","SetValue(kk,3)"],
       zeigeNachRichtig:["tang"] },
 
-    { id:"parabel2", typ:"zahl",
+    { id:"parabel2", tipps:["$f(2) = 2 \\cdot 2 - 2^2 = 0$", "Rechne $(2 \\cdot 2{,}0001 - 2{,}0001^2 - 0) : 0{,}0001$."], typ:"zahl",
       text:"Und bei [[$a = 2$|P]]?",
       loesung:-2, toleranz:0.0001,
       falsch:"$f(2) = 0$. Berechne $\\dfrac{f(2{,}0001) - 0}{0{,}0001}$.",
@@ -147,7 +149,7 @@ const DIALOG = {
       beimStart:["SetValue(aa,2)","SetValue(kk,2)"],
       verberge:["tang"] },
 
-    { id:"expo", typ:"zahl",
+    { id:"expo", tipps:["$f(1) = 2$. Rechne $(2^{1{,}0001} - 2) : 0{,}0001$.", "Im Rechner: (2^1,0001 − 2) : 0,0001 und dasselbe mit 0,00001"], typ:"zahl",
       text:"Zuletzt $f(x) = 2^x$ bei [[$a = 1$|P]]. Gib die lokale Änderungsrate auf vier Nachkommastellen an.",
       sicht:[-1.2, 3.3, -0.6, 8.6, 1, 1],
       loesung:1.3863, toleranz:0.00011,
@@ -160,7 +162,7 @@ const DIALOG = {
       hinweis:"Ziehe den Punkt, bis die Gerade wie eine Tangente aussieht.",
       zeige:["Ta","augen"] },
 
-    { id:"vergleich", typ:"wahl",
+    { id:"vergleich", tipps:["Wie genau kannst du die Steigung deiner Geraden ablesen – auf eine oder auf vier Stellen?"], typ:"wahl",
       text:"Vergleiche deine Steigung mit dem berechneten Wert $1{,}3863$. Was lehrt uns das?",
       optionen:[
         {text:"Das Augenmaß bestätigt die Rechnung ungefähr, ist aber ungenauer.", richtig:true},
@@ -177,6 +179,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611112111"></script>
+<script src="/sokrates/engine.js?v=202611112123"></script>
 </body>
 </html>
