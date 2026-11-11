@@ -71,6 +71,7 @@ function sichtAnwenden(){
     api.setVisible(o, an);
     (gruppen[o]||[]).forEach(t => api.setVisible(t, an));
   });
+  if (DREI) punkteAufraeumen();
   begriffeAktualisieren();
   werteZeichnen();
 }
@@ -100,8 +101,14 @@ function reglerZeichnen(){
   }
   if (api) box.querySelectorAll('input').forEach(r => { if (document.activeElement !== r) r.value = api.getValue(r.dataset.obj); });
 }
+function punkteAufraeumen(){
+  if (!api) return;
+  const st = DIALOG.geogebra.stil;
+  api.getAllObjectNames().forEach(o => { if (!st[o] && api.getObjectType(o) === 'point' && api.getVisible(o)) api.setVisible(o, false); });
+}
 function werteAktualisieren(){
   if (!api) return;
+  if (DREI) punkteAufraeumen();
   reglerZeichnen();
   document.querySelectorAll('.wert .zahl').forEach(z => { z.textContent = '= ' + zahl(api.getValue(z.dataset.obj), +z.dataset.st) + (z.dataset.e ? ' ' + z.dataset.e : ''); });
 }

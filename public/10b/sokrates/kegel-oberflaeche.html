@@ -46,18 +46,18 @@ const DIALOG = {
     befehle: [
       "lam=0", "rk=3", "hk=4", "sk=sqrt(rk^2+hk^2)",
       "th0=asin(rk/sk)", "th=th0+lam*(pi/2-th0)",
-      "rho=sk*sin(th)", "psi=pi*rk/rho", "zs=sk*cos(th)",
-      "mantel=Surface(vv*rho*cos(uu),vv*rho*sin(uu),zs*(1-vv),uu,-psi,psi,vv,0,1)",
+      "rho=sk*sin(th)", "halbw=pi*rk/rho", "zs=sk*cos(th)",
+      "mantel=Surface(vv*rho*cos(uu),vv*rho*sin(uu),zs*(1-vv),uu,-halbw,halbw,vv,0,1)",
       "Spitze=(0,0,zs)",
-      "naht=Segment(Spitze,(rho*cos(psi),rho*sin(psi),0))",
-      "bogen=Curve(rho*cos(tt),rho*sin(tt),0,tt,-psi,psi)",
+      "naht=Segment(Spitze,(rho*cos(halbw),rho*sin(halbw),0))",
+      "bogen=Curve(rho*cos(tt),rho*sin(tt),0,tt,-halbw,halbw)",
       "Bm=(rho-rk*cos(pi*lam),0,rk*sin(pi*lam))",
       "boden=Circle(Bm,rk,Vector((sin(pi*lam),0,cos(pi*lam))))",
       "hSeg=Segment((0,0,0),(0,0,hk))",
       "rSeg=Segment((0,0,0),(rk,0,0))",
       "sSeg=Segment((0,0,hk),(rk,0,0))",
       "voll=Circle((0,0,0),sk)",
-      "winkel=2*psi*180/pi", "bogenl=2*psi*rho"
+      "winkel=2*halbw*180/pi", "bogenl=2*halbw*rho"
     ],
     ziehbar: [],
     sichtbar: ["mantel","boden","bogen","naht"],
