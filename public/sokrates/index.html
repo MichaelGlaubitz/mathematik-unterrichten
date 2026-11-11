@@ -73,6 +73,18 @@
   .start{background:var(--gold);color:var(--tinte);border:0;padding:10px 22px;font-weight:700;font-size:1.05rem}
   .tipp{color:var(--matt);font-size:.9rem;margin-top:8px}
   .katex{font-size:1.04em}
+  .tw{opacity:0;transition:opacity .3s ease}
+  .tw.an{opacity:1}
+  .wartet{opacity:0 !important;pointer-events:none}
+  .optionen,.zahlfeld,.hinweis,.nav{transition:opacity .45s ease}
+  .sprecherzeile{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .sprecherzeile .sprecher{margin-right:6px}
+  .klein{background:transparent;border:1px solid var(--rand);color:var(--matt);font-size:.82rem;padding:2px 10px;line-height:1.6}
+  .klein:hover{color:var(--hellgold);border-color:var(--gold)}
+  .klein.an{color:var(--hellgold);border-color:var(--gold);background:rgba(212,175,55,.08)}
+  .klein[hidden]{display:none}
+  .rede,.antwort{cursor:default}
+  .tippt .rede,.tippt .antwort{cursor:pointer}
   @media (max-width:900px){
     main{grid-template-columns:1fr}
     .zeichnung{min-height:60vh;order:-1}
@@ -345,6 +357,119 @@ function blinke(objs){
   });
 }
 
+/* ---- Schreibmaschine ---- */
+let gesehen = {}, letzteAntwort = '', tippTimer = null, tippEinheiten = [];
+const ruhig = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function einheitenSammeln(el, out){
+  [...el.childNodes].forEach(n => {
+    if (n.nodeType === 3){
+      const teile = n.textContent.split(/(\s+)/);
+      if (teile.every(t => !t.trim())) return;
+      const frag = document.createDocumentFragment();
+      teile.forEach(t => {
+        if (!t) return;
+        if (!t.trim()) { frag.appendChild(document.createTextNode(t)); return; }
+        const sp = document.createElement('span'); sp.className = 'tw'; sp.textContent = t; frag.appendChild(sp); out.push(sp);
+      });
+      n.replaceWith(frag);
+    } else if (n.nodeType === 1){
+      if (n.tagName === 'BR') return;
+      if (n.matches('.katex, .katex-display, .begriff')){ n.classList.add('tw'); out.push(n); }
+      else einheitenSammeln(n, out);
+    }
+  });
+}
+function tippeFertig(){
+  clearTimeout(tippTimer); tippTimer = null;
+  tippEinheiten.forEach(e => e.classList.add('an')); tippEinheiten = [];
+  document.querySelectorAll('#dialog .wartet').forEach(e => e.classList.remove('wartet'));
+  const d = $('#dialog'); if (d) d.classList.remove('tippt');
+  const so = $('#sofort'); if (so) so.hidden = true;
+}
+function tippe(elemente){
+  clearTimeout(tippTimer); tippEinheiten = [];
+  elemente = elemente.filter(Boolean);
+  if (!elemente.length || ruhig) return tippeFertig();
+  elemente.forEach(el => einheitenSammeln(el, tippEinheiten));
+  if (!tippEinheiten.length) return tippeFertig();
+  document.querySelectorAll('#dialog .optionen, #dialog .zahlfeld, #dialog .hinweis, #dialog .nav').forEach(e => e.classList.add('wartet'));
+  const d = $('#dialog'); d.classList.add('tippt');
+  const so = $('#sofort'); so.hidden = false; so.onclick = tippeFertig;
+  d.querySelectorAll('.rede, .antwort').forEach(el => el.addEventListener('click', e => { if (d.classList.contains('tippt') && !e.target.closest('.begriff')) tippeFertig(); }));
+  let i = 0;
+  const takt = () => {
+    if (i >= tippEinheiten.length) return tippeFertig();
+    const e = tippEinheiten[i++]; e.classList.add('an');
+    const laenge = (e.textContent || '').length;
+    const pause = e.classList.contains('katex') || e.classList.contains('katex-display') ? 260 : Math.min(240, 55 + laenge * 11) + (/[.?!:]$/.test(e.textContent) ? 260 : /[,;–]$/.test(e.textContent) ? 110 : 0);
+    tippTimer = setTimeout(takt, pause * (auto && sprachOK ? 1.25 : 1));
+  };
+  takt();
+}
+
+/* ---- Stimme (Browser) ---- */
+const sprachOK = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let auto = false; try { auto = localStorage.getItem('sokratesAuto') === 'an'; } catch(e){}
+let stimme = null;
+function stimmeWaehlen(){
+  if (!sprachOK) return;
+  const v = speechSynthesis.getVoices().filter(x => /^de(-|_|$)/i.test(x.lang));
+  const bevorzugt = [/conrad/i, /stefan/i, /markus/i, /yannick/i, /florian/i, /killian/i, /male|männl/i, /google deutsch/i, /katja|hedda|anna|petra/i];
+  stimme = null;
+  for (const r of bevorzugt){ stimme = v.find(x => r.test(x.name)); if (stimme) break; }
+  if (!stimme) stimme = v[0] || null;
+}
+if (sprachOK){ stimmeWaehlen(); speechSynthesis.onvoiceschanged = stimmeWaehlen; }
+function texSprache(t){
+  return t
+    .replace(/\\overrightarrow\{\\mathsf\{([^}]*)\}\}|\\overrightarrow\{([^}]*)\}/g, (m,a,b) => ' Vektor ' + (a||b).split('').join(' ') + ' ')
+    .replace(/\\vec\s*\{?0\}?/g, ' Nullvektor ')
+    .replace(/\\vec\s*\{?([a-zA-Z])\}?/g, ' Vektor $1 ')
+    .replace(/_\{\\min\}/g, ' min ').replace(/_\{\\max\}/g, ' max ')
+    .replace(/\^\{?\\?,?\s*2\}?/g, ' Quadrat ')
+    .replace(/\\cdot/g, ' mal ').replace(/\\ge/g, ' größer gleich ').replace(/\\le/g, ' kleiner gleich ')
+    .replace(/\\(bigl|bigr|left|right|,|;|!|quad)/g, ' ')
+    .replace(/\\[a-zA-Z]+/g, ' ')
+    .replace(/([a-zA-Z])\(([^()]*)\)/g, '$1 von $2')
+    .replace(/=/g, ' gleich ').replace(/\+/g, ' plus ').replace(/[-−]/g, ' minus ').replace(/\|/g, ' ')
+    .replace(/[{}()\[\]]/g, ' ')
+    .replace(/([A-Z])(?=[A-Z])/g, '$1 ');
+}
+function sprechtext(src){
+  return String(src)
+    .replace(/\[\[(.+?)\|[\w,]+\]\]/g, '$1')
+    .replace(/\$\$([\s\S]+?)\$\$/g, (m,t) => ' ' + texSprache(t) + '. ')
+    .replace(/\$([^$]+)\$/g, (m,t) => ' ' + texSprache(t) + ' ')
+    .replace(/[–—]/g, ', ')
+    .replace(/\s+([.,?!:;])/g, '$1').replace(/([.?!])\.+/g, '$1').replace(/\s+/g, ' ').trim();
+}
+function stopSprechen(){ if (sprachOK) speechSynthesis.cancel(); const b = $('#vorlesen'); if (b) b.classList.remove('an'); }
+function sprich(text){
+  if (!sprachOK || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'de-DE'; if (stimme) u.voice = stimme;
+  u.rate = 0.95; u.pitch = 0.9;
+  const b = $('#vorlesen');
+  u.onstart = () => { if (b) { b.classList.add('an'); b.textContent = '■ Anhalten'; } };
+  u.onend = u.onerror = () => { const bb = $('#vorlesen'); if (bb) { bb.classList.remove('an'); bb.textContent = '🔊 Vorlesen'; } };
+  speechSynthesis.speak(u);
+}
+function sprachKnoepfe(s, antwortQuelle){
+  const v = $('#vorlesen'), a = $('#auto');
+  if (!sprachOK || !v) return;
+  v.hidden = false; a.hidden = false;
+  v.onclick = () => {
+    if (speechSynthesis.speaking){ stopSprechen(); v.textContent = '🔊 Vorlesen'; return; }
+    sprich(sprechtext(s.text) + ' ' + sprechtext(antwortQuelle || ''));
+  };
+  a.onclick = () => {
+    auto = !auto; try { localStorage.setItem('sokratesAuto', auto ? 'an' : 'aus'); } catch(e){}
+    a.classList.toggle('an', auto); a.textContent = 'automatisch: ' + (auto ? 'an' : 'aus');
+    if (!auto) stopSprechen();
+  };
+}
+
 /* ---- Ablauf ---- */
 function mische(arr, seed){
   const a = arr.map((x,i)=>({x,i})); let s = seed*9301+49297;
@@ -352,7 +477,7 @@ function mische(arr, seed){
   return a;
 }
 function zeigeStart(){
-  schritt = -1;
+  schritt = -1; try{ stopSprechen(); tippeFertig(); }catch(e){}
   $('#fortschritt').textContent = '';
   $('#dialog').innerHTML = `
     <div class="karte">
@@ -373,7 +498,7 @@ function geheZu(i){
   (s.beimStart||[]).forEach(c => api && api.evalCommand(c));
   zeichne();
 }
-function zeichne(fehl){
+function zeichne(fehl, fehlQuelle){
   const s = DIALOG.schritte[schritt], N = DIALOG.schritte.length;
   $('#fortschritt').textContent = `Schritt ${schritt+1} von ${N}`;
   const geloest = zustand[schritt] === 'richtig';
@@ -392,7 +517,12 @@ function zeichne(fehl){
   }
   const letzter = schritt === N-1;
   $('#dialog').innerHTML = `
-    <div class="sprecher">${DIALOG.lehrer}</div>
+    <div class="sprecherzeile">
+      <div class="sprecher">${DIALOG.lehrer}</div>
+      <button class="klein" id="vorlesen" title="Sokrates' Text vorlesen" hidden>🔊 Vorlesen</button>
+      <button class="klein${auto ? ' an' : ''}" id="auto" title="Neue Sätze automatisch vorlesen" hidden>automatisch: ${auto ? 'an' : 'aus'}</button>
+      <button class="klein" id="sofort" title="Ganzen Text sofort zeigen" hidden>» sofort</button>
+    </div>
     <div class="rede">${rich(s.text)}</div>
     <div class="antwort">${antwort}</div>
     <div class="werte" id="werte"></div>
@@ -413,8 +543,25 @@ function zeichne(fehl){
     $('#eingabe').onkeydown = e => { if (e.key === 'Enter') pr(); };
     $('#eingabe').focus({preventScroll:true});
   }
-  $('#weiter').onclick = () => { if (letzter){ zustand = []; gemischt = {}; startwerte(); zeigeStart(); } else geheZu(schritt+1); };
+  $('#weiter').onclick = () => { if (letzter){ zustand = []; gemischt = {}; gesehen = {}; letzteAntwort = ''; startwerte(); zeigeStart(); } else geheZu(schritt+1); };
   $('#zurueck').onclick = () => { if (schritt > 0) geheZu(schritt-1); else zeigeStart(); };
+
+  // --- Schreibmaschine und Stimme ---
+  const redeNeu = !gesehen[schritt];
+  gesehen[schritt] = true;
+  const antwortQuelle = (geloest && s.richtig) ? s.richtig : (fehlQuelle || '');
+  const antwortNeu = antwortQuelle && antwortQuelle !== letzteAntwort;
+  letzteAntwort = antwortQuelle;
+  const teile = [];
+  if (redeNeu) teile.push($('#dialog .rede'));
+  if (antwortNeu) teile.push($('#dialog .antwort'));
+  sprachKnoepfe(s, antwortQuelle);
+  stopSprechen();
+  if (auto){
+    const t = (redeNeu ? sprechtext(s.text) + ' ' : '') + (antwortNeu ? sprechtext(antwortQuelle) : '');
+    if (t.trim()) sprich(t);
+  }
+  tippe(teile);
 }
 function richtigGeloest(){
   const s = DIALOG.schritte[schritt];
@@ -428,7 +575,7 @@ function waehle(i){
   const f = zustand['f'+schritt] = (zustand['f'+schritt]||[]); if (!f.includes(i)) f.push(i);
   const zitat = rich(o.text).replace(/^<p>|<\/p>$/g,'');
   const hinweis = o.hinweis || s.falsch || 'Denk noch einmal nach.';
-  zeichne(`<p>Du sagst: <span class="zitat">${zitat}</span>?</p>` + rich(hinweis));
+  zeichne(`<p>Du sagst: <span class="zitat">${zitat}</span>?</p>` + rich(hinweis), 'Du sagst: ' + o.text + '? ' + hinweis);
 }
 function pruefeZahl(){
   const s = DIALOG.schritte[schritt];
@@ -436,7 +583,8 @@ function pruefeZahl(){
   const v = parseFloat(roh);
   if (roh === '' || isNaN(v)) return;
   if (Math.abs(v - s.loesung) <= (s.toleranz || 1e-9)) return richtigGeloest();
-  zeichne(`<p>Du sagst ${zahl(v).replace(/,00$/,'').replace('-','−')}?</p>` + rich(s.falsch || 'Prüfe es noch einmal.'));
+  const gesagt = zahl(v).replace(/,00$/,'').replace('-','−');
+  zeichne(`<p>Du sagst ${gesagt}?</p>` + rich(s.falsch || 'Prüfe es noch einmal.'), 'Du sagst ' + gesagt + '? ' + (s.falsch || 'Prüfe es noch einmal.'));
 }
 
 /* ---- GeoGebra ---- */
