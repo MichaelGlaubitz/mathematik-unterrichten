@@ -57,6 +57,7 @@ function sichtbareObjekte(){
   return v;
 }
 function wertAktiv(w){
+  if (w.nurGeloest && schritt >= 0){ const sc = DIALOG.schritte[schritt]; if (sc && sc.typ === 'zahl' && zustand[schritt] !== 'richtig') return false; }
   const i = idx(w.ab); if (i < 0) return schritt >= 0;
   if (schritt > i) return true;
   if (schritt === i) return w.wann !== 'richtig' || zustand[i] === 'richtig';
