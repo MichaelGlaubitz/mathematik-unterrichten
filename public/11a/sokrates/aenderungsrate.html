@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611112107">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611112111">
 </head>
 <body>
 <div class="seite">
@@ -46,21 +46,21 @@ const DIALOG = {
     achsen: {x:"t in s", y:"s in m"},
     befehle: [
       "fs(x)=If(0<=x<=4,5x^2)",
-      "bahn(x)=If(0<=x<=3.999,5x^2)",
-      "P=(4,80)", "Q=Point(bahn)", "t1=x(Q)",
+      "t1=3", "bahn(x)=If(0<=x<=3.999,5x^2)",
+      "P=(4,80)", "Q=(t1,5t1^2)", "Z=Point(bahn)",
       "sek=Line(Q,P)",
       "mv=(80-5t1^2)/(4-t1)", "dt=4-t1", "ds=80-5t1^2",
       "Ecke=(4,5t1^2)",
       "stDt=Segment(Q,Ecke)", "stDs=Segment(Ecke,P)",
       "tang=Line(P,P+(1,40))"
     ],
-    startwerte: { Q: [3, 45] },
-    ziehbar: ["Q"],
+    koppeln: [{punkt:"Z", ziel:"t1", aus:"x(Z)", min:0, max:3.999, runden:3, px:"t1", py:"5t1^2"}],
+    ziehbar: ["Z"],
     sichtbar: ["fs","P"],
     stil: {
       fs:{farbe:"gold", dicke:5},
       P:{farbe:"leucht", punkt:7, name:"P"},
-      Q:{farbe:"hellgold", punkt:7, name:"Q"},
+      Z:{farbe:"hellgold", punkt:7, name:"Q"},
       sek:{farbe:"kupfer", dicke:3},
       stDt:{farbe:"matt", dicke:3, strich:"gestrichelt", name:"Δt"},
       stDs:{farbe:"matt", dicke:3, strich:"gestrichelt", name:"Δs"},
@@ -69,7 +69,7 @@ const DIALOG = {
   },
 
   regler: [
-    {text:"Startzeit $t_1$", objekt:"t1", min:0, max:3.999, schritt:0.001, ab:"annaehern", setze:"SetCoords(Q,#,5*#^2)"}
+    {text:"Startzeit $t_1$", objekt:"t1", min:0, max:3.999, schritt:0.001, ab:"annaehern"}
   ],
   werte: [
     {text:"$t_1$", objekt:"t1", ab:"mittel", einheit:"s", stellen:3},
@@ -93,15 +93,15 @@ const DIALOG = {
       einheit:"m/s", loesung:20, toleranz:0.01,
       falsch:"In $4$ s fällt er $80$ m. Wie viele Meter sind das im Durchschnitt pro Sekunde?",
       richtig:"Genau: $\\dfrac{80 \\text{ m}}{4 \\text{ s}} = 20 \\tfrac{\\text{m}}{\\text{s}}$. Das ist die Steigung der [[Sekante|sek]] durch den Ursprung und $P$. Die [[waagerechte Strecke|stDt]] ist die Zeit $\\Delta t$, die [[senkrechte|stDs]] die Strecke $\\Delta s$.",
-      beimStart:["SetCoords(Q,0,0.0)"],
-      zeige:["Q","sek"], zeigeNachRichtig:["stDt","stDs"] },
+      beimStart:["SetValue(t1,0)"],
+      zeige:["Z","sek"], zeigeNachRichtig:["stDt","stDs"] },
 
     { id:"dritte", typ:"zahl",
       text:"Doch in den ersten Sekunden ist er noch langsam. Nehmen wir nur die Zeitspanne von der dritten bis zur vierten Sekunde, also das Intervall $[3;\\,4]$. Wie groß ist die mittlere Geschwindigkeit dort?",
       einheit:"m/s", loesung:35, toleranz:0.01,
       falsch:"$s(3) = 5 \\cdot 9 = 45$ m. In der letzten Sekunde fällt er also $80 - 45$ Meter.",
       richtig:"Richtig: $\\dfrac{80 - 45}{4 - 3} = 35 \\tfrac{\\text{m}}{\\text{s}}$. Die [[Sekante|sek]] ist steiler geworden.",
-      beimStart:["SetCoords(Q,3,45.0)"] },
+      beimStart:["SetValue(t1,3)"] },
 
     { id:"genug", typ:"wahl",
       text:"Ist $35 \\tfrac{\\text{m}}{\\text{s}}$ nun die Geschwindigkeit genau nach vier Sekunden?",
@@ -118,17 +118,17 @@ const DIALOG = {
       einheit:"m/s", loesung:39.5, toleranz:0.01,
       falsch:"$s(3{,}9) = 5 \\cdot 3{,}9^2 = 76{,}05$ m, und $\\Delta t = 0{,}1$ s.",
       richtig:"Gut: $\\dfrac{80 - 76{,}05}{0{,}1} = \\dfrac{3{,}95}{0{,}1} = 39{,}5 \\tfrac{\\text{m}}{\\text{s}}$.",
-      beimStart:["SetCoords(Q,3.9,76.05)"] },
+      beimStart:["SetValue(t1,3.9)"] },
 
     { id:"t399", typ:"zahl",
       text:"Und im Intervall $[3{,}99;\\,4]$?",
       einheit:"m/s", loesung:39.95, toleranz:0.005,
       falsch:"$s(3{,}99) = 5 \\cdot 3{,}99^2 = 79{,}6005$ m, und $\\Delta t = 0{,}01$ s.",
       richtig:"Richtig: $39{,}95 \\tfrac{\\text{m}}{\\text{s}}$. Ahnst du schon, wohin das führt?",
-      beimStart:["SetCoords(Q,3.99,79.6005)"] },
+      beimStart:["SetValue(t1,3.99)"] },
 
     { id:"annaehern", typ:"probieren",
-      text:"Ziehe nun den Punkt [[$Q$|Q]] auf dem Graphen immer näher an [[$P$|P]] heran – mit dem Finger oder, genauer, mit dem Regler bis $t_1 = 3{,}999$. Beobachte die mittlere Geschwindigkeit – und die [[Sekante|sek]].",
+      text:"Ziehe nun den Punkt [[$Q$|Z]] auf dem Graphen immer näher an [[$P$|P]] heran – mit dem Finger oder, genauer, mit dem Regler bis $t_1 = 3{,}999$. Beobachte die mittlere Geschwindigkeit – und die [[Sekante|sek]].",
       hinweis:"Ziehe $Q$ oder den Regler bis ganz nach rechts und beobachte die Werte." },
 
     { id:"null", typ:"wahl",
@@ -164,11 +164,11 @@ const DIALOG = {
 
     { id:"schluss", typ:"rede",
       text:"So halten wir fest, {name}: Die mittlere Änderungsrate gehört zu einem Intervall und zu einer [[Sekante|sek]]. Lässt man das Intervall gegen $0$ schrumpfen, so erhält man die lokale Änderungsrate $$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h},$$ die Steigung der [[Tangente|tang]] im Punkt $P$. Schreibe dir den Hefteintrag ab.",
-      beimStart:["SetCoords(Q,3.5,61.25)"] }
+      beimStart:["SetValue(t1,3.5)"] }
   ]
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611112107"></script>
+<script src="/sokrates/engine.js?v=202611112111"></script>
 </body>
 </html>

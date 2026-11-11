@@ -98,9 +98,30 @@ function reglerZeichnen(){
     box.dataset.k = k;
     box.innerHTML = aktiv.map(w => `<label class="regel"><span>${w.text}</span><input type="range" min="${w.min}" max="${w.max}" step="${w.schritt||0.01}" data-obj="${w.objekt}"></label>`).join('');
     formeln(box);
-    box.querySelectorAll('input').forEach((r,i) => r.oninput = () => { if (!api) return; const w = aktiv[i]; if (w.setze) api.evalCommand(w.setze.replace(/#/g, '(' + parseFloat(r.value) + ')')); else api.setValue(r.dataset.obj, parseFloat(r.value)); });
+    box.querySelectorAll('input').forEach((r,i) => r.oninput = () => { if (!api) return; const w = aktiv[i]; if (w.setze) api.evalCommand(w.setze.replace(/#/g, '(' + parseFloat(r.value) + ')')); else api.setValue(r.dataset.obj, parseFloat(r.value)); koppelZurueck(); });
   }
   if (api) box.querySelectorAll('input').forEach(r => { if (document.activeElement !== r) r.value = api.getValue(r.dataset.obj); });
+}
+let koppelt = false;
+function koppelZurueck(){
+  if (!api) return;
+  (DIALOG.geogebra.koppeln||[]).forEach(k => {
+    koppelt = true;
+    try { api.setCoords(k.punkt, api.getValue(k.px), api.getValue(k.py)); } catch(e){}
+    koppelt = false;
+  });
+}
+function koppelnEinrichten(){
+  (DIALOG.geogebra.koppeln||[]).forEach(k => {
+    api.registerObjectUpdateListener(k.punkt, () => {
+      if (koppelt) return;
+      let v = api.getValue(k.aus);
+      if (k.min !== undefined) v = Math.max(k.min, v);
+      if (k.max !== undefined) v = Math.min(k.max, v);
+      const f = Math.pow(10, k.runden === undefined ? 3 : k.runden);
+      api.setValue(k.ziel, Math.round(v * f) / f);
+    });
+  });
 }
 function punkteAufraeumen(){
   if (!api) return;
@@ -328,6 +349,7 @@ function geheZu(i){
   if (zustand[i] === undefined) zustand[i] = (DIALOG.schritte[i].typ === 'wahl' || DIALOG.schritte[i].typ === 'zahl') ? 'offen' : 'richtig';
   const s = DIALOG.schritte[i];
   (s.beimStart||[]).forEach(c => api && api.evalCommand(c));
+  koppelZurueck();
   if (api && !DREI && JSON.stringify(aktuelleSicht()) !== letzteSicht){ letzteSicht = JSON.stringify(aktuelleSicht()); sichtEinpassen(); }
   zeichne();
 }
@@ -380,7 +402,7 @@ function zeichne(fehl, fehlQuelle){
     $('#eingabe').onkeydown = e => { if (e.key === 'Enter') pr(); };
     if (matchMedia('(pointer:fine)').matches) $('#eingabe').focus({preventScroll:true});
   }
-  $('#weiter').onclick = () => { if (letzter){ zustand = []; gemischt = {}; gesehen = {}; letzteAntwort = ''; startwerte(); zeigeStart(); } else geheZu(schritt+1); };
+  $('#weiter').onclick = () => { if (letzter){ zustand = []; gemischt = {}; gesehen = {}; letzteAntwort = ''; startwerte(); koppelZurueck(); zeigeStart(); } else geheZu(schritt+1); };
   $('#zurueck').onclick = () => { if (schritt > 0) geheZu(schritt-1); else zeigeStart(); };
 
   const redeNeu = !gesehen[schritt];
@@ -403,6 +425,7 @@ function richtigGeloest(){
   const s = DIALOG.schritte[schritt];
   zustand[schritt] = 'richtig';
   (s.nachRichtig||[]).forEach(c => api && api.evalCommand(c));
+  koppelZurueck();
   zeichne();
 }
 function waehle(i){
@@ -494,6 +517,7 @@ function ggbBereit(a){
   const ziehbar = new Set(DIALOG.geogebra.ziehbar||[]);
   api.getAllObjectNames().forEach(o => api.setFixed(o, !ziehbar.has(o), ziehbar.has(o)));
   startwerte();
+  koppelZurueck(); koppelnEinrichten();
   if (DREI) ansichtZuruecksetzen(); else sichtEinpassen();
   api.registerUpdateListener(() => { if (!werteGeplant){ werteGeplant = true; requestAnimationFrame(() => { werteGeplant = false; werteAktualisieren(); }); } });
   if (!DREI) setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);

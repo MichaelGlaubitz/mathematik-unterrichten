@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611112107">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611112111">
 </head>
 <body>
 <div class="seite">
@@ -45,57 +45,75 @@ const DIALOG = {
     frei: true,
     achsen: {x:"x", y:"y"},
     befehle: [
-      "teil=1",
+      "teil=1", "hh=0.5",
       "fa(x)=If(teil==1,x^2-2,If(teil==2,(x-2)^2,0.5x^3))",
       "aa=If(teil==1,1,If(teil==2,-1,3))",
-      "bahn(x)=If(aa+0.004<=x<=aa+1.5,fa(x))",
-      "P=(aa,fa(aa))", "Q=Point(bahn)", "hh=x(Q)-aa",
-      "sek=Line(P,Q)",
+      "bahn(x)=If(aa+0.004<=x<=aa+1.6,fa(x))",
+      "P=(aa,fa(aa))", "Qe=(aa+hh,fa(aa+hh))", "Z=Point(bahn)",
+      "fA=fa(aa)", "fB=fa(aa+hh)", "dy=fB-fA", "ah=aa+hh",
+      "sek=Line(P,Qe)",
       "dq=(fa(aa+hh)-fa(aa))/hh",
+      "Ecke=(aa+hh,fa(aa))",
+      "stH=Segment(P,Ecke)", "stY=Segment(Ecke,Qe)",
+      "Xa=(aa,0)", "Xb=(aa+hh,0)",
+      "lotA=Segment(Xa,P)", "lotB=Segment(Xb,Qe)",
       "mtan=If(teil==1,2,If(teil==2,-6,13.5))",
       "tang=Line(P,P+(1,mtan))"
     ],
-    startwerte: { Q: [1.5, 0.25] },
-    ziehbar: ["Q"],
-    sichtbar: ["fa","P","Q","sek"],
+    koppeln: [{punkt:"Z", ziel:"hh", aus:"x(Z)-aa", min:0.005, max:1.5, runden:3, px:"aa+hh", py:"fa(aa+hh)"}],
+    ziehbar: ["Z"],
+    sichtbar: ["fa","P","Z","sek","stH","stY","Xa","Xb","lotA","lotB"],
     stil: {
       fa:{farbe:"gold", dicke:5},
       P:{farbe:"leucht", punkt:7, name:"P"},
-      Q:{farbe:"hellgold", punkt:6, name:"Q"},
+      Z:{farbe:"hellgold", punkt:7, name:"Q"},
       sek:{farbe:"kupfer", dicke:3},
+      stH:{farbe:"wasser", dicke:4, name:"h"},
+      stY:{farbe:"gruen", dicke:4, name:"Δy"},
+      Xa:{farbe:"matt", punkt:4, name:"a"},
+      Xb:{farbe:"matt", punkt:4, name:"a+h"},
+      lotA:{farbe:"matt", dicke:2, strich:"gestrichelt"},
+      lotB:{farbe:"matt", dicke:2, strich:"gestrichelt"},
       tang:{farbe:"leucht", dicke:4}
     }
   },
 
   regler: [
-    {text:"$h$", objekt:"hh", min:0.005, max:1.5, schritt:0.005, ab:"spiel", setze:"SetCoords(Q,aa+#,fa(aa+#))"}
+    {text:"$h$", objekt:"hh", min:0.005, max:1.5, schritt:0.005, ab:"anfang"}
   ],
   werte: [
-    {text:"$h$", objekt:"hh", ab:"a1", stellen:3},
-    {text:"Differenzenquotient", objekt:"dq", nurGeloest:true, ab:"a1", wann:"richtig", stellen:4}
+    {text:"$a$", objekt:"aa", ab:"anfang", stellen:0},
+    {text:"$h$", objekt:"hh", ab:"anfang", stellen:3},
+    {text:"$a + h$", objekt:"ah", ab:"anfang", stellen:3},
+    {text:"$f(a)$", objekt:"fA", ab:"anfang", nurGeloest:true, stellen:6},
+    {text:"$f(a+h)$", objekt:"fB", ab:"anfang", nurGeloest:true, stellen:6},
+    {text:"$\\Delta y = f(a+h) - f(a)$", objekt:"dy", ab:"anfang", nurGeloest:true, stellen:6},
+    {text:"Differenzenquotient $\\frac{\\Delta y}{h}$ = Steigung der Sekante", objekt:"dq", ab:"anfang", nurGeloest:true, stellen:4}
   ],
 
   schritte: [
     { id:"anfang", typ:"rede",
-      text:"Sei gegrüßt, {name}. Heute rechnen wir von Hand: ohne die Ableitungstaste des Rechners. Wir nähern die lokale Änderungsrate an, indem wir den Differenzenquotienten $$\\frac{f(a+h) - f(a)}{h}$$ für kleine $h$ berechnen. Er ist die Steigung der [[Sekante|sek]] durch [[$P$|P]] und [[$Q$|Q]].\n\nBeginnen wir mit a): $f(x) = x^2 - 2$ an der Stelle $a = 1$.",
-      beimStart:["SetValue(teil,1)","SetCoords(Q,aa+0.5,fa(aa+0.5))"] },
+      text:"Sei gegrüßt, {name}. Heute rechnen wir von Hand: ohne die Ableitungstaste des Rechners. Wir nähern die lokale Änderungsrate an, indem wir den Differenzenquotienten $$\\frac{f(a+h) - f(a)}{h}$$ für kleine $h$ berechnen. Er ist die Steigung der [[Sekante|sek]] durch [[$P$|P]] und [[$Q$|Z]]: [[Höhenunterschied $\\Delta y$|stY]] geteilt durch [[$h$|stH]].\n\nDu kannst $Q$ mit dem Finger auf dem Graphen verschieben oder $h$ mit dem Regler einstellen.\n\nBeginnen wir mit a): $f(x) = x^2 - 2$ an der Stelle $a = 1$.",
+      beimStart:["SetValue(teil,1)","SetValue(hh,0.5)"] },
 
     { id:"a1", typ:"zahl",
       text:"Berechne zuerst $f(1)$ und $f(1{,}1)$ und daraus den Differenzenquotienten für $h = 0{,}1$.",
+      sicht:[0.45, 1.75, -1.7, 0.6, 0.1, 0.2],
       loesung:2.1, toleranz:0.001,
       falsch:"$f(1) = 1 - 2 = -1$ und $f(1{,}1) = 1{,}21 - 2 = -0{,}79$. Teile die Differenz durch $0{,}1$.",
       richtig:"Richtig: $\\dfrac{-0{,}79 - (-1)}{0{,}1} = \\dfrac{0{,}21}{0{,}1} = 2{,}1$.",
-      beimStart:["SetCoords(Q,aa+0.1,fa(aa+0.1))"] },
+      beimStart:["SetValue(hh,0.1)"] },
 
     { id:"a2", typ:"zahl",
+      sicht:[-1.2, 3.2, -3.2, 5.2, 1, 1],
       text:"Nun für $h = 0{,}005$.",
       loesung:2.005, toleranz:0.0005,
       falsch:"$f(1{,}005) = 1{,}005^2 - 2 = 1{,}010025 - 2 = -0{,}989975$. Ziehe $f(1) = -1$ ab und teile durch $0{,}005$.",
       richtig:"Gut: $\\dfrac{0{,}010025}{0{,}005} = 2{,}005$.",
-      beimStart:["SetCoords(Q,aa+0.005,fa(aa+0.005))"] },
+      beimStart:["SetValue(hh,0.005)"] },
 
     { id:"spiel", typ:"probieren",
-      text:"Verändere $h$: Ziehe [[$Q$|Q]] auf dem Graphen oder nutze den Regler. Achte auf den Differenzenquotienten und auf die [[Sekante|sek]]. Fällt dir an den Zahlen etwas auf?",
+      text:"Verändere $h$: Ziehe [[$Q$|Z]] auf dem Graphen oder nutze den Regler. Achte auf den Differenzenquotienten und auf die [[Sekante|sek]]. Fällt dir an den Zahlen etwas auf?",
       hinweis:"Ziehe den Regler und vergleiche $h$ mit dem Differenzenquotienten." },
 
     { id:"a_term", typ:"wahl",
@@ -117,18 +135,19 @@ const DIALOG = {
 
     { id:"b1", typ:"zahl",
       text:"Nun b): $f(x) = (x-2)^2$ an der Stelle $a = -1$. Berechne den Differenzenquotienten für $h = 0{,}1$.",
-      sicht:[-3.2, 3.2, -1.5, 17, 1, 2],
+      sicht:[-1.7, -0.25, -0.8, 10.6, 0.1, 1],
       loesung:-5.9, toleranz:0.001,
       falsch:"$f(-1) = (-3)^2 = 9$ und $f(-0{,}9) = (-2{,}9)^2 = 8{,}41$. Achte auf das Vorzeichen.",
       richtig:"Richtig: $\\dfrac{8{,}41 - 9}{0{,}1} = -5{,}9$. Der Graph fällt hier, darum ist die Rate negativ.",
-      beimStart:["SetValue(teil,2)","SetCoords(Q,aa+0.1,fa(aa+0.1))"], verberge:["tang"] },
+      beimStart:["SetValue(teil,2)","SetValue(hh,0.1)"], verberge:["tang"] },
 
     { id:"b2", typ:"zahl",
+      sicht:[-3.2, 3.2, -1.5, 17, 1, 2],
       text:"Und für $h = 0{,}005$?",
       loesung:-5.995, toleranz:0.0005,
       falsch:"$f(-0{,}995) = (-2{,}995)^2 = 8{,}970025$. Ziehe $9$ ab und teile durch $0{,}005$.",
       richtig:"Gut: $-5{,}995$.",
-      beimStart:["SetCoords(Q,aa+0.005,fa(aa+0.005))"] },
+      beimStart:["SetValue(hh,0.005)"] },
 
     { id:"b_lim", typ:"wahl",
       text:"Ohne langes Rechnen: Welche lokale Änderungsrate vermutest du in b)? Prüfe mit der Vereinfachung $\\dfrac{(h-3)^2 - 9}{h}$.",
@@ -143,18 +162,19 @@ const DIALOG = {
 
     { id:"c1", typ:"zahl",
       text:"Zuletzt c): $f(x) = \\frac{1}{2}x^3$ an der Stelle $a = 3$. Den Differenzenquotienten für $h = 0{,}1$, bitte.",
-      sicht:[-0.4, 4.6, -4, 46, 1, 5],
+      sicht:[2.35, 3.45, -1.2, 17.5, 0.1, 2],
       loesung:13.955, toleranz:0.001,
       falsch:"$f(3) = \\frac{1}{2} \\cdot 27 = 13{,}5$ und $f(3{,}1) = \\frac{1}{2} \\cdot 3{,}1^3 = 14{,}8955$.",
       richtig:"Richtig: $\\dfrac{14{,}8955 - 13{,}5}{0{,}1} = 13{,}955$.",
-      beimStart:["SetValue(teil,3)","SetCoords(Q,aa+0.1,fa(aa+0.1))"], verberge:["tang"] },
+      beimStart:["SetValue(teil,3)","SetValue(hh,0.1)"], verberge:["tang"] },
 
     { id:"c2", typ:"zahl",
+      sicht:[-0.4, 4.6, -4, 46, 1, 5],
       text:"Und für $h = 0{,}005$? Runde auf vier Nachkommastellen.",
       loesung:13.5225, toleranz:0.0002,
       falsch:"$3{,}005^3 = 27{,}135225125$, die Hälfte davon ist $13{,}5676125625$. Ziehe $13{,}5$ ab und teile durch $0{,}005$.",
       richtig:"Gut: etwa $13{,}5225$.",
-      beimStart:["SetCoords(Q,aa+0.005,fa(aa+0.005))"] },
+      beimStart:["SetValue(hh,0.005)"] },
 
     { id:"c_lim", typ:"wahl",
       text:"Welche lokale Änderungsrate ergibt sich in c)? Ausmultipliziert ist der Quotient $13{,}5 + 4{,}5h + 0{,}5h^2$.",
@@ -173,6 +193,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611112107"></script>
+<script src="/sokrates/engine.js?v=202611112111"></script>
 </body>
 </html>
