@@ -18,11 +18,13 @@ let api = null, schritt = -1, zustand = [], gemischt = {}, gruppen = {};
 const $ = s => document.querySelector(s);
 const hex = c => F()[c] || c || F().creme;
 const rgb = h => { h = h.replace('#',''); return [0,2,4].map(i => parseInt(h.substr(i,2),16)); };
+let name = null; try { const n = localStorage.getItem('sokratesName'); if (n === 'Thea' || n === 'Theo') name = n; } catch(e){}
+const nm = t => String(t).replace(/\{name\}/g, name || 'Theo');
 const zahl = (v, st) => { st = (st === undefined ? 2 : st); return Number(v).toLocaleString('de-DE', {minimumFractionDigits:st, maximumFractionDigits:st}); };
 
 /* ---- Text mit Formeln und Begriffen ---- */
 function rich(src){
-  let s = String(src).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let s = nm(src).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   s = s.replace(/\[\[(.+?)\|([\w,]+)\]\]([.,;:!?)]*)/g, (m,l,o,p) => `<span style="white-space:nowrap"><span class="begriff" tabindex="0" data-obj="${o}">${l}</span>${p}</span>`);
   return s.split(/\n\s*\n/).map(p => '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
 }
@@ -236,7 +238,7 @@ function texSprache(t){
     .replace(/([A-Z])(?=[A-Z])/g, '$1 ');
 }
 function sprechtext(src){
-  return String(src)
+  return nm(src)
     .replace(/\[\[(.+?)\|[\w,]+\]\]/g, '$1')
     .replace(/\$\$([\s\S]+?)\$\$/g, (m,t) => ' ' + texSprache(t) + '. ')
     .replace(/\$([^$]+)\$/g, (m,t) => ' ' + texSprache(t) + ' ')
@@ -285,10 +287,16 @@ function zeigeStart(){
       <div class="sprecher">Die Aufgabe</div>
       <div class="aufgabe rede">${rich(DIALOG.aufgabe)}</div>
       ${DIALOG.vorwissen && DIALOG.vorwissen.length ? `<h2>Was du dafür brauchst</h2><ul>${DIALOG.vorwissen.map(v => '<li>'+rich(v).replace(/^<p>|<\/p>$/g,'')+'</li>').join('')}</ul>` : ''}
-      <button class="start" id="los">Gespräch beginnen ▸</button>
+      ${/\{name\}/.test(DIALOG.schueler) ? `<h2>Wer bist du?</h2><div class="namenwahl" role="radiogroup" aria-label="Wer bist du?">${['Thea','Theo'].map(n => `<label class="name${name===n?' an':''}"><input type="radio" name="wer" value="${n}"${name===n?' checked':''}> ${n}</label>`).join('')}</div>` : ''}
+      <button class="start" id="los"${/\{name\}/.test(DIALOG.schueler) && !name ? ' disabled' : ''}>Gespräch beginnen ▸</button>
       <div class="tipp">Unterstrichene Begriffe im Gespräch kannst du antippen – das Element leuchtet dann in der Zeichnung auf.</div>
     </div>`;
   formeln($('#dialog'));
+  document.querySelectorAll('.namenwahl input').forEach(r => r.onchange = () => {
+    name = r.value; try { localStorage.setItem('sokratesName', name); } catch(e){}
+    document.querySelectorAll('.namenwahl .name').forEach(l => l.classList.toggle('an', l.contains(r)));
+    $('#los').disabled = false;
+  });
   $('#los').onclick = () => geheZu(0);
   sichtAnwenden();
 }
@@ -328,7 +336,7 @@ function zeichne(fehl, fehlQuelle){
     <div class="antwort">${antwort}</div>
     <div class="werte" id="werte"></div>
     <div class="schueler">
-      <div class="sprecher">${DIALOG.schueler}</div>
+      <div class="sprecher">${nm(DIALOG.schueler)}</div>
       ${unten}
       <div class="nav">
         ${schritt > 0 ? '<button class="zurueck" id="zurueck">◂ zurück</button>' : '<button class="zurueck" id="zurueck">◂ Aufgabe</button>'}
