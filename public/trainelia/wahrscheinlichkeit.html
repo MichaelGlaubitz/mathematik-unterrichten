@@ -89,6 +89,18 @@ button.voll{background:var(--akzent);border-color:var(--akzent);color:#fff}
 button:disabled{opacity:.5;cursor:default}
 .karte{background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);box-shadow:var(--schatten);padding:18px;margin:16px 0}
 /* Wegübersicht */
+/* Bereiche: jeder hat seine Farbe (Fläche, linker Balken, Marke) */
+.vor-b{--b:var(--akzent);--b-hell:var(--akzent-hell)}
+.ueben-b{--b:var(--teal);--b-hell:var(--teal-hell)}
+.ki-b{--b:var(--violett);--b-hell:var(--violett-hell)}
+.zettel-b{--b:var(--gold);--b-hell:var(--gold-hell)}
+.bereich{background:var(--b-hell);border-left:6px solid var(--b)}
+.marke{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--b);margin-bottom:2px}
+.bereich .bild,.bereich .aufgabe,.bereich .antwort,.bereich textarea{background:var(--flaeche)}
+.bereich .merke,.bereich .stolper{background:var(--flaeche);border-width:1px 1px 1px 5px}
+.bereich .merke h3{color:var(--teal)} .bereich .stolper h3{color:var(--gold)}
+.bereich .aufgabe{border-radius:var(--radius-klein);padding:12px 14px;border:1px solid var(--linie)}
+.wegweiser .c{background:var(--b-hell);color:var(--b);padding:1px 9px;border-radius:999px;font-weight:600}
 /* Wegleiste: Nummer + ein Wort */
 .weg{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
 .weg button{display:flex;align-items:center;gap:7px;padding:5px 11px 5px 5px;border-radius:999px;font-size:.9rem}
@@ -195,7 +207,7 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
 <header class="kopf">
   <div>
     <h1>Bedingte Wahrscheinlichkeit</h1>
-    <p class="leise">zuschauen ▸ üben ▸ Rückmeldung</p>
+    <p class="leise wegweiser"><span class="c vor-b">zuschauen</span> ▸ <span class="c ueben-b">üben</span> ▸ <span class="c ki-b">Rückmeldung</span></p>
   </div>
   <div class="werkzeuge"><button id="thema" type="button" title="hell / dunkel">◐</button></div>
 </header>
@@ -204,7 +216,7 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
 
 <main id="station"></main>
 
-<details class="karte zettel" id="zettel">
+<details class="karte bereich zettel-b zettel" id="zettel">
   <summary>Spickzettel</summary>
   <table>
     <tr><td>Ergebnis</td><td>ein einzelner Ausgang, z. B. „4“.</td></tr>
@@ -842,7 +854,8 @@ function oeffne(id, scrollen) {
   clearInterval(schreibUhr);
   const i = STATIONEN.indexOf(aktiv);
   $("#station").innerHTML = `
-    <section class="karte">
+    <section class="karte bereich vor-b">
+      <span class="marke">${aktiv.vor ? "▶ Zuschauen" : "Überblick"}</span>
       <h2>${i + 1} · ${aktiv.titel}</h2>
       ${aktiv.vor ? `
       <div class="vor"><div class="schritt" id="schritt" title="Klick: alles zeigen"></div><div class="bild" id="bild"></div></div>
@@ -854,10 +867,14 @@ function oeffne(id, scrollen) {
       </div>` : ""}
       <div id="nachVor"></div>
     </section>
-    <section class="karte" id="uebenKarte" hidden>
-      <div class="kopf"><h2>Üben</h2><span class="serie" id="serie" title="${aktiv.ziel} richtig in Folge"></span></div>
+    <section class="karte bereich ueben-b" id="uebenKarte" hidden>
+      <span class="marke">✎ Üben</span>
+      <div class="kopf"><h2>Aufgabe</h2><span class="serie" id="serie" title="${aktiv.ziel} richtig in Folge"></span></div>
       <div id="uebung"></div>
-      <div class="ki" id="kiBereich"></div>
+    </section>
+    <section class="karte bereich ki-b ki" id="kiKarte" hidden>
+      <span class="marke">✍ Rückmeldung zum Rechenweg</span>
+      <div id="kiBereich"></div>
     </section>`;
   if (aktiv.vor) {
     $("#weiter").onclick = () => {
@@ -895,6 +912,7 @@ function zeigeUeben(scrollen) {
   const karte = $("#uebenKarte");
   if (karte.hidden) {
     karte.hidden = false;
+    $("#kiKarte").hidden = false;
     karte.classList.add("einblenden");
     neueAufgabe();
     kiBereichZeichnen();
