@@ -19,6 +19,10 @@
      · „Ich rechne selbst“: DIALOG.selbst = { text?, richtig?, weiter?:{text,ab},
          fragen:[{text, kurz?, einheit?, loesung, toleranz, tausender?, ab,
                   fehler?:[{wert, toleranz?, hinweis, ab?}]}] }
+     · KI-Tutor: DIALOG.ais = { nummer, titel } zeigt im eigenen Weg den Knopf
+       „Weg vom KI-Tutor prüfen lassen“. Er kopiert Aufgabe, Weg und Ergebnisse
+       und öffnet AIS.chat; den Code nennt die Lehrkraft an der Tafel. nummer
+       und titel müssen zur Aufgabenliste im AIS-Lernszenario passen.
        Die Klasse rechnet auf eigenem Weg (Feld „Dein Weg“ = die Notizen)
        und gibt nur Ergebnisse ein. Stimmt alles: Hefteintrag zum Vergleich.
        Sonst Hinweis zum erkannten Fehler und Einstieg ins Gespräch bei
@@ -444,6 +448,37 @@ function einsteigen(id){
   koppelZurueck();
   geheZu(k);
 }
+// KI-Tutor in AIS.chat: Aufgabe und eigenen Weg in die Zwischenablage, dann AIS.chat öffnen.
+// Den Beitrittscode der Stunde zeigt die Lehrkraft an der Tafel; die Seite schickt nichts selbst.
+const AIS_ADRESSE = 'https://app.ais-chat.schule/';
+function aisText(){
+  const A = DIALOG.ais, weg = (($('#wegfeld') || {}).value || '').trim();
+  const erg = DIALOG.selbst.fragen.map((f,i) => {
+    const w = String(selbstWerte[i] || '').trim();
+    return w ? `- ${(f.kurz || f.text).replace(/\$/g,'')}: ${w}${f.einheit ? ' ' + f.einheit.replace(/\$/g,'') : ''}` : '';
+  }).filter(Boolean).join('\n');
+  return `Aufgabe ${A.nummer} (${A.titel}). Mein Weg:\n${weg}${erg ? '\n\nMeine Ergebnisse:\n' + erg : ''}`;
+}
+function aisOeffnen(){
+  const info = $('#aisinfo'), feld = $('#wegfeld');
+  if (!feld || !feld.value.trim()){
+    info.hidden = false;
+    info.innerHTML = 'Schreib zuerst deinen Weg ins Feld „Dein Weg“. Den schickst du dann dem KI-Tutor.';
+    if (feld) feld.focus();
+    return;
+  }
+  const text = aisText();
+  let kopiert = false;
+  try { if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).catch(() => {}); kopiert = true; } } catch(e){}
+  window.open(AIS_ADRESSE, '_blank', 'noopener');
+  info.hidden = false;
+  info.innerHTML = `<ol><li>Gib auf AIS.chat den <b>Code von der Tafel</b> ein und tippe auf „Zum Dialog“.</li>`
+    + `<li>Füge deinen Weg ins Chatfeld ein${kopiert ? ' – er ist schon kopiert (lange tippen → <b>Einsetzen</b>)' : ''} und schick ihn ab.</li>`
+    + `<li>Gib dort keinen Namen ein.</li></ol>`
+    + `<details${kopiert ? '' : ' open'}><summary>Text zum Kopieren</summary><textarea class="ais-text" readonly rows="5"></textarea></details>`;
+  const ta = info.querySelector('.ais-text'); ta.value = text;
+  ta.onfocus = () => ta.select();
+}
 function zeigeSelbst(neuGeprueft){
   schritt = -2; try { stopSprechen(); tippeFertig(); } catch(e){}
   const S = DIALOG.selbst, st = selbstStand;
@@ -479,6 +514,7 @@ function zeigeSelbst(neuGeprueft){
       <div class="sprecher">${nm(DIALOG.schueler)}</div>
       <div class="weg-kopf">Dein Weg <span class="weg-hinweis">bleibt auf diesem Gerät gespeichert, auch unter ✎ Notizen</span></div>
       <textarea class="notiz weg" id="wegfeld" rows="6" placeholder="Schreib hier deinen Rechenweg auf – Ansatz, Formel, Zwischenergebnisse …"></textarea>
+      ${DIALOG.ais ? `<div class="ais-kasten"><button class="ais-knopf" id="aisknopf">Weg vom KI-Tutor prüfen lassen ▸</button><span class="ais-hinweis">AIS.chat – den Code bekommst du an der Tafel</span><div class="ais-info" id="aisinfo" hidden></div></div>` : ''}
       <div class="sfragen">${zeilen}</div>
       <div class="nav">
         <button class="zurueck" id="zurueck">◂ Aufgabe</button>
@@ -501,6 +537,7 @@ function zeigeSelbst(neuGeprueft){
   if ($('#einstieg')) $('#einstieg').onclick = () => einsteigen(ersterFehler.ab);
   if ($('#mitsokrates')) $('#mitsokrates').onclick = () => einsteigen(DIALOG.schritte[0].id);
   if ($('#selbstweiter')) $('#selbstweiter').onclick = () => einsteigen(S.weiter.ab);
+  if ($('#aisknopf')) $('#aisknopf').onclick = aisOeffnen;
   if (neuGeprueft){ const a = $('#dialog .antwort'); if (a && a.textContent.trim()) a.scrollIntoView({block:'nearest', behavior:'smooth'}); else if (heft) heft.scrollIntoView({block:'nearest', behavior:'smooth'}); }
 }
 function geheZu(i){
