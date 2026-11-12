@@ -23,16 +23,18 @@ const PORT = Number(process.env.PORT || arg("port", 8761));
 const CODE = process.env.FAMILIENCODE || arg("code", "probecode-lokal");
 const ATTRAPPE = process.argv.includes("--attrappe");
 
-let frage;
+let strom;
 if (ATTRAPPE) {
-  frage = async (system, text) => {
+  /* Schreibt Wort für Wort, damit sich das Streamen auf der Seite prüfen lässt */
+  strom = async function* (system, text) {
     const weg = (text.split("<rechenweg_des_lernenden>")[1] || "").split("</rechenweg_des_lernenden>")[0].trim();
-    return { text: `(Attrappe, keine KI) Dein Rechenweg kam an: „${weg.slice(0, 80)}“.`, abgelehnt: false };
+    const satz = `(Attrappe, keine KI) Dein Rechenweg kam an: „${weg.slice(0, 80)}“. So würde eine Rückmeldung Stück für Stück erscheinen, während Claude schreibt.`;
+    for (const w of satz.split(/(?<= )/)) { await new Promise((r) => setTimeout(r, 60)); yield w; }
   };
 } else {
-  const { macheFrage } = await import("./claude.mjs");
-  frage = macheFrage(process.env.ANTHROPIC_API_KEY);
-  if (!frage) { console.error("ANTHROPIC_API_KEY fehlt. Mit --attrappe geht es ohne."); process.exit(1); }
+  const { macheStrom } = await import("./claude.mjs");
+  strom = macheStrom(process.env.ANTHROPIC_API_KEY);
+  if (!strom) { console.error("ANTHROPIC_API_KEY fehlt. Mit --attrappe geht es ohne."); process.exit(1); }
 }
 
 const zahlen = new Map();
@@ -54,9 +56,11 @@ function alsRequest(req) {
 
 http.createServer(async (req, res) => {
   try {
-    const a = await bearbeite(await alsRequest(req), buch, { code: CODE, frage });
+    const a = await bearbeite(await alsRequest(req), buch, { code: CODE, strom });
     res.writeHead(a.status, Object.fromEntries(a.headers));
-    res.end(Buffer.from(await a.arrayBuffer()));
+    if (!a.body) { res.end(); return; }
+    for await (const stueck of a.body) res.write(Buffer.from(stueck));
+    res.end();
   } catch (e) {
     res.writeHead(500, { "content-type": "text/plain; charset=utf-8" });
     res.end("Fehler: " + (e && e.message));

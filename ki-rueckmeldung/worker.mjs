@@ -23,19 +23,19 @@
    ruft Claude nie auf.
    ============================================================ */
 import { bearbeite } from "./kern.mjs";
-import { macheFrage } from "./claude.mjs";
+import { macheStrom } from "./claude.mjs";
 
 export class Buch {
   constructor(ctx, env) {
     this.ctx = ctx;
     this.env = env;
-    this.frage = macheFrage(env.ANTHROPIC_API_KEY);
+    this.strom = macheStrom(env.ANTHROPIC_API_KEY);
   }
 
   async fetch(req) {
     const speicher = this.ctx.storage;
     const buch = { hole: (k) => speicher.get(k), setze: (k, v) => speicher.put(k, v) };
-    return bearbeite(req, buch, { code: this.env.FAMILIENCODE || "", frage: this.frage });
+    return bearbeite(req, buch, { code: this.env.FAMILIENCODE || "", strom: this.strom });
   }
 }
 

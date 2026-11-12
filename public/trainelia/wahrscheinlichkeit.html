@@ -89,13 +89,27 @@ button.voll{background:var(--akzent);border-color:var(--akzent);color:#fff}
 button:disabled{opacity:.5;cursor:default}
 .karte{background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);box-shadow:var(--schatten);padding:18px;margin:16px 0}
 /* Wegübersicht */
-.weg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:14px 0}
-.weg button{text-align:left;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-height:76px}
-.weg button .nr{font-size:.8rem;color:var(--text-schwach)}
-.weg button .ti{font-weight:600;line-height:1.25}
-.weg button .st{font-size:.8rem;color:var(--text-leise)}
-.weg button.aktiv{border:2px solid var(--akzent);padding:9px 11px}
-.weg button.geschafft .st{color:var(--gruen);font-weight:600}
+/* Wegleiste: Nummer + ein Wort */
+.weg{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.weg button{display:flex;align-items:center;gap:7px;padding:5px 11px 5px 5px;border-radius:999px;font-size:.9rem}
+.weg button .nr{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--flaeche-2);font-weight:700;font-size:.85rem}
+.weg button.aktiv{border-color:var(--akzent);background:var(--akzent-hell)}
+.weg button.aktiv .nr{background:var(--akzent);color:#fff}
+.weg button.geschafft .nr{background:var(--gruen);color:#fff}
+/* Eingeklapptes */
+details.karte>summary{cursor:pointer;font-weight:600;list-style:none}
+details.karte>summary::before{content:"▸ ";color:var(--akzent)}
+details.karte[open]>summary::before{content:"▾ "}
+details.karte[open]>summary{margin-bottom:10px}
+/* Text, der sich aufschreibt */
+.w{opacity:0;transition:opacity .18s}
+.w.da{opacity:1}
+.punkte{display:inline-flex;gap:5px;vertical-align:middle}
+.punkte i{width:9px;height:9px;border-radius:50%;background:var(--linie-stark)}
+.punkte i.an{background:var(--akzent)}
+.einblenden{animation:ein .35s ease-out}
+@keyframes ein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.w{transition:none}.einblenden{animation:none}}
 /* Mathe-Schreibweisen */
 .q{display:inline-block;border-top:1.5px solid currentColor;line-height:1.05;padding-top:1px;margin-top:2px}
 .bruch{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;margin:0 .15em;font-size:.95em}
@@ -106,10 +120,7 @@ button:disabled{opacity:.5;cursor:default}
 /* Vorführung */
 .vor{display:grid;grid-template-columns:1fr;gap:14px}
 @media (min-width:760px){.vor{grid-template-columns:1.05fr 1fr}}
-.schritte{display:flex;flex-direction:column;gap:8px}
-.schritt{border-left:3px solid var(--linie);padding:4px 0 4px 12px;color:var(--text-leise)}
-.schritt.jetzt{border-left-color:var(--akzent);color:var(--text)}
-.schritt b{color:inherit}
+.schritt{border-left:3px solid var(--akzent);padding:4px 0 4px 14px;font-size:1.08rem;min-height:5.5em;cursor:pointer}
 .bild{background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow-x:auto;align-self:start}
 @media (min-width:760px){.bild{position:sticky;top:12px}}
 .leiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
@@ -183,8 +194,8 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
 
 <header class="kopf">
   <div>
-    <h1>Bedingte Wahrscheinlichkeit Schritt für Schritt</h1>
-    <p class="leise">Acht Stationen von den Grundwörtern bis zum umgekehrten Baum. Jede Station hat drei Teile: zuschauen, wie es geht, dann üben mit immer neuen Zahlen, und auf Wunsch eine Rückmeldung zum eigenen Rechenweg.</p>
+    <h1>Bedingte Wahrscheinlichkeit</h1>
+    <p class="leise">zuschauen ▸ üben ▸ Rückmeldung</p>
   </div>
   <div class="werkzeuge"><button id="thema" type="button" title="hell / dunkel">◐</button></div>
 </header>
@@ -193,8 +204,8 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
 
 <main id="station"></main>
 
-<section class="karte zettel" id="zettel">
-  <h2>Spickzettel</h2>
+<details class="karte zettel" id="zettel">
+  <summary>Spickzettel</summary>
   <table>
     <tr><td>Ergebnis</td><td>ein einzelner Ausgang, z. B. „4“.</td></tr>
     <tr><td>Ereignis</td><td>eine Menge von Ergebnissen, z. B. E = {2; 4; 6}. Gegenereignis <span class="q">E</span>: alle anderen. <span class="m">P(<span class="q">E</span>) = 1 − P(E)</span>.</td></tr>
@@ -205,21 +216,19 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
     <tr><td>Umgekehrter Baum</td><td><span class="m">P(A | B) = P(A ∩ B) : P(B)</span>, wobei P(B) über alle Pfade zu B addiert wird. Zwischenergebnisse nicht runden.</td></tr>
     <tr><td>Runden</td><td>nach dem Runden „≈“ schreiben, nicht „=“.</td></tr>
   </table>
-</section>
+</details>
 
-<section class="karte ki" id="kicode">
-  <h2>Code für die KI-Rückmeldung</h2>
-  <p class="leise klein">Die KI-Rückmeldung ist für Lernende mit Zugangscode. Der Code bleibt nur in diesem Browser gespeichert. Abgeschickt werden die Aufgabe, ihre Lösung und dein Rechenweg, ohne Namen. Gespeichert wird davon nichts.</p>
+<details class="karte ki" id="kicode">
+  <summary>Code für die KI-Rückmeldung</summary>
   <div class="zeile">
     <input type="password" id="code" autocomplete="off" placeholder="Code" aria-label="Code">
     <button type="button" id="codeSpeichern">Speichern</button>
     <span id="kiStatus" class="klein leise"></span>
   </div>
-</section>
+  <p class="leise klein">Bleibt nur in diesem Browser. Abgeschickt werden Aufgabe, Lösung und dein Rechenweg, ohne Namen. Gespeichert wird nichts.</p>
+</details>
 
-<footer>
-  Lernweg ohne Anmeldung. Der Lernstand bleibt auf diesem Gerät. mathematik-unterrichten.de
-</footer>
+<footer>Ohne Anmeldung · Lernstand bleibt auf diesem Gerät · mathematik-unterrichten.de</footer>
 </div>
 
 <script>
@@ -785,67 +794,112 @@ STATIONEN.push({
    ============================================================ */
 let aktiv = null, aufgabe = null, vorSchritt = 0, versucht = false, loesungGesehen = false, tippZahl = 0;
 
+const KURZ = { "w-woerter": "Wörter", "w-baum": "Baum", "w-tafel": "Tafel", "w-relativ": "Anteile",
+  "w-bedingt": "Bedingt", "w-baumtafel": "Baum ↔ Tafel", "w-umkehr": "Umkehren", "w-mix": "Mix" };
+
 function wegZeichnen() {
   $("#weg").innerHTML = STATIONEN.map((s, i) => {
     const z = st(s.id);
-    const status = z.geschafft ? "geschafft ✓" : z.richtig ? `${z.richtig} richtig` : "noch offen";
-    return `<button type="button" data-id="${s.id}" class="${aktiv && aktiv.id === s.id ? "aktiv" : ""} ${z.geschafft ? "geschafft" : ""}">
-      <span class="nr">Station ${i + 1}</span><span class="ti">${s.titel}</span><span class="st">${status}</span></button>`;
+    return `<button type="button" data-id="${s.id}" title="${s.titel}" class="${aktiv && aktiv.id === s.id ? "aktiv" : ""} ${z.geschafft ? "geschafft" : ""}">
+      <span class="nr">${z.geschafft ? "✓" : i + 1}</span>${KURZ[s.id]}</button>`;
   }).join("");
   for (const b of $("#weg").querySelectorAll("button")) b.onclick = () => oeffne(b.dataset.id, true);
+}
+
+/* Text Wort für Wort aufschreiben. Brüche und Überstriche bleiben ganze
+   Einheiten. Ein Klick auf den Text zeigt sofort alles. */
+const RUHIG = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let schreibUhr = null;
+function aufschreiben(el, html, fertig) {
+  clearInterval(schreibUhr);
+  el.innerHTML = html;
+  const ganz = el.querySelectorAll(".bruch, .q, svg, table");
+  ganz.forEach((e) => e.classList.add("w"));
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const knoten = [];
+  while (tw.nextNode()) if (!tw.currentNode.parentElement.closest(".bruch, .q, svg, table")) knoten.push(tw.currentNode);
+  for (const t of knoten) {
+    const frag = document.createDocumentFragment();
+    for (const teil of t.textContent.split(/(\s+)/)) {
+      if (!teil) continue;
+      if (/^\s+$/.test(teil)) { frag.append(teil); continue; }
+      const s = document.createElement("span"); s.className = "w"; s.textContent = teil; frag.append(s);
+    }
+    t.replaceWith(frag);
+  }
+  const einheiten = [...el.querySelectorAll(".w")];
+  const alles = () => { clearInterval(schreibUhr); einheiten.forEach((e) => e.classList.add("da")); el.onclick = null; fertig && fertig(); fertig = null; };
+  if (RUHIG) { alles(); return; }
+  let i = 0;
+  el.onclick = alles;
+  schreibUhr = setInterval(() => { if (i >= einheiten.length) { alles(); return; } einheiten[i++].classList.add("da"); }, 55);
 }
 
 function oeffne(id, scrollen) {
   aktiv = STATIONEN.find((s) => s.id === id) || STATIONEN[0];
   try { localStorage.setItem("mu-wahrscheinlichkeit-zuletzt", aktiv.id); } catch {}
   vorSchritt = 0;
+  clearInterval(schreibUhr);
   const i = STATIONEN.indexOf(aktiv);
   $("#station").innerHTML = `
     <section class="karte">
-      <h2>Station ${i + 1} · ${aktiv.titel}</h2>
-      ${aktiv.vor ? `<h3>Vormachen</h3>
-      <div class="vor"><div class="schritte" id="schritte"></div><div class="bild" id="bild"></div></div>
+      <h2>${i + 1} · ${aktiv.titel}</h2>
+      ${aktiv.vor ? `
+      <div class="vor"><div class="schritt" id="schritt" title="Klick: alles zeigen"></div><div class="bild" id="bild"></div></div>
       <div class="leiste">
-        <button type="button" id="zurueck">Zurück</button>
-        <button type="button" class="voll" id="weiter">Nächster Schritt</button>
-        <button type="button" id="vonvorn">Von vorn</button>
-        <span class="zaehl" id="zaehl"></span>
-      </div>` : `<p class="leise">Hier kommen Aufgaben aus den Stationen 2, 5, 6 und 7 gemischt – so wie in einer Klausur.</p>`}
-      <div class="kaesten" style="margin-top:16px">
-        <div class="merke"><h3>Merke</h3>${aktiv.merke}</div>
-        <div class="stolper"><h3>Stolperstein</h3>${aktiv.stolper}</div>
-      </div>
+        <button type="button" id="zurueck" aria-label="Schritt zurück">◂</button>
+        <button type="button" class="voll" id="weiter">Weiter ▸</button>
+        <span class="punkte" id="punkte"></span>
+        <button type="button" id="ueberspringen" class="klein">direkt üben</button>
+      </div>` : ""}
+      <div id="nachVor"></div>
     </section>
-    <section class="karte">
-      <div class="kopf"><h2>Üben</h2><span class="klein leise">${aktiv.ziel} richtig in Folge (ohne Lösung anzusehen): <span class="serie" id="serie"></span></span></div>
+    <section class="karte" id="uebenKarte" hidden>
+      <div class="kopf"><h2>Üben</h2><span class="serie" id="serie" title="${aktiv.ziel} richtig in Folge"></span></div>
       <div id="uebung"></div>
-    </section>
-    <section class="karte ki">
-      <h2>Rückmeldung zu deinem Rechenweg</h2>
-      <p class="leise klein">Schreib auf, wie du gerechnet hast – so, wie du es im Heft aufschreiben würdest. Die KI sagt dir, was stimmt und wo der erste Fehler steckt, ohne die Lösung zu verraten.</p>
-      <textarea id="weg-text" placeholder="z. B. P(A|B) = 53/194 ≈ 0,27, weil …"></textarea>
-      <div class="zeile"><button type="button" class="voll" id="kiFrage">Rückmeldung holen</button><span id="kiHinweis" class="klein leise"></span></div>
-      <div id="kiAntwort"></div>
+      <div class="ki" id="kiBereich"></div>
     </section>`;
   if (aktiv.vor) {
-    $("#weiter").onclick = () => { if (vorSchritt < aktiv.vor.length - 1) { vorSchritt++; vorZeichnen(); } };
+    $("#weiter").onclick = () => {
+      if (vorSchritt < aktiv.vor.length - 1) { vorSchritt++; vorZeichnen(); }
+      else zeigeUeben(true);
+    };
     $("#zurueck").onclick = () => { if (vorSchritt > 0) { vorSchritt--; vorZeichnen(); } };
-    $("#vonvorn").onclick = () => { vorSchritt = 0; vorZeichnen(); };
+    $("#ueberspringen").onclick = () => { zeigeKaesten(); zeigeUeben(true); };
     vorZeichnen();
   }
-  $("#kiFrage").onclick = kiFragen;
-  neueAufgabe();
+  /* Wer hier schon geübt hat oder keine Vorführung hat, kommt gleich zum Üben */
+  if (!aktiv.vor || st(aktiv.id).richtig > 0) { zeigeKaesten(); zeigeUeben(false); }
   wegZeichnen();
   if (scrollen) $("#station").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function vorZeichnen() {
-  const v = aktiv.vor;
-  $("#schritte").innerHTML = v.slice(0, vorSchritt + 1).map((s, i) => `<div class="schritt ${i === vorSchritt ? "jetzt" : ""}">${s.t}</div>`).join("");
+  const v = aktiv.vor, letzter = vorSchritt === v.length - 1;
   $("#bild").innerHTML = v[vorSchritt].v();
-  $("#zaehl").textContent = `Schritt ${vorSchritt + 1} von ${v.length}`;
-  $("#weiter").disabled = vorSchritt >= v.length - 1;
+  $("#bild").firstElementChild && $("#bild").firstElementChild.classList.add("einblenden");
+  aufschreiben($("#schritt"), v[vorSchritt].t, () => { if (letzter) zeigeKaesten(); });
+  $("#punkte").innerHTML = v.map((_, k) => `<i class="${k <= vorSchritt ? "an" : ""}"></i>`).join("");
+  $("#weiter").textContent = letzter ? "Jetzt üben ▸" : "Weiter ▸";
   $("#zurueck").disabled = vorSchritt === 0;
+}
+
+function zeigeKaesten() {
+  if ($("#nachVor").childElementCount) return;
+  $("#nachVor").innerHTML = `<div class="kaesten einblenden" style="margin-top:16px">
+    <div class="merke"><h3>Merke</h3>${aktiv.merke}</div>
+    <div class="stolper"><h3>Stolperstein</h3>${aktiv.stolper}</div></div>`;
+}
+
+function zeigeUeben(scrollen) {
+  const karte = $("#uebenKarte");
+  if (karte.hidden) {
+    karte.hidden = false;
+    karte.classList.add("einblenden");
+    neueAufgabe();
+    kiBereichZeichnen();
+  }
+  if (scrollen) karte.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function serieZeichnen() {
@@ -981,14 +1035,39 @@ const KI = (() => {
 let code = "";
 try { code = localStorage.getItem("mu-ki-code") || ""; } catch {}
 $("#code").value = code;
-$("#codeSpeichern").onclick = () => {
-  code = $("#code").value.trim();
+function setzeCode(neu) {
+  code = String(neu || "").trim();
   try { localStorage.setItem("mu-ki-code", code); } catch {}
-  $("#kiStatus").textContent = code ? "Gespeichert." : "Code entfernt.";
-};
-fetch(KI + "/v1/status").then((r) => r.json()).then((d) => {
-  $("#kiStatus").textContent = d.bereit ? "KI-Rückmeldung ist erreichbar." : "KI-Rückmeldung ist noch nicht eingerichtet.";
-}).catch(() => { $("#kiStatus").textContent = "KI-Rückmeldung ist gerade nicht erreichbar."; });
+  $("#code").value = code;
+}
+$("#codeSpeichern").onclick = () => { setzeCode($("#code").value); $("#kiStatus").textContent = code ? "Gespeichert." : "Code entfernt."; };
+
+/* Erst beim Aufklappen wird der Dienst überhaupt angefragt */
+let kiStatus = null;
+function kiPruefen() {
+  kiStatus ||= fetch(KI + "/v1/status").then((r) => r.json()).then((d) => (d.bereit ? "bereit" : "aus")).catch(() => "weg");
+  return kiStatus;
+}
+
+function kiBereichZeichnen() {
+  $("#kiBereich").innerHTML = `<div class="leiste"><button type="button" id="kiAuf">✍ Rechenweg prüfen lassen</button></div><div id="kiPanel" hidden></div>`;
+  $("#kiAuf").onclick = async () => {
+    const p = $("#kiPanel");
+    if (!p.hidden) { p.hidden = true; return; }
+    p.hidden = false;
+    if (!p.childElementCount) {
+      p.innerHTML = `<div class="einblenden">
+        <textarea id="weg-text" placeholder="So wie im Heft: z. B. P(A|B) = 53/194 ≈ 0,27"></textarea>
+        <div class="zeile" id="codeZeile" ${code ? "hidden" : ""}><input type="password" id="codeInline" autocomplete="off" placeholder="Code" aria-label="Code"></div>
+        <div class="zeile"><button type="button" class="voll" id="kiFrage">Rückmeldung holen</button><span id="kiHinweis" class="klein leise"></span></div>
+        <div id="kiAntwort"></div></div>`;
+      $("#kiFrage").onclick = kiFragen;
+    }
+    $("#weg-text").focus();
+    const s = await kiPruefen();
+    if (s !== "bereit") $("#kiHinweis").textContent = s === "aus" ? "Die KI-Rückmeldung ist noch nicht eingerichtet." : "Die KI-Rückmeldung ist gerade nicht erreichbar.";
+  };
+}
 
 function aufgabeAlsText() {
   let s = text(aufgabe.html);
@@ -1008,19 +1087,35 @@ function loesungAlsText() {
 async function kiFragen() {
   const weg = $("#weg-text").value.trim();
   const out = $("#kiAntwort"), hin = $("#kiHinweis");
-  if (!code) { hin.textContent = "Trag unten auf der Seite zuerst den Code ein."; $("#kicode").scrollIntoView({ behavior: "smooth" }); return; }
-  if (weg.length < 3) { hin.textContent = "Schreib zuerst deinen Rechenweg in das Feld."; return; }
-  $("#kiFrage").disabled = true; hin.textContent = "Claude liest deinen Rechenweg …"; out.innerHTML = "";
+  const inl = $("#codeInline");
+  if (inl && inl.value.trim()) setzeCode(inl.value);
+  if (!code) { $("#codeZeile").hidden = false; hin.textContent = "Erst den Code eintragen."; $("#codeInline").focus(); return; }
+  if (weg.length < 3) { hin.textContent = "Erst den Rechenweg aufschreiben."; return; }
+  $("#kiFrage").disabled = true; hin.textContent = "Claude liest …"; out.innerHTML = "";
   try {
     const r = await fetch(KI + "/v1/rueckmeldung", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ code, station: aufgabe.herkunft || aktiv.id, aufgabe: aufgabeAlsText(), loesung: loesungAlsText(), antwort: weg }),
     });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) { hin.textContent = d.fehler || "Das hat nicht geklappt."; return; }
-    out.innerHTML = `<div class="antwort"></div>`;
-    out.firstChild.textContent = d.text;
-    hin.textContent = typeof d.rest === "number" ? `Heute noch ${d.rest} Rückmeldungen.` : "";
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      hin.textContent = d.fehler || "Das hat nicht geklappt.";
+      if (r.status === 403) { setzeCode(""); $("#codeZeile").hidden = false; $("#codeInline").value = ""; $("#codeInline").focus(); }
+      return;
+    }
+    $("#codeZeile").hidden = true;
+    /* Mitlesen, während Claude schreibt */
+    out.innerHTML = `<div class="antwort einblenden"></div>`;
+    const feld = out.firstChild, leser = r.body.getReader(), dek = new TextDecoder();
+    hin.textContent = "";
+    for (;;) {
+      const { value, done } = await leser.read();
+      if (done) break;
+      feld.textContent += dek.decode(value, { stream: true });
+    }
+    feld.textContent += dek.decode();
+    const rest = r.headers.get("x-rest");
+    hin.textContent = rest !== null ? `Heute noch ${rest} Rückmeldungen.` : "";
   } catch {
     hin.textContent = "Der Dienst ist gerade nicht erreichbar.";
   } finally {

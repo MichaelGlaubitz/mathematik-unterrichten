@@ -12,7 +12,7 @@
      lokal.mjs    Node-Zwilling (zum Prüfen, auch mit Attrappe)
 
    Die Anfrage an Claude selbst steht NICHT hier, sondern wird als
-   Funktion `frage(system, text)` hineingereicht (claude.mjs). So
+   Funktion `strom(system, text)` hineingereicht (claude.mjs). So
    prüft pruefe.mjs alles ohne Netz, ohne Konto und ohne Kosten.
 
    WER DARF
@@ -146,7 +146,14 @@ export function eingabePruefen(d) {
 }
 
 /* buch: { hole(k), setze(k, v) } — Speicher des Durable Objects.
-   umgebung: { code, frage(system, text) -> {text, abgelehnt} }      */
+   umgebung: { code, strom(system, text) -> async iterable von Texten }
+
+   Antwort bei Erfolg: text/plain, gestreamt, Kopfzeile x-rest. Das
+   erste Stück wird abgewartet, BEVOR die Antwort beginnt: Scheitert
+   Claude sofort (Netz, Ablehnung, leer), kommt noch eine saubere
+   JSON-Fehlermeldung mit Status 502. Bricht der Strom später ab, endet
+   der Text mit einem Hinweis.                                         */
+export const ABBRUCH = "\n\n(Die Rückmeldung brach ab. Versuch es noch einmal.)";
 export async function bearbeite(req, buch, umgebung, jetzt = new Date()) {
   const herkunft = req.headers.get("origin") || "";
   const url = new URL(req.url);
@@ -154,7 +161,7 @@ export async function bearbeite(req, buch, umgebung, jetzt = new Date()) {
 
   const tag = tagIn(jetzt);
   const kRueck = `r:${tag}`, kFehl = `f:${tag}`;
-  const bereit = String(umgebung.code || "").length >= CODE_MIN && typeof umgebung.frage === "function";
+  const bereit = String(umgebung.code || "").length >= CODE_MIN && typeof umgebung.strom === "function";
 
   if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/v1/status")) {
     const genutzt = (await buch.hole(kRueck)) || 0;
@@ -188,17 +195,40 @@ export async function bearbeite(req, buch, umgebung, jetzt = new Date()) {
      hat trotzdem gekostet. */
   await buch.setze(kRueck, genutzt + 1);
 
-  let ergebnis;
+  const LEER = "Dazu kam keine Rückmeldung. Formuliere den Rechenweg etwas anders.";
+  let it, erstes;
   try {
-    ergebnis = await umgebung.frage(SYSTEM, nachrichtBauen(d));
+    it = umgebung.strom(SYSTEM, nachrichtBauen(d))[Symbol.asyncIterator]();
+    do { erstes = await it.next(); } while (!erstes.done && !String(erstes.value || "").trim());
   } catch (e) {
-    return antwort(502, { fehler: "Claude war gerade nicht erreichbar. Versuch es gleich noch einmal." }, herkunft);
+    const abgelehnt = e && e.message === "ABGELEHNT";
+    return antwort(502, { fehler: abgelehnt ? LEER : "Claude war gerade nicht erreichbar. Versuch es gleich noch einmal." }, herkunft);
   }
-  if (!ergebnis || ergebnis.abgelehnt || !String(ergebnis.text || "").trim())
-    return antwort(502, { fehler: "Dazu kam keine Rückmeldung. Formuliere den Rechenweg etwas anders." }, herkunft);
+  if (erstes.done) return antwort(502, { fehler: LEER }, herkunft);
 
-  return antwort(200, {
-    text: String(ergebnis.text).trim(),
-    rest: GRENZE_JE_TAG - genutzt - 1,
-  }, herkunft);
+  const enc = new TextEncoder();
+  const body = new ReadableStream({
+    start(c) { c.enqueue(enc.encode(String(erstes.value).replace(/^\s+/, ""))); },
+    async pull(c) {
+      try {
+        const n = await it.next();
+        if (n.done) { c.close(); return; }
+        c.enqueue(enc.encode(String(n.value)));
+      } catch {
+        c.enqueue(enc.encode(ABBRUCH));
+        c.close();
+      }
+    },
+    cancel() { if (it.return) it.return(); },
+  });
+  return new Response(body, {
+    status: 200,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "cache-control": "no-store",
+      "x-rest": String(GRENZE_JE_TAG - genutzt - 1),
+      "access-control-expose-headers": "x-rest",
+      ...corsKopf(herkunft),
+    },
+  });
 }
