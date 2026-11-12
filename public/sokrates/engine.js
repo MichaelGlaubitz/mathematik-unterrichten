@@ -12,6 +12,17 @@
        gegeben:"…" ersetzen (gilt ab dort, etwa für Teil b). Nur gegebene
        Daten eintragen, nie Zwischenergebnisse. Der volle Aufgabentext klappt
        darunter auf; der Zustand steht in localStorage 'sokratesAufgabe'.
+     · Notizen (✎): freies Textfeld je Seite, localStorage 'sokratesNotiz:'+Pfad.
+     · Auf Touch-Geräten hängen die Tafeln (Rechner, Merkzettel, Notizen)
+       oben und folgen dem sichtbaren Ausschnitt, damit die Tastatur sie
+       nicht verdeckt.
+     · „Ich rechne selbst“: DIALOG.selbst = { text?, richtig?, weiter?:{text,ab},
+         fragen:[{text, kurz?, einheit?, loesung, toleranz, tausender?, ab,
+                  fehler?:[{wert, toleranz?, hinweis, ab?}]}] }
+       Die Klasse rechnet auf eigenem Weg (Feld „Dein Weg“ = die Notizen)
+       und gibt nur Ergebnisse ein. Stimmt alles: Hefteintrag zum Vergleich.
+       Sonst Hinweis zum erkannten Fehler und Einstieg ins Gespräch bei
+       `ab` (Schritt-id) des ersten falschen Ergebnisses.
    ===================================================================== */
 (function(){
 const PALETTE = {
@@ -337,7 +348,12 @@ function zeigeStart(){
       <div class="aufgabe rede">${rich(DIALOG.aufgabe)}</div>
       ${DIALOG.vorwissen && DIALOG.vorwissen.length ? `<h2>Was du dafür brauchst</h2><ul>${DIALOG.vorwissen.map(v => '<li>'+rich(v).replace(/^<p>|<\/p>$/g,'')+'</li>').join('')}</ul>` : ''}
       ${/\{name\}/.test(DIALOG.schueler) ? `<h2>Wer bist du?</h2><div class="namenwahl" role="radiogroup" aria-label="Wer bist du?">${['Thea','Theo'].map(n => `<label class="name${name===n?' an':''}"><input type="radio" name="wer" value="${n}"${name===n?' checked':''}> ${n}</label>`).join('')}</div>` : ''}
-      <button class="start" id="los"${/\{name\}/.test(DIALOG.schueler) && !name ? ' disabled' : ''}>Gespräch beginnen ▸</button>
+      <div class="startwahl">
+        <div class="startweg"><button class="start" id="los"${/\{name\}/.test(DIALOG.schueler) && !name ? ' disabled' : ''}>Gespräch beginnen ▸</button>
+          <div class="tipp">Schritt für Schritt mit Sokrates.</div></div>
+        ${selbstAktiv() ? `<div class="startweg"><button class="start start2" id="selbstlos"${/\{name\}/.test(DIALOG.schueler) && !name ? ' disabled' : ''}>Ich rechne selbst ▸</button>
+          <div class="tipp">Du rechnest auf deinem Weg und gibst nur die Ergebnisse ein. Sokrates sagt dir, was stimmt – und wo es hakt, steigt ihr gemeinsam ein.</div></div>` : ''}
+      </div>
       <div class="tipp">Unterstrichene Begriffe im Gespräch kannst du antippen – das Element leuchtet dann in der Zeichnung auf.</div>
     </div>`;
   formeln($('#dialog'));
@@ -345,8 +361,10 @@ function zeigeStart(){
     name = r.value; try { localStorage.setItem('sokratesName', name); } catch(e){}
     document.querySelectorAll('.namenwahl .name').forEach(l => l.classList.toggle('an', l.contains(r)));
     $('#los').disabled = false;
+    if ($('#selbstlos')) $('#selbstlos').disabled = false;
   });
   $('#los').onclick = () => geheZu(0);
+  if ($('#selbstlos')) $('#selbstlos').onclick = () => zeigeSelbst();
   if (api && !DREI){ letzteSicht = JSON.stringify(aktuelleSicht()); sichtEinpassen(); }
   sichtAnwenden();
 }
@@ -372,6 +390,118 @@ function aufgabenleiste(){
 function aufgabenleisteVerdrahten(){
   const d = $('#aufgabenleiste'); if (!d) return;
   d.addEventListener('toggle', () => { try { localStorage.setItem('sokratesAufgabe', d.open ? 'auf' : 'zu'); } catch(e){} });
+}
+
+/* ---- Notizen: ein freies Feld je Seite, auch als „Dein Weg“ ---- */
+const notizSchluessel = () => 'sokratesNotiz:' + location.pathname;
+function notizLesen(){ try { return localStorage.getItem(notizSchluessel()) || ''; } catch(e){ return ''; } }
+function notizVerdrahten(root){
+  (root || document).querySelectorAll('textarea.notiz').forEach(a => {
+    if (document.activeElement !== a) a.value = notizLesen();
+    a.oninput = () => {
+      try { localStorage.setItem(notizSchluessel(), a.value); } catch(e){}
+      document.querySelectorAll('textarea.notiz').forEach(b => { if (b !== a) b.value = a.value; });
+    };
+  });
+}
+
+/* ---- Zahlen lesen (Komma, Minus, Tausenderpunkte) ---- */
+function zahlAus(roh, tausender){
+  roh = String(roh || '').trim().replace(/\s/g,'').replace(/−/g,'-');   // \s deckt auch geschützte Leerzeichen ab
+  if (tausender) roh = roh.replace(/\.(?=\d{3}(\D|$))/g, '');
+  roh = roh.replace(',', '.');
+  const v = parseFloat(roh);
+  return (roh === '' || isNaN(v)) ? null : v;
+}
+const gesagtText = v => v.toLocaleString('de-DE', {maximumFractionDigits:6}).replace('-','−');
+let letztesFeld = null;
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('#eingabe, .seingabe')) letztesFeld = e.target; });
+
+/* ---- „Ich rechne selbst“: ganzer Weg, Rückmeldung auf die Ergebnisse ---- */
+let selbstWerte = {}, selbstStand = null;
+function selbstAktiv(){ return !!(DIALOG.selbst && DIALOG.selbst.fragen && DIALOG.selbst.fragen.length); }
+function selbstPruefen(){
+  document.querySelectorAll('.seingabe').forEach(e => { selbstWerte[+e.dataset.i] = e.value; });
+  selbstStand = DIALOG.selbst.fragen.map((f,i) => {
+    const v = zahlAus(selbstWerte[i], f.tausender);
+    if (v === null) return {ok:false, leer:true, ab:f.ab};
+    const tol = f.toleranz || 1e-9;
+    if (Math.abs(v - f.loesung) <= tol) return {ok:true, v};
+    const fe = (f.fehler || []).find(x => Math.abs(v - x.wert) <= (x.toleranz === undefined ? tol : x.toleranz));
+    return {ok:false, v, hinweis: fe ? fe.hinweis : (f.falsch || 'Das stimmt noch nicht. Prüfe deinen Weg an dieser Stelle.'), ab: (fe && fe.ab) || f.ab};
+  });
+  zeigeSelbst(true);
+}
+function einsteigen(id){
+  let k = idx(id); if (k < 0) k = 0;
+  zustand = []; gemischt = {}; gesehen = {}; letzteAntwort = '';
+  startwerte();
+  for (let j = 0; j < k; j++){
+    const s = DIALOG.schritte[j]; zustand[j] = 'richtig';
+    (s.beimStart || []).forEach(c => api && api.evalCommand(c));
+    (s.nachRichtig || []).forEach(c => api && api.evalCommand(c));
+  }
+  koppelZurueck();
+  geheZu(k);
+}
+function zeigeSelbst(neuGeprueft){
+  schritt = -2; try { stopSprechen(); tippeFertig(); } catch(e){}
+  const S = DIALOG.selbst, st = selbstStand;
+  const alle = !!(st && st.every(x => x.ok));
+  $('#fortschritt').textContent = 'Eigener Weg';
+  let rede;
+  if (!st) rede = S.text || 'Gut, {name}. Dann gehe deinen eigenen Weg. Schreib ihn hier auf oder in dein Heft und gib mir deine Ergebnisse. Ich sage dir, was stimmt. Wo es hakt, gehen wir es gemeinsam durch.';
+  else if (alle) rede = (S.richtig || 'Vortrefflich, {name}. Alle Ergebnisse stimmen.') + '\n\nVergleiche deinen Weg mit dem Hefteintrag. Fehlt dir ein Schritt, oder hast du einen anderen Weg gefunden?';
+  else rede = st.some(x => x.ok) ? 'Ein Teil stimmt schon, {name}. Sieh dir die anderen noch einmal an.' : 'Noch stimmt es nicht, {name}. Sieh dir deinen Weg noch einmal an.';
+  let antwort = '';
+  if (st && !alle) antwort = S.fragen.map((f,i) => {
+    const r = st[i]; if (r.ok) return '';
+    const kopf = `<b>${inline(f.kurz || f.text)}</b>`;
+    if (r.leer) return `<p>${kopf}: Hier fehlt noch dein Ergebnis.</p>`;
+    return `<p>${kopf}: Du sagst <span class="zitat">${gesagtText(r.v)}${f.einheit ? ' ' + inline(f.einheit) : ''}</span>?</p>${rich(r.hinweis)}`;
+  }).join('');
+  const zeilen = S.fragen.map((f,i) => {
+    const r = st ? st[i] : null, ok = !!(r && r.ok);
+    const wert = String(selbstWerte[i] || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    return `<div class="sfrage${r ? (ok ? ' ok' : ' nein') : ''}">
+        <div class="sf-text">${inline(f.text)}</div>
+        <div class="zahlfeld"><input class="seingabe" data-i="${i}" inputmode="decimal" autocomplete="off" placeholder="Zahl" value="${wert}"${ok ? ' readonly' : ''}>${f.einheit ? `<span class="einheit">${inline(f.einheit)}</span>` : ''}${r ? `<span class="smarke">${ok ? '✓' : '✗'}</span>` : ''}</div>
+      </div>`;
+  }).join('');
+  const ersterFehler = st && !alle ? st.find(x => !x.ok) : null;
+  $('#dialog').innerHTML = `
+    ${aufgabenleiste()}
+    <div class="sprecherzeile"><div class="sprecher">${DIALOG.lehrer}</div></div>
+    <div class="rede">${rich(rede)}</div>
+    <div class="antwort">${antwort}</div>
+    ${alle && DIALOG.hefteintrag ? `<div class="heft" id="heft"><div class="heft-kopf"><span>Hefteintrag</span><span class="heft-hinweis">Vergleiche ihn mit deinem Weg.</span></div>${rich(DIALOG.hefteintrag)}</div>` : ''}
+    <div class="schueler">
+      <div class="sprecher">${nm(DIALOG.schueler)}</div>
+      <div class="weg-kopf">Dein Weg <span class="weg-hinweis">bleibt auf diesem Gerät gespeichert, auch unter ✎ Notizen</span></div>
+      <textarea class="notiz weg" id="wegfeld" rows="6" placeholder="Schreib hier deinen Rechenweg auf – Ansatz, Formel, Zwischenergebnisse …"></textarea>
+      <div class="sfragen">${zeilen}</div>
+      <div class="nav">
+        <button class="zurueck" id="zurueck">◂ Aufgabe</button>
+        ${alle ? `<button class="weiter" id="mitsokrates">Mit Sokrates durchgehen</button>${S.weiter ? `<button class="weiter" id="selbstweiter">${inline(S.weiter.text)} ▸</button>` : ''}`
+               : `<button class="weiter" id="spruefen">Prüfen</button>${ersterFehler ? '<button class="zurueck" id="einstieg">Mit Sokrates an dieser Stelle weiter ▸</button>' : ''}`}
+      </div>
+    </div>`;
+  sichtAnwenden();
+  formeln($('#dialog'));
+  aufgabenleisteVerdrahten();
+  notizVerdrahten($('#dialog'));
+  const heft = $('#heft');
+  if (heft) ['copy','cut','contextmenu','selectstart','dragstart'].forEach(ev => heft.addEventListener(ev, e => e.preventDefault()));
+  document.querySelectorAll('.seingabe').forEach(e => {
+    e.oninput = () => { selbstWerte[+e.dataset.i] = e.value; };
+    e.onkeydown = ev => { if (ev.key === 'Enter') selbstPruefen(); };
+  });
+  $('#zurueck').onclick = () => zeigeStart();
+  if ($('#spruefen')) $('#spruefen').onclick = selbstPruefen;
+  if ($('#einstieg')) $('#einstieg').onclick = () => einsteigen(ersterFehler.ab);
+  if ($('#mitsokrates')) $('#mitsokrates').onclick = () => einsteigen(DIALOG.schritte[0].id);
+  if ($('#selbstweiter')) $('#selbstweiter').onclick = () => einsteigen(S.weiter.ab);
+  if (neuGeprueft){ const a = $('#dialog .antwort'); if (a && a.textContent.trim()) a.scrollIntoView({block:'nearest', behavior:'smooth'}); else if (heft) heft.scrollIntoView({block:'nearest', behavior:'smooth'}); }
 }
 function geheZu(i){
   schritt = i;
@@ -532,16 +662,26 @@ function rechne(text){
 function hilfenEinrichten(){
   const kopf = document.querySelector('.kopf-rechts');
   if (!kopf || $('#rechnerknopf')) return;
-  kopf.insertAdjacentHTML('afterbegin', '<button class="klein" id="merkknopf" title="Begriffe und Formeln">📘 Merkzettel</button><button class="klein" id="rechnerknopf" title="Taschenrechner">🧮 Rechner</button>');
+  kopf.insertAdjacentHTML('afterbegin', '<button class="klein" id="notizknopf" title="Eigene Notizen">✎ Notizen</button><button class="klein" id="merkknopf" title="Begriffe und Formeln">📘 Merkzettel</button><button class="klein" id="rechnerknopf" title="Taschenrechner">🧮 Rechner</button>');
   document.body.insertAdjacentHTML('beforeend', `
     <div class="tafel" id="rechner" hidden><div class="tafel-kopf"><span>Rechner</span><button class="klein" data-zu="rechner">✕</button></div>
       <div class="rechner-zeile"><input id="rin" autocomplete="off" inputmode="text" placeholder="z. B. (1,1^2 − 2 + 1) : 0,1"><button class="option" id="rgleich">=</button></div>
       <div class="rechner-tasten">${['(',')','^','√','π','·',':'].map(t => `<button class="klein" data-t="${t}">${t}</button>`).join('')}<button class="klein" data-t="C">C</button></div>
       <div class="rechner-erg" id="rerg"></div><div class="rechner-verlauf" id="rverlauf"></div>
       <div class="rechner-hinweis">Komma oder Punkt als Dezimalzeichen · Potenz mit ^ · Wurzel mit √ · Ergebnis antippen übernimmt es.</div></div>
-    <div class="tafel" id="merk" hidden><div class="tafel-kopf"><span>Merkzettel</span><button class="klein" data-zu="merk">✕</button></div><div id="merkinhalt"></div></div>`);
-  const zeige = id => { const t = $('#'+id); t.hidden = !t.hidden; if (!t.hidden && id === 'rechner') $('#rin').focus({preventScroll:true}); };
+    <div class="tafel" id="merk" hidden><div class="tafel-kopf"><span>Merkzettel</span><button class="klein" data-zu="merk">✕</button></div><div id="merkinhalt"></div></div>
+    <div class="tafel" id="notizen" hidden><div class="tafel-kopf"><span>Notizen</span><button class="klein" data-zu="notizen">✕</button></div>
+      <textarea class="notiz" id="notizfeld" rows="9" placeholder="Platz für deine Rechnungen, Ideen und Fragen …"></textarea>
+      <div class="rechner-hinweis">Bleibt auf diesem Gerät gespeichert, auch nach dem Neuladen.</div></div>`);
+  notizVerdrahten(document.body);
+  const zeige = id => {
+    const t = $('#'+id); t.hidden = !t.hidden;
+    if (!t.hidden && (id === 'merk' || id === 'notizen')) $('#' + (id === 'merk' ? 'notizen' : 'merk')).hidden = true;   // beide links: nur eine zur Zeit
+    if (!t.hidden && id === 'rechner') $('#rin').focus({preventScroll:true});
+    if (!t.hidden && id === 'notizen') { notizVerdrahten(t); if (matchMedia('(pointer:fine)').matches) $('#notizfeld').focus({preventScroll:true}); }
+  };
   $('#rechnerknopf').onclick = () => zeige('rechner');
+  $('#notizknopf').onclick = () => zeige('notizen');
   $('#merkknopf').onclick = () => {
     const m = DIALOG.merkzettel || (DIALOG.vorwissen||[]).map(v => ({text:v}));
     $('#merkinhalt').innerHTML = m.map(e => `<div class="merk1">${e.begriff ? '<b>' + e.begriff + '</b><br>' : ''}${rich(e.text).replace(/^<p>|<\/p>$/g,'')}</div>`).join('') || '<p>Noch kein Merkzettel.</p>';
@@ -553,12 +693,26 @@ function hilfenEinrichten(){
     let erg;
     try { const v = rechne(rin.value); erg = v.toLocaleString('de-DE', {maximumSignificantDigits:12}); $('#rerg').textContent = '= ' + erg; $('#rerg').classList.remove('fehler');
       $('#rverlauf').insertAdjacentHTML('afterbegin', `<div class="vz"><span>${rin.value.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span><button class="klein" data-wert="${erg}">= ${erg}</button></div>`);
-      $('#rverlauf').querySelectorAll('[data-wert]').forEach(b => b.onclick = () => { const e = $('#eingabe'); if (e) { e.value = b.dataset.wert.replace(/\./g,''); e.focus({preventScroll:true}); } else { rin.value += b.dataset.wert; } });
+      $('#rverlauf').querySelectorAll('[data-wert]').forEach(b => b.onclick = () => {
+        const e = (letztesFeld && document.body.contains(letztesFeld) && !letztesFeld.readOnly) ? letztesFeld : $('#eingabe');
+        if (e) { e.value = b.dataset.wert.replace(/\./g,''); e.dispatchEvent(new Event('input')); e.focus({preventScroll:true}); } else { rin.value += b.dataset.wert; }
+      });
     } catch(e){ $('#rerg').textContent = e.message; $('#rerg').classList.add('fehler'); }
   };
   $('#rgleich').onclick = los;
   rin.onkeydown = e => { if (e.key === 'Enter') los(); };
   document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { if (b.dataset.t === 'C') { rin.value = ''; $('#rerg').textContent = ''; } else rin.value += b.dataset.t; rin.focus({preventScroll:true}); });
+  // iPad: Die Tafeln hängen oben (CSS, pointer:coarse) und folgen dem sichtbaren
+  // Ausschnitt – geht die Tastatur auf, schrumpft er, und nichts liegt darunter.
+  const vv = window.visualViewport;
+  if (vv){
+    const passe = () => {
+      const r = document.documentElement.style;
+      r.setProperty('--vv-oben', vv.offsetTop + 'px');
+      r.setProperty('--vv-hoehe', vv.height + 'px');
+    };
+    vv.addEventListener('resize', passe); vv.addEventListener('scroll', passe); passe();
+  }
 }
 
 /* ---- GeoGebra ---- */
@@ -663,7 +817,7 @@ function ggbBereit(a){
   api.registerUpdateListener(() => { if (!werteGeplant){ werteGeplant = true; requestAnimationFrame(() => { werteGeplant = false; werteAktualisieren(); }); } });
   if (!DREI) setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);
   $('#ggb').addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, {capture:true, passive:false});
-  if (schritt < 0) zeigeStart(); else zeichne();
+  if (schritt === -2) zeigeSelbst(); else if (schritt < 0) zeigeStart(); else zeichne();
 }
 
 window.addEventListener('load', () => {
@@ -693,5 +847,6 @@ window.addEventListener('load', () => {
   window.addEventListener('resize', neu);
   if (window.ResizeObserver) new ResizeObserver(neu).observe(el);
 });
-window.SOKRATES = { get api(){ return api; }, themaSetzen, geheZu, blinke };
+window.SOKRATES = { get api(){ return api; }, themaSetzen, geheZu, blinke,
+  get selbstStand(){ return selbstStand; }, selbstNeu(){ selbstStand = null; selbstWerte = {}; } };
 })();

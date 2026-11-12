@@ -140,5 +140,32 @@ button{font:inherit;cursor:pointer;border-radius:4px}
 .rechner-erg.fehler{color:var(--matt);font-weight:400;font-style:italic;font-size:.95rem}
 .rechner-verlauf .vz{display:flex;justify-content:space-between;gap:8px;align-items:center;color:var(--matt);font-size:.9rem;margin-top:4px}
 .rechner-hinweis{color:var(--matt);font-size:.78rem;margin-top:8px}
+#notizen{left:18px;right:auto;width:min(460px,calc(100vw - 36px))}
+textarea.notiz{display:block;width:100%;font:inherit;font-size:1rem;line-height:1.45;padding:8px 10px;background:var(--feld);
+  color:var(--creme);border:1px solid var(--rand);border-radius:4px;resize:vertical;min-height:7em}
+textarea.notiz:focus{outline:none;border-color:var(--gold)}
+/* iPad: Tafeln oben, im sichtbaren Ausschnitt (Variablen setzt engine.js über visualViewport) */
+@media (pointer:coarse){
+  .tafel{top:calc(var(--vv-oben,0px) + 10px);bottom:auto;max-height:calc(var(--vv-hoehe,100vh) - 20px)}
+}
+/* Startkarte: zwei Wege */
+.startwahl{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.startweg{flex:1 1 220px;max-width:340px}
+.startweg .tipp{margin-top:6px}
+.start2{background:transparent;color:var(--hellgold);border:1px solid var(--gold)}
+.start2:disabled{opacity:.35}
+/* „Ich rechne selbst“ */
+.weg-kopf{font-weight:700;color:var(--hellgold);margin:2px 0 4px}
+.weg-hinweis{font-weight:400;color:var(--matt);font-size:.82rem;font-style:italic;margin-left:6px}
+.sfragen{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.sfrage{border-left:2px solid var(--rand);padding:2px 0 2px 10px}
+.sfrage.ok{border-left-color:var(--gold)}
+.sfrage.nein{border-left-color:var(--leucht)}
+.sf-text{font-size:1rem;margin-bottom:2px}
+.smarke{font-weight:700;font-size:1.15rem;margin-left:4px}
+.sfrage.ok .smarke{color:var(--gold)}
+.sfrage.nein .smarke{color:var(--leucht)}
+.sfrage.ok input{border-color:var(--rand);opacity:.85}
+.nav{flex-wrap:wrap}
 .merk1{padding:6px 0;border-bottom:1px solid var(--rand);font-size:.97rem}
 .merk1:last-child{border-bottom:0}

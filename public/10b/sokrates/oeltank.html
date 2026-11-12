@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,25 @@ const DIALOG = {
   aufgabe: "Ein zylindrischer Öltank hat einen Durchmesser von $30$ m und eine Höhe von $20$ m.\n\nWie viele der üblichen Haushaltstanks mit $2000$ l Fassungsvermögen können mit dem Vorrat in einem solchen Tank gefüllt werden? Schätze und rechne.",
 
   gegeben: "Öltank: $d = 30$ m, $h = 20$ m; Haushaltstank: $2000$ l",
+
+  selbst: {
+    fragen:[
+      {text:"Deine Schätzung mit $\\pi \\approx 3$: Etwa wie viele Haushaltstanks?", kurz:"Schätzung", einheit:"Tanks", loesung:6750, toleranz:750, tausender:true, ab:"quadrate",
+       fehler:[
+        {wert:27000, toleranz:3000, hinweis:"Du hast den Durchmesser als Radius genommen. Der Radius ist $15$ m.", ab:"quadrate"},
+        {wert:6.75, toleranz:0.75, hinweis:"Denk an die Umrechnung: $1$ m³ sind $1000$ l.", ab:"liter"}]},
+      {text:"Das genaue Volumen des Öltanks, auf ganze Kubikmeter:", kurz:"Volumen", einheit:"m³", loesung:14137, toleranz:1, tausender:true, ab:"volumen",
+       fehler:[
+        {wert:56549, toleranz:2, hinweis:"Du hast mit $r = 30$ m gerechnet. Der Radius ist die Hälfte des Durchmessers.", ab:"volumen"},
+        {wert:942, toleranz:1.5, hinweis:"Der Radius gehört ins Quadrat: $G = \\pi \\cdot r^2$.", ab:"volumen"},
+        {wert:13500, toleranz:1, hinweis:"Das ist die Schätzung mit $\\pi \\approx 3$. Rechne jetzt mit der $\\pi$-Taste.", ab:"v_genau"}]},
+      {text:"Wie viele Haushaltstanks lassen sich damit vollständig füllen?", kurz:"Volle Tanks", einheit:"Tanks", loesung:7068, toleranz:0, tausender:true, ab:"liter",
+       fehler:[
+        {wert:7069, toleranz:0, hinweis:"Gefragt sind volle Tanks. Der letzte wird nicht mehr ganz voll – runde ab.", ab:"n_genau"},
+        {wert:7.068, toleranz:0.01, hinweis:"Denk an die Umrechnung: $1$ m³ sind $1000$ l, ein Haushaltstank fasst also $2$ m³.", ab:"liter"},
+        {wert:28274, toleranz:3, hinweis:"Du hast mit $2$ malgenommen. Wie viele Tanks zu je $2$ m³ passen in den großen Tank?", ab:"liter"}]}
+    ]
+  },
   vorwissen: [
     "Volumen eines Zylinders: $V = G \\cdot h$ mit der Grundfläche $G = \\pi \\cdot r^2$",
     "Umrechnung: $1$ m³ $= 1000$ l"
@@ -165,6 +184,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

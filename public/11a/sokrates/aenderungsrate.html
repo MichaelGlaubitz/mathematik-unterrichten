@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,22 @@ const DIALOG = {
   aufgabe: "Professionelle Bungee-Springer springen gern von der $216$ m hohen Bloukrans-Brücke in Südafrika. Die ersten vier Sekunden sind ungefähr ein freier Fall mit der Fallstrecke $$s(t) = 5\\,t^2 \\quad (0 \\le t \\le 4),$$ $t$ in Sekunden, $s$ in Metern. Danach bremst das Seil den Springer ab.\n\n(1) In welcher Höhe beginnt das Abbremsen?\n(2) Welche Geschwindigkeit hat der Springer nach vier Sekunden?",
 
   gegeben: "$s(t) = 5t^2$ für $0 \\le t \\le 4$ ($t$ in s, $s$ in m); Brücke $216$ m hoch",
+
+  selbst: {
+    fragen:[
+      {text:"(1) In welcher Höhe über dem Grund beginnt das Abbremsen?", kurz:"(1) Höhe", einheit:"m", loesung:136, toleranz:0.5, ab:"hoehe",
+       fehler:[
+        {wert:80, hinweis:"Das ist die Fallstrecke nach $4$ s. Gefragt ist die Höhe über dem Grund.", ab:"hoehe"},
+        {wert:176, hinweis:"Prüfe $s(4) = 5 \\cdot 4^2$ noch einmal.", ab:"hoehe"}]},
+      {text:"(2) Welche Geschwindigkeit hat der Springer nach vier Sekunden?", kurz:"(2) Geschwindigkeit", einheit:"m/s", loesung:40, toleranz:0.01, ab:"mittel",
+       fehler:[
+        {wert:20, hinweis:"Das ist die Durchschnittsgeschwindigkeit der ersten vier Sekunden. Am Ende ist er schneller als am Anfang.", ab:"dritte"},
+        {wert:35, hinweis:"Das ist der Durchschnitt von der dritten bis zur vierten Sekunde. Gefragt ist der Augenblick $t = 4$.", ab:"genug"},
+        {wert:39.75, toleranz:0.26, hinweis:"Du näherst dich dem Wert. Worauf laufen die Durchschnitte zu, wenn der Zeitraum immer kürzer wird?", ab:"annaehern"},
+        {wert:0, hinweis:"Bei einem Zeitraum der Länge $0$ steht $\\frac{0}{0}$ da – das hat keinen Wert.", ab:"null"},
+        {wert:80, hinweis:"$80$ m ist eine Strecke, keine Geschwindigkeit.", ab:"mittel"}]}
+    ]
+  },
   vorwissen: [
     "Mittlere Änderungsrate: der Differenzenquotient $\\dfrac{s(t_2) - s(t_1)}{t_2 - t_1}$",
     "Steigung einer Geraden durch zwei Punkte",
@@ -183,6 +199,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,21 @@ const DIALOG = {
   aufgabe: "Eine quadratische Pyramide hat die Grundkante $a = 6$ cm und die Höhe $h = 4$ cm.\n\nWie viel Pappe braucht man, um sie zu basteln? Berechne ihre Oberfläche.",
 
   gegeben: "Quadratische Pyramide: $a = 6$ cm, $h = 4$ cm",
+
+  selbst: {
+    fragen:[
+      {text:"Wie groß ist die Seitenhöhe $h_s$?", kurz:"Seitenhöhe $h_s$", einheit:"cm", loesung:5, toleranz:0.01, ab:"hoehe",
+       fehler:[
+        {wert:7.2111, toleranz:0.01, hinweis:"Du hast die ganze Grundkante genommen. Die Seitenhöhe trifft die Grundkante in der Mitte: Nimm $\\frac{a}{2} = 3$ cm.", ab:"hs"},
+        {wert:7, hinweis:"Du hast $3 + 4$ gerechnet. Die Seitenhöhe ist die Hypotenuse eines rechtwinkligen Dreiecks.", ab:"hs"},
+        {wert:4, hinweis:"Das ist die Körperhöhe $h$. Die Seitenhöhe liegt in der Seitenfläche.", ab:"hoehe"}]},
+      {text:"Wie groß ist die Oberfläche $O$?", kurz:"Oberfläche $O$", einheit:"cm²", loesung:96, toleranz:0.01, ab:"teile",
+       fehler:[
+        {wert:60, hinweis:"Das ist nur der Mantel. Es fehlt die quadratische Grundfläche.", ab:"oberflaeche"},
+        {wert:84, hinweis:"Für die Dreiecke hast du die Körperhöhe $h = 4$ cm genommen. Die Höhe eines Seitendreiecks ist die Seitenhöhe $h_s$.", ab:"hoehe"},
+        {wert:156, hinweis:"Ein Dreieck hat die Fläche $\\frac{1}{2} \\cdot g \\cdot h_g$. Hast du die Hälfte vergessen?", ab:"dreieck"}]}
+    ]
+  },
   vorwissen: [
     "Flächeninhalt von Quadrat und Dreieck: $A = \\frac{1}{2} \\cdot g \\cdot h_g$",
     "Satz des Pythagoras",
@@ -133,6 +148,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,27 @@ const DIALOG = {
   aufgabe: "Aufgabe 3: a) Füllen Sie die Tabelle für $f(x) = x^4$ und $f(x) = \\sqrt{x}$ an den Stellen $a = 1$ und $a = 2$ mit $h = 0{,}01;\\ 0{,}001;\\ 0{,}0001;\\ 0{,}00001$ aus. „Gut“ heißt: auf vier Stellen hinter dem Komma genau, die vierte Stelle ändert sich bei kleinerem $h$ nicht mehr. Erstellen Sie eine solche Tabelle auch für $f(x) = 2x - x^2$ und $f(x) = 2^x$.\n\nb) Skizzieren Sie die Graphen und überprüfen Sie die Ergebnisse grafisch, indem Sie in den Punkten $P$ nach Augenmaß eine Tangente skizzieren und deren Steigung bestimmen.",
 
   gegeben: "$x^4$ und $\\sqrt{x}$ bei $a = 1$ und $a = 2$, dazu $2x - x^2$ und $2^x$; $h$ von $0{,}01$ bis $0{,}00001$",
+
+  selbst: {
+    text:"Gut, {name}. Fülle die Tabellen mit deinem GTR aus, hier unter „Dein Weg“ oder im Heft. Gib mir dann zu jeder Funktion und Stelle die lokale Änderungsrate auf vier Nachkommastellen.",
+    weiter:{text:"Teil b mit Sokrates", ab:"augenmass"},
+    fragen:[
+      {text:"$f(x) = x^4$ bei $a = 1$", kurz:"$x^4$ bei $a = 1$", loesung:4, toleranz:0.0001, ab:"x4a1",
+       fehler:[{wert:4.031, toleranz:0.0305, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"x4a1g"}, {wert:1, hinweis:"Das ist der Funktionswert $f(1)$. Gefragt ist die Änderungsrate.", ab:"x4a1"}]},
+      {text:"$f(x) = x^4$ bei $a = 2$", kurz:"$x^4$ bei $a = 2$", loesung:32, toleranz:0.0001, ab:"x4a2",
+       fehler:[{wert:32.12, toleranz:0.121, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"x4a2"}, {wert:16, hinweis:"Das ist der Funktionswert $f(2)$. Gefragt ist die Änderungsrate.", ab:"x4a2"}]},
+      {text:"$f(x) = \\sqrt{x}$ bei $a = 1$", kurz:"$\\sqrt{x}$ bei $a = 1$", loesung:0.5, toleranz:0.0001, ab:"wurzel1",
+       fehler:[{wert:0.4994, toleranz:0.0007, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"wurzel1"}, {wert:1, hinweis:"Das ist der Funktionswert $f(1)$. Gefragt ist die Änderungsrate.", ab:"wurzel1"}]},
+      {text:"$f(x) = \\sqrt{x}$ bei $a = 2$", kurz:"$\\sqrt{x}$ bei $a = 2$", loesung:0.3536, toleranz:0.00011, ab:"wurzel2",
+       fehler:[{wert:0.3533, toleranz:0.0003, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"wurzel2"}, {wert:1.4142, toleranz:0.0002, hinweis:"Das ist der Funktionswert $f(2) = \\sqrt{2}$. Gefragt ist die Änderungsrate.", ab:"wurzel2"}]},
+      {text:"$f(x) = 2x - x^2$ bei $a = 1$", kurz:"$2x - x^2$ bei $a = 1$", loesung:0, toleranz:0.0001, ab:"parabel",
+       fehler:[{wert:-0.005, toleranz:0.0051, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"parabel"}, {wert:1, hinweis:"Das ist der Funktionswert $f(1)$. Gefragt ist die Änderungsrate.", ab:"parabel"}]},
+      {text:"$f(x) = 2x - x^2$ bei $a = 2$", kurz:"$2x - x^2$ bei $a = 2$", loesung:-2, toleranz:0.0001, ab:"parabel2",
+       fehler:[{wert:-2.005, toleranz:0.0051, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"parabel2"}, {wert:2, toleranz:0.0001, hinweis:"Achte auf das Vorzeichen: Bei $a = 2$ fällt die Parabel.", ab:"parabel2"}]},
+      {text:"$f(x) = 2^x$ bei $a = 1$", kurz:"$2^x$ bei $a = 1$", loesung:1.3863, toleranz:0.00011, ab:"expo",
+       fehler:[{wert:1.3887, toleranz:0.0025, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Nimm $h$ immer kleiner, bis sich die vierte Nachkommastelle nicht mehr ändert.", ab:"expo"}, {wert:2, hinweis:"Das ist der Funktionswert $f(1)$. Gefragt ist die Änderungsrate.", ab:"expo"}]}
+    ]
+  },
   vorwissen: [
     "Differenzenquotient $\\dfrac{f(a+h) - f(a)}{h}$",
     "Funktionswerte mit dem GTR berechnen (Tabelle oder Funktionsterm)",
@@ -181,6 +202,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

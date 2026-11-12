@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,33 @@ const DIALOG = {
   aufgabe: "Aufgabe 2: Bestimmen Sie die lokale Änderungsrate an der Stelle $a$ ohne die Funktionstasten des GTR durch Annähern mit $h = 0{,}1$ und $h = 0{,}005$.\n\na) $f(x) = x^2 - 2;\\ a = 1$\nb) $f(x) = (x-2)^2;\\ a = -1$\nc) $f(x) = \\frac{1}{2}x^3;\\ a = 3$",
 
   gegeben: "a) $x^2 - 2$ bei $a = 1$; b) $(x-2)^2$ bei $a = -1$; c) $\\frac{1}{2}x^3$ bei $a = 3$; je $h = 0{,}1$ und $h = 0{,}005$",
+
+  selbst: {
+    text:"Gut, {name}. Rechne a), b) und c) auf deinem Weg, ohne die Funktionstasten. Gib mir zu jedem Teil die beiden Differenzenquotienten und die lokale Änderungsrate.",
+    fragen:[
+      {text:"a) Differenzenquotient für $h = 0{,}1$", kurz:"a) $h = 0{,}1$", loesung:2.1, toleranz:0.001, ab:"a1",
+       fehler:[{wert:0.21, toleranz:0.001, hinweis:"Das ist erst $\\Delta y$. Teile noch durch $h$.", ab:"a1"}]},
+      {text:"a) Differenzenquotient für $h = 0{,}005$", kurz:"a) $h = 0{,}005$", loesung:2.005, toleranz:0.0005, ab:"a2",
+       fehler:[{wert:0.010025, toleranz:0.00001, hinweis:"Das ist erst $\\Delta y$. Teile noch durch $h$.", ab:"a2"}]},
+      {text:"a) lokale Änderungsrate", kurz:"a) lokale Rate", loesung:2, toleranz:0.0001, ab:"a_term",
+       fehler:[{wert:2.05, toleranz:0.051, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Worauf laufen die Werte zu, wenn $h$ gegen $0$ geht?", ab:"a_term"}]},
+      {text:"b) Differenzenquotient für $h = 0{,}1$", kurz:"b) $h = 0{,}1$", loesung:-5.9, toleranz:0.001, ab:"b1",
+       fehler:[
+        {wert:5.9, toleranz:0.001, hinweis:"Achte auf das Vorzeichen: $f(-0{,}9) - f(-1) = 8{,}41 - 9$.", ab:"b1"},
+        {wert:-0.59, toleranz:0.001, hinweis:"Das ist erst $\\Delta y$. Teile noch durch $h$.", ab:"b1"}]},
+      {text:"b) Differenzenquotient für $h = 0{,}005$", kurz:"b) $h = 0{,}005$", loesung:-5.995, toleranz:0.0005, ab:"b2",
+       fehler:[{wert:5.995, toleranz:0.0005, hinweis:"Achte auf das Vorzeichen: Der Funktionswert wird kleiner.", ab:"b2"}]},
+      {text:"b) lokale Änderungsrate", kurz:"b) lokale Rate", loesung:-6, toleranz:0.0001, ab:"b_lim",
+       fehler:[
+        {wert:6, toleranz:0.0001, hinweis:"Achte auf das Vorzeichen: Die Parabel fällt an dieser Stelle.", ab:"b_lim"},
+        {wert:-5.95, toleranz:0.051, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Worauf laufen die Werte zu, wenn $h$ gegen $0$ geht?", ab:"b_lim"}]},
+      {text:"c) Differenzenquotient für $h = 0{,}1$", kurz:"c) $h = 0{,}1$", loesung:13.955, toleranz:0.001, ab:"c1",
+       fehler:[{wert:1.3955, toleranz:0.001, hinweis:"Das ist erst $\\Delta y$. Teile noch durch $h$.", ab:"c1"}]},
+      {text:"c) Differenzenquotient für $h = 0{,}005$ (vier Nachkommastellen)", kurz:"c) $h = 0{,}005$", loesung:13.5225, toleranz:0.0002, ab:"c2"},
+      {text:"c) lokale Änderungsrate", kurz:"c) lokale Rate", loesung:13.5, toleranz:0.0001, ab:"c_lim",
+       fehler:[{wert:13.73, toleranz:0.23, hinweis:"Das ist ein Differenzenquotient für ein festes $h$. Worauf laufen die Werte zu, wenn $h$ gegen $0$ geht?", ab:"c_lim"}]}
+    ]
+  },
   vorwissen: [
     "Differenzenquotient $\\dfrac{f(a+h) - f(a)}{h}$",
     "Binomische Formeln, Ausmultiplizieren",
@@ -197,6 +224,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

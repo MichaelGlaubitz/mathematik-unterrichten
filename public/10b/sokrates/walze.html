@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,17 @@ const DIALOG = {
   aufgabe: "Die vordere Walze eines Planierfahrzeugs hat einen Durchmesser von $1{,}52$ m und eine Breite von $2{,}20$ m.\n\nWie viel Quadratmeter werden bei einer Umdrehung der Walze planiert?",
 
   gegeben: "$d = 1{,}52$ m, $b = 2{,}20$ m",
+
+  selbst: {
+    fragen:[
+      {text:"Wie viele Quadratmeter werden bei einer Umdrehung planiert? Runde auf eine Nachkommastelle.", kurz:"Planierte Fläche", einheit:"m²", loesung:10.5055, toleranz:0.06, ab:"form",
+       fehler:[
+        {wert:3.344, toleranz:0.02, hinweis:"Du hast Durchmesser mal Breite gerechnet. Wie weit rollt die Walze bei einer Umdrehung wirklich – nur $1{,}52$ m?", ab:"laenge"},
+        {wert:5.2527, toleranz:0.03, hinweis:"Das ist genau die Hälfte. Hast du mit dem Radius gerechnet? Der Umfang ist $u = \\pi \\cdot d$.", ab:"umfang"},
+        {wert:14.1347, toleranz:0.06, hinweis:"Du hast die beiden runden Seitenwände mitgezählt. Berühren sie beim Rollen den Boden?", ab:"mantel"},
+        {wert:3.9921, toleranz:0.03, hinweis:"Das ist das Volumen der Walze. Gefragt ist eine Fläche: Was rollt die Walze auf dem Boden ab?", ab:"mantel"}]}
+    ]
+  },
   vorwissen: [
     "Umfang eines Kreises: $u = \\pi \\cdot d$",
     "Flächeninhalt eines Rechtecks: Länge mal Breite",
@@ -159,6 +170,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

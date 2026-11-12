@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,23 @@ const DIALOG = {
   aufgabe: "Ein Zylinder hat eine Höhe von $12$ cm und einen Radius von $10$ cm. Das Netz dieses Zylinders ist skizziert: ein Rechteck mit den Seiten $x$ und $y$, daran zwei Kreise.\n\nWie groß sind die Werte für $x$ und $y$? Berechne auch die Oberfläche des Zylinders.",
 
   gegeben: "Zylinder: $h = 12$ cm, $r = 10$ cm",
+
+  selbst: {
+    fragen:[
+      {text:"Wie lang ist die Seite $x$ des Rechtecks?", kurz:"Seite $x$", einheit:"cm", loesung:12, toleranz:0.01, ab:"x",
+       fehler:[
+        {wert:10, hinweis:"Der Radius gehört zu den Kreisen. Wo findest du $x$ wieder, wenn du das Rechteck zur Dose rollst?", ab:"x"},
+        {wert:20, hinweis:"Der Durchmesser gehört zu den Kreisen. Wo findest du $x$ wieder, wenn du das Rechteck zur Dose rollst?", ab:"x"}]},
+      {text:"Wie lang ist die Seite $y$? Runde auf zwei Nachkommastellen.", kurz:"Seite $y$", einheit:"cm", loesung:62.832, toleranz:0.06, ab:"y",
+       fehler:[
+        {wert:31.416, toleranz:0.03, hinweis:"Das ist $\\pi \\cdot r$, nur der halbe Umfang.", ab:"y"},
+        {wert:20, hinweis:"Das ist der Durchmesser. Die Seite $y$ wickelt sich einmal ganz um den Kreis.", ab:"rollen"}]},
+      {text:"Wie groß ist die Oberfläche des Zylinders? Runde auf eine Nachkommastelle.", kurz:"Oberfläche", einheit:"cm²", loesung:1382.3, toleranz:0.08, ab:"teile",
+       fehler:[
+        {wert:753.98, toleranz:0.1, hinweis:"Das ist nur die Mantelfläche. Es fehlen die beiden Kreise.", ab:"teile"},
+        {wert:1068.14, toleranz:0.1, hinweis:"Du hast nur einen Kreis gezählt. Ein Zylinder hat Boden und Deckel.", ab:"teile"}]}
+    ]
+  },
   vorwissen: [
     "Umfang eines Kreises: $u = 2 \\cdot \\pi \\cdot r$",
     "Flächeninhalt eines Kreises: $A = \\pi \\cdot r^2$",
@@ -152,6 +169,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

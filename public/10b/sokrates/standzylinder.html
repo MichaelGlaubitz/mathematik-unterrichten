@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,22 @@ const DIALOG = {
   aufgabe: "a) Ein Standzylinder von $36$ mm Innendurchmesser soll als Messzylinder geeicht werden. Welchen Abstand müssen die $5$-cm³-Teilstriche haben?\n\nb) Bei einem anderen Messzylinder haben die $2$-cm³-Teilstriche einen Abstand von $4$ mm. Welchen Innendurchmesser hat dieser Zylinder?",
 
   gegeben: "a) Innendurchmesser $36$ mm, Teilstriche für je $5$ cm³",
+
+  selbst: {
+    fragen:[
+      {text:"a) Abstand der $5$-cm³-Teilstriche, in Millimetern auf eine Nachkommastelle:", kurz:"a) Abstand", einheit:"mm", loesung:4.912, toleranz:0.04, ab:"proportional",
+       fehler:[
+        {wert:0.4912, toleranz:0.005, hinweis:"Das ist der Abstand in Zentimetern. Gefragt ist er in Millimetern.", ab:"abstand"},
+        {wert:1.228, toleranz:0.01, hinweis:"Du hast den Durchmesser als Radius genommen. Der Radius ist $1{,}8$ cm.", ab:"grundflaeche"},
+        {wert:0.1228, toleranz:0.002, hinweis:"Du hast den Durchmesser als Radius genommen, und das Ergebnis ist noch in Zentimetern.", ab:"grundflaeche"}]},
+      {text:"b) Innendurchmesser des zweiten Messzylinders, in Millimetern auf eine Nachkommastelle:", kurz:"b) Durchmesser", einheit:"mm", loesung:25.23, toleranz:0.1, ab:"teil_b",
+       fehler:[
+        {wert:12.62, toleranz:0.06, hinweis:"Das ist der Radius. Gefragt ist der Durchmesser.", ab:"d_b"},
+        {wert:2.523, toleranz:0.01, hinweis:"Das ist der Durchmesser in Zentimetern. Gefragt ist er in Millimetern.", ab:"d_b"},
+        {wert:1.2616, toleranz:0.006, hinweis:"Das ist der Radius in Zentimetern. Gefragt ist der Durchmesser in Millimetern.", ab:"d_b"},
+        {wert:7.98, toleranz:0.05, hinweis:"Achte auf die Einheiten: $4$ mm sind $0{,}4$ cm.", ab:"g_b"}]}
+    ]
+  },
   vorwissen: [
     "Volumen eines Zylinders: $V = G \\cdot h$ mit $G = \\pi \\cdot r^2$",
     "Einheiten: $1$ cm $= 10$ mm, Volumen in cm³, Flächen in cm²",
@@ -153,6 +169,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>

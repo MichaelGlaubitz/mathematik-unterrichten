@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121730">
 </head>
 <body>
 <div class="seite">
@@ -35,6 +35,17 @@ const DIALOG = {
   aufgabe: "Ein Kegel und ein Zylinder haben dieselbe kreisförmige Grundfläche mit dem Radius $r$ und dieselbe Höhe $h$. Wie groß ist das Volumen des Kegels?\n\nZum Schluss berechnen wir damit das Volumen eines Sandhaufens.",
 
   gegeben: "Kegel und Zylinder: dieselbe Grundfläche (Radius $r$), dieselbe Höhe $h$",
+
+  selbst: {
+    text:"Gut, {name}. Finde auf deinem Weg heraus, wie groß das Volumen eines Kegels ist, und berechne damit einen Sandhaufen: ein Kegel mit dem Radius $2$ m und der Höhe $1{,}5$ m.",
+    fragen:[
+      {text:"Wie viele Kubikmeter Sand enthält der Haufen? Runde auf zwei Nachkommastellen.", kurz:"Sandhaufen", einheit:"m³", loesung:6.2832, toleranz:0.011, ab:"formel",
+       fehler:[
+        {wert:18.8496, toleranz:0.02, hinweis:"Das ist das Volumen eines Zylinders mit demselben Radius und derselben Höhe. Ein Kegel ist kleiner – wie oft passt er hinein?", ab:"vermutung"},
+        {wert:25.1327, toleranz:0.02, hinweis:"Du hast mit $4$ m gerechnet. Der Radius ist $2$ m.", ab:"sand"},
+        {wert:3.1416, toleranz:0.01, hinweis:"Der Radius gehört ins Quadrat: $G = \\pi \\cdot r^2$.", ab:"formel"}]}
+    ]
+  },
   vorwissen: [
     "Volumen des Zylinders: $V = \\pi \\cdot r^2 \\cdot h$",
     "Volumen der Pyramide: $V = \\frac{1}{3} \\cdot G \\cdot h$",
@@ -143,6 +154,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121530"></script>
+<script src="/sokrates/engine.js?v=202611121730"></script>
 </body>
 </html>
