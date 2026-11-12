@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611112201">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611121530">
 </head>
 <body>
 <div class="seite">
@@ -33,6 +33,8 @@ const DIALOG = {
   schueler: "{name}",
 
   aufgabe: "Aufgabe 3: a) Füllen Sie die Tabelle für $f(x) = x^4$ und $f(x) = \\sqrt{x}$ an den Stellen $a = 1$ und $a = 2$ mit $h = 0{,}01;\\ 0{,}001;\\ 0{,}0001;\\ 0{,}00001$ aus. „Gut“ heißt: auf vier Stellen hinter dem Komma genau, die vierte Stelle ändert sich bei kleinerem $h$ nicht mehr. Erstellen Sie eine solche Tabelle auch für $f(x) = 2x - x^2$ und $f(x) = 2^x$.\n\nb) Skizzieren Sie die Graphen und überprüfen Sie die Ergebnisse grafisch, indem Sie in den Punkten $P$ nach Augenmaß eine Tangente skizzieren und deren Steigung bestimmen.",
+
+  gegeben: "$x^4$ und $\\sqrt{x}$ bei $a = 1$ und $a = 2$, dazu $2x - x^2$ und $2^x$; $h$ von $0{,}01$ bis $0{,}00001$",
   vorwissen: [
     "Differenzenquotient $\\dfrac{f(a+h) - f(a)}{h}$",
     "Funktionswerte mit dem GTR berechnen (Tabelle oder Funktionsterm)",
@@ -83,7 +85,7 @@ const DIALOG = {
     { id:"anfang", typ:"rede",
       text:"Sei gegrüßt, {name}. Heute hilft uns der Rechner: Er berechnet den Differenzenquotienten für sehr kleine $h$ schnell und genau. Wir prüfen, ab wann sich die vierte Nachkommastelle nicht mehr ändert.\n\nNimm deinen GTR. Die Zeichnung zeigt dir zur Kontrolle denselben Wert – doch rechne zuerst selbst." },
 
-    { id:"x4a1", tipps:["Gib in den Rechner ein: $(1{,}001^4 - 1) : 0{,}001$", "Der Rechner oben rechts: (1,001^4 − 1) : 0,001"], typ:"zahl",
+    { id:"x4a1", gegeben:"$f(x) = x^4$ bei $a = 1$ und $a = 2$; $h$ von $0{,}01$ bis $0{,}00001$", tipps:["Gib in den Rechner ein: $(1{,}001^4 - 1) : 0{,}001$", "Der Rechner oben rechts: (1,001^4 − 1) : 0,001"], typ:"zahl",
       text:"Beginnen wir mit $f(x) = x^4$ an der Stelle [[$a = 1$|P]]. Berechne mit dem GTR den Differenzenquotienten für $h = 0{,}001$. Runde auf vier Nachkommastellen.",
       loesung:4.0060, toleranz:0.00006,
       falsch:"Gib $\\dfrac{1{,}001^4 - 1^4}{0{,}001}$ in den Rechner ein. Achte auf Klammern.",
@@ -103,7 +105,7 @@ const DIALOG = {
       richtig:"Gut: $32$. Die Steigung ist an der Stelle $2$ achtmal so groß wie an der Stelle $1$ – der Graph von $x^4$ wird sehr schnell steil.",
       beimStart:["SetValue(aa,2)","SetValue(kk,2)"] },
 
-    { id:"wurzel1", tipps:["$\\sqrt{1} = 1$. Rechne $(\\sqrt{1{,}0001} - 1) : 0{,}0001$.", "Im Rechner: (√1,0001 − 1) : 0,0001"], typ:"zahl",
+    { id:"wurzel1", gegeben:"$f(x) = \\sqrt{x}$ bei $a = 1$ und $a = 2$; $h$ von $0{,}01$ bis $0{,}00001$", tipps:["$\\sqrt{1} = 1$. Rechne $(\\sqrt{1{,}0001} - 1) : 0{,}0001$.", "Im Rechner: (√1,0001 − 1) : 0,0001"], typ:"zahl",
       text:"Jetzt $f(x) = \\sqrt{x}$ bei [[$a = 1$|P]]. Welche lokale Änderungsrate ergibt sich?",
       sicht:[-0.3, 4.6, -0.4, 2.6, 1, 0.5],
       loesung:0.5, toleranz:0.0001,
@@ -128,7 +130,7 @@ const DIALOG = {
       falsch:"Lies noch einmal die Aufgabe: Was soll „gut“ heißen?",
       richtig:"Recht so. Übrigens ist der genaue Wert $\\frac{1}{2\\sqrt{2}} \\approx 0{,}35355$. Woher das kommt, lernst du bald." },
 
-    { id:"parabel", tipps:["Steigung $0$: Steigt der Graph dort, oder fällt er?", "Wo hat eine nach unten geöffnete Parabel ihren höchsten Punkt?"], typ:"wahl",
+    { id:"parabel", gegeben:"$f(x) = 2x - x^2$ bei $a = 1$ und $a = 2$; $h$ von $0{,}01$ bis $0{,}00001$", tipps:["Steigung $0$: Steigt der Graph dort, oder fällt er?", "Wo hat eine nach unten geöffnete Parabel ihren höchsten Punkt?"], typ:"wahl",
       text:"Weiter mit $f(x) = 2x - x^2$. Bei [[$a = 1$|P]] laufen die Differenzenquotienten gegen $0$. Was bedeutet das für den Graphen?",
       sicht:[-1.2, 3.2, -3.4, 1.9, 1, 1],
       optionen:[
@@ -149,7 +151,7 @@ const DIALOG = {
       beimStart:["SetValue(aa,2)","SetValue(kk,2)"],
       verberge:["tang"] },
 
-    { id:"expo", tipps:["$f(1) = 2$. Rechne $(2^{1{,}0001} - 2) : 0{,}0001$.", "Im Rechner: (2^1,0001 − 2) : 0,0001 und dasselbe mit 0,00001"], typ:"zahl",
+    { id:"expo", gegeben:"$f(x) = 2^x$ bei $a = 1$; $h$ von $0{,}01$ bis $0{,}00001$", tipps:["$f(1) = 2$. Rechne $(2^{1{,}0001} - 2) : 0{,}0001$.", "Im Rechner: (2^1,0001 − 2) : 0,0001 und dasselbe mit 0,00001"], typ:"zahl",
       text:"Zuletzt $f(x) = 2^x$ bei [[$a = 1$|P]]. Gib die lokale Änderungsrate auf vier Nachkommastellen an.",
       sicht:[-1.2, 3.3, -0.6, 8.6, 1, 1],
       loesung:1.3863, toleranz:0.00011,
@@ -157,7 +159,7 @@ const DIALOG = {
       richtig:"Richtig: etwa $1{,}3863$, wieder keine glatte Zahl. Bei $a = 2$ ergibt sich übrigens $2{,}7726$ – genau das Doppelte, wie auch $f(2)$ das Doppelte von $f(1)$ ist.",
       beimStart:["SetValue(teil,4)","SetValue(aa,1)","SetValue(kk,2)"] },
 
-    { id:"augenmass", typ:"probieren",
+    { id:"augenmass", gegeben:"b) Graph von $f(x) = 2^x$, Tangente nach Augenmaß in $P(1\\,|\\,2)$", typ:"probieren",
       text:"Nun zu b). Lege nach Augenmaß eine Tangente an den [[Graphen|fg]] in [[$P(1\\,|\\,2)$|P]]: Ziehe den [[Punkt|Ta]], bis die [[Gerade|augen]] den Graphen in $P$ gerade berührt. Lies ihre Steigung ab.",
       hinweis:"Ziehe den Punkt, bis die Gerade wie eine Tangente aussieht.",
       zeige:["Ta","augen"] },
@@ -179,6 +181,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611112201"></script>
+<script src="/sokrates/engine.js?v=202611121530"></script>
 </body>
 </html>

@@ -76,6 +76,21 @@ button{font:inherit;cursor:pointer;border-radius:4px}
 .tw.an{opacity:1}
 .wartet{opacity:0 !important;pointer-events:none}
 .optionen,.zahlfeld,.hinweis,.nav{transition:opacity .45s ease}
+/* Aufgabenleiste: steht in jedem Schritt über Sokrates und bleibt beim Scrollen oben */
+.aufgabenleiste{position:sticky;top:0;z-index:4;margin:0 0 14px;border:1px solid var(--rand);border-left:3px solid var(--gold);
+  border-radius:4px;background:var(--bg);box-shadow:0 6px 14px -10px rgba(0,0,0,.6)}
+.aufgabenleiste summary{list-style:none;display:flex;align-items:baseline;gap:12px;padding:7px 12px;cursor:pointer;
+  background:var(--hauch);flex-wrap:wrap}
+.aufgabenleiste summary::-webkit-details-marker{display:none}
+.al-kopf{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;color:var(--gold);font-size:1.15rem;white-space:nowrap}
+.al-gegeben{flex:1;min-width:0;color:var(--hellgold);font-weight:600;font-size:1.02rem}
+.al-gegeben.al-leer{color:var(--matt);font-weight:400;font-style:italic}
+.al-schalter{color:var(--matt);font-size:.82rem;white-space:nowrap;margin-left:auto}
+.al-schalter::after{content:"ganzer Text ▾"}
+.aufgabenleiste[open] .al-schalter::after{content:"einklappen ▴"}
+.aufgabenleiste summary:hover .al-schalter{color:var(--hellgold)}
+.al-text{padding:8px 14px 4px;font-size:.98rem;max-height:40vh;overflow:auto;border-top:1px solid var(--rand)}
+.al-text p{margin:0 0 .5em}
 .sprecherzeile{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .sprecherzeile .sprecher{margin-right:6px}
 .klein{background:transparent;border:1px solid var(--rand);color:var(--matt);font-size:.82rem;padding:2px 10px;line-height:1.6}

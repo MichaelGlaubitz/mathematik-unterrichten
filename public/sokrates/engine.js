@@ -6,6 +6,12 @@
      · Hell/Dunkel-Umschalter (localStorage 'sokratesThema'), färbt auch GeoGebra um
      · werte: {stellen, einheit}  ·  zahl-Schritte: {einheit, tausender}
      · DIALOG.heim = {text, href} für den Rücklink im Kopf
+     · Aufgabenleiste: In jedem Schritt steht über Sokrates die Aufgabe.
+       DIALOG.gegeben = "$d = 1{,}52$ m, $b = 2{,}20$ m" ist die Datenzeile,
+       die auch zugeklappt sichtbar bleibt; ein Schritt kann sie mit eigenem
+       gegeben:"…" ersetzen (gilt ab dort, etwa für Teil b). Nur gegebene
+       Daten eintragen, nie Zwischenergebnisse. Der volle Aufgabentext klappt
+       darunter auf; der Zustand steht in localStorage 'sokratesAufgabe'.
    ===================================================================== */
 (function(){
 const PALETTE = {
@@ -344,6 +350,29 @@ function zeigeStart(){
   if (api && !DREI){ letzteSicht = JSON.stringify(aktuelleSicht()); sichtEinpassen(); }
   sichtAnwenden();
 }
+/* ---- Aufgabenleiste: die Daten bleiben im Blick ---- */
+const inline = t => rich(t).replace(/^<p>|<\/p>$/g,'');
+function aktuellGegeben(){
+  for (let i = Math.min(schritt, DIALOG.schritte.length-1); i >= 0; i--) if (DIALOG.schritte[i].gegeben) return DIALOG.schritte[i].gegeben;
+  return DIALOG.gegeben || '';
+}
+function aufgabeOffen(){
+  let z = null; try { z = localStorage.getItem('sokratesAufgabe'); } catch(e){}
+  if (z === 'auf') return true; if (z === 'zu') return false;
+  return !aktuellGegeben();   // ohne Datenzeile zunächst offen, sonst genügt die Zeile
+}
+function aufgabenleiste(){
+  if (!DIALOG.aufgabe) return '';
+  const g = aktuellGegeben();
+  return `<details class="aufgabenleiste" id="aufgabenleiste"${aufgabeOffen() ? ' open' : ''}>
+      <summary><span class="al-kopf">Aufgabe</span>${g ? `<span class="al-gegeben">${inline(g)}</span>` : '<span class="al-gegeben al-leer">Aufgabentext</span>'}<span class="al-schalter"></span></summary>
+      <div class="al-text">${rich(DIALOG.aufgabe)}</div>
+    </details>`;
+}
+function aufgabenleisteVerdrahten(){
+  const d = $('#aufgabenleiste'); if (!d) return;
+  d.addEventListener('toggle', () => { try { localStorage.setItem('sokratesAufgabe', d.open ? 'auf' : 'zu'); } catch(e){} });
+}
 function geheZu(i){
   schritt = i;
   if (zustand[i] === undefined) zustand[i] = (DIALOG.schritte[i].typ === 'wahl' || DIALOG.schritte[i].typ === 'zahl') ? 'offen' : 'richtig';
@@ -376,6 +405,7 @@ function zeichne(fehl, fehlQuelle){
   if (tipps.length) unten += `<div class="tippzeile"><button class="klein" id="tippknopf">💡 Tipp${tipps.length > 1 ? ' ' + Math.min(nT+1, tipps.length) + '/' + tipps.length : ''}</button></div><div class="tipps" id="tipps">${tipps.slice(0,nT).map((t,i) => '<div class="tipp1"><b>Tipp ' + (i+1) + ':</b> ' + rich(t).replace(/^<p>|<\/p>$/g,'') + '</div>').join('')}</div>`;
   const letzter = schritt === N-1;
   $('#dialog').innerHTML = `
+    ${aufgabenleiste()}
     <div class="sprecherzeile">
       <div class="sprecher">${DIALOG.lehrer}</div>
       <button class="klein" id="vorlesen" title="Sokrates' Text vorlesen" hidden>🔊 Vorlesen</button>
@@ -397,6 +427,7 @@ function zeichne(fehl, fehlQuelle){
     </div>`;
   sichtAnwenden();
   formeln($('#dialog'));
+  aufgabenleisteVerdrahten();
   const heft = $('#heft');
   if (heft) ['copy','cut','contextmenu','selectstart','dragstart'].forEach(ev => heft.addEventListener(ev, e => e.preventDefault()));
   document.querySelectorAll('.option[data-i]').forEach(b => b.onclick = () => waehle(+b.dataset.i));
