@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bedingte Wahrscheinlichkeit Schritt für Schritt</title>
+<meta name="description" content="Lernweg zur bedingten Wahrscheinlichkeit für die Oberstufe: Ereignisse, Baumdiagramm, Vierfeldertafel, bedingte Wahrscheinlichkeit und umgekehrter Baum. Vormachen, Üben mit immer neuen Aufgaben, Rückmeldung zum eigenen Rechenweg.">
+<!--
+  ===========================================================================
+  Bedingte Wahrscheinlichkeit Schritt für Schritt
+  ---------------------------------------------------------------------------
+  Acht Stationen, jede mit demselben Ablauf:
+
+      Vormachen (Schritt für Schritt)  ->  Merke / Stolperstein
+      ->  Üben mit erzeugten Aufgaben und gezielter Fehlerdiagnose
+      ->  auf Wunsch: KI-Rückmeldung zum eigenen Rechenweg
+
+  BUCHFREI, OHNE LERNGRUPPE: keine Schulbuchaufgabe, kein Seitenverweis,
+  kein Bezug auf eine Klasse oder Person.
+
+  WAS DAS GERÄT VERLÄSST: Der Lernstand nie (localStorage). Nur wer die
+  KI-Rückmeldung anfordert, schickt Aufgabe, Referenzlösung und den eigenen
+  Rechenweg an den Dienst ki-rueckmeldung/ (Cloudflare Worker), der sie an
+  Claude weitergibt. Der Dienst braucht einen Code und legt nichts ab.
+  Adresse überschreibbar mit ?ki=http://localhost:8761 (Node-Zwilling).
+  ===========================================================================
+-->
+<style>
+:root{
+  --grund:#faf8f2; --flaeche:#ffffff; --flaeche-2:#f3efe6;
+  --linie:#dcd5c5; --linie-stark:#bfb39c;
+  --text:#2a241d; --text-leise:#564938; --text-schwach:#857355;
+  --akzent:#2563eb; --akzent-hell:#dbeafe; --akzent-tief:#1e40af;
+  --teal:#0d9488; --teal-hell:#ccfbf1;
+  --violett:#7c3aed; --violett-hell:#ede9fe;
+  --gold:#b45309; --gold-hell:#fef3c7;
+  --gruen:#15803d; --gruen-hell:#dcfce7;
+  --rot:#be123c; --rot-hell:#ffe4e6;
+  --radius:12px; --radius-klein:8px;
+  --schatten:0 1px 2px rgba(42,36,29,.06), 0 8px 24px -12px rgba(42,36,29,.18);
+  --schrift:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+    --linie:#423a56; --linie-stark:#5b5175;
+    --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+    --akzent:#7aa2ff; --akzent-hell:#24304f; --akzent-tief:#b9ccff;
+    --teal:#2dd4bf; --teal-hell:#123a37;
+    --violett:#a78bfa; --violett-hell:#2e2450;
+    --gold:#f2b35b; --gold-hell:#3a2c14;
+    --gruen:#4ade80; --gruen-hell:#143322;
+    --rot:#fb7185; --rot-hell:#3d1823;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+  --linie:#423a56; --linie-stark:#5b5175;
+  --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+  --akzent:#7aa2ff; --akzent-hell:#24304f; --akzent-tief:#b9ccff;
+  --teal:#2dd4bf; --teal-hell:#123a37;
+  --violett:#a78bfa; --violett-hell:#2e2450;
+  --gold:#f2b35b; --gold-hell:#3a2c14;
+  --gruen:#4ade80; --gruen-hell:#143322;
+  --rot:#fb7185; --rot-hell:#3d1823;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--grund);color:var(--text);font-family:var(--schrift);font-size:17px;line-height:1.55}
+.huelle{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;margin:0 0 .4em}
+h3{font-size:1.05rem;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+a{color:var(--akzent)}
+.leise{color:var(--text-leise)}
+.klein{font-size:.88rem}
+.kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.kopf .werkzeuge{display:flex;gap:8px}
+button{font:inherit;cursor:pointer;border-radius:var(--radius-klein);border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);padding:.45em .9em}
+button:hover{border-color:var(--akzent)}
+button.voll{background:var(--akzent);border-color:var(--akzent);color:#fff}
+:root[data-theme="dark"] button.voll{color:#10131c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.voll{color:#10131c}}
+button:disabled{opacity:.5;cursor:default}
+.karte{background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);box-shadow:var(--schatten);padding:18px;margin:16px 0}
+/* Wegübersicht */
+.weg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:14px 0}
+.weg button{text-align:left;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-height:76px}
+.weg button .nr{font-size:.8rem;color:var(--text-schwach)}
+.weg button .ti{font-weight:600;line-height:1.25}
+.weg button .st{font-size:.8rem;color:var(--text-leise)}
+.weg button.aktiv{border:2px solid var(--akzent);padding:9px 11px}
+.weg button.geschafft .st{color:var(--gruen);font-weight:600}
+/* Mathe-Schreibweisen */
+.q{display:inline-block;border-top:1.5px solid currentColor;line-height:1.05;padding-top:1px;margin-top:2px}
+.bruch{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;margin:0 .15em;font-size:.95em}
+.bruch>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.bruch>span:last-child{padding:0 .2em}
+.formel{font-family:var(--schrift);white-space:nowrap}
+.m{white-space:nowrap}
+/* Vorführung */
+.vor{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.vor{grid-template-columns:1.05fr 1fr}}
+.schritte{display:flex;flex-direction:column;gap:8px}
+.schritt{border-left:3px solid var(--linie);padding:4px 0 4px 12px;color:var(--text-leise)}
+.schritt.jetzt{border-left-color:var(--akzent);color:var(--text)}
+.schritt b{color:inherit}
+.bild{background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow-x:auto;align-self:start}
+@media (min-width:760px){.bild{position:sticky;top:12px}}
+.leiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.zaehl{color:var(--text-schwach);font-size:.88rem}
+/* Merke / Stolperstein */
+.kaesten{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.kaesten{grid-template-columns:1fr 1fr}}
+.merke,.stolper{border-radius:var(--radius-klein);padding:12px 14px}
+.merke{background:var(--teal-hell);border:1px solid var(--teal)}
+.stolper{background:var(--gold-hell);border:1px solid var(--gold)}
+.merke h3,.stolper h3{margin:0 0 .3em;font-size:.95rem}
+/* Vierfeldertafel */
+table.tafel{border-collapse:collapse;font-variant-numeric:tabular-nums;margin:4px auto}
+table.tafel th,table.tafel td{border:1px solid var(--linie-stark);padding:6px 10px;text-align:center;min-width:64px}
+table.tafel th{background:var(--flaeche);font-weight:600;font-size:.92rem}
+table.tafel td{background:var(--flaeche)}
+table.tafel td.rand{background:var(--flaeche-2)}
+table.tafel td.hl{background:var(--akzent-hell);outline:2px solid var(--akzent);outline-offset:-2px}
+table.tafel td.hl2{background:var(--gold-hell)}
+table.tafel td.falsch{background:var(--rot-hell)}
+table.tafel input{width:74px;text-align:center}
+table.tafel .kl{display:block;font-size:.72rem;color:var(--text-schwach);font-weight:400}
+/* Würfelseiten */
+.seiten{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.seiten span{width:44px;height:44px;border-radius:8px;border:1.5px solid var(--linie-stark);display:flex;align-items:center;justify-content:center;font-weight:600;background:var(--flaeche)}
+.seiten span.an{background:var(--akzent-hell);border-color:var(--akzent)}
+.seiten span.gegen{background:var(--gold-hell);border-color:var(--gold)}
+/* Baum */
+svg.baum{width:100%;max-width:520px;height:auto}
+svg.baum line{stroke:var(--linie-stark);stroke-width:2}
+svg.baum line.hl{stroke:var(--akzent);stroke-width:4}
+svg.baum text{fill:var(--text);font-family:var(--schrift);font-size:21px}
+svg.baum text.p{fill:var(--akzent-tief);font-size:19px;font-weight:600}
+svg.baum text.e{fill:var(--violett);font-size:19px;font-weight:600}
+svg.baum text.nr{fill:var(--gold);font-size:14px;font-weight:700}
+/* Üben */
+.aufgabe{margin:8px 0 12px}
+.felder{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.feld{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.feld label{min-width:170px}
+.feld input,.feld select{font:inherit;padding:.35em .55em;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);width:150px}
+.feld select{width:auto}
+.feld.richtig input,.feld.richtig select{border-color:var(--gruen);background:var(--gruen-hell)}
+.feld.falsch input,.feld.falsch select{border-color:var(--rot);background:var(--rot-hell)}
+.meldung{border-radius:var(--radius-klein);padding:10px 12px;margin:10px 0}
+.meldung.gut{background:var(--gruen-hell);border:1px solid var(--gruen)}
+.meldung.schlecht{background:var(--rot-hell);border:1px solid var(--rot)}
+.meldung.neutral{background:var(--flaeche-2);border:1px solid var(--linie)}
+.tipp{background:var(--violett-hell);border:1px solid var(--violett);border-radius:var(--radius-klein);padding:10px 12px;margin:8px 0}
+.serie{display:inline-flex;gap:4px;vertical-align:middle}
+.serie i{width:14px;height:14px;border-radius:50%;border:2px solid var(--gruen);display:inline-block}
+.serie i.an{background:var(--gruen)}
+/* KI */
+.ki textarea{width:100%;min-height:110px;font:inherit;padding:10px;border-radius:var(--radius-klein);border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text)}
+.ki .antwort{white-space:pre-wrap;background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;margin-top:10px}
+.ki .zeile{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.ki input[type=password],.ki input[type=text]{font:inherit;padding:.35em .55em;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);width:180px}
+.zettel table{border-collapse:collapse;width:100%}
+.zettel td{border-top:1px solid var(--linie);padding:8px 6px;vertical-align:top}
+.zettel td:first-child{white-space:nowrap;font-weight:600;padding-right:14px}
+footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
+@media (max-width:520px){
+  .feld label{min-width:0;width:100%}
+  table.tafel th,table.tafel td{padding:5px 6px;min-width:52px;font-size:.92rem}
+  table.tafel input{width:60px}
+}
+</style>
+</head>
+<body>
+<div class="huelle">
+
+<header class="kopf">
+  <div>
+    <h1>Bedingte Wahrscheinlichkeit Schritt für Schritt</h1>
+    <p class="leise">Acht Stationen von den Grundwörtern bis zum umgekehrten Baum. Jede Station hat drei Teile: zuschauen, wie es geht, dann üben mit immer neuen Zahlen, und auf Wunsch eine Rückmeldung zum eigenen Rechenweg.</p>
+  </div>
+  <div class="werkzeuge"><button id="thema" type="button" title="hell / dunkel">◐</button></div>
+</header>
+
+<nav class="weg" id="weg" aria-label="Stationen"></nav>
+
+<main id="station"></main>
+
+<section class="karte zettel" id="zettel">
+  <h2>Spickzettel</h2>
+  <table>
+    <tr><td>Ergebnis</td><td>ein einzelner Ausgang, z. B. „4“.</td></tr>
+    <tr><td>Ereignis</td><td>eine Menge von Ergebnissen, z. B. E = {2; 4; 6}. Gegenereignis <span class="q">E</span>: alle anderen. <span class="m">P(<span class="q">E</span>) = 1 − P(E)</span>.</td></tr>
+    <tr><td>Baum</td><td>entlang eines Pfades <b>multiplizieren</b>, mehrere Pfade <b>addieren</b>. Probe: Äste an einem Knoten ergeben 1, alle Pfadenden zusammen ergeben 1.</td></tr>
+    <tr><td>Vierfeldertafel</td><td>innen zusammen = Rand, in jeder Zeile und jeder Spalte. Anteilstafel: <b>alles durch dieselbe Gesamtzahl</b>.</td></tr>
+    <tr><td>„und“</td><td><span class="m">P(A ∩ B)</span>: beides, gezählt unter <b>allen</b>.</td></tr>
+    <tr><td>„unter der Bedingung“</td><td><span class="m">P(A | B) = P<sub>B</sub>(A) = P(A ∩ B) : P(B)</span>: nur die Zeile oder Spalte der Bedingung ansehen und darin zählen.</td></tr>
+    <tr><td>Umgekehrter Baum</td><td><span class="m">P(A | B) = P(A ∩ B) : P(B)</span>, wobei P(B) über alle Pfade zu B addiert wird. Zwischenergebnisse nicht runden.</td></tr>
+    <tr><td>Runden</td><td>nach dem Runden „≈“ schreiben, nicht „=“.</td></tr>
+  </table>
+</section>
+
+<section class="karte ki" id="kicode">
+  <h2>Code für die KI-Rückmeldung</h2>
+  <p class="leise klein">Die KI-Rückmeldung ist für Lernende mit Zugangscode. Der Code bleibt nur in diesem Browser gespeichert. Abgeschickt werden die Aufgabe, ihre Lösung und dein Rechenweg, ohne Namen. Gespeichert wird davon nichts.</p>
+  <div class="zeile">
+    <input type="password" id="code" autocomplete="off" placeholder="Code" aria-label="Code">
+    <button type="button" id="codeSpeichern">Speichern</button>
+    <span id="kiStatus" class="klein leise"></span>
+  </div>
+</section>
+
+<footer>
+  Lernweg ohne Anmeldung. Der Lernstand bleibt auf diesem Gerät. mathematik-unterrichten.de
+</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   1. Kleine Helfer
+   ============================================================ */
+const $ = (s, w = document) => w.querySelector(s);
+const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const wahl = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const ggt = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+function kz(x, st = 3) {          // Kommazahl ohne überflüssige Nullen
+  const s = (Math.round(x * 10 ** st) / 10 ** st).toFixed(st).replace(/\.?0+$/, "");
+  return s.replace(".", ",");
+}
+const pz = (x, st = 1) => kz(x * 100, st) + " %";
+function br(z, n) {               // Bruch als HTML, gekürzt
+  const g = ggt(z, n); z /= g; n /= g;
+  if (n === 1) return String(z);
+  return `<span class="bruch"><span>${z}</span><span>${n}</span></span>`;
+}
+const brRoh = (z, n) => `<span class="bruch"><span>${z}</span><span>${n}</span></span>`;
+const brT = (z, n) => { const g = ggt(z, n); return n / g === 1 ? String(z / g) : `${z / g}/${n / g}`; };
+const Q = (s) => `<span class="q">${s}</span>`;
+/* HTML → lesbarer Text (für Meldungen und für die KI): Überstrich als Ā,
+   Bruch als (a)/(b), Tabellen zeilenweise mit „|“. SVG fällt weg. */
+function text(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html;
+  d.querySelectorAll("svg").forEach((e) => e.remove());
+  d.querySelectorAll(".q").forEach((e) => { e.textContent = e.textContent.split("").map((c) => c + "̄").join(""); });
+  d.querySelectorAll(".bruch").forEach((e) => { const [z, n] = e.children; e.textContent = ` (${z.textContent})/(${n.textContent}) `; });
+  d.querySelectorAll("th,td").forEach((e) => e.append(" | "));
+  d.querySelectorAll("tr").forEach((e) => e.append("\n"));
+  d.querySelectorAll("table").forEach((e) => { e.prepend("\n"); e.append("\n"); });
+  d.querySelectorAll("p,div").forEach((e) => e.append("\n"));
+  return d.textContent.split("\n").map((z) => z.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n");
+}
+
+/* Eingabe lesen: 0,27 · 27 % · 53/194 · 0.27 */
+function lies(roh) {
+  let s = String(roh || "").trim().replace(/\s+/g, "").replace(/,/g, ".");
+  if (!s) return null;
+  let prozent = false;
+  if (s.endsWith("%")) { prozent = true; s = s.slice(0, -1); }
+  let w;
+  if (/^-?\d+(\.\d+)?\/\d+(\.\d+)?$/.test(s)) { const [a, b] = s.split("/").map(Number); if (!b) return null; w = a / b; }
+  else if (/^-?(\d+\.?\d*|\.\d+)$/.test(s)) w = Number(s);
+  else return null;
+  if (prozent) w /= 100;
+  return { wert: w, prozent };
+}
+
+/* Lernstand: nur auf diesem Gerät */
+const STAND_KEY = "mu-wahrscheinlichkeit-stand";
+let stand = {};
+try { stand = JSON.parse(localStorage.getItem(STAND_KEY) || "{}") || {}; } catch { stand = {}; }
+function sichern() { try { localStorage.setItem(STAND_KEY, JSON.stringify(stand)); } catch {} }
+const st = (id) => (stand[id] ||= { serie: 0, richtig: 0, geschafft: false });
+
+/* Thema hell/dunkel */
+(function () {
+  let t = null;
+  try { t = localStorage.getItem("mu-thema"); } catch {}
+  if (t) document.documentElement.dataset.theme = t;
+  $("#thema").onclick = () => {
+    const dunkel = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const neu = dunkel ? "light" : "dark";
+    document.documentElement.dataset.theme = neu;
+    try { localStorage.setItem("mu-thema", neu); } catch {}
+  };
+})();
+
+/* ============================================================
+   2. Bilder: Vierfeldertafel, Baum, Würfelseiten
+   ============================================================ */
+/* w: 3×3 Werte [[AB, AnB, A],[nAB, nAnB, nA],[B, nB, N]]
+   o: { kopf:[B,nB], seite:[A,nA], fmt, eingabe:Set("r,c"), hl:{ "r,c": "hl"|"hl2" }, id } */
+function tafel(w, o = {}) {
+  const fmt = o.fmt || ((x) => String(x));
+  const kopf = o.kopf || ["B", Q("B")], seite = o.seite || ["A", Q("A")];
+  const kl = o.kl || {};
+  const zelle = (r, c) => {
+    const k = r + "," + c, cls = [];
+    if (r === 2 || c === 2) cls.push("rand");
+    if (o.hl && o.hl[k]) cls.push(o.hl[k]);
+    let inhalt;
+    if (o.eingabe && o.eingabe.has(k)) inhalt = `<input inputmode="decimal" data-zelle="${k}" aria-label="Feld ${k}">`;
+    else if (w[r][c] === null || w[r][c] === undefined) inhalt = "";
+    else inhalt = fmt(w[r][c], r, c);
+    return `<td class="${cls.join(" ")}" data-k="${k}">${inhalt}</td>`;
+  };
+  const th = (h, k) => `<th>${h}${k ? ` <span class="kl">${k}</span>` : ""}</th>`;
+  return `<table class="tafel"${o.id ? ` id="${o.id}"` : ""}>
+    <tr><th></th>${th(kopf[0], kl.b)}${th(kopf[1], kl.nb)}${th("Summe")}</tr>
+    <tr>${th(seite[0], kl.a)}${zelle(0, 0)}${zelle(0, 1)}${zelle(0, 2)}</tr>
+    <tr>${th(seite[1], kl.na)}${zelle(1, 0)}${zelle(1, 1)}${zelle(1, 2)}</tr>
+    <tr>${th("Summe")}${zelle(2, 0)}${zelle(2, 1)}${zelle(2, 2)}</tr></table>`;
+}
+
+/* Baum mit zwei Stufen.
+   b = { s1:[l,l], p1:[t,t], s2:[[l,l],[l,l]], p2:[[t,t],[t,t]], enden:[t,t,t,t], hl:[pfadindex...], nr:true } */
+function baum(b) {
+  const W = 600, H = 275;
+  const wurzel = [24, 135], k1 = [[200, 68], [200, 202]], bl = [[372, 30], [372, 108], [372, 166], [372, 244]];
+  const hl = new Set(b.hl || []);
+  /* SVG-Text verträgt kein HTML: Brüche als a/b, Überstrich als Kombinationszeichen */
+  const leer = (x) => (x === undefined || x === null ? "" : String(x)
+    .replace(/<span class="bruch"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span>/g, "$1/$2")
+    .replace(/<span class="q">([^<]*)<\/span>/g, (_, s) => QS(s))
+    .replace(/<[^>]+>/g, ""));
+  let s = `<svg class="baum" viewBox="0 0 ${W} ${H}" role="img" aria-label="Baumdiagramm">`;
+  for (let i = 0; i < 2; i++) {
+    const an = hl.has(2 * i) || hl.has(2 * i + 1);
+    s += `<line x1="${wurzel[0] + 6}" y1="${wurzel[1]}" x2="${k1[i][0] - 14}" y2="${k1[i][1]}" class="${an ? "hl" : ""}"/>`;
+    const mx = (wurzel[0] + k1[i][0]) / 2 - 8, my = (wurzel[1] + k1[i][1]) / 2 + (i ? 22 : -10);
+    s += `<text class="p" x="${mx}" y="${my}" text-anchor="middle">${leer(b.p1 && b.p1[i])}</text>`;
+    s += `<text x="${k1[i][0]}" y="${k1[i][1] + 5}" text-anchor="middle">${leer(b.s1[i])}</text>`;
+    for (let j = 0; j < 2; j++) {
+      const n = 2 * i + j, e = bl[n];
+      s += `<line x1="${k1[i][0] + 16}" y1="${k1[i][1]}" x2="${e[0] - 12}" y2="${e[1]}" class="${hl.has(n) ? "hl" : ""}"/>`;
+      const px = (k1[i][0] + e[0]) / 2 + 6, py = (k1[i][1] + e[1]) / 2 + (j ? 20 : -8);
+      s += `<text class="p" x="${px}" y="${py}" text-anchor="middle">${leer(b.p2 && b.p2[i][j])}</text>`;
+      s += `<text x="${e[0]}" y="${e[1] + 5}" text-anchor="middle">${leer(b.s2[i][j])}</text>`;
+      if (b.enden && b.enden[n] !== undefined && b.enden[n] !== null)
+        s += `<text class="e" x="${e[0] + 52}" y="${e[1] + 5}">${leer(b.enden[n])}</text>`;
+    }
+  }
+  if (b.wurzel) s += `<text x="2" y="${wurzel[1] - 16}" text-anchor="start" class="e">${leer(b.wurzel)}</text>`;
+  return s + `<circle cx="${wurzel[0]}" cy="${wurzel[1]}" r="4" fill="currentColor"/></svg>`;
+}
+/* SVG-Text verträgt kein HTML: Überstrich als Kombinationszeichen */
+const QS = (s) => s.split("").map((c) => c + "̅").join("");
+
+function seiten(n, an = [], gegen = []) {
+  let s = '<div class="seiten">';
+  for (let i = 1; i <= n; i++) s += `<span class="${an.includes(i) ? "an" : gegen.includes(i) ? "gegen" : ""}">${i}</span>`;
+  return s + "</div>";
+}
+
+/* ============================================================
+   3. Sachzusammenhänge (frei erfunden, kein Schulbuch)
+   ============================================================ */
+const KONTEXTE = [
+  { wer: "Jugendliche", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor",
+    aP: "spielen ein Instrument", naP: "spielen kein Instrument", bP: "singen im Chor", nbP: "singen nicht im Chor",
+    aD: "ein Instrument spielt", naD: "kein Instrument spielt", bD: "im Chor singt", nbD: "nicht im Chor singt",
+    intro: (N) => `In einer Umfrage wurden ${N} Jugendliche befragt.` },
+  { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Kundenkarte", nA: "keine Kundenkarte", B: "Karte", nB: "bar",
+    aP: "haben eine Kundenkarte", naP: "haben keine Kundenkarte", bP: "zahlen mit Karte", nbP: "zahlen bar",
+    aD: "eine Kundenkarte hat", naD: "keine Kundenkarte hat", bD: "mit Karte zahlt", nbD: "bar zahlt",
+    intro: (N) => `An einem Vormittag kaufen ${N} Personen in einem Supermarkt ein.` },
+  { wer: "Werkstücke", pron: "es", rel: "das", eine: "ein Werkstück", akk: "ein Werkstück",
+    A: "Maschine 1", nA: "Maschine 2", B: "fehlerhaft", nB: "in Ordnung",
+    aP: "stammen von Maschine 1", naP: "stammen von Maschine 2", bP: "sind fehlerhaft", nbP: "sind in Ordnung",
+    aD: "von Maschine 1 stammt", naD: "von Maschine 2 stammt", bD: "fehlerhaft ist", nbD: "in Ordnung ist",
+    intro: (N) => `Ein Betrieb prüft ${N} Werkstücke aus zwei Maschinen.` },
+  { wer: "Haushalte", pron: "er", rel: "der", eine: "ein Haushalt", akk: "einen Haushalt",
+    A: "Garten", nA: "kein Garten", B: "Haustier", nB: "kein Haustier",
+    aP: "haben einen Garten", naP: "haben keinen Garten", bP: "haben ein Haustier", nbP: "haben kein Haustier",
+    aD: "einen Garten hat", naD: "keinen Garten hat", bD: "ein Haustier hat", nbD: "kein Haustier hat",
+    intro: (N) => `In einer Gemeinde wurden ${N} Haushalte befragt.` },
+  { wer: "Schülerinnen und Schüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Bus", nA: "Rad", B: "pünktlich", nB: "zu spät",
+    aP: "kommen mit dem Bus", naP: "kommen mit dem Rad", bP: "sind pünktlich", nbP: "kommen zu spät",
+    aD: "mit dem Bus kommt", naD: "mit dem Rad kommt", bD: "pünktlich ist", nbD: "zu spät kommt",
+    intro: (N) => `An einem Morgen wurde bei ${N} Schülerinnen und Schülern notiert, wie sie zur Schule kamen und ob sie pünktlich waren.` },
+];
+/* Zeile/Spalte → Ereignis: x ∈ {A, nA}, y ∈ {B, nB} */
+const ereignisName = { A: "A", nA: Q("A"), B: "B", nB: Q("B") };
+
+/* Eine passende Vierfeldertafel mit ganzen Zahlen, jedes Feld ≥ 5 */
+function neueTafel() {
+  for (;;) {
+    const N = wahl([200, 250, 300, 400, 500, 600, 800, 1000]);
+    const a = Math.round(zufall(25, 75) * N / 100);
+    const b = Math.round(zufall(20, 80) * N / 100);
+    const lo = Math.max(5, a + b - N + 5), hi = Math.min(a, b) - 5;
+    if (hi < lo) continue;
+    const ab = zufall(lo, hi);
+    const w = [[ab, a - ab, a], [b - ab, N - a - b + ab, N - a], [b, N - b, N]];
+    if (w[0][1] < 5 || w[1][0] < 5 || w[1][1] < 5) continue;
+    // nicht unabhängig (sonst sind bedingte und unbedingte Werte gleich – schlecht zum Unterscheiden)
+    if (Math.abs(ab / b - a / N) < 0.06) continue;
+    return { N, w, k: wahl(KONTEXTE) };
+  }
+}
+const tafelKopf = (k) => ({ kopf: ["B", Q("B")], seite: ["A", Q("A")], kl: { a: k.A, na: k.nA, b: k.B, nb: k.nB } });
+const leg = (k) => `<p class="klein leise">A = ${k.A}, ${Q("A")} = ${k.nA} · B = ${k.B}, ${Q("B")} = ${k.nB}</p>`;
+
+/* ============================================================
+   4. Die Stationen
+   Jede Station: id, titel, kurz, vor (Schritte), merke, stolper,
+   neu() → Aufgabe, ziel (Serie richtig in Folge)
+   Aufgabe: { html, felder:[{id,label,wert,tol,art,fallen:[{wert,text}]}],
+              auswahl?, tipps:[html], loesung:html, kiAufgabe, kiLoesung }
+   ============================================================ */
+const STATIONEN = [];
+
+/* ---------- 1 · Wörter ---------- */
+STATIONEN.push({
+  id: "w-woerter", titel: "Ergebnis, Ereignis, Gegenereignis", ziel: 3,
+  vor: [
+    { t: `Ein Würfel wird einmal geworfen. Was herauskommen kann, heißt <b>Ergebnis</b>: 1, 2, 3, 4, 5 oder 6. Alle Ergebnisse zusammen bilden die <b>Ergebnismenge</b> <span class="m">Ω = {1; 2; 3; 4; 5; 6}</span>.`, v: () => seiten(6) },
+    { t: `Ein <b>Ereignis</b> fasst mehrere Ergebnisse zusammen. Es ist eine Frage, auf die jedes Ergebnis mit ja oder nein antwortet. E: „gerade Zahl“ ist die Menge <span class="m">E = {2; 4; 6}</span>.`, v: () => seiten(6, [2, 4, 6]) },
+    { t: `Sind alle Ergebnisse gleich wahrscheinlich, zählt man: <span class="m">P(E) = </span>${brRoh("Anzahl der Ergebnisse in E", "Anzahl aller Ergebnisse")} <span class="m">= ${brRoh(3, 6)} = 0,5</span>.`, v: () => seiten(6, [2, 4, 6]) },
+    { t: `Das <b>Gegenereignis</b> ${Q("E")} enthält genau die übrigen Ergebnisse: <span class="m">${Q("E")} = {1; 3; 5}</span>. Immer gilt <span class="m">P(${Q("E")}) = 1 − P(E)</span>.`, v: () => seiten(6, [2, 4, 6], [1, 3, 5]) },
+    { t: `Wird gerundet, steht „≈“: <span class="m">P(„6“) = ${brRoh(1, 6)} ≈ 0,167 ≈ 16,7 %</span>. Mit „=“ wäre die Zeile falsch.`, v: () => seiten(6, [6]) },
+  ],
+  merke: `Ergebnis: ein einzelner Ausgang. Ereignis: eine Menge von Ergebnissen in geschweiften Klammern. Gegenereignis: alle anderen Ergebnisse.`,
+  stolper: `{2; 4; 6} ist kein „Ergebnis“, sondern ein Ereignis. Und nach dem Runden steht „≈“, nicht „=“.`,
+  neu() {
+    const n = wahl([6, 8, 10, 12, 20]);
+    const prim = (x) => x > 1 && [...Array(x).keys()].slice(2).every((d) => x % d);
+    const arten = [
+      { t: "eine gerade Zahl", f: (x) => x % 2 === 0 },
+      { t: "eine ungerade Zahl", f: (x) => x % 2 === 1 },
+      { t: "eine Primzahl", f: prim },
+      { t: "ein Vielfaches von 3", f: (x) => x % 3 === 0 },
+    ];
+    const g = zufall(2, n - 2); arten.push({ t: `eine Zahl größer als ${g}`, f: (x) => x > g });
+    const h = zufall(3, n - 1); arten.push({ t: `eine Zahl kleiner als ${h}`, f: (x) => x < h });
+    const a = wahl(arten);
+    const E = [...Array(n).keys()].map((i) => i + 1).filter(a.f);
+    const k = E.length, p = k / n;
+    const html = `<p>Ein Würfel mit ${n} gleich großen Seiten trägt die Zahlen 1 bis ${n}. Er wird einmal geworfen.</p>
+      <p>E: „Es fällt ${a.t}.“</p>`;
+    return {
+      html,
+      felder: [
+        { id: "k", label: "Anzahl der Ergebnisse in E", wert: k, tol: 0, art: "n",
+          fallen: [{ wert: n - k, text: "Das ist die Anzahl im Gegenereignis. Gezählt werden die Ergebnisse, bei denen die Aussage stimmt." }] },
+        { id: "p", label: "P(E)", wert: p, tol: 0.0051,
+          fallen: [{ wert: 1 - p, text: "Das ist P(Gegenereignis). Gefragt ist P(E)." }, { wert: k, text: "Das ist eine Anzahl. Die Wahrscheinlichkeit ist Anzahl in E geteilt durch die Anzahl aller Ergebnisse." }] },
+        { id: "q", label: `P(${Q("E")})`, wert: 1 - p, tol: 0.0051,
+          fallen: [{ wert: p, text: `Das ist P(E). ${Q("E")} enthält die übrigen Ergebnisse: 1 − P(E).` }] },
+      ],
+      tipps: [
+        `Schreib E als Menge auf: Geh die Zahlen 1 bis ${n} durch und schreib jede auf, für die die Aussage stimmt.`,
+        `E = {${E.join("; ")}}. Zähle die Elemente und teile durch ${n}.`,
+      ],
+      loesung: `E = {${E.join("; ")}}, also ${k} Ergebnisse. P(E) = ${br(k, n)} ≈ ${kz(p)}. P(${Q("E")}) = 1 − ${br(k, n)} = ${br(n - k, n)} ≈ ${kz(1 - p)}.`,
+    };
+  },
+});
+
+/* ---------- 2 · Baum ---------- */
+const FARBEN = [["rot", "blau"], ["grün", "gelb"], ["schwarz", "weiß"]];
+STATIONEN.push({
+  id: "w-baum", titel: "Baumdiagramm und Pfadregeln", ziel: 3,
+  vor: (() => {
+    const b0 = { s1: ["A", "B"], s2: [["rot", "blau"], ["rot", "blau"]] };
+    const p1 = [br(1, 3), br(2, 3)], p2 = [[br(3, 5), br(2, 5)], [br(1, 5), br(4, 5)]];
+    return [
+      { t: `Ein Würfel entscheidet, aus welcher Urne gezogen wird: Bei 1 oder 2 aus Urne A (3 rote, 2 blaue Kugeln), sonst aus Urne B (1 rote, 4 blaue). Gezogen wird eine Kugel.`, v: () => baum(b0) },
+      { t: `<b>Erste Stufe: der Würfel.</b> A kommt bei 2 von 6 Zahlen: <span class="m">P(A) = ${brRoh(2, 6)} = ${br(1, 3)}</span>, also <span class="m">P(B) = ${br(2, 3)}</span>. Diese Stufe gehört in den Baum, auch wenn sie „nur“ die Urne auswählt.`, v: () => baum({ ...b0, p1 }) },
+      { t: `<b>Zweite Stufe: die Kugel.</b> An den Ästen hinter A steht, was <i>in Urne A</i> passiert: rot ${br(3, 5)}, blau ${br(2, 5)}. Hinter B: rot ${br(1, 5)}, blau ${br(4, 5)}. Die Äste an einem Knoten ergeben jeweils 1.`, v: () => baum({ ...b0, p1, p2 }) },
+      { t: `<b>Entlang eines Pfades multiplizieren.</b> „A und rot“: Erst muss A kommen, das ist ein Drittel aller Fälle. Von diesem Drittel sind drei Fünftel rot: <span class="m">P(A ∩ rot) = ${br(1, 3)} · ${br(3, 5)} = ${brRoh(3, 15)} = ${br(1, 5)}</span>.`, v: () => baum({ ...b0, p1, p2, hl: [0], enden: [br(1, 5)] }) },
+      { t: `Genauso für alle vier Pfade: ${br(1, 5)}, ${br(2, 15)}, ${br(2, 15)}, ${br(8, 15)}.`, v: () => baum({ ...b0, p1, p2, enden: ["1/5", "2/15", "2/15", "8/15"] }) },
+      { t: `<b>Probe:</b> <span class="m">${brRoh(3, 15)} + ${br(2, 15)} + ${br(2, 15)} + ${br(8, 15)} = ${brRoh(15, 15)} = 1</span>. Kommt nicht 1 heraus, steckt ein Fehler im Baum.`, v: () => baum({ ...b0, p1, p2, enden: ["1/5", "2/15", "2/15", "8/15"] }) },
+      { t: `<b>Mehrere Pfade addieren.</b> „rot“ erreicht man über zwei Pfade: <span class="m">P(rot) = ${brRoh(3, 15)} + ${br(2, 15)} = ${brRoh(5, 15)} = ${br(1, 3)}</span>.`, v: () => baum({ ...b0, p1, p2, hl: [0, 2], enden: ["1/5", "", "2/15", ""] }) },
+    ];
+  })(),
+  merke: `Entlang eines Pfades: <b>mal</b>. Mehrere Pfade zum selben Ereignis: <b>plus</b>. Probe: Alle Pfadenden zusammen ergeben 1.`,
+  stolper: `Die erste Stufe nicht vergessen: P(A ∩ rot) ist nicht ${br(3, 5)}, sondern ${br(1, 3)} · ${br(3, 5)}. Und nicht addieren, wo multipliziert wird.`,
+  neu() {
+    const kz6 = zufall(1, 5);
+    const [f1, f2] = wahl(FARBEN);
+    const r1 = zufall(1, 8), b1 = zufall(1, 8), r2 = zufall(1, 8), b2 = zufall(1, 8);
+    if (r1 * (r2 + b2) === r2 * (r1 + b1)) return this.neu();
+    const nA = r1 + b1, nB = r2 + b2;
+    const pA = kz6 / 6, pf1A = r1 / nA, pf1B = r2 / nB;
+    const pAr = pA * pf1A, pr = pAr + (1 - pA) * pf1B;
+    const welche = zufall(0, 2);
+    const zahlen = kz6 === 1 ? "eine 1" : `eine Zahl von 1 bis ${kz6}`;
+    const html = `<p>Zuerst wird ein Würfel geworfen. Zeigt er ${zahlen}, wird aus Urne A gezogen, sonst aus Urne B.</p>
+      <p>Urne A enthält ${r1} ${f1}e und ${b1} ${f2}e Kugeln, Urne B ${r2} ${f1}e und ${b2} ${f2}e. Es wird eine Kugel gezogen.</p>
+      <p class="klein leise">Gib Brüche (z. B. 5/39) oder Dezimalzahlen auf drei Stellen an.</p>`;
+    const felder = [];
+    if (welche !== 1) felder.push({ id: "pfad", label: `P(A ∩ ${f1})`, wert: pAr, tol: 0.0006,
+      fallen: [
+        { wert: pf1A, text: `Das ist nur die zweite Stufe (${f1} in Urne A). Die erste Stufe gehört dazu: P(A) · P(${f1} in A).` },
+        { wert: pA + pf1A, text: "Entlang eines Pfades wird multipliziert, nicht addiert." },
+        { wert: pf1A * pf1A, text: "Du hast die Wahrscheinlichkeit der zweiten Stufe mit sich selbst multipliziert. Multipliziert wird P(A) mit P(" + f1 + " in A)." },
+      ] });
+    if (welche !== 0) felder.push({ id: "ges", label: `P(${f1})`, wert: pr, tol: 0.0006,
+      fallen: [
+        { wert: pAr, text: `Das ist nur der Pfad über A. ${f1[0].toUpperCase() + f1.slice(1)} kann auch aus Urne B kommen: zweiter Pfad, dann addieren.` },
+        { wert: (1 - pA) * pf1B, text: `Das ist nur der Pfad über B. Der Pfad über A fehlt.` },
+        { wert: (r1 + r2) / (nA + nB), text: "Du hast die Kugeln beider Urnen zusammengeworfen. Die Urnen werden aber verschieden oft gewählt: Rechne über den Baum." },
+        { wert: (pf1A + pf1B) / 2, text: "Du hast den Mittelwert genommen. Die Urnen werden nicht gleich oft gewählt: Gewichte mit P(A) und P(B) über den Baum." },
+      ] });
+    const bb = { s1: ["A", "B"], s2: [[f1, f2], [f1, f2]], p1: [br(kz6, 6), br(6 - kz6, 6)], p2: [[br(r1, nA), br(b1, nA)], [br(r2, nB), br(b2, nB)]] };
+    return {
+      html, felder,
+      tipps: [
+        `Zeichne den Baum mit zwei Stufen: erst A oder B (Würfel), dann die Farbe. P(A) = ${br(kz6, 6)}.`,
+        `${baum(bb)}`,
+      ],
+      loesung: `${baum({ ...bb, enden: [brT(kz6 * r1, 6 * nA), brT(kz6 * b1, 6 * nA), brT((6 - kz6) * r2, 6 * nB), brT((6 - kz6) * b2, 6 * nB)] })}
+        <p>P(A ∩ ${f1}) = ${br(kz6, 6)} · ${br(r1, nA)} = ${br(kz6 * r1, 6 * nA)} ≈ ${kz(pAr)}</p>
+        <p>P(${f1}) = ${br(kz6, 6)} · ${br(r1, nA)} + ${br(6 - kz6, 6)} · ${br(r2, nB)} ≈ ${kz(pr)}</p>`,
+    };
+  },
+});
+
+/* ---------- 3 · Vierfeldertafel absolut ---------- */
+const VOR_TAFEL = [[60, 100, 160], [40, 200, 240], [100, 300, 400]];
+const VOR_K = { A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor" };
+const vk = { ...tafelKopf(VOR_K) };
+const nurBekannt = (keys) => VOR_TAFEL.map((z, r) => z.map((x, c) => (keys.includes(r + "," + c) ? x : null)));
+STATIONEN.push({
+  id: "w-tafel", titel: "Vierfeldertafel ausfüllen", ziel: 2,
+  vor: [
+    { t: `400 Jugendliche wurden befragt. 160 spielen ein Instrument (A), 100 singen im Chor (B), 60 tun beides.`, v: () => tafel(nurBekannt([]), vk) },
+    { t: `<b>Aufbau:</b> Zeilen für A und ${Q("A")}, Spalten für B und ${Q("B")}. Innen stehen die Kombinationen, am Rand die Summen, rechts unten alle 400. Zuerst trägst du ein, was gegeben ist.`, v: () => tafel(nurBekannt(["0,0", "0,2", "2,0", "2,2"]), { ...vk, hl: { "0,0": "hl", "0,2": "hl", "2,0": "hl", "2,2": "hl" } }) },
+    { t: `<b>Fehlende Randwerte:</b> Wer kein Instrument spielt: 400 − 160 = 240. Wer nicht im Chor singt: 400 − 100 = 300.`, v: () => tafel(nurBekannt(["0,0", "0,2", "2,0", "2,2", "1,2", "2,1"]), { ...vk, hl: { "1,2": "hl", "2,1": "hl" } }) },
+    { t: `<b>Innen:</b> Instrument, aber nicht im Chor: 160 − 60 = 100. Chor, aber kein Instrument: 100 − 60 = 40. Weder noch: 240 − 40 = 200.`, v: () => tafel(VOR_TAFEL, { ...vk, hl: { "0,1": "hl", "1,0": "hl", "1,1": "hl" } }) },
+    { t: `<b>Probe:</b> Jede Zeile und jede Spalte muss aufgehen. 60 + 100 = 160 ✓, 40 + 200 = 240 ✓, 60 + 40 = 100 ✓, 100 + 200 = 300 ✓, 160 + 240 = 400 ✓.`, v: () => tafel(VOR_TAFEL, vk) },
+  ],
+  merke: `Innen zusammen ergibt den Rand – in jeder Zeile und jeder Spalte. Rechts unten steht die Gesamtzahl.`,
+  stolper: `„Instrument“ (160) ist nicht dasselbe wie „Instrument und Chor“ (60). Die 160 gehört an den Rand, die 60 nach innen.`,
+  neu() {
+    const T = neueTafel(), { w, k, N } = T;
+    const muster = wahl([
+      { g: ["0,0", "0,2", "2,0", "2,2"], s: () => [`${w[0][2]} ${k.aP}.`, `${w[2][0]} ${k.bP}.`, `${w[0][0]} ${k.aP} und ${k.bP}.`] },
+      { g: ["0,0", "0,1", "1,0", "2,2"], s: () => [`${w[0][0]} ${k.aP} und ${k.bP}.`, `${w[0][1]} ${k.aP} und ${k.nbP}.`, `${w[1][0]} ${k.naP} und ${k.bP}.`] },
+      { g: ["0,2", "2,0", "1,1", "2,2"], s: () => [`${w[0][2]} ${k.aP}.`, `${w[2][0]} ${k.bP}.`, `${w[1][1]} ${k.naP} und ${k.nbP}.`] },
+      { g: ["1,2", "2,1", "0,0", "2,2"], s: () => [`${w[1][2]} ${k.naP}.`, `${w[2][1]} ${k.nbP}.`, `${w[0][0]} ${k.aP} und ${k.bP}.`] },
+    ]);
+    const offen = [];
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) if (!muster.g.includes(r + "," + c)) offen.push(r + "," + c);
+    const bekannt = w.map((z, r) => z.map((x, c) => (muster.g.includes(r + "," + c) ? x : null)));
+    const html = `<p>${k.intro(N)} ${muster.s().join(" ")}</p>${leg(k)}
+      ${tafel(bekannt, { ...tafelKopf(k), eingabe: new Set(offen), id: "uebTafel" })}`;
+    return {
+      html, tafelFelder: offen.map((key) => { const [r, c] = key.split(",").map(Number); return { key, wert: w[r][c] }; }),
+      felder: [], art: "tafel",
+      tipps: [
+        `Fang mit dem Rand an: Was in einer Zeile oder Spalte schon zwei Einträge hat, ergibt den dritten durch Plus oder Minus.`,
+        `Jede Zeile: links + Mitte = rechts. Jede Spalte: oben + Mitte = unten. Die Gesamtzahl ist ${N}.`,
+      ],
+      loesung: tafel(w, tafelKopf(k)),
+      kiTafel: w,
+    };
+  },
+});
+
+/* ---------- 4 · Anteile ---------- */
+const VOR_REL = VOR_TAFEL.map((z) => z.map((x) => x / 400));
+STATIONEN.push({
+  id: "w-relativ", titel: "Vierfeldertafel mit Anteilen", ziel: 2,
+  vor: [
+    { t: `Dieselben 400 Jugendlichen. Jetzt sollen in die Tafel <b>Anteile</b> statt Anzahlen.`, v: () => tafel(VOR_TAFEL, vk) },
+    { t: `In jedes Feld kommt der Anteil <b>an allen 400</b>: „Instrument und Chor“: <span class="m">${brRoh(60, 400)} = 0,15</span>.`, v: () => tafel(VOR_REL.map((z, r) => z.map((x, c) => (r === 0 && c === 0 ? x : null))), { ...vk, fmt: (x) => kz(x), hl: { "0,0": "hl" } }) },
+    { t: `Genauso jedes andere Feld – immer durch 400, auch am Rand: <span class="m">${brRoh(160, 400)} = 0,4</span>, <span class="m">${brRoh(100, 400)} = 0,25</span>, unten rechts <span class="m">${brRoh(400, 400)} = 1</span>.`, v: () => tafel(VOR_REL, { ...vk, fmt: (x) => kz(x) }) },
+    { t: `<b>Probe:</b> Auch die Anteilstafel geht in jeder Zeile und Spalte auf: <span class="m">0,15 + 0,25 = 0,4</span> ✓ und <span class="m">0,15 + 0,1 = 0,25</span> ✓.`, v: () => tafel(VOR_REL, { ...vk, fmt: (x) => kz(x) }) },
+    { t: `<b>So nicht:</b> Teilt man innen durch die Spaltensumme, steht oben links <span class="m">${brRoh(60, 100)} = 0,6</span> und daneben <span class="m">${brRoh(100, 300)} ≈ 0,333</span>. Das sind Anteile <i>innerhalb einer Spalte</i>. Die Zeile geht dann nicht mehr auf: <span class="m">0,6 + 0,333 ≠ 0,4</span>.`, v: () => tafel([[0.6, 1 / 3, 0.4], [0.4, 2 / 3, 0.6], [0.25, 0.75, 1]], { ...vk, fmt: (x) => kz(x), hl: { "0,0": "falsch", "0,1": "falsch", "1,0": "falsch", "1,1": "falsch" } }) },
+    { t: `Diese Spaltenanteile sind nicht wertlos: 0,6 ist die <b>bedingte</b> Wahrscheinlichkeit P(A | B), „von den Chorsängern spielen 60 % ein Instrument“. Sie gehört aber nicht in die Tafel, sondern an einen Ast im Baum – dazu Station 5 und 6.`, v: () => tafel(VOR_TAFEL, { ...vk, hl: { "0,0": "hl", "2,0": "hl2" } }) },
+  ],
+  merke: `Eine Anteilstafel hat <b>einen</b> Nenner: Alle neun Felder werden durch die Gesamtzahl geteilt. Dann geht jede Zeile und Spalte auf, und rechts unten steht 1.`,
+  stolper: `Teilst du innen durch die Zeilen- oder Spaltensumme, entstehen bedingte Anteile. Daneben stehen am Rand Anteile an allen – die Tafel passt nicht mehr zusammen. Probe: Geht jede Zeile auf?`,
+  neu() {
+    const T = neueTafel(), { w, k, N } = T;
+    const offen = ["0,0", "0,1", "0,2", "1,0", "1,1", "1,2", "2,0", "2,1"];
+    const html = `<p>${k.intro(N)} Die Tafel zeigt die Anzahlen.</p>${leg(k)}
+      ${tafel(w, tafelKopf(k))}
+      <p>Fülle die Tafel der <b>Anteile</b> aus (als Dezimalzahl, z. B. 0,15, oder in Prozent).</p>
+      ${tafel(w.map((z) => z.map(() => null)).map((z, r) => z.map((x, c) => (r === 2 && c === 2 ? 1 : null))), { ...tafelKopf(k), eingabe: new Set(offen), id: "uebTafel" })}`;
+    const tf = offen.map((key) => {
+      const [r, c] = key.split(",").map(Number);
+      const fallen = [];
+      if (r < 2 && c < 2) {
+        fallen.push({ wert: w[r][c] / w[2][c], text: `Das ist der Anteil <i>innerhalb der Spalte</i> (durch ${w[2][c]} geteilt), also eine bedingte Wahrscheinlichkeit. In die Anteilstafel gehört der Anteil an allen: durch ${N}.` });
+        fallen.push({ wert: w[r][c] / w[r][2], text: `Das ist der Anteil <i>innerhalb der Zeile</i> (durch ${w[r][2]} geteilt), also eine bedingte Wahrscheinlichkeit. In die Anteilstafel gehört der Anteil an allen: durch ${N}.` });
+      }
+      return { key, wert: w[r][c] / N, tol: 0.0051, fallen };
+    });
+    return {
+      html, felder: [], art: "tafel", tafelFelder: tf,
+      tipps: [`Jedes Feld: Anzahl im Feld geteilt durch ${N}. Auch am Rand.`, `Oben links: ${brRoh(w[0][0], N)} ≈ ${kz(w[0][0] / N)}. Probe am Ende: Jede Zeile geht auf.`],
+      loesung: tafel(w.map((z) => z.map((x) => x / N)), { ...tafelKopf(k), fmt: (x) => kz(x) }),
+    };
+  },
+});
+
+/* ---------- 5 · bedingt ---------- */
+STATIONEN.push({
+  id: "w-bedingt", titel: "Bedingte Wahrscheinlichkeit", ziel: 3,
+  vor: [
+    { t: `Wieder die 400 Jugendlichen. Frage: <i>Eine Person, die im Chor singt, wird zufällig ausgewählt. Wie wahrscheinlich spielt sie ein Instrument?</i>`, v: () => tafel(VOR_TAFEL, vk) },
+    { t: `„Eine Person, die im Chor singt“ ist die <b>Bedingung</b>. Sie schränkt ein: Wir schauen nur noch auf die Spalte B – das sind 100 Personen. Die anderen 300 spielen keine Rolle.`, v: () => tafel(VOR_TAFEL, { ...vk, hl: { "0,0": "hl2", "1,0": "hl2", "2,0": "hl" } }) },
+    { t: `Von diesen 100 spielen 60 ein Instrument: <span class="m">P(A | B) = ${brRoh(60, 100)} = 0,6</span>. Lies: „Wahrscheinlichkeit von A unter der Bedingung B“. Andere Schreibweise: <span class="m">P<sub>B</sub>(A)</span>.`, v: () => tafel(VOR_TAFEL, { ...vk, hl: { "0,0": "hl", "2,0": "hl2" } }) },
+    { t: `Andersherum gefragt: <i>Wie wahrscheinlich singt jemand, der ein Instrument spielt, im Chor?</i> Jetzt ist A die Bedingung: Zeile A, 160 Personen, davon 60. <span class="m">P(B | A) = ${brRoh(60, 160)} = 0,375</span>. Ein ganz anderer Wert.`, v: () => tafel(VOR_TAFEL, { ...vk, hl: { "0,0": "hl", "0,2": "hl2" } }) },
+    { t: `Und ohne Bedingung: <i>Wie wahrscheinlich spielt eine beliebige Person ein Instrument <b>und</b> singt im Chor?</i> Gezählt unter allen 400: <span class="m">P(A ∩ B) = ${brRoh(60, 400)} = 0,15</span>.`, v: () => tafel(VOR_TAFEL, { ...vk, hl: { "0,0": "hl", "2,2": "hl2" } }) },
+    { t: `Mit Anteilen statt Anzahlen geht dasselbe als Formel: <span class="m">P(A | B) = ${brRoh("P(A ∩ B)", "P(B)")} = ${brRoh("0,15", "0,25")} = 0,6</span>. Gleicher Wert – der Nenner ist wieder die Bedingung.`, v: () => tafel(VOR_REL, { ...vk, fmt: (x) => kz(x), hl: { "0,0": "hl", "2,0": "hl2" } }) },
+  ],
+  merke: `Hinter dem Strich steht die Bedingung. Durch <b>ihre</b> Anzahl wird geteilt: <span class="m">P(A | B) = ${brRoh("Anzahl A und B", "Anzahl B")}</span>. Bei „und“ teilt man durch alle.`,
+  stolper: `Drei Werte nicht verwechseln: P(A ∩ B) = 60/400, P(A | B) = 60/100, P(B | A) = 60/160. Der Zähler ist gleich, der Nenner entscheidet. Frag dich jedes Mal: Aus welcher Gruppe wird ausgewählt?`,
+  neu() {
+    const T = neueTafel(), { w, k, N } = T;
+    const zeile = { A: 0, nA: 1 }, spalte = { B: 0, nB: 1 };
+    const x = wahl(["A", "nA"]), y = wahl(["B", "nB"]);
+    const anz = w[zeile[x]][spalte[y]], nx = w[zeile[x]][2], ny = w[2][spalte[y]];
+    const D = { A: k.aD, nA: k.naD, B: k.bD, nB: k.nbD };
+    const typ = wahl(["schnitt", "xy", "yx"]);
+    const ex = ereignisName[x], ey = ereignisName[y];
+    let frage, wert, notation;
+    const art = k.eine;
+    if (typ === "schnitt") {
+      frage = `Aus allen ${N} wird ${art} zufällig ausgewählt. Wie groß ist die Wahrscheinlichkeit, dass ${k.pron} ${D[x]} und ${D[y]}?`;
+      wert = anz / N; notation = 0;
+    } else if (typ === "xy") {
+      frage = `Man wählt zufällig ${k.akk} aus, ${k.rel} ${D[y]}. Wie groß ist die Wahrscheinlichkeit, dass ${k.pron} ${D[x]}?`;
+      wert = anz / ny; notation = 1;
+    } else {
+      frage = `Man wählt zufällig ${k.akk} aus, ${k.rel} ${D[x]}. Wie groß ist die Wahrscheinlichkeit, dass ${k.pron} ${D[y]}?`;
+      wert = anz / nx; notation = 2;
+    }
+    const optionen = [`P(${ex} ∩ ${ey})`, `P(${ex} | ${ey})`, `P(${ey} | ${ex})`];
+    const werte = [anz / N, anz / ny, anz / nx];
+    const fallTexte = [
+      `Das ist P(${ex} ∩ ${ey}): beides, unter allen ${N} gezählt.`,
+      `Das ist P(${ex} | ${ey}): Du hast durch die ${ny} geteilt, die ${D[y]}.`,
+      `Das ist P(${ey} | ${ex}): Du hast durch die ${nx} geteilt, die ${D[x]}.`,
+    ];
+    const fallen = [0, 1, 2].filter((i) => i !== notation && Math.abs(werte[i] - wert) > 0.006).map((i) => ({ wert: werte[i], text: fallTexte[i] + " Frag dich: Aus welcher Gruppe wird ausgewählt?" }));
+    const html = `<p>${k.intro(N)}</p>${leg(k)}${tafel(w, tafelKopf(k))}<p><b>${frage}</b></p>`;
+    const nenner = [N, ny, nx][notation];
+    return {
+      html,
+      auswahl: { label: "Welche Wahrscheinlichkeit ist gefragt?", optionen, richtig: notation,
+        falsch: (i) => i === 0 ? "„und“ ohne Auswahl aus einer Gruppe wäre der Schnitt. Hier wird aber aus einer Teilgruppe ausgewählt." : (notation === 0 ? "Hier wird aus allen ausgewählt, ohne Bedingung: Das ist der Schnitt „und“." : "Die Bedingung ist die Gruppe, aus der ausgewählt wird. Sie steht hinter dem Strich.") },
+      felder: [{ id: "p", label: "Wahrscheinlichkeit", wert, tol: 0.0051, fallen }],
+      tipps: [
+        notation === 0 ? `Hier wird aus <b>allen</b> ${N} ausgewählt. Gesucht: das Feld, in dem beides zutrifft.` : `Aus welcher Gruppe wird ausgewählt? Das ist die Bedingung. Such ihre Summe in der Tafel – das ist der Nenner.`,
+        `Zähler: ${anz} (beides trifft zu). Nenner: ${nenner}.`,
+      ],
+      loesung: `${optionen[notation]} = ${brRoh(anz, nenner)} ≈ ${kz(wert)} ≈ ${pz(wert)}`,
+    };
+  },
+});
+
+/* ---------- 6 · Baum ↔ Tafel ---------- */
+STATIONEN.push({
+  id: "w-baumtafel", titel: "Baum und Tafel übersetzen", ziel: 2,
+  vor: (() => {
+    const s = { s1: ["A", QS("A")], s2: [["B", QS("B")], ["B", QS("B")]] };
+    const p1 = ["0,4", "0,6"], p2 = [["0,375", "0,625"], ["≈0,167", "≈0,833"]];
+    return [
+      { t: `Dieselbe Umfrage als Baum. Erste Stufe: Instrument ja oder nein. Die ersten Äste sind die <b>Randwerte</b> der Anteilstafel: <span class="m">P(A) = 0,4</span>, <span class="m">P(${Q("A")}) = 0,6</span>.`, v: () => baum({ ...s, p1 }) },
+      { t: `Zweite Stufe: Chor ja oder nein – aber <b>innerhalb</b> der jeweiligen Gruppe. Hinter A steht P(B | A) = ${brRoh(60, 160)} = 0,375, nicht 0,15.`, v: () => baum({ ...s, p1, p2: [["0,375", ""], ["", ""]], hl: [0] }) },
+      { t: `Alle zweiten Äste: <span class="m">P(${Q("B")} | A) = ${brRoh(100, 160)} = 0,625</span>, <span class="m">P(B | ${Q("A")}) = ${brRoh(40, 240)} ≈ 0,167</span>, <span class="m">P(${Q("B")} | ${Q("A")}) = ${brRoh(200, 240)} ≈ 0,833</span>.`, v: () => baum({ ...s, p1, p2 }) },
+      { t: `Die Pfadenden sind die <b>Innenfelder</b> der Anteilstafel: <span class="m">0,4 · 0,375 = 0,15</span> – genau P(A ∩ B).`, v: () => baum({ ...s, p1, p2, enden: ["0,15", "0,25", "0,1", "0,5"] }) },
+      { t: `Mit Anzahlen statt Wahrscheinlichkeiten heißt das <b>Häufigkeitsbaum</b>: 400 teilen sich in 160 und 240, die 160 in 60 und 100, die 240 in 40 und 200. Das ist oft der einfachste Weg, um Fehler zu vermeiden.`, v: () => baum({ ...s, wurzel: "400", p1: ["", ""], s1: ["A: 160", QS("A") + ": 240"], enden: ["60", "100", "40", "200"] }) },
+    ];
+  })(),
+  merke: `Erste Äste: Randwerte. Zweite Äste: bedingte Wahrscheinlichkeiten (Anteil innerhalb der Gruppe). Pfadenden: Innenfelder der Anteilstafel.`,
+  stolper: `An die zweiten Äste gehört nicht der Anteil an allen (0,15), sondern der Anteil innerhalb der Gruppe (0,375). Probe: Die Äste an jedem Knoten ergeben 1.`,
+  neu() {
+    const T = neueTafel(), { w, k, N } = T;
+    const ersteA = Math.random() < 0.5;
+    // Baum mit erster Stufe A (Zeilen) oder B (Spalten)
+    const g = ersteA
+      ? { s1: ["A", QS("A")], s2: [["B", QS("B")], ["B", QS("B")]], rand: [w[0][2], w[1][2]], innen: [[w[0][0], w[0][1]], [w[1][0], w[1][1]]],
+          n1: ["P(A)", `P(${Q("A")})`], n2: [["P(B | A)", `P(${Q("B")} | A)`], [`P(B | ${Q("A")})`, `P(${Q("B")} | ${Q("A")})`]] }
+      : { s1: ["B", QS("B")], s2: [["A", QS("A")], ["A", QS("A")]], rand: [w[2][0], w[2][1]], innen: [[w[0][0], w[1][0]], [w[0][1], w[1][1]]],
+          n1: ["P(B)", `P(${Q("B")})`], n2: [["P(A | B)", `P(${Q("A")} | B)`], [`P(A | ${Q("B")})`, `P(${Q("A")} | ${Q("B")})`]] };
+    const felder = [];
+    let nr = 1;
+    for (let i = 0; i < 2; i++) felder.push({ id: "a" + i, label: `${"①②③④⑤⑥"[nr++ - 1]} ${g.n1[i]}`, wert: g.rand[i] / N, tol: 0.0051, fallen: [] });
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) felder.push({
+      id: "b" + i + j, label: `${"①②③④⑤⑥"[nr++ - 1]} ${g.n2[i][j]}`, wert: g.innen[i][j] / g.rand[i], tol: 0.0051,
+      fallen: [{ wert: g.innen[i][j] / N, text: `Das ist der Anteil an allen ${N} (ein Pfadende). Am zweiten Ast steht der Anteil innerhalb der Gruppe: durch ${g.rand[i]} teilen.` }],
+    });
+    const html = `<p>${k.intro(N)}</p>${leg(k)}${tafel(w, tafelKopf(k))}
+      <p>Übersetze die Tafel in ein Baumdiagramm, dessen erste Stufe <b>${ersteA ? "A" : "B"}</b> ist. Trage die Wahrscheinlichkeiten an den Ästen ① bis ⑥ ein (auf zwei Stellen oder als Bruch).</p>
+      ${baum({ ...g, p1: ["①", "②"], p2: [["③", "④"], ["⑤", "⑥"]] })}`;
+    return {
+      html, felder,
+      tipps: [`① und ② sind Randwerte geteilt durch ${N}.`, `③ bis ⑥: Anzahl im Innenfeld geteilt durch die Anzahl der Gruppe, aus der der Ast kommt. Zum Beispiel ③ = ${brRoh(g.innen[0][0], g.rand[0])}.`],
+      loesung: baum({ ...g, p1: [kz(g.rand[0] / N, 2), kz(g.rand[1] / N, 2)], p2: g.innen.map((z, i) => z.map((x) => kz(x / g.rand[i], 3))),
+        enden: [g.innen[0][0], g.innen[0][1], g.innen[1][0], g.innen[1][1]].map((x) => kz(x / N, 3)) }),
+    };
+  },
+});
+
+/* ---------- 7 · umgekehrter Baum ---------- */
+const BAYES = [
+  { A: "infiziert", B: "Test positiv", text: (a, b, c) => `${pz(a, 1)} der Menschen einer Region sind mit einem Virus infiziert. Ein Schnelltest zeigt bei ${pz(b, 1)} der Infizierten „positiv“, aber auch bei ${pz(c, 1)} der Nicht-Infizierten.`,
+    frage: "Eine Person hat einen positiven Test. Wie groß ist die Wahrscheinlichkeit, dass sie wirklich infiziert ist?", a: [1, 12], b: [85, 99], c: [2, 9] },
+  { A: "Maschine 1", B: "fehlerhaft", text: (a, b, c) => `In einem Werk stammen ${pz(a, 1)} der Teile von Maschine 1, der Rest von Maschine 2. Von Maschine 1 sind ${pz(b, 1)} der Teile fehlerhaft, von Maschine 2 ${pz(c, 1)}.`,
+    frage: "Ein Teil ist fehlerhaft. Wie groß ist die Wahrscheinlichkeit, dass es von Maschine 1 stammt?", a: [25, 70], b: [1, 6], c: [2, 8] },
+  { A: "Spam", B: "Filter schlägt an", text: (a, b, c) => `${pz(a, 1)} aller E-Mails in einem Postfach sind Spam. Ein Filter schlägt bei ${pz(b, 1)} der Spam-Mails an, aber auch bei ${pz(c, 1)} der anderen Mails.`,
+    frage: "Der Filter schlägt an. Wie groß ist die Wahrscheinlichkeit, dass die Mail wirklich Spam ist?", a: [15, 60], b: [88, 99], c: [1, 6] },
+];
+STATIONEN.push({
+  id: "w-umkehr", titel: "Umgekehrter Baum", ziel: 3,
+  vor: (() => {
+    const s = { s1: ["K", QS("K")], s2: [["T", QS("T")], ["T", QS("T")]] };
+    const p1 = ["0,02", "0,98"], p2 = [["0,95", "0,05"], ["0,04", "0,96"]];
+    return [
+      { t: `2 % einer Gruppe haben eine Krankheit K. Ein Test zeigt bei 95 % der Kranken „positiv“ (T), aber auch bei 4 % der Gesunden. <i>Jemand ist positiv getestet. Wie wahrscheinlich ist er krank?</i> Gesucht: <span class="m">P(K | T)</span>.`, v: () => baum({ ...s, p1, p2 }) },
+      { t: `Der Baum fängt mit K an – so sind die Angaben gegeben. Gefragt ist aber „andersherum“: Bedingung T. Deshalb heißt das <b>umgekehrter Baum</b>.`, v: () => baum({ ...s, p1, p2 }) },
+      { t: `Pfade, die bei T enden: <span class="m">P(K ∩ T) = 0,02 · 0,95 = 0,019</span> und <span class="m">P(${Q("K")} ∩ T) = 0,98 · 0,04 = 0,0392</span>.`, v: () => baum({ ...s, p1, p2, hl: [0, 2], enden: ["0,019", "", "0,0392", ""] }) },
+      { t: `Alle Positiven: <span class="m">P(T) = 0,019 + 0,0392 = 0,0582</span>.`, v: () => baum({ ...s, p1, p2, hl: [0, 2], enden: ["0,019", "", "0,0392", ""] }) },
+      { t: `Davon die Kranken: <span class="m">P(K | T) = ${brRoh("P(K ∩ T)", "P(T)")} = ${brRoh("0,019", "0,0582")} ≈ 0,326 ≈ 32,6 %</span>. Nur etwa jeder Dritte mit positivem Test ist krank – weil es so viele Gesunde gibt, von denen einige falsch positiv sind.`, v: () => baum({ ...s, p1, p2, hl: [0], enden: ["0,019", "", "0,0392", ""] }) },
+      { t: `<b>Gegenprobe mit Anzahlen:</b> Von 10 000 Personen sind 200 krank, davon 190 positiv. Von 9 800 Gesunden sind 392 positiv. <span class="m">${brRoh(190, 190 + 392)} ≈ 32,6 %</span> ✓.`, v: () => baum({ ...s, wurzel: "10 000", s1: ["K: 200", QS("K") + ": 9800"], p1: ["", ""], enden: ["190", "10", "392", "9408"] }) },
+      { t: `<b>Runden erst am Schluss.</b> Wer 0,0392 zu 0,04 und 0,0582 zu 0,06 rundet, erhält <span class="m">0,019 : 0,06 ≈ 31,7 %</span> – falsch. Zwischenergebnisse ungerundet weiterverwenden (Speicher, Bruch oder ganze Kette in einem Ansatz).`, v: () => baum({ ...s, p1, p2 }) },
+    ];
+  })(),
+  merke: `<span class="m">P(K | T) = ${brRoh("P(K ∩ T)", "P(K ∩ T) + P(" + Q("K") + " ∩ T)")}</span>. Im Nenner stehen alle Pfade, die bei der Bedingung T enden.`,
+  stolper: `P(T | K) (gegeben: 95 %) ist nicht P(K | T) (gesucht). Und: Zwischenergebnisse nicht runden – sonst weicht das Ergebnis in der ersten Nachkommastelle ab.`,
+  neu() {
+    const c0 = wahl(BAYES);
+    const a = zufall(c0.a[0], c0.a[1]) / 100, b = zufall(c0.b[0], c0.b[1]) / 100, c = zufall(c0.c[0], c0.c[1]) / 100;
+    const ab = a * b, nab = (1 - a) * c, pB = ab + nab, pAB = ab / pB;
+    const gerundet = Math.round(ab * 100) / 100 / (Math.round(ab * 100) / 100 + Math.round(nab * 100) / 100);
+    const fallen = [
+      { wert: b, text: `Das ist P(${c0.B} | ${c0.A}), die gegebene Angabe. Gesucht ist die Umkehrung: Bedingung ist „${c0.B}“.` },
+      { wert: ab, text: `Das ist P(A ∩ B), ein Pfadende. Es muss noch durch P(B) geteilt werden – alle Pfade, die bei „${c0.B}“ enden.` },
+    ];
+    if (Math.abs(gerundet - pAB) > 0.0015) fallen.push({ wert: gerundet, text: "Fast – aber du hast unterwegs gerundet. Rechne mit den ungerundeten Pfadwerten und runde erst das Ergebnis." });
+    const html = `<p>${c0.text(a, b, c)}</p><p class="klein leise">A: ${c0.A}, B: ${c0.B}</p><p><b>${c0.frage}</b></p>
+      <p class="klein leise">P(B) auf drei Stellen, P(A | B) in Prozent auf eine Nachkommastelle.</p>`;
+    const s = { s1: ["A", QS("A")], s2: [["B", QS("B")], ["B", QS("B")]] };
+    return {
+      html,
+      felder: [
+        { id: "pb", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: ab, text: "Das ist nur der Pfad über A. B erreicht man auch über " + Q("A") + "." }, { wert: b, text: "Das ist P(B | A). P(B) ist die Summe beider Pfade zu B." }] },
+        { id: "pab", label: "P(A | B)", wert: pAB, tol: 0.0006, fallen },
+      ],
+      tipps: [
+        `Zeichne den Baum mit erster Stufe A: P(A) = ${kz(a, 3)}, an den zweiten Ästen ${kz(b, 3)} und ${kz(c, 3)}.`,
+        `${baum({ ...s, p1: [kz(a, 3), kz(1 - a, 3)], p2: [[kz(b, 3), kz(1 - b, 3)], [kz(c, 3), kz(1 - c, 3)]], hl: [0, 2] })}<p>P(B) = Pfad über A plus Pfad über ${Q("A")}. Danach P(A | B) = Pfad über A geteilt durch P(B).</p>`,
+      ],
+      loesung: `<p>P(A ∩ B) = ${kz(a, 3)} · ${kz(b, 3)} = ${kz(ab, 5)}; P(${Q("A")} ∩ B) = ${kz(1 - a, 3)} · ${kz(c, 3)} = ${kz(nab, 5)}</p>
+        <p>P(B) = ${kz(ab, 5)} + ${kz(nab, 5)} = ${kz(pB, 5)} ≈ ${kz(pB, 3)}</p>
+        <p>P(A | B) = ${brRoh(kz(ab, 5), kz(pB, 5))} ≈ ${kz(pAB, 4)} ≈ ${pz(pAB, 1)}</p>`,
+    };
+  },
+});
+
+/* ---------- 8 · gemischt ---------- */
+STATIONEN.push({
+  id: "w-mix", titel: "Gemischte Aufgaben", ziel: 5, vor: null,
+  merke: `Erst klären: Aus welcher Gruppe wird ausgewählt? Dann: Tafel oder Baum? Zum Schluss die Probe.`,
+  stolper: `Jede Aufgabe einzeln lesen – die Wörter „und“, „von denen“, „unter der Bedingung“ entscheiden über den Nenner.`,
+  neu() {
+    const quelle = wahl(["w-baum", "w-bedingt", "w-bedingt", "w-umkehr", "w-baumtafel"]);
+    const a = STATIONEN.find((s) => s.id === quelle).neu();
+    a.herkunft = quelle;
+    return a;
+  },
+});
+
+/* ============================================================
+   5. Anzeige einer Station
+   ============================================================ */
+let aktiv = null, aufgabe = null, vorSchritt = 0, versucht = false, loesungGesehen = false, tippZahl = 0;
+
+function wegZeichnen() {
+  $("#weg").innerHTML = STATIONEN.map((s, i) => {
+    const z = st(s.id);
+    const status = z.geschafft ? "geschafft ✓" : z.richtig ? `${z.richtig} richtig` : "noch offen";
+    return `<button type="button" data-id="${s.id}" class="${aktiv && aktiv.id === s.id ? "aktiv" : ""} ${z.geschafft ? "geschafft" : ""}">
+      <span class="nr">Station ${i + 1}</span><span class="ti">${s.titel}</span><span class="st">${status}</span></button>`;
+  }).join("");
+  for (const b of $("#weg").querySelectorAll("button")) b.onclick = () => oeffne(b.dataset.id, true);
+}
+
+function oeffne(id, scrollen) {
+  aktiv = STATIONEN.find((s) => s.id === id) || STATIONEN[0];
+  try { localStorage.setItem("mu-wahrscheinlichkeit-zuletzt", aktiv.id); } catch {}
+  vorSchritt = 0;
+  const i = STATIONEN.indexOf(aktiv);
+  $("#station").innerHTML = `
+    <section class="karte">
+      <h2>Station ${i + 1} · ${aktiv.titel}</h2>
+      ${aktiv.vor ? `<h3>Vormachen</h3>
+      <div class="vor"><div class="schritte" id="schritte"></div><div class="bild" id="bild"></div></div>
+      <div class="leiste">
+        <button type="button" id="zurueck">Zurück</button>
+        <button type="button" class="voll" id="weiter">Nächster Schritt</button>
+        <button type="button" id="vonvorn">Von vorn</button>
+        <span class="zaehl" id="zaehl"></span>
+      </div>` : `<p class="leise">Hier kommen Aufgaben aus den Stationen 2, 5, 6 und 7 gemischt – so wie in einer Klausur.</p>`}
+      <div class="kaesten" style="margin-top:16px">
+        <div class="merke"><h3>Merke</h3>${aktiv.merke}</div>
+        <div class="stolper"><h3>Stolperstein</h3>${aktiv.stolper}</div>
+      </div>
+    </section>
+    <section class="karte">
+      <div class="kopf"><h2>Üben</h2><span class="klein leise">${aktiv.ziel} richtig in Folge (ohne Lösung anzusehen): <span class="serie" id="serie"></span></span></div>
+      <div id="uebung"></div>
+    </section>
+    <section class="karte ki">
+      <h2>Rückmeldung zu deinem Rechenweg</h2>
+      <p class="leise klein">Schreib auf, wie du gerechnet hast – so, wie du es im Heft aufschreiben würdest. Die KI sagt dir, was stimmt und wo der erste Fehler steckt, ohne die Lösung zu verraten.</p>
+      <textarea id="weg-text" placeholder="z. B. P(A|B) = 53/194 ≈ 0,27, weil …"></textarea>
+      <div class="zeile"><button type="button" class="voll" id="kiFrage">Rückmeldung holen</button><span id="kiHinweis" class="klein leise"></span></div>
+      <div id="kiAntwort"></div>
+    </section>`;
+  if (aktiv.vor) {
+    $("#weiter").onclick = () => { if (vorSchritt < aktiv.vor.length - 1) { vorSchritt++; vorZeichnen(); } };
+    $("#zurueck").onclick = () => { if (vorSchritt > 0) { vorSchritt--; vorZeichnen(); } };
+    $("#vonvorn").onclick = () => { vorSchritt = 0; vorZeichnen(); };
+    vorZeichnen();
+  }
+  $("#kiFrage").onclick = kiFragen;
+  neueAufgabe();
+  wegZeichnen();
+  if (scrollen) $("#station").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function vorZeichnen() {
+  const v = aktiv.vor;
+  $("#schritte").innerHTML = v.slice(0, vorSchritt + 1).map((s, i) => `<div class="schritt ${i === vorSchritt ? "jetzt" : ""}">${s.t}</div>`).join("");
+  $("#bild").innerHTML = v[vorSchritt].v();
+  $("#zaehl").textContent = `Schritt ${vorSchritt + 1} von ${v.length}`;
+  $("#weiter").disabled = vorSchritt >= v.length - 1;
+  $("#zurueck").disabled = vorSchritt === 0;
+}
+
+function serieZeichnen() {
+  const z = st(aktiv.id);
+  let s = "";
+  for (let i = 0; i < aktiv.ziel; i++) s += `<i class="${i < Math.min(z.serie, aktiv.ziel) ? "an" : ""}"></i>`;
+  $("#serie").innerHTML = s;
+}
+
+function neueAufgabe() {
+  aufgabe = aktiv.neu();
+  /* Fallen, die zufällig mit der Lösung zusammenfallen, wären irreführend */
+  for (const f of [...aufgabe.felder, ...(aufgabe.tafelFelder || [])])
+    if (f.fallen) f.fallen = f.fallen.filter((fa) => Math.abs(fa.wert - f.wert) > Math.max(f.tol || 0, 0.0006) + 1e-9);
+  versucht = false; loesungGesehen = false; tippZahl = 0;
+  let html = `<div class="aufgabe">${aufgabe.html}</div><div class="felder">`;
+  if (aufgabe.auswahl) {
+    html += `<div class="feld" data-feld="auswahl"><label for="f-auswahl">${aufgabe.auswahl.label}</label>
+      <select id="f-auswahl"><option value="">– wählen –</option>${aufgabe.auswahl.optionen.map((o, i) => `<option value="${i}">${text(o)}</option>`).join("")}</select></div>`;
+  }
+  for (const f of aufgabe.felder)
+    html += `<div class="feld" data-feld="${f.id}"><label for="f-${f.id}">${f.label}</label><input id="f-${f.id}" inputmode="decimal" autocomplete="off"></div>`;
+  html += `</div>
+    <div class="leiste">
+      <button type="button" class="voll" id="pruefen">Prüfen</button>
+      <button type="button" id="tipp">Tipp</button>
+      <button type="button" id="loesung">Lösung zeigen</button>
+      <button type="button" id="neu">Neue Aufgabe</button>
+    </div>
+    <div id="tipps"></div><div id="meldung"></div>`;
+  $("#uebung").innerHTML = html;
+  $("#pruefen").onclick = pruefen;
+  $("#tipp").onclick = tippZeigen;
+  $("#loesung").onclick = loesungZeigen;
+  $("#neu").onclick = neueAufgabe;
+  for (const inp of $("#uebung").querySelectorAll("input")) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") pruefen(); });
+  $("#weg-text") && ($("#weg-text").value = "");
+  $("#kiAntwort") && ($("#kiAntwort").innerHTML = "");
+  serieZeichnen();
+}
+
+const passt = (x, f) => (f.art === "n" ? Math.abs(x - f.wert) < 1e-9 : Math.abs(x - f.wert) <= f.tol + 1e-12);
+
+/* Ein Feld prüfen → { ok, text } */
+function feldPruefen(roh, f) {
+  const e = lies(roh);
+  if (!e) return { ok: false, leer: !String(roh || "").trim(), text: "" };
+  let x = e.wert;
+  if (f.art !== "n" && !e.prozent && x > 1 && x <= 100) x = x / 100;  // „27“ als 27 % lesen
+  if (passt(x, f)) {
+    const hinweis = f.art !== "n" && !e.prozent && e.wert > 1 ? "Richtig – schreib beim nächsten Mal das %-Zeichen dazu." : "";
+    return { ok: true, text: hinweis };
+  }
+  for (const fa of f.fallen || []) if (Math.abs(x - fa.wert) <= Math.max(f.tol, 0.0006) + 1e-12) return { ok: false, text: fa.text };
+  if (f.art !== "n" && f.tol < 0.005 && Math.abs(x - f.wert) <= 0.006) return { ok: false, text: "Ganz nah dran. Runde genauer (siehe Angabe der Stellen) oder rechne ohne gerundete Zwischenergebnisse." };
+  return { ok: false, text: "" };
+}
+
+function pruefen() {
+  const meld = [];
+  let alle = true, leer = false;
+  if (aufgabe.auswahl) {
+    const el = $("#f-auswahl"), box = el.closest(".feld");
+    const v = el.value;
+    box.classList.remove("richtig", "falsch");
+    if (v === "") { leer = true; alle = false; }
+    else if (Number(v) === aufgabe.auswahl.richtig) box.classList.add("richtig");
+    else { box.classList.add("falsch"); alle = false; meld.push(aufgabe.auswahl.falsch(Number(v))); }
+  }
+  for (const f of aufgabe.felder) {
+    const el = $("#f-" + f.id), box = el.closest(".feld");
+    box.classList.remove("richtig", "falsch");
+    const r = feldPruefen(el.value, f);
+    if (r.leer) { leer = true; alle = false; continue; }
+    box.classList.add(r.ok ? "richtig" : "falsch");
+    if (!r.ok) alle = false;
+    if (r.text) meld.push(`<b>${text(f.label)}:</b> ${r.text}`);
+  }
+  if (aufgabe.tafelFelder) {
+    const tab = $("#uebTafel");
+    for (const tf of aufgabe.tafelFelder) {
+      const inp = tab.querySelector(`input[data-zelle="${tf.key}"]`), td = inp.closest("td");
+      td.classList.remove("hl", "falsch");
+      const f = { wert: tf.wert, tol: tf.tol === undefined ? 0 : tf.tol, art: tf.tol === undefined ? "n" : "p", fallen: tf.fallen || [] };
+      const r = feldPruefen(inp.value, f);
+      if (r.leer) { leer = true; alle = false; continue; }
+      if (r.ok) td.classList.add("hl"); else { td.classList.add("falsch"); alle = false; }
+      if (r.text && !r.ok && !meld.includes(r.text)) meld.push(r.text);
+    }
+    if (!alle && !meld.length && !leer) meld.push("Rot markierte Felder stimmen noch nicht. Probe: Geht jede Zeile und jede Spalte auf?");
+  }
+  const z = st(aktiv.id);
+  const ausgang = $("#meldung");
+  if (leer && !meld.length) { ausgang.innerHTML = `<div class="meldung neutral">Fülle zuerst alle Felder aus.</div>`; return; }
+  if (alle) {
+    if (!versucht && !loesungGesehen) { z.serie++; z.richtig++; }
+    if (z.serie >= aktiv.ziel && !z.geschafft) z.geschafft = true;
+    sichern();
+    const extra = meld.length ? `<br>${meld.join("<br>")}` : "";
+    ausgang.innerHTML = `<div class="meldung gut">Richtig.${!versucht && !loesungGesehen ? "" : " (Zählt nicht für die Serie, weil es nicht beim ersten Versuch war.)"}${z.geschafft && z.serie === aktiv.ziel ? " <b>Station geschafft.</b>" : ""}${extra}
+      <div class="leiste"><button type="button" class="voll" id="weiterAufgabe">Nächste Aufgabe</button></div></div>`;
+    $("#weiterAufgabe").onclick = neueAufgabe;
+  } else {
+    versucht = true;
+    z.serie = 0; sichern();
+    ausgang.innerHTML = `<div class="meldung schlecht">${meld.length ? meld.join("<br>") : "Noch nicht. Schau dir einen Tipp an."}</div>`;
+  }
+  serieZeichnen(); wegZeichnen();
+}
+
+function tippZeigen() {
+  if (tippZahl >= aufgabe.tipps.length) { loesungZeigen(); return; }
+  $("#tipps").insertAdjacentHTML("beforeend", `<div class="tipp"><b>Tipp ${tippZahl + 1}:</b> ${aufgabe.tipps[tippZahl]}</div>`);
+  tippZahl++;
+  if (tippZahl >= aufgabe.tipps.length) $("#tipp").textContent = "Lösung";
+}
+function loesungZeigen() {
+  loesungGesehen = true;
+  const z = st(aktiv.id); z.serie = 0; sichern();
+  $("#tipps").insertAdjacentHTML("beforeend", `<div class="tipp"><b>Lösung:</b> ${aufgabe.loesung}</div>`);
+  $("#loesung").disabled = true;
+  serieZeichnen();
+}
+
+/* ============================================================
+   6. KI-Rückmeldung
+   ============================================================ */
+const KI = (() => {
+  const p = new URLSearchParams(location.search).get("ki");
+  if (p && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(p)) return p;
+  return "https://ki-rueckmeldung.michaelglaubitz-barton.workers.dev";
+})();
+let code = "";
+try { code = localStorage.getItem("mu-ki-code") || ""; } catch {}
+$("#code").value = code;
+$("#codeSpeichern").onclick = () => {
+  code = $("#code").value.trim();
+  try { localStorage.setItem("mu-ki-code", code); } catch {}
+  $("#kiStatus").textContent = code ? "Gespeichert." : "Code entfernt.";
+};
+fetch(KI + "/v1/status").then((r) => r.json()).then((d) => {
+  $("#kiStatus").textContent = d.bereit ? "KI-Rückmeldung ist erreichbar." : "KI-Rückmeldung ist noch nicht eingerichtet.";
+}).catch(() => { $("#kiStatus").textContent = "KI-Rückmeldung ist gerade nicht erreichbar."; });
+
+function aufgabeAlsText() {
+  let s = text(aufgabe.html);
+  if (aufgabe.tafelFelder && aufgabe.art === "tafel") s += " (Gesucht: die leeren Felder der Tafel.)";
+  if (aufgabe.auswahl) s += " Teilfrage: " + aufgabe.auswahl.label + " Optionen: " + aufgabe.auswahl.optionen.map(text).join(", ");
+  if (aufgabe.felder.length) s += " Gesucht: " + aufgabe.felder.map((f) => text(f.label)).join("; ");
+  return s;
+}
+function loesungAlsText() {
+  let s = text(aufgabe.loesung);
+  if (aufgabe.tafelFelder) s += " Felder: " + aufgabe.tafelFelder.map((t) => `${t.key} = ${t.tol === undefined ? t.wert : kz(t.wert, 4)}`).join(", ") + " (Zeile,Spalte; 0 = A bzw. B, 1 = nicht A bzw. nicht B, 2 = Summe)";
+  if (aufgabe.felder.length) s += " Werte: " + aufgabe.felder.map((f) => `${text(f.label)} = ${kz(f.wert, 5)}`).join("; ");
+  if (aufgabe.auswahl) s += " Gefragt ist: " + text(aufgabe.auswahl.optionen[aufgabe.auswahl.richtig]);
+  return s;
+}
+
+async function kiFragen() {
+  const weg = $("#weg-text").value.trim();
+  const out = $("#kiAntwort"), hin = $("#kiHinweis");
+  if (!code) { hin.textContent = "Trag unten auf der Seite zuerst den Code ein."; $("#kicode").scrollIntoView({ behavior: "smooth" }); return; }
+  if (weg.length < 3) { hin.textContent = "Schreib zuerst deinen Rechenweg in das Feld."; return; }
+  $("#kiFrage").disabled = true; hin.textContent = "Claude liest deinen Rechenweg …"; out.innerHTML = "";
+  try {
+    const r = await fetch(KI + "/v1/rueckmeldung", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code, station: aufgabe.herkunft || aktiv.id, aufgabe: aufgabeAlsText(), loesung: loesungAlsText(), antwort: weg }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { hin.textContent = d.fehler || "Das hat nicht geklappt."; return; }
+    out.innerHTML = `<div class="antwort"></div>`;
+    out.firstChild.textContent = d.text;
+    hin.textContent = typeof d.rest === "number" ? `Heute noch ${d.rest} Rückmeldungen.` : "";
+  } catch {
+    hin.textContent = "Der Dienst ist gerade nicht erreichbar.";
+  } finally {
+    $("#kiFrage").disabled = false;
+  }
+}
+
+/* ============================================================
+   7. Start
+   ============================================================ */
+let zuletzt = null;
+try { zuletzt = localStorage.getItem("mu-wahrscheinlichkeit-zuletzt"); } catch {}
+oeffne(zuletzt || STATIONEN[0].id, false);
+</script>
+</body>
+</html>

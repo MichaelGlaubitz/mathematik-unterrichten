@@ -1,0 +1,36 @@
+# KI-Rückmeldung · Cloudflare Worker
+#
+# Einmalig einrichten (im Ordner ki-rueckmeldung/):
+#   npx wrangler deploy
+#   npx wrangler secret put FAMILIENCODE        # mindestens 8 Zeichen, frei erfunden,
+#                                               # NIE das hausweite Lehrerkennwort
+#   npx wrangler secret put ANTHROPIC_API_KEY   # Schlüssel von platform.claude.com
+#
+# Danach steht der Dienst unter
+#   https://ki-rueckmeldung.<konto>.workers.dev
+# Status (ohne Code):  …workers.dev/v1/status
+#
+# Weder Code noch Schlüssel stehen in dieser oder einer anderen Datei.
+# Fehlt eines davon, antwortet der Dienst mit 503 und fragt Claude nie.
+#
+# Kosten begrenzen: GRENZE_JE_TAG in kern.mjs (Rückmeldungen je Tag) und
+# zusätzlich ein Monatslimit für den API-Schlüssel in der Claude Console.
+
+name = "ki-rueckmeldung"
+main = "worker.mjs"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+workers_dev = true
+preview_urls = false
+
+[[durable_objects.bindings]]
+name = "BUCH"
+class_name = "Buch"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Buch"]
+
+[observability]
+enabled = true
