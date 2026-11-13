@@ -299,10 +299,19 @@ body.einfach .sprache-einfach p, body.einfach .sprache-einfach li{max-width:46em
 .antwortfeld textarea{background:#fffde7; border-color:#e6c200}
 .antwortfeld p{margin:.2rem 0 .4rem; font-size:.92rem; color:#6b5a1e}
 
-/* ---- Hilfeknopf ---- */
+/* ---- Hilfeknopf: gestufte Tipps (seit 13.11.2026) ---- */
 .hilfeknopf{display:block; margin:.5rem 0 .2rem; font-size:.85rem; padding:.3rem .7rem;
   background:transparent; border:1px dashed var(--linie); color:#5a6570}
 .hilfeknopf:hover{background:#f3f6f8; border-style:solid}
+.hilfeknopf[disabled]{opacity:.65; cursor:default}
+.tippbox .tipp{margin:.35rem 0; padding:.45rem .7rem; background:#fff8e8; border-left:4px solid #c9974a;
+  border-radius:0 8px 8px 0; font-size:.95rem}
+.tippbox .tipp b{color:#8a4b14}
+/* Nach dem Öffnen der Kontrolle: Antwortfeld gesperrt (13.11.2026) */
+textarea.nach-loesung, input.nach-loesung{background:#f1f0ec !important; color:#4b5563; cursor:not-allowed}
+.feldnotiz{font-size:.82rem; color:#7a6d5c; margin:.2rem 0 .4rem}
+.zeichenfeld.nach-loesung canvas, .zeichenfeld.nach-loesung button{pointer-events:none}
+.zeichenfeld.nach-loesung{opacity:.8}
 
 @media print{
   header,.nav,.pillen,.balken{display:none}
@@ -608,12 +617,6 @@ main h2{color:#2f5d8a; font-weight:700; letter-spacing:.005em}
 .filmwahl.kino .achte{background:#fffdf9;color:var(--text)}
 .filmwahl.kino .filmquelle{color:#7a6d5c}
 .filmwahl.kino a.knopf{color:#2f5d8a;background:#fff}
-
-/* --- Gestufte Tipps (13.11.2026) --- */
-.tippbox .tipp{margin:.35rem 0;padding:.45rem .7rem;background:#fff8e8;border-left:4px solid #c9974a;
-  border-radius:0 8px 8px 0;font-size:.95rem}
-.tippbox .tipp b{color:#8a4b14}
-.hilfeknopf[disabled]{opacity:.65;cursor:default}
 </style>
 </head>
 <body>
@@ -722,13 +725,14 @@ main h2{color:#2f5d8a; font-weight:700; letter-spacing:.005em}
     <h4><span class="sprache-standard">Spielregeln</span><span class="sprache-einfach">Spielregeln</span></h4>
 <div class="sprache-standard"><ul>
       <li>Du liest <b>Stück für Stück</b>. Beantworte die kurze Frage darunter, dann kommt das nächste.</li>
-      <li>Lösungen öffnen sich erst nach deiner eigenen Antwort &#128274;.</li>
+      <li>Lösungen öffnen sich erst nach deiner eigenen Antwort &#128274;. Danach ist dein Antwortfeld
+      gesperrt.</li>
       <li>Was du einträgst und antippst, steht im <b>Protokoll</b>. Nichts wird heimlich mitgeschrieben.</li>
       <li>Am Ende schickst du das Protokoll ab, <b>auch wenn du nicht fertig bist</b>.</li>
     </ul></div>
 <div class="sprache-einfach"><ul>
       <li>Du liest <b>Stück für Stück</b>. Beantworte die Frage darunter. Dann kommt das nächste.</li>
-      <li>Lösungen gehen erst nach deiner eigenen Antwort auf &#128274;.</li>
+      <li>Lösungen gehen erst nach deiner eigenen Antwort auf &#128274;. Dann ist dein Feld zu.</li>
       <li>Was du schreibst und antippst, steht im <b>Protokoll</b>. Nichts passiert heimlich.</li>
       <li>Am Ende schickst du das Protokoll ab. <b>Auch wenn du nicht fertig bist.</b></li>
     </ul></div>
@@ -3799,7 +3803,7 @@ function feldWert(feld) {
    zählt für die Sperre nur der Umfang OHNE Wiederholungen: Der Text wird in
    Sätze zerlegt, normalisiert und dedupliziert. Wer denselben Satz fünfmal
    einfügt, kommt damit nicht weiter – und braucht es auch nicht, weil der
-   Knopf „Ich verstehe die Aufgabe nicht" ohne jede Hürde zur Lösung führt. */
+   Knopf „Ich verstehe die Aufgabe nicht" ohne jede Hürde Tipps zeigt. */
 function normSatz(s) {
   return s.toLowerCase().replace(/[^a-zäöüß0-9]+/g, " ").trim();
 }
@@ -3857,7 +3861,18 @@ function feldReicht(feld, min) {
   if (el.tagName !== "TEXTAREA") return v.length >= 1;
   return eigenLaenge(v) >= (min || 40);
 }
+/* Tipps zum Knopf „Ich verstehe die Aufgabe nicht“ (seit 13.11.2026). Je Stunde füllen:
+   { "<feld-id>": [["Tipp Standard", "Tipp einfach"], …] } – höchstens drei, gestuft:
+   Richtung, Weg, Gerüst, nie die fertige Antwort. Alternativ <template class="tipps">. */
 const TIPPS = {"t-st2": [["Schau im Stoßlabor nur auf die Zahl ganz rechts: das Verhältnis H : N.", "Schau rechts auf „H geteilt durch N“."], ["Tippe der Reihe nach auf 0,5, 1, 1,15 und 2. Schreib dir jedes Mal das Verhältnis auf.", "Tippe nacheinander auf die Massen. Schreib jedes Mal die Zahl rechts auf."], ["Bei welcher Masse liegt das Verhältnis am nächsten an 7? Vergleiche diese Masse mit einem Proton, das hat Masse 1.", "Welche Masse gibt ungefähr 7? Vergleiche sie mit dem Proton. Das hat Masse 1."]], "t-k3": [["Kohlenstoff hat immer 6 Protonen. Setz im Baukasten 6 p und 6 n ein.", "Kohlenstoff hat 6 Protonen. Baue 6 p und 6 n."], ["Lies das Symbol rechts ab: Oben steht A, alle Nukleonen. Unten steht Z, nur die Protonen.", "Lies das Symbol ab. Oben: alle Teilchen. Unten: nur die Protonen."], ["Setz dann noch 2 Neutronen dazu und lies wieder ab. Welche Zahl bleibt gleich, welche ändert sich?", "Setz 2 Neutronen dazu. Lies wieder ab. Welche Zahl bleibt? Welche ändert sich?"]], "t-kr3": [["Welche Ladung hat ein Neutron?", "Welche Ladung hat ein Neutron?"], ["Wird ein Neutron von einem Proton abgestoßen? Und wirkt die Kernkraft auch auf Neutronen?", "Stößt ein Proton ein Neutron ab? Wirkt die Kernkraft auf Neutronen?"], ["Schreib zwei Sätze nach dem Muster: „Ein Neutron hat …, deshalb … . Die Kernkraft …“", "Fang so an: „Ein Neutron hat …, deshalb … . Die Kernkraft …“"]], "t-st": [["Der Name verrät A: Bei Gold-197 ist A = 197.", "Im Namen steht A. Gold-197 hat A = 197."], ["Z ist die Platznummer im Periodensystem: H 1, He 2, C 6, O 8, Fe 26, Au 79, U 92.", "Z steht im Periodensystem: H 1, He 2, C 6, O 8, Fe 26, Au 79, U 92."], ["Rechne N = A − Z. Ein anderes Isotop hat dasselbe Z, aber ein anderes A, etwa C-12 statt C-14.", "Rechne N = A − Z. Ein anderes Isotop: gleiches Z, anderes A. Zum Beispiel C-12."]], "t-a1": [["Unten steht bei allen dreien eine 1. Was zählt die untere Zahl?", "Unten steht immer 1. Was zählt die untere Zahl?"], ["Oben steht 1, 2 oder 3. Die obere Zahl zählt Protonen und Neutronen zusammen. Wie viele Neutronen hat also jeder Kern?", "Oben steht 1, 2 oder 3. Das sind Protonen und Neutronen zusammen. Wie viele Neutronen hat jeder?"], ["Ergänze: „Isotope sind Kerne desselben Elements mit gleich vielen …, aber verschieden vielen … .“", "Ergänze: „Isotope haben gleich viele …, aber verschieden viele … .“"]], "t-a3": [["Ein neutrales Atom hat so viele Elektronen wie Protonen.", "Neutrales Atom: so viele Elektronen wie Protonen."], ["Neutronen: obere Zahl minus untere Zahl, N = A − Z.", "Neutronen: obere Zahl minus untere Zahl."], ["Vergleiche U-235 und U-238: Was ist gleich, was ist verschieden? Das Fachwort kam in Phase 3 vor.", "Vergleiche die zwei Uran-Atome. Was ist gleich? Was nicht? Das Fachwort kam in Phase 3."]], "t-a2": [["Rechne beide Massen in dieselbe Einheit um: 1 t = 1000 kg.", "Rechne in kg um: 1 t = 1000 kg."], ["Teile die große Masse durch die kleine.", "Teile die große Masse durch die kleine."], ["Für dein Beispiel: Nimm etwas Schweres, etwa ein Auto mit 1,5 t, und suche etwas, das rund 2000-mal leichter ist.", "Nimm etwas Schweres, zum Beispiel ein Auto (1,5 t). Was ist etwa 2000-mal leichter?"]], "t-z3": [["Stickstoff hat 7 Protonen. Wie viele Neutronen hat Stickstoff-14?", "Stickstoff hat 7 Protonen. Wie viele Neutronen hat N-14?"], ["Vergleiche C-14 (6 p, 8 n) mit N-14: Wovon ist eins mehr, wovon eins weniger?", "Vergleiche C-14 (6 p, 8 n) mit N-14. Was ist eins mehr? Was eins weniger?"], ["Vielleicht verwandelt sich ein Teilchen im Kern in das andere. Welches in welches?", "Vielleicht wird ein Teilchen zu einem anderen. Welches zu welchem?"]]};
+const TIPPS_ALLGEMEIN = [
+  ["Lies die Aufgabe noch einmal Satz für Satz: Was ist gegeben, was ist gefragt?",
+   "Lies die Aufgabe noch einmal. Was weißt du? Was ist gefragt?"],
+  ["Schau dir das Beispiel oder die Erklärung direkt davor noch einmal an. Welche Regel passt hierher?",
+   "Schau dir das Beispiel davor noch einmal an. Welche Regel passt?"],
+  ["Schreib auf, was du schon weißt, auch einen halben Satz. Dann vergleiche mit der Lösung.",
+   "Schreib auf, was du schon weißt. Auch ein halber Satz zählt."]
+];
 const sperren = [];
 document.querySelectorAll("details.gesperrt").forEach(d => {
   const sum = d.querySelector("summary");
@@ -3869,11 +3884,25 @@ document.querySelectorAll("details.gesperrt").forEach(d => {
   const symbolEl = sum.querySelector(".sperrsymbol");
   const noteEl = sum.querySelector(".schloss");
 
-  /* Gestufte Tipps statt Loesung (Anwender 13.11.2026: der Knopf „Lösung zeigen“ wurde missbraucht).
-     Bis zu drei Tipps nacheinander, jeder als „hilfe-angefordert“ im Protokoll (keine neue Eintragsart).
-     Die Loesung oeffnet sich weiterhin nur ueber die eigene Antwort: hilfeGenutzt bleibt false. */
+  /* Ehrlicher Ausweg, Fassung 13.11.2026: gestufte Tipps statt Lösung.
+     Die reine Zeichenhürde bestraft den, der zugibt nicht weiterzukommen – deshalb
+     steht neben jeder Sperre ein Knopf, der ohne Hürde hilft und im Protokoll steht.
+     Bis 12.11. öffnete er die Lösung; das wurde von Schülern missbraucht (Anwender,
+     13.11.2026). Jetzt zeigt er bis zu drei Tipps nacheinander (Richtung, Weg, Gerüst),
+     die Lösung öffnet sich nur über die eigene Antwort: hilfeGenutzt bleibt false.
+     Woher die Tipps kommen, in dieser Reihenfolge:
+       1. <template class="tipps" data-fuer="<feld>"> mit bis zu drei Kindelementen
+          (je ein Tipp, mit .sprache-standard/.sprache-einfach),
+       2. das Objekt TIPPS (unten): { "<feld>": [["Standard", "einfach"], …] },
+       3. sonst drei allgemeine Tipps.
+     Vor istFrei/pruefe deklariert, weil beide darauf zugreifen. */
   const hilfeGenutzt = false;
-  const tipps = TIPPS[d.dataset.fuer] || [];
+  const fuer = d.dataset.fuer || "";
+  const vorlageTipps = document.querySelector('template.tipps[data-fuer="' + fuer + '"]');
+  const tipps = vorlageTipps
+    ? [...vorlageTipps.content.children].slice(0, 3).map(el => el.innerHTML)
+    : (TIPPS[fuer] || TIPPS_ALLGEMEIN).slice(0, 3).map(t =>
+        '<span class="sprache-standard">' + t[0] + '</span><span class="sprache-einfach">' + t[1] + '</span>');
   let tippNr = 0;
   const tippBox = document.createElement("div");
   tippBox.className = "tippbox";
@@ -3892,14 +3921,13 @@ document.querySelectorAll("details.gesperrt").forEach(d => {
   hilfeKnopf.addEventListener("click", ev => {
     ev.preventDefault(); ev.stopPropagation();
     if (tippNr >= tipps.length) return;
-    const t = tipps[tippNr++];
     const p = document.createElement("p");
     p.className = "tipp";
-    p.innerHTML = '<b>Tipp ' + tippNr + ':</b> <span class="sprache-standard">' + t[0] +
-      '</span><span class="sprache-einfach">' + t[1] + '</span>';
+    p.innerHTML = '<b>Tipp ' + (tippNr + 1) + ':</b> ' + tipps[tippNr];
+    tippNr++;
     tippBox.appendChild(p);
     const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
-    protokolliere("hilfe-angefordert", d.dataset.fuer || "",
+    protokolliere("hilfe-angefordert", fuer,
       "Tipp " + tippNr + " von " + tipps.length + " – Aufgabe nicht verstanden", schnapp);
     hilfeKnopf.innerHTML = knopfText();
     hilfeKnopf.disabled = tippNr >= tipps.length;
@@ -3909,7 +3937,38 @@ document.querySelectorAll("details.gesperrt").forEach(d => {
 
   function istFrei() { return hilfeGenutzt || felder.every(f => feldReicht(f, min)); }
 
+  /* Nach dem Öffnen der Kontrolle ist das zugehörige Antwortfeld gesperrt (Anwender, 13.11.2026):
+     Wer die Lösung gesehen hat, schreibt sie nicht mehr in die eigene Antwort hinein. Textfelder und
+     Eingaben werden schreibgeschützt, Zeichenfelder nehmen keine Striche mehr an. Grundlage ist der
+     Protokolleintrag „loesung-geoeffnet“ – so bleibt die Sperre auch nach dem Neuladen bestehen. */
+  let feldGesperrt = false;
+  function feldSperren() {
+    if (feldGesperrt) return;
+    feldGesperrt = true;
+    felder.forEach(f => {
+      if (f.indexOf("zeichnung:") === 0) {
+        const z = document.querySelector('.zeichenfeld[data-zid="' + f.slice(10) + '"]');
+        if (z) z.classList.add("nach-loesung");
+        return;
+      }
+      const el = document.getElementById(f);
+      if (!el) return;
+      el.readOnly = true;
+      el.classList.add("nach-loesung");
+      const nach = el.nextElementSibling;
+      if (!(nach && nach.classList.contains("feldnotiz"))) {
+        const n = document.createElement("p");
+        n.className = "feldnotiz";
+        n.innerHTML = '<span class="sprache-standard">🔒 Die Kontrolle ist geöffnet – dieses Feld ist jetzt gesperrt.</span>' +
+          '<span class="sprache-einfach">🔒 Du hast die Lösung gesehen. Das Feld ist jetzt zu.</span>';
+        el.insertAdjacentElement("afterend", n);
+      }
+    });
+  }
+
   function pruefe() {
+    if (!feldGesperrt && protokollEintraege.some(e => e.art === "loesung-geoeffnet" && e.feld === (d.dataset.fuer || "")))
+      feldSperren();
     const fehlt = hilfeGenutzt ? [] : felder.filter(f => !feldReicht(f, min));
     const frei = fehlt.length === 0;
     if (hilfeKnopf) hilfeKnopf.style.display = frei ? "none" : "";
@@ -3944,6 +4003,7 @@ document.querySelectorAll("details.gesperrt").forEach(d => {
         const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
         protokolliere("loesung-geoeffnet", d.dataset.fuer || "", "Stand der eigenen Antwort beim Öffnen der Lösung", schnapp);
         merkeLoesung(d);
+        feldSperren();
       }
       return;
     }
