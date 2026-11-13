@@ -170,6 +170,51 @@ svg.baum text.e{fill:var(--violett);font-size:19px;font-weight:600}
 svg.baum text.nr{fill:var(--gold);font-size:14px;font-weight:700}
 /* Üben */
 .aufgabe{margin:8px 0 12px}
+/* Aufgabe mit Bild: auf breiten Schirmen nebeneinander */
+.mitbild{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.mitbild{grid-template-columns:1fr 290px;align-items:start}}
+.abild{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px}
+.abild svg{width:100%;height:auto}
+.abild .unterschrift{margin:0;text-align:center}
+.abild .seiten span{width:36px;height:36px;font-size:.92rem}
+.tippbar span{cursor:pointer;user-select:none}
+/* Piktogramme */
+svg.ik{width:20px;height:20px;flex:none}
+svg.ik.gross{width:44px;height:44px}
+.legende{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;border-radius:999px;border:1px solid var(--linie);background:var(--flaeche-2);font-size:.9rem}
+.chip.ca svg{color:var(--akzent)} .chip.cb svg{color:var(--gold)}
+table.tafel .kl svg.ik{width:15px;height:15px;vertical-align:-3px;margin-right:3px}
+table.tafel th:not(:first-child) .kl svg.ik{color:var(--gold)}
+table.tafel tr th:first-child .kl svg.ik{color:var(--akzent)}
+.bildkopf{color:var(--akzent)}
+/* Würfelkörper */
+svg.koerper{max-width:130px}
+svg.koerper polygon,svg.koerper path,svg.koerper line{stroke:var(--text-leise);stroke-width:1.6;stroke-linejoin:round;fill:none}
+svg.koerper .f1{fill:var(--flaeche)} svg.koerper .f2{fill:var(--akzent-hell)} svg.koerper .f3{fill:var(--linie)}
+svg.koerper text{fill:var(--text);font:700 15px var(--schrift);text-anchor:middle}
+/* Urnen */
+svg.urnen{width:100%;max-width:340px;height:auto}
+svg.urnen .zA{fill:var(--akzent-hell);stroke:var(--akzent);stroke-width:2}
+svg.urnen .zB{fill:var(--gold-hell);stroke:var(--gold);stroke-width:2}
+svg.urnen text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.urnen .zz{font-size:16px;font-weight:700}
+svg.urnen .leg{font-size:13px;fill:var(--text-leise)}
+svg.urnen .un{font-size:15px;font-weight:700} svg.urnen .uA{fill:var(--akzent)} svg.urnen .uB{fill:var(--gold)}
+svg.urnen .glas{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:2}
+svg.urnen .kugel{stroke:var(--text-leise);stroke-width:1.2}
+/* Flächenbild */
+svg.mosaik{max-width:280px}
+svg.mosaik .mA{fill:var(--akzent)} svg.mosaik .mN{fill:var(--linie)}
+svg.mosaik text{font-family:var(--schrift);text-anchor:middle}
+svg.mosaik .mz{font-size:16px;font-weight:700;fill:var(--text)}
+svg.mosaik .mz.hell{fill:var(--flaeche)}
+svg.mosaik .mb,svg.mosaik .ma{font-size:16px;font-weight:700;fill:var(--text)}
+svg.mosaik .mk{color:var(--gold)}
+/* Hundert Punkte */
+svg.hundert{max-width:220px}
+svg.hundert circle{fill:var(--linie)}
+svg.hundert circle.an{fill:var(--akzent)}
 .felder{display:flex;flex-direction:column;gap:10px;margin:10px 0}
 .feld{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .feld label{min-width:170px}
@@ -383,6 +428,112 @@ function seiten(n, an = [], gegen = []) {
   return s + "</div>";
 }
 
+/* ---------- Bildchen für die Übungen (alles gezeichnet, nichts geladen) ---------- */
+/* Strich-Piktogramme, 24er-Raster, Farbe über currentColor */
+const IKON = {
+  note: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  mikro: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>',
+  kunde: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M12 8.3l1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4z"/>',
+  karte: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  bar: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/>',
+  m1: '<path d="M3 21V9l5 3V9l5 3V4h7v17zM2 21h20"/><text x="16.5" y="18" font-size="7.5" text-anchor="middle" stroke="none" fill="currentColor" font-weight="700">1</text>',
+  m2: '<path d="M3 21V9l5 3V9l5 3V4h7v17zM2 21h20"/><text x="16.5" y="18" font-size="7.5" text-anchor="middle" stroke="none" fill="currentColor" font-weight="700">2</text>',
+  fehler: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.2 9.5"/>',
+  garten: '<circle cx="12" cy="9" r="6"/><path d="M12 15v7M8.5 22h7"/>',
+  pfote: '<ellipse cx="12" cy="16.5" rx="4.6" ry="3.8"/><circle cx="5.3" cy="10.8" r="2"/><circle cx="9.4" cy="6.6" r="2"/><circle cx="14.6" cy="6.6" r="2"/><circle cx="18.7" cy="10.8" r="2"/>',
+  bus: '<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 10h16M7 18v3M17 18v3M7.5 14h.01M16.5 14h.01"/>',
+  rad: '<circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16L10 9h6l2.5 7M10 9l2 7H5.5M16 9l-4 7M16 9V6.5M14.5 6.5h3"/>',
+  uhr: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4.2l2.8 2M9.5 2h5"/>',
+  spaet: '<circle cx="12" cy="13" r="8"/><path d="M12 8.5v5M12 17h.01M9.5 2h5"/>',
+  virus: '<circle cx="12" cy="12" r="5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5M4.9 4.9l3.6 3.6M15.5 15.5l3.6 3.6M4.9 19.1l3.6-3.6M15.5 8.5l3.6-3.6"/>',
+  test: '<rect x="8" y="2" width="8" height="20" rx="2"/><path d="M12 6.5v4M10 8.5h4M10 16h4"/>',
+  mail: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/>',
+  filter: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+};
+const ikon = (name, durch, cls = "") => `<svg viewBox="0 0 24 24" class="ik ${cls}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IKON[name] || ""}${durch ? '<path d="M3.5 3.5l17 17" stroke-width="2.2"/>' : ""}</svg>`;
+/* Piktogramm zu einem Ereignis: eigenes Bild oder das Bild des Gegenstücks, durchgestrichen */
+const ikonFuer = (ik, s) => (ik[s] ? ikon(ik[s], false) : ikon(ik[s.slice(1)], true));
+
+/* Würfel mit n Seiten als Körper (W6, W8, W10, W12, W20) */
+function wuerfelBild(n) {
+  const P = (pts) => pts.map((p) => p.join(",")).join(" ");
+  const rund = (k, r, dreh = -90) => [...Array(k)].map((_, i) => { const w = (dreh + i * 360 / k) * Math.PI / 180; return [60 + r * Math.cos(w), 62 + r * Math.sin(w)].map((x) => Math.round(x * 10) / 10); });
+  let s = "", zahl = [60, 66, String(n)];
+  if (n === 6) {
+    s = `<polygon class="f1" points="60,16 100,37 60,58 20,37"/><polygon class="f2" points="20,37 60,58 60,106 20,85"/><polygon class="f3" points="60,58 100,37 100,85 60,106"/>`;
+    s += `<text x="60" y="43">5</text><text x="40" y="86">1</text><text x="80" y="86">3</text>`; zahl = null;
+  } else if (n === 8) {
+    s = `<polygon class="f1" points="60,8 16,60 60,76"/><polygon class="f3" points="60,8 60,76 104,60"/><polygon class="f2" points="16,60 60,112 60,76"/><polygon class="f2" points="60,76 60,112 104,60"/>`;
+    zahl = [47, 56, "8"]; s += `<text x="73" y="56">3</text>`;
+  } else if (n === 10) {
+    s = `<polygon class="f2" points="60,8 14,58 30,74 60,112 90,74 106,58"/><polygon class="f1" points="60,8 34,58 60,80 86,58"/><path d="M34,58 L14,58 M86,58 L106,58 M60,80 L60,112 M34,58 L30,74 M86,58 L90,74"/>`;
+    zahl = [60, 60, "10"];
+  } else if (n === 12) {
+    const aus = rund(10, 54, -90), inn = rund(5, 27, -90);
+    s = `<polygon class="f2" points="${P(aus)}"/><polygon class="f1" points="${P(inn)}"/>` + inn.map((p, i) => `<line x1="${p[0]}" y1="${p[1]}" x2="${aus[2 * i][0]}" y2="${aus[2 * i][1]}"/>`).join("");
+  } else {
+    const aus = rund(6, 54, -90), inn = rund(3, 30, -90);
+    s = `<polygon class="f2" points="${P(aus)}"/><polygon class="f1" points="${P(inn)}"/>`;
+    const zu = [[5, 0, 1], [1, 2, 3], [3, 4, 5]];
+    inn.forEach((p, i) => zu[i].forEach((j) => { s += `<line x1="${p[0]}" y1="${p[1]}" x2="${aus[j][0]}" y2="${aus[j][1]}"/>`; }));
+  }
+  if (zahl) s += `<text x="${zahl[0]}" y="${zahl[1]}">${zahl[2]}</text>`;
+  return `<svg class="koerper" viewBox="0 0 120 124" role="img" aria-label="Würfel mit ${n} Seiten">${s}</svg>`;
+}
+
+/* Kugeln in einer Urne: Farbname → Füllung */
+const KUGEL = { rot: "#dc2626", blau: "#2563eb", grün: "#16a34a", gelb: "#facc15", schwarz: "#27272a", weiß: "#ffffff" };
+function mischen(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+/* Würfel entscheidet über die Urne, darunter beide Urnen mit ihren Kugeln */
+function urnenBild(kA, f1, f2, inA, inB) {
+  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Würfel und zwei Urnen">`;
+  for (let z = 1; z <= 6; z++) {
+    const x = 28 + (z - 1) * 46, a = z <= kA;
+    s += `<rect x="${x}" y="6" width="34" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + 17}" y="29" class="zz">${z}</text>`;
+  }
+  s += `<text x="160" y="60" class="leg">${kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
+  const urne = (x0, name, kl, r, b) => {
+    let u = `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+    const kugeln = mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]);
+    kugeln.forEach((f, i) => {
+      const reihe = Math.floor(i / 4), sp = i % 4;
+      u += `<circle class="kugel" cx="${x0 + 24 + sp * 24}" cy="${195 - reihe * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+    });
+    return u + `<text x="${x0 + 60}" y="232" class="un ${kl}">${name}</text>`;
+  };
+  s += urne(14, "Urne A", "uA", inA[0], inA[1]) + urne(186, "Urne B", "uB", inB[0], inB[1]);
+  return s + "</svg>";
+}
+
+/* Flächenbild einer Vierfeldertafel: Spaltenbreite = Anteil an allen,
+   Höhe in der Spalte = Anteil innerhalb der Spalte. Zahlen nur, wo Platz ist. */
+function mosaikBild(w, k) {
+  const X = 34, Y = 34, B = 236, H = 170, luecke = 4;
+  const b0 = Math.round((B - luecke) * w[2][0] / w[2][2]);
+  const spalten = [[X, b0, 0], [X + b0 + luecke, B - luecke - b0, 1]];
+  let s = `<svg class="mosaik" viewBox="0 0 ${X + B + 6} ${Y + H + 8}" role="img" aria-label="Flächenbild der Tafel">`;
+  for (const [x, breite, c] of spalten) {
+    const hA = Math.round((H - luecke) * w[0][c] / w[2][c]);
+    s += `<rect x="${x}" y="${Y}" width="${breite}" height="${hA}" class="mA" rx="3"/>`;
+    s += `<rect x="${x}" y="${Y + hA + luecke}" width="${breite}" height="${H - luecke - hA}" class="mN" rx="3"/>`;
+    if (hA >= 20) s += `<text x="${x + breite / 2}" y="${Y + hA / 2 + 6}" class="mz hell">${w[0][c]}</text>`;
+    if (H - luecke - hA >= 20) s += `<text x="${x + breite / 2}" y="${Y + hA + luecke + (H - luecke - hA) / 2 + 6}" class="mz">${w[1][c]}</text>`;
+    s += `<g transform="translate(${x + breite / 2 - 21},4)" class="mk">${k.ik ? ikonFuer(k.ik, c ? "nB" : "B").replace('<svg ', '<svg width="20" height="20" ') : ""}</g>`;
+    s += `<text x="${x + breite / 2 + 12}" y="21" class="mb">${c ? QS("B") : "B"}</text>`;
+  }
+  s += `<text x="14" y="${Y + 18}" class="ma">A</text><text x="14" y="${Y + H - 6}" class="ma">${QS("A")}</text>`;
+  return s + `</svg><p class="klein leise unterschrift">Breite: Anteil an allen ${w[2][2]}. Höhe: Anteil innerhalb der Spalte. Blau: A.</p>`;
+}
+
+/* Hundert Punkte, davon k markiert: zeigt, wie selten oder häufig A ist */
+function hundertBild(k, name, ik) {
+  let s = `<svg class="hundert" viewBox="0 0 210 210" role="img" aria-label="${k} von 100">`;
+  for (let i = 0; i < 100; i++) s += `<circle cx="${12 + (i % 10) * 20.6}" cy="${12 + Math.floor(i / 10) * 20.6}" r="7.2" class="${i < k ? "an" : ""}"/>`;
+  s += "</svg>";
+  return `<div class="bildkopf">${ikon(ik, false, "gross")}</div>${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
+}
+
 /* ============================================================
    3. Sachzusammenhänge (frei erfunden, kein Schulbuch)
    ============================================================ */
@@ -391,26 +542,31 @@ const KONTEXTE = [
     A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor",
     aP: "spielen ein Instrument", naP: "spielen kein Instrument", bP: "singen im Chor", nbP: "singen nicht im Chor",
     aD: "ein Instrument spielt", naD: "kein Instrument spielt", bD: "im Chor singt", nbD: "nicht im Chor singt",
+    ik: { A: "note", B: "mikro" },
     intro: (N) => `In einer Umfrage wurden ${N} Jugendliche befragt.` },
   { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
     A: "Kundenkarte", nA: "keine Kundenkarte", B: "Karte", nB: "bar",
     aP: "haben eine Kundenkarte", naP: "haben keine Kundenkarte", bP: "zahlen mit Karte", nbP: "zahlen bar",
     aD: "eine Kundenkarte hat", naD: "keine Kundenkarte hat", bD: "mit Karte zahlt", nbD: "bar zahlt",
+    ik: { A: "kunde", B: "karte", nB: "bar" },
     intro: (N) => `An einem Vormittag kaufen ${N} Personen in einem Supermarkt ein.` },
   { wer: "Werkstücke", pron: "es", rel: "das", eine: "ein Werkstück", akk: "ein Werkstück",
     A: "Maschine 1", nA: "Maschine 2", B: "fehlerhaft", nB: "in Ordnung",
     aP: "stammen von Maschine 1", naP: "stammen von Maschine 2", bP: "sind fehlerhaft", nbP: "sind in Ordnung",
     aD: "von Maschine 1 stammt", naD: "von Maschine 2 stammt", bD: "fehlerhaft ist", nbD: "in Ordnung ist",
+    ik: { A: "m1", nA: "m2", B: "fehler", nB: "ok" },
     intro: (N) => `Ein Betrieb prüft ${N} Werkstücke aus zwei Maschinen.` },
   { wer: "Haushalte", pron: "er", rel: "der", eine: "ein Haushalt", akk: "einen Haushalt",
     A: "Garten", nA: "kein Garten", B: "Haustier", nB: "kein Haustier",
     aP: "haben einen Garten", naP: "haben keinen Garten", bP: "haben ein Haustier", nbP: "haben kein Haustier",
     aD: "einen Garten hat", naD: "keinen Garten hat", bD: "ein Haustier hat", nbD: "kein Haustier hat",
+    ik: { A: "garten", B: "pfote" },
     intro: (N) => `In einer Gemeinde wurden ${N} Haushalte befragt.` },
   { wer: "Schülerinnen und Schüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
     A: "Bus", nA: "Rad", B: "pünktlich", nB: "zu spät",
     aP: "kommen mit dem Bus", naP: "kommen mit dem Rad", bP: "sind pünktlich", nbP: "kommen zu spät",
     aD: "mit dem Bus kommt", naD: "mit dem Rad kommt", bD: "pünktlich ist", nbD: "zu spät kommt",
+    ik: { A: "bus", nA: "rad", B: "uhr", nB: "spaet" },
     intro: (N) => `An einem Morgen wurde bei ${N} Schülerinnen und Schülern notiert, wie sie zur Schule kamen und ob sie pünktlich waren.` },
 ];
 /* Zeile/Spalte → Ereignis: x ∈ {A, nA}, y ∈ {B, nB} */
@@ -432,8 +588,12 @@ function neueTafel() {
     return { N, w, k: wahl(KONTEXTE) };
   }
 }
-const tafelKopf = (k) => ({ kopf: ["B", Q("B")], seite: ["A", Q("A")], kl: { a: k.A, na: k.nA, b: k.B, nb: k.nB } });
-const leg = (k) => `<p class="klein leise">A = ${k.A}, ${Q("A")} = ${k.nA} · B = ${k.B}, ${Q("B")} = ${k.nB}</p>`;
+const tafelKopf = (k) => ({ kopf: ["B", Q("B")], seite: ["A", Q("A")],
+  kl: k.ik ? { a: ikonFuer(k.ik, "A") + k.A, na: ikonFuer(k.ik, "nA") + k.nA, b: ikonFuer(k.ik, "B") + k.B, nb: ikonFuer(k.ik, "nB") + k.nB }
+          : { a: k.A, na: k.nA, b: k.B, nb: k.nB } });
+/* Legende als Bildkarten: Piktogramm, Buchstabe, Bedeutung */
+const leg = (k) => `<div class="legende">${[["A", "A", k.A], ["nA", Q("A"), k.nA], ["B", "B", k.B], ["nB", Q("B"), k.nB]]
+  .map(([s, n, wort]) => `<span class="chip ${s.endsWith("A") ? "ca" : "cb"}">${k.ik ? ikonFuer(k.ik, s) : ""}<b>${n}</b> = ${wort}</span>`).join(" ")}</div>`;
 
 /* ============================================================
    4. Die Stationen
@@ -474,6 +634,8 @@ STATIONEN.push({
       <p>E: „Es fällt ${a.t}.“</p>`;
     return {
       html,
+      bild: `${wuerfelBild(n)}${seiten(n).replace('class="seiten"', 'class="seiten tippbar"')}
+        <p class="klein leise unterschrift" data-zaehler>Tippe an, was zu E gehört.</p>`,
       felder: [
         { id: "k", label: "Anzahl der Ergebnisse in E", wert: k, tol: 0, art: "n",
           fallen: [{ wert: n - k, text: "Das ist die Anzahl im Gegenereignis. Gezählt werden die Ergebnisse, bei denen die Aussage stimmt." }] },
@@ -499,7 +661,8 @@ STATIONEN.push({
     const b0 = { s1: ["A", "B"], s2: [["rot", "blau"], ["rot", "blau"]] };
     const p1 = [br(1, 3), br(2, 3)], p2 = [[br(3, 5), br(2, 5)], [br(1, 5), br(4, 5)]];
     return [
-      { t: `Ein Würfel entscheidet, aus welcher Urne gezogen wird: Bei 1 oder 2 aus Urne A (3 rote, 2 blaue Kugeln), sonst aus Urne B (1 rote, 4 blaue). Gezogen wird eine Kugel.`, v: () => baum(b0) },
+      { t: `Ein Würfel entscheidet, aus welcher Urne gezogen wird: Bei 1 oder 2 aus Urne A (3 rote, 2 blaue Kugeln), sonst aus Urne B (1 rote, 4 blaue). Gezogen wird eine Kugel.`, v: () => urnenBild(2, "rot", "blau", [3, 2], [1, 4]) },
+      { t: `Zwei Zufallsschritte nacheinander: erst der Würfel, dann die Kugel. Dafür zeichnet man einen <b>Baum mit zwei Stufen</b>.`, v: () => baum(b0) },
       { t: `<b>Erste Stufe: der Würfel.</b> A kommt bei 2 von 6 Zahlen: <span class="m">P(A) = ${brRoh(2, 6)} = ${br(1, 3)}</span>, also <span class="m">P(B) = ${br(2, 3)}</span>. Diese Stufe gehört in den Baum, auch wenn sie „nur“ die Urne auswählt.`, v: () => baum({ ...b0, p1 }) },
       { t: `<b>Zweite Stufe: die Kugel.</b> An den Ästen hinter A steht, was <i>in Urne A</i> passiert: rot ${br(3, 5)}, blau ${br(2, 5)}. Hinter B: rot ${br(1, 5)}, blau ${br(4, 5)}. Die Äste an einem Knoten ergeben jeweils 1.`, v: () => baum({ ...b0, p1, p2 }) },
       { t: `<b>Entlang eines Pfades multiplizieren.</b> „A und rot“: Erst muss A kommen, das ist ein Drittel aller Fälle. Von diesem Drittel sind drei Fünftel rot: <span class="m">P(A ∩ rot) = ${br(1, 3)} · ${br(3, 5)} = ${brRoh(3, 15)} = ${br(1, 5)}</span>.`, v: () => baum({ ...b0, p1, p2, hl: [0], enden: [br(1, 5)] }) },
@@ -540,6 +703,7 @@ STATIONEN.push({
     const bb = { s1: ["A", "B"], s2: [[f1, f2], [f1, f2]], p1: [br(kz6, 6), br(6 - kz6, 6)], p2: [[br(r1, nA), br(b1, nA)], [br(r2, nB), br(b2, nB)]] };
     return {
       html, felder,
+      bild: urnenBild(kz6, f1, f2, [r1, b1], [r2, b2]),
       tipps: [
         `Zeichne den Baum mit zwei Stufen: erst A oder B (Würfel), dann die Farbe. P(A) = ${br(kz6, 6)}.`,
         `${baum(bb)}`,
@@ -553,7 +717,7 @@ STATIONEN.push({
 
 /* ---------- 3 · Vierfeldertafel absolut ---------- */
 const VOR_TAFEL = [[60, 100, 160], [40, 200, 240], [100, 300, 400]];
-const VOR_K = { A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor" };
+const VOR_K = { A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor", ik: { A: "note", B: "mikro" } };
 const vk = { ...tafelKopf(VOR_K) };
 const nurBekannt = (keys) => VOR_TAFEL.map((z, r) => z.map((x, c) => (keys.includes(r + "," + c) ? x : null)));
 STATIONEN.push({
@@ -676,6 +840,7 @@ STATIONEN.push({
     const nenner = [N, ny, nx][notation];
     return {
       html,
+      bild: mosaikBild(w, k),
       auswahl: { label: "Welche Wahrscheinlichkeit ist gefragt?", optionen, richtig: notation,
         falsch: (i) => i === 0 ? "„und“ ohne Auswahl aus einer Gruppe wäre der Schnitt. Hier wird aber aus einer Teilgruppe ausgewählt." : (notation === 0 ? "Hier wird aus allen ausgewählt, ohne Bedingung: Das ist der Schnitt „und“." : "Die Bedingung ist die Gruppe, aus der ausgewählt wird. Sie steht hinter dem Strich.") },
       felder: [{ id: "p", label: "Wahrscheinlichkeit", wert, tol: 0.0051, fallen }],
@@ -735,11 +900,11 @@ STATIONEN.push({
 /* ---------- 7 · umgekehrter Baum ---------- */
 const BAYES = [
   { A: "infiziert", B: "Test positiv", text: (a, b, c) => `${pz(a, 1)} der Menschen einer Region sind mit einem Virus infiziert. Ein Schnelltest zeigt bei ${pz(b, 1)} der Infizierten „positiv“, aber auch bei ${pz(c, 1)} der Nicht-Infizierten.`,
-    frage: "Eine Person hat einen positiven Test. Wie groß ist die Wahrscheinlichkeit, dass sie wirklich infiziert ist?", a: [1, 12], b: [85, 99], c: [2, 9] },
-  { A: "Maschine 1", B: "fehlerhaft", text: (a, b, c) => `In einem Werk stammen ${pz(a, 1)} der Teile von Maschine 1, der Rest von Maschine 2. Von Maschine 1 sind ${pz(b, 1)} der Teile fehlerhaft, von Maschine 2 ${pz(c, 1)}.`,
-    frage: "Ein Teil ist fehlerhaft. Wie groß ist die Wahrscheinlichkeit, dass es von Maschine 1 stammt?", a: [25, 70], b: [1, 6], c: [2, 8] },
+    frage: "Eine Person hat einen positiven Test. Wie groß ist die Wahrscheinlichkeit, dass sie wirklich infiziert ist?", a: [1, 12], b: [85, 99], c: [2, 9], ik: { A: "virus", B: "test" } },
+  { A: "Maschine 1", B: "fehlerhaft", text: (a, b, c) => `In einem Werk stammen ${pz(a, 1)} der Teile von Maschine 1, der Rest von Maschine 2. Von Maschine 1 sind ${pz(b, 1)} der Teile fehlerhaft, von Maschine 2 sind es ${pz(c, 1)}.`,
+    frage: "Ein Teil ist fehlerhaft. Wie groß ist die Wahrscheinlichkeit, dass es von Maschine 1 stammt?", a: [25, 70], b: [1, 6], c: [2, 8], ik: { A: "m1", B: "fehler" } },
   { A: "Spam", B: "Filter schlägt an", text: (a, b, c) => `${pz(a, 1)} aller E-Mails in einem Postfach sind Spam. Ein Filter schlägt bei ${pz(b, 1)} der Spam-Mails an, aber auch bei ${pz(c, 1)} der anderen Mails.`,
-    frage: "Der Filter schlägt an. Wie groß ist die Wahrscheinlichkeit, dass die Mail wirklich Spam ist?", a: [15, 60], b: [88, 99], c: [1, 6] },
+    frage: "Der Filter schlägt an. Wie groß ist die Wahrscheinlichkeit, dass die Mail wirklich Spam ist?", a: [15, 60], b: [88, 99], c: [1, 6], ik: { A: "mail", B: "filter" } },
 ];
 STATIONEN.push({
   id: "w-umkehr", titel: "Umgekehrter Baum", ziel: 3,
@@ -768,11 +933,12 @@ STATIONEN.push({
       { wert: ab, text: `Das ist P(A ∩ B), ein Pfadende. Es muss noch durch P(B) geteilt werden – alle Pfade, die bei „${c0.B}“ enden.` },
     ];
     if (Math.abs(gerundet - pAB) > 0.0015) fallen.push({ wert: gerundet, text: "Fast – aber du hast unterwegs gerundet. Rechne mit den ungerundeten Pfadwerten und runde erst das Ergebnis." });
-    const html = `<p>${c0.text(a, b, c)}</p><p class="klein leise">A: ${c0.A}, B: ${c0.B}</p><p><b>${c0.frage}</b></p>
+    const html = `<p>${c0.text(a, b, c)}</p>${leg({ A: c0.A, nA: "nicht " + c0.A, B: c0.B, nB: "nicht " + c0.B, ik: c0.ik })}<p><b>${c0.frage}</b></p>
       <p class="klein leise">P(B) auf drei Stellen, P(A | B) in Prozent auf eine Nachkommastelle.</p>`;
     const s = { s1: ["A", QS("A")], s2: [["B", QS("B")], ["B", QS("B")]] };
     return {
       html,
+      bild: hundertBild(Math.round(a * 100), c0.A, c0.ik.A),
       felder: [
         { id: "pb", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: ab, text: "Das ist nur der Pfad über A. B erreicht man auch über " + Q("A") + "." }, { wert: b, text: "Das ist P(B | A). P(B) ist die Summe beider Pfade zu B." }] },
         { id: "pab", label: "P(A | B)", wert: pAB, tol: 0.0006, fallen },
@@ -933,7 +1099,9 @@ function neueAufgabe() {
   for (const f of [...aufgabe.felder, ...(aufgabe.tafelFelder || [])])
     if (f.fallen) f.fallen = f.fallen.filter((fa) => Math.abs(fa.wert - f.wert) > Math.max(f.tol || 0, 0.0006) + 1e-9);
   versucht = false; loesungGesehen = false; tippZahl = 0;
-  let html = `<div class="aufgabe">${aufgabe.html}</div><div class="felder">`;
+  let html = aufgabe.bild
+    ? `<div class="aufgabe mitbild"><div>${aufgabe.html}</div><figure class="abild">${aufgabe.bild}</figure></div><div class="felder">`
+    : `<div class="aufgabe">${aufgabe.html}</div><div class="felder">`;
   if (aufgabe.auswahl) {
     html += `<div class="feld" data-feld="auswahl"><label for="f-auswahl">${aufgabe.auswahl.label}</label>
       <select id="f-auswahl"><option value="">– wählen –</option>${aufgabe.auswahl.optionen.map((o, i) => `<option value="${i}">${text(o)}</option>`).join("")}</select></div>`;
@@ -954,6 +1122,13 @@ function neueAufgabe() {
   $("#loesung").onclick = loesungZeigen;
   $("#neu").onclick = neueAufgabe;
   for (const inp of $("#uebung").querySelectorAll("input")) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") pruefen(); });
+  /* Zahlenkärtchen zum Antippen: E sichtbar zusammenstellen (wird nicht bewertet) */
+  const tb = $("#uebung .tippbar");
+  if (tb) for (const k of tb.children) k.onclick = () => {
+    k.classList.toggle("an");
+    const n = tb.querySelectorAll(".an").length;
+    $("#uebung [data-zaehler]").textContent = n ? `markiert: ${n}` : "Tippe an, was zu E gehört.";
+  };
   $("#weg-text") && ($("#weg-text").value = "");
   $("#kiAntwort") && ($("#kiAntwort").innerHTML = "");
   serieZeichnen();
