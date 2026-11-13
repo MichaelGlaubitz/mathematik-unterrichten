@@ -608,6 +608,12 @@ main h2{color:#2f5d8a; font-weight:700; letter-spacing:.005em}
 .filmwahl.kino .achte{background:#fffdf9;color:var(--text)}
 .filmwahl.kino .filmquelle{color:#7a6d5c}
 .filmwahl.kino a.knopf{color:#2f5d8a;background:#fff}
+
+/* --- Gestufte Tipps (13.11.2026) --- */
+.tippbox .tipp{margin:.35rem 0;padding:.45rem .7rem;background:#fff8e8;border-left:4px solid #c9974a;
+  border-radius:0 8px 8px 0;font-size:.95rem}
+.tippbox .tipp b{color:#8a4b14}
+.hilfeknopf[disabled]{opacity:.65;cursor:default}
 </style>
 </head>
 <body>
@@ -3851,6 +3857,7 @@ function feldReicht(feld, min) {
   if (el.tagName !== "TEXTAREA") return v.length >= 1;
   return eigenLaenge(v) >= (min || 40);
 }
+const TIPPS = {"t-st2": [["Schau im Stoßlabor nur auf die Zahl ganz rechts: das Verhältnis H : N.", "Schau rechts auf „H geteilt durch N“."], ["Tippe der Reihe nach auf 0,5, 1, 1,15 und 2. Schreib dir jedes Mal das Verhältnis auf.", "Tippe nacheinander auf die Massen. Schreib jedes Mal die Zahl rechts auf."], ["Bei welcher Masse liegt das Verhältnis am nächsten an 7? Vergleiche diese Masse mit einem Proton, das hat Masse 1.", "Welche Masse gibt ungefähr 7? Vergleiche sie mit dem Proton. Das hat Masse 1."]], "t-k3": [["Kohlenstoff hat immer 6 Protonen. Setz im Baukasten 6 p und 6 n ein.", "Kohlenstoff hat 6 Protonen. Baue 6 p und 6 n."], ["Lies das Symbol rechts ab: Oben steht A, alle Nukleonen. Unten steht Z, nur die Protonen.", "Lies das Symbol ab. Oben: alle Teilchen. Unten: nur die Protonen."], ["Setz dann noch 2 Neutronen dazu und lies wieder ab. Welche Zahl bleibt gleich, welche ändert sich?", "Setz 2 Neutronen dazu. Lies wieder ab. Welche Zahl bleibt? Welche ändert sich?"]], "t-kr3": [["Welche Ladung hat ein Neutron?", "Welche Ladung hat ein Neutron?"], ["Wird ein Neutron von einem Proton abgestoßen? Und wirkt die Kernkraft auch auf Neutronen?", "Stößt ein Proton ein Neutron ab? Wirkt die Kernkraft auf Neutronen?"], ["Schreib zwei Sätze nach dem Muster: „Ein Neutron hat …, deshalb … . Die Kernkraft …“", "Fang so an: „Ein Neutron hat …, deshalb … . Die Kernkraft …“"]], "t-st": [["Der Name verrät A: Bei Gold-197 ist A = 197.", "Im Namen steht A. Gold-197 hat A = 197."], ["Z ist die Platznummer im Periodensystem: H 1, He 2, C 6, O 8, Fe 26, Au 79, U 92.", "Z steht im Periodensystem: H 1, He 2, C 6, O 8, Fe 26, Au 79, U 92."], ["Rechne N = A − Z. Ein anderes Isotop hat dasselbe Z, aber ein anderes A, etwa C-12 statt C-14.", "Rechne N = A − Z. Ein anderes Isotop: gleiches Z, anderes A. Zum Beispiel C-12."]], "t-a1": [["Unten steht bei allen dreien eine 1. Was zählt die untere Zahl?", "Unten steht immer 1. Was zählt die untere Zahl?"], ["Oben steht 1, 2 oder 3. Die obere Zahl zählt Protonen und Neutronen zusammen. Wie viele Neutronen hat also jeder Kern?", "Oben steht 1, 2 oder 3. Das sind Protonen und Neutronen zusammen. Wie viele Neutronen hat jeder?"], ["Ergänze: „Isotope sind Kerne desselben Elements mit gleich vielen …, aber verschieden vielen … .“", "Ergänze: „Isotope haben gleich viele …, aber verschieden viele … .“"]], "t-a3": [["Ein neutrales Atom hat so viele Elektronen wie Protonen.", "Neutrales Atom: so viele Elektronen wie Protonen."], ["Neutronen: obere Zahl minus untere Zahl, N = A − Z.", "Neutronen: obere Zahl minus untere Zahl."], ["Vergleiche U-235 und U-238: Was ist gleich, was ist verschieden? Das Fachwort kam in Phase 3 vor.", "Vergleiche die zwei Uran-Atome. Was ist gleich? Was nicht? Das Fachwort kam in Phase 3."]], "t-a2": [["Rechne beide Massen in dieselbe Einheit um: 1 t = 1000 kg.", "Rechne in kg um: 1 t = 1000 kg."], ["Teile die große Masse durch die kleine.", "Teile die große Masse durch die kleine."], ["Für dein Beispiel: Nimm etwas Schweres, etwa ein Auto mit 1,5 t, und suche etwas, das rund 2000-mal leichter ist.", "Nimm etwas Schweres, zum Beispiel ein Auto (1,5 t). Was ist etwa 2000-mal leichter?"]], "t-z3": [["Stickstoff hat 7 Protonen. Wie viele Neutronen hat Stickstoff-14?", "Stickstoff hat 7 Protonen. Wie viele Neutronen hat N-14?"], ["Vergleiche C-14 (6 p, 8 n) mit N-14: Wovon ist eins mehr, wovon eins weniger?", "Vergleiche C-14 (6 p, 8 n) mit N-14. Was ist eins mehr? Was eins weniger?"], ["Vielleicht verwandelt sich ein Teilchen im Kern in das andere. Welches in welches?", "Vielleicht wird ein Teilchen zu einem anderen. Welches zu welchem?"]]};
 const sperren = [];
 document.querySelectorAll("details.gesperrt").forEach(d => {
   const sum = d.querySelector("summary");
@@ -3862,31 +3869,43 @@ document.querySelectorAll("details.gesperrt").forEach(d => {
   const symbolEl = sum.querySelector(".sperrsymbol");
   const noteEl = sum.querySelector(".schloss");
 
-  /* Ehrlicher Ausweg. Die reine Zeichenhürde bestraft ausgerechnet den, der
-     zugibt nicht weiterzukommen: Ein aufrichtiges „ich verstehe das nicht" ist
-     kurz und wird abgewiesen – erst dreimal kopiert öffnet es die Lösung. Das
-     erzieht zum Textaufblähen. Deshalb daneben ein Knopf, der immer aufgeht
-     und dafür im Protokoll steht. Die Lehrkraft erfährt so, WO jemand
-     ausgestiegen ist, statt eine erschlichene Antwort zu bekommen.
-     Vor istFrei/pruefe deklariert, weil beide darauf zugreifen. */
-  let hilfeGenutzt = false;
+  /* Gestufte Tipps statt Loesung (Anwender 13.11.2026: der Knopf „Lösung zeigen“ wurde missbraucht).
+     Bis zu drei Tipps nacheinander, jeder als „hilfe-angefordert“ im Protokoll (keine neue Eintragsart).
+     Die Loesung oeffnet sich weiterhin nur ueber die eigene Antwort: hilfeGenutzt bleibt false. */
+  const hilfeGenutzt = false;
+  const tipps = TIPPS[d.dataset.fuer] || [];
+  let tippNr = 0;
+  const tippBox = document.createElement("div");
+  tippBox.className = "tippbox";
   const hilfeKnopf = document.createElement("button");
   hilfeKnopf.type = "button";
   hilfeKnopf.className = "knopf hilfeknopf";
-  hilfeKnopf.innerHTML =
-    '<span class="sprache-standard">Ich verstehe die Aufgabe nicht – Lösung zeigen</span>' +
-    '<span class="sprache-einfach">Ich verstehe die Aufgabe nicht. Zeig mir die Lösung.</span>';
+  function knopfText() {
+    if (tippNr === 0) return '<span class="sprache-standard">Ich verstehe die Aufgabe nicht – Tipps zeigen</span>' +
+      '<span class="sprache-einfach">Ich verstehe die Aufgabe nicht. Zeig mir einen Tipp.</span>';
+    if (tippNr < tipps.length) return '<span class="sprache-standard">Noch ein Tipp (' + (tippNr + 1) + ' von ' +
+      tipps.length + ')</span><span class="sprache-einfach">Noch ein Tipp</span>';
+    return '<span class="sprache-standard">Alle Tipps gezeigt – jetzt schreib deine Antwort</span>' +
+      '<span class="sprache-einfach">Das waren alle Tipps. Jetzt schreib du.</span>';
+  }
+  hilfeKnopf.innerHTML = knopfText();
   hilfeKnopf.addEventListener("click", ev => {
     ev.preventDefault(); ev.stopPropagation();
-    hilfeGenutzt = true;
+    if (tippNr >= tipps.length) return;
+    const t = tipps[tippNr++];
+    const p = document.createElement("p");
+    p.className = "tipp";
+    p.innerHTML = '<b>Tipp ' + tippNr + ':</b> <span class="sprache-standard">' + t[0] +
+      '</span><span class="sprache-einfach">' + t[1] + '</span>';
+    tippBox.appendChild(p);
     const schnapp = felder.map(f => (FELDNAMEN[f] || f) + ": " + (feldWert(f) || "(leer)")).join(" | ");
     protokolliere("hilfe-angefordert", d.dataset.fuer || "",
-      "Lösung ohne eigene Antwort geöffnet – Aufgabe nicht verstanden", schnapp);
-    pruefe();
-    d.open = true;
-    merkeLoesung(d);
+      "Tipp " + tippNr + " von " + tipps.length + " – Aufgabe nicht verstanden", schnapp);
+    hilfeKnopf.innerHTML = knopfText();
+    hilfeKnopf.disabled = tippNr >= tipps.length;
   });
   d.parentNode.insertBefore(hilfeKnopf, d);
+  d.parentNode.insertBefore(tippBox, d);
 
   function istFrei() { return hilfeGenutzt || felder.every(f => feldReicht(f, min)); }
 
