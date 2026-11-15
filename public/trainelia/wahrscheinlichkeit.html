@@ -531,7 +531,7 @@ function hundertBild(k, name, ik) {
   let s = `<svg class="hundert" viewBox="0 0 210 210" role="img" aria-label="${k} von 100">`;
   for (let i = 0; i < 100; i++) s += `<circle cx="${12 + (i % 10) * 20.6}" cy="${12 + Math.floor(i / 10) * 20.6}" r="7.2" class="${i < k ? "an" : ""}"/>`;
   s += "</svg>";
-  return `<div class="bildkopf">${ikon(ik, false, "gross")}</div>${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
+  return `${ik ? `<div class="bildkopf">${ikon(ik, false, "gross")}</div>` : ""}${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
 }
 
 /* ============================================================

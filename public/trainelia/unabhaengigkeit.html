@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stochastische Unabhängigkeit Schritt für Schritt</title>
+<meta name="description" content="Lernweg zur stochastischen Unabhängigkeit für die Oberstufe: Ziehen mit und ohne Zurücklegen, Prüfen an der Vierfeldertafel, Flächenbild, Würfel und Karten, Produktregel und ihre Grenzen. Vormachen, Üben mit immer neuen Aufgaben, Rückmeldung zum eigenen Rechenweg.">
+<!--
+  ===========================================================================
+  Stochastische Unabhängigkeit Schritt für Schritt (Trainelia, Kapitel 2)
+  ---------------------------------------------------------------------------
+  Gebaut aus dem Gerüst von wahrscheinlichkeit.html: Helfer, Bilder, Anzeige
+  und KI-Rückmeldung sind dieselben, die Stationen (Abschnitt 4) sind neu.
+
+  BUCHFREI, OHNE LERNGRUPPE: keine Schulbuchaufgabe, kein Seitenverweis,
+  kein Bezug auf eine Klasse oder Person.
+
+  WAS DAS GERÄT VERLÄSST: Der Lernstand nie (localStorage). Nur wer die
+  KI-Rückmeldung anfordert, schickt Aufgabe, Referenzlösung und den eigenen
+  Rechenweg an den Dienst ki-rueckmeldung/ (Stationen u-…).
+  ===========================================================================
+-->
+<style>
+:root{
+  --grund:#faf8f2; --flaeche:#ffffff; --flaeche-2:#f3efe6;
+  --linie:#dcd5c5; --linie-stark:#bfb39c;
+  --text:#2a241d; --text-leise:#564938; --text-schwach:#857355;
+  --akzent:#2563eb; --akzent-hell:#dbeafe; --akzent-tief:#1e40af;
+  --teal:#0d9488; --teal-hell:#ccfbf1;
+  --violett:#7c3aed; --violett-hell:#ede9fe;
+  --gold:#b45309; --gold-hell:#fef3c7;
+  --gruen:#15803d; --gruen-hell:#dcfce7;
+  --rot:#be123c; --rot-hell:#ffe4e6;
+  --radius:12px; --radius-klein:8px;
+  --schatten:0 1px 2px rgba(42,36,29,.06), 0 8px 24px -12px rgba(42,36,29,.18);
+  --schrift:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+    --linie:#423a56; --linie-stark:#5b5175;
+    --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+    --akzent:#7aa2ff; --akzent-hell:#24304f; --akzent-tief:#b9ccff;
+    --teal:#2dd4bf; --teal-hell:#123a37;
+    --violett:#a78bfa; --violett-hell:#2e2450;
+    --gold:#f2b35b; --gold-hell:#3a2c14;
+    --gruen:#4ade80; --gruen-hell:#143322;
+    --rot:#fb7185; --rot-hell:#3d1823;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+  --linie:#423a56; --linie-stark:#5b5175;
+  --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+  --akzent:#7aa2ff; --akzent-hell:#24304f; --akzent-tief:#b9ccff;
+  --teal:#2dd4bf; --teal-hell:#123a37;
+  --violett:#a78bfa; --violett-hell:#2e2450;
+  --gold:#f2b35b; --gold-hell:#3a2c14;
+  --gruen:#4ade80; --gruen-hell:#143322;
+  --rot:#fb7185; --rot-hell:#3d1823;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--grund);color:var(--text);font-family:var(--schrift);font-size:17px;line-height:1.55}
+.huelle{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;margin:0 0 .4em}
+h3{font-size:1.05rem;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+a{color:var(--akzent)}
+.leise{color:var(--text-leise)}
+.klein{font-size:.88rem}
+.kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.kopf .werkzeuge{display:flex;gap:8px}
+button{font:inherit;cursor:pointer;border-radius:var(--radius-klein);border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);padding:.45em .9em}
+button:hover{border-color:var(--akzent)}
+button.voll{background:var(--akzent);border-color:var(--akzent);color:#fff}
+:root[data-theme="dark"] button.voll{color:#10131c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.voll{color:#10131c}}
+button:disabled{opacity:.5;cursor:default}
+.karte{background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);box-shadow:var(--schatten);padding:18px;margin:16px 0}
+/* Wegübersicht */
+/* Bereiche: jeder hat seine Farbe (Fläche, linker Balken, Marke) */
+.vor-b{--b:var(--akzent);--b-hell:var(--akzent-hell)}
+.ueben-b{--b:var(--teal);--b-hell:var(--teal-hell)}
+.ki-b{--b:var(--violett);--b-hell:var(--violett-hell)}
+.zettel-b{--b:var(--gold);--b-hell:var(--gold-hell)}
+.bereich{background:var(--b-hell);border-left:6px solid var(--b)}
+.marke{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--b);margin-bottom:2px}
+.bereich .bild,.bereich .aufgabe,.bereich .antwort,.bereich textarea{background:var(--flaeche)}
+.bereich .merke,.bereich .stolper{background:var(--flaeche);border-width:1px 1px 1px 5px}
+.bereich .merke h3{color:var(--teal)} .bereich .stolper h3{color:var(--gold)}
+.bereich .aufgabe{border-radius:var(--radius-klein);padding:12px 14px;border:1px solid var(--linie)}
+.wegweiser .c{background:var(--b-hell);color:var(--b);padding:1px 9px;border-radius:999px;font-weight:600}
+/* Wegleiste: Nummer + ein Wort */
+.weg{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.weg button{display:flex;align-items:center;gap:7px;padding:5px 11px 5px 5px;border-radius:999px;font-size:.9rem}
+.weg button .nr{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--flaeche-2);font-weight:700;font-size:.85rem}
+.weg button.aktiv{border-color:var(--akzent);background:var(--akzent-hell)}
+.weg button.aktiv .nr{background:var(--akzent);color:#fff}
+.weg button.geschafft .nr{background:var(--gruen);color:#fff}
+/* Eingeklapptes */
+details.karte>summary{cursor:pointer;font-weight:600;list-style:none}
+details.karte>summary::before{content:"▸ ";color:var(--akzent)}
+details.karte[open]>summary::before{content:"▾ "}
+details.karte[open]>summary{margin-bottom:10px}
+/* Text, der sich aufschreibt */
+.w{opacity:0;transition:opacity .18s}
+.w.da{opacity:1}
+.punkte{display:inline-flex;gap:5px;vertical-align:middle}
+.punkte i{width:9px;height:9px;border-radius:50%;background:var(--linie-stark)}
+.punkte i.an{background:var(--akzent)}
+.einblenden{animation:ein .35s ease-out}
+@keyframes ein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.w{transition:none}.einblenden{animation:none}}
+/* Mathe-Schreibweisen */
+.q{display:inline-block;border-top:1.5px solid currentColor;line-height:1.05;padding-top:1px;margin-top:2px}
+.bruch{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;margin:0 .15em;font-size:.95em}
+.bruch>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.bruch>span:last-child{padding:0 .2em}
+.formel{font-family:var(--schrift);white-space:nowrap}
+.m{white-space:nowrap}
+/* Vorführung */
+.vor{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.vor{grid-template-columns:1.05fr 1fr}}
+.schritt{border-left:3px solid var(--akzent);padding:4px 0 4px 14px;font-size:1.08rem;min-height:5.5em;cursor:pointer}
+.bild{background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow-x:auto;align-self:start}
+@media (min-width:760px){.bild{position:sticky;top:12px}}
+.leiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.zaehl{color:var(--text-schwach);font-size:.88rem}
+/* Merke / Stolperstein */
+.kaesten{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.kaesten{grid-template-columns:1fr 1fr}}
+.merke,.stolper{border-radius:var(--radius-klein);padding:12px 14px}
+.merke{background:var(--teal-hell);border:1px solid var(--teal)}
+.stolper{background:var(--gold-hell);border:1px solid var(--gold)}
+.merke h3,.stolper h3{margin:0 0 .3em;font-size:.95rem}
+/* Vierfeldertafel */
+table.tafel{border-collapse:collapse;font-variant-numeric:tabular-nums;margin:4px auto}
+table.tafel th,table.tafel td{border:1px solid var(--linie-stark);padding:6px 10px;text-align:center;min-width:64px}
+table.tafel th{background:var(--flaeche);font-weight:600;font-size:.92rem}
+table.tafel td{background:var(--flaeche)}
+table.tafel td.rand{background:var(--flaeche-2)}
+table.tafel td.hl{background:var(--akzent-hell);outline:2px solid var(--akzent);outline-offset:-2px}
+table.tafel td.hl2{background:var(--gold-hell)}
+table.tafel td.falsch{background:var(--rot-hell)}
+table.tafel input{width:74px;text-align:center}
+table.tafel .kl{display:block;font-size:.72rem;color:var(--text-schwach);font-weight:400}
+/* Würfelseiten */
+.seiten{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.seiten span{width:44px;height:44px;border-radius:8px;border:1.5px solid var(--linie-stark);display:flex;align-items:center;justify-content:center;font-weight:600;background:var(--flaeche)}
+.seiten span.an{background:var(--akzent-hell);border-color:var(--akzent)}
+.seiten span.gegen{background:var(--gold-hell);border-color:var(--gold)}
+/* Baum */
+svg.baum{width:100%;max-width:520px;height:auto}
+svg.baum line{stroke:var(--linie-stark);stroke-width:2}
+svg.baum line.hl{stroke:var(--akzent);stroke-width:4}
+svg.baum text{fill:var(--text);font-family:var(--schrift);font-size:21px}
+svg.baum text.p{fill:var(--akzent-tief);font-size:19px;font-weight:600}
+svg.baum text.e{fill:var(--violett);font-size:19px;font-weight:600}
+svg.baum text.nr{fill:var(--gold);font-size:14px;font-weight:700}
+/* Üben */
+.aufgabe{margin:8px 0 12px}
+/* Aufgabe mit Bild: auf breiten Schirmen nebeneinander */
+.mitbild{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.mitbild{grid-template-columns:1fr 290px;align-items:start}}
+.abild{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px}
+.abild svg{width:100%;height:auto}
+.abild .unterschrift{margin:0;text-align:center}
+.abild .seiten span{width:36px;height:36px;font-size:.92rem}
+.tippbar span{cursor:pointer;user-select:none}
+/* Piktogramme */
+svg.ik{width:20px;height:20px;flex:none}
+svg.ik.gross{width:44px;height:44px}
+.legende{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;border-radius:999px;border:1px solid var(--linie);background:var(--flaeche-2);font-size:.9rem}
+.chip.ca svg{color:var(--akzent)} .chip.cb svg{color:var(--gold)}
+table.tafel .kl svg.ik{width:15px;height:15px;vertical-align:-3px;margin-right:3px}
+table.tafel th:not(:first-child) .kl svg.ik{color:var(--gold)}
+table.tafel tr th:first-child .kl svg.ik{color:var(--akzent)}
+.bildkopf{color:var(--akzent)}
+/* Würfelkörper */
+svg.koerper{max-width:130px}
+svg.koerper polygon,svg.koerper path,svg.koerper line{stroke:var(--text-leise);stroke-width:1.6;stroke-linejoin:round;fill:none}
+svg.koerper .f1{fill:var(--flaeche)} svg.koerper .f2{fill:var(--akzent-hell)} svg.koerper .f3{fill:var(--linie)}
+svg.koerper text{fill:var(--text);font:700 15px var(--schrift);text-anchor:middle}
+/* Urnen */
+svg.urnen{width:100%;max-width:340px;height:auto}
+svg.urnen .zA{fill:var(--akzent-hell);stroke:var(--akzent);stroke-width:2}
+svg.urnen .zB{fill:var(--gold-hell);stroke:var(--gold);stroke-width:2}
+svg.urnen text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.urnen .zz{font-size:16px;font-weight:700}
+svg.urnen .leg{font-size:13px;fill:var(--text-leise)}
+svg.urnen .un{font-size:15px;font-weight:700} svg.urnen .uA{fill:var(--akzent)} svg.urnen .uB{fill:var(--gold)}
+svg.urnen .glas{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:2}
+svg.urnen .kugel{stroke:var(--text-leise);stroke-width:1.2}
+/* Flächenbild */
+svg.mosaik{max-width:280px}
+svg.mosaik .mA{fill:var(--akzent)} svg.mosaik .mN{fill:var(--linie)}
+svg.mosaik text{font-family:var(--schrift);text-anchor:middle}
+svg.mosaik .mz{font-size:16px;font-weight:700;fill:var(--text)}
+svg.mosaik .mz.hell{fill:var(--flaeche)}
+svg.mosaik .mb,svg.mosaik .ma{font-size:16px;font-weight:700;fill:var(--text)}
+svg.mosaik .mk{color:var(--gold)}
+/* Hundert Punkte */
+svg.hundert{max-width:220px}
+svg.hundert circle{fill:var(--linie)}
+svg.hundert circle.an{fill:var(--akzent)}
+.felder{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.feld{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.feld label{min-width:170px}
+.feld input,.feld select{font:inherit;padding:.35em .55em;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);width:150px}
+.feld select{width:auto}
+.feld.richtig input,.feld.richtig select{border-color:var(--gruen);background:var(--gruen-hell)}
+.feld.falsch input,.feld.falsch select{border-color:var(--rot);background:var(--rot-hell)}
+.meldung{border-radius:var(--radius-klein);padding:10px 12px;margin:10px 0}
+.meldung.gut{background:var(--gruen-hell);border:1px solid var(--gruen)}
+.meldung.schlecht{background:var(--rot-hell);border:1px solid var(--rot)}
+.meldung.neutral{background:var(--flaeche-2);border:1px solid var(--linie)}
+.tipp{background:var(--violett-hell);border:1px solid var(--violett);border-radius:var(--radius-klein);padding:10px 12px;margin:8px 0}
+.serie{display:inline-flex;gap:4px;vertical-align:middle}
+.serie i{width:14px;height:14px;border-radius:50%;border:2px solid var(--gruen);display:inline-block}
+.serie i.an{background:var(--gruen)}
+/* KI */
+.ki textarea{width:100%;min-height:110px;font:inherit;padding:10px;border-radius:var(--radius-klein);border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text)}
+.ki .antwort{white-space:pre-wrap;background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;margin-top:10px}
+.ki .zeile{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.ki input[type=password],.ki input[type=text]{font:inherit;padding:.35em .55em;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);width:180px}
+.zettel table{border-collapse:collapse;width:100%}
+.zettel td{border-top:1px solid var(--linie);padding:8px 6px;vertical-align:top}
+.zettel td:first-child{white-space:nowrap;font-weight:600;padding-right:14px}
+footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
+@media (max-width:520px){
+  .feld label{min-width:0;width:100%}
+  table.tafel th,table.tafel td{padding:5px 6px;min-width:52px;font-size:.92rem}
+  table.tafel input{width:60px}
+}
+/* Ergebnisraster (Würfel, Karten) */
+svg.raster{width:100%;max-width:300px;height:auto}
+.bild{flex-wrap:wrap} .bild .unterschrift{flex-basis:100%;text-align:center;margin:6px 0 0}
+svg.raster text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.raster .rk{font-size:14px;font-weight:700} svg.raster .rk.rot{fill:var(--rot)}
+svg.raster .rt{font-size:12px;fill:var(--text-leise)}
+svg.raster .rz{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.2}
+svg.raster .rz.a{fill:var(--akzent-hell);stroke:var(--akzent)} svg.raster .rz.b{fill:var(--gold-hell);stroke:var(--gold)}
+svg.raster .rz.ab{fill:var(--violett);stroke:var(--violett)}
+.punkt{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 8px;border:1.5px solid}
+.punkt.a{background:var(--akzent-hell);border-color:var(--akzent)} .punkt.b{background:var(--gold-hell);border-color:var(--gold)} .punkt.ab{background:var(--violett);border-color:var(--violett)}
+/* Gemeinsame Ursache */
+svg.ursache{width:100%;max-width:340px;height:auto}
+svg.ursache .uk{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.5} svg.ursache .uk.w{fill:var(--gold-hell);stroke:var(--gold)}
+svg.ursache .ut{font-family:var(--schrift);font-size:15px;text-anchor:middle;fill:var(--text);font-weight:600}
+svg.ursache .ut.klein2{font-size:12px;font-weight:400;fill:var(--text-leise)}
+svg.ursache .ul{stroke:var(--text-leise);stroke-width:2} svg.ursache .up{fill:var(--text-leise)}
+svg.ursache .ud{stroke:var(--violett);stroke-width:2;stroke-dasharray:5 4}
+</style>
+</head>
+<body>
+<div class="huelle">
+
+<header class="kopf">
+  <div>
+    <h1>Stochastische Unabhängigkeit</h1>
+    <p class="klein leise"><a href="./">Trainelia</a> ▸ Kapitel 2 · zuerst: <a href="wahrscheinlichkeit.html">Bedingte Wahrscheinlichkeit</a></p>
+    <p class="leise wegweiser"><span class="c vor-b">zuschauen</span> ▸ <span class="c ueben-b">üben</span> ▸ <span class="c ki-b">Rückmeldung</span></p>
+  </div>
+  <div class="werkzeuge"><button id="thema" type="button" title="hell / dunkel">◐</button></div>
+</header>
+
+<nav class="weg" id="weg" aria-label="Stationen"></nav>
+
+<main id="station"></main>
+
+<details class="karte bereich zettel-b zettel" id="zettel">
+  <summary>Spickzettel</summary>
+  <table>
+    <tr><td>unabhängig</td><td><span class="m">P(B | A) = P(B)</span>: Das Wissen, dass A eingetreten ist, ändert die Wahrscheinlichkeit von B nicht.</td></tr>
+    <tr><td>Produktform</td><td>gleichwertig: <span class="m">P(A ∩ B) = P(A) · P(B)</span>. Gilt sie nicht, sind A und B <b>abhängig</b>.</td></tr>
+    <tr><td>Tafel prüfen</td><td>P(A) mit P(A | B) vergleichen oder Innenfeld mit dem Produkt seiner Randwerte.</td></tr>
+    <tr><td>Zurücklegen</td><td>mit Zurücklegen unabhängig, ohne Zurücklegen abhängig.</td></tr>
+    <tr><td>Flächenbild</td><td>Breite P(B), Höhe in der Spalte P(A | B). Gerade Trennlinie heißt unabhängig.</td></tr>
+    <tr><td>immer richtig</td><td><span class="m">P(A ∩ B) = P(B) · P(A | B)</span> (Pfadregel). Die Produktregel nur bei Unabhängigkeit.</td></tr>
+    <tr><td>Vorsicht</td><td>Unvereinbar ist nicht unabhängig. Abhängig heißt nicht verursacht.</td></tr>
+  </table>
+</details>
+
+<details class="karte ki" id="kicode">
+  <summary>Code für die KI-Rückmeldung</summary>
+  <div class="zeile">
+    <input type="password" id="code" autocomplete="off" placeholder="Code" aria-label="Code">
+    <button type="button" id="codeSpeichern">Speichern</button>
+    <span id="kiStatus" class="klein leise"></span>
+  </div>
+  <p class="leise klein">Bleibt nur in diesem Browser. Abgeschickt werden Aufgabe, Lösung und dein Rechenweg, ohne Namen. Gespeichert wird nichts.</p>
+</details>
+
+<footer>Ohne Anmeldung · Lernstand bleibt auf diesem Gerät · mathematik-unterrichten.de</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   1. Kleine Helfer
+   ============================================================ */
+const $ = (s, w = document) => w.querySelector(s);
+const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const wahl = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const ggt = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+function kz(x, st = 3) {          // Kommazahl ohne überflüssige Nullen
+  const s = (Math.round(x * 10 ** st) / 10 ** st).toFixed(st).replace(/\.?0+$/, "");
+  return s.replace(".", ",");
+}
+const pz = (x, st = 1) => kz(x * 100, st) + " %";
+function br(z, n) {               // Bruch als HTML, gekürzt
+  const g = ggt(z, n); z /= g; n /= g;
+  if (n === 1) return String(z);
+  return `<span class="bruch"><span>${z}</span><span>${n}</span></span>`;
+}
+const brRoh = (z, n) => `<span class="bruch"><span>${z}</span><span>${n}</span></span>`;
+const brT = (z, n) => { const g = ggt(z, n); return n / g === 1 ? String(z / g) : `${z / g}/${n / g}`; };
+const Q = (s) => `<span class="q">${s}</span>`;
+/* HTML → lesbarer Text (für Meldungen und für die KI): Überstrich als Ā,
+   Bruch als (a)/(b), Tabellen zeilenweise mit „|“. SVG fällt weg. */
+function text(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html;
+  d.querySelectorAll("svg").forEach((e) => e.remove());
+  d.querySelectorAll(".q").forEach((e) => { e.textContent = e.textContent.split("").map((c) => c + "̄").join(""); });
+  d.querySelectorAll(".bruch").forEach((e) => { const [z, n] = e.children; e.textContent = ` (${z.textContent})/(${n.textContent}) `; });
+  d.querySelectorAll("th,td").forEach((e) => e.append(" | "));
+  d.querySelectorAll("tr").forEach((e) => e.append("\n"));
+  d.querySelectorAll("table").forEach((e) => { e.prepend("\n"); e.append("\n"); });
+  d.querySelectorAll("p,div").forEach((e) => e.append("\n"));
+  return d.textContent.split("\n").map((z) => z.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n");
+}
+
+/* Eingabe lesen: 0,27 · 27 % · 53/194 · 0.27 */
+function lies(roh) {
+  let s = String(roh || "").trim().replace(/\s+/g, "").replace(/,/g, ".");
+  if (!s) return null;
+  let prozent = false;
+  if (s.endsWith("%")) { prozent = true; s = s.slice(0, -1); }
+  let w;
+  if (/^-?\d+(\.\d+)?\/\d+(\.\d+)?$/.test(s)) { const [a, b] = s.split("/").map(Number); if (!b) return null; w = a / b; }
+  else if (/^-?(\d+\.?\d*|\.\d+)$/.test(s)) w = Number(s);
+  else return null;
+  if (prozent) w /= 100;
+  return { wert: w, prozent };
+}
+
+/* Lernstand: nur auf diesem Gerät */
+const STAND_KEY = "mu-unabhaengigkeit-stand";
+let stand = {};
+try { stand = JSON.parse(localStorage.getItem(STAND_KEY) || "{}") || {}; } catch { stand = {}; }
+function sichern() { try { localStorage.setItem(STAND_KEY, JSON.stringify(stand)); } catch {} }
+const st = (id) => (stand[id] ||= { serie: 0, richtig: 0, geschafft: false });
+
+/* Thema hell/dunkel */
+(function () {
+  let t = null;
+  try { t = localStorage.getItem("mu-thema"); } catch {}
+  if (t) document.documentElement.dataset.theme = t;
+  $("#thema").onclick = () => {
+    const dunkel = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const neu = dunkel ? "light" : "dark";
+    document.documentElement.dataset.theme = neu;
+    try { localStorage.setItem("mu-thema", neu); } catch {}
+  };
+})();
+
+/* ============================================================
+   2. Bilder: Vierfeldertafel, Baum, Würfelseiten
+   ============================================================ */
+/* w: 3×3 Werte [[AB, AnB, A],[nAB, nAnB, nA],[B, nB, N]]
+   o: { kopf:[B,nB], seite:[A,nA], fmt, eingabe:Set("r,c"), hl:{ "r,c": "hl"|"hl2" }, id } */
+function tafel(w, o = {}) {
+  const fmt = o.fmt || ((x) => String(x));
+  const kopf = o.kopf || ["B", Q("B")], seite = o.seite || ["A", Q("A")];
+  const kl = o.kl || {};
+  const zelle = (r, c) => {
+    const k = r + "," + c, cls = [];
+    if (r === 2 || c === 2) cls.push("rand");
+    if (o.hl && o.hl[k]) cls.push(o.hl[k]);
+    let inhalt;
+    if (o.eingabe && o.eingabe.has(k)) inhalt = `<input inputmode="decimal" data-zelle="${k}" aria-label="Feld ${k}">`;
+    else if (w[r][c] === null || w[r][c] === undefined) inhalt = "";
+    else inhalt = fmt(w[r][c], r, c);
+    return `<td class="${cls.join(" ")}" data-k="${k}">${inhalt}</td>`;
+  };
+  const th = (h, k) => `<th>${h}${k ? ` <span class="kl">${k}</span>` : ""}</th>`;
+  return `<table class="tafel"${o.id ? ` id="${o.id}"` : ""}>
+    <tr><th></th>${th(kopf[0], kl.b)}${th(kopf[1], kl.nb)}${th("Summe")}</tr>
+    <tr>${th(seite[0], kl.a)}${zelle(0, 0)}${zelle(0, 1)}${zelle(0, 2)}</tr>
+    <tr>${th(seite[1], kl.na)}${zelle(1, 0)}${zelle(1, 1)}${zelle(1, 2)}</tr>
+    <tr>${th("Summe")}${zelle(2, 0)}${zelle(2, 1)}${zelle(2, 2)}</tr></table>`;
+}
+
+/* Baum mit zwei Stufen.
+   b = { s1:[l,l], p1:[t,t], s2:[[l,l],[l,l]], p2:[[t,t],[t,t]], enden:[t,t,t,t], hl:[pfadindex...], nr:true } */
+function baum(b) {
+  const W = 600, H = 275;
+  const wurzel = [24, 135], k1 = [[200, 68], [200, 202]], bl = [[372, 30], [372, 108], [372, 166], [372, 244]];
+  const hl = new Set(b.hl || []);
+  /* SVG-Text verträgt kein HTML: Brüche als a/b, Überstrich als Kombinationszeichen */
+  const leer = (x) => (x === undefined || x === null ? "" : String(x)
+    .replace(/<span class="bruch"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span>/g, "$1/$2")
+    .replace(/<span class="q">([^<]*)<\/span>/g, (_, s) => QS(s))
+    .replace(/<[^>]+>/g, ""));
+  let s = `<svg class="baum" viewBox="0 0 ${W} ${H}" role="img" aria-label="Baumdiagramm">`;
+  for (let i = 0; i < 2; i++) {
+    const an = hl.has(2 * i) || hl.has(2 * i + 1);
+    s += `<line x1="${wurzel[0] + 6}" y1="${wurzel[1]}" x2="${k1[i][0] - 14}" y2="${k1[i][1]}" class="${an ? "hl" : ""}"/>`;
+    const mx = (wurzel[0] + k1[i][0]) / 2 - 8, my = (wurzel[1] + k1[i][1]) / 2 + (i ? 22 : -10);
+    s += `<text class="p" x="${mx}" y="${my}" text-anchor="middle">${leer(b.p1 && b.p1[i])}</text>`;
+    s += `<text x="${k1[i][0]}" y="${k1[i][1] + 5}" text-anchor="middle">${leer(b.s1[i])}</text>`;
+    for (let j = 0; j < 2; j++) {
+      const n = 2 * i + j, e = bl[n];
+      s += `<line x1="${k1[i][0] + 16}" y1="${k1[i][1]}" x2="${e[0] - 12}" y2="${e[1]}" class="${hl.has(n) ? "hl" : ""}"/>`;
+      const px = (k1[i][0] + e[0]) / 2 + 6, py = (k1[i][1] + e[1]) / 2 + (j ? 20 : -8);
+      s += `<text class="p" x="${px}" y="${py}" text-anchor="middle">${leer(b.p2 && b.p2[i][j])}</text>`;
+      s += `<text x="${e[0]}" y="${e[1] + 5}" text-anchor="middle">${leer(b.s2[i][j])}</text>`;
+      if (b.enden && b.enden[n] !== undefined && b.enden[n] !== null)
+        s += `<text class="e" x="${e[0] + 52}" y="${e[1] + 5}">${leer(b.enden[n])}</text>`;
+    }
+  }
+  if (b.wurzel) s += `<text x="2" y="${wurzel[1] - 16}" text-anchor="start" class="e">${leer(b.wurzel)}</text>`;
+  return s + `<circle cx="${wurzel[0]}" cy="${wurzel[1]}" r="4" fill="currentColor"/></svg>`;
+}
+/* SVG-Text verträgt kein HTML: Überstrich als Kombinationszeichen */
+const QS = (s) => s.split("").map((c) => c + "̅").join("");
+
+function seiten(n, an = [], gegen = []) {
+  let s = '<div class="seiten">';
+  for (let i = 1; i <= n; i++) s += `<span class="${an.includes(i) ? "an" : gegen.includes(i) ? "gegen" : ""}">${i}</span>`;
+  return s + "</div>";
+}
+
+/* ---------- Bildchen für die Übungen (alles gezeichnet, nichts geladen) ---------- */
+/* Strich-Piktogramme, 24er-Raster, Farbe über currentColor */
+const IKON = {
+  note: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  mikro: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>',
+  kunde: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M12 8.3l1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4z"/>',
+  karte: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  bar: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/>',
+  m1: '<path d="M3 21V9l5 3V9l5 3V4h7v17zM2 21h20"/><text x="16.5" y="18" font-size="7.5" text-anchor="middle" stroke="none" fill="currentColor" font-weight="700">1</text>',
+  m2: '<path d="M3 21V9l5 3V9l5 3V4h7v17zM2 21h20"/><text x="16.5" y="18" font-size="7.5" text-anchor="middle" stroke="none" fill="currentColor" font-weight="700">2</text>',
+  fehler: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.2 9.5"/>',
+  garten: '<circle cx="12" cy="9" r="6"/><path d="M12 15v7M8.5 22h7"/>',
+  pfote: '<ellipse cx="12" cy="16.5" rx="4.6" ry="3.8"/><circle cx="5.3" cy="10.8" r="2"/><circle cx="9.4" cy="6.6" r="2"/><circle cx="14.6" cy="6.6" r="2"/><circle cx="18.7" cy="10.8" r="2"/>',
+  bus: '<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 10h16M7 18v3M17 18v3M7.5 14h.01M16.5 14h.01"/>',
+  rad: '<circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16L10 9h6l2.5 7M10 9l2 7H5.5M16 9l-4 7M16 9V6.5M14.5 6.5h3"/>',
+  uhr: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4.2l2.8 2M9.5 2h5"/>',
+  spaet: '<circle cx="12" cy="13" r="8"/><path d="M12 8.5v5M12 17h.01M9.5 2h5"/>',
+  virus: '<circle cx="12" cy="12" r="5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5M4.9 4.9l3.6 3.6M15.5 15.5l3.6 3.6M4.9 19.1l3.6-3.6M15.5 8.5l3.6-3.6"/>',
+  test: '<rect x="8" y="2" width="8" height="20" rx="2"/><path d="M12 6.5v4M10 8.5h4M10 16h4"/>',
+  mail: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/>',
+  filter: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+};
+const ikon = (name, durch, cls = "") => `<svg viewBox="0 0 24 24" class="ik ${cls}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IKON[name] || ""}${durch ? '<path d="M3.5 3.5l17 17" stroke-width="2.2"/>' : ""}</svg>`;
+/* Piktogramm zu einem Ereignis: eigenes Bild oder das Bild des Gegenstücks, durchgestrichen */
+const ikonFuer = (ik, s) => (ik[s] ? ikon(ik[s], false) : ikon(ik[s.slice(1)], true));
+
+/* Würfel mit n Seiten als Körper (W6, W8, W10, W12, W20) */
+function wuerfelBild(n) {
+  const P = (pts) => pts.map((p) => p.join(",")).join(" ");
+  const rund = (k, r, dreh = -90) => [...Array(k)].map((_, i) => { const w = (dreh + i * 360 / k) * Math.PI / 180; return [60 + r * Math.cos(w), 62 + r * Math.sin(w)].map((x) => Math.round(x * 10) / 10); });
+  let s = "", zahl = [60, 66, String(n)];
+  if (n === 6) {
+    s = `<polygon class="f1" points="60,16 100,37 60,58 20,37"/><polygon class="f2" points="20,37 60,58 60,106 20,85"/><polygon class="f3" points="60,58 100,37 100,85 60,106"/>`;
+    s += `<text x="60" y="43">5</text><text x="40" y="86">1</text><text x="80" y="86">3</text>`; zahl = null;
+  } else if (n === 8) {
+    s = `<polygon class="f1" points="60,8 16,60 60,76"/><polygon class="f3" points="60,8 60,76 104,60"/><polygon class="f2" points="16,60 60,112 60,76"/><polygon class="f2" points="60,76 60,112 104,60"/>`;
+    zahl = [47, 56, "8"]; s += `<text x="73" y="56">3</text>`;
+  } else if (n === 10) {
+    s = `<polygon class="f2" points="60,8 14,58 30,74 60,112 90,74 106,58"/><polygon class="f1" points="60,8 34,58 60,80 86,58"/><path d="M34,58 L14,58 M86,58 L106,58 M60,80 L60,112 M34,58 L30,74 M86,58 L90,74"/>`;
+    zahl = [60, 60, "10"];
+  } else if (n === 12) {
+    const aus = rund(10, 54, -90), inn = rund(5, 27, -90);
+    s = `<polygon class="f2" points="${P(aus)}"/><polygon class="f1" points="${P(inn)}"/>` + inn.map((p, i) => `<line x1="${p[0]}" y1="${p[1]}" x2="${aus[2 * i][0]}" y2="${aus[2 * i][1]}"/>`).join("");
+  } else {
+    const aus = rund(6, 54, -90), inn = rund(3, 30, -90);
+    s = `<polygon class="f2" points="${P(aus)}"/><polygon class="f1" points="${P(inn)}"/>`;
+    const zu = [[5, 0, 1], [1, 2, 3], [3, 4, 5]];
+    inn.forEach((p, i) => zu[i].forEach((j) => { s += `<line x1="${p[0]}" y1="${p[1]}" x2="${aus[j][0]}" y2="${aus[j][1]}"/>`; }));
+  }
+  if (zahl) s += `<text x="${zahl[0]}" y="${zahl[1]}">${zahl[2]}</text>`;
+  return `<svg class="koerper" viewBox="0 0 120 124" role="img" aria-label="Würfel mit ${n} Seiten">${s}</svg>`;
+}
+
+/* Kugeln in einer Urne: Farbname → Füllung */
+const KUGEL = { rot: "#dc2626", blau: "#2563eb", grün: "#16a34a", gelb: "#facc15", schwarz: "#27272a", weiß: "#ffffff" };
+function mischen(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+/* Würfel entscheidet über die Urne, darunter beide Urnen mit ihren Kugeln */
+function urnenBild(kA, f1, f2, inA, inB) {
+  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Würfel und zwei Urnen">`;
+  for (let z = 1; z <= 6; z++) {
+    const x = 28 + (z - 1) * 46, a = z <= kA;
+    s += `<rect x="${x}" y="6" width="34" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + 17}" y="29" class="zz">${z}</text>`;
+  }
+  s += `<text x="160" y="60" class="leg">${kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
+  const urne = (x0, name, kl, r, b) => {
+    let u = `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+    const kugeln = mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]);
+    kugeln.forEach((f, i) => {
+      const reihe = Math.floor(i / 4), sp = i % 4;
+      u += `<circle class="kugel" cx="${x0 + 24 + sp * 24}" cy="${195 - reihe * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+    });
+    return u + `<text x="${x0 + 60}" y="232" class="un ${kl}">${name}</text>`;
+  };
+  s += urne(14, "Urne A", "uA", inA[0], inA[1]) + urne(186, "Urne B", "uB", inB[0], inB[1]);
+  return s + "</svg>";
+}
+
+/* Flächenbild einer Vierfeldertafel: Spaltenbreite = Anteil an allen,
+   Höhe in der Spalte = Anteil innerhalb der Spalte. Zahlen nur, wo Platz ist. */
+function mosaikBild(w, k) {
+  const X = 34, Y = 34, B = 236, H = 170, luecke = 4;
+  const b0 = Math.round((B - luecke) * w[2][0] / w[2][2]);
+  const spalten = [[X, b0, 0], [X + b0 + luecke, B - luecke - b0, 1]];
+  let s = `<svg class="mosaik" viewBox="0 0 ${X + B + 6} ${Y + H + 8}" role="img" aria-label="Flächenbild der Tafel">`;
+  for (const [x, breite, c] of spalten) {
+    const hA = Math.round((H - luecke) * w[0][c] / w[2][c]);
+    s += `<rect x="${x}" y="${Y}" width="${breite}" height="${hA}" class="mA" rx="3"/>`;
+    s += `<rect x="${x}" y="${Y + hA + luecke}" width="${breite}" height="${H - luecke - hA}" class="mN" rx="3"/>`;
+    if (hA >= 20) s += `<text x="${x + breite / 2}" y="${Y + hA / 2 + 6}" class="mz hell">${w[0][c]}</text>`;
+    if (H - luecke - hA >= 20) s += `<text x="${x + breite / 2}" y="${Y + hA + luecke + (H - luecke - hA) / 2 + 6}" class="mz">${w[1][c]}</text>`;
+    s += `<g transform="translate(${x + breite / 2 - 21},4)" class="mk">${k.ik ? ikonFuer(k.ik, c ? "nB" : "B").replace('<svg ', '<svg width="20" height="20" ') : ""}</g>`;
+    s += `<text x="${x + breite / 2 + 12}" y="21" class="mb">${c ? QS("B") : "B"}</text>`;
+  }
+  s += `<text x="14" y="${Y + 18}" class="ma">A</text><text x="14" y="${Y + H - 6}" class="ma">${QS("A")}</text>`;
+  return s + `</svg><p class="klein leise unterschrift">Breite: Anteil an allen ${w[2][2]}. Höhe: Anteil innerhalb der Spalte. Blau: A.</p>`;
+}
+
+/* Hundert Punkte, davon k markiert: zeigt, wie selten oder häufig A ist */
+function hundertBild(k, name, ik) {
+  let s = `<svg class="hundert" viewBox="0 0 210 210" role="img" aria-label="${k} von 100">`;
+  for (let i = 0; i < 100; i++) s += `<circle cx="${12 + (i % 10) * 20.6}" cy="${12 + Math.floor(i / 10) * 20.6}" r="7.2" class="${i < k ? "an" : ""}"/>`;
+  s += "</svg>";
+  return `${ik ? `<div class="bildkopf">${ikon(ik, false, "gross")}</div>` : ""}${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
+}
+
+/* ============================================================
+   3. Sachzusammenhänge (frei erfunden, kein Schulbuch)
+   ============================================================ */
+const KONTEXTE = [
+  { wer: "Jugendliche", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor",
+    aP: "spielen ein Instrument", naP: "spielen kein Instrument", bP: "singen im Chor", nbP: "singen nicht im Chor",
+    aD: "ein Instrument spielt", naD: "kein Instrument spielt", bD: "im Chor singt", nbD: "nicht im Chor singt",
+    ik: { A: "note", B: "mikro" },
+    intro: (N) => `In einer Umfrage wurden ${N} Jugendliche befragt.` },
+  { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Kundenkarte", nA: "keine Kundenkarte", B: "Karte", nB: "bar",
+    aP: "haben eine Kundenkarte", naP: "haben keine Kundenkarte", bP: "zahlen mit Karte", nbP: "zahlen bar",
+    aD: "eine Kundenkarte hat", naD: "keine Kundenkarte hat", bD: "mit Karte zahlt", nbD: "bar zahlt",
+    ik: { A: "kunde", B: "karte", nB: "bar" },
+    intro: (N) => `An einem Vormittag kaufen ${N} Personen in einem Supermarkt ein.` },
+  { wer: "Werkstücke", pron: "es", rel: "das", eine: "ein Werkstück", akk: "ein Werkstück",
+    A: "Maschine 1", nA: "Maschine 2", B: "fehlerhaft", nB: "in Ordnung",
+    aP: "stammen von Maschine 1", naP: "stammen von Maschine 2", bP: "sind fehlerhaft", nbP: "sind in Ordnung",
+    aD: "von Maschine 1 stammt", naD: "von Maschine 2 stammt", bD: "fehlerhaft ist", nbD: "in Ordnung ist",
+    ik: { A: "m1", nA: "m2", B: "fehler", nB: "ok" },
+    intro: (N) => `Ein Betrieb prüft ${N} Werkstücke aus zwei Maschinen.` },
+  { wer: "Haushalte", pron: "er", rel: "der", eine: "ein Haushalt", akk: "einen Haushalt",
+    A: "Garten", nA: "kein Garten", B: "Haustier", nB: "kein Haustier",
+    aP: "haben einen Garten", naP: "haben keinen Garten", bP: "haben ein Haustier", nbP: "haben kein Haustier",
+    aD: "einen Garten hat", naD: "keinen Garten hat", bD: "ein Haustier hat", nbD: "kein Haustier hat",
+    ik: { A: "garten", B: "pfote" },
+    intro: (N) => `In einer Gemeinde wurden ${N} Haushalte befragt.` },
+  { wer: "Schülerinnen und Schüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Bus", nA: "Rad", B: "pünktlich", nB: "zu spät",
+    aP: "kommen mit dem Bus", naP: "kommen mit dem Rad", bP: "sind pünktlich", nbP: "kommen zu spät",
+    aD: "mit dem Bus kommt", naD: "mit dem Rad kommt", bD: "pünktlich ist", nbD: "zu spät kommt",
+    ik: { A: "bus", nA: "rad", B: "uhr", nB: "spaet" },
+    intro: (N) => `An einem Morgen wurde bei ${N} Schülerinnen und Schülern notiert, wie sie zur Schule kamen und ob sie pünktlich waren.` },
+];
+/* Zeile/Spalte → Ereignis: x ∈ {A, nA}, y ∈ {B, nB} */
+const ereignisName = { A: "A", nA: Q("A"), B: "B", nB: Q("B") };
+
+/* Eine passende Vierfeldertafel mit ganzen Zahlen, jedes Feld ≥ 5 */
+function neueTafel() {
+  for (;;) {
+    const N = wahl([200, 250, 300, 400, 500, 600, 800, 1000]);
+    const a = Math.round(zufall(25, 75) * N / 100);
+    const b = Math.round(zufall(20, 80) * N / 100);
+    const lo = Math.max(5, a + b - N + 5), hi = Math.min(a, b) - 5;
+    if (hi < lo) continue;
+    const ab = zufall(lo, hi);
+    const w = [[ab, a - ab, a], [b - ab, N - a - b + ab, N - a], [b, N - b, N]];
+    if (w[0][1] < 5 || w[1][0] < 5 || w[1][1] < 5) continue;
+    // nicht unabhängig (sonst sind bedingte und unbedingte Werte gleich – schlecht zum Unterscheiden)
+    if (Math.abs(ab / b - a / N) < 0.06) continue;
+    return { N, w, k: wahl(KONTEXTE) };
+  }
+}
+const tafelKopf = (k) => ({ kopf: ["B", Q("B")], seite: ["A", Q("A")],
+  kl: k.ik ? { a: ikonFuer(k.ik, "A") + k.A, na: ikonFuer(k.ik, "nA") + k.nA, b: ikonFuer(k.ik, "B") + k.B, nb: ikonFuer(k.ik, "nB") + k.nB }
+          : { a: k.A, na: k.nA, b: k.B, nb: k.nB } });
+/* Legende als Bildkarten: Piktogramm, Buchstabe, Bedeutung */
+const leg = (k) => `<div class="legende">${[["A", "A", k.A], ["nA", Q("A"), k.nA], ["B", "B", k.B], ["nB", Q("B"), k.nB]]
+  .map(([s, n, wort]) => `<span class="chip ${s.endsWith("A") ? "ca" : "cb"}">${k.ik ? ikonFuer(k.ik, s) : ""}<b>${n}</b> = ${wort}</span>`).join(" ")}</div>`;
+
+/* ============================================================
+   4. Die Stationen
+   Jede Station: id, titel, vor (Schritte), merke, stolper,
+   neu() → Aufgabe, ziel (Serie richtig in Folge)
+   Aufgabe: { html, bild?, felder:[{id,label,wert,tol,art,fallen:[{wert,text}]}],
+              auswahl?, tafelFelder?, tipps:[html], loesung:html }
+   ============================================================ */
+const STATIONEN = [];
+const FARBEN = [["rot", "blau"], ["grün", "gelb"], ["schwarz", "weiß"]];
+const groß = (s) => s[0].toUpperCase() + s.slice(1);
+
+/* Auswahl „unabhängig / abhängig“ mit Begründung bei falscher Wahl */
+function entscheidung(unab, warum) {
+  return { label: "A und B sind stochastisch …", optionen: ["unabhängig", "abhängig"], richtig: unab ? 0 : 1, falsch: () => warum };
+}
+
+/* Eine einzelne Urne */
+function urneBild(f1, f2, r, b, zeile) {
+  const x0 = 26;
+  let s = `<svg class="urnen" viewBox="0 30 172 192" role="img" aria-label="Urne mit ${r} ${f1}en und ${b} ${f2}en Kugeln" style="max-width:210px">`;
+  s += `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+  mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]).forEach((f, i) => {
+    s += `<circle class="kugel" cx="${x0 + 24 + (i % 4) * 24}" cy="${195 - Math.floor(i / 4) * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+  });
+  if (zeile) s += `<text x="${x0 + 60}" y="56" class="un uA">${zeile}</text>`;
+  return s + "</svg>";
+}
+
+/* Raster aller Ergebnisse (Würfelpaare, Karten). mark(r, c) → "", "a", "b", "ab" */
+function rasterBild(zeilenKopf, spaltenKopf, mark, titelZ, titelS, zeileFarbe) {
+  const Z = zeilenKopf.length, S = spaltenKopf.length, cw = S > 6 ? 30 : 36, ch = S > 6 ? 30 : 30;
+  const L = 40, T = 40, B = L + S * cw + 6, H = T + Z * ch + 6;
+  let s = `<svg class="raster" viewBox="0 0 ${B} ${H}" role="img" aria-label="Alle ${Z * S} Ergebnisse">`;
+  s += `<text x="${L + S * cw / 2}" y="13" class="rt">${titelS}</text>`;
+  spaltenKopf.forEach((k, c) => { s += `<text x="${L + c * cw + cw / 2}" y="${T - 8}" class="rk">${k}</text>`; });
+  s += `<text x="10" y="${T + Z * ch / 2}" class="rt" transform="rotate(-90 10 ${T + Z * ch / 2})">${titelZ}</text>`;
+  zeilenKopf.forEach((k, r) => { s += `<text x="${L - 10}" y="${T + r * ch + ch / 2 + 5}" class="rk ${zeileFarbe ? zeileFarbe(r) : ""}">${k}</text>`; });
+  for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++)
+    s += `<rect x="${L + c * cw + 2}" y="${T + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" class="rz ${mark ? mark(r, c) : ""}"/>`;
+  return s + "</svg>";
+}
+const RASTER_LEG = `<p class="klein leise unterschrift"><span class="punkt a"></span> nur A <span class="punkt b"></span> nur B <span class="punkt ab"></span> A und B</p>`;
+
+/* Beispieltafeln für die Vorführungen */
+const VOR_K = { A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor", ik: { A: "note", B: "mikro" } };
+const VOR_ABH = [[60, 100, 160], [40, 200, 240], [100, 300, 400]];       // abhängig
+const HAUS = KONTEXTE[3];
+const VOR_UNAB = [[60, 140, 200], [90, 210, 300], [150, 350, 500]];      // unabhängig
+const vk = tafelKopf(VOR_K), hk = tafelKopf(HAUS);
+
+/* Eine Vierfeldertafel, in der A und B genau unabhängig sind */
+function unabTafel() {
+  const ps = [0.2, 0.25, 0.4, 0.5, 0.6, 0.75, 0.8];
+  for (;;) {
+    const N = wahl([400, 800, 1200, 2000]), pa = wahl(ps), pb = wahl(ps);
+    const a = Math.round(N * pa), b = Math.round(N * pb), ab = Math.round(N * pa * pb);
+    if (Math.abs(ab - N * pa * pb) > 1e-6) continue;
+    const w = [[ab, a - ab, a], [b - ab, N - a - b + ab, N - a], [b, N - b, N]];
+    if (w.flat().some((x) => x < 5)) continue;
+    return { N, w, k: wahl(KONTEXTE) };
+  }
+}
+const istUnab = (w) => w[0][0] * w[2][2] === w[0][2] * w[2][0];
+
+/* ---------- 1 · Die Idee ---------- */
+STATIONEN.push({
+  id: "u-idee", titel: "Was heißt unabhängig?", ziel: 3,
+  vor: (() => {
+    const b0 = { s1: ["rot", "blau"], s2: [["rot", "blau"], ["rot", "blau"]] };
+    const p1 = ["3/5", "2/5"];
+    return [
+      { t: `In einer Urne liegen 3 rote und 2 blaue Kugeln. Es werden zwei Kugeln nacheinander gezogen. A: „Die erste ist rot.“ B: „Die zweite ist rot.“ <b>Frage:</b> Ändert das Wissen über die erste Kugel die Chance der zweiten?`, v: () => urneBild("rot", "blau", 3, 2) },
+      { t: `<b>Mit Zurücklegen:</b> Die erste Kugel kommt zurück, die Urne ist wieder wie vorher. Egal was zuerst kam: <span class="m">P(B | A) = ${br(3, 5)}</span>, und auch ohne Vorwissen <span class="m">P(B) = ${br(3, 5)}</span>. Das Wissen über A ändert nichts.`, v: () => baum({ ...b0, p1, p2: [["3/5", "2/5"], ["3/5", "2/5"]], hl: [0] }) },
+      { t: `<b>Ohne Zurücklegen:</b> Nach einer roten Kugel liegen nur noch 2 rote unter 4: <span class="m">P(B | A) = ${brRoh(2, 4)} = ${br(1, 2)}</span>.`, v: () => baum({ ...b0, p1, p2: [["2/4", "2/4"], ["3/4", "1/4"]], hl: [0] }) },
+      { t: `Und ohne Vorwissen? Zwei Pfade enden bei „zweite rot“: <span class="m">P(B) = ${br(3, 5)} · ${brRoh(2, 4)} + ${br(2, 5)} · ${brRoh(3, 4)} = ${brRoh(12, 20)} = ${br(3, 5)}</span>. Also <span class="m">P(B | A) = ${br(1, 2)} ≠ ${br(3, 5)} = P(B)</span>: Das Wissen über A ändert die Chance.`, v: () => baum({ ...b0, p1, p2: [["2/4", "2/4"], ["3/4", "1/4"]], hl: [0, 2], enden: ["6/20", "", "6/20", ""] }) },
+      { t: `<b>Fachwort:</b> A und B heißen <b>stochastisch unabhängig</b>, wenn <span class="m">P(B | A) = P(B)</span>. Mit Zurücklegen sind sie unabhängig, ohne Zurücklegen <b>abhängig</b>.`, v: () => urneBild("rot", "blau", 3, 2) },
+      { t: `Gleichwertig und oft bequemer: <span class="m">P(A ∩ B) = P(A) · P(B)</span>. Mit Zurücklegen: <span class="m">${br(3, 5)} · ${br(3, 5)} = ${br(9, 25)}</span> ✓. Ohne: <span class="m">P(A ∩ B) = ${brRoh(6, 20)} = ${br(3, 10)}</span>, aber <span class="m">P(A) · P(B) = ${br(9, 25)}</span> ✗.`, v: () => baum({ ...b0, p1, p2: [["2/4", "2/4"], ["3/4", "1/4"]], hl: [0], enden: ["3/10", "", "", ""] }) },
+    ];
+  })(),
+  merke: `A und B sind <b>stochastisch unabhängig</b>, wenn <span class="m">P(B | A) = P(B)</span>, gleichwertig <span class="m">P(A ∩ B) = P(A) · P(B)</span>. Sonst heißen sie abhängig.`,
+  stolper: `Ohne Zurücklegen ist P(B) trotzdem ${br(3, 5)}, nicht ${br(1, 2)}: P(B) fragt ohne Vorwissen über die erste Kugel. Erst P(B | A) kennt die erste Kugel.`,
+  neu() {
+    const [f1, f2] = wahl(FARBEN);
+    const r = zufall(2, 6), b = zufall(2, 6), n = r + b;
+    const mit = Math.random() < 0.5;
+    const pBA = mit ? r / n : (r - 1) / (n - 1), pB = r / n;
+    const html = `<p>In einer Urne liegen ${r} ${f1}e und ${b} ${f2}e Kugeln. Es werden nacheinander zwei Kugeln gezogen, <b>${mit ? "mit" : "ohne"} Zurücklegen</b>.</p>
+      <p>A: „Die erste Kugel ist ${f1}.“<br>B: „Die zweite Kugel ist ${f1}.“</p>
+      <p class="klein leise">Brüche (z. B. 3/7) oder Dezimalzahlen auf drei Stellen.</p>`;
+    const pfad = (r / n) * pBA;
+    const felder = [
+      { id: "ba", label: "P(B | A)", wert: pBA, tol: 0.0006,
+        fallen: mit
+          ? [{ wert: (r - 1) / (n - 1), text: "So wäre es ohne Zurücklegen. Hier kommt die erste Kugel zurück: Die Urne ist wieder vollständig." }]
+          : [{ wert: r / n, text: `Die erste Kugel fehlt in der Urne: Es liegen nur noch ${n - 1} Kugeln darin, davon ${r - 1} ${f1}e.` },
+             { wert: pfad, text: "Das ist P(A ∩ B), ein ganzer Pfad. Bei P(B | A) weißt du schon, dass A eingetreten ist: Es zählt nur die zweite Stufe." }] },
+      { id: "b", label: "P(B)", wert: pB, tol: 0.0006,
+        fallen: [
+          { wert: pfad, text: `Das ist nur der Pfad „erst ${f1}, dann ${f1}“. P(B) heißt: Die zweite ist ${f1}, egal was die erste war. Der Pfad über ${f2} gehört dazu.` },
+          ...(mit ? [] : [{ wert: (r - 1) / (n - 1), text: `Das ist P(B | A). Ohne Vorwissen über die erste Kugel addierst du beide Pfade, die bei „zweite ${f1}“ enden.` }]),
+        ] },
+    ];
+    const baumDaten = { s1: [f1, f2], s2: [[f1, f2], [f1, f2]], p1: [brT(r, n), brT(b, n)],
+      p2: mit ? [[brT(r, n), brT(b, n)], [brT(r, n), brT(b, n)]] : [[brT(r - 1, n - 1), brT(b, n - 1)], [brT(r, n - 1), brT(b - 1, n - 1)]] };
+    return {
+      html, felder,
+      bild: urneBild(f1, f2, r, b, mit ? "↺ mit Zurücklegen" : "ohne Zurücklegen"),
+      auswahl: entscheidung(mit, mit
+        ? "Vergleiche: P(B | A) und P(B) sind gleich. Das Wissen über die erste Kugel ändert nichts an der zweiten."
+        : `Vergleiche: P(B | A) ist ${pBA < pB ? "kleiner" : "größer"} als P(B). Das Wissen über die erste Kugel ändert die Chance der zweiten.`),
+      tipps: [
+        `Zeichne den Baum: erste Kugel ${f1} oder ${f2}, dann die zweite. ${mit ? "Mit Zurücklegen sieht die zweite Stufe aus wie die erste." : "Ohne Zurücklegen liegt in der zweiten Stufe eine Kugel weniger in der Urne."}`,
+        `${baum({ ...baumDaten, hl: [0, 2] })}<p>P(B | A): der Ast hinter „${f1}“ oben. P(B): beide markierten Pfade addieren.</p>`,
+      ],
+      loesung: `${baum({ ...baumDaten, hl: [0, 2] })}
+        <p>P(B | A) = ${br(mit ? r : r - 1, mit ? n : n - 1)} ≈ ${kz(pBA)}</p>
+        <p>P(B) = ${br(r, n)} · ${br(mit ? r : r - 1, mit ? n : n - 1)} + ${br(b, n)} · ${br(r, mit ? n : n - 1)} = ${br(r, n)} ≈ ${kz(pB)}</p>
+        <p>${mit ? "Gleich, also unabhängig." : "Verschieden, also abhängig."}</p>`,
+    };
+  },
+});
+
+/* ---------- 2 · Prüfen an der Tafel ---------- */
+STATIONEN.push({
+  id: "u-tafel", titel: "Unabhängigkeit an der Vierfeldertafel prüfen", ziel: 3,
+  vor: [
+    { t: `400 Jugendliche: Wer ein Instrument spielt (A), wer im Chor singt (B). Sind A und B unabhängig? Wir vergleichen <span class="m">P(A)</span> mit <span class="m">P(A | B)</span>.`, v: () => tafel(VOR_ABH, vk) },
+    { t: `Unter allen: <span class="m">P(A) = ${brRoh(160, 400)} = 0,4</span>. Unter den Chorsängern: <span class="m">P(A | B) = ${brRoh(60, 100)} = 0,6</span>. Wer im Chor singt, spielt öfter ein Instrument: <b>abhängig</b>.`, v: () => tafel(VOR_ABH, { ...vk, hl: { "0,0": "hl", "2,0": "hl2", "0,2": "hl", "2,2": "hl2" } }) },
+    { t: `<b>Gegenprobe mit dem Produkt:</b> <span class="m">P(A) · P(B) = 0,4 · 0,25 = 0,1</span>, aber <span class="m">P(A ∩ B) = ${brRoh(60, 400)} = 0,15</span>. Nicht gleich, also abhängig. Beide Wege führen immer zum selben Urteil.`, v: () => tafel(VOR_ABH, { ...vk, hl: { "0,0": "hl", "0,2": "hl2", "2,0": "hl2" } }) },
+    { t: `Eine andere Umfrage: 500 Haushalte, Garten (A) und Haustier (B). <span class="m">P(A) = ${brRoh(200, 500)} = 0,4</span> und <span class="m">P(A | B) = ${brRoh(60, 150)} = 0,4</span>. Gleich: Ob ein Haustier da ist, ändert nichts am Anteil mit Garten. <b>Unabhängig.</b>`, v: () => tafel(VOR_UNAB, { ...hk, hl: { "0,0": "hl", "2,0": "hl2" } }) },
+    { t: `Produktprobe: <span class="m">0,4 · 0,3 = 0,12</span> und <span class="m">${brRoh(60, 500)} = 0,12</span> ✓. Bei Unabhängigkeit ist jedes Innenfeld das Produkt seiner beiden Randwerte.`, v: () => tafel(VOR_UNAB.map((z) => z.map((x) => x / 500)), { ...hk, fmt: (x) => kz(x) }) },
+  ],
+  merke: `Prüfen: <span class="m">P(A | B) = P(A)</span>? Oder: <span class="m">P(A ∩ B) = P(A) · P(B)</span>? Gilt eins davon, gilt auch das andere: unabhängig.`,
+  stolper: `Nicht P(A ∩ B) mit P(A | B) vergleichen. P(A ∩ B) ist der Anteil an <b>allen</b>, P(A | B) der Anteil in der Spalte B.`,
+  neu() {
+    const unab = Math.random() < 0.45;
+    const { w, k, N } = unab ? unabTafel() : neueTafel();
+    const umgekehrt = Math.random() < 0.5;            // P(B) und P(B | A) statt P(A) und P(A | B)
+    const [X, Y] = umgekehrt ? ["B", "A"] : ["A", "B"];
+    const nX = umgekehrt ? w[2][0] : w[0][2], nY = umgekehrt ? w[0][2] : w[2][0], nXY = w[0][0];
+    const pX = nX / N, pXY = nXY / nY;
+    const html = `<p>${k.intro(N)}</p>${leg(k)}${tafel(w, tafelKopf(k))}
+      <p>Sind A und B stochastisch unabhängig? Berechne P(${X}) und P(${X} | ${Y}) und vergleiche. <span class="klein leise">(Dezimalzahlen auf drei Stellen.)</span></p>`;
+    return {
+      html,
+      felder: [
+        { id: "px", label: `P(${X})`, wert: pX, tol: 0.0006,
+          fallen: [{ wert: nXY / N, text: `Das ist das Innenfeld „A und B“. P(${X}) steht am Rand: alle mit ${X}, geteilt durch ${N}.` }] },
+        { id: "pxy", label: `P(${X} | ${Y})`, wert: pXY, tol: 0.0006,
+          fallen: [
+            { wert: nXY / N, text: `Das ist P(A ∩ B), der Anteil an allen ${N}. Bei „unter der Bedingung ${Y}“ teilst du durch die ${nY} mit ${Y}.` },
+            { wert: nXY / nX, text: `Das ist P(${Y} | ${X}). Die Bedingung ${Y} steht hinter dem Strich: Teile durch die Anzahl mit ${Y}.` },
+          ] },
+      ],
+      auswahl: entscheidung(unab, unab
+        ? `P(${X} | ${Y}) und P(${X}) sind gleich. Ob ${Y} eintritt, ändert nichts an der Wahrscheinlichkeit von ${X}.`
+        : `P(${X} | ${Y}) und P(${X}) sind verschieden. Unter der Bedingung ${Y} ist ${X} ${pXY > pX ? "wahrscheinlicher" : "unwahrscheinlicher"}.`),
+      tipps: [
+        `P(${X}): Randwert von ${X} geteilt durch ${N}. P(${X} | ${Y}): Feld „A und B“ geteilt durch den Randwert von ${Y}.`,
+        `P(${X}) = ${brRoh(nX, N)}, P(${X} | ${Y}) = ${brRoh(nXY, nY)}. Sind die beiden Werte gleich?`,
+      ],
+      loesung: `<p>P(${X}) = ${brRoh(nX, N)} ≈ ${kz(pX)}; P(${X} | ${Y}) = ${brRoh(nXY, nY)} ≈ ${kz(pXY)}</p>
+        <p>Produktprobe: P(A) · P(B) = ${kz(w[0][2] / N, 4)} · ${kz(w[2][0] / N, 4)} ≈ ${kz(w[0][2] * w[2][0] / N / N, 4)}, P(A ∩ B) = ${brRoh(nXY, N)} ≈ ${kz(nXY / N, 4)}</p>
+        <p>${unab ? "Gleich, also unabhängig." : "Verschieden, also abhängig."}</p>`,
+    };
+  },
+});
+
+/* ---------- 3 · Ergänzen ---------- */
+const ANT = (w) => w.map((z) => z.map((x) => x));
+STATIONEN.push({
+  id: "u-ergaenzen", titel: "Tafel ergänzen bei Unabhängigkeit", ziel: 2,
+  vor: (() => {
+    const t = [[0.12, 0.28, 0.4], [0.18, 0.42, 0.6], [0.3, 0.7, 1]];
+    const nur = (keys) => t.map((z, r) => z.map((x, c) => (keys.includes(r + "," + c) ? x : null)));
+    const o = { ...hk, fmt: (x) => kz(x) };
+    return [
+      { t: `40 % der Haushalte haben einen Garten, 30 % ein Haustier. Wir <b>nehmen an</b>, dass beides unabhängig ist. Dann lässt sich die ganze Anteilstafel aus den Rändern füllen.`, v: () => tafel(nur(["0,2", "2,0", "2,2"]), { ...o, hl: { "0,2": "hl", "2,0": "hl" } }) },
+      { t: `Unabhängig heißt: <span class="m">P(A ∩ B) = P(A) · P(B) = 0,4 · 0,3 = 0,12</span>. Das Innenfeld oben links ist das Produkt seiner Randwerte.`, v: () => tafel(nur(["0,0", "0,2", "2,0", "2,2"]), { ...o, hl: { "0,0": "hl" } }) },
+      { t: `Der Rest geht wie immer über Zeilen und Spalten: <span class="m">0,4 − 0,12 = 0,28</span>, <span class="m">0,3 − 0,12 = 0,18</span>, <span class="m">1 − 0,4 = 0,6</span>, <span class="m">0,6 − 0,18 = 0,42</span>.`, v: () => tafel(t, { ...o, hl: { "0,1": "hl", "1,0": "hl", "1,1": "hl", "1,2": "hl", "2,1": "hl" } }) },
+      { t: `<b>Probe:</b> Auch die anderen Innenfelder sind Produkte ihrer Ränder, z. B. <span class="m">0,6 · 0,7 = 0,42</span> ✓. Mit A und B sind auch ${Q("A")} und ${Q("B")} unabhängig.`, v: () => tafel(t, { ...o, hl: { "1,1": "hl", "1,2": "hl2", "2,1": "hl2" } }) },
+      { t: `<b>Rückwärts:</b> Sind A und B unabhängig mit <span class="m">P(A) = 0,4</span> und <span class="m">P(A ∩ B) = 0,1</span>, dann folgt aus <span class="m">0,4 · P(B) = 0,1</span>: <span class="m">P(B) = 0,1 : 0,4 = 0,25</span>.`, v: () => tafel([[0.1, null, 0.4], [null, null, null], [null, null, 1]], { fmt: (x) => kz(x) }) },
+    ];
+  })(),
+  merke: `Bei Unabhängigkeit ist jedes Innenfeld der Anteilstafel das Produkt seiner Randwerte. Ist ein Produkt bekannt, findet man den fehlenden Faktor durch Teilen.`,
+  stolper: `Nicht addieren: P(A ∩ B) ist nicht P(A) + P(B). Und die Produktregel gilt nur, weil Unabhängigkeit <b>vorausgesetzt</b> ist.`,
+  neu() {
+    if (Math.random() < 0.55) {
+      const k = wahl(KONTEXTE);
+      const pa = wahl([0.2, 0.3, 0.4, 0.6, 0.7, 0.8]), pb = wahl([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65]);
+      const t = [[pa * pb, pa * (1 - pb), pa], [(1 - pa) * pb, (1 - pa) * (1 - pb), 1 - pa], [pb, 1 - pb, 1]];
+      const geg = ["0,2", "2,0", "2,2"];
+      const offen = ["0,0", "0,1", "1,0", "1,1", "1,2", "2,1"];
+      const bekannt = t.map((z, r) => z.map((x, c) => (geg.includes(r + "," + c) ? x : null)));
+      const html = `<p>Für ${k.wer} gilt: ${pz(pa)} ${k.aP}, ${pz(pb)} ${k.bP}. Angenommen, A und B sind <b>stochastisch unabhängig</b>.</p>${leg(k)}
+        <p>Fülle die Anteilstafel aus (Dezimalzahlen, z. B. 0,12).</p>
+        ${tafel(bekannt, { ...tafelKopf(k), fmt: (x) => kz(x), eingabe: new Set(offen), id: "uebTafel" })}`;
+      const tf = offen.map((key) => {
+        const [r, c] = key.split(",").map(Number);
+        const fallen = [];
+        if (key === "0,0") fallen.push({ wert: pa + pb, text: "Addiert statt multipliziert. Bei Unabhängigkeit gilt P(A ∩ B) = P(A) · P(B)." });
+        if (key === "1,1") fallen.push({ wert: 1 - pa * pb, text: "Das ist 1 − P(A ∩ B). Gesucht ist „weder A noch B“: P(Ā) · P(B̄) oder über die Zeile." });
+        return { key, wert: t[r][c], tol: 0.0051, fallen };
+      });
+      return {
+        html, felder: [], art: "tafel", tafelFelder: tf,
+        tipps: [`Oben links: P(A) · P(B) = ${kz(pa)} · ${kz(pb)}.`, `Danach jede Zeile und jede Spalte: innen zusammen = Rand. Probe: Auch unten rechts innen ist ein Produkt, ${kz(1 - pa)} · ${kz(1 - pb)}.`],
+        loesung: tafel(t, { ...tafelKopf(k), fmt: (x) => kz(x, 4) }),
+      };
+    }
+    const pa = wahl([0.2, 0.25, 0.4, 0.5, 0.6, 0.75, 0.8]), pb = wahl([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8]);
+    const pab = pa * pb;
+    const html = `<p>A und B sind stochastisch unabhängig. Es gilt <span class="m">P(A) = ${kz(pa)}</span> und <span class="m">P(A ∩ B) = ${kz(pab, 4)}</span>.</p>
+      <p class="klein leise">Dezimalzahlen auf drei Stellen.</p>`;
+    return {
+      html,
+      felder: [
+        { id: "pb", label: "P(B)", wert: pb, tol: 0.0006,
+          fallen: [
+            { wert: pab * pa, text: "Multipliziert statt geteilt. Aus P(A) · P(B) = P(A ∩ B) folgt P(B) = P(A ∩ B) : P(A)." },
+            { wert: pab, text: "Das ist P(A ∩ B) selbst. Gesucht ist der zweite Faktor." },
+            { wert: pa - pab, text: "Das ist P(A ∩ B̄) (Rest der Zeile A). Gesucht ist P(B): teilen statt abziehen." },
+          ] },
+        { id: "nn", label: `P(${Q("A")} ∩ ${Q("B")})`, wert: (1 - pa) * (1 - pb), tol: 0.0006,
+          fallen: [
+            { wert: 1 - pab, text: "Das ist 1 − P(A ∩ B), also „nicht beides“. Gesucht ist „weder A noch B“." },
+            { wert: 1 - pa - pb, text: "Du hast P(A ∩ B) doppelt abgezogen. Rechne P(Ā) · P(B̄) oder über die Tafel." },
+          ] },
+      ],
+      tipps: [`Setze ein: ${kz(pa)} · P(B) = ${kz(pab, 4)}. Nach P(B) auflösen.`, `Mit A und B sind auch ${Q("A")} und ${Q("B")} unabhängig: P(${Q("A")} ∩ ${Q("B")}) = (1 − P(A)) · (1 − P(B)).`],
+      loesung: `<p>P(B) = ${kz(pab, 4)} : ${kz(pa)} = ${kz(pb)}</p><p>P(${Q("A")} ∩ ${Q("B")}) = ${kz(1 - pa)} · ${kz(1 - pb)} = ${kz((1 - pa) * (1 - pb), 4)}</p>
+        ${tafel([[pab, pa - pab, pa], [pb - pab, (1 - pa) * (1 - pb), 1 - pa], [pb, 1 - pb, 1]], { fmt: (x) => kz(x, 4) })}`,
+    };
+  },
+});
+
+/* ---------- 4 · Flächenbild ---------- */
+STATIONEN.push({
+  id: "u-flaeche", titel: "Flächenbild: gerade oder gestuft?", ziel: 2,
+  vor: [
+    { t: `Ein Quadrat steht für alle 400 Jugendlichen. Senkrecht teilen wir nach B: Die Spalte „Chor“ ist ${brRoh(100, 400)} = ein Viertel breit. In jeder Spalte teilen wir waagerecht nach A.`, v: () => mosaikBild(VOR_ABH, VOR_K) },
+    { t: `Die <b>Höhe</b> des blauen Teils ist der Anteil von A <i>in dieser Spalte</i>: links <span class="m">P(A | B) = 0,6</span>, rechts <span class="m">P(A | ${Q("B")}) = ${brRoh(100, 300)} ≈ 0,33</span>. Die Trennlinie springt: <b>abhängig</b>.`, v: () => mosaikBild(VOR_ABH, VOR_K) },
+    { t: `Die Haushalte mit Garten und Haustier: links ${brRoh(60, 150)} = 0,4, rechts ${brRoh(140, 350)} = 0,4. Die Trennlinie läuft <b>gerade durch</b>: <b>unabhängig</b>.`, v: () => mosaikBild(VOR_UNAB, HAUS) },
+    { t: `Die Fläche des blauen Rechtecks links ist Breite mal Höhe: <span class="m">P(B) · P(A | B) = P(A ∩ B)</span>. Läuft die Linie gerade, ist die Höhe überall P(A), also <span class="m">P(A ∩ B) = P(B) · P(A)</span>, die Produktregel.`, v: () => mosaikBild(VOR_UNAB, HAUS) },
+  ],
+  merke: `Im Flächenbild ist die Breite P(B), die Höhe in der Spalte P(A | B). Gleich hohe Teile in beiden Spalten bedeuten Unabhängigkeit.`,
+  stolper: `Nicht die Flächen vergleichen, sondern die Höhen. Eine schmale Spalte hat wenig Fläche, kann aber denselben Anteil haben.`,
+  neu() {
+    const unab = Math.random() < 0.45;
+    const { w, k, N } = unab ? unabTafel() : neueTafel();
+    const h1 = w[0][0] / w[2][0], h2 = w[0][1] / w[2][1];
+    const html = `<p>${k.intro(N)}</p>${leg(k)}
+      <p>Das Flächenbild zeigt das Ergebnis. In der Spalte B sind ${w[2][0]}, in der Spalte ${Q("B")} ${w[2][1]}.</p>
+      <p class="klein leise">Dezimalzahlen auf drei Stellen.</p>`;
+    return {
+      html, bild: mosaikBild(w, k),
+      felder: [
+        { id: "h1", label: "P(A | B)", wert: h1, tol: 0.0006,
+          fallen: [{ wert: w[0][0] / N, text: `Das ist P(A ∩ B), der Anteil an allen ${N}. Die Höhe misst den Anteil in der Spalte: durch ${w[2][0]} teilen.` },
+                   { wert: w[0][0] / w[0][2], text: "Das ist P(B | A). Die Spalte ist B: Teile durch die Anzahl in der Spalte B." }] },
+        { id: "h2", label: `P(A | ${Q("B")})`, wert: h2, tol: 0.0006,
+          fallen: [{ wert: w[0][1] / N, text: `Das ist P(A ∩ ${Q("B")}), der Anteil an allen. Die Höhe misst den Anteil in der Spalte ${Q("B")}: durch ${w[2][1]} teilen.` }] },
+      ],
+      auswahl: entscheidung(unab, unab ? "Die blauen Teile sind in beiden Spalten gleich hoch: Die Trennlinie läuft gerade durch." : "Die blauen Teile sind verschieden hoch: Die Trennlinie springt."),
+      tipps: [`Höhe links: Anzahl „A und B“ geteilt durch die ${w[2][0]} in Spalte B. Fehlt eine Zahl im Bild, rechne über die Spalte: oben + unten = Spaltensumme.`, `P(A | B) = ${brRoh(w[0][0], w[2][0])}, P(A | ${Q("B")}) = ${brRoh(w[0][1], w[2][1])}. Gleich oder nicht?`],
+      loesung: `<p>P(A | B) = ${brRoh(w[0][0], w[2][0])} ≈ ${kz(h1)}; P(A | ${Q("B")}) = ${brRoh(w[0][1], w[2][1])} ≈ ${kz(h2)}</p><p>${unab ? "Gleich hoch, also unabhängig." : "Verschieden hoch, also abhängig."}</p>${tafel(w, tafelKopf(k))}`,
+    };
+  },
+});
+
+/* ---------- 5 · Würfel und Karten ---------- */
+const EV_W = [
+  { t: "Der erste Wurf zeigt eine 6.", f: (x) => x === 6 },
+  { t: "Der erste Wurf zeigt eine gerade Zahl.", f: (x) => x % 2 === 0 },
+  { t: "Der zweite Wurf zeigt höchstens eine 2.", f: (x, y) => y <= 2 },
+  { t: "Die Augensumme ist 7.", f: (x, y) => x + y === 7 },
+  { t: "Die Augensumme ist 8.", f: (x, y) => x + y === 8 },
+  { t: "Die Augensumme ist gerade.", f: (x, y) => (x + y) % 2 === 0 },
+  { t: "Es fällt ein Pasch (zweimal dieselbe Zahl).", f: (x, y) => x === y },
+  { t: "Die Augensumme ist größer als 9.", f: (x, y) => x + y > 9 },
+  { t: "Der zweite Wurf ist größer als der erste.", f: (x, y) => y > x },
+];
+const FARB = ["♣", "♠", "♥", "♦"], FARBNAME = ["Kreuz", "Pik", "Herz", "Karo"];
+const WERTE = ["7", "8", "9", "10", "B", "D", "K", "A"];
+const EV_K = [
+  { t: "Die Karte ist eine Herz-Karte.", f: (fa) => fa === 2 },
+  { t: "Die Karte ist rot (Herz oder Karo).", f: (fa) => fa >= 2 },
+  { t: "Die Karte ist schwarz (Kreuz oder Pik).", f: (fa) => fa < 2 },
+  { t: "Die Karte ist ein Bube.", f: (fa, we) => we === 4 },
+  { t: "Die Karte ist ein Ass.", f: (fa, we) => we === 7 },
+  { t: "Die Karte ist ein Bild (Bube, Dame oder König).", f: (fa, we) => we >= 4 && we <= 6 },
+  { t: "Die Karte ist eine Zahlkarte (7 bis 10).", f: (fa, we) => we <= 3 },
+  { t: "Die Karte ist eine Dame oder ein König.", f: (fa, we) => we === 5 || we === 6 },
+];
+STATIONEN.push({
+  id: "u-abzaehlen", titel: "Würfel und Karten: abzählen und prüfen", ziel: 3,
+  vor: (() => {
+    const A = (x) => x === 6, B7 = (x, y) => x + y === 7, B8 = (x, y) => x + y === 8;
+    const m = (fa, fb) => (r, c) => { const a = fa(r + 1, c + 1), b = fb(r + 1, c + 1); return a && b ? "ab" : a ? "a" : b ? "b" : ""; };
+    const zk = [1, 2, 3, 4, 5, 6];
+    return [
+      { t: `Zwei Würfelwürfe: 36 gleich wahrscheinliche Ergebnisse. A: „Der erste Wurf zeigt eine 6.“ B: „Die Augensumme ist 7.“`, v: () => rasterBild(zk, zk, null, "1. Wurf", "2. Wurf") },
+      { t: `Abzählen: A hat 6 Felder, B hat 6 Felder, beides zugleich nur (6 | 1). <span class="m">P(A) · P(B) = ${br(1, 6)} · ${br(1, 6)} = ${br(1, 36)}</span> und <span class="m">P(A ∩ B) = ${br(1, 36)}</span> ✓. <b>Unabhängig.</b>`, v: () => rasterBild(zk, zk, m(A, B7), "1. Wurf", "2. Wurf") + RASTER_LEG },
+      { t: `Mit B: „Augensumme 8“ sieht es anders aus. B hat 5 Felder, beides zugleich wieder eins: <span class="m">P(A ∩ B) = ${br(1, 36)}</span>, aber <span class="m">P(A) · P(B) = ${br(1, 6)} · ${br(5, 36)} = ${br(5, 216)}</span>. <b>Abhängig.</b>`, v: () => rasterBild(zk, zk, m(A, B8), "1. Wurf", "2. Wurf") + RASTER_LEG },
+      { t: `In Worten: Nach einer 6 im ersten Wurf ist Summe 8 mit ${br(1, 6)} möglich (eine 2), insgesamt nur mit ${br(5, 36)}. Die erste 6 macht die 8 wahrscheinlicher. Bei der 7 klappt es nach jeder ersten Zahl genau einmal.`, v: () => rasterBild(zk, zk, m(A, B8), "1. Wurf", "2. Wurf") + RASTER_LEG },
+      { t: `<b>Achtung, unvereinbar ist nicht unabhängig:</b> „Ass“ und „Bild“ können nie zusammen kommen, <span class="m">P(A ∩ B) = 0</span>. Das Produkt der beiden Wahrscheinlichkeiten ist aber nicht 0. Wer ein Ass zieht, weiß sicher: kein Bild. Das ist stärkste Abhängigkeit.`, v: () => rasterBild(FARB, WERTE, (r, c) => (c === 7 ? "a" : c >= 4 && c <= 6 ? "b" : ""), "Farbe", "Wert", (r) => (r >= 2 ? "rot" : "")) + RASTER_LEG },
+    ];
+  })(),
+  merke: `Bei gleich wahrscheinlichen Ergebnissen: zählen, dann <span class="m">P(A ∩ B) = P(A) · P(B)</span> prüfen. Unvereinbare Ereignisse (beide möglich) sind immer abhängig.`,
+  stolper: `Unabhängig heißt nicht „haben nichts miteinander zu tun“ und nicht „können nicht zusammen eintreten“. Entscheidend ist allein die Rechnung.`,
+  neu() {
+    const karten = Math.random() < 0.5;
+    const liste = karten ? EV_K : EV_W;
+    const Z = karten ? 4 : 6, S = karten ? 8 : 6, N = Z * S;
+    const will = Math.random() < 0.45;
+    let A, B, nA, nB, nAB, unab;
+    for (let v = 0; v < 300; v++) {
+      [A, B] = mischen([...liste]).slice(0, 2);
+      nA = nB = nAB = 0;
+      for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++) {
+        const a = karten ? A.f(r, c) : A.f(r + 1, c + 1), b = karten ? B.f(r, c) : B.f(r + 1, c + 1);
+        nA += a; nB += b; nAB += a && b;
+      }
+      if (nA === 0 || nB === 0 || nA === N || nB === N) continue;
+      unab = nAB * N === nA * nB;
+      if (unab === will) break;
+    }
+    const mark = (r, c) => { const a = karten ? A.f(r, c) : A.f(r + 1, c + 1), b = karten ? B.f(r, c) : B.f(r + 1, c + 1); return a && b ? "ab" : a ? "a" : b ? "b" : ""; };
+    const raster = (m) => karten ? rasterBild(FARB, WERTE, m, "Farbe", "Wert", (r) => (r >= 2 ? "rot" : "")) : rasterBild([1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6], m, "1. Wurf", "2. Wurf");
+    const html = `<p>${karten ? "Aus einem Kartenspiel mit 32 Karten (Kreuz, Pik, Herz, Karo; jeweils 7, 8, 9, 10, Bube, Dame, König, Ass) wird zufällig eine Karte gezogen." : "Ein Würfel wird zweimal geworfen."}</p>
+      <p>A: „${A.t.replace(/\.$/, "")}.“<br>B: „${B.t.replace(/\.$/, "")}.“</p>
+      <p class="klein leise">Als Bruch (z. B. ${karten ? "3/8" : "5/36"}) oder als Dezimalzahl auf drei Stellen.</p>`;
+    const pA = nA / N, pB = nB / N, pAB = nAB / N;
+    return {
+      html, bild: raster(null) + `<p class="klein leise unterschrift">${N} gleich wahrscheinliche Ergebnisse</p>`,
+      felder: [
+        { id: "a", label: "P(A)", wert: pA, tol: 0.0006, fallen: [{ wert: nA, text: `Das ist eine Anzahl. Teile durch alle ${N} Ergebnisse.` }] },
+        { id: "b", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: nB, text: `Das ist eine Anzahl. Teile durch alle ${N} Ergebnisse.` }] },
+        { id: "ab", label: "P(A ∩ B)", wert: pAB, tol: 0.0006,
+          fallen: [
+            ...(unab ? [] : [{ wert: pA * pB, text: "Das ist P(A) · P(B). Ob das gleich P(A ∩ B) ist, sollst du gerade prüfen. Zähle die Ergebnisse, bei denen A und B zugleich eintreten." }]),
+            { wert: (nA + nB - nAB) / N, text: "Das ist „A oder B“. Gesucht ist „A und B“: beides zugleich." },
+          ] },
+      ],
+      auswahl: entscheidung(unab, unab ? `P(A) · P(B) = ${brT(nA * nB, N * N)} und P(A ∩ B) = ${brT(nAB, N)} sind gleich.` : `P(A) · P(B) = ${brT(nA * nB, N * N)}, aber P(A ∩ B) = ${brT(nAB, N)}.${nAB === 0 ? " Unvereinbare Ereignisse sind abhängig: Tritt A ein, ist B ausgeschlossen." : ""}`),
+      tipps: [`Geh das Raster durch: In welchen Feldern gilt A, in welchen B, in welchen beides? Zähle alle drei.`, raster(mark) + RASTER_LEG],
+      loesung: `${raster(mark)}${RASTER_LEG}<p>P(A) = ${br(nA, N)}, P(B) = ${br(nB, N)}, P(A ∩ B) = ${nAB ? br(nAB, N) : "0"}</p>
+        <p>P(A) · P(B) = ${br(nA * nB, N * N)} ${unab ? "=" : "≠"} P(A ∩ B), also ${unab ? "unabhängig" : "abhängig"}.</p>`,
+    };
+  },
+});
+
+/* ---------- 6 · Produktfalle ---------- */
+/* t(pA, pB, pAgB) → Sachtext; unab: A und B sind unabhängig (P(A | B) = P(A)) */
+const FALLE = [
+  { pB: [1, 4], pAB: [60, 85], q: [15, 25],
+    t: (a, b, ab) => `Unter den jungen Männern einer Stadt sind ${pz(a)} größer als 1,85 m (A). ${pz(b)} spielen im Verein Basketball (B). Von den Basketballern sind ${pz(ab)} größer als 1,85 m.` },
+  { pB: [10, 25], pAB: [70, 90], q: [10, 25],
+    t: (a, b, ab) => `An ${pz(b)} der Sommertage ist es heiß, über 30 °C (B). An ${pz(a)} aller Sommertage verkauft ein Eiscafé mehr als 300 Kugeln (A), an den heißen Tagen sogar an ${pz(ab)}.` },
+  { pB: [5, 15], pAB: [50, 80], q: [10, 20],
+    t: (a, b, ab) => `An ${pz(a)} der Wintertage hat ein Regionalzug Verspätung (A). An ${pz(b)} der Wintertage schneit es (B). An Schneetagen ist der Zug zu ${pz(ab)} verspätet.` },
+  { pB: [24, 26], q: [15, 25], unab: true,
+    t: (a, b, ab) => `Unter den jungen Männern einer Stadt sind ${pz(a)} größer als 1,85 m (A). ${pz(b)} haben im Sommer Geburtstag, Juni bis August (B). Von den Sommergeborenen sind ${pz(ab)} größer als 1,85 m.` },
+];
+/* Gemeinsame Ursache: Wetter → Eis, Wetter → Sonnenbrand */
+function ursacheBild() {
+  const kasten = (x, y, w, t, cls) => `<rect x="${x}" y="${y}" width="${w}" height="38" rx="9" class="uk ${cls}"/><text x="${x + w / 2}" y="${y + 25}" class="ut">${t}</text>`;
+  return `<svg class="ursache" viewBox="0 0 320 190" role="img" aria-label="Heißes Wetter führt zu mehr Eis und zu mehr Sonnenbrand">
+    <defs><marker id="pfeilU" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="up"/></marker></defs>
+    ${kasten(95, 8, 130, "heißes Wetter", "w")}
+    <line x1="130" y1="48" x2="72" y2="128" class="ul" marker-end="url(#pfeilU)"/><line x1="190" y1="48" x2="248" y2="128" class="ul" marker-end="url(#pfeilU)"/>
+    ${kasten(8, 132, 120, "viel Eis", "e")}${kasten(192, 132, 120, "Sonnenbrand", "e")}
+    <line x1="132" y1="151" x2="188" y2="151" class="ud"/><text x="160" y="182" class="ut klein2">abhängig, aber keine Ursache</text></svg>`;
+}
+STATIONEN.push({
+  id: "u-falle", titel: "Die Produktfalle", ziel: 3,
+  vor: (() => {
+    const s = { s1: ["B", QS("B")], s2: [["A", QS("A")], ["A", QS("A")]] };
+    return [
+      { t: `2 % der jungen Männer einer Stadt spielen im Verein Basketball (B). 25 % sind größer als 1,85 m (A). Wie viele sind beides?`, v: () => hundertBild(25, "größer als 1,85 m", null) },
+      { t: `<b>Falsch:</b> <span class="m">0,25 · 0,02 = 0,005</span>. Das Produkt unterstellt, dass Basketballer nicht öfter groß sind als alle anderen, also Unabhängigkeit. Die ist hier nicht plausibel.`, v: () => baum({ ...s, p1: ["0,02", "0,98"], p2: [["0,25 ?", ""], ["", ""]] }) },
+      { t: `<b>Richtig:</b> Von den Basketballern sind etwa 70 % groß, <span class="m">P(A | B) = 0,7</span>. Pfadregel: <span class="m">P(A ∩ B) = P(B) · P(A | B) = 0,02 · 0,7 = 0,014</span>, fast dreimal so viel.`, v: () => baum({ ...s, p1: ["0,02", "0,98"], p2: [["0,7", "0,3"], ["", ""]], hl: [0], enden: ["0,014", "", "", ""] }) },
+      { t: `Die Pfadregel <span class="m">P(A ∩ B) = P(B) · P(A | B)</span> gilt <b>immer</b>. Nur bei Unabhängigkeit darf man P(A | B) durch P(A) ersetzen. Das ist die Produktregel.`, v: () => baum({ ...s, p1: ["P(B)", ""], p2: [["P(A | B)", ""], ["", ""]], hl: [0], enden: ["P(A ∩ B)", "", "", ""] }) },
+      { t: `<b>Abhängig heißt nicht verursacht.</b> An heißen Tagen wird mehr Eis verkauft, und es gibt mehr Sonnenbrand: stochastisch abhängig. Trotzdem verursacht das Eis keinen Sonnenbrand. Beides hängt am Wetter. Die Rechnung zeigt den Zusammenhang, nicht den Grund.`, v: () => ursacheBild() },
+    ];
+  })(),
+  merke: `Immer richtig: <span class="m">P(A ∩ B) = P(B) · P(A | B)</span>. Nur bei Unabhängigkeit: <span class="m">P(A ∩ B) = P(A) · P(B)</span>. Abhängigkeit beschreibt einen Zusammenhang, keine Ursache.`,
+  stolper: `Wer ohne Prüfung P(A) · P(B) rechnet, unterstellt Unabhängigkeit. Bei Zusammenhängen wie Sport und Körpergröße liegt man damit weit daneben.`,
+  neu() {
+    const c = wahl(FALLE);
+    const pB = zufall(c.pB[0], c.pB[1]) / 100, q = zufall(c.q[0], c.q[1]) / 100;
+    const pAgB = c.unab ? q : zufall(c.pAB[0], c.pAB[1]) / 100;
+    const pA = c.unab ? q : Math.round((pB * pAgB + (1 - pB) * q) * 100) / 100;
+    const richtig = pB * pAgB;
+    const html = `<p>${c.t(pA, pB, pAgB)}</p>
+      <p><b>Wie groß ist P(A ∩ B)?</b> Und sind A und B unabhängig?</p>
+      <p class="klein leise">Dezimalzahl auf vier Stellen, z. B. 0,0125.</p>`;
+    return {
+      html,
+      felder: [
+        { id: "ab", label: "P(A ∩ B)", wert: richtig, tol: 0.00006,
+          fallen: [
+            ...(c.unab ? [] : [{ wert: pA * pB, text: "Das ist P(A) · P(B), die Produktregel. Sie gilt nur bei Unabhängigkeit. Hier ist P(A | B) ≠ P(A): Rechne P(B) · P(A | B)." }]),
+            { wert: pAgB, text: "Das ist P(A | B), der Anteil unter B. Gesucht ist der Anteil an allen: noch mal P(B)." },
+          ] },
+      ],
+      auswahl: entscheidung(!!c.unab, c.unab ? `P(A | B) = ${pz(pAgB)} = P(A): Der Geburtsmonat ändert nichts am Anteil der Großen.` : `P(A | B) = ${pz(pAgB)}, aber P(A) = ${pz(pA)}. Unter B ist A viel häufiger.`),
+      tipps: [`Vergleiche P(A | B) mit P(A). Sind sie gleich, darfst du P(A) · P(B) rechnen, sonst nicht.`, `Pfad im Baum mit erster Stufe B: P(A ∩ B) = P(B) · P(A | B) = ${kz(pB)} · ${kz(pAgB)}.`],
+      loesung: `<p>P(A ∩ B) = P(B) · P(A | B) = ${kz(pB)} · ${kz(pAgB)} = ${kz(richtig, 4)}</p>
+        <p>${c.unab ? `Hier gilt auch P(A) · P(B) = ${kz(pA * pB, 4)}, weil A und B unabhängig sind.` : `Das falsche Produkt P(A) · P(B) = ${kz(pA * pB, 4)} liegt um den Faktor ${kz(richtig / (pA * pB), 1)} daneben.`}</p>`,
+    };
+  },
+});
+
+/* ---------- 7 · gemischt ---------- */
+STATIONEN.push({
+  id: "u-mix", titel: "Gemischte Aufgaben", ziel: 5, vor: null,
+  merke: `Erst fragen: Ist Unabhängigkeit <b>gegeben</b> (dann Produktregel) oder soll sie <b>geprüft</b> werden (dann P(A | B) mit P(A) oder P(A ∩ B) mit P(A) · P(B) vergleichen)?`,
+  stolper: `Unvereinbar ist nicht unabhängig, und abhängig heißt nicht verursacht.`,
+  neu() {
+    const quelle = wahl(["u-idee", "u-tafel", "u-ergaenzen", "u-flaeche", "u-abzaehlen", "u-falle"]);
+    const a = STATIONEN.find((s) => s.id === quelle).neu();
+    a.herkunft = quelle;
+    return a;
+  },
+});
+
+
+/* ============================================================
+   5. Anzeige einer Station
+   ============================================================ */
+let aktiv = null, aufgabe = null, vorSchritt = 0, versucht = false, loesungGesehen = false, tippZahl = 0;
+
+const KURZ = { "u-idee": "Idee", "u-tafel": "Tafel prüfen", "u-ergaenzen": "Ergänzen", "u-flaeche": "Flächenbild",
+  "u-abzaehlen": "Würfel & Karten", "u-falle": "Produktfalle", "u-mix": "Mix" };
+
+function wegZeichnen() {
+  $("#weg").innerHTML = STATIONEN.map((s, i) => {
+    const z = st(s.id);
+    return `<button type="button" data-id="${s.id}" title="${s.titel}" class="${aktiv && aktiv.id === s.id ? "aktiv" : ""} ${z.geschafft ? "geschafft" : ""}">
+      <span class="nr">${z.geschafft ? "✓" : i + 1}</span>${KURZ[s.id]}</button>`;
+  }).join("");
+  for (const b of $("#weg").querySelectorAll("button")) b.onclick = () => oeffne(b.dataset.id, true);
+}
+
+/* Text Wort für Wort aufschreiben. Brüche und Überstriche bleiben ganze
+   Einheiten. Ein Klick auf den Text zeigt sofort alles. */
+const RUHIG = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let schreibUhr = null;
+function aufschreiben(el, html, fertig) {
+  clearInterval(schreibUhr);
+  el.innerHTML = html;
+  const ganz = el.querySelectorAll(".bruch, .q, svg, table");
+  ganz.forEach((e) => e.classList.add("w"));
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const knoten = [];
+  while (tw.nextNode()) if (!tw.currentNode.parentElement.closest(".bruch, .q, svg, table")) knoten.push(tw.currentNode);
+  for (const t of knoten) {
+    const frag = document.createDocumentFragment();
+    for (const teil of t.textContent.split(/(\s+)/)) {
+      if (!teil) continue;
+      if (/^\s+$/.test(teil)) { frag.append(teil); continue; }
+      const s = document.createElement("span"); s.className = "w"; s.textContent = teil; frag.append(s);
+    }
+    t.replaceWith(frag);
+  }
+  const einheiten = [...el.querySelectorAll(".w")];
+  const alles = () => { clearInterval(schreibUhr); einheiten.forEach((e) => e.classList.add("da")); el.onclick = null; fertig && fertig(); fertig = null; };
+  if (RUHIG) { alles(); return; }
+  let i = 0;
+  el.onclick = alles;
+  schreibUhr = setInterval(() => { if (i >= einheiten.length) { alles(); return; } einheiten[i++].classList.add("da"); }, 55);
+}
+
+function oeffne(id, scrollen) {
+  aktiv = STATIONEN.find((s) => s.id === id) || STATIONEN[0];
+  try { localStorage.setItem("mu-unabhaengigkeit-zuletzt", aktiv.id); } catch {}
+  vorSchritt = 0;
+  clearInterval(schreibUhr);
+  const i = STATIONEN.indexOf(aktiv);
+  $("#station").innerHTML = `
+    <section class="karte bereich vor-b">
+      <span class="marke">${aktiv.vor ? "▶ Zuschauen" : "Überblick"}</span>
+      <h2>${i + 1} · ${aktiv.titel}</h2>
+      ${aktiv.vor ? `
+      <div class="vor"><div class="schritt" id="schritt" title="Klick: alles zeigen"></div><div class="bild" id="bild"></div></div>
+      <div class="leiste">
+        <button type="button" id="zurueck" aria-label="Schritt zurück">◂</button>
+        <button type="button" class="voll" id="weiter">Weiter ▸</button>
+        <span class="punkte" id="punkte"></span>
+        <button type="button" id="ueberspringen" class="klein">direkt üben</button>
+      </div>` : ""}
+      <div id="nachVor"></div>
+    </section>
+    <section class="karte bereich ueben-b" id="uebenKarte" hidden>
+      <span class="marke">✎ Üben</span>
+      <div class="kopf"><h2>Aufgabe</h2><span class="serie" id="serie" title="${aktiv.ziel} richtig in Folge"></span></div>
+      <div id="uebung"></div>
+    </section>
+    <section class="karte bereich ki-b ki" id="kiKarte" hidden>
+      <span class="marke">✍ Rückmeldung zum Rechenweg</span>
+      <div id="kiBereich"></div>
+    </section>`;
+  if (aktiv.vor) {
+    $("#weiter").onclick = () => {
+      if (vorSchritt < aktiv.vor.length - 1) { vorSchritt++; vorZeichnen(); }
+      else zeigeUeben(true);
+    };
+    $("#zurueck").onclick = () => { if (vorSchritt > 0) { vorSchritt--; vorZeichnen(); } };
+    $("#ueberspringen").onclick = () => { zeigeKaesten(); zeigeUeben(true); };
+    vorZeichnen();
+  }
+  /* Wer hier schon geübt hat oder keine Vorführung hat, kommt gleich zum Üben */
+  if (!aktiv.vor || st(aktiv.id).richtig > 0) { zeigeKaesten(); zeigeUeben(false); }
+  wegZeichnen();
+  if (scrollen) $("#station").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function vorZeichnen() {
+  const v = aktiv.vor, letzter = vorSchritt === v.length - 1;
+  $("#bild").innerHTML = v[vorSchritt].v();
+  $("#bild").firstElementChild && $("#bild").firstElementChild.classList.add("einblenden");
+  aufschreiben($("#schritt"), v[vorSchritt].t, () => { if (letzter) zeigeKaesten(); });
+  $("#punkte").innerHTML = v.map((_, k) => `<i class="${k <= vorSchritt ? "an" : ""}"></i>`).join("");
+  $("#weiter").textContent = letzter ? "Jetzt üben ▸" : "Weiter ▸";
+  $("#zurueck").disabled = vorSchritt === 0;
+}
+
+function zeigeKaesten() {
+  if ($("#nachVor").childElementCount) return;
+  $("#nachVor").innerHTML = `<div class="kaesten einblenden" style="margin-top:16px">
+    <div class="merke"><h3>Merke</h3>${aktiv.merke}</div>
+    <div class="stolper"><h3>Stolperstein</h3>${aktiv.stolper}</div></div>`;
+}
+
+function zeigeUeben(scrollen) {
+  const karte = $("#uebenKarte");
+  if (karte.hidden) {
+    karte.hidden = false;
+    $("#kiKarte").hidden = false;
+    karte.classList.add("einblenden");
+    neueAufgabe();
+    kiBereichZeichnen();
+  }
+  if (scrollen) karte.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function serieZeichnen() {
+  const z = st(aktiv.id);
+  let s = "";
+  for (let i = 0; i < aktiv.ziel; i++) s += `<i class="${i < Math.min(z.serie, aktiv.ziel) ? "an" : ""}"></i>`;
+  $("#serie").innerHTML = s;
+}
+
+function neueAufgabe() {
+  aufgabe = aktiv.neu();
+  /* Fallen, die zufällig mit der Lösung zusammenfallen, wären irreführend */
+  for (const f of [...aufgabe.felder, ...(aufgabe.tafelFelder || [])])
+    if (f.fallen) f.fallen = f.fallen.filter((fa) => Math.abs(fa.wert - f.wert) > Math.max(f.tol || 0, 0.0006) + 1e-9);
+  versucht = false; loesungGesehen = false; tippZahl = 0;
+  let html = aufgabe.bild
+    ? `<div class="aufgabe mitbild"><div>${aufgabe.html}</div><figure class="abild">${aufgabe.bild}</figure></div><div class="felder">`
+    : `<div class="aufgabe">${aufgabe.html}</div><div class="felder">`;
+  if (aufgabe.auswahl) {
+    html += `<div class="feld" data-feld="auswahl"><label for="f-auswahl">${aufgabe.auswahl.label}</label>
+      <select id="f-auswahl"><option value="">– wählen –</option>${aufgabe.auswahl.optionen.map((o, i) => `<option value="${i}">${text(o)}</option>`).join("")}</select></div>`;
+  }
+  for (const f of aufgabe.felder)
+    html += `<div class="feld" data-feld="${f.id}"><label for="f-${f.id}">${f.label}</label><input id="f-${f.id}" inputmode="decimal" autocomplete="off"></div>`;
+  html += `</div>
+    <div class="leiste">
+      <button type="button" class="voll" id="pruefen">Prüfen</button>
+      <button type="button" id="tipp">Tipp</button>
+      <button type="button" id="loesung">Lösung zeigen</button>
+      <button type="button" id="neu">Neue Aufgabe</button>
+    </div>
+    <div id="tipps"></div><div id="meldung"></div>`;
+  $("#uebung").innerHTML = html;
+  $("#pruefen").onclick = pruefen;
+  $("#tipp").onclick = tippZeigen;
+  $("#loesung").onclick = loesungZeigen;
+  $("#neu").onclick = neueAufgabe;
+  for (const inp of $("#uebung").querySelectorAll("input")) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") pruefen(); });
+  /* Zahlenkärtchen zum Antippen: E sichtbar zusammenstellen (wird nicht bewertet) */
+  const tb = $("#uebung .tippbar");
+  if (tb) for (const k of tb.children) k.onclick = () => {
+    k.classList.toggle("an");
+    const n = tb.querySelectorAll(".an").length;
+    $("#uebung [data-zaehler]").textContent = n ? `markiert: ${n}` : "Tippe an, was zu E gehört.";
+  };
+  $("#weg-text") && ($("#weg-text").value = "");
+  $("#kiAntwort") && ($("#kiAntwort").innerHTML = "");
+  serieZeichnen();
+}
+
+const passt = (x, f) => (f.art === "n" ? Math.abs(x - f.wert) < 1e-9 : Math.abs(x - f.wert) <= f.tol + 1e-12);
+
+/* Ein Feld prüfen → { ok, text } */
+function feldPruefen(roh, f) {
+  const e = lies(roh);
+  if (!e) return { ok: false, leer: !String(roh || "").trim(), text: "" };
+  let x = e.wert;
+  if (f.art !== "n" && !e.prozent && x > 1 && x <= 100) x = x / 100;  // „27“ als 27 % lesen
+  if (passt(x, f)) {
+    const hinweis = f.art !== "n" && !e.prozent && e.wert > 1 ? "Richtig – schreib beim nächsten Mal das %-Zeichen dazu." : "";
+    return { ok: true, text: hinweis };
+  }
+  for (const fa of f.fallen || []) if (Math.abs(x - fa.wert) <= Math.max(f.tol, 0.0006) + 1e-12) return { ok: false, text: fa.text };
+  if (f.art !== "n" && f.tol < 0.005 && Math.abs(x - f.wert) <= 0.006) return { ok: false, text: "Ganz nah dran. Runde genauer (siehe Angabe der Stellen) oder rechne ohne gerundete Zwischenergebnisse." };
+  return { ok: false, text: "" };
+}
+
+function pruefen() {
+  const meld = [];
+  let alle = true, leer = false;
+  if (aufgabe.auswahl) {
+    const el = $("#f-auswahl"), box = el.closest(".feld");
+    const v = el.value;
+    box.classList.remove("richtig", "falsch");
+    if (v === "") { leer = true; alle = false; }
+    else if (Number(v) === aufgabe.auswahl.richtig) box.classList.add("richtig");
+    else { box.classList.add("falsch"); alle = false; meld.push(aufgabe.auswahl.falsch(Number(v))); }
+  }
+  for (const f of aufgabe.felder) {
+    const el = $("#f-" + f.id), box = el.closest(".feld");
+    box.classList.remove("richtig", "falsch");
+    const r = feldPruefen(el.value, f);
+    if (r.leer) { leer = true; alle = false; continue; }
+    box.classList.add(r.ok ? "richtig" : "falsch");
+    if (!r.ok) alle = false;
+    if (r.text) meld.push(`<b>${text(f.label)}:</b> ${r.text}`);
+  }
+  if (aufgabe.tafelFelder) {
+    const tab = $("#uebTafel");
+    for (const tf of aufgabe.tafelFelder) {
+      const inp = tab.querySelector(`input[data-zelle="${tf.key}"]`), td = inp.closest("td");
+      td.classList.remove("hl", "falsch");
+      const f = { wert: tf.wert, tol: tf.tol === undefined ? 0 : tf.tol, art: tf.tol === undefined ? "n" : "p", fallen: tf.fallen || [] };
+      const r = feldPruefen(inp.value, f);
+      if (r.leer) { leer = true; alle = false; continue; }
+      if (r.ok) td.classList.add("hl"); else { td.classList.add("falsch"); alle = false; }
+      if (r.text && !r.ok && !meld.includes(r.text)) meld.push(r.text);
+    }
+    if (!alle && !meld.length && !leer) meld.push("Rot markierte Felder stimmen noch nicht. Probe: Geht jede Zeile und jede Spalte auf?");
+  }
+  const z = st(aktiv.id);
+  const ausgang = $("#meldung");
+  if (leer && !meld.length) { ausgang.innerHTML = `<div class="meldung neutral">Fülle zuerst alle Felder aus.</div>`; return; }
+  if (alle) {
+    if (!versucht && !loesungGesehen) { z.serie++; z.richtig++; }
+    if (z.serie >= aktiv.ziel && !z.geschafft) z.geschafft = true;
+    sichern();
+    const extra = meld.length ? `<br>${meld.join("<br>")}` : "";
+    ausgang.innerHTML = `<div class="meldung gut">Richtig.${!versucht && !loesungGesehen ? "" : " (Zählt nicht für die Serie, weil es nicht beim ersten Versuch war.)"}${z.geschafft && z.serie === aktiv.ziel ? " <b>Station geschafft.</b>" : ""}${extra}
+      <div class="leiste"><button type="button" class="voll" id="weiterAufgabe">Nächste Aufgabe</button></div></div>`;
+    $("#weiterAufgabe").onclick = neueAufgabe;
+  } else {
+    versucht = true;
+    z.serie = 0; sichern();
+    ausgang.innerHTML = `<div class="meldung schlecht">${meld.length ? meld.join("<br>") : "Noch nicht. Schau dir einen Tipp an."}</div>`;
+  }
+  serieZeichnen(); wegZeichnen();
+}
+
+function tippZeigen() {
+  if (tippZahl >= aufgabe.tipps.length) { loesungZeigen(); return; }
+  $("#tipps").insertAdjacentHTML("beforeend", `<div class="tipp"><b>Tipp ${tippZahl + 1}:</b> ${aufgabe.tipps[tippZahl]}</div>`);
+  tippZahl++;
+  if (tippZahl >= aufgabe.tipps.length) $("#tipp").textContent = "Lösung";
+}
+function loesungZeigen() {
+  loesungGesehen = true;
+  const z = st(aktiv.id); z.serie = 0; sichern();
+  $("#tipps").insertAdjacentHTML("beforeend", `<div class="tipp"><b>Lösung:</b> ${aufgabe.loesung}</div>`);
+  $("#loesung").disabled = true;
+  serieZeichnen();
+}
+
+/* ============================================================
+   6. KI-Rückmeldung
+   ============================================================ */
+const KI = (() => {
+  const p = new URLSearchParams(location.search).get("ki");
+  if (p && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(p)) return p;
+  return "https://ki-rueckmeldung.michaelglaubitz-barton.workers.dev";
+})();
+let code = "";
+try { code = localStorage.getItem("mu-ki-code") || ""; } catch {}
+$("#code").value = code;
+function setzeCode(neu) {
+  code = String(neu || "").trim();
+  try { localStorage.setItem("mu-ki-code", code); } catch {}
+  $("#code").value = code;
+}
+$("#codeSpeichern").onclick = () => { setzeCode($("#code").value); $("#kiStatus").textContent = code ? "Gespeichert." : "Code entfernt."; };
+
+/* Erst beim Aufklappen wird der Dienst überhaupt angefragt */
+let kiStatus = null;
+function kiPruefen() {
+  kiStatus ||= fetch(KI + "/v1/status").then((r) => r.json()).then((d) => (d.bereit ? "bereit" : "aus")).catch(() => "weg");
+  return kiStatus;
+}
+
+function kiBereichZeichnen() {
+  $("#kiBereich").innerHTML = `<div class="leiste"><button type="button" id="kiAuf">✍ Rechenweg prüfen lassen</button></div><div id="kiPanel" hidden></div>`;
+  $("#kiAuf").onclick = async () => {
+    const p = $("#kiPanel");
+    if (!p.hidden) { p.hidden = true; return; }
+    p.hidden = false;
+    if (!p.childElementCount) {
+      p.innerHTML = `<div class="einblenden">
+        <textarea id="weg-text" placeholder="So wie im Heft: z. B. P(A|B) = 53/194 ≈ 0,27"></textarea>
+        <div class="zeile" id="codeZeile" ${code ? "hidden" : ""}><input type="password" id="codeInline" autocomplete="off" placeholder="Code" aria-label="Code"></div>
+        <div class="zeile"><button type="button" class="voll" id="kiFrage">Rückmeldung holen</button><span id="kiHinweis" class="klein leise"></span></div>
+        <div id="kiAntwort"></div></div>`;
+      $("#kiFrage").onclick = kiFragen;
+    }
+    $("#weg-text").focus();
+    const s = await kiPruefen();
+    if (s !== "bereit") $("#kiHinweis").textContent = s === "aus" ? "Die KI-Rückmeldung ist noch nicht eingerichtet." : "Die KI-Rückmeldung ist gerade nicht erreichbar.";
+  };
+}
+
+function aufgabeAlsText() {
+  let s = text(aufgabe.html);
+  if (aufgabe.tafelFelder && aufgabe.art === "tafel") s += " (Gesucht: die leeren Felder der Tafel.)";
+  if (aufgabe.auswahl) s += " Teilfrage: " + aufgabe.auswahl.label + " Optionen: " + aufgabe.auswahl.optionen.map(text).join(", ");
+  if (aufgabe.felder.length) s += " Gesucht: " + aufgabe.felder.map((f) => text(f.label)).join("; ");
+  return s;
+}
+function loesungAlsText() {
+  let s = text(aufgabe.loesung);
+  if (aufgabe.tafelFelder) s += " Felder: " + aufgabe.tafelFelder.map((t) => `${t.key} = ${t.tol === undefined ? t.wert : kz(t.wert, 4)}`).join(", ") + " (Zeile,Spalte; 0 = A bzw. B, 1 = nicht A bzw. nicht B, 2 = Summe)";
+  if (aufgabe.felder.length) s += " Werte: " + aufgabe.felder.map((f) => `${text(f.label)} = ${kz(f.wert, 5)}`).join("; ");
+  if (aufgabe.auswahl) s += " Gefragt ist: " + text(aufgabe.auswahl.optionen[aufgabe.auswahl.richtig]);
+  return s;
+}
+
+async function kiFragen() {
+  const weg = $("#weg-text").value.trim();
+  const out = $("#kiAntwort"), hin = $("#kiHinweis");
+  const inl = $("#codeInline");
+  if (inl && inl.value.trim()) setzeCode(inl.value);
+  if (!code) { $("#codeZeile").hidden = false; hin.textContent = "Erst den Code eintragen."; $("#codeInline").focus(); return; }
+  if (weg.length < 3) { hin.textContent = "Erst den Rechenweg aufschreiben."; return; }
+  $("#kiFrage").disabled = true; hin.textContent = "Claude liest …"; out.innerHTML = "";
+  try {
+    const r = await fetch(KI + "/v1/rueckmeldung", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code, station: aufgabe.herkunft || aktiv.id, aufgabe: aufgabeAlsText(), loesung: loesungAlsText(), antwort: weg }),
+    });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      hin.textContent = d.fehler || "Das hat nicht geklappt.";
+      if (r.status === 403) { setzeCode(""); $("#codeZeile").hidden = false; $("#codeInline").value = ""; $("#codeInline").focus(); }
+      return;
+    }
+    $("#codeZeile").hidden = true;
+    /* Mitlesen, während Claude schreibt */
+    out.innerHTML = `<div class="antwort einblenden"></div>`;
+    const feld = out.firstChild, leser = r.body.getReader(), dek = new TextDecoder();
+    hin.textContent = "";
+    for (;;) {
+      const { value, done } = await leser.read();
+      if (done) break;
+      feld.textContent += dek.decode(value, { stream: true });
+    }
+    feld.textContent += dek.decode();
+    const rest = r.headers.get("x-rest");
+    hin.textContent = rest !== null ? `Heute noch ${rest} Rückmeldungen.` : "";
+  } catch {
+    hin.textContent = "Der Dienst ist gerade nicht erreichbar.";
+  } finally {
+    $("#kiFrage").disabled = false;
+  }
+}
+
+/* ============================================================
+   7. Start
+   ============================================================ */
+let zuletzt = null;
+try { zuletzt = localStorage.getItem("mu-unabhaengigkeit-zuletzt"); } catch {}
+oeffne(zuletzt || STATIONEN[0].id, false);
+</script>
+</body>
+</html>
