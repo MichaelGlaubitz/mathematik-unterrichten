@@ -1,12 +1,14 @@
 /* Baut public/trainelia/unabhaengigkeit.html aus dem Gerüst von
    wahrscheinlichkeit.html (Helfer, Bilder, Anzeige, KI) und den
-   Stationen in stationen_u.js. Aufruf: node baue_unab.mjs */
+   Stationen in stationen_u.js. Aufruf: node trainelia-bau/baue_unab.mjs
+   Kapitel 2 nie direkt in der HTML ändern: Stationen hier in
+   stationen_u.js, Gemeinsames in wahrscheinlichkeit.html, dann neu bauen. */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const hier = dirname(fileURLToPath(import.meta.url));
-const ORDNER = "C:/dev/mu-wahrscheinlichkeit/public/trainelia/";
+const ORDNER = join(hier, "..", "public", "trainelia") + "/";
 let s = readFileSync(ORDNER + "wahrscheinlichkeit.html", "utf8");
 const stationen = readFileSync(join(hier, "stationen_u.js"), "utf8");
 
