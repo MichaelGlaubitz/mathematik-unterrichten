@@ -215,6 +215,23 @@ svg.mosaik .mk{color:var(--gold)}
 svg.hundert{max-width:220px}
 svg.hundert circle{fill:var(--linie)}
 svg.hundert circle.an{fill:var(--akzent)}
+/* Kärtchen, Glücksrad, Ergebnisraster */
+.seiten.breit span{width:auto;min-width:36px;padding:0 6px}
+.seiten span.rotschrift{color:var(--rot)}
+svg.rad{width:100%;max-width:170px;height:auto}
+svg.rad .feld{stroke:var(--flaeche);stroke-width:2} svg.rad .f1{fill:var(--akzent-hell)} svg.rad .f2{fill:var(--flaeche-2)} svg.rad .an{fill:var(--teal)}
+svg.rad text{font:700 13px var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.rad .nabe{fill:var(--text-leise)} svg.rad .zeiger{fill:var(--rot)}
+svg.raster{width:100%;max-width:300px;height:auto}
+.bild{flex-wrap:wrap} .bild .unterschrift{flex-basis:100%;text-align:center;margin:6px 0 0}
+svg.raster text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.raster .rk{font-size:14px;font-weight:700} svg.raster .rk.rot{fill:var(--rot)}
+svg.raster .rt{font-size:12px;fill:var(--text-leise)}
+svg.raster .rz{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.2}
+svg.raster .rz.a{fill:var(--akzent-hell);stroke:var(--akzent)} svg.raster .rz.b{fill:var(--gold-hell);stroke:var(--gold)}
+svg.raster .rz.ab{fill:var(--violett);stroke:var(--violett)}
+.punkt{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 8px;border:1.5px solid}
+.punkt.a{background:var(--akzent-hell);border-color:var(--akzent)} .punkt.b{background:var(--gold-hell);border-color:var(--gold)} .punkt.ab{background:var(--violett);border-color:var(--violett)}
 .felder{display:flex;flex-direction:column;gap:10px;margin:10px 0}
 .feld{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .feld label{min-width:170px}
@@ -450,6 +467,16 @@ const IKON = {
   test: '<rect x="8" y="2" width="8" height="20" rx="2"/><path d="M12 6.5v4M10 8.5h4M10 16h4"/>',
   mail: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/>',
   filter: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+  spritze: '<path d="M18 2l4 4M20 4l-9.5 9.5M17 7l-2-2M14.5 9.5l-2-2M3 21l3.5-3.5M6.5 17.5l-2-2 9-9 4 4-9 9z"/>',
+  paket: '<path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8M7.5 5.5l9 5"/>',
+  tasse: '<path d="M4 9h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 2v3M12 2v3"/>',
+  mond: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  klammer: '<path d="M20.5 11.5l-8.3 8.3a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.4 8.4a1.7 1.7 0 0 1-2.5-2.5l7.7-7.7"/>',
+  lenkrad: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M3.3 10.5h6.6M14.1 10.5h6.6M12 14.2V21"/>',
+  wolke: '<path d="M7 16a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.3 2A3.6 3.6 0 0 1 17.5 16z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/>',
+  blitz: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  hand: '<path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15l-1.3-3a1.5 1.5 0 0 1 2.6-1.4L8 13"/>',
+  jacke: '<path d="M9 3l3 2 3-2 5 3v5l-3-1v11H7V10l-3 1V6z"/><path d="M12 5v16"/>',
 };
 const ikon = (name, durch, cls = "") => `<svg viewBox="0 0 24 24" class="ik ${cls}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IKON[name] || ""}${durch ? '<path d="M3.5 3.5l17 17" stroke-width="2.2"/>' : ""}</svg>`;
 /* Piktogramm zu einem Ereignis: eigenes Bild oder das Bild des Gegenstücks, durchgestrichen */
@@ -486,13 +513,15 @@ function wuerfelBild(n) {
 const KUGEL = { rot: "#dc2626", blau: "#2563eb", grün: "#16a34a", gelb: "#facc15", schwarz: "#27272a", weiß: "#ffffff" };
 function mischen(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 /* Würfel entscheidet über die Urne, darunter beide Urnen mit ihren Kugeln */
-function urnenBild(kA, f1, f2, inA, inB) {
-  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Würfel und zwei Urnen">`;
-  for (let z = 1; z <= 6; z++) {
-    const x = 28 + (z - 1) * 46, a = z <= kA;
-    s += `<rect x="${x}" y="6" width="34" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + 17}" y="29" class="zz">${z}</text>`;
+function urnenBild(kA, f1, f2, inA, inB, m = 6) {
+  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Zufallsgerät und zwei Urnen">`;
+  const schritt = Math.min(46, 300 / m), breite = Math.min(34, schritt - 6), start = 160 - (m * schritt - (schritt - breite)) / 2;
+  const name = (z) => (m === 2 ? ["W", "Z"][z - 1] : z);
+  for (let z = 1; z <= m; z++) {
+    const x = start + (z - 1) * schritt, a = z <= kA;
+    s += `<rect x="${x}" y="6" width="${breite}" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + breite / 2}" y="29" class="zz">${name(z)}</text>`;
   }
-  s += `<text x="160" y="60" class="leg">${kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
+  s += `<text x="160" y="60" class="leg">${m === 2 ? "Wappen" : kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
   const urne = (x0, name, kl, r, b) => {
     let u = `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
     const kugeln = mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]);
@@ -534,6 +563,55 @@ function hundertBild(k, name, ik) {
   return `${ik ? `<div class="bildkopf">${ikon(ik, false, "gross")}</div>` : ""}${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
 }
 
+/* Kärtchenreihe zum Antippen: labels = alle Ergebnisse, rot = Indizes in Rot */
+function kaertchen(labels, rot = []) {
+  return `<div class="seiten tippbar${labels.some((l) => String(l).length > 2) ? " breit" : ""}">${labels.map((l, i) => `<span class="${rot.includes(i) ? "rotschrift" : ""}">${l}</span>`).join("")}</div>`;
+}
+const TIPP_HINWEIS = `<p class="klein leise unterschrift" data-zaehler>Tippe an, was zu E gehört.</p>`;
+
+/* Eine einzelne Urne */
+function urneBild(f1, f2, r, b, zeile) {
+  const x0 = 26;
+  let s = `<svg class="urnen" viewBox="0 30 172 192" role="img" aria-label="Urne mit ${r} ${f1}en und ${b} ${f2}en Kugeln" style="max-width:210px">`;
+  s += `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+  mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]).forEach((f, i) => {
+    s += `<circle class="kugel" cx="${x0 + 24 + (i % 4) * 24}" cy="${195 - Math.floor(i / 4) * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+  });
+  if (zeile) s += `<text x="${x0 + 60}" y="56" class="un uA">${zeile}</text>`;
+  return s + "</svg>";
+}
+
+/* Glücksrad mit n gleich großen Feldern; farbig = Indizes (0-basiert) */
+function radBild(n, farbig = []) {
+  const R = 70, cx = 80, cy = 82;
+  let s = `<svg class="rad" viewBox="0 0 160 170" role="img" aria-label="Glücksrad mit ${n} Feldern">`;
+  for (let i = 0; i < n; i++) {
+    const w0 = (-90 + i * 360 / n) * Math.PI / 180, w1 = (-90 + (i + 1) * 360 / n) * Math.PI / 180, wm = (w0 + w1) / 2;
+    const p = (w, r) => `${(cx + r * Math.cos(w)).toFixed(1)},${(cy + r * Math.sin(w)).toFixed(1)}`;
+    s += `<path d="M${cx},${cy} L${p(w0, R)} A${R},${R} 0 0 1 ${p(w1, R)} z" class="feld ${farbig.includes(i) ? "an" : i % 2 ? "f2" : "f1"}"/>`;
+    s += `<text x="${(cx + R * 0.72 * Math.cos(wm)).toFixed(1)}" y="${(cy + R * 0.72 * Math.sin(wm) + 5).toFixed(1)}">${i + 1}</text>`;
+  }
+  return s + `<circle cx="${cx}" cy="${cy}" r="6" class="nabe"/><path d="M${cx - 7},4 h14 l-7,12 z" class="zeiger"/></svg>`;
+}
+
+/* Raster aller Ergebnisse (Würfelpaare, Karten, Münzen). mark(r, c) → "", "a", "b", "ab" */
+function rasterBild(zeilenKopf, spaltenKopf, mark, titelZ, titelS, zeileFarbe) {
+  const Z = zeilenKopf.length, S = spaltenKopf.length, cw = S > 6 ? 30 : S > 4 ? 36 : 46, ch = 30;
+  const L = 40, T = 40, B = L + S * cw + 6, H = T + Z * ch + 6;
+  let s = `<svg class="raster" viewBox="0 0 ${B} ${H}" role="img" aria-label="Alle ${Z * S} Ergebnisse">`;
+  s += `<text x="${L + S * cw / 2}" y="13" class="rt">${titelS}</text>`;
+  spaltenKopf.forEach((k, c) => { s += `<text x="${L + c * cw + cw / 2}" y="${T - 8}" class="rk">${k}</text>`; });
+  s += `<text x="10" y="${T + Z * ch / 2}" class="rt" transform="rotate(-90 10 ${T + Z * ch / 2})">${titelZ}</text>`;
+  zeilenKopf.forEach((k, r) => { s += `<text x="${L - 10}" y="${T + r * ch + ch / 2 + 5}" class="rk ${zeileFarbe ? zeileFarbe(r) : ""}">${k}</text>`; });
+  for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++)
+    s += `<rect x="${L + c * cw + 2}" y="${T + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" class="rz ${mark ? mark(r, c) : ""}"/>`;
+  return s + "</svg>";
+}
+const RASTER_LEG = `<p class="klein leise unterschrift"><span class="punkt a"></span> nur A <span class="punkt b"></span> nur B <span class="punkt ab"></span> A und B</p>`;
+/* Kartenspiel mit 32 Karten */
+const FARB = ["♣", "♠", "♥", "♦"], FARBNAME = ["Kreuz", "Pik", "Herz", "Karo"];
+const WERTE = ["7", "8", "9", "10", "B", "D", "K", "A"];
+
 /* ============================================================
    3. Sachzusammenhänge (frei erfunden, kein Schulbuch)
    ============================================================ */
@@ -568,6 +646,36 @@ const KONTEXTE = [
     aD: "mit dem Bus kommt", naD: "mit dem Rad kommt", bD: "pünktlich ist", nbD: "zu spät kommt",
     ik: { A: "bus", nA: "rad", B: "uhr", nB: "spaet" },
     intro: (N) => `An einem Morgen wurde bei ${N} Schülerinnen und Schülern notiert, wie sie zur Schule kamen und ob sie pünktlich waren.` },
+  { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "geimpft", nA: "nicht geimpft", B: "Grippe", nB: "keine Grippe",
+    aP: "sind gegen Grippe geimpft", naP: "sind nicht geimpft", bP: "hatten Grippe", nbP: "hatten keine Grippe",
+    aD: "geimpft ist", naD: "nicht geimpft ist", bD: "Grippe hatte", nbD: "keine Grippe hatte",
+    ik: { A: "spritze", B: "virus" },
+    intro: (N) => `Über einen Winter wurden ${N} Personen beobachtet: geimpft oder nicht, Grippe oder nicht.` },
+  { wer: "Pakete", pron: "es", rel: "das", eine: "ein Paket", akk: "ein Paket",
+    A: "Express", nA: "Standard", B: "pünktlich", nB: "verspätet",
+    aP: "wurden als Express verschickt", naP: "wurden als Standard verschickt", bP: "kamen pünktlich an", nbP: "kamen verspätet an",
+    aD: "als Express verschickt wurde", naD: "als Standard verschickt wurde", bD: "pünktlich ankam", nbD: "verspätet ankam",
+    ik: { A: "paket", B: "uhr", nB: "spaet" },
+    intro: (N) => `Ein Versanddienst wertet ${N} Pakete aus.` },
+  { wer: "Gäste", pron: "er", rel: "der", eine: "ein Gast", akk: "einen Gast",
+    A: "Frühstück", nA: "ohne Frühstück", B: "mehr als 3 Nächte", nB: "höchstens 3 Nächte",
+    aP: "buchten Frühstück", naP: "buchten kein Frühstück", bP: "blieben mehr als 3 Nächte", nbP: "blieben höchstens 3 Nächte",
+    aD: "Frühstück gebucht hat", naD: "kein Frühstück gebucht hat", bD: "mehr als 3 Nächte bleibt", nbD: "höchstens 3 Nächte bleibt",
+    ik: { A: "tasse", B: "mond" },
+    intro: (N) => `Ein Hotel hatte im Sommer ${N} Gäste.` },
+  { wer: "E-Mails", pron: "sie", rel: "die", eine: "eine E-Mail", akk: "eine E-Mail",
+    A: "Anhang", nA: "kein Anhang", B: "Spam", nB: "kein Spam",
+    aP: "haben einen Anhang", naP: "haben keinen Anhang", bP: "sind Spam", nbP: "sind kein Spam",
+    aD: "einen Anhang hat", naD: "keinen Anhang hat", bD: "Spam ist", nbD: "kein Spam ist",
+    ik: { A: "klammer", B: "filter" },
+    intro: (N) => `In einem Postfach wurden ${N} E-Mails untersucht.` },
+  { wer: "Fahrschülerinnen und Fahrschüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "über 25 Fahrstunden", nA: "höchstens 25", B: "bestanden", nB: "nicht bestanden",
+    aP: "hatten mehr als 25 Fahrstunden", naP: "hatten höchstens 25 Fahrstunden", bP: "bestanden die Prüfung", nbP: "bestanden nicht",
+    aD: "mehr als 25 Fahrstunden hatte", naD: "höchstens 25 Fahrstunden hatte", bD: "die Prüfung bestanden hat", nbD: "nicht bestanden hat",
+    ik: { A: "lenkrad", B: "ok", nB: "fehler" },
+    intro: (N) => `Eine Fahrschule wertet die Prüfungen von ${N} Fahrschülerinnen und Fahrschülern aus.` },
 ];
 /* Zeile/Spalte → Ereignis: x ∈ {A, nA}, y ∈ {B, nB} */
 const ereignisName = { A: "A", nA: Q("A"), B: "B", nB: Q("B") };
@@ -617,25 +725,77 @@ STATIONEN.push({
   merke: `Ergebnis: ein einzelner Ausgang. Ereignis: eine Menge von Ergebnissen in geschweiften Klammern. Gegenereignis: alle anderen Ergebnisse.`,
   stolper: `{2; 4; 6} ist kein „Ergebnis“, sondern ein Ereignis. Und nach dem Runden steht „≈“, nicht „=“.`,
   neu() {
-    const n = wahl([6, 8, 10, 12, 20]);
     const prim = (x) => x > 1 && [...Array(x).keys()].slice(2).every((d) => x % d);
-    const arten = [
-      { t: "eine gerade Zahl", f: (x) => x % 2 === 0 },
-      { t: "eine ungerade Zahl", f: (x) => x % 2 === 1 },
-      { t: "eine Primzahl", f: prim },
-      { t: "ein Vielfaches von 3", f: (x) => x % 3 === 0 },
-    ];
-    const g = zufall(2, n - 2); arten.push({ t: `eine Zahl größer als ${g}`, f: (x) => x > g });
-    const h = zufall(3, n - 1); arten.push({ t: `eine Zahl kleiner als ${h}`, f: (x) => x < h });
-    const a = wahl(arten);
-    const E = [...Array(n).keys()].map((i) => i + 1).filter(a.f);
+    const zahlArten = (n) => {
+      const arten = [
+        { t: "eine gerade Zahl", f: (x) => x % 2 === 0 },
+        { t: "eine ungerade Zahl", f: (x) => x % 2 === 1 },
+        { t: "eine Primzahl", f: prim },
+        { t: "ein Vielfaches von 3", f: (x) => x % 3 === 0 },
+        { t: "ein Vielfaches von 4", f: (x) => x % 4 === 0 },
+      ];
+      const g = zufall(2, n - 2); arten.push({ t: `eine Zahl größer als ${g}`, f: (x) => x > g });
+      const h = zufall(3, n - 1); arten.push({ t: `eine Zahl kleiner als ${h}`, f: (x) => x < h });
+      return arten;
+    };
+    /* Jedes Gerät liefert: Text, alle Ergebnisse (labels), welche zu E gehören, Bild */
+    const geraete = {
+      wuerfel() {
+        const n = wahl([6, 8, 10, 12, 20]), a = wahl(zahlArten(n)), labels = [...Array(n).keys()].map((i) => i + 1);
+        return { text: `<p>Ein Würfel mit ${n} gleich großen Seiten trägt die Zahlen 1 bis ${n}. Er wird einmal geworfen.</p><p>E: „Es fällt ${a.t}.“</p>`,
+          labels, inE: labels.map(a.f), kopf: wuerfelBild(n), menge: true };
+      },
+      rad() {
+        const n = wahl([8, 10, 12, 16]), a = wahl(zahlArten(n)), labels = [...Array(n).keys()].map((i) => i + 1);
+        return { text: `<p>Ein Glücksrad hat ${n} gleich große Felder mit den Zahlen 1 bis ${n}. Es wird einmal gedreht.</p><p>E: „Das Rad zeigt ${a.t}.“</p>`,
+          labels, inE: labels.map(a.f), kopf: radBild(n), menge: true };
+      },
+      karten() {
+        const arten = [
+          { t: "eine Herz-Karte", f: (fa) => fa === 2 }, { t: "eine rote Karte (Herz oder Karo)", f: (fa) => fa >= 2 },
+          { t: "ein Bild (Bube, Dame oder König)", f: (fa, we) => we >= 4 && we <= 6 }, { t: "ein Ass", f: (fa, we) => we === 7 },
+          { t: "eine Zahlkarte (7 bis 10)", f: (fa, we) => we <= 3 }, { t: "eine Dame oder ein König", f: (fa, we) => we === 5 || we === 6 },
+          { t: "eine schwarze Karte mit Wert 9 oder höher", f: (fa, we) => fa < 2 && we >= 2 }, { t: "ein Kreuz-Bild oder ein Pik-Ass", f: (fa, we) => (fa === 0 && we >= 4 && we <= 6) || (fa === 1 && we === 7) },
+        ];
+        const a = wahl(arten), labels = [], inE = [], rot = [];
+        for (let fa = 0; fa < 4; fa++) for (let we = 0; we < 8; we++) { if (fa >= 2) rot.push(labels.length); labels.push(FARB[fa] + WERTE[we]); inE.push(a.f(fa, we)); }
+        return { text: `<p>Aus einem Kartenspiel mit 32 Karten (Kreuz ♣, Pik ♠, Herz ♥, Karo ♦; jeweils 7, 8, 9, 10, Bube, Dame, König, Ass) wird eine Karte gezogen.</p><p>E: „Die Karte ist ${a.t}.“</p>`,
+          labels, inE, rot, kopf: "", menge: false };
+      },
+      muenzen() {
+        const labels = ["WWW", "WWZ", "WZW", "WZZ", "ZWW", "ZWZ", "ZZW", "ZZZ"], nW = (s) => s.split("W").length - 1;
+        const a = wahl([
+          { t: "genau zweimal Wappen", f: (s) => nW(s) === 2 }, { t: "mindestens einmal Zahl", f: (s) => nW(s) < 3 },
+          { t: "höchstens einmal Wappen", f: (s) => nW(s) <= 1 }, { t: "beim ersten Wurf Wappen", f: (s) => s[0] === "W" },
+          { t: "dreimal dasselbe", f: (s) => s === "WWW" || s === "ZZZ" }, { t: "öfter Wappen als Zahl", f: (s) => nW(s) >= 2 },
+          { t: "genau einmal Zahl", f: (s) => nW(s) === 2 }, { t: "beim zweiten und dritten Wurf dasselbe", f: (s) => s[1] === s[2] },
+        ]);
+        return { text: `<p>Eine Münze wird dreimal geworfen. Notiert wird die Folge, z. B. WZW für Wappen, Zahl, Wappen.</p><p>E: „Es fällt ${a.t}.“</p>`,
+          labels, inE: labels.map(a.f), kopf: "", menge: true };
+      },
+      buchstaben() {
+        const wort = wahl(["STOCHASTIK", "MATHEMATIK", "ABITUR", "ZUFALL", "EREIGNIS", "LOTTERIE", "BAUMDIAGRAMM"]);
+        const vokal = (c) => "AEIOU".includes(c);
+        const doppelt = [...new Set(wort)].filter((c) => wort.split(c).length > 2);
+        const arten = [
+          { t: "Auf der Karte steht ein Vokal (A, E, I, O, U)", f: vokal }, { t: "Auf der Karte steht ein Konsonant", f: (c) => !vokal(c) },
+          { t: "Der Buchstabe kommt im Alphabet vor dem N", f: (c) => c < "N" },
+        ];
+        if (doppelt.length) { const d = wahl(doppelt); arten.push({ t: `Auf der Karte steht ein ${d}`, f: (c) => c === d }); }
+        const a = wahl(arten), labels = wort.split("");
+        return { text: `<p>Die ${labels.length} Buchstaben des Wortes ${wort} stehen auf ${labels.length} gleichen Karten. Eine Karte wird zufällig gezogen.</p><p>E: „${a.t}.“</p>`,
+          labels, inE: labels.map(a.f), kopf: "", menge: false };
+      },
+    };
+    const art = wahl(Object.keys(geraete)), g = geraete[art]();
+    if (!g.inE.some(Boolean) || g.inE.every(Boolean)) return this.neu();
+    const n = g.labels.length, E = g.labels.filter((_, i) => g.inE[i]);
     const k = E.length, p = k / n;
-    const html = `<p>Ein Würfel mit ${n} gleich großen Seiten trägt die Zahlen 1 bis ${n}. Er wird einmal geworfen.</p>
-      <p>E: „Es fällt ${a.t}.“</p>`;
+    const html = g.text;
+    const liste = g.menge ? `E = {${E.join("; ")}}` : `Zu E gehören die Karten ${E.join(", ")}`;
     return {
-      html,
-      bild: `${wuerfelBild(n)}${seiten(n).replace('class="seiten"', 'class="seiten tippbar"')}
-        <p class="klein leise unterschrift" data-zaehler>Tippe an, was zu E gehört.</p>`,
+      html, geschichte: "woerter-" + art,
+      bild: `${g.kopf}${kaertchen(g.labels, g.rot || [])}${TIPP_HINWEIS}`,
       felder: [
         { id: "k", label: "Anzahl der Ergebnisse in E", wert: k, tol: 0, art: "n",
           fallen: [{ wert: n - k, text: "Das ist die Anzahl im Gegenereignis. Gezählt werden die Ergebnisse, bei denen die Aussage stimmt." }] },
@@ -645,10 +805,10 @@ STATIONEN.push({
           fallen: [{ wert: p, text: `Das ist P(E). ${Q("E")} enthält die übrigen Ergebnisse: 1 − P(E).` }] },
       ],
       tipps: [
-        `Schreib E als Menge auf: Geh die Zahlen 1 bis ${n} durch und schreib jede auf, für die die Aussage stimmt.`,
-        `E = {${E.join("; ")}}. Zähle die Elemente und teile durch ${n}.`,
+        `Geh alle ${n} Ergebnisse durch und schreib jedes auf, für das die Aussage stimmt. Die Kärtchen helfen beim Abhaken.`,
+        `${liste}. Zähle und teile durch ${n}.`,
       ],
-      loesung: `E = {${E.join("; ")}}, also ${k} Ergebnisse. P(E) = ${br(k, n)} ≈ ${kz(p)}. P(${Q("E")}) = 1 − ${br(k, n)} = ${br(n - k, n)} ≈ ${kz(1 - p)}.`,
+      loesung: `${liste}, also ${k} von ${n} Ergebnissen. P(E) = ${br(k, n)} ≈ ${kz(p)}. P(${Q("E")}) = 1 − ${br(k, n)} = ${br(n - k, n)} ≈ ${kz(1 - p)}.`,
     };
   },
 });
@@ -674,16 +834,26 @@ STATIONEN.push({
   merke: `Entlang eines Pfades: <b>mal</b>. Mehrere Pfade zum selben Ereignis: <b>plus</b>. Probe: Alle Pfadenden zusammen ergeben 1.`,
   stolper: `Die erste Stufe nicht vergessen: P(A ∩ rot) ist nicht ${br(3, 5)}, sondern ${br(1, 3)} · ${br(3, 5)}. Und nicht addieren, wo multipliziert wird.`,
   neu() {
-    const kz6 = zufall(1, 5);
+    const geschichte = wahl(["urnenwahl", "urnenwahl", "ohne", "freiwurf"]);
+    if (geschichte === "ohne") return this.ohneZuruecklegen();
+    if (geschichte === "freiwurf") return this.freiwuerfe();
+    const geraet = wahl(["wuerfel", "rad", "muenze"]);
+    const m = { wuerfel: 6, rad: 8, muenze: 2 }[geraet];
+    const kz6 = geraet === "muenze" ? 1 : zufall(1, m - 1);
     const [f1, f2] = wahl(FARBEN);
     const r1 = zufall(1, 8), b1 = zufall(1, 8), r2 = zufall(1, 8), b2 = zufall(1, 8);
     if (r1 * (r2 + b2) === r2 * (r1 + b1)) return this.neu();
     const nA = r1 + b1, nB = r2 + b2;
-    const pA = kz6 / 6, pf1A = r1 / nA, pf1B = r2 / nB;
+    const pA = kz6 / m, pf1A = r1 / nA, pf1B = r2 / nB;
     const pAr = pA * pf1A, pr = pAr + (1 - pA) * pf1B;
     const welche = zufall(0, 2);
     const zahlen = kz6 === 1 ? "eine 1" : `eine Zahl von 1 bis ${kz6}`;
-    const html = `<p>Zuerst wird ein Würfel geworfen. Zeigt er ${zahlen}, wird aus Urne A gezogen, sonst aus Urne B.</p>
+    const erst = {
+      wuerfel: `Zuerst wird ein Würfel geworfen. Zeigt er ${zahlen}, wird aus Urne A gezogen, sonst aus Urne B.`,
+      rad: `Zuerst wird ein Glücksrad mit 8 gleich großen Feldern (1 bis 8) gedreht. Zeigt es ${zahlen}, wird aus Urne A gezogen, sonst aus Urne B.`,
+      muenze: `Zuerst wird eine Münze geworfen. Bei Wappen wird aus Urne A gezogen, bei Zahl aus Urne B.`,
+    }[geraet];
+    const html = `<p>${erst}</p>
       <p>Urne A enthält ${r1} ${f1}e und ${b1} ${f2}e Kugeln, Urne B ${r2} ${f1}e und ${b2} ${f2}e. Es wird eine Kugel gezogen.</p>
       <p class="klein leise">Gib Brüche (z. B. 5/39) oder Dezimalzahlen auf drei Stellen an.</p>`;
     const felder = [];
@@ -700,17 +870,72 @@ STATIONEN.push({
         { wert: (r1 + r2) / (nA + nB), text: "Du hast die Kugeln beider Urnen zusammengeworfen. Die Urnen werden aber verschieden oft gewählt: Rechne über den Baum." },
         { wert: (pf1A + pf1B) / 2, text: "Du hast den Mittelwert genommen. Die Urnen werden nicht gleich oft gewählt: Gewichte mit P(A) und P(B) über den Baum." },
       ] });
-    const bb = { s1: ["A", "B"], s2: [[f1, f2], [f1, f2]], p1: [br(kz6, 6), br(6 - kz6, 6)], p2: [[br(r1, nA), br(b1, nA)], [br(r2, nB), br(b2, nB)]] };
+    const bb = { s1: ["A", "B"], s2: [[f1, f2], [f1, f2]], p1: [br(kz6, m), br(m - kz6, m)], p2: [[br(r1, nA), br(b1, nA)], [br(r2, nB), br(b2, nB)]] };
+    const geraetName = { wuerfel: "Würfel", rad: "Glücksrad", muenze: "Münze" }[geraet];
     return {
-      html, felder,
-      bild: urnenBild(kz6, f1, f2, [r1, b1], [r2, b2]),
+      html, felder, geschichte: "baum-" + geraet,
+      bild: urnenBild(kz6, f1, f2, [r1, b1], [r2, b2], m),
       tipps: [
-        `Zeichne den Baum mit zwei Stufen: erst A oder B (Würfel), dann die Farbe. P(A) = ${br(kz6, 6)}.`,
+        `Zeichne den Baum mit zwei Stufen: erst A oder B (${geraetName}), dann die Farbe. P(A) = ${br(kz6, m)}.`,
         `${baum(bb)}`,
       ],
-      loesung: `${baum({ ...bb, enden: [brT(kz6 * r1, 6 * nA), brT(kz6 * b1, 6 * nA), brT((6 - kz6) * r2, 6 * nB), brT((6 - kz6) * b2, 6 * nB)] })}
-        <p>P(A ∩ ${f1}) = ${br(kz6, 6)} · ${br(r1, nA)} = ${br(kz6 * r1, 6 * nA)} ≈ ${kz(pAr)}</p>
-        <p>P(${f1}) = ${br(kz6, 6)} · ${br(r1, nA)} + ${br(6 - kz6, 6)} · ${br(r2, nB)} ≈ ${kz(pr)}</p>`,
+      loesung: `${baum({ ...bb, enden: [brT(kz6 * r1, m * nA), brT(kz6 * b1, m * nA), brT((m - kz6) * r2, m * nB), brT((m - kz6) * b2, m * nB)] })}
+        <p>P(A ∩ ${f1}) = ${br(kz6, m)} · ${br(r1, nA)} = ${br(kz6 * r1, m * nA)} ≈ ${kz(pAr)}</p>
+        <p>P(${f1}) = ${br(kz6, m)} · ${br(r1, nA)} + ${br(m - kz6, m)} · ${br(r2, nB)} ≈ ${kz(pr)}</p>`,
+    };
+  },
+  /* Zwei Kugeln ohne Zurücklegen aus einer Urne */
+  ohneZuruecklegen() {
+    const [f1, f2] = wahl(FARBEN);
+    const r = zufall(2, 6), b = zufall(2, 6), n = r + b;
+    const beide = (r / n) * ((r - 1) / (n - 1)), genau = 2 * (r / n) * (b / (n - 1));
+    const welche = zufall(0, 2), felder = [];
+    if (welche !== 1) felder.push({ id: "beide", label: `P(beide ${f1})`, wert: beide, tol: 0.0006,
+      fallen: [
+        { wert: (r / n) ** 2, text: "So wäre es mit Zurücklegen. Nach der ersten Kugel liegt eine weniger in der Urne: zweite Stufe anpassen." },
+        { wert: r / n + (r - 1) / (n - 1), text: "Entlang eines Pfades wird multipliziert, nicht addiert." },
+      ] });
+    if (welche !== 0) felder.push({ id: "genau", label: `P(genau eine ${f1})`, wert: genau, tol: 0.0006,
+      fallen: [
+        { wert: genau / 2, text: `Das ist nur ein Pfad. „Genau eine“ geht auf zwei Wegen: erst ${f1}, dann ${f2} oder erst ${f2}, dann ${f1}.` },
+        { wert: 2 * (r / n) * (b / n), text: "So wäre es mit Zurücklegen. Nach der ersten Kugel liegt eine weniger in der Urne." },
+      ] });
+    const bb = { s1: [f1, f2], s2: [[f1, f2], [f1, f2]], p1: [brT(r, n), brT(b, n)], p2: [[brT(r - 1, n - 1), brT(b, n - 1)], [brT(r, n - 1), brT(b - 1, n - 1)]] };
+    return {
+      html: `<p>In einer Urne liegen ${r} ${f1}e und ${b} ${f2}e Kugeln. Es werden zwei Kugeln <b>ohne Zurücklegen</b> gezogen.</p>
+        <p class="klein leise">Brüche (z. B. 5/39) oder Dezimalzahlen auf drei Stellen.</p>`,
+      felder, geschichte: "baum-ohne",
+      bild: urneBild(f1, f2, r, b, "ohne Zurücklegen"),
+      tipps: [`Zweite Stufe: Es liegen nur noch ${n - 1} Kugeln in der Urne. Nach einer ${f1}en sind es ${r - 1} ${f1}e.`, `${baum({ ...bb, hl: welche === 1 ? [1, 2] : [0] })}`],
+      loesung: `${baum({ ...bb, enden: [brT(r * (r - 1), n * (n - 1)), brT(r * b, n * (n - 1)), brT(b * r, n * (n - 1)), brT(b * (b - 1), n * (n - 1))] })}
+        <p>P(beide ${f1}) = ${br(r, n)} · ${br(r - 1, n - 1)} = ${br(r * (r - 1), n * (n - 1))} ≈ ${kz(beide)}</p>
+        <p>P(genau eine ${f1}) = ${br(r, n)} · ${br(b, n - 1)} + ${br(b, n)} · ${br(r, n - 1)} = ${br(2 * r * b, n * (n - 1))} ≈ ${kz(genau)}</p>`,
+    };
+  },
+  /* Zwei Freiwürfe mit veränderter Trefferquote */
+  freiwuerfe() {
+    const p = zufall(60, 85) / 100, q1 = Math.min(0.95, p + zufall(3, 10) / 100), q2 = p - zufall(10, 25) / 100;
+    const zwei = p * q1, genau = p * (1 - q1) + (1 - p) * q2, mind = 1 - (1 - p) * (1 - q2);
+    const paare = [["zwei", "genau"], ["zwei", "mind"], ["genau", "mind"]][zufall(0, 2)];
+    const F = {
+      zwei: { id: "zwei", label: "P(zwei Treffer)", wert: zwei, tol: 0.0006,
+        fallen: [{ wert: p * p, text: "Du hast zweimal mit der ersten Quote gerechnet. Nach einem Treffer gilt für den zweiten Wurf eine andere Quote." },
+                 { wert: p + q1, text: "Entlang eines Pfades wird multipliziert, nicht addiert." }] },
+      genau: { id: "genau", label: "P(genau ein Treffer)", wert: genau, tol: 0.0006,
+        fallen: [{ wert: p * (1 - q1), text: "Das ist nur der Pfad „Treffer, dann daneben“. Der Pfad „daneben, dann Treffer“ gehört auch dazu." },
+                 { wert: (1 - p) * q2, text: "Das ist nur der Pfad „daneben, dann Treffer“. Der andere Pfad fehlt." }] },
+      mind: { id: "mind", label: "P(mindestens ein Treffer)", wert: mind, tol: 0.0006,
+        fallen: [{ wert: 1 - zwei, text: "Das ist 1 − P(zwei Treffer), also „nicht beide“. Das Gegenereignis von „mindestens ein Treffer“ ist „kein Treffer“." },
+                 { wert: genau, text: "Das ist „genau ein Treffer“. Bei „mindestens einer“ zählt auch „zwei Treffer“ mit." }] },
+    };
+    const bb = { s1: ["T", "D"], s2: [["T", "D"], ["T", "D"]], p1: [kz(p, 2), kz(1 - p, 2)], p2: [[kz(q1, 2), kz(1 - q1, 2)], [kz(q2, 2), kz(1 - q2, 2)]] };
+    return {
+      html: `<p>Eine Basketballerin wirft zwei Freiwürfe. Den ersten trifft sie mit ${pz(p)}. Nach einem Treffer ist sie sicherer und trifft den zweiten mit ${pz(q1)}, nach einem Fehlwurf nur mit ${pz(q2)}.</p>
+        <p class="klein leise">T: Treffer, D: daneben. Dezimalzahlen auf drei Stellen.</p>`,
+      felder: paare.map((k) => F[k]), geschichte: "baum-freiwurf",
+      tipps: [`Erste Stufe: erster Wurf T oder D. Zweite Stufe: die Quote hängt vom ersten Wurf ab.`, `${baum(bb)}`],
+      loesung: `${baum({ ...bb, enden: [kz(zwei, 4), kz(p * (1 - q1), 4), kz((1 - p) * q2, 4), kz((1 - p) * (1 - q2), 4)] })}
+        <p>P(zwei Treffer) = ${kz(p, 2)} · ${kz(q1, 2)} ≈ ${kz(zwei)}; P(genau ein Treffer) = ${kz(p, 2)} · ${kz(1 - q1, 2)} + ${kz(1 - p, 2)} · ${kz(q2, 2)} ≈ ${kz(genau)}; P(mindestens ein Treffer) = 1 − ${kz(1 - p, 2)} · ${kz(1 - q2, 2)} ≈ ${kz(mind)}</p>`,
     };
   },
 });
@@ -905,6 +1130,12 @@ const BAYES = [
     frage: "Ein Teil ist fehlerhaft. Wie groß ist die Wahrscheinlichkeit, dass es von Maschine 1 stammt?", a: [25, 70], b: [1, 6], c: [2, 8], ik: { A: "m1", B: "fehler" } },
   { A: "Spam", B: "Filter schlägt an", text: (a, b, c) => `${pz(a, 1)} aller E-Mails in einem Postfach sind Spam. Ein Filter schlägt bei ${pz(b, 1)} der Spam-Mails an, aber auch bei ${pz(c, 1)} der anderen Mails.`,
     frage: "Der Filter schlägt an. Wie groß ist die Wahrscheinlichkeit, dass die Mail wirklich Spam ist?", a: [15, 60], b: [88, 99], c: [1, 6], ik: { A: "mail", B: "filter" } },
+  { A: "gedopt", B: "Test positiv", text: (a, b, c) => `${pz(a, 1)} der Sportler einer Disziplin sind gedopt. Ein Dopingtest erkennt ${pz(b, 1)} der Gedopten, schlägt aber auch bei ${pz(c, 1)} der Sauberen an.`,
+    frage: "Ein Sportler wird positiv getestet. Wie groß ist die Wahrscheinlichkeit, dass er wirklich gedopt ist?", a: [2, 10], b: [90, 99], c: [1, 5], ik: { A: "spritze", B: "test" } },
+  { A: "Regen", B: "Regen angesagt", text: (a, b, c) => `In einer Stadt regnet es an ${pz(a, 1)} der Tage. An ${pz(b, 1)} der Regentage war am Vorabend Regen angesagt, an ${pz(c, 1)} der trockenen Tage aber auch.`,
+    frage: "Für morgen ist Regen angesagt. Wie groß ist die Wahrscheinlichkeit, dass es wirklich regnet?", a: [20, 45], b: [70, 92], c: [8, 25], ik: { A: "wolke", B: "mikro" } },
+  { A: "Verbotenes im Koffer", B: "Scanner schlägt an", text: (a, b, c) => `In ${pz(a, 1)} der Koffer an einem Flughafen ist etwas Verbotenes. Der Scanner schlägt bei ${pz(b, 1)} dieser Koffer an, aber auch bei ${pz(c, 1)} der harmlosen.`,
+    frage: "Der Scanner schlägt an. Wie groß ist die Wahrscheinlichkeit, dass wirklich etwas Verbotenes im Koffer ist?", a: [1, 6], b: [90, 99], c: [3, 10], ik: { A: "paket", B: "filter" } },
 ];
 STATIONEN.push({
   id: "w-umkehr", titel: "Umgekehrter Baum", ziel: 3,
@@ -938,7 +1169,7 @@ STATIONEN.push({
     const s = { s1: ["A", QS("A")], s2: [["B", QS("B")], ["B", QS("B")]] };
     return {
       html,
-      bild: hundertBild(Math.round(a * 100), c0.A, c0.ik.A),
+      bild: hundertBild(Math.round(a * 100), c0.A, c0.ik.A), geschichte: "umkehr-" + c0.A,
       felder: [
         { id: "pb", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: ab, text: "Das ist nur der Pfad über A. B erreicht man auch über " + Q("A") + "." }, { wert: b, text: "Das ist P(B | A). P(B) ist die Summe beider Pfade zu B." }] },
         { id: "pab", label: "P(A | B)", wert: pAB, tol: 0.0006, fallen },
@@ -1093,8 +1324,32 @@ function serieZeichnen() {
   $("#serie").innerHTML = s;
 }
 
+/* Keine Wiederholung: Die letzten 25 Aufgaben je Station (als Prüfsumme) und
+   die zuletzt erzählte Geschichte werden gemerkt. Eine neue Aufgabe darf
+   keine davon wörtlich wiederholen und erzählt möglichst eine andere
+   Geschichte als die vorige. */
+function pruefsumme(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+function geschichteVon(a) { return a.geschichte || text(a.html).split("\n")[0].replace(/\d+([.,]\d+)?/g, "#").slice(0, 48); }
+function frischeAufgabe() {
+  const z = st(aktiv.id);
+  z.zuletzt = Array.isArray(z.zuletzt) ? z.zuletzt : [];
+  let wahl = null;
+  for (let v = 0; v < 40; v++) {
+    const a = aktiv.neu();
+    const fp = pruefsumme(text(a.html) + "|" + a.felder.map((f) => f.label).join(";"));
+    const gs = geschichteVon(a);
+    if (z.zuletzt.includes(fp)) { wahl = wahl || { a, fp, gs }; continue; }
+    wahl = { a, fp, gs };
+    if (gs !== z.geschichte || v >= 15) break;
+  }
+  z.zuletzt = [...z.zuletzt, wahl.fp].slice(-25);
+  z.geschichte = wahl.gs;
+  sichern();
+  return wahl.a;
+}
+
 function neueAufgabe() {
-  aufgabe = aktiv.neu();
+  aufgabe = frischeAufgabe();
   /* Fallen, die zufällig mit der Lösung zusammenfallen, wären irreführend */
   for (const f of [...aufgabe.felder, ...(aufgabe.tafelFelder || [])])
     if (f.fallen) f.fallen = f.fallen.filter((fa) => Math.abs(fa.wert - f.wert) > Math.max(f.tol || 0, 0.0006) + 1e-9);

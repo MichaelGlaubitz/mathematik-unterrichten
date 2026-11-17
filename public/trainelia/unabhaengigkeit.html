@@ -210,6 +210,23 @@ svg.mosaik .mk{color:var(--gold)}
 svg.hundert{max-width:220px}
 svg.hundert circle{fill:var(--linie)}
 svg.hundert circle.an{fill:var(--akzent)}
+/* Kärtchen, Glücksrad, Ergebnisraster */
+.seiten.breit span{width:auto;min-width:36px;padding:0 6px}
+.seiten span.rotschrift{color:var(--rot)}
+svg.rad{width:100%;max-width:170px;height:auto}
+svg.rad .feld{stroke:var(--flaeche);stroke-width:2} svg.rad .f1{fill:var(--akzent-hell)} svg.rad .f2{fill:var(--flaeche-2)} svg.rad .an{fill:var(--teal)}
+svg.rad text{font:700 13px var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.rad .nabe{fill:var(--text-leise)} svg.rad .zeiger{fill:var(--rot)}
+svg.raster{width:100%;max-width:300px;height:auto}
+.bild{flex-wrap:wrap} .bild .unterschrift{flex-basis:100%;text-align:center;margin:6px 0 0}
+svg.raster text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.raster .rk{font-size:14px;font-weight:700} svg.raster .rk.rot{fill:var(--rot)}
+svg.raster .rt{font-size:12px;fill:var(--text-leise)}
+svg.raster .rz{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.2}
+svg.raster .rz.a{fill:var(--akzent-hell);stroke:var(--akzent)} svg.raster .rz.b{fill:var(--gold-hell);stroke:var(--gold)}
+svg.raster .rz.ab{fill:var(--violett);stroke:var(--violett)}
+.punkt{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 8px;border:1.5px solid}
+.punkt.a{background:var(--akzent-hell);border-color:var(--akzent)} .punkt.b{background:var(--gold-hell);border-color:var(--gold)} .punkt.ab{background:var(--violett);border-color:var(--violett)}
 .felder{display:flex;flex-direction:column;gap:10px;margin:10px 0}
 .feld{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .feld label{min-width:170px}
@@ -239,17 +256,6 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
   table.tafel th,table.tafel td{padding:5px 6px;min-width:52px;font-size:.92rem}
   table.tafel input{width:60px}
 }
-/* Ergebnisraster (Würfel, Karten) */
-svg.raster{width:100%;max-width:300px;height:auto}
-.bild{flex-wrap:wrap} .bild .unterschrift{flex-basis:100%;text-align:center;margin:6px 0 0}
-svg.raster text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
-svg.raster .rk{font-size:14px;font-weight:700} svg.raster .rk.rot{fill:var(--rot)}
-svg.raster .rt{font-size:12px;fill:var(--text-leise)}
-svg.raster .rz{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.2}
-svg.raster .rz.a{fill:var(--akzent-hell);stroke:var(--akzent)} svg.raster .rz.b{fill:var(--gold-hell);stroke:var(--gold)}
-svg.raster .rz.ab{fill:var(--violett);stroke:var(--violett)}
-.punkt{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 8px;border:1.5px solid}
-.punkt.a{background:var(--akzent-hell);border-color:var(--akzent)} .punkt.b{background:var(--gold-hell);border-color:var(--gold)} .punkt.ab{background:var(--violett);border-color:var(--violett)}
 /* Gemeinsame Ursache */
 svg.ursache{width:100%;max-width:340px;height:auto}
 svg.ursache .uk{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.5} svg.ursache .uk.w{fill:var(--gold-hell);stroke:var(--gold)}
@@ -463,6 +469,16 @@ const IKON = {
   test: '<rect x="8" y="2" width="8" height="20" rx="2"/><path d="M12 6.5v4M10 8.5h4M10 16h4"/>',
   mail: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/>',
   filter: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+  spritze: '<path d="M18 2l4 4M20 4l-9.5 9.5M17 7l-2-2M14.5 9.5l-2-2M3 21l3.5-3.5M6.5 17.5l-2-2 9-9 4 4-9 9z"/>',
+  paket: '<path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8M7.5 5.5l9 5"/>',
+  tasse: '<path d="M4 9h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 2v3M12 2v3"/>',
+  mond: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  klammer: '<path d="M20.5 11.5l-8.3 8.3a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.4 8.4a1.7 1.7 0 0 1-2.5-2.5l7.7-7.7"/>',
+  lenkrad: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M3.3 10.5h6.6M14.1 10.5h6.6M12 14.2V21"/>',
+  wolke: '<path d="M7 16a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.3 2A3.6 3.6 0 0 1 17.5 16z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/>',
+  blitz: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  hand: '<path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15l-1.3-3a1.5 1.5 0 0 1 2.6-1.4L8 13"/>',
+  jacke: '<path d="M9 3l3 2 3-2 5 3v5l-3-1v11H7V10l-3 1V6z"/><path d="M12 5v16"/>',
 };
 const ikon = (name, durch, cls = "") => `<svg viewBox="0 0 24 24" class="ik ${cls}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IKON[name] || ""}${durch ? '<path d="M3.5 3.5l17 17" stroke-width="2.2"/>' : ""}</svg>`;
 /* Piktogramm zu einem Ereignis: eigenes Bild oder das Bild des Gegenstücks, durchgestrichen */
@@ -499,13 +515,15 @@ function wuerfelBild(n) {
 const KUGEL = { rot: "#dc2626", blau: "#2563eb", grün: "#16a34a", gelb: "#facc15", schwarz: "#27272a", weiß: "#ffffff" };
 function mischen(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 /* Würfel entscheidet über die Urne, darunter beide Urnen mit ihren Kugeln */
-function urnenBild(kA, f1, f2, inA, inB) {
-  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Würfel und zwei Urnen">`;
-  for (let z = 1; z <= 6; z++) {
-    const x = 28 + (z - 1) * 46, a = z <= kA;
-    s += `<rect x="${x}" y="6" width="34" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + 17}" y="29" class="zz">${z}</text>`;
+function urnenBild(kA, f1, f2, inA, inB, m = 6) {
+  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Zufallsgerät und zwei Urnen">`;
+  const schritt = Math.min(46, 300 / m), breite = Math.min(34, schritt - 6), start = 160 - (m * schritt - (schritt - breite)) / 2;
+  const name = (z) => (m === 2 ? ["W", "Z"][z - 1] : z);
+  for (let z = 1; z <= m; z++) {
+    const x = start + (z - 1) * schritt, a = z <= kA;
+    s += `<rect x="${x}" y="6" width="${breite}" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + breite / 2}" y="29" class="zz">${name(z)}</text>`;
   }
-  s += `<text x="160" y="60" class="leg">${kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
+  s += `<text x="160" y="60" class="leg">${m === 2 ? "Wappen" : kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
   const urne = (x0, name, kl, r, b) => {
     let u = `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
     const kugeln = mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]);
@@ -547,6 +565,55 @@ function hundertBild(k, name, ik) {
   return `${ik ? `<div class="bildkopf">${ikon(ik, false, "gross")}</div>` : ""}${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
 }
 
+/* Kärtchenreihe zum Antippen: labels = alle Ergebnisse, rot = Indizes in Rot */
+function kaertchen(labels, rot = []) {
+  return `<div class="seiten tippbar${labels.some((l) => String(l).length > 2) ? " breit" : ""}">${labels.map((l, i) => `<span class="${rot.includes(i) ? "rotschrift" : ""}">${l}</span>`).join("")}</div>`;
+}
+const TIPP_HINWEIS = `<p class="klein leise unterschrift" data-zaehler>Tippe an, was zu E gehört.</p>`;
+
+/* Eine einzelne Urne */
+function urneBild(f1, f2, r, b, zeile) {
+  const x0 = 26;
+  let s = `<svg class="urnen" viewBox="0 30 172 192" role="img" aria-label="Urne mit ${r} ${f1}en und ${b} ${f2}en Kugeln" style="max-width:210px">`;
+  s += `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+  mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]).forEach((f, i) => {
+    s += `<circle class="kugel" cx="${x0 + 24 + (i % 4) * 24}" cy="${195 - Math.floor(i / 4) * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+  });
+  if (zeile) s += `<text x="${x0 + 60}" y="56" class="un uA">${zeile}</text>`;
+  return s + "</svg>";
+}
+
+/* Glücksrad mit n gleich großen Feldern; farbig = Indizes (0-basiert) */
+function radBild(n, farbig = []) {
+  const R = 70, cx = 80, cy = 82;
+  let s = `<svg class="rad" viewBox="0 0 160 170" role="img" aria-label="Glücksrad mit ${n} Feldern">`;
+  for (let i = 0; i < n; i++) {
+    const w0 = (-90 + i * 360 / n) * Math.PI / 180, w1 = (-90 + (i + 1) * 360 / n) * Math.PI / 180, wm = (w0 + w1) / 2;
+    const p = (w, r) => `${(cx + r * Math.cos(w)).toFixed(1)},${(cy + r * Math.sin(w)).toFixed(1)}`;
+    s += `<path d="M${cx},${cy} L${p(w0, R)} A${R},${R} 0 0 1 ${p(w1, R)} z" class="feld ${farbig.includes(i) ? "an" : i % 2 ? "f2" : "f1"}"/>`;
+    s += `<text x="${(cx + R * 0.72 * Math.cos(wm)).toFixed(1)}" y="${(cy + R * 0.72 * Math.sin(wm) + 5).toFixed(1)}">${i + 1}</text>`;
+  }
+  return s + `<circle cx="${cx}" cy="${cy}" r="6" class="nabe"/><path d="M${cx - 7},4 h14 l-7,12 z" class="zeiger"/></svg>`;
+}
+
+/* Raster aller Ergebnisse (Würfelpaare, Karten, Münzen). mark(r, c) → "", "a", "b", "ab" */
+function rasterBild(zeilenKopf, spaltenKopf, mark, titelZ, titelS, zeileFarbe) {
+  const Z = zeilenKopf.length, S = spaltenKopf.length, cw = S > 6 ? 30 : S > 4 ? 36 : 46, ch = 30;
+  const L = 40, T = 40, B = L + S * cw + 6, H = T + Z * ch + 6;
+  let s = `<svg class="raster" viewBox="0 0 ${B} ${H}" role="img" aria-label="Alle ${Z * S} Ergebnisse">`;
+  s += `<text x="${L + S * cw / 2}" y="13" class="rt">${titelS}</text>`;
+  spaltenKopf.forEach((k, c) => { s += `<text x="${L + c * cw + cw / 2}" y="${T - 8}" class="rk">${k}</text>`; });
+  s += `<text x="10" y="${T + Z * ch / 2}" class="rt" transform="rotate(-90 10 ${T + Z * ch / 2})">${titelZ}</text>`;
+  zeilenKopf.forEach((k, r) => { s += `<text x="${L - 10}" y="${T + r * ch + ch / 2 + 5}" class="rk ${zeileFarbe ? zeileFarbe(r) : ""}">${k}</text>`; });
+  for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++)
+    s += `<rect x="${L + c * cw + 2}" y="${T + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" class="rz ${mark ? mark(r, c) : ""}"/>`;
+  return s + "</svg>";
+}
+const RASTER_LEG = `<p class="klein leise unterschrift"><span class="punkt a"></span> nur A <span class="punkt b"></span> nur B <span class="punkt ab"></span> A und B</p>`;
+/* Kartenspiel mit 32 Karten */
+const FARB = ["♣", "♠", "♥", "♦"], FARBNAME = ["Kreuz", "Pik", "Herz", "Karo"];
+const WERTE = ["7", "8", "9", "10", "B", "D", "K", "A"];
+
 /* ============================================================
    3. Sachzusammenhänge (frei erfunden, kein Schulbuch)
    ============================================================ */
@@ -581,6 +648,36 @@ const KONTEXTE = [
     aD: "mit dem Bus kommt", naD: "mit dem Rad kommt", bD: "pünktlich ist", nbD: "zu spät kommt",
     ik: { A: "bus", nA: "rad", B: "uhr", nB: "spaet" },
     intro: (N) => `An einem Morgen wurde bei ${N} Schülerinnen und Schülern notiert, wie sie zur Schule kamen und ob sie pünktlich waren.` },
+  { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "geimpft", nA: "nicht geimpft", B: "Grippe", nB: "keine Grippe",
+    aP: "sind gegen Grippe geimpft", naP: "sind nicht geimpft", bP: "hatten Grippe", nbP: "hatten keine Grippe",
+    aD: "geimpft ist", naD: "nicht geimpft ist", bD: "Grippe hatte", nbD: "keine Grippe hatte",
+    ik: { A: "spritze", B: "virus" },
+    intro: (N) => `Über einen Winter wurden ${N} Personen beobachtet: geimpft oder nicht, Grippe oder nicht.` },
+  { wer: "Pakete", pron: "es", rel: "das", eine: "ein Paket", akk: "ein Paket",
+    A: "Express", nA: "Standard", B: "pünktlich", nB: "verspätet",
+    aP: "wurden als Express verschickt", naP: "wurden als Standard verschickt", bP: "kamen pünktlich an", nbP: "kamen verspätet an",
+    aD: "als Express verschickt wurde", naD: "als Standard verschickt wurde", bD: "pünktlich ankam", nbD: "verspätet ankam",
+    ik: { A: "paket", B: "uhr", nB: "spaet" },
+    intro: (N) => `Ein Versanddienst wertet ${N} Pakete aus.` },
+  { wer: "Gäste", pron: "er", rel: "der", eine: "ein Gast", akk: "einen Gast",
+    A: "Frühstück", nA: "ohne Frühstück", B: "mehr als 3 Nächte", nB: "höchstens 3 Nächte",
+    aP: "buchten Frühstück", naP: "buchten kein Frühstück", bP: "blieben mehr als 3 Nächte", nbP: "blieben höchstens 3 Nächte",
+    aD: "Frühstück gebucht hat", naD: "kein Frühstück gebucht hat", bD: "mehr als 3 Nächte bleibt", nbD: "höchstens 3 Nächte bleibt",
+    ik: { A: "tasse", B: "mond" },
+    intro: (N) => `Ein Hotel hatte im Sommer ${N} Gäste.` },
+  { wer: "E-Mails", pron: "sie", rel: "die", eine: "eine E-Mail", akk: "eine E-Mail",
+    A: "Anhang", nA: "kein Anhang", B: "Spam", nB: "kein Spam",
+    aP: "haben einen Anhang", naP: "haben keinen Anhang", bP: "sind Spam", nbP: "sind kein Spam",
+    aD: "einen Anhang hat", naD: "keinen Anhang hat", bD: "Spam ist", nbD: "kein Spam ist",
+    ik: { A: "klammer", B: "filter" },
+    intro: (N) => `In einem Postfach wurden ${N} E-Mails untersucht.` },
+  { wer: "Fahrschülerinnen und Fahrschüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "über 25 Fahrstunden", nA: "höchstens 25", B: "bestanden", nB: "nicht bestanden",
+    aP: "hatten mehr als 25 Fahrstunden", naP: "hatten höchstens 25 Fahrstunden", bP: "bestanden die Prüfung", nbP: "bestanden nicht",
+    aD: "mehr als 25 Fahrstunden hatte", naD: "höchstens 25 Fahrstunden hatte", bD: "die Prüfung bestanden hat", nbD: "nicht bestanden hat",
+    ik: { A: "lenkrad", B: "ok", nB: "fehler" },
+    intro: (N) => `Eine Fahrschule wertet die Prüfungen von ${N} Fahrschülerinnen und Fahrschülern aus.` },
 ];
 /* Zeile/Spalte → Ereignis: x ∈ {A, nA}, y ∈ {B, nB} */
 const ereignisName = { A: "A", nA: Q("A"), B: "B", nB: Q("B") };
@@ -624,33 +721,6 @@ function entscheidung(unab, warum) {
   return { label: "A und B sind stochastisch …", optionen: ["unabhängig", "abhängig"], richtig: unab ? 0 : 1, falsch: () => warum };
 }
 
-/* Eine einzelne Urne */
-function urneBild(f1, f2, r, b, zeile) {
-  const x0 = 26;
-  let s = `<svg class="urnen" viewBox="0 30 172 192" role="img" aria-label="Urne mit ${r} ${f1}en und ${b} ${f2}en Kugeln" style="max-width:210px">`;
-  s += `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
-  mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]).forEach((f, i) => {
-    s += `<circle class="kugel" cx="${x0 + 24 + (i % 4) * 24}" cy="${195 - Math.floor(i / 4) * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
-  });
-  if (zeile) s += `<text x="${x0 + 60}" y="56" class="un uA">${zeile}</text>`;
-  return s + "</svg>";
-}
-
-/* Raster aller Ergebnisse (Würfelpaare, Karten). mark(r, c) → "", "a", "b", "ab" */
-function rasterBild(zeilenKopf, spaltenKopf, mark, titelZ, titelS, zeileFarbe) {
-  const Z = zeilenKopf.length, S = spaltenKopf.length, cw = S > 6 ? 30 : 36, ch = S > 6 ? 30 : 30;
-  const L = 40, T = 40, B = L + S * cw + 6, H = T + Z * ch + 6;
-  let s = `<svg class="raster" viewBox="0 0 ${B} ${H}" role="img" aria-label="Alle ${Z * S} Ergebnisse">`;
-  s += `<text x="${L + S * cw / 2}" y="13" class="rt">${titelS}</text>`;
-  spaltenKopf.forEach((k, c) => { s += `<text x="${L + c * cw + cw / 2}" y="${T - 8}" class="rk">${k}</text>`; });
-  s += `<text x="10" y="${T + Z * ch / 2}" class="rt" transform="rotate(-90 10 ${T + Z * ch / 2})">${titelZ}</text>`;
-  zeilenKopf.forEach((k, r) => { s += `<text x="${L - 10}" y="${T + r * ch + ch / 2 + 5}" class="rk ${zeileFarbe ? zeileFarbe(r) : ""}">${k}</text>`; });
-  for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++)
-    s += `<rect x="${L + c * cw + 2}" y="${T + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" class="rz ${mark ? mark(r, c) : ""}"/>`;
-  return s + "</svg>";
-}
-const RASTER_LEG = `<p class="klein leise unterschrift"><span class="punkt a"></span> nur A <span class="punkt b"></span> nur B <span class="punkt ab"></span> A und B</p>`;
-
 /* Beispieltafeln für die Vorführungen */
 const VOR_K = { A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor", ik: { A: "note", B: "mikro" } };
 const VOR_ABH = [[60, 100, 160], [40, 200, 240], [100, 300, 400]];       // abhängig
@@ -690,41 +760,62 @@ STATIONEN.push({
   merke: `A und B sind <b>stochastisch unabhängig</b>, wenn <span class="m">P(B | A) = P(B)</span>, gleichwertig <span class="m">P(A ∩ B) = P(A) · P(B)</span>. Sonst heißen sie abhängig.`,
   stolper: `Ohne Zurücklegen ist P(B) trotzdem ${br(3, 5)}, nicht ${br(1, 2)}: P(B) fragt ohne Vorwissen über die erste Kugel. Erst P(B | A) kennt die erste Kugel.`,
   neu() {
-    const [f1, f2] = wahl(FARBEN);
-    const r = zufall(2, 6), b = zufall(2, 6), n = r + b;
+    /* Zwei Sorten Dinge (cnt[0], cnt[1]); A: erstes Ding ist Sorte i, B: zweites Ding ist Sorte j */
+    const art = wahl(["urne", "urne", "lose", "karten"]);
+    let cnt, name, satz, einleitung, bild = "", ding;
+    if (art === "urne") {
+      const [f1, f2] = wahl(FARBEN);
+      cnt = [zufall(2, 6), zufall(2, 6)]; name = [f1, f2]; ding = "Kugel";
+      satz = (pos, s) => `Die ${pos} Kugel ist ${name[s]}.`;
+      einleitung = (mit) => `In einer Urne liegen ${cnt[0]} ${f1}e und ${cnt[1]} ${f2}e Kugeln. Es werden nacheinander zwei Kugeln gezogen, <b>${mit ? "mit" : "ohne"} Zurücklegen</b>.`;
+      bild = (mit) => urneBild(f1, f2, cnt[0], cnt[1], mit ? "↺ mit Zurücklegen" : "ohne Zurücklegen");
+    } else if (art === "lose") {
+      cnt = [zufall(2, 5), zufall(5, 15)]; name = ["Gewinn", "Niete"]; ding = "Los";
+      satz = (pos, s) => `Das ${pos} Los ist ${s ? "eine Niete" : "ein Gewinn"}.`;
+      einleitung = (mit) => `In einer Lostrommel liegen ${cnt[0]} Gewinne und ${cnt[1]} Nieten. Zwei Lose werden nacheinander gezogen, <b>${mit ? "das erste wird zurückgelegt und neu gemischt" : "ohne Zurücklegen"}</b>.`;
+    } else {
+      const ass = Math.random() < 0.5;
+      cnt = ass ? [4, 28] : [8, 24]; name = ass ? ["Ass", "kein Ass"] : ["Herz", "kein Herz"]; ding = "Karte";
+      satz = (pos, s) => `Die ${pos} Karte ist ${ass ? (s ? "kein Ass" : "ein Ass") : (s ? "keine Herz-Karte" : "eine Herz-Karte")}.`;
+      einleitung = (mit) => `Aus einem Kartenspiel mit 32 Karten (darin ${ass ? "4 Asse" : "8 Herz-Karten"}) werden nacheinander zwei Karten gezogen, <b>${mit ? "mit Zurücklegen und Mischen" : "ohne Zurücklegen"}</b>.`;
+    }
+    const n = cnt[0] + cnt[1];
+    const erstes = { Kugel: "Die erste Kugel", Los: "Das erste Los", Karte: "Die erste Karte" }[ding];
     const mit = Math.random() < 0.5;
-    const pBA = mit ? r / n : (r - 1) / (n - 1), pB = r / n;
-    const html = `<p>In einer Urne liegen ${r} ${f1}e und ${b} ${f2}e Kugeln. Es werden nacheinander zwei Kugeln gezogen, <b>${mit ? "mit" : "ohne"} Zurücklegen</b>.</p>
-      <p>A: „Die erste Kugel ist ${f1}.“<br>B: „Die zweite Kugel ist ${f1}.“</p>
+    const [i, j] = wahl([[0, 0], [0, 0], [1, 0], [0, 1], [1, 1]]);
+    const p2 = mit ? [[cnt[0] / n, cnt[1] / n], [cnt[0] / n, cnt[1] / n]] : [[(cnt[0] - 1) / (n - 1), cnt[1] / (n - 1)], [cnt[0] / (n - 1), (cnt[1] - 1) / (n - 1)]];
+    const z2 = mit ? [[cnt[0], cnt[1]], [cnt[0], cnt[1]]] : [[cnt[0] - 1, cnt[1]], [cnt[0], cnt[1] - 1]], n2 = mit ? n : n - 1;
+    const pBA = p2[i][j], pB = cnt[j] / n, pfad = (cnt[i] / n) * pBA;
+    const andereBA = mit ? (cnt[j] - (i === j)) / (n - 1) : cnt[j] / n;
+    const html = `<p>${einleitung(mit)}</p>
+      <p>A: „${satz("erste", i)}“<br>B: „${satz("zweite", j)}“</p>
       <p class="klein leise">Brüche (z. B. 3/7) oder Dezimalzahlen auf drei Stellen.</p>`;
-    const pfad = (r / n) * pBA;
     const felder = [
       { id: "ba", label: "P(B | A)", wert: pBA, tol: 0.0006,
-        fallen: mit
-          ? [{ wert: (r - 1) / (n - 1), text: "So wäre es ohne Zurücklegen. Hier kommt die erste Kugel zurück: Die Urne ist wieder vollständig." }]
-          : [{ wert: r / n, text: `Die erste Kugel fehlt in der Urne: Es liegen nur noch ${n - 1} Kugeln darin, davon ${r - 1} ${f1}e.` },
-             { wert: pfad, text: "Das ist P(A ∩ B), ein ganzer Pfad. Bei P(B | A) weißt du schon, dass A eingetreten ist: Es zählt nur die zweite Stufe." }] },
+        fallen: [
+          { wert: andereBA, text: mit ? `So wäre es ohne Zurücklegen. Hier kommt ${erstes.replace(/^D/, "d")} zurück: Alles ist wieder wie am Anfang.` : `${erstes} fehlt: Es sind nur noch ${n - 1} übrig, davon ${z2[i][j]} der Sorte „${name[j]}“.` },
+          ...(mit ? [] : [{ wert: pfad, text: "Das ist P(A ∩ B), ein ganzer Pfad. Bei P(B | A) weißt du schon, dass A eingetreten ist: Es zählt nur die zweite Stufe." }]),
+        ] },
       { id: "b", label: "P(B)", wert: pB, tol: 0.0006,
         fallen: [
-          { wert: pfad, text: `Das ist nur der Pfad „erst ${f1}, dann ${f1}“. P(B) heißt: Die zweite ist ${f1}, egal was die erste war. Der Pfad über ${f2} gehört dazu.` },
-          ...(mit ? [] : [{ wert: (r - 1) / (n - 1), text: `Das ist P(B | A). Ohne Vorwissen über die erste Kugel addierst du beide Pfade, die bei „zweite ${f1}“ enden.` }]),
+          { wert: pfad, text: `Das ist nur der Pfad über A. P(B) fragt ohne Vorwissen über den ersten Zug: Beide Pfade, die bei „zweite: ${name[j]}“ enden, gehören dazu.` },
+          ...(mit ? [] : [{ wert: pBA, text: `Das ist P(B | A). Ohne Vorwissen über den ersten Zug addierst du beide Pfade, die bei „zweite: ${name[j]}“ enden.` }]),
         ] },
     ];
-    const baumDaten = { s1: [f1, f2], s2: [[f1, f2], [f1, f2]], p1: [brT(r, n), brT(b, n)],
-      p2: mit ? [[brT(r, n), brT(b, n)], [brT(r, n), brT(b, n)]] : [[brT(r - 1, n - 1), brT(b, n - 1)], [brT(r, n - 1), brT(b - 1, n - 1)]] };
+    const baumDaten = { s1: name, s2: [name, name], p1: [brT(cnt[0], n), brT(cnt[1], n)], p2: z2.map((z) => z.map((x) => brT(x, n2))) };
     return {
-      html, felder,
-      bild: urneBild(f1, f2, r, b, mit ? "↺ mit Zurücklegen" : "ohne Zurücklegen"),
+      html, felder, geschichte: "idee-" + art,
+      bild: bild ? bild(mit) : "",
       auswahl: entscheidung(mit, mit
-        ? "Vergleiche: P(B | A) und P(B) sind gleich. Das Wissen über die erste Kugel ändert nichts an der zweiten."
-        : `Vergleiche: P(B | A) ist ${pBA < pB ? "kleiner" : "größer"} als P(B). Das Wissen über die erste Kugel ändert die Chance der zweiten.`),
+        ? "Vergleiche: P(B | A) und P(B) sind gleich. Das Wissen über den ersten Zug ändert nichts am zweiten."
+        : `Vergleiche: P(B | A) ist ${pBA < pB ? "kleiner" : "größer"} als P(B). Das Wissen über den ersten Zug ändert die Chance beim zweiten.`),
       tipps: [
-        `Zeichne den Baum: erste Kugel ${f1} oder ${f2}, dann die zweite. ${mit ? "Mit Zurücklegen sieht die zweite Stufe aus wie die erste." : "Ohne Zurücklegen liegt in der zweiten Stufe eine Kugel weniger in der Urne."}`,
-        `${baum({ ...baumDaten, hl: [0, 2] })}<p>P(B | A): der Ast hinter „${f1}“ oben. P(B): beide markierten Pfade addieren.</p>`,
+        `Zeichne den Baum: erster Zug „${name[0]}“ oder „${name[1]}“, dann der zweite. ${mit ? "Mit Zurücklegen sieht die zweite Stufe aus wie die erste." : `Ohne Zurücklegen sind in der zweiten Stufe nur noch ${n - 1} übrig.`}`,
+        `${baum({ ...baumDaten, hl: [j, 2 + j] })}<p>P(B | A): der Ast „${name[j]}“ hinter „${name[i]}“. P(B): beide markierten Pfade addieren.</p>`,
       ],
-      loesung: `${baum({ ...baumDaten, hl: [0, 2] })}
-        <p>P(B | A) = ${br(mit ? r : r - 1, mit ? n : n - 1)} ≈ ${kz(pBA)}</p>
-        <p>P(B) = ${br(r, n)} · ${br(mit ? r : r - 1, mit ? n : n - 1)} + ${br(b, n)} · ${br(r, mit ? n : n - 1)} = ${br(r, n)} ≈ ${kz(pB)}</p>
+      loesung: `${baum({ ...baumDaten, hl: [j, 2 + j] })}
+        <p>P(B | A) = ${br(z2[i][j], n2)} ≈ ${kz(pBA)}</p>
+        <p>P(B) = ${br(cnt[0], n)} · ${br(z2[0][j], n2)} + ${br(cnt[1], n)} · ${br(z2[1][j], n2)} = ${br(cnt[j], n)} ≈ ${kz(pB)}</p>
         <p>${mit ? "Gleich, also unabhängig." : "Verschieden, also abhängig."}</p>`,
     };
   },
@@ -831,14 +922,20 @@ STATIONEN.push({
             { wert: pab, text: "Das ist P(A ∩ B) selbst. Gesucht ist der zweite Faktor." },
             { wert: pa - pab, text: "Das ist P(A ∩ B̄) (Rest der Zeile A). Gesucht ist P(B): teilen statt abziehen." },
           ] },
-        { id: "nn", label: `P(${Q("A")} ∩ ${Q("B")})`, wert: (1 - pa) * (1 - pb), tol: 0.0006,
-          fallen: [
-            { wert: 1 - pab, text: "Das ist 1 − P(A ∩ B), also „nicht beides“. Gesucht ist „weder A noch B“." },
-            { wert: 1 - pa - pb, text: "Du hast P(A ∩ B) doppelt abgezogen. Rechne P(Ā) · P(B̄) oder über die Tafel." },
-          ] },
+        Math.random() < 0.5
+          ? { id: "nn", label: `P(${Q("A")} ∩ ${Q("B")})`, wert: (1 - pa) * (1 - pb), tol: 0.0006,
+              fallen: [
+                { wert: 1 - pab, text: "Das ist 1 − P(A ∩ B), also „nicht beides“. Gesucht ist „weder A noch B“." },
+                { wert: 1 - pa - pb, text: "Du hast P(A ∩ B) doppelt abgezogen. Rechne P(Ā) · P(B̄) oder über die Tafel." },
+              ] }
+          : { id: "oder", label: "P(A ∪ B)", wert: pa + pb - pab, tol: 0.0006,
+              fallen: [
+                { wert: pa + pb, text: "Einfach addiert: Dann zählt „A und B“ doppelt. P(A ∪ B) = P(A) + P(B) − P(A ∩ B)." },
+                { wert: pab, text: "Das ist „A und B“. Gesucht ist „A oder B“ (mindestens eins von beiden)." },
+              ] },
       ],
-      tipps: [`Setze ein: ${kz(pa)} · P(B) = ${kz(pab, 4)}. Nach P(B) auflösen.`, `Mit A und B sind auch ${Q("A")} und ${Q("B")} unabhängig: P(${Q("A")} ∩ ${Q("B")}) = (1 − P(A)) · (1 − P(B)).`],
-      loesung: `<p>P(B) = ${kz(pab, 4)} : ${kz(pa)} = ${kz(pb)}</p><p>P(${Q("A")} ∩ ${Q("B")}) = ${kz(1 - pa)} · ${kz(1 - pb)} = ${kz((1 - pa) * (1 - pb), 4)}</p>
+      tipps: [`Setze ein: ${kz(pa)} · P(B) = ${kz(pab, 4)}. Nach P(B) auflösen.`, `Zeichne die Anteilstafel: Mit P(A), P(B) und P(A ∩ B) bekommst du jedes Feld über Zeilen und Spalten. Mit A und B sind auch ${Q("A")} und ${Q("B")} unabhängig.`],
+      loesung: `<p>P(B) = ${kz(pab, 4)} : ${kz(pa)} = ${kz(pb)}</p><p>P(${Q("A")} ∩ ${Q("B")}) = ${kz(1 - pa)} · ${kz(1 - pb)} = ${kz((1 - pa) * (1 - pb), 4)}; P(A ∪ B) = ${kz(pa)} + ${kz(pb)} − ${kz(pab, 4)} = ${kz(pa + pb - pab, 4)}</p>
         ${tafel([[pab, pa - pab, pa], [pb - pab, (1 - pa) * (1 - pb), 1 - pa], [pb, 1 - pb, 1]], { fmt: (x) => kz(x, 4) })}`,
     };
   },
@@ -889,9 +986,23 @@ const EV_W = [
   { t: "Es fällt ein Pasch (zweimal dieselbe Zahl).", f: (x, y) => x === y },
   { t: "Die Augensumme ist größer als 9.", f: (x, y) => x + y > 9 },
   { t: "Der zweite Wurf ist größer als der erste.", f: (x, y) => y > x },
+  { t: "Die Augensumme ist höchstens 4.", f: (x, y) => x + y <= 4 },
+  { t: "Beide Würfe zeigen eine ungerade Zahl.", f: (x, y) => x % 2 === 1 && y % 2 === 1 },
+  { t: "Mindestens ein Wurf zeigt eine 6.", f: (x, y) => x === 6 || y === 6 },
+  { t: "Der zweite Wurf zeigt eine 3 oder eine 4.", f: (x, y) => y === 3 || y === 4 },
+  { t: "Das Produkt der Augenzahlen ist gerade.", f: (x, y) => (x * y) % 2 === 0 },
 ];
-const FARB = ["♣", "♠", "♥", "♦"], FARBNAME = ["Kreuz", "Pik", "Herz", "Karo"];
-const WERTE = ["7", "8", "9", "10", "B", "D", "K", "A"];
+/* Drei Münzwürfe: Zeile = erster Wurf, Spalte = zweiter und dritter Wurf */
+const MZ = ["W", "Z"], MS = ["WW", "WZ", "ZW", "ZZ"];
+const EV_M = [
+  { t: "Der erste Wurf zeigt Wappen.", f: (s) => s[0] === "W" },
+  { t: "Es fällt genau zweimal Wappen.", f: (s) => s.split("W").length - 1 === 2 },
+  { t: "Es fällt mindestens einmal Zahl.", f: (s) => s.includes("Z") },
+  { t: "Der dritte Wurf zeigt Zahl.", f: (s) => s[2] === "Z" },
+  { t: "Alle drei Würfe zeigen dasselbe.", f: (s) => s === "WWW" || s === "ZZZ" },
+  { t: "Der zweite Wurf zeigt dasselbe wie der erste.", f: (s) => s[0] === s[1] },
+  { t: "Es fällt öfter Wappen als Zahl.", f: (s) => s.split("W").length - 1 >= 2 },
+];
 const EV_K = [
   { t: "Die Karte ist eine Herz-Karte.", f: (fa) => fa === 2 },
   { t: "Die Karte ist rot (Herz oder Karo).", f: (fa) => fa >= 2 },
@@ -901,6 +1012,10 @@ const EV_K = [
   { t: "Die Karte ist ein Bild (Bube, Dame oder König).", f: (fa, we) => we >= 4 && we <= 6 },
   { t: "Die Karte ist eine Zahlkarte (7 bis 10).", f: (fa, we) => we <= 3 },
   { t: "Die Karte ist eine Dame oder ein König.", f: (fa, we) => we === 5 || we === 6 },
+  { t: "Die Karte ist eine Kreuz-Karte.", f: (fa) => fa === 0 },
+  { t: "Die Karte hat einen Wert von 9 bis König.", f: (fa, we) => we >= 2 && we <= 6 },
+  { t: "Die Karte ist eine rote Zahlkarte.", f: (fa, we) => fa >= 2 && we <= 3 },
+  { t: "Die Karte ist ein König.", f: (fa, we) => we === 6 },
 ];
 STATIONEN.push({
   id: "u-abzaehlen", titel: "Würfel und Karten: abzählen und prüfen", ziel: 3,
@@ -919,30 +1034,34 @@ STATIONEN.push({
   merke: `Bei gleich wahrscheinlichen Ergebnissen: zählen, dann <span class="m">P(A ∩ B) = P(A) · P(B)</span> prüfen. Unvereinbare Ereignisse (beide möglich) sind immer abhängig.`,
   stolper: `Unabhängig heißt nicht „haben nichts miteinander zu tun“ und nicht „können nicht zusammen eintreten“. Entscheidend ist allein die Rechnung.`,
   neu() {
-    const karten = Math.random() < 0.5;
-    const liste = karten ? EV_K : EV_W;
-    const Z = karten ? 4 : 6, S = karten ? 8 : 6, N = Z * S;
+    const art = wahl(["karten", "wuerfel", "muenzen"]), karten = art === "karten";
+    const liste = { karten: EV_K, wuerfel: EV_W, muenzen: EV_M }[art];
+    const Z = { karten: 4, wuerfel: 6, muenzen: 2 }[art], S = { karten: 8, wuerfel: 6, muenzen: 4 }[art], N = Z * S;
+    /* Ereignis an der Stelle (Zeile r, Spalte c) auswerten */
+    const gilt = (E, r, c) => (art === "karten" ? E.f(r, c) : art === "wuerfel" ? E.f(r + 1, c + 1) : E.f(MZ[r] + MS[c]));
     const will = Math.random() < 0.45;
     let A, B, nA, nB, nAB, unab;
     for (let v = 0; v < 300; v++) {
       [A, B] = mischen([...liste]).slice(0, 2);
       nA = nB = nAB = 0;
       for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++) {
-        const a = karten ? A.f(r, c) : A.f(r + 1, c + 1), b = karten ? B.f(r, c) : B.f(r + 1, c + 1);
+        const a = gilt(A, r, c), b = gilt(B, r, c);
         nA += a; nB += b; nAB += a && b;
       }
-      if (nA === 0 || nB === 0 || nA === N || nB === N) continue;
+      if (nA === 0 || nB === 0 || nA === N || nB === N || nA === nAB && nB === nAB) continue;
       unab = nAB * N === nA * nB;
       if (unab === will) break;
     }
-    const mark = (r, c) => { const a = karten ? A.f(r, c) : A.f(r + 1, c + 1), b = karten ? B.f(r, c) : B.f(r + 1, c + 1); return a && b ? "ab" : a ? "a" : b ? "b" : ""; };
-    const raster = (m) => karten ? rasterBild(FARB, WERTE, m, "Farbe", "Wert", (r) => (r >= 2 ? "rot" : "")) : rasterBild([1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6], m, "1. Wurf", "2. Wurf");
-    const html = `<p>${karten ? "Aus einem Kartenspiel mit 32 Karten (Kreuz, Pik, Herz, Karo; jeweils 7, 8, 9, 10, Bube, Dame, König, Ass) wird zufällig eine Karte gezogen." : "Ein Würfel wird zweimal geworfen."}</p>
+    const mark = (r, c) => { const a = gilt(A, r, c), b = gilt(B, r, c); return a && b ? "ab" : a ? "a" : b ? "b" : ""; };
+    const raster = (m) => art === "karten" ? rasterBild(FARB, WERTE, m, "Farbe", "Wert", (r) => (r >= 2 ? "rot" : ""))
+      : art === "wuerfel" ? rasterBild([1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6], m, "1. Wurf", "2. Wurf")
+      : rasterBild(MZ, MS, m, "1. Wurf", "2. und 3. Wurf");
+    const html = `<p>${{ karten: "Aus einem Kartenspiel mit 32 Karten (Kreuz, Pik, Herz, Karo; jeweils 7, 8, 9, 10, Bube, Dame, König, Ass) wird zufällig eine Karte gezogen.", wuerfel: "Ein Würfel wird zweimal geworfen.", muenzen: "Eine Münze wird dreimal geworfen (W: Wappen, Z: Zahl)." }[art]}</p>
       <p>A: „${A.t.replace(/\.$/, "")}.“<br>B: „${B.t.replace(/\.$/, "")}.“</p>
-      <p class="klein leise">Als Bruch (z. B. ${karten ? "3/8" : "5/36"}) oder als Dezimalzahl auf drei Stellen.</p>`;
+      <p class="klein leise">Als Bruch (z. B. ${{ karten: "3/8", wuerfel: "5/36", muenzen: "3/8" }[art]}) oder als Dezimalzahl auf drei Stellen.</p>`;
     const pA = nA / N, pB = nB / N, pAB = nAB / N;
     return {
-      html, bild: raster(null) + `<p class="klein leise unterschrift">${N} gleich wahrscheinliche Ergebnisse</p>`,
+      html, geschichte: "abzaehlen-" + art, bild: raster(null) + `<p class="klein leise unterschrift">${N} gleich wahrscheinliche Ergebnisse</p>`,
       felder: [
         { id: "a", label: "P(A)", wert: pA, tol: 0.0006, fallen: [{ wert: nA, text: `Das ist eine Anzahl. Teile durch alle ${N} Ergebnisse.` }] },
         { id: "b", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: nB, text: `Das ist eine Anzahl. Teile durch alle ${N} Ergebnisse.` }] },
@@ -971,6 +1090,14 @@ const FALLE = [
     t: (a, b, ab) => `An ${pz(a)} der Wintertage hat ein Regionalzug Verspätung (A). An ${pz(b)} der Wintertage schneit es (B). An Schneetagen ist der Zug zu ${pz(ab)} verspätet.` },
   { pB: [24, 26], q: [15, 25], unab: true,
     t: (a, b, ab) => `Unter den jungen Männern einer Stadt sind ${pz(a)} größer als 1,85 m (A). ${pz(b)} haben im Sommer Geburtstag, Juni bis August (B). Von den Sommergeborenen sind ${pz(ab)} größer als 1,85 m.` },
+  { pB: [5, 12], pAB: [20, 40], q: [1, 3],
+    t: (a, b, ab) => `In einem Dorf fällt an ${pz(a)} der Sommertage kurz der Strom aus (A). An ${pz(b)} der Sommertage gibt es ein Gewitter (B). An Gewittertagen fällt der Strom an ${pz(ab)} der Tage aus.` },
+  { pB: [20, 35], pAB: [80, 95], q: [15, 30],
+    t: (a, b, ab) => `Ein Pendler hat an ${pz(a)} der Arbeitstage eine Regenjacke dabei (A). An ${pz(b)} der Arbeitstage regnet es morgens (B). An Regentagen nimmt er die Jacke in ${pz(ab)} der Fälle mit.` },
+  { pB: [7, 9], q: [9, 12], unab: true,
+    t: (a, b, ab) => `${pz(a)} der Menschen sind Linkshänder (A). ${pz(b)} der Menschen haben im Juni Geburtstag (B). Unter den Juni-Geborenen sind ebenfalls ${pz(ab)} Linkshänder.` },
+  { pB: [48, 52], q: [32, 35], unab: true,
+    t: (a, b, ab) => `Ein Würfel und eine Münze werden gleichzeitig geworfen, viele Male hintereinander. Der Würfel zeigt in ${pz(a)} der Würfe eine 1 oder 2 (A), die Münze in ${pz(b)} der Würfe Wappen (B). Unter den Würfen mit Wappen zeigt der Würfel in ${pz(ab)} der Fälle eine 1 oder 2.` },
 ];
 /* Gemeinsame Ursache: Wetter → Eis, Wetter → Sonnenbrand */
 function ursacheBild() {
@@ -1014,7 +1141,8 @@ STATIONEN.push({
             { wert: pAgB, text: "Das ist P(A | B), der Anteil unter B. Gesucht ist der Anteil an allen: noch mal P(B)." },
           ] },
       ],
-      auswahl: entscheidung(!!c.unab, c.unab ? `P(A | B) = ${pz(pAgB)} = P(A): Der Geburtsmonat ändert nichts am Anteil der Großen.` : `P(A | B) = ${pz(pAgB)}, aber P(A) = ${pz(pA)}. Unter B ist A viel häufiger.`),
+      geschichte: "falle-" + FALLE.indexOf(c),
+      auswahl: entscheidung(!!c.unab, c.unab ? `P(A | B) = ${pz(pAgB)} = P(A): Ob B eintritt, ändert nichts an der Wahrscheinlichkeit von A.` : `P(A | B) = ${pz(pAgB)}, aber P(A) = ${pz(pA)}. Unter B ist A viel häufiger.`),
       tipps: [`Vergleiche P(A | B) mit P(A). Sind sie gleich, darfst du P(A) · P(B) rechnen, sonst nicht.`, `Pfad im Baum mit erster Stufe B: P(A ∩ B) = P(B) · P(A | B) = ${kz(pB)} · ${kz(pAgB)}.`],
       loesung: `<p>P(A ∩ B) = P(B) · P(A | B) = ${kz(pB)} · ${kz(pAgB)} = ${kz(richtig, 4)}</p>
         <p>${c.unab ? `Hier gilt auch P(A) · P(B) = ${kz(pA * pB, 4)}, weil A und B unabhängig sind.` : `Das falsche Produkt P(A) · P(B) = ${kz(pA * pB, 4)} liegt um den Faktor ${kz(richtig / (pA * pB), 1)} daneben.`}</p>`,
@@ -1162,8 +1290,32 @@ function serieZeichnen() {
   $("#serie").innerHTML = s;
 }
 
+/* Keine Wiederholung: Die letzten 25 Aufgaben je Station (als Prüfsumme) und
+   die zuletzt erzählte Geschichte werden gemerkt. Eine neue Aufgabe darf
+   keine davon wörtlich wiederholen und erzählt möglichst eine andere
+   Geschichte als die vorige. */
+function pruefsumme(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+function geschichteVon(a) { return a.geschichte || text(a.html).split("\n")[0].replace(/\d+([.,]\d+)?/g, "#").slice(0, 48); }
+function frischeAufgabe() {
+  const z = st(aktiv.id);
+  z.zuletzt = Array.isArray(z.zuletzt) ? z.zuletzt : [];
+  let wahl = null;
+  for (let v = 0; v < 40; v++) {
+    const a = aktiv.neu();
+    const fp = pruefsumme(text(a.html) + "|" + a.felder.map((f) => f.label).join(";"));
+    const gs = geschichteVon(a);
+    if (z.zuletzt.includes(fp)) { wahl = wahl || { a, fp, gs }; continue; }
+    wahl = { a, fp, gs };
+    if (gs !== z.geschichte || v >= 15) break;
+  }
+  z.zuletzt = [...z.zuletzt, wahl.fp].slice(-25);
+  z.geschichte = wahl.gs;
+  sichern();
+  return wahl.a;
+}
+
 function neueAufgabe() {
-  aufgabe = aktiv.neu();
+  aufgabe = frischeAufgabe();
   /* Fallen, die zufällig mit der Lösung zusammenfallen, wären irreführend */
   for (const f of [...aufgabe.felder, ...(aufgabe.tafelFelder || [])])
     if (f.fallen) f.fallen = f.fallen.filter((fa) => Math.abs(fa.wert - f.wert) > Math.max(f.tol || 0, 0.0006) + 1e-9);
