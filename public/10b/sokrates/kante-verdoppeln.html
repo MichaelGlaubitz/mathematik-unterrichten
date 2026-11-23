@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doppelt so breit, doppelt so viel? – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+/* Gespräch mit Sokrates – nur die Daten. Neue Wege 10, S. 72 Nr. 28 a, nur das Volumen (KW 47). */
+const DIALOG = {
+  titel: "Doppelt so breit, doppelt so viel? – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Neue Wege 10, S. 72 Nr. 28 a (Volumen)\n\nEine quadratische Pyramide ist $10$ cm hoch. Ihre Grundkante beträgt $3$, $6$, $9$ oder $12$ cm.\n\nWie verändert sich das Volumen, wenn die Kante verdoppelt, verdreifacht oder vervierfacht wird und die Höhe gleich bleibt? Sage es erst vorher und rechne dann.",
+
+  gegeben: "$h = 10$ cm; $a = 3$, $6$, $9$, $12$ cm",
+
+  selbst: {
+    text:"Gut, {name}. Berechne die vier Volumina auf deinem Weg. Was fällt dir an den Zahlen auf?",
+    fragen:[
+      {text:"Volumen für $a = 3$ cm:", kurz:"$a = 3$ cm", einheit:"cm³", loesung:30, toleranz:0.05, ab:"v6",
+       fehler:[
+        {wert:90, toleranz:0.05, hinweis:"Das ist das Prisma. Welcher Faktor fehlt bei der Pyramide?", ab:"v6"},
+        {wert:10, toleranz:0.05, hinweis:"Die Grundfläche ist $G = a^2$, nicht $a$.", ab:"v6"}]},
+      {text:"Volumen für $a = 6$ cm:", kurz:"$a = 6$ cm", einheit:"cm³", loesung:120, toleranz:0.05, ab:"vorhersage",
+       fehler:[
+        {wert:60, toleranz:0.05, hinweis:"Du hast das Volumen verdoppelt. Wie oft passt das kleine Quadrat in die neue Grundfläche?", ab:"vorhersage"},
+        {wert:240, toleranz:0.05, hinweis:"Mal acht gälte, wenn auch die Höhe doppelt wäre. Sie bleibt aber gleich.", ab:"vorhersage"}]},
+      {text:"Volumen für $a = 9$ cm:", kurz:"$a = 9$ cm", einheit:"cm³", loesung:270, toleranz:0.05, ab:"probieren",
+       fehler:[
+        {wert:90, toleranz:0.05, hinweis:"Du hast das Volumen verdreifacht. Die Kante steckt aber zweimal in der Grundfläche.", ab:"warum"}]},
+      {text:"Volumen für $a = 12$ cm:", kurz:"$a = 12$ cm", einheit:"cm³", loesung:480, toleranz:0.05, ab:"v12",
+       fehler:[
+        {wert:120, toleranz:0.05, hinweis:"Du hast das Volumen vervierfacht. Die Kante steckt aber zweimal in der Grundfläche.", ab:"warum"}]}
+    ]
+  },
+  vorwissen: [
+    "Volumen: $V = \\frac{1}{3} \\cdot G \\cdot h$",
+    "Quadratische Grundfläche: $G = a^2$"
+  ],
+  hefteintrag: "S. 72 Nr. 28 a – Volumen bei veränderter Kante\nGegeben: $h = 10$ cm\n\n$a = 3$ cm: $V = 30 \\text{ cm}^3$\n$a = 6$ cm: $V = 120 \\text{ cm}^3$ (mal $4$)\n$a = 9$ cm: $V = 270 \\text{ cm}^3$ (mal $9$)\n$a = 12$ cm: $V = 480 \\text{ cm}^3$ (mal $16$)\n\nDie Kante steckt zweimal in $G = a^2$. Wird sie $k$-mal so lang, wird das Volumen $k^2$-mal so groß. Wird die Höhe $k$-mal so groß, wird auch das Volumen nur $k$-mal so groß.",
+
+  rueckblick: {
+    titel: "Warum die Kante stärker wirkt als die Höhe",
+    frage: "Wie verändert sich das Volumen einer Pyramide, wenn ihre Grundkante verdoppelt, verdreifacht oder vervierfacht wird?",
+    schritte: [
+      {kurz:"Vorhersagen", text:"Naheliegend ist: doppelte Kante, doppeltes Volumen. Diese Vermutung wird geprüft."},
+      {kurz:"Rechnen", text:"Bei $h = 10$ cm ergeben die Kanten $3$, $6$, $9$ und $12$ cm die Volumina $30$, $120$, $270$ und $480 \\text{ cm}^3$."},
+      {kurz:"Das Muster", text:"Das Volumen wächst mit den Faktoren $4$, $9$ und $16$, also mit dem Quadrat des Kantenfaktors."},
+      {kurz:"Begründen", text:"Die Kante steckt in $G = a^2$ zweimal. In die neue Grundfläche passen darum vier, neun oder sechzehn alte."},
+      {kurz:"Vergleichen", text:"Die Höhe steckt nur einmal in der Formel. Doppelte Höhe ergibt deshalb nur doppeltes Volumen."}
+    ],
+    einsicht: "Wird die Kante $k$-mal so lang, wird das Volumen $k^2$-mal so groß: $$V = \\frac{1}{3} \\cdot (k \\cdot a)^2 \\cdot h = k^2 \\cdot \\frac{1}{3} \\cdot a^2 \\cdot h$$",
+    mitnehmen: "Um eine Wirkung vorherzusagen, schaue ich, wie oft die veränderte Größe in der Formel steckt."
+  },
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-5, y0:-5, z0:-4.5, massstab:17, kippen:18, drehen:-58},
+    befehle: [
+      "aa=3", "hh=10", "gf=aa^2", "vol=gf*hh/3", "fk=vol/30",
+      "PA=(0,0,0)", "PB=(aa,0,0)", "PC=(aa,aa,0)", "PD=(0,aa,0)", "PS=(aa/2,aa/2,hh)",
+      "pyr=Pyramid(PA,PB,PC,PD,PS)",
+      "boden=Polygon(PA,PB,PC,PD)",
+      "gx=Sequence(Segment((3*nn,0,0),(3*nn,aa,0)),nn,1,floor(aa/3)-1)",
+      "gy=Sequence(Segment((0,3*nn,0),(aa,3*nn,0)),nn,1,floor(aa/3)-1)",
+      "hS=Segment(PS,(aa/2,aa/2,0))",
+      "kA=Segment(PA,PB)"
+    ],
+    startwerte: {aa:3, hh:10},
+    ziehbar: [],
+    sichtbar: ["pyr","boden","gx","gy","hS","kA"],
+    stil: {
+      pyr:{farbe:"gold", dicke:3, fuellung:0.35},
+      boden:{farbe:"hellgold", dicke:2, fuellung:0.45},
+      gx:{farbe:"leucht", dicke:2},
+      gy:{farbe:"leucht", dicke:2},
+      hS:{farbe:"wasser", dicke:4, name:"h"},
+      kA:{farbe:"leucht", dicke:5, name:"a"}
+    }
+  },
+
+  regler: [
+    {text:"Grundkante $a$", objekt:"aa", min:3, max:12, schritt:3, ab:"probieren"},
+    {text:"Höhe $h$", objekt:"hh", min:10, max:20, schritt:5, ab:"hoehe"}
+  ],
+  werte: [
+    {text:"Grundkante", objekt:"aa", ab:"probieren", einheit:"cm", stellen:0},
+    {text:"Höhe", objekt:"hh", ab:"probieren", einheit:"cm", stellen:0},
+    {text:"Volumen", objekt:"vol", ab:"probieren", nurGeloest:true, einheit:"cm³", stellen:0},
+    {text:"Vielfaches von $30$ cm³", objekt:"fk", ab:"probieren", nurGeloest:true, stellen:0}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Diese [[Pyramide|pyr]] ist [[$10$ cm hoch|hS]], ihre [[Grundkante|kA]] misst $3$ cm. Ihr Volumen beträgt $\\frac{1}{3} \\cdot 9 \\cdot 10 = 30$ cm³.\n\nWas geschieht, wenn wir sie breiter machen?" },
+
+    { id:"vorhersage", typ:"wahl",
+      text:"Sage es vorher, ohne zu rechnen: Die Kante wird doppelt so lang, die Höhe bleibt. Wie ändert sich das Volumen?",
+      optionen:[
+        {text:"Es wird viermal so groß.", richtig:true},
+        {text:"Es wird doppelt so groß.", hinweis:"Das klingt naheliegend. Zeichne ein Quadrat mit doppelter Seite: Wie viele alte Quadrate passen hinein?"},
+        {text:"Es wird achtmal so groß.", hinweis:"Mal acht gälte, wenn alle drei Maße doppelt wären. Bleibt hier nicht die Höhe gleich?"}
+      ],
+      tipps:["Das Volumen hängt an der Grundfläche.", "Wie oft passt ein Quadrat der Seite $3$ in eines der Seite $6$?"],
+      richtig:"Eine kühne Vorhersage. Prüfen wir sie.",
+      beimStart:["SetValue(aa,3)","SetValue(hh,10)"] },
+
+    { id:"v6", typ:"zahl",
+      text:"Berechne das Volumen für die doppelte Kante $a = 6$ cm.",
+      einheit:"cm³", loesung:120, toleranz:0.05,
+      falsch:"Es gilt $V = \\frac{1}{3} \\cdot a^2 \\cdot h$ mit $a = 6$ und $h = 10$.",
+      tipps:["$G = 36$ cm².", "$V = \\frac{1}{3} \\cdot 36 \\cdot 10$."],
+      richtig:"Richtig: $V = 120$ cm³. Das sind $120 : 30 = 4$ Pyramiden der alten Größe.",
+      beimStart:["SetValue(aa,6)","SetValue(hh,10)"] },
+
+    { id:"probieren", typ:"probieren",
+      text:"Stelle nun die Kante mit dem Regler auf $3$, $6$, $9$ und $12$ cm. Sieh dir die [[Grundfläche|boden]] an: Die Linien zeigen, wie viele alte Quadrate hineinpassen.\n\nWelche Zahlen erkennst du?",
+      hinweis:"Vergleiche das Vielfache von $30$ cm³ mit der Zahl der kleinen Quadrate." },
+
+    { id:"v12", typ:"zahl",
+      text:"Die Kante wird viermal so lang, also $a = 12$ cm. Wie groß ist das Volumen?",
+      einheit:"cm³", loesung:480, toleranz:0.05,
+      falsch:"Wie viele alte Quadrate passen in die Grundfläche, wenn vier in eine Reihe passen?",
+      tipps:["$4 \\cdot 4 = 16$ kleine Quadrate.", "$16 \\cdot 30$ cm³."],
+      richtig:"Vortrefflich: $480$ cm³, das Sechzehnfache. Die Reihe lautet $30$, $120$, $270$, $480$.",
+      beimStart:["SetValue(aa,12)","SetValue(hh,10)"] },
+
+    { id:"warum", typ:"wahl",
+      text:"Mal $4$, mal $9$, mal $16$. Woran liegt das?",
+      optionen:[
+        {text:"Die Kante steckt in $G = a^2$ zweimal.", richtig:true},
+        {text:"Die Pyramide hat vier Seitenflächen.", hinweis:"Dann käme bei jeder Kante der Faktor $4$ heraus. Bei $a = 9$ war es aber das Neunfache."},
+        {text:"Das Drittel in der Formel verstärkt die Änderung.", hinweis:"Das Drittel steht bei jeder Pyramide davor. Kann ein fester Faktor das Wachstum ändern?"}
+      ],
+      tipps:["Schreibe die Formel mit $a$ aus: $V = \\frac{1}{3} \\cdot a \\cdot a \\cdot h$."],
+      richtig:"Genau. Wird die Kante $k$-mal so lang, wird die Grundfläche $k^2$-mal so groß und mit ihr das Volumen.",
+      beimStart:["SetValue(aa,6)"] },
+
+    { id:"hoehe", typ:"wahl",
+      text:"Nun umgekehrt: Die Kante bleibt $3$ cm, und die Höhe wird verdoppelt. Probiere es am Regler. Was geschieht mit dem Volumen?",
+      optionen:[
+        {text:"Es wird doppelt so groß.", richtig:true},
+        {text:"Es wird viermal so groß.", hinweis:"Die Höhe steht in der Formel nur einmal. Wird sie dann auch quadriert?"},
+        {text:"Es bleibt gleich.", hinweis:"Die Pyramide wird doch höher. Setze $h = 20$ in die Formel ein."}
+      ],
+      tipps:["$V = \\frac{1}{3} \\cdot 9 \\cdot 20$."],
+      richtig:"So ist es: $30$ cm³ werden zu $60$ cm³. Die Höhe wirkt nur einfach.",
+      beimStart:["SetValue(aa,3)","SetValue(hh,10)"] },
+
+    { id:"doppelt", typ:"wahl",
+      text:"Eine letzte Probe: Was musst du tun, damit sich das Volumen genau verdoppelt?",
+      optionen:[
+        {text:"die Höhe verdoppeln oder die Kante mit $\\sqrt{2} \\approx 1{,}41$ malnehmen", richtig:true},
+        {text:"die Kante verdoppeln", hinweis:"Das hatten wir gerade: Welcher Faktor kam dabei heraus?"},
+        {text:"Kante und Höhe je verdoppeln", hinweis:"Dann wird die Grundfläche viermal so groß und die Höhe doppelt. Was ergibt das zusammen?"}
+      ],
+      tipps:["Für die Kante suchst du einen Faktor $k$ mit $k^2 = 2$."],
+      richtig:"Vortrefflich. Mit $a = 3\\sqrt{2}$ cm ist $G = 18$ cm² und $V = 60$ cm³.",
+      beimStart:["SetValue(aa,3)","SetValue(hh,10)"] },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Die Kante steckt zweimal in der Formel, die Höhe nur einmal. Wird die Kante $k$-mal so lang, wird das Volumen $k^2$-mal so groß: $$V = \\frac{1}{3} \\cdot (k \\cdot a)^2 \\cdot h = k^2 \\cdot \\frac{1}{3} \\cdot a^2 \\cdot h.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Das Netz der Pyramide – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+/* Gespräch mit Sokrates – nur die Daten. Neue Wege 10, S. 68 Nr. 12 (KW 47). */
+const DIALOG = {
+  titel: "Das Netz der Pyramide – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Neue Wege 10, S. 68 Nr. 12\n\nEine Pyramide hat eine rechteckige Grundfläche mit den Seiten $7{,}5$ cm und $5$ cm. Ihre Seitenhöhen sind $5{,}6$ cm und $6{,}25$ cm (siehe Zeichnung).\n\nZeichne ein Netz und beschrifte es. Berechne die Mantelfläche und die Oberfläche.",
+
+  gegeben: "Grundkanten $7{,}5$ cm und $5$ cm; Seitenhöhen $5{,}6$ cm und $6{,}25$ cm",
+
+  selbst: {
+    text:"Gut, {name}. Zeichne das Netz in dein Heft und berechne Mantel und Oberfläche auf deinem Weg.",
+    fragen:[
+      {text:"Mantelfläche $M$:", kurz:"Mantel $M$", einheit:"cm²", loesung:73.25, toleranz:0.011, ab:"paare",
+       fehler:[
+        {wert:84, toleranz:0.011, hinweis:"Du hast viermal das große Dreieck genommen. Sind alle vier Seitenflächen gleich?", ab:"paare"},
+        {wert:62.5, toleranz:0.011, hinweis:"Du hast viermal das kleine Dreieck genommen. Sind alle vier Seitenflächen gleich?", ab:"paare"},
+        {wert:146.5, toleranz:0.011, hinweis:"Das ist doppelt so viel. Ein Dreieck hat die Fläche $\\frac{1}{2} \\cdot g \\cdot h_g$.", ab:"d1"},
+        {wert:36.625, toleranz:0.011, hinweis:"Das sind nur zwei der vier Dreiecke. Von jeder Sorte gibt es zwei.", ab:"mantel"},
+        {wert:74.875, toleranz:0.011, hinweis:"Du hast die Höhen vertauscht. Welche Seitenhöhe steht auf welcher Kante?", ab:"zuordnen"}]},
+      {text:"Oberfläche $O$:", kurz:"Oberfläche $O$", einheit:"cm²", loesung:110.75, toleranz:0.011, ab:"ober",
+       fehler:[
+        {wert:148.25, toleranz:0.011, hinweis:"Du hast die Grundfläche zweimal gezählt. Wie viele Rechtecke hat das Netz?", ab:"ober"},
+        {wert:121.5, toleranz:0.011, hinweis:"Dein Mantel besteht aus vier großen Dreiecken. Sind alle vier gleich?", ab:"paare"},
+        {wert:100, toleranz:0.011, hinweis:"Dein Mantel besteht aus vier kleinen Dreiecken. Sind alle vier gleich?", ab:"paare"}]}
+    ]
+  },
+  vorwissen: [
+    "Flächeninhalt eines Rechtecks: $A = a \\cdot b$",
+    "Flächeninhalt eines Dreiecks: $A = \\frac{1}{2} \\cdot g \\cdot h_g$",
+    "Oberfläche: $O = G + M$"
+  ],
+  hefteintrag: "S. 68 Nr. 12 – Netz einer Pyramide\nGegeben: Grundkanten $7{,}5$ cm und $5$ cm; Seitenhöhen $5{,}6$ cm und $6{,}25$ cm\n\nDas Netz besteht aus dem Rechteck und zwei Paaren gleicher Dreiecke.\n\nÜber $7{,}5$ cm: $2 \\cdot \\frac{1}{2} \\cdot 7{,}5 \\cdot 5{,}6 \\text{ cm}^2 = 42 \\text{ cm}^2$\nÜber $5$ cm: $2 \\cdot \\frac{1}{2} \\cdot 5 \\cdot 6{,}25 \\text{ cm}^2 = 31{,}25 \\text{ cm}^2$\n\n$M = 42 \\text{ cm}^2 + 31{,}25 \\text{ cm}^2 = 73{,}25 \\text{ cm}^2$\n$G = 7{,}5 \\text{ cm} \\cdot 5 \\text{ cm} = 37{,}5 \\text{ cm}^2$\n$O = G + M = 110{,}75 \\text{ cm}^2$",
+
+  rueckblick: {
+    titel: "Welche Höhe gehört zu welchem Dreieck?",
+    frage: "Wie groß sind Mantel und Oberfläche einer Pyramide mit rechteckiger Grundfläche von $7{,}5$ cm mal $5$ cm?",
+    schritte: [
+      {kurz:"Aufklappen", text:"Flach gelegt zeigt die Pyramide ein Rechteck und vier Dreiecke."},
+      {kurz:"Die Stolperstelle", text:"Anders als beim Quadrat sind die vier Dreiecke nicht gleich. Es gibt zwei Paare."},
+      {kurz:"Zuordnen", text:"Die Seitenhöhe $5{,}6$ cm steht auf der Kante $7{,}5$ cm, die Seitenhöhe $6{,}25$ cm auf der Kante $5$ cm."},
+      {kurz:"Berechnen", text:"Die Paare ergeben $42 \\text{ cm}^2$ und $31{,}25 \\text{ cm}^2$, zusammen $M = 73{,}25 \\text{ cm}^2$."},
+      {kurz:"Zusammensetzen", text:"Mit der Grundfläche von $37{,}5 \\text{ cm}^2$ ergibt sich $O = 110{,}75 \\text{ cm}^2$."}
+    ],
+    einsicht: "Die Oberfläche ist die Summe aller Flächen des Netzes: $$O = G + M$$",
+    mitnehmen: "Bevor ich mit vier multipliziere, prüfe ich im Netz, welche Flächen wirklich gleich sind."
+  },
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-3.75, y0:-2.5, z0:-1, massstab:27, kippen:40, drehen:-38},
+    befehle: [
+      "auf=0", "aa=7.5", "bb=5", "hk=5",
+      "hv=sqrt(hk^2+(bb/2)^2)", "hq=sqrt(hk^2+(aa/2)^2)",
+      "wv=atan2(hk,bb/2)", "wq=atan2(hk,aa/2)",
+      "tv=wv+auf*(pi-wv)", "tq=wq+auf*(pi-wq)",
+      "E1=(0,0,0)", "E2=(aa,0,0)", "E3=(aa,bb,0)", "E4=(0,bb,0)",
+      "Sv=(aa/2,hv*cos(tv),hv*sin(tv))",
+      "Sh=(aa/2,bb-hv*cos(tv),hv*sin(tv))",
+      "Sl=(hq*cos(tq),bb/2,hq*sin(tq))",
+      "Sr=(aa-hq*cos(tq),bb/2,hq*sin(tq))",
+      "boden=Polygon(E1,E2,E3,E4)",
+      "dv=Polygon(E1,E2,Sv)", "dh=Polygon(E4,E3,Sh)",
+      "dl=Polygon(E1,E4,Sl)", "dr=Polygon(E2,E3,Sr)",
+      "Mv=(aa/2,0,0)", "Ml=(0,bb/2,0)",
+      "hoehV=Segment(Mv,Sv)", "hoehL=Segment(Ml,Sl)",
+      "kA=Segment(E1,E2)", "kB=Segment(E1,E4)"
+    ],
+    startwerte: {auf:0},
+    ziehbar: [],
+    sichtbar: ["boden","dv","dh","dl","dr","kA","kB"],
+    stil: {
+      boden:{farbe:"matt", dicke:3, fuellung:0.3},
+      dv:{farbe:"gold", dicke:3, fuellung:0.5},
+      dh:{farbe:"gold", dicke:3, fuellung:0.5},
+      dl:{farbe:"wasser", dicke:3, fuellung:0.5},
+      dr:{farbe:"wasser", dicke:3, fuellung:0.5},
+      hoehV:{farbe:"leucht", dicke:4, name:"5,6 cm"},
+      hoehL:{farbe:"leucht", dicke:4, name:"6,25 cm"},
+      kA:{farbe:"hellgold", dicke:5, name:"7,5 cm"},
+      kB:{farbe:"hellgold", dicke:5, name:"5 cm"}
+    }
+  },
+
+  regler: [
+    {text:"aufklappen", objekt:"auf", min:0, max:1, schritt:0.01, ab:"aufklappen"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Diese Pyramide steht auf einem [[Rechteck|boden]], nicht auf einem Quadrat. Die Kanten sind [[$7{,}5$ cm|kA]] und [[$5$ cm|kB]] lang. Drehe sie mit dem Finger.\n\nWie viel Fläche hat sie insgesamt?" },
+
+    { id:"aufklappen", typ:"probieren",
+      text:"Klappe die Pyramide mit dem Regler auf, bis sie flach daliegt. So entsteht ihr Netz. Genau dieses Bild sollst du nachher in dein Heft zeichnen.",
+      hinweis:"Vergleiche die goldenen und die blauen Dreiecke." },
+
+    { id:"paare", typ:"wahl",
+      text:"Bei der quadratischen Pyramide waren alle vier Seitendreiecke gleich. Wie ist es hier?",
+      optionen:[
+        {text:"Es gibt zwei Paare gleicher Dreiecke.", richtig:true},
+        {text:"Alle vier Dreiecke sind gleich.", hinweis:"Die Dreiecke stehen auf den Kanten des Rechtecks. Sind diese vier Kanten gleich lang?"},
+        {text:"Alle vier Dreiecke sind verschieden.", hinweis:"Sieh dir gegenüberliegende Dreiecke an. Unterscheiden sie sich?"}
+      ],
+      tipps:["Ein Rechteck hat zwei Paare gleich langer Seiten.", "Gegenüberliegende Seitenflächen sind gleich."],
+      richtig:"Recht so. Die [[goldenen Dreiecke|dv,dh]] sind gleich, die [[blauen|dl,dr]] ebenso.",
+      beimStart:["SetValue(auf,1)"] },
+
+    { id:"zuordnen", typ:"wahl",
+      text:"Nun zu den Seitenhöhen. Tippe auf [[$5{,}6$ cm|hoehV]] und [[$6{,}25$ cm|hoehL]]. Auf welcher Kante steht welche Höhe?",
+      optionen:[
+        {text:"$5{,}6$ cm auf der Kante $7{,}5$ cm, $6{,}25$ cm auf der Kante $5$ cm", richtig:true},
+        {text:"$5{,}6$ cm auf der Kante $5$ cm, $6{,}25$ cm auf der Kante $7{,}5$ cm", hinweis:"Lass die Höhe aufblinken. Auf welcher Kante steht sie senkrecht?"},
+        {text:"Beide stehen auf der Kante $7{,}5$ cm.", hinweis:"Dann hätten die blauen Dreiecke gar keine Höhe. Wo steht die zweite?"}
+      ],
+      tipps:["Die Höhe eines Dreiecks steht senkrecht auf seiner Grundseite.", "Das goldene Dreieck steht auf der langen Kante."],
+      richtig:"Genau. Zu jeder Grundseite gehört ihre eigene Höhe.",
+      zeige:["hoehV","hoehL"], beimStart:["SetValue(auf,1)"] },
+
+    { id:"d1", typ:"zahl",
+      text:"Berechne die Fläche eines [[goldenen Dreiecks|dv]].",
+      einheit:"cm²", loesung:21, toleranz:0.01,
+      falsch:"Ein Dreieck hat die Fläche $\\frac{1}{2} \\cdot g \\cdot h_g$. Nimm $g = 7{,}5$ cm und $h_g = 5{,}6$ cm.",
+      tipps:["Grundseite $7{,}5$ cm, Höhe $5{,}6$ cm.", "$\\frac{1}{2} \\cdot 7{,}5 \\cdot 5{,}6$."],
+      richtig:"Richtig: $\\frac{1}{2} \\cdot 7{,}5 \\text{ cm} \\cdot 5{,}6 \\text{ cm} = 21$ cm²." },
+
+    { id:"d2", typ:"zahl",
+      text:"Und die Fläche eines [[blauen Dreiecks|dl]]?",
+      einheit:"cm²", loesung:15.625, toleranz:0.006,
+      falsch:"Nimm nun $g = 5$ cm und $h_g = 6{,}25$ cm.",
+      tipps:["Grundseite $5$ cm, Höhe $6{,}25$ cm.", "$\\frac{1}{2} \\cdot 5 \\cdot 6{,}25$."],
+      richtig:"Gut: $\\frac{1}{2} \\cdot 5 \\text{ cm} \\cdot 6{,}25 \\text{ cm} = 15{,}625$ cm²." },
+
+    { id:"mantel", typ:"zahl",
+      text:"Der Mantel besteht aus allen vier Dreiecken. Wie groß ist die Mantelfläche $M$?",
+      einheit:"cm²", loesung:73.25, toleranz:0.011,
+      falsch:"Von jeder Sorte gibt es zwei Dreiecke: $2 \\cdot 21 + 2 \\cdot 15{,}625$.",
+      tipps:["Zwei goldene und zwei blaue Dreiecke.", "$42 + 31{,}25$."],
+      richtig:"Vortrefflich: $M = 42 \\text{ cm}^2 + 31{,}25 \\text{ cm}^2 = 73{,}25$ cm²." },
+
+    { id:"ober", typ:"zahl",
+      text:"Es fehlt noch das [[Rechteck|boden]]. Wie groß ist die Oberfläche $O = G + M$?",
+      einheit:"cm²", loesung:110.75, toleranz:0.011,
+      falsch:"Berechne $G = 7{,}5 \\text{ cm} \\cdot 5 \\text{ cm}$ und addiere den Mantel.",
+      tipps:["$G = 37{,}5$ cm².", "$37{,}5 + 73{,}25$."],
+      richtig:"Vortrefflich: $O = 37{,}5 \\text{ cm}^2 + 73{,}25 \\text{ cm}^2 = 110{,}75$ cm²." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Bei rechteckiger Grundfläche gibt es zwei Paare von Dreiecken, und jedes Paar hat seine eigene Seitenhöhe. Es gilt $$O = G + M = 110{,}75 \\text{ cm}^2.$$ Zeichne nun das Netz mit allen Maßen in dein Heft und schreibe den Hefteintrag ab." }
+  ]
+};
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

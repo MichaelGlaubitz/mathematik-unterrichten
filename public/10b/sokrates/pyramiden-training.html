@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pyramiden-Training – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+/* Gespräch mit Sokrates – nur die Daten. Neue Wege 10, S. 69 Nr. 16, Pyramiden (KW 47).
+   s ist die Seitenkante, h_a die Seitenhöhe (Buch S. 70 Nr. 20). */
+const DIALOG = {
+  titel: "Pyramiden-Training – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Neue Wege 10, S. 69 Nr. 16 (Pyramiden)\n\nVon vier quadratischen Pyramiden sind je zwei Größen bekannt. $s$ ist die Seitenkante, $h_a$ die Seitenhöhe.\n\na) $a = 5$ cm, $h = 6$ cm\nb) $h = 6$ cm, $s = 10$ cm\nc) $a = 3$ cm, $V = 56{,}55$ cm³\nd) $a = 6$ cm, $s = 10$ cm\n\nIm Gespräch: a) ganz, c) die Höhe, b) und d) bis zum Volumen.",
+
+  gegeben: "a) $a = 5$ cm, $h = 6$ cm",
+
+  selbst: {
+    text:"Gut, {name}. Rechne die Pyramiden auf deinem Weg und gib die Ergebnisse ein.",
+    fragen:[
+      {text:"a) Volumen $V$:", kurz:"a) Volumen", einheit:"cm³", loesung:50, toleranz:0.05, ab:"a_v",
+       fehler:[
+        {wert:150, toleranz:0.05, hinweis:"Das ist das Volumen des Quaders. Welcher Faktor fehlt bei der Pyramide?", ab:"a_v"},
+        {wert:75, toleranz:0.05, hinweis:"Du hast halbiert. Die Pyramide ist ein Drittel des Prismas.", ab:"a_v"},
+        {wert:10, toleranz:0.05, hinweis:"Die Grundfläche ist $G = a^2$, nicht $a$.", ab:"a_v"}]},
+      {text:"a) Oberfläche $O$:", kurz:"a) Oberfläche", einheit:"cm²", loesung:90, toleranz:0.05, ab:"a_ha",
+       fehler:[
+        {wert:65, toleranz:0.05, hinweis:"Das ist nur der Mantel. Es fehlt die Grundfläche.", ab:"a_o"},
+        {wert:155, toleranz:0.05, hinweis:"Hast du bei den Dreiecken das $\\frac{1}{2}$ vergessen?", ab:"a_o"},
+        {wert:85, toleranz:0.05, hinweis:"Du hast die Körperhöhe genommen. Das Seitendreieck hat die Seitenhöhe $h_a$.", ab:"a_ha"},
+        {wert:94.64, toleranz:0.05, hinweis:"Du hast die Seitenkante $s$ als Höhe des Dreiecks genommen. Die Höhe steht senkrecht auf der Grundkante.", ab:"a_ha"}]},
+      {text:"c) Höhe $h$:", kurz:"c) Höhe", einheit:"cm", loesung:18.85, toleranz:0.011, ab:"c_h",
+       fehler:[
+        {wert:6.2833, toleranz:0.011, hinweis:"Du hast $V : G$ gerechnet. Wo bleibt der Faktor $\\frac{1}{3}$ beim Umstellen?", ab:"c_h"},
+        {wert:2.0944, toleranz:0.011, hinweis:"Du hast durch $3$ geteilt. Beim Umstellen wird aus $\\frac{1}{3}$ ein Mal $3$.", ab:"c_h"}]},
+      {text:"b) Volumen $V$, auf ganze cm³:", kurz:"b) Volumen", einheit:"cm³", loesung:256, toleranz:0.6, ab:"b_weg",
+       fehler:[
+        {wert:512, toleranz:0.6, hinweis:"Du hast $a = 16$ cm erhalten, also $s$ wie eine Seitenhöhe behandelt. $s$ endet in der Ecke.", ab:"b_weg"},
+        {wert:128, toleranz:0.6, hinweis:"Du hast $a = 8$ cm genommen. $8$ cm ist aber die halbe Diagonale.", ab:"b_a"},
+        {wert:768, toleranz:0.6, hinweis:"Das ist das Prisma. Welcher Faktor fehlt?", ab:"b_v"}]},
+      {text:"d) Volumen $V$, auf eine Nachkommastelle:", kurz:"d) Volumen", einheit:"cm³", loesung:108.6646, toleranz:0.06, ab:"d_h",
+       fehler:[
+        {wert:114.47, toleranz:0.06, hinweis:"Du hast $h$ mit der halben Kante berechnet. Zur Seitenkante gehört die halbe Diagonale.", ab:"d_h"},
+        {wert:96, toleranz:0.06, hinweis:"Du hast $h = 8$ cm, also die ganze Kante eingesetzt. Zur Seitenkante gehört die halbe Diagonale.", ab:"d_h"},
+        {wert:325.99, toleranz:0.1, hinweis:"Das ist das Prisma. Welcher Faktor fehlt?", ab:"d_v"}]}
+    ]
+  },
+  vorwissen: [
+    "Volumen: $V = \\frac{1}{3} \\cdot G \\cdot h$, hier $G = a^2$",
+    "Satz des Pythagoras",
+    "Diagonale eines Quadrats: $d = a\\sqrt{2}$, also $\\left(\\frac{d}{2}\\right)^2 = \\frac{a^2}{2}$"
+  ],
+  merkzettel: [
+    {begriff:"Seitenhöhe $h_a$", text:"von der Spitze zur Mitte einer Grundkante: $h_a^2 = h^2 + \\frac{a^2}{4}$"},
+    {begriff:"Seitenkante $s$", text:"von der Spitze zu einer Ecke: $s^2 = h^2 + \\frac{a^2}{2}$"},
+    {begriff:"Volumen", text:"$V = \\frac{1}{3} \\cdot a^2 \\cdot h$"},
+    {begriff:"Oberfläche", text:"$O = a^2 + 2 \\cdot a \\cdot h_a$"}
+  ],
+  hefteintrag: "S. 69 Nr. 16 – Pyramiden-Training\n\nSeitenhöhe: $h_a^2 = h^2 + \\frac{a^2}{4}$  Seitenkante: $s^2 = h^2 + \\frac{a^2}{2}$\n\na) $V = \\frac{1}{3} \\cdot 25 \\cdot 6 \\text{ cm}^3 = 50 \\text{ cm}^3$; $h_a = 6{,}5$ cm; $s \\approx 6{,}96$ cm; $M = 65 \\text{ cm}^2$; $O = 90 \\text{ cm}^2$\n\nc) $h = 3V : G = 3 \\cdot 56{,}55 : 9 \\text{ cm} = 18{,}85$ cm\n\nb) $\\frac{a^2}{2} = 100 - 36 = 64$, also $a^2 = 128$ und $a \\approx 11{,}31$ cm; $V = \\frac{1}{3} \\cdot 128 \\cdot 6 \\text{ cm}^3 = 256 \\text{ cm}^3$\n\nd) $h = \\sqrt{100 - 18} \\text{ cm} \\approx 9{,}06$ cm; $V = \\frac{1}{3} \\cdot 36 \\cdot \\sqrt{82} \\text{ cm}^3 \\approx 108{,}7 \\text{ cm}^3$",
+
+  rueckblick: {
+    titel: "Zwei Größen genügen",
+    frage: "Wie findet man an einer quadratischen Pyramide die fehlenden Größen, wenn nur zwei bekannt sind?",
+    schritte: [
+      {kurz:"Vorwärts rechnen", text:"Aus $a = 5$ cm und $h = 6$ cm folgt direkt $V = \\frac{1}{3} \\cdot 25 \\cdot 6 \\text{ cm}^3 = 50 \\text{ cm}^3$."},
+      {kurz:"Zwei Dreiecke unterscheiden", text:"Die Seitenhöhe $h_a$ endet in der Kantenmitte, die Seitenkante $s$ in der Ecke. Beide bilden mit $h$ ein eigenes rechtwinkliges Dreieck."},
+      {kurz:"Rückwärts rechnen", text:"Ist $V$ bekannt, wird aus dem Drittel beim Umstellen ein Mal $3$: $h = 3V : G = 18{,}85$ cm."},
+      {kurz:"Die Stolperstelle", text:"Zur Seitenkante gehört die halbe Diagonale, nicht die halbe Kante. Darum steht dort $\\frac{a^2}{2}$ statt $\\frac{a^2}{4}$."},
+      {kurz:"Verbinden", text:"Aus $h = 6$ cm und $s = 10$ cm folgt so $a^2 = 128$ und $V = 256 \\text{ cm}^3$."}
+    ],
+    einsicht: "Das passende rechtwinklige Dreieck verbindet die Größen, die Volumenformel erledigt den Rest: $$s^2 = h^2 + \\frac{a^2}{2}$$",
+    mitnehmen: "Vor dem Rechnen suche ich das rechtwinklige Dreieck, in dem meine bekannten Größen liegen."
+  },
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-3, y0:-3, z0:-2.6, massstab:40, kippen:18, drehen:-58},
+    befehle: [
+      "aa=5", "hh=6", "mm=If(aa>hh,6/aa,6/hh)",
+      "PA=(0,0,0)", "PB=(mm*aa,0,0)", "PC=(mm*aa,mm*aa,0)", "PD=(0,mm*aa,0)", "PS=(mm*aa/2,mm*aa/2,mm*hh)",
+      "pyr=Pyramid(PA,PB,PC,PD,PS)",
+      "Fp=(mm*aa/2,mm*aa/2,0)", "Mab=(mm*aa/2,0,0)",
+      "hoehe=Segment(PS,Fp)", "seitenhoehe=Segment(PS,Mab)", "kante=Segment(PS,PB)",
+      "halbe=Segment(Fp,Mab)", "halbdiag=Segment(Fp,PB)",
+      "dr1=Polygon(PS,Fp,Mab)", "dr2=Polygon(PS,Fp,PB)",
+      "ka=Segment(PA,PB)"
+    ],
+    startwerte: {aa:5, hh:6},
+    ziehbar: [],
+    sichtbar: ["pyr","ka","hoehe"],
+    stil: {
+      pyr:{farbe:"gold", dicke:3, fuellung:0.22},
+      ka:{farbe:"hellgold", dicke:5, name:"a = 5"},
+      hoehe:{farbe:"wasser", dicke:4, name:"h = 6"},
+      seitenhoehe:{farbe:"leucht", dicke:4, name:"h_a"},
+      kante:{farbe:"kupfer", dicke:5, name:"s"},
+      halbe:{farbe:"gruen", dicke:4, name:"a/2"},
+      halbdiag:{farbe:"gruen", dicke:4, name:"d/2"},
+      dr1:{farbe:"leucht", dicke:1, fuellung:0.35},
+      dr2:{farbe:"kupfer", dicke:1, fuellung:0.35}
+    }
+  },
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Von jeder dieser Pyramiden kennen wir nur zwei Größen. Aus ihnen holen wir den Rest.\n\nBeginnen wir mit a): Die [[Grundkante|ka]] ist $5$ cm lang, die [[Höhe|hoehe]] beträgt $6$ cm." },
+
+    { id:"a_v", typ:"zahl",
+      text:"Wie groß ist das Volumen der Pyramide a)?",
+      einheit:"cm³", loesung:50, toleranz:0.05,
+      falsch:"Es gilt $V = \\frac{1}{3} \\cdot a^2 \\cdot h$.",
+      tipps:["Berechne zuerst $G = a^2$.", "$V = \\frac{1}{3} \\cdot 25 \\cdot 6$."],
+      richtig:"Recht so: $V = \\frac{1}{3} \\cdot 25 \\text{ cm}^2 \\cdot 6 \\text{ cm} = 50$ cm³." },
+
+    { id:"a_ha", typ:"zahl",
+      text:"Für den Mantel brauchst du die [[Seitenhöhe $h_a$|seitenhoehe]]. Sie bildet mit der [[Höhe|hoehe]] und der [[halben Kante|halbe]] ein [[rechtwinkliges Dreieck|dr1]]. Wie lang ist sie?",
+      einheit:"cm", loesung:6.5, toleranz:0.011,
+      falsch:"Die Seitenhöhe ist die Hypotenuse: $h_a^2 = 6^2 + 2{,}5^2$.",
+      tipps:["Die halbe Kante ist $2{,}5$ cm.", "$h_a = \\sqrt{36 + 6{,}25}$."],
+      richtig:"Genau: $h_a = \\sqrt{42{,}25} \\text{ cm} = 6{,}5$ cm.",
+      zeige:["seitenhoehe","halbe","dr1"] },
+
+    { id:"a_o", typ:"zahl",
+      text:"Der Mantel besteht aus vier gleichen Dreiecken mit der Grundseite $5$ cm und der Höhe $6{,}5$ cm. Wie groß ist die Oberfläche $O$?",
+      einheit:"cm²", loesung:90, toleranz:0.05,
+      falsch:"Es gilt $O = a^2 + 4 \\cdot \\frac{1}{2} \\cdot a \\cdot h_a$.",
+      tipps:["Der Mantel ist $4 \\cdot \\frac{1}{2} \\cdot 5 \\cdot 6{,}5$ cm².", "Addiere die Grundfläche von $25$ cm²."],
+      richtig:"Vortrefflich: $M = 65$ cm², also $O = 25 \\text{ cm}^2 + 65 \\text{ cm}^2 = 90$ cm²." },
+
+    { id:"a_s", typ:"zahl",
+      text:"Bleibt die [[Seitenkante $s$|kante]]. Sie führt zur Ecke. Darum gehört zu ihr die [[halbe Diagonale|halbdiag]] mit $\\left(\\frac{d}{2}\\right)^2 = \\frac{a^2}{2}$. Wie lang ist $s$? Runde auf zwei Nachkommastellen.",
+      einheit:"cm", loesung:6.9642, toleranz:0.011,
+      falsch:"Es gilt $s^2 = h^2 + \\frac{a^2}{2} = 36 + 12{,}5$.",
+      tipps:["$\\frac{a^2}{2} = \\frac{25}{2} = 12{,}5$.", "$s = \\sqrt{48{,}5}$."],
+      richtig:"Richtig: $s = \\sqrt{48{,}5} \\text{ cm} \\approx 6{,}96$ cm. Die Kante ist länger als die Seitenhöhe.",
+      zeige:["kante","halbdiag","dr2"], verberge:["seitenhoehe","halbe","dr1"] },
+
+    { id:"c_h", typ:"zahl", gegeben:"c) $a = 3$ cm, $V = 56{,}55$ cm³",
+      text:"Nun c), die Umkehrung: Das Volumen ist bekannt, die [[Höhe|hoehe]] gesucht. Stelle $V = \\frac{1}{3} \\cdot G \\cdot h$ nach $h$ um. Wie hoch ist die Pyramide?",
+      einheit:"cm", loesung:18.85, toleranz:0.011,
+      falsch:"Multipliziere die Formel mit $3$ und teile durch $G$: $h = 3V : G$.",
+      tipps:["$G = 3^2 = 9$ cm².", "$h = 3 \\cdot 56{,}55 : 9$."],
+      richtig:"Vortrefflich: $h = 169{,}65 : 9 = 18{,}85$ cm. Aus dem Drittel wird beim Umstellen ein Mal $3$.",
+      verberge:["kante","halbdiag","dr2"],
+      beimStart:["SetValue(aa,3)","SetValue(hh,18.85)","SetCaption(ka,\"a = 3\")","SetCaption(hoehe,\"h = ?\")"],
+      nachRichtig:["SetCaption(hoehe,\"h = 18,85\")"] },
+
+    { id:"b_weg", typ:"wahl", gegeben:"b) $h = 6$ cm, $s = 10$ cm",
+      text:"Nun b): Bekannt sind die [[Höhe|hoehe]] und die [[Seitenkante|kante]]. In welchem rechtwinkligen Dreieck liegen beide?",
+      optionen:[
+        {text:"mit der halben Diagonale der Grundfläche", richtig:true},
+        {text:"mit der halben Grundkante", hinweis:"Die halbe Kante führt zur Kantenmitte. Dort endet $h_a$. Wo endet $s$?"},
+        {text:"mit der ganzen Grundkante", hinweis:"Die Höhe trifft die Grundfläche in der Mitte. Liegt dort eine ganze Kante an?"}
+      ],
+      tipps:["Verfolge $s$ von der Spitze bis zur Ecke.", "Verbinde die Ecke mit dem Fußpunkt der Höhe."],
+      richtig:"Recht so. Die [[halbe Diagonale|halbdiag]] schließt das [[Dreieck|dr2]].",
+      zeige:["kante","dr2"], zeigeNachRichtig:["halbdiag"],
+      beimStart:["SetValue(aa,sqrt(128))","SetValue(hh,6)","SetCaption(ka,\"a = ?\")","SetCaption(hoehe,\"h = 6\")","SetCaption(kante,\"s = 10\")"] },
+
+    { id:"b_a", typ:"zahl",
+      text:"Es gilt $\\frac{a^2}{2} = s^2 - h^2$. Wie lang ist die Grundkante $a$? Runde auf zwei Nachkommastellen.",
+      einheit:"cm", loesung:11.3137, toleranz:0.011,
+      falsch:"$\\frac{a^2}{2} = 100 - 36 = 64$. Was ist dann $a^2$?",
+      tipps:["$a^2 = 2 \\cdot 64 = 128$.", "$a = \\sqrt{128}$."],
+      richtig:"Genau: $a^2 = 128$, also $a \\approx 11{,}31$ cm.",
+      nachRichtig:["SetCaption(ka,\"a = 11,31\")"] },
+
+    { id:"b_v", typ:"zahl",
+      text:"Wie groß ist das Volumen? Du brauchst nur $a^2$. Gib es auf ganze Kubikzentimeter an.",
+      einheit:"cm³", loesung:256, toleranz:0.6,
+      falsch:"$V = \\frac{1}{3} \\cdot a^2 \\cdot h$ mit $a^2 = 128$ und $h = 6$.",
+      tipps:["Setze $a^2 = 128$ direkt ein. So vermeidest du Rundungsfehler.", "$V = \\frac{1}{3} \\cdot 128 \\cdot 6$."],
+      richtig:"Vortrefflich: $V = \\frac{1}{3} \\cdot 128 \\text{ cm}^2 \\cdot 6 \\text{ cm} = 256$ cm³." },
+
+    { id:"d_h", typ:"zahl", gegeben:"d) $a = 6$ cm, $s = 10$ cm",
+      text:"Zuletzt d): Nun fehlt die [[Höhe|hoehe]]. Es gilt $h^2 = s^2 - \\frac{a^2}{2}$. Wie hoch ist die Pyramide? Runde auf zwei Nachkommastellen.",
+      einheit:"cm", loesung:9.0554, toleranz:0.011,
+      falsch:"$\\frac{a^2}{2} = \\frac{36}{2} = 18$. Rechne $h = \\sqrt{100 - 18}$.",
+      tipps:["$\\frac{a^2}{2} = 18$.", "$h = \\sqrt{82}$."],
+      richtig:"Richtig: $h = \\sqrt{82} \\text{ cm} \\approx 9{,}06$ cm.",
+      beimStart:["SetValue(aa,6)","SetValue(hh,sqrt(82))","SetCaption(ka,\"a = 6\")","SetCaption(hoehe,\"h = ?\")","SetCaption(kante,\"s = 10\")"],
+      nachRichtig:["SetCaption(hoehe,\"h = 9,06\")"] },
+
+    { id:"d_v", typ:"zahl",
+      text:"Und das Volumen? Runde auf eine Nachkommastelle.",
+      einheit:"cm³", loesung:108.6646, toleranz:0.06,
+      falsch:"$V = \\frac{1}{3} \\cdot 36 \\cdot 9{,}06$.",
+      tipps:["$G = 36$ cm².", "$V = 12 \\cdot h$."],
+      richtig:"Vortrefflich: $V = \\frac{1}{3} \\cdot 36 \\text{ cm}^2 \\cdot \\sqrt{82} \\text{ cm} \\approx 108{,}7$ cm³." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Zwei Größen genügen. Die [[Seitenkante|kante]] gehört zur [[halben Diagonale|halbdiag]], die Seitenhöhe zur halben Kante: $$s^2 = h^2 + \\frac{a^2}{2}, \\qquad h_a^2 = h^2 + \\frac{a^2}{4}.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

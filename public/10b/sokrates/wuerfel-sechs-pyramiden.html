@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sechs Pyramiden im Würfel – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+/* Gespräch mit Sokrates – nur die Daten. Neue Wege 10, S. 65 Nr. 4 (KW 47). */
+const DIALOG = {
+  titel: "Sechs Pyramiden im Würfel – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Neue Wege 10, S. 65 Nr. 4\n\nIn einem Kantenmodell eines Würfels mit der Kantenlänge $a$ sind die vier Raumdiagonalen als Fäden gespannt.\n\nBegründe, dass im Innern sechs kongruente Pyramiden entstehen. Drücke Grundfläche und Höhe einer Pyramide durch $a$ aus und leite eine Volumenformel $V = k \\cdot G \\cdot h$ her.",
+
+  gegeben: "Würfel mit Kantenlänge $a$, vier Raumdiagonalen",
+
+  selbst: {
+    text:"Gut, {name}. Leite die Formel auf deinem Weg her und prüfe sie an einem Würfel mit $a = 6$ cm.",
+    fragen:[
+      {text:"Wie viele Pyramiden entstehen?", kurz:"Anzahl", loesung:6, toleranz:0.01, ab:"anzahl",
+       fehler:[
+        {wert:4, hinweis:"Vier sind die Fäden. Zu jeder Pyramide gehört aber eine Grundfläche. Wie viele Flächen hat der Würfel?", ab:"anzahl"},
+        {wert:8, hinweis:"Acht sind die Ecken. Zu jeder Pyramide gehört aber eine Fläche des Würfels.", ab:"anzahl"}]},
+      {text:"Der Faktor $k$ in $V = k \\cdot G \\cdot h$. Runde auf zwei Nachkommastellen.", kurz:"Faktor $k$", loesung:0.3333, toleranz:0.011, ab:"hoehe",
+       fehler:[
+        {wert:0.1667, toleranz:0.011, hinweis:"$\\frac{1}{6}$ ist der Anteil am Würfel. Gesucht ist der Faktor vor $G \\cdot h$, und $h$ ist nur $\\frac{a}{2}$.", ab:"faktor"},
+        {wert:0.5, toleranz:0.011, hinweis:"Rechne nach: $\\frac{1}{2} \\cdot a^2 \\cdot \\frac{a}{2} = \\frac{a^3}{4}$. Ist das ein Sechstel des Würfels?", ab:"faktor"}]},
+      {text:"Volumen einer Pyramide für $a = 6$ cm:", kurz:"Volumen", einheit:"cm³", loesung:36, toleranz:0.05, ab:"probe",
+       fehler:[
+        {wert:72, toleranz:0.05, hinweis:"Das ist $\\frac{1}{3} \\cdot 36 \\cdot 6$. Wie hoch ist die Pyramide wirklich? Ihre Spitze liegt im Mittelpunkt des Würfels.", ab:"hoehe"},
+        {wert:108, toleranz:0.05, hinweis:"Das ist $G \\cdot h$ ohne den Faktor. Welcher Bruchteil gehört davor?", ab:"faktor"},
+        {wert:216, toleranz:0.05, hinweis:"Das ist der ganze Würfel. Wie viele Pyramiden teilen ihn sich?", ab:"volumen"}]}
+    ]
+  },
+  vorwissen: [
+    "Volumen eines Würfels: $V = a^3$",
+    "Raumdiagonale: verbindet zwei gegenüberliegende Ecken durch das Innere",
+    "Kongruent heißt deckungsgleich"
+  ],
+  hefteintrag: "S. 65 Nr. 4 – Sechs Pyramiden im Würfel\n\nDie vier Raumdiagonalen schneiden sich im Mittelpunkt. Er ist von allen sechs gleich großen Würfelflächen gleich weit entfernt. Darum entstehen sechs kongruente Pyramiden.\n\n$G = a^2$, $h = \\frac{a}{2}$\n$V = \\frac{1}{6} \\cdot a^3 = \\frac{1}{3} \\cdot a^2 \\cdot \\frac{a}{2} = \\frac{1}{3} \\cdot G \\cdot h$\n\nAlso ist $k = \\frac{1}{3}$.\n\nProbe mit $a = 6$ cm: $216 \\text{ cm}^3 : 6 = 36 \\text{ cm}^3$ und $\\frac{1}{3} \\cdot 36 \\text{ cm}^2 \\cdot 3 \\text{ cm} = 36 \\text{ cm}^3$",
+
+  rueckblick: {
+    titel: "Warum aus einem Sechstel ein Drittel wird",
+    frage: "Welche Volumenformel ergibt sich aus den sechs Pyramiden im Innern eines Würfels?",
+    schritte: [
+      {kurz:"Zerlegen", text:"Die vier Raumdiagonalen treffen sich im Mittelpunkt. Jede der sechs Würfelflächen wird zur Grundfläche einer Pyramide."},
+      {kurz:"Begründen", text:"Alle Grundflächen sind gleich große Quadrate, und der Mittelpunkt ist von allen gleich weit entfernt. Die Pyramiden sind also kongruent."},
+      {kurz:"Ausdrücken", text:"Jede Pyramide hat $G = a^2$ und $h = \\frac{a}{2}$. Ihr Volumen ist ein Sechstel des Würfels: $V = \\frac{a^3}{6}$."},
+      {kurz:"Die Stolperstelle", text:"Der Faktor ist nicht $\\frac{1}{6}$, denn $G \\cdot h$ ist nur $\\frac{a^3}{2}$, also der halbe Würfel."},
+      {kurz:"Folgern", text:"Ein Sechstel des Würfels ist ein Drittel von $\\frac{a^3}{2}$. Daher ist $k = \\frac{1}{3}$."}
+    ],
+    einsicht: "Sechs gleiche Pyramiden füllen den Würfel, und jede ist halb so hoch wie er: $$V = \\frac{1}{3} \\cdot G \\cdot h$$",
+    mitnehmen: "Einen Faktor lese ich nicht einfach ab. Ich drücke beide Seiten durch dieselbe Größe aus und vergleiche."
+  },
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-3, y0:-3, z0:-3, massstab:30, kippen:18, drehen:-58},
+    befehle: [
+      "lam=0",
+      "wf=Polygon((0,0,0),(6,0,0),(6,6,0),(0,6,0))",
+      "wuerfel=Prism(wf,(0,0,6))",
+      "fa=Segment((0,0,0),(6,6,6))", "fb=Segment((6,0,0),(0,6,6))", "fc=Segment((6,6,0),(0,0,6))", "fd=Segment((0,6,0),(6,0,6))",
+      "Mz=(3,3,3)",
+      "pU=Pyramid((0,0,0)+lam*(0,0,-2),(6,0,0)+lam*(0,0,-2),(6,6,0)+lam*(0,0,-2),(0,6,0)+lam*(0,0,-2),(3,3,3)+lam*(0,0,-2))",
+      "pO=Pyramid((0,0,6)+lam*(0,0,2),(6,0,6)+lam*(0,0,2),(6,6,6)+lam*(0,0,2),(0,6,6)+lam*(0,0,2),(3,3,3)+lam*(0,0,2))",
+      "pV=Pyramid((0,0,0)+lam*(0,-2,0),(6,0,0)+lam*(0,-2,0),(6,0,6)+lam*(0,-2,0),(0,0,6)+lam*(0,-2,0),(3,3,3)+lam*(0,-2,0))",
+      "pH=Pyramid((0,6,0)+lam*(0,2,0),(6,6,0)+lam*(0,2,0),(6,6,6)+lam*(0,2,0),(0,6,6)+lam*(0,2,0),(3,3,3)+lam*(0,2,0))",
+      "pL=Pyramid((0,0,0)+lam*(-2,0,0),(0,6,0)+lam*(-2,0,0),(0,6,6)+lam*(-2,0,0),(0,0,6)+lam*(-2,0,0),(3,3,3)+lam*(-2,0,0))",
+      "pR=Pyramid((6,0,0)+lam*(2,0,0),(6,6,0)+lam*(2,0,0),(6,6,6)+lam*(2,0,0),(6,0,6)+lam*(2,0,0),(3,3,3)+lam*(2,0,0))",
+      "hP=Segment((3,3,3),(3,3,0))",
+      "kA=Segment((0,0,0),(6,0,0))"
+    ],
+    startwerte: {lam:0},
+    ziehbar: [],
+    sichtbar: ["wuerfel","fa","fb","fc","fd","Mz"],
+    stil: {
+      wuerfel:{farbe:"matt", dicke:2, fuellung:0, strich:"gestrichelt"},
+      fa:{farbe:"hellgold", dicke:2}, fb:{farbe:"hellgold", dicke:2}, fc:{farbe:"hellgold", dicke:2}, fd:{farbe:"hellgold", dicke:2},
+      Mz:{farbe:"leucht", punkt:6},
+      pU:{farbe:"gold", dicke:3, fuellung:0.6},
+      pO:{farbe:"kupfer", dicke:2, fuellung:0.4},
+      pV:{farbe:"wasser", dicke:2, fuellung:0.4},
+      pH:{farbe:"gruen", dicke:2, fuellung:0.4},
+      pL:{farbe:"rot", dicke:2, fuellung:0.4},
+      pR:{farbe:"hellgold", dicke:2, fuellung:0.4},
+      hP:{farbe:"leucht", dicke:4, name:"h = a/2"},
+      kA:{farbe:"leucht", dicke:4, name:"a"}
+    }
+  },
+
+  regler: [
+    {text:"auseinanderziehen", objekt:"lam", min:0, max:1, schritt:0.01, ab:"zerlegen", bis:"kongruent"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Dies ist das Kantenmodell eines [[Würfels|wuerfel]]. Durch sein Inneres sind die vier [[Raumdiagonalen|fa,fb,fc,fd]] gespannt. Sie treffen sich im [[Mittelpunkt|Mz]].\n\nDrehe die Zeichnung. Welche Körper verstecken sich zwischen den Fäden?" },
+
+    { id:"zerlegen", typ:"probieren",
+      text:"Ich mache die Körper sichtbar. Ziehe den Regler und nimm den Würfel auseinander. Drehe ihn dabei von allen Seiten.",
+      hinweis:"Achte darauf, wo die Grundflächen liegen und wo die Spitzen.",
+      zeige:["pU","pO","pV","pH","pL","pR"], verberge:["fa","fb","fc","fd","Mz"] },
+
+    { id:"anzahl", typ:"wahl",
+      text:"Wie viele Pyramiden sind entstanden?",
+      optionen:[
+        {text:"sechs", richtig:true},
+        {text:"vier", hinweis:"Vier sind die Fäden. Zu jeder Pyramide gehört aber eine Grundfläche. Wie viele Flächen hat der Würfel?"},
+        {text:"acht", hinweis:"Acht sind die Ecken. Liegt in jeder Ecke eine Pyramide, oder auf jeder Fläche?"}
+      ],
+      tipps:["Jede Pyramide hat eine Würfelfläche als Grundfläche.", "Zähle die Flächen eines Würfels."],
+      richtig:"Recht so. Jede der sechs Würfelflächen ist die Grundfläche einer Pyramide. Alle Spitzen liegen im Mittelpunkt." },
+
+    { id:"kongruent", typ:"wahl",
+      text:"Das Buch verlangt eine Begründung: Warum sind die sechs Pyramiden kongruent?",
+      optionen:[
+        {text:"Ihre Grundflächen sind gleich große Quadrate, und der Mittelpunkt ist von allen gleich weit entfernt.", richtig:true},
+        {text:"Sie sehen in der Zeichnung gleich aus.", hinweis:"Das Auge kann sich täuschen. Welche Maße der Pyramiden kannst du wirklich vergleichen?"},
+        {text:"Sie haben alle dieselbe Spitze.", hinweis:"Das allein genügt nicht. Auch eine winzige und eine riesige Pyramide könnten dieselbe Spitze haben. Was muss noch gleich sein?"}
+      ],
+      tipps:["Eine gerade Pyramide ist durch Grundfläche und Höhe festgelegt.", "Vergleiche die Flächen des Würfels und den Abstand des Mittelpunkts zu ihnen."],
+      richtig:"Vortrefflich. Gleiche Grundfläche, gleiche Höhe, Spitze jeweils über der Flächenmitte: Man kann jede durch Drehen in jede andere überführen." },
+
+    { id:"hoehe", typ:"wahl",
+      text:"Betrachten wir nur die [[untere Pyramide|pU]]. Ihre Grundfläche ist $G = a^2$. Wie hoch ist sie?",
+      optionen:[
+        {text:"$h = \\frac{a}{2}$", richtig:true},
+        {text:"$h = a$", hinweis:"Das wäre die Höhe des Würfels. Reicht die Spitze bis zur oberen Fläche?"},
+        {text:"die halbe Raumdiagonale", hinweis:"Die Raumdiagonale läuft schräg zu einer Ecke. Die Höhe steht senkrecht auf der Grundfläche."}
+      ],
+      tipps:["Die Spitze liegt im Mittelpunkt des Würfels.", "Wie weit ist der Mittelpunkt vom Boden entfernt?"],
+      richtig:"Genau. Die [[Höhe|hP]] reicht vom Boden bis zur Mitte: $h = \\frac{a}{2}$.",
+      zeige:["kA"], verberge:["pO","pV","pH","pL","pR"], zeigeNachRichtig:["hP"], beimStart:["SetValue(lam,0)"] },
+
+    { id:"volumen", typ:"wahl",
+      text:"Der Würfel hat das Volumen $a^3$. Wie groß ist das Volumen einer dieser Pyramiden?",
+      optionen:[
+        {text:"$V = \\frac{a^3}{6}$", richtig:true},
+        {text:"$V = \\frac{a^3}{4}$", hinweis:"Durch vier? Wie viele gleiche Pyramiden teilen sich den Würfel?"},
+        {text:"$V = \\frac{a^3}{3}$", hinweis:"Dann füllten drei Pyramiden den Würfel. Wie viele sind es hier?"}
+      ],
+      tipps:["Sechs gleiche Teile füllen den ganzen Würfel."],
+      richtig:"So ist es: Jede Pyramide ist ein Sechstel des Würfels." },
+
+    { id:"faktor", typ:"wahl",
+      text:"Nun die Formel. Es ist $G \\cdot h = a^2 \\cdot \\frac{a}{2} = \\frac{a^3}{2}$. Welches $k$ erfüllt also $$\\frac{a^3}{6} = k \\cdot \\frac{a^3}{2}\\,?$$",
+      optionen:[
+        {text:"$k = \\frac{1}{3}$", richtig:true},
+        {text:"$k = \\frac{1}{6}$", hinweis:"Setze ein: $\\frac{1}{6} \\cdot \\frac{a^3}{2} = \\frac{a^3}{12}$. Ist das ein Sechstel des Würfels?"},
+        {text:"$k = \\frac{1}{2}$", hinweis:"Setze ein: $\\frac{1}{2} \\cdot \\frac{a^3}{2} = \\frac{a^3}{4}$. Ist das ein Sechstel des Würfels?"}
+      ],
+      tipps:["Teile beide Seiten durch $a^3$.", "Dann steht da $\\frac{1}{6} = k \\cdot \\frac{1}{2}$."],
+      richtig:"Vortrefflich: $k = \\frac{1}{3}$. Aus dem Sechstel des Würfels wird ein Drittel von $G \\cdot h$: $$V = \\frac{1}{3} \\cdot G \\cdot h.$$" },
+
+    { id:"probe", typ:"zahl",
+      text:"Mache die Probe mit einem Würfel von $a = 6$ cm. Rechne mit der neuen Formel: Wie groß ist das Volumen einer Pyramide?",
+      einheit:"cm³", loesung:36, toleranz:0.05,
+      falsch:"Es ist $G = 36$ cm². Die Höhe ist nur die halbe Kante.",
+      tipps:["$h = 6 \\text{ cm} : 2 = 3$ cm.", "$V = \\frac{1}{3} \\cdot 36 \\cdot 3$."],
+      richtig:"Richtig: $\\frac{1}{3} \\cdot 36 \\text{ cm}^2 \\cdot 3 \\text{ cm} = 36$ cm³. Und der Würfel geteilt durch sechs? $216 : 6 = 36$. Beide Wege stimmen überein." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Sechs kongruente Pyramiden füllen den Würfel. Jede hat $G = a^2$ und $h = \\frac{a}{2}$. Daraus folgt $$V = \\frac{1}{3} \\cdot G \\cdot h.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

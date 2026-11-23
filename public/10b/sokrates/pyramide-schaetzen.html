@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wie oft passt die Pyramide in den Quader? – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+/* Gespräch mit Sokrates – nur die Daten. Neue Wege 10, S. 64 Nr. 2 (KW 47). */
+const DIALOG = {
+  titel: "Wie oft passt die Pyramide in den Quader? – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 10b", href:"/10b/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Neue Wege 10, S. 64 Nr. 2\n\nEine quadratische Pyramide steht genau in einem Quader. Beide haben die Grundfläche $8$ cm mal $8$ cm und die Höhe $12$ cm.\n\na) Schätze das Verhältnis der beiden Volumina.\nb) Prüfe die Schätzung mit einem Sandversuch: Wie viele Pyramidenfüllungen braucht der Quader?\nc) Gilt das Ergebnis auch für andere Pyramiden?",
+
+  gegeben: "Pyramide und Quader: $a = 8$ cm, $h = 12$ cm",
+
+  selbst: {
+    text:"Gut, {name}. Berechne auf deinem Weg die Volumina von Quader und Pyramide.",
+    fragen:[
+      {text:"Volumen des Quaders:", kurz:"Quader", einheit:"cm³", loesung:768, toleranz:0.5, ab:"vpyr",
+       fehler:[
+        {wert:96, toleranz:0.5, hinweis:"Das ist Kante mal Höhe. Die Grundfläche ist ein Quadrat: $G = a^2$.", ab:"vpyr"}]},
+      {text:"Volumen der Pyramide:", kurz:"Pyramide", einheit:"cm³", loesung:256, toleranz:0.5, ab:"schuetten",
+       fehler:[
+        {wert:384, toleranz:0.5, hinweis:"Du hast den Quader halbiert. Wie viele Pyramidenfüllungen braucht er wirklich?", ab:"schnitt"},
+        {wert:768, toleranz:0.5, hinweis:"Das ist der ganze Quader. Füllt die Pyramide ihn wirklich aus?", ab:"schuetten"},
+        {wert:32, toleranz:0.5, hinweis:"Du hast nur eine Kante eingesetzt. Die Grundfläche ist $G = a^2$.", ab:"formel"}]}
+    ]
+  },
+  vorwissen: [
+    "Volumen eines Quaders: $V = G \\cdot h$",
+    "Grundfläche eines Quadrats: $G = a^2$"
+  ],
+  hefteintrag: "S. 64 Nr. 2 – Pyramide im Quader\nGegeben: $a = 8$ cm, $h = 12$ cm\n\nDrei Pyramidenfüllungen machen den Quader voll: $V_P : V_Q = 1 : 3$.\n\n$V_Q = 8 \\text{ cm} \\cdot 8 \\text{ cm} \\cdot 12 \\text{ cm} = 768 \\text{ cm}^3$\n$V_P = \\frac{1}{3} \\cdot 768 \\text{ cm}^3 = 256 \\text{ cm}^3$\n\nFür jede Pyramide gilt: $V = \\frac{1}{3} \\cdot G \\cdot h$",
+
+  rueckblick: {
+    titel: "Vom Augenmaß zum Drittel",
+    frage: "Welcher Teil eines Quaders wird von einer Pyramide mit gleicher Grundfläche und Höhe ausgefüllt?",
+    schritte: [
+      {kurz:"Schätzen", text:"Auf den ersten Blick wirkt die Pyramide wie die Hälfte des Quaders. Sie wird nach oben aber immer schmaler."},
+      {kurz:"Schneiden", text:"Auf halber Höhe füllt ihr Querschnitt nur ein Viertel des Quaderquerschnitts. Die Hälfte kann also nicht stimmen."},
+      {kurz:"Versuchen", text:"Beim Umschütten ist der Quader nach genau drei Pyramidenfüllungen voll."},
+      {kurz:"Rechnen", text:"Der Quader hat $768 \\text{ cm}^3$, die Pyramide also $\\frac{1}{3} \\cdot 768 \\text{ cm}^3 = 256 \\text{ cm}^3$."},
+      {kurz:"Verallgemeinern", text:"Auch bei anderer Grundfläche und bei schiefer Spitze zählen nur Grundfläche und Höhe."}
+    ],
+    einsicht: "Eine Pyramide hat ein Drittel des Volumens ihres umfassenden Prismas: $$V = \\frac{1}{3} \\cdot G \\cdot h$$",
+    mitnehmen: "Dem ersten Eindruck traue ich erst, wenn ich ihn mit einem Schnitt, einem Versuch oder einer Rechnung geprüft habe."
+  },
+
+  geogebra: {
+    dim3: true,
+    ansicht3d: {x0:-1.5, y0:-1.5, z0:-5.2, massstab:23, kippen:16, drehen:-58},
+    befehle: [
+      "zs=0", "nf=0", "sx=0",
+      "qb=Polygon((0,0,0),(8,0,0),(8,8,0),(0,8,0))",
+      "quader=Prism(qb,(0,0,12))",
+      "pyr=Pyramid((0,0,0),(8,0,0),(8,8,0),(0,8,0),(4+sx,4,12))",
+      "sand=Prism(qb,(0,0,If(nf>0,4*nf,0.001)))",
+      "cx=4+sx*zs/12", "hw=4*(1-zs/12)",
+      "qs=Polygon((0,0,zs),(8,0,zs),(8,8,zs),(0,8,zs))",
+      "ps=Polygon((cx-hw,4-hw,zs),(cx+hw,4-hw,zs),(cx+hw,4+hw,zs),(cx-hw,4+hw,zs))",
+      "anteil=100*(1-zs/12)^2",
+      "vQ=768", "vP=256",
+      "m8=Segment((0,-0.7,0),(8,-0.7,0))",
+      "m12=Segment((-0.7,0,0),(-0.7,0,12))"
+    ],
+    startwerte: {zs:0, nf:0, sx:0},
+    ziehbar: [],
+    sichtbar: ["quader","pyr","m8","m12"],
+    stil: {
+      quader:{farbe:"matt", dicke:2, fuellung:0, strich:"gestrichelt"},
+      pyr:{farbe:"gold", dicke:3, fuellung:0.42},
+      sand:{farbe:"hellgold", dicke:1, fuellung:0.5},
+      qs:{farbe:"matt", dicke:2, fuellung:0.18},
+      ps:{farbe:"leucht", dicke:3, fuellung:0.6},
+      m8:{farbe:"matt", dicke:2, name:"8 cm"},
+      m12:{farbe:"matt", dicke:2, name:"12 cm"}
+    }
+  },
+
+  regler: [
+    {text:"Schnitt in der Höhe", objekt:"zs", min:0, max:11, schritt:0.5, ab:"schnitt", bis:"schnitt"},
+    {text:"Füllungen", objekt:"nf", min:0, max:3, schritt:1, ab:"schuetten", bis:"anzahl"},
+    {text:"Schnitt in der Höhe", objekt:"zs", min:0, max:11, schritt:0.5, ab:"schief", bis:"schief"},
+    {text:"Spitze verschieben", objekt:"sx", min:-4, max:4, schritt:0.1, ab:"schief", bis:"schief"}
+  ],
+  werte: [
+    {text:"Querschnitt der Pyramide im Vergleich zum Quader", objekt:"anteil", ab:"schnitt", bis:"schnitt", einheit:"%", stellen:0},
+    {text:"Querschnitt der Pyramide im Vergleich zum Quader", objekt:"anteil", ab:"schief", bis:"schief", einheit:"%", stellen:0},
+    {text:"Volumen des Quaders", objekt:"vQ", ab:"vpyr", wann:"richtig", einheit:"cm³", stellen:0},
+    {text:"Volumen der Pyramide", objekt:"vP", ab:"vpyr", wann:"richtig", einheit:"cm³", stellen:0}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Hier steht eine [[Pyramide|pyr]] in einem [[Quader|quader]]. Beide haben dieselbe Grundfläche und dieselbe Höhe. Drehe die Zeichnung mit dem Finger.\n\nWie viel vom Quader füllt die Pyramide wohl aus?" },
+
+    { id:"schaetzen", typ:"wahl",
+      text:"Schätze, bevor du rechnest. Welcher Teil des Quaders wird von der Pyramide ausgefüllt?",
+      optionen:[
+        {text:"deutlich weniger als die Hälfte", richtig:true},
+        {text:"genau die Hälfte", hinweis:"So wirkt es zunächst. Doch die Pyramide wird nach oben immer schmaler. Füllt sie dort noch die Hälfte aus?"},
+        {text:"mehr als die Hälfte", hinweis:"Sieh von der Seite hin: Neben der Spitze bleibt viel Platz. Was sagt das über ihren Anteil?"}
+      ],
+      tipps:["Stell dir vor, du schneidest beide Körper waagerecht durch.", "Je höher der Schnitt liegt, desto kleiner wird die Fläche der Pyramide."],
+      richtig:"Eine gute Schätzung. Prüfen wir, woher dieser Eindruck kommt." },
+
+    { id:"schnitt", typ:"probieren",
+      text:"Schneide beide Körper waagerecht. Ziehe den Regler und vergleiche den [[Schnitt der Pyramide|ps]] mit dem [[Schnitt des Quaders|qs]].\n\nWie groß ist der Anteil auf halber Höhe?",
+      hinweis:"Stelle die Höhe $6$ ein und lies den Anteil ab.",
+      zeige:["qs","ps"], beimStart:["SetValue(sx,0)","SetValue(nf,0)"] },
+
+    { id:"schuetten", typ:"probieren",
+      text:"Auf halber Höhe ist es nur ein Viertel. Nun der Versuch aus dem Buch: Du füllst die Pyramide mit Sand und schüttest ihn in den Quader.\n\nErhöhe die Zahl der Füllungen und beobachte den [[Sand|sand]].",
+      hinweis:"Zähle die Füllungen, bis der Quader ganz voll ist.",
+      zeige:["sand"], verberge:["qs","ps"], beimStart:["SetValue(zs,0)","SetValue(sx,0)"] },
+
+    { id:"anzahl", typ:"wahl",
+      text:"Wie viele Pyramidenfüllungen braucht der Quader?",
+      optionen:[
+        {text:"drei", richtig:true},
+        {text:"zwei", hinweis:"Stelle den Regler auf $2$. Ist der Quader dann schon voll?"},
+        {text:"vier", hinweis:"Der Querschnitt auf halber Höhe war ein Viertel. Doch unten ist er größer. Zähle am Regler nach: Wann ist der Quader voll?"}
+      ],
+      tipps:["Schiebe den Regler Schritt für Schritt nach rechts.", "Jede Füllung hebt den Sand um $4$ cm. Der Quader ist $12$ cm hoch."],
+      richtig:"Recht so. Nach drei Füllungen ist der Quader voll: $$V_P : V_Q = 1 : 3.$$" },
+
+    { id:"vpyr", typ:"zahl",
+      text:"Rechnen wir es aus. Der Quader hat das Volumen $8 \\cdot 8 \\cdot 12$ cm³. Wie groß ist das Volumen der Pyramide?",
+      einheit:"cm³", loesung:256, toleranz:0.5,
+      falsch:"Berechne zuerst den Quader. Die Pyramide ist ein Drittel davon.",
+      tipps:["Der Quader hat $64 \\cdot 12$ cm³.", "Teile $768$ cm³ durch $3$."],
+      richtig:"Vortrefflich: $V_Q = 768$ cm³, also $V_P = \\frac{1}{3} \\cdot 768 \\text{ cm}^3 = 256$ cm³." },
+
+    { id:"formel", typ:"wahl",
+      text:"Der Quader hat das Volumen $V = G \\cdot h$. Welche Formel gilt also für die Pyramide?",
+      optionen:[
+        {text:"$V = \\frac{1}{3} \\cdot G \\cdot h$", richtig:true},
+        {text:"$V = \\frac{1}{2} \\cdot G \\cdot h$", hinweis:"Das wäre die Hälfte des Quaders. Wie viele Füllungen hast du gezählt?"},
+        {text:"$V = \\frac{1}{3} \\cdot a \\cdot h$", hinweis:"Setze $a = 8$ und $h = 12$ ein. Kommen dann $256$ cm³ heraus?"}
+      ],
+      tipps:["Der Faktor kommt aus den drei Füllungen.", "$G$ ist die ganze Grundfläche, hier $a^2$."],
+      richtig:"Genau. Diese Formel gilt für die Pyramide im Quader." },
+
+    { id:"schief", typ:"probieren",
+      text:"Gilt das nur, wenn die Spitze genau in der Mitte steht? Verschiebe die Spitze mit dem Regler und beobachte den [[Querschnitt|ps]].\n\nÄndert sich seine Größe?",
+      hinweis:"Der Querschnitt wandert zur Seite. Der Anteil bleibt gleich, also auch das Volumen.",
+      zeige:["qs","ps"], verberge:["sand"], beimStart:["SetValue(nf,0)","SetValue(zs,6)"] },
+
+    { id:"andere", typ:"zahl",
+      text:"So gilt die Formel auch für schiefe Pyramiden und andere Grundflächen. Eine Pyramide hat eine rechteckige Grundfläche von $4$ cm mal $3$ cm und ist $4$ cm hoch. Wie groß ist ihr Volumen?",
+      einheit:"cm³", loesung:16, toleranz:0.05, verberge:["qs","ps"],
+      falsch:"Die Grundfläche ist hier ein Rechteck. Rechne $G = 4 \\cdot 3$ und setze in die Formel ein.",
+      tipps:["$G = 12$ cm².", "$V = \\frac{1}{3} \\cdot 12 \\cdot 4$."],
+      richtig:"Richtig: $V = \\frac{1}{3} \\cdot 12 \\text{ cm}^2 \\cdot 4 \\text{ cm} = 16$ cm³. Der Quader darum hat $48$ cm³, wieder das Dreifache." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Drei Pyramidenfüllungen machen den Quader voll. Das gilt für jede Grundfläche und auch für schiefe Pyramiden: $$V = \\frac{1}{3} \\cdot G \\cdot h.$$ Schreibe dir den Hefteintrag ab." }
+  ]
+};
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>
