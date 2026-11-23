@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121900">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
 </head>
 <body>
 <div class="seite">
@@ -57,6 +57,20 @@ const DIALOG = {
     "Binomische Formeln"
   ],
   hefteintrag: "Von der mittleren zur lokalen Änderungsrate\n\nBungee-Sprung: $s(t) = 5t^2$ für $0 \\le t \\le 4$\n(1) $s(4) = 80$ m, das Abbremsen beginnt in $216 \\text{ m} - 80 \\text{ m} = 136$ m Höhe.\n\nMittlere Geschwindigkeit (mittlere Änderungsrate) im Intervall $[t_1;\\,4]$:\n$\\bar v = \\dfrac{s(4) - s(t_1)}{4 - t_1}$\n$[0;4]$: $20 \\tfrac{\\text{m}}{\\text{s}}$ · $[3;4]$: $35 \\tfrac{\\text{m}}{\\text{s}}$ · $[3{,}9;4]$: $39{,}5 \\tfrac{\\text{m}}{\\text{s}}$ · $[3{,}99;4]$: $39{,}95 \\tfrac{\\text{m}}{\\text{s}}$\n\nMit $t_1 = 4 - h$: $\\dfrac{s(4) - s(4-h)}{h} = 40 - 5h \\;\\to\\; 40$ für $h \\to 0$.\n(2) Nach vier Sekunden hat der Springer die Geschwindigkeit $40 \\tfrac{\\text{m}}{\\text{s}} = 144 \\tfrac{\\text{km}}{\\text{h}}$.\n\nDie lokale Änderungsrate einer Funktion $f$ an der Stelle $a$ ist der Grenzwert des Differenzenquotienten:\n$$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$$\nGelesen: „Limes für $h$ gegen $0$ von …“ (lat. limes = Grenze). Gemeint ist der Wert, dem sich der Differenzenquotient nähert, wenn $h$ immer kleiner wird – ohne dass $h$ den Wert $0$ annimmt.\n\nGeometrisch: Die Sekanten durch $P(a\\,|\\,f(a))$ und $Q$ nähern sich der Tangente in $P$. Die lokale Änderungsrate ist die Steigung der Tangente, also die Steigung des Graphen im Punkt $P$.",
+
+  rueckblick: {
+    titel: "Vom Durchschnitt zum Augenblick",
+    frage: "Wie schnell ist ein Bungee-Springer genau nach vier Sekunden?",
+    schritte: [
+      {kurz:"Der Durchschnitt", text:"Strecke durch Zeit liefert eine mittlere Geschwindigkeit: in den ersten vier Sekunden $20\\,\\tfrac{\\text{m}}{\\text{s}}$."},
+      {kurz:"Annähern", text:"Kleinere Intervalle kommen dem Augenblick näher: $35$, dann $39{,}5$, dann $39{,}95\\,\\tfrac{\\text{m}}{\\text{s}}$. Die Werte laufen auf $40$ zu."},
+      {kurz:"Das Hindernis", text:"Ein Intervall der Länge $0$ geht nicht, denn durch $0$ darf man nicht teilen."},
+      {kurz:"Der Ausweg", text:"Wir vereinfachen vorher: $\\frac{s(4) - s(4-h)}{h} = 40 - 5h$. Für $h \\to 0$ bleibt $40$."},
+      {kurz:"Geometrisch deuten", text:"Die Sekanten nähern sich der Tangente. Der Graph hat im Punkt $P$ die Steigung $40$."}
+    ],
+    einsicht: "Die lokale Änderungsrate ist der Grenzwert der mittleren Änderungsraten: $$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$$",
+    mitnehmen: "Was ich im Augenblick nicht messen kann, nähere ich an und frage: Wohin laufen die Werte?"
+  },
   merkzettel: [{"begriff": "Mittlere Änderungsrate (Differenzenquotient)", "text": "$\\dfrac{f(x_2) - f(x_1)}{x_2 - x_1} = \\dfrac{\\Delta y}{\\Delta x}$ – „Differenz durch Differenz“. Sie gehört zu einem Intervall $[x_1;\\,x_2]$."}, {"begriff": "Sekante", "text": "Gerade durch zwei Punkte des Graphen. Ihre Steigung ist die mittlere Änderungsrate."}, {"begriff": "Steigung einer Geraden", "text": "$m = \\dfrac{\\Delta y}{\\Delta x}$ – so viel steigt die Gerade, wenn man um $1$ nach rechts geht."}, {"begriff": "Schreibweise mit h", "text": "Statt $x_1 = a$ und $x_2 = a + h$ schreibt man $\\dfrac{f(a+h) - f(a)}{h}$. Dabei ist $h$ die Breite des Intervalls."}, {"begriff": "Der Limes", "text": "$\\displaystyle\\lim_{h \\to 0}$ liest man „Limes für $h$ gegen $0$“ (lat. limes = Grenze). Gemeint ist der Wert, dem sich der Term nähert, wenn $h$ immer näher an $0$ rückt – ohne dass $h$ jemals $0$ wird."}, {"begriff": "Lokale Änderungsrate", "text": "$\\displaystyle\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$. Sie gehört zu einer Stelle $a$, nicht zu einem Intervall."}, {"begriff": "Tangente", "text": "Gerade, die den Graphen im Punkt $P$ berührt und dort dieselbe Steigung hat. Ihre Steigung ist die lokale Änderungsrate."}, {"begriff": "Binomische Formeln", "text": "$(a+b)^2 = a^2 + 2ab + b^2$, $(a-b)^2 = a^2 - 2ab + b^2$"}],
 
   geogebra: {
@@ -199,6 +213,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121900"></script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
 </body>
 </html>

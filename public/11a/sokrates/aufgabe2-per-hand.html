@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121900">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
 </head>
 <body>
 <div class="seite">
@@ -68,6 +68,20 @@ const DIALOG = {
     "Sekante und Tangente"
   ],
   hefteintrag: "Aufgabe 2 – Lokale Änderungsraten per Hand\nDifferenzenquotient $d(h) = \\dfrac{f(a+h) - f(a)}{h}$\n\na) $f(x) = x^2 - 2$, $a = 1$, $f(1) = -1$\n$d(0{,}1) = 2{,}1$ · $d(0{,}005) = 2{,}005$\nAllgemein: $d(h) = \\dfrac{(1+h)^2 - 2 + 1}{h} = \\dfrac{2h + h^2}{h} = 2 + h \\to 2$\nLokale Änderungsrate: $2$\n\nb) $f(x) = (x-2)^2$, $a = -1$, $f(-1) = 9$\n$d(0{,}1) = -5{,}9$ · $d(0{,}005) = -5{,}995$\nAllgemein: $d(h) = \\dfrac{(h-3)^2 - 9}{h} = -6 + h \\to -6$\nLokale Änderungsrate: $-6$\n\nc) $f(x) = \\frac{1}{2}x^3$, $a = 3$, $f(3) = 13{,}5$\n$d(0{,}1) = 13{,}955$ · $d(0{,}005) \\approx 13{,}5225$\nAllgemein: $d(h) = 13{,}5 + 4{,}5h + 0{,}5h^2 \\to 13{,}5$\nLokale Änderungsrate: $13{,}5$",
+
+  rueckblick: {
+    titel: "Von der Näherung zum genauen Wert",
+    frage: "Wie bestimmt man die lokale Änderungsrate von Hand, ohne die Funktionstasten des GTR?",
+    schritte: [
+      {kurz:"Ansetzen", text:"Der Differenzenquotient ist die Steigung der Sekante: $d(h) = \\frac{f(a+h) - f(a)}{h}$."},
+      {kurz:"Annähern", text:"Für $f(x) = x^2 - 2$ bei $a = 1$ ergeben $h = 0{,}1$ und $h = 0{,}005$ die Werte $2{,}1$ und $2{,}005$."},
+      {kurz:"Das Muster sehen", text:"Die Zahlen verraten etwas: Der Überschuss über $2$ ist genau $h$."},
+      {kurz:"Allgemein vereinfachen", text:"Es gilt $d(h) = \\frac{2h + h^2}{h} = 2 + h$. Für $h \\to 0$ bleibt $2$."},
+      {kurz:"Übertragen", text:"Genauso ergeben sich in b) $-6$ und in c) $13{,}5$. Ein negativer Wert heißt: Der Graph fällt dort."}
+    ],
+    einsicht: "Kleine $h$ liefern Näherungen, der vereinfachte Term zeigt den genauen Grenzwert: $$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$$",
+    mitnehmen: "Ich rechne erst zwei Beispiele, suche das Muster und prüfe es dann allgemein."
+  },
   merkzettel: [{"begriff": "Mittlere Änderungsrate (Differenzenquotient)", "text": "$\\dfrac{f(x_2) - f(x_1)}{x_2 - x_1} = \\dfrac{\\Delta y}{\\Delta x}$ – „Differenz durch Differenz“. Sie gehört zu einem Intervall $[x_1;\\,x_2]$."}, {"begriff": "Sekante", "text": "Gerade durch zwei Punkte des Graphen. Ihre Steigung ist die mittlere Änderungsrate."}, {"begriff": "Steigung einer Geraden", "text": "$m = \\dfrac{\\Delta y}{\\Delta x}$ – so viel steigt die Gerade, wenn man um $1$ nach rechts geht."}, {"begriff": "Schreibweise mit h", "text": "Statt $x_1 = a$ und $x_2 = a + h$ schreibt man $\\dfrac{f(a+h) - f(a)}{h}$. Dabei ist $h$ die Breite des Intervalls."}, {"begriff": "Der Limes", "text": "$\\displaystyle\\lim_{h \\to 0}$ liest man „Limes für $h$ gegen $0$“ (lat. limes = Grenze). Gemeint ist der Wert, dem sich der Term nähert, wenn $h$ immer näher an $0$ rückt – ohne dass $h$ jemals $0$ wird."}, {"begriff": "Lokale Änderungsrate", "text": "$\\displaystyle\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$. Sie gehört zu einer Stelle $a$, nicht zu einem Intervall."}, {"begriff": "Tangente", "text": "Gerade, die den Graphen im Punkt $P$ berührt und dort dieselbe Steigung hat. Ihre Steigung ist die lokale Änderungsrate."}, {"begriff": "Binomische Formeln", "text": "$(a+b)^2 = a^2 + 2ab + b^2$, $(a-b)^2 = a^2 - 2ab + b^2$"}],
 
   geogebra: {
@@ -224,6 +238,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121900"></script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
 </body>
 </html>

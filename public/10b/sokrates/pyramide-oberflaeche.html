@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121900">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
 </head>
 <body>
 <div class="seite">
@@ -56,6 +56,19 @@ const DIALOG = {
     "Netz eines Körpers"
   ],
   hefteintrag: "Die Oberfläche der Pyramide\nGegeben: quadratische Pyramide, $a = 6$ cm, $h = 4$ cm\n\nDas Netz besteht aus der Grundfläche (Quadrat) und vier gleichschenkligen Dreiecken, dem Mantel: $O = G + M$.\n\nDie Höhe der Seitendreiecke ist die Seitenhöhe $h_s$, nicht die Körperhöhe $h$. Im Steigungsdreieck gilt nach Pythagoras:\n$h_s = \\sqrt{h^2 + \\left(\\frac{a}{2}\\right)^2} = \\sqrt{4^2 + 3^2} \\text{ cm} = 5 \\text{ cm}$\n\n$G = a^2 = 36 \\text{ cm}^2$\n$M = 4 \\cdot \\frac{1}{2} \\cdot a \\cdot h_s = 4 \\cdot \\frac{1}{2} \\cdot 6 \\text{ cm} \\cdot 5 \\text{ cm} = 60 \\text{ cm}^2$\n$O = G + M = 96 \\text{ cm}^2$\n\nAllgemein: $O = a^2 + 2\\,a\\,h_s$",
+
+  rueckblick: {
+    titel: "Die Höhe, die man nicht sofort sieht",
+    frage: "Wie viel Pappe braucht man für eine quadratische Pyramide mit $a = 6$ cm und $h = 4$ cm?",
+    schritte: [
+      {kurz:"Aufklappen", text:"Flach gelegt zeigt die Pyramide ein Quadrat und vier gleiche Dreiecke: $O = G + M$."},
+      {kurz:"Die Stolperstelle", text:"Die Höhe eines Seitendreiecks ist nicht die Körperhöhe. Sie läuft schräg von der Spitze zur Mitte einer Grundkante."},
+      {kurz:"Pythagoras nutzen", text:"Körperhöhe, halbe Grundkante und Seitenhöhe bilden ein rechtwinkliges Dreieck: $h_s = \\sqrt{4^2 + 3^2} \\text{ cm} = 5$ cm."},
+      {kurz:"Zusammensetzen", text:"Ein Dreieck hat $15 \\text{ cm}^2$, der Mantel $60 \\text{ cm}^2$. Mit $G = 36 \\text{ cm}^2$ ergibt sich $O = 96 \\text{ cm}^2$."}
+    ],
+    einsicht: "Für die Fläche zählt die schräge Seitenhöhe, nicht die Körperhöhe: $$O = a^2 + 2\\,a\\,h_s$$",
+    mitnehmen: "Vor dem Einsetzen frage ich: Zu welcher Fläche gehört diese Höhe? Fehlt sie, suche ich ein rechtwinkliges Dreieck."
+  },
 
   geogebra: {
     dim3: true,
@@ -148,6 +161,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121900"></script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
 </body>
 </html>

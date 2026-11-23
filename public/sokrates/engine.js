@@ -27,6 +27,13 @@
        und gibt nur Ergebnisse ein. Stimmt alles: Hefteintrag zum Vergleich.
        Sonst Hinweis zum erkannten Fehler und Einstieg ins Gespräch bei
        `ab` (Schritt-id) des ersten falschen Ergebnisses.
+     · Rückblick: DIALOG.rueckblick = { titel, frage, schritte:[{kurz, text}],
+         einsicht, mitnehmen } zeichnet nach dem letzten Schritt und nach dem
+       stimmigen eigenen Weg nach, wie sich der Gedanke entwickelt hat. Er lässt
+       sich als Text oder Bild kopieren und auf dem iPad an eine App senden
+       (anders als der Hefteintrag, der von Hand abgeschrieben wird).
+       Formeln: nur $…$/$$…$$ mit \frac, \sqrt, ^, _, \lim, \text und Zeichen
+       aus TEX_ZEICHEN; keine [[Begriffe]], kein {name}.
    ===================================================================== */
 (function(){
 const PALETTE = {
@@ -79,6 +86,7 @@ function sichtbareObjekte(){
 }
 function wertAktiv(w){
   if (w.nurGeloest && schritt >= 0){ const sc = DIALOG.schritte[schritt]; if (sc && sc.typ === 'zahl' && zustand[schritt] !== 'richtig') return false; }
+  if (w.bis){ const j = idx(w.bis); if (j >= 0 && schritt > j) return false; }   // optional: nur bis zu diesem Schritt
   const i = idx(w.ab); if (i < 0) return schritt >= 0;
   if (schritt > i) return true;
   if (schritt === i) return w.wann !== 'richtig' || zustand[i] === 'richtig';
@@ -344,7 +352,7 @@ function mische(arr, seed){
   return a;
 }
 function zeigeStart(){
-  schritt = -1; try{ stopSprechen(); tippeFertig(); }catch(e){}
+  schritt = -1; imRueckblick = false; try{ stopSprechen(); tippeFertig(); }catch(e){}
   $('#fortschritt').textContent = '';
   $('#dialog').innerHTML = `
     <div class="karte">
@@ -480,7 +488,7 @@ function aisOeffnen(){
   ta.onfocus = () => ta.select();
 }
 function zeigeSelbst(neuGeprueft){
-  schritt = -2; try { stopSprechen(); tippeFertig(); } catch(e){}
+  schritt = -2; imRueckblick = false; try { stopSprechen(); tippeFertig(); } catch(e){}
   const S = DIALOG.selbst, st = selbstStand;
   const alle = !!(st && st.every(x => x.ok));
   $('#fortschritt').textContent = 'Eigener Weg';
@@ -518,7 +526,7 @@ function zeigeSelbst(neuGeprueft){
       <div class="sfragen">${zeilen}</div>
       <div class="nav">
         <button class="zurueck" id="zurueck">◂ Aufgabe</button>
-        ${alle ? `<button class="weiter" id="mitsokrates">Mit Sokrates durchgehen</button>${S.weiter ? `<button class="weiter" id="selbstweiter">${inline(S.weiter.text)} ▸</button>` : ''}`
+        ${alle ? `<button class="weiter" id="mitsokrates">Mit Sokrates durchgehen</button>${S.weiter ? `<button class="weiter" id="selbstweiter">${inline(S.weiter.text)} ▸</button>` : ''}${rueckblickAktiv() ? '<button class="weiter" id="selbstrueckblick">Rückblick ▸</button>' : ''}`
                : `<button class="weiter" id="spruefen">Prüfen</button>${ersterFehler ? '<button class="zurueck" id="einstieg">Mit Sokrates an dieser Stelle weiter ▸</button>' : ''}`}
       </div>
     </div>`;
@@ -537,11 +545,321 @@ function zeigeSelbst(neuGeprueft){
   if ($('#einstieg')) $('#einstieg').onclick = () => einsteigen(ersterFehler.ab);
   if ($('#mitsokrates')) $('#mitsokrates').onclick = () => einsteigen(DIALOG.schritte[0].id);
   if ($('#selbstweiter')) $('#selbstweiter').onclick = () => einsteigen(S.weiter.ab);
+  if ($('#selbstrueckblick')) $('#selbstrueckblick').onclick = () => zeigeRueckblick('selbst');
   if ($('#aisknopf')) $('#aisknopf').onclick = aisOeffnen;
   if (neuGeprueft){ const a = $('#dialog .antwort'); if (a && a.textContent.trim()) a.scrollIntoView({block:'nearest', behavior:'smooth'}); else if (heft) heft.scrollIntoView({block:'nearest', behavior:'smooth'}); }
 }
+/* ---- Rückblick: Wie hat sich der Gedanke entwickelt? ---- */
+let imRueckblick = false, rueckblickVon = 'gespraech', rbBildVersprechen = null, rbBlob = null;
+function rueckblickAktiv(){ const R = DIALOG.rueckblick; return !!(R && R.titel && R.einsicht && R.schritte && R.schritte.length); }
+const TEX_ZEICHEN = {pi:'π',cdot:'·',approx:'≈',to:'→',rightarrow:'→',Rightarrow:'⇒',Delta:'Δ',alpha:'α',beta:'β',gamma:'γ',ge:'≥',geq:'≥',le:'≤',leq:'≤',ne:'≠',neq:'≠',times:'×',pm:'±',infty:'∞',quad:' ',qquad:'  ',';':' ',',':' ','!':'','%':'%'};
+const TEX_OP = '=+−≈·:→⇒≤≥≠×±';
+function texBaum(q){
+  let i = 0;
+  const leer = () => { while (q[i] === ' ' || q[i] === '\n') i++; };
+  const arg = () => { leer(); if (q[i] === '{'){ i++; const n = folge('}'); i++; return n; } return eins(); };
+  const roh = () => { leer(); if (q[i] !== '{') return q[i++] || ''; const a = ++i; let t = 1; while (i < q.length && t){ if (q[i] === '{') t++; else if (q[i] === '}') t--; i++; } return q.slice(a, i-1); };
+  const zeichen = z => [TEX_OP.includes(z) ? {t:'op', s:z} : {t:'zeichen', s:z}];
+  function befehl(){
+    i++;
+    let w = '';
+    if (/[a-zA-Z]/.test(q[i] || '')) while (/[a-zA-Z]/.test(q[i] || '')) w += q[i++]; else w = q[i++] || '';
+    if (/^[dt]?frac$/.test(w)){ const a = arg(), b = arg(); return [{t:'bruch', a, b}]; }
+    if (w === 'sqrt') return [{t:'wurzel', a:arg()}];
+    if (w === 'text' || w === 'mathrm') return [{t:'wort', s:roh()}];
+    if (w === 'lim'){ leer(); let u = []; if (q[i] === '_'){ i++; u = arg(); } return [{t:'lim', u}]; }
+    if (/^(left|right|bigl|bigr|big|displaystyle)$/.test(w)) return [];
+    if (w in TEX_ZEICHEN) return TEX_ZEICHEN[w] ? zeichen(TEX_ZEICHEN[w]) : [];
+    return [{t:'unbekannt', s:'\\' + w}];
+  }
+  function eins(){
+    leer();
+    const c = q[i];
+    if (c === undefined) return [];
+    if (c === '\\') return befehl();
+    if (c === '{'){ i++; const n = folge('}'); i++; return n; }
+    i++;
+    return zeichen(c === '-' ? '−' : c);
+  }
+  function folge(ende){
+    const n = [];
+    while (i < q.length && q[i] !== ende){
+      leer(); if (i >= q.length || q[i] === ende) break;
+      if (q[i] === '^' || q[i] === '_'){ const t = q[i++] === '^' ? 'hoch' : 'tief'; n.push({t, a:arg()}); continue; }
+      n.push(...eins());
+    }
+    return n;
+  }
+  return folge();
+}
+const RB_HOCH = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','−':'⁻','+':'⁺',n:'ⁿ'};
+const RB_TIEF = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉',a:'ₐ',e:'ₑ',h:'ₕ',i:'ᵢ',k:'ₖ',m:'ₘ',n:'ₙ',p:'ₚ',r:'ᵣ',s:'ₛ',t:'ₜ',x:'ₓ'};
+function texKlar(ns){
+  let o = '';
+  const klammer = t => /[ +−·]/.test(t) ? '(' + t + ')' : t;
+  ns.forEach(n => {
+    if (n.t === 'op'){ const vorz = /[+−]/.test(n.s) && (!o.trim() || /[=+−≈·→(\[]\s*$/.test(o)); o += vorz ? n.s : ' ' + n.s + ' '; }
+    else if (n.t === 'zeichen' || n.t === 'wort' || n.t === 'unbekannt') o += n.s;
+    else if (n.t === 'bruch') o += klammer(texKlar(n.a).trim()) + '/' + klammer(texKlar(n.b).trim());
+    else if (n.t === 'wurzel'){ const a = texKlar(n.a).trim(); o += '√' + (a.length > 1 ? '(' + a + ')' : a); }
+    else if (n.t === 'lim') o += 'lim ' + texKlar(n.u).replace(/\s/g,'') + ' ';
+    else if (n.t === 'hoch' || n.t === 'tief'){
+      const a = texKlar(n.a).replace(/\s/g,''), karte = n.t === 'hoch' ? RB_HOCH : RB_TIEF;
+      o += [...a].every(c => karte[c]) ? [...a].map(c => karte[c]).join('') : (n.t === 'hoch' ? '^' : '_') + (a.length > 1 ? '(' + a + ')' : a);
+    }
+  });
+  return o;
+}
+const rbKlar = t => nm(t)
+  .replace(/\$\$([\s\S]+?)\$\$/g, (m,f) => '\n' + texKlar(texBaum(f)).trim() + '\n')
+  .replace(/\$([^$]+)\$/g, (m,f) => texKlar(texBaum(f)).trim())
+  .replace(/[ \t]*\n[ \t]*/g, '\n').replace(/\n{2,}/g, '\n').trim();
+const rbAufgabe = () => String(DIALOG.titel || '').replace(/\s*[–-]\s*ein Gespräch mit Sokrates\s*$/i, '');
+const rbKlasse = () => String((DIALOG.heim || {}).text || '').replace(/[^\wäöüÄÖÜ ]/g, '').trim();
+const rbHerkunft = () => [rbKlasse(), rbAufgabe()].filter(Boolean).join(' · ');
+const rbAdresse = () => location.host + location.pathname;
+function rueckblickText(){
+  const R = DIALOG.rueckblick;
+  return [`RÜCKBLICK · ${rbHerkunft()}`, rbKlar(R.titel), '', 'Die Frage', rbKlar(R.frage), '',
+    'So hat sich der Gedanke entwickelt', ...R.schritte.map((s,i) => `${i+1}. ${rbKlar(s.kurz)}: ${rbKlar(s.text)}`), '',
+    'Die Einsicht', rbKlar(R.einsicht), ...(R.mitnehmen ? ['', 'Das nehme ich mit', rbKlar(R.mitnehmen)] : []), '',
+    `Gespräch mit Sokrates · ${rbAdresse()}`].join('\n');
+}
+function rueckblickHtml(){
+  const R = DIALOG.rueckblick;
+  const e = t => rbKlar(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  return `<h2>${e(R.titel)}</h2><p><i>Rückblick · ${e(rbHerkunft())}</i></p>`
+    + `<p><b>Die Frage</b><br>${e(R.frage)}</p><p><b>So hat sich der Gedanke entwickelt</b></p>`
+    + `<ol>${R.schritte.map(s => `<li><b>${e(s.kurz)}:</b> ${e(s.text)}</li>`).join('')}</ol>`
+    + `<p><b>Die Einsicht</b><br>${e(R.einsicht)}</p>`
+    + (R.mitnehmen ? `<p><b>Das nehme ich mit</b><br>${e(R.mitnehmen)}</p>` : '')
+    + `<p><small>Gespräch mit Sokrates · ${e(rbAdresse())}</small></p>`;
+}
+/* Das Bild wird selbst gezeichnet: Papierfarbe in beiden Themen, echte Brüche und Wurzeln. */
+const RB_F = {papier:'#FBF7EC', tinte:'#2B2417', gold:'#A67C12', matt:'#76694F', linie:'#DCCFAE', flaeche:'#F3EAD2'};
+const RB_MATHE = '"Times New Roman","Liberation Serif",Times,serif', RB_TEXT = '"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif', RB_KOPF = '"Cormorant Garamond",Georgia,serif';
+function rbText(ctx, s, schrift){ ctx.font = schrift; const b = ctx.measureText(s).width; const gr = parseFloat(schrift.match(/([\d.]+)px/)[1]); return {b, o:gr*.76, u:gr*.24, mal(x,y){ ctx.font = schrift; ctx.fillText(s, x, y); }}; }
+function rbReihe(teile){
+  let x = 0, o = 0, u = 0;
+  const lage = teile.map(t => { const d = x; x += t.b; o = Math.max(o, t.o); u = Math.max(u, t.u); return d; });
+  return {b:x, o, u, mal(X,Y){ teile.forEach((t,i) => t.mal(X + lage[i], Y)); }};
+}
+function rbMathe(ctx, ns, gr){
+  const teile = []; let hatLinks = false, letztes = '';
+  const luft = b => ({b, o:0, u:0, mal(){}});
+  ns.forEach(n => {
+    if (n.t === 'op'){
+      const vorz = /[+−]/.test(n.s) && (!hatLinks || letztes === 'op' || letztes === '(');
+      const box = rbText(ctx, n.s, `${gr}px ${RB_MATHE}`);
+      teile.push(...(vorz ? [box] : [luft(gr*.26), box, luft(gr*.26)]));
+      letztes = 'op'; hatLinks = true; return;
+    }
+    hatLinks = true; letztes = n.t === 'zeichen' ? n.s : n.t;
+    if (n.t === 'zeichen'){
+      if (n.s === ' ' || n.s === ' ') return teile.push(luft(gr * (n.s === ' ' ? .5 : .18)));
+      teile.push(rbText(ctx, n.s, `${/[a-zA-Zα-ω]/.test(n.s) ? 'italic ' : ''}${gr}px ${RB_MATHE}`));
+    } else if (n.t === 'wort' || n.t === 'unbekannt') teile.push(rbText(ctx, n.s, `${gr}px ${RB_MATHE}`));
+    else if (n.t === 'bruch'){
+      const A = rbMathe(ctx, n.a, gr*.8), B = rbMathe(ctx, n.b, gr*.8), b = Math.max(A.b, B.b) + gr*.3, achse = gr*.3, luecke = gr*.13;
+      teile.push(luft(gr*.08), {b, o:achse + luecke + A.u + A.o, u:luecke + B.o + B.u - achse, mal(X,Y){
+        A.mal(X + (b-A.b)/2, Y - achse - luecke - A.u); B.mal(X + (b-B.b)/2, Y - achse + luecke + B.o);
+        ctx.fillRect(X, Y - achse - gr*.025, b, Math.max(1.5, gr*.05)); }}, luft(gr*.08));
+    } else if (n.t === 'wurzel'){
+      const A = rbMathe(ctx, n.a, gr), h = gr*.62, kopf = A.o + gr*.14;
+      teile.push({b:h + A.b + gr*.08, o:kopf + gr*.06, u:A.u + gr*.04, mal(X,Y){
+        ctx.save(); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = Math.max(1.5, gr*.05); ctx.lineJoin = 'round'; ctx.beginPath();
+        ctx.moveTo(X + gr*.04, Y - gr*.26); ctx.lineTo(X + gr*.16, Y - gr*.32); ctx.lineTo(X + gr*.32, Y + A.u); ctx.lineTo(X + h - gr*.06, Y - kopf); ctx.lineTo(X + h + A.b + gr*.06, Y - kopf); ctx.stroke(); ctx.restore();
+        A.mal(X + h, Y); }});
+    } else if (n.t === 'hoch' || n.t === 'tief'){
+      const A = rbMathe(ctx, n.a, gr*.68), weg = n.t === 'hoch' ? -gr*.42 : gr*.22;
+      teile.push({b:A.b + gr*.04, o:Math.max(0, A.o - weg), u:Math.max(0, A.u + weg), mal(X,Y){ A.mal(X + gr*.02, Y + weg); }});
+    } else if (n.t === 'lim'){
+      const L = rbText(ctx, 'lim', `${gr}px ${RB_MATHE}`), U = rbMathe(ctx, n.u, gr*.62), b = Math.max(L.b, U.b), tiefe = gr*.24 + U.o;
+      teile.push({b:b + gr*.22, o:L.o, u:tiefe + U.u, mal(X,Y){ L.mal(X + (b-L.b)/2, Y); U.mal(X + (b-U.b)/2, Y + tiefe); }});
+    }
+  });
+  return rbReihe(teile);
+}
+// Fließtext mit Formeln umbrechen; gibt die neue y-Lage zurück.
+function rbAbsatz(ctx, q, x, y, breite, st, mal){
+  const gr = st.gr, schrift = `${st.schnitt || ''} ${gr}px ${st.familie || RB_TEXT}`.trim();
+  const zeilen = []; let gruppen = [], gruppe = [];
+  const schliesse = () => { if (gruppe.length){ gruppen.push(rbReihe(gruppe)); gruppe = []; } };
+  const absatz = () => { schliesse(); if (gruppen.length) zeilen.push(...rbUmbruch(gruppen, breite, ctx, schrift)); gruppen = []; };
+  nm(q).split(/(\$\$[\s\S]+?\$\$|\$[^$]+\$)/).forEach(t => {
+    if (!t) return;
+    if (t.startsWith('$$')){ absatz(); zeilen.push({mitte:true, box:rbMathe(ctx, texBaum(t.slice(2,-2)), gr*1.3)}); return; }
+    if (t.startsWith('$')){ gruppe.push(rbMathe(ctx, texBaum(t.slice(1,-1)), gr*1.04)); return; }
+    t.split(/(\s+)/).forEach(w => { if (!w) return; if (!w.trim()){ schliesse(); if (/\n/.test(w)) absatz(); } else gruppe.push(rbText(ctx, w, schrift)); });
+  });
+  absatz();
+  ctx.fillStyle = st.farbe || RB_F.tinte;
+  zeilen.forEach(z => {
+    const o = Math.max(z.box.o, gr*.82), u = Math.max(z.box.u, gr*.34), extra = z.mitte ? gr*.42 : 0;
+    if (mal) z.box.mal(z.mitte ? x + (breite - z.box.b)/2 : x, y + extra + o);
+    y += o + u + extra*2 + (st.abstand === undefined ? gr*.16 : st.abstand);
+  });
+  return y;
+}
+function rbUmbruch(gruppen, breite, ctx, schrift){
+  ctx.font = schrift;
+  const raum = ctx.measureText(' ').width, zeilen = []; let z = [], b = 0;
+  const luft = {b:raum, o:0, u:0, mal(){}};
+  gruppen.forEach(g => {
+    if (z.length && b + raum + g.b > breite){ zeilen.push({box:rbReihe(z)}); z = []; b = 0; }
+    if (z.length){ z.push(luft); b += raum; }
+    z.push(g); b += g.b;
+  });
+  if (z.length) zeilen.push({box:rbReihe(z)});
+  return zeilen;
+}
+function rbKarte(ctx, W, mal){
+  const R = DIALOG.rueckblick, M = 76, B = W - 2*M;
+  if (mal){ ctx.fillStyle = RB_F.papier; ctx.fillRect(0, 0, W, ctx.canvas.height); ctx.fillStyle = RB_F.gold; ctx.fillRect(0, 0, W, 12); }
+  let y = 58;
+  ctx.textBaseline = 'alphabetic';
+  if (mal){ ctx.fillStyle = RB_F.gold; ctx.font = `700 26px ${RB_TEXT}`; if ('letterSpacing' in ctx) ctx.letterSpacing = '4px'; ctx.fillText('RÜCKBLICK', M, y + 22); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    ctx.fillStyle = RB_F.matt; ctx.font = `26px ${RB_TEXT}`; const h = rbHerkunft(); ctx.fillText(h, W - M - ctx.measureText(h).width, y + 22); }
+  y += 44;
+  y = rbAbsatz(ctx, R.titel, M, y, B, {gr:64, schnitt:'700', familie:RB_KOPF, farbe:RB_F.gold, abstand:0}, mal) + 18;
+  const fh = rbAbsatz(ctx, R.frage, M + 28, y + 50, B - 28, {gr:32, schnitt:'italic'}, false) - y;
+  if (mal){ ctx.fillStyle = RB_F.gold; ctx.fillRect(M, y, 5, fh); ctx.font = `700 24px ${RB_TEXT}`; ctx.fillText('Die Frage', M + 28, y + 28); rbAbsatz(ctx, R.frage, M + 28, y + 40, B - 28, {gr:32, schnitt:'italic'}, true); }
+  y += fh + 26;
+  if (mal){ ctx.fillStyle = RB_F.tinte; ctx.font = `700 42px ${RB_KOPF}`; ctx.fillText('So hat sich der Gedanke entwickelt', M, y + 38); }
+  y += 66;
+  const links = M + 72, TB = B - 72, n = R.schritte.length;
+  R.schritte.forEach((s,i) => {
+    const y0 = y, yK = rbAbsatz(ctx, s.kurz, links, y, TB, {gr:32, schnitt:'700', farbe:RB_F.gold, abstand:0}, mal);
+    const y1 = rbAbsatz(ctx, s.text, links, yK, TB, {gr:32}, mal) + 20;
+    if (mal){
+      const cx = M + 26, cy = y0 + 28;
+      if (i < n-1){ ctx.fillStyle = RB_F.linie; ctx.fillRect(cx - 1.5, cy, 3, y1 - y0); }
+      ctx.fillStyle = RB_F.gold; ctx.beginPath(); ctx.arc(cx, cy, 25, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = RB_F.papier; ctx.font = `700 29px ${RB_TEXT}`; const z = String(i+1); ctx.fillText(z, cx - ctx.measureText(z).width/2, cy + 10);
+    }
+    y = y1;
+  });
+  y += 8;
+  const eH = rbAbsatz(ctx, R.einsicht, M + 30, y + 62, B - 60, {gr:34, schnitt:'600'}, false) - y + 12;
+  if (mal){
+    ctx.fillStyle = RB_F.flaeche; ctx.fillRect(M, y, B, eH); ctx.strokeStyle = RB_F.gold; ctx.lineWidth = 2.5; ctx.strokeRect(M, y, B, eH);
+    ctx.fillStyle = RB_F.gold; ctx.font = `700 34px ${RB_KOPF}`; ctx.fillText('Die Einsicht', M + 30, y + 42);
+    rbAbsatz(ctx, R.einsicht, M + 30, y + 62, B - 60, {gr:34, schnitt:'600'}, true);
+  }
+  y += eH + 28;
+  if (R.mitnehmen){
+    if (mal){ ctx.fillStyle = RB_F.gold; ctx.font = `700 34px ${RB_KOPF}`; ctx.fillText('Das nehme ich mit', M, y + 30); }
+    y = rbAbsatz(ctx, R.mitnehmen, M, y + 44, B, {gr:32}, mal) + 16;
+  }
+  if (mal){ ctx.fillStyle = RB_F.linie; ctx.fillRect(M, y, B, 2); ctx.fillStyle = RB_F.matt; ctx.font = `22px ${RB_TEXT}`; ctx.fillText(`Gespräch mit Sokrates · ${rbAdresse()}`, M, y + 36); }
+  return y + 66;
+}
+function rueckblickBild(){
+  if (rbBildVersprechen) return rbBildVersprechen;
+  const schriften = document.fonts && document.fonts.load
+    ? Promise.race([Promise.all(['700 64px "Cormorant Garamond"','400 32px "Source Sans 3"','600 32px "Source Sans 3"','700 32px "Source Sans 3"','italic 400 32px "Source Sans 3"'].map(f => document.fonts.load(f, 'RÜCKBLICK äöß'))), new Promise(ok => setTimeout(ok, 2500))]).catch(() => {})
+    : Promise.resolve();
+  rbBildVersprechen = schriften.then(() => new Promise((ok, nein) => {
+    const c = document.createElement('canvas'), ctx = c.getContext('2d'), W = 1240;
+    c.width = W; c.height = 100;
+    const h = Math.ceil(rbKarte(ctx, W, false));
+    c.height = Math.min(h, 8000);
+    rbKarte(ctx, W, true);
+    c.toBlob(b => { if (b){ rbBlob = b; ok(b); } else nein(new Error('Bild nicht erzeugt')); }, 'image/png');
+  }));
+  rbBildVersprechen.catch(() => { rbBildVersprechen = null; });
+  return rbBildVersprechen;
+}
+function rbMelde(t){ const m = $('#rbmeldung'); if (m) m.textContent = t; }
+function rbErsatzText(text){
+  const f = $('#rbersatz'); f.hidden = false;
+  f.innerHTML = '<p>Automatisch ging es hier nicht. Tippe in das Feld, wähle <b>Alles auswählen</b> und dann <b>Kopieren</b>.</p><textarea readonly rows="9"></textarea>';
+  const a = f.querySelector('textarea'); a.value = text; a.onfocus = () => a.select(); a.focus({preventScroll:true}); a.select();
+}
+function rbErsatzBild(blob){
+  const f = $('#rbersatz'); f.hidden = false;
+  f.innerHTML = '<p>Halte den Finger auf das Bild und wähle <b>Kopieren</b> oder <b>Teilen</b>.</p><img alt="Rückblick als Bild">';
+  f.querySelector('img').src = URL.createObjectURL(blob);
+}
+async function rbTextKopieren(){
+  const text = rueckblickText(), html = rueckblickHtml();
+  let ok = false;
+  try {
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([text],{type:'text/plain'}), 'text/html':new Blob([html],{type:'text/html'})})]);
+      ok = true;
+    }
+  } catch(e){}
+  if (!ok) try { await navigator.clipboard.writeText(text); ok = true; } catch(e){}
+  if (ok){ $('#rbersatz').hidden = true; rbMelde('✓ Text kopiert. Lange in deine Notizen tippen, dann „Einsetzen“.'); }
+  else { rbMelde(''); rbErsatzText(text); }
+}
+async function rbBildKopieren(){
+  const bild = rueckblickBild();
+  let ok = false;
+  try {
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({'image/png':bild})]);
+      ok = true;
+    }
+  } catch(e){}
+  if (ok){ $('#rbersatz').hidden = true; rbMelde('✓ Bild kopiert. Lange in deine Notizen tippen, dann „Einsetzen“.'); return; }
+  rbMelde('');
+  try { rbErsatzBild(await bild); } catch(e){ rbMelde('Das Bild ließ sich nicht erzeugen. Kopiere bitte den Text.'); }
+}
+const rbDateiname = () => 'Rueckblick-' + (location.pathname.split('/').pop().replace(/\.html$/,'') || 'Sokrates') + '.png';
+async function rbTeilen(){
+  if (!rbBlob) return;
+  try {
+    await navigator.share({files:[new File([rbBlob], rbDateiname(), {type:'image/png'})], title:'Rückblick: ' + rbKlar(DIALOG.rueckblick.titel)});
+    rbMelde('✓ Gesendet.');
+  } catch(e){ if (!e || e.name !== 'AbortError') rbErsatzBild(rbBlob); }
+}
+function vonVorn(){ zustand = []; gemischt = {}; gesehen = {}; letzteAntwort = ''; startwerte(); koppelZurueck(); zeigeStart(); }
+function zeigeRueckblick(von){
+  if (!rueckblickAktiv()) return;
+  rueckblickVon = von || rueckblickVon; imRueckblick = true;
+  try { stopSprechen(); tippeFertig(); } catch(e){}
+  const R = DIALOG.rueckblick;
+  $('#fortschritt').textContent = 'Rückblick';
+  $('#dialog').innerHTML = `
+    <div class="sprecherzeile"><div class="sprecher">${DIALOG.lehrer}</div></div>
+    <div class="rede"><p>${inline('Blicken wir zurück, {name}. So hat sich der Gedanke entwickelt. Nimm ihn mit in deine Unterlagen.')}</p></div>
+    <article class="rueckblick" id="rueckblick">
+      <div class="rb-kopf"><span class="rb-dach">Rückblick</span><span class="rb-herkunft">${rbHerkunft()}</span></div>
+      <h2>${inline(R.titel)}</h2>
+      <div class="rb-frage"><span class="rb-marke">Die Frage</span>${rich(R.frage)}</div>
+      <h3>So hat sich der Gedanke entwickelt</h3>
+      <ol class="rb-weg">${R.schritte.map(s => `<li><strong>${inline(s.kurz)}</strong>${rich(s.text)}</li>`).join('')}</ol>
+      <div class="rb-einsicht"><span class="rb-marke">Die Einsicht</span>${rich(R.einsicht)}</div>
+      ${R.mitnehmen ? `<div class="rb-mit"><span class="rb-marke">Das nehme ich mit</span>${rich(R.mitnehmen)}</div>` : ''}
+    </article>
+    <div class="rb-aktionen">
+      <button class="rb-knopf" id="rbtext">Text kopieren</button>
+      <button class="rb-knopf" id="rbbild">Als Bild kopieren</button>
+      <button class="rb-knopf" id="rbteilen" hidden>An App senden …</button>
+    </div>
+    <div class="rb-tipp">Der Text passt in Notizen und Word. Das Bild behält Formeln und Gestaltung, etwa für GoodNotes.</div>
+    <div class="rb-meldung" id="rbmeldung" role="status" aria-live="polite"></div>
+    <div class="rb-ersatz" id="rbersatz" hidden></div>
+    <div class="schueler"><div class="nav">
+      <button class="zurueck" id="rbzurueck">◂ zurück</button>
+      <button class="weiter" id="rbvorn">Von vorn</button>
+    </div></div>`;
+  formeln($('#dialog'));
+  $('#rbtext').onclick = rbTextKopieren;
+  $('#rbbild').onclick = rbBildKopieren;
+  $('#rbteilen').onclick = rbTeilen;
+  $('#rbzurueck').onclick = () => { if (rueckblickVon === 'selbst') zeigeSelbst(); else geheZu(DIALOG.schritte.length - 1); };
+  $('#rbvorn').onclick = vonVorn;
+  $('#dialog').scrollIntoView({block:'start'});
+  rueckblickBild().then(b => {
+    const t = $('#rbteilen'); if (!t || !navigator.canShare) return;
+    try { if (navigator.canShare({files:[new File([b], rbDateiname(), {type:'image/png'})]})) t.hidden = false; } catch(e){}
+  }).catch(() => {});
+}
 function geheZu(i){
-  schritt = i;
+  schritt = i; imRueckblick = false;
   if (zustand[i] === undefined) zustand[i] = (DIALOG.schritte[i].typ === 'wahl' || DIALOG.schritte[i].typ === 'zahl') ? 'offen' : 'richtig';
   const s = DIALOG.schritte[i];
   (s.beimStart||[]).forEach(c => api && api.evalCommand(c));
@@ -589,7 +907,7 @@ function zeichne(fehl, fehlQuelle){
       ${unten}
       <div class="nav">
         ${schritt > 0 ? '<button class="zurueck" id="zurueck">◂ zurück</button>' : '<button class="zurueck" id="zurueck">◂ Aufgabe</button>'}
-        <button class="weiter" id="weiter" ${geloest ? '' : 'disabled'}>${letzter ? 'Von vorn' : 'Weiter ▸'}</button>
+        <button class="weiter" id="weiter" ${geloest ? '' : 'disabled'}>${letzter ? (rueckblickAktiv() ? 'Rückblick ▸' : 'Von vorn') : 'Weiter ▸'}</button>
       </div>
     </div>`;
   sichtAnwenden();
@@ -617,7 +935,7 @@ function zeichne(fehl, fehlQuelle){
     $('#eingabe').onkeydown = e => { if (e.key === 'Enter') pr(); };
     if (matchMedia('(pointer:fine)').matches) $('#eingabe').focus({preventScroll:true});
   }
-  $('#weiter').onclick = () => { if (letzter){ zustand = []; gemischt = {}; gesehen = {}; letzteAntwort = ''; startwerte(); koppelZurueck(); zeigeStart(); } else geheZu(schritt+1); };
+  $('#weiter').onclick = () => { if (!letzter) geheZu(schritt+1); else if (rueckblickAktiv()) zeigeRueckblick('gespraech'); else vonVorn(); };
   $('#zurueck').onclick = () => { if (schritt > 0) geheZu(schritt-1); else zeigeStart(); };
 
   const redeNeu = !gesehen[schritt];
@@ -854,7 +1172,7 @@ function ggbBereit(a){
   api.registerUpdateListener(() => { if (!werteGeplant){ werteGeplant = true; requestAnimationFrame(() => { werteGeplant = false; werteAktualisieren(); }); } });
   if (!DREI) setInterval(() => { try{ const v = JSON.parse(api.getViewProperties(1)); if (window._soll && (Math.abs(v.xMin-window._soll.xmin) > 0.01 || Math.abs(v.invXscale-window._soll.inv)/window._soll.inv > 0.003)) sichtEinpassen(); }catch(e){} }, 300);
   $('#ggb').addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, {capture:true, passive:false});
-  if (schritt === -2) zeigeSelbst(); else if (schritt < 0) zeigeStart(); else zeichne();
+  if (imRueckblick) zeigeRueckblick(); else if (schritt === -2) zeigeSelbst(); else if (schritt < 0) zeigeStart(); else zeichne();
 }
 
 window.addEventListener('load', () => {
@@ -884,6 +1202,6 @@ window.addEventListener('load', () => {
   window.addEventListener('resize', neu);
   if (window.ResizeObserver) new ResizeObserver(neu).observe(el);
 });
-window.SOKRATES = { get api(){ return api; }, themaSetzen, geheZu, blinke,
+window.SOKRATES = { get api(){ return api; }, themaSetzen, geheZu, blinke, zeigeRueckblick, rueckblickText, rueckblickHtml, rueckblickBild,
   get selbstStand(){ return selbstStand; }, selbstNeu(){ selbstStand = null; selbstWerte = {}; } };
 })();

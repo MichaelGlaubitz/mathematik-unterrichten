@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121900">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
 </head>
 <body>
 <div class="seite">
@@ -56,6 +56,20 @@ const DIALOG = {
     "Kreisausschnitt (Sektor): Bruchteil eines Vollkreises"
   ],
   hefteintrag: "Die Oberfläche des Kegels\nGegeben: $r = 3$ cm, $h = 4$ cm\n\nMantellinie nach Pythagoras: $s = \\sqrt{r^2 + h^2} = \\sqrt{9 + 16} \\text{ cm} = 5 \\text{ cm}$\n\nAbgewickelt ist der Mantel ein Kreisausschnitt mit dem Radius $s$. Sein Bogen ist so lang wie der Umfang der Grundfläche, $2\\pi r$. Er ist also der Bruchteil $\\frac{2\\pi r}{2\\pi s} = \\frac{r}{s}$ des Vollkreises:\n$\\alpha = \\frac{r}{s} \\cdot 360° = \\frac{3}{5} \\cdot 360° = 216°$\n$M = \\frac{r}{s} \\cdot \\pi s^2 = \\pi\\, r\\, s = 15\\,\\pi \\text{ cm}^2 \\approx 47{,}12 \\text{ cm}^2$\n\n$G = \\pi r^2 = 9\\,\\pi \\text{ cm}^2 \\approx 28{,}27 \\text{ cm}^2$\n$O = G + M = \\pi r^2 + \\pi r s = 24\\,\\pi \\text{ cm}^2 \\approx 75{,}40 \\text{ cm}^2$",
+
+  rueckblick: {
+    titel: "Den Kegelmantel ausrollen",
+    frage: "Wie groß ist die Oberfläche eines Kegels mit $r = 3$ cm und $h = 4$ cm?",
+    schritte: [
+      {kurz:"Die Mantellinie finden", text:"Von der Spitze zum Rand läuft die Mantellinie: $s = \\sqrt{3^2 + 4^2} \\text{ cm} = 5$ cm."},
+      {kurz:"Abwickeln", text:"Flach gelegt ist der Mantel ein Kreisausschnitt mit dem Radius $s$."},
+      {kurz:"Den Bogen vergleichen", text:"Sein Bogen lag rund um die Grundfläche. Er ist also so lang wie deren Umfang $2\\pi r$."},
+      {kurz:"Den Bruchteil nutzen", text:"Der Ausschnitt ist der Bruchteil $\\frac{r}{s}$ des Vollkreises. Also ist $M = \\frac{r}{s} \\cdot \\pi s^2 = \\pi r s$."},
+      {kurz:"Zusammensetzen", text:"Mit $G = 9\\,\\pi \\text{ cm}^2$ und $M = 15\\,\\pi \\text{ cm}^2$ ist $O = 24\\,\\pi \\text{ cm}^2 \\approx 75{,}40 \\text{ cm}^2$."}
+    ],
+    einsicht: "Beim Abwickeln bleibt die Bogenlänge erhalten. Daraus folgt: $$O = \\pi r^2 + \\pi r s$$",
+    mitnehmen: "Beim Abwickeln frage ich: Was bleibt gleich? Diese Größe verbindet die flache Figur mit dem Körper."
+  },
 
   geogebra: {
     dim3: true,
@@ -172,6 +186,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121900"></script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
 </body>
 </html>

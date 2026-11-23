@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611121900">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
 </head>
 <body>
 <div class="seite">
@@ -60,6 +60,20 @@ const DIALOG = {
     "Umrechnung: $1$ m³ $= 1000$ l"
   ],
   hefteintrag: "Aufgabe 8 – Öltank\nGegeben: $d = 30$ m, also $r = 15$ m; $h = 20$ m; ein Haushaltstank fasst $2000$ l $= 2$ m³.\n\nSchätzung mit $\\pi \\approx 3$:\n$V \\approx 3 \\cdot (15 \\text{ m})^2 \\cdot 20 \\text{ m} = 13\\,500 \\text{ m}^3$, also etwa $13\\,500 : 2 = 6750$ Tanks.\n\nRechnung:\n$V = \\pi \\cdot r^2 \\cdot h = \\pi \\cdot (15 \\text{ m})^2 \\cdot 20 \\text{ m} \\approx 14\\,137 \\text{ m}^3 \\approx 14\\,137\\,167 \\text{ l}$\n$14\\,137\\,167 \\text{ l} : 2000 \\text{ l} \\approx 7068{,}6$\n\nAntwort: Es lassen sich $7068$ Haushaltstanks vollständig füllen.",
+
+  rueckblick: {
+    titel: "Erst schätzen, dann rechnen",
+    frage: "Wie viele Haushaltstanks mit $2000$ l lassen sich aus einem Öltank mit $30$ m Durchmesser und $20$ m Höhe füllen?",
+    schritte: [
+      {kurz:"Ansetzen", text:"Das Volumen eines Zylinders ist Grundfläche mal Höhe: $V = G \\cdot h$."},
+      {kurz:"Schätzen", text:"In den Kreis passen gut drei Quadrate mit der Seite $r$. Also ist $G \\approx 3 \\cdot r^2$ und $V \\approx 13\\,500 \\text{ m}^3$."},
+      {kurz:"Umrechnen", text:"$1 \\text{ m}^3$ sind $1000$ l, ein Haushaltstank fasst also $2 \\text{ m}^3$. Die Schätzung ergibt rund $6750$ Tanks."},
+      {kurz:"Genau rechnen", text:"Mit $\\pi$ ergibt sich $V \\approx 14\\,137 \\text{ m}^3$. Damit werden $7068$ Tanks ganz voll."},
+      {kurz:"Vergleichen", text:"Die Schätzung liegt etwas zu niedrig, weil $3$ kleiner ist als $\\pi$. Als Überschlag ist sie sehr gut."}
+    ],
+    einsicht: "Ein Kreis ist ungefähr drei Quadrate aus Radius mal Radius groß. Mit der genauen Formel wird aus der Schätzung ein exakter Weg: $$V = \\pi \\cdot r^2 \\cdot h$$",
+    mitnehmen: "Vor dem genauen Rechnen überschlage ich. So erkenne ich, ob mein Ergebnis überhaupt stimmen kann."
+  },
 
   geogebra: {
     sicht: [-8.5, 79, -7.5, 30],
@@ -185,6 +199,6 @@ const DIALOG = {
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611121900"></script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
 </body>
 </html>
