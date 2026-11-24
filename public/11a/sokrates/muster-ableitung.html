@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raten an vielen Stellen – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Raten an vielen Stellen – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Buch S. 107, Nr. 1 – Änderungsraten an vielen Stellen\nBestimmt man die lokale Änderungsrate an vielen Stellen, zeigt sich vielleicht ein Muster.\na) Skizzieren Sie den Graphen der Funktion und ihren Änderungsgraphen.\nb) Füllen Sie für $x = -2, -1, 0, 1, 2, 3$ eine Tabelle mit der Sekantensteigung $$m_{sek}(x) = \\frac{f(x+h) - f(x)}{h}$$ für $h = 0{,}1$, $h = 0{,}001$, $h = 0{,}00001$ und dem Grenzwert für $h \\to 0$. Finden Sie einen Funktionsterm für die Grenzwerte und vergleichen Sie ihn mit der Skizze.\n\nIm Gespräch: (1) $f(x) = \\frac{1}{4}x^2$ und (3) $f(x) = \\frac{1}{3}x^3$. Die Teile (2) und (4) rechnest du danach genauso.",
+
+  gegeben: "(1) $f(x) = \\frac{1}{4}x^2$; (3) $f(x) = \\frac{1}{3}x^3$; Stellen $x = -2$ bis $3$",
+
+  selbst: {
+    text:"Gut, {name}. Fülle die Tabelle für (1) und (3) auf deinem Weg. Gib mir vier der Grenzwerte.",
+    fragen:[
+      {text:"(1) $\\frac{1}{4}x^2$: Grenzwert an der Stelle $x = 3$", kurz:"(1) bei 3", loesung:1.5, toleranz:0.0001, ab:"t1_x3",
+       fehler:[{wert:1.525, toleranz:0.0001, hinweis:"$1{,}525$ ist die Sekantensteigung für $h = 0{,}1$. Wohin laufen die Werte, wenn $h$ kleiner wird?", ab:"t1_x3"},
+               {wert:2.25, toleranz:0.0001, hinweis:"$2{,}25$ ist der Funktionswert $f(3)$. Gefragt ist die Steigung.", ab:"t1_x3"}]},
+      {text:"(1) $\\frac{1}{4}x^2$: Grenzwert an der Stelle $x = -2$", kurz:"(1) bei −2", loesung:-1, toleranz:0.0001, ab:"t1_muster",
+       fehler:[{wert:1, toleranz:0.0001, hinweis:"Links von $0$ fällt die Parabel. Die Steigung ist dort negativ.", ab:"t1_skizze"}]},
+      {text:"(3) $\\frac{1}{3}x^3$: Grenzwert an der Stelle $x = -2$", kurz:"(3) bei −2", loesung:4, toleranz:0.0001, ab:"t3_x",
+       fehler:[{wert:-4, toleranz:0.0001, hinweis:"$\\frac{1}{3}x^3$ steigt überall, auch links von $0$. Die Steigung ist positiv.", ab:"t3_skizze"},
+               {wert:3.80333, toleranz:0.001, hinweis:"Das ist die Sekantensteigung für $h = 0{,}1$. Lass $h$ kleiner werden.", ab:"t3_x"}]},
+      {text:"(3) $\\frac{1}{3}x^3$: Grenzwert an der Stelle $x = 3$", kurz:"(3) bei 3", loesung:9, toleranz:0.0001, ab:"t3_muster",
+       fehler:[{wert:27, toleranz:0.0001, hinweis:"Das wäre $3 \\cdot 3^2$, die Steigung von $x^3$. Hier steht $\\frac{1}{3}$ davor.", ab:"t3_muster"},
+               {wert:3, toleranz:0.0001, hinweis:"Prüfe in der Zeichnung: Bei $x = 3$ ist der Graph viel steiler.", ab:"t3_muster"}]}
+    ]
+  },
+  vorwissen: [
+    "Lokale Änderungsrate als Grenzwert der Sekantensteigung",
+    "Die h-Methode",
+    "Steigung negativ, wo der Graph fällt; positiv, wo er steigt"
+  ],
+  merkzettel: [
+    {"begriff":"Sekantensteigung $m_{sek}$", "text":"$m_{sek}(x) = \\dfrac{f(x+h) - f(x)}{h}$: die Steigung der Sekante über $[x;\\,x+h]$. Für kleines $h$ fast die Steigung des Graphen an der Stelle $x$."},
+    {"begriff":"Änderungsgraph", "text":"Trägt man zu jeder Stelle $x$ die Steigung des Graphen als $y$-Wert ab, entsteht der Änderungsgraph (Steigungsgraph)."},
+    {"begriff":"Die h-Methode", "text":"Differenzenquotient vereinfachen, $h$ kürzen, dann $h \\to 0$."}
+  ],
+  hefteintrag: "S. 107 Nr. 1 – Änderungsraten an vielen Stellen\n$m_{sek}(x) = \\dfrac{f(x+h) - f(x)}{h}$\n\n(1) $f(x) = \\frac{1}{4}x^2$\n$x$: $-2,\\ -1,\\ 0,\\ 1,\\ 2,\\ 3$\nGrenzwerte: $-1,\\ -0{,}5,\\ 0,\\ 0{,}5,\\ 1,\\ 1{,}5$ (für $h = 0{,}1$ je $0{,}025$ mehr)\nMuster: Grenzwert $= \\frac{1}{2}x$\nBegründung: $m_{sek}(x) = \\frac{1}{2}x + \\frac{1}{4}h \\to \\frac{1}{2}x$\n\n(3) $f(x) = \\frac{1}{3}x^3$\nGrenzwerte: $4,\\ 1,\\ 0,\\ 1,\\ 4,\\ 9$\nMuster: Grenzwert $= x^2$\n\nVergleich mit der Skizze: Wo $f$ fällt, ist der Grenzwert negativ, wo $f$ steigt, positiv; bei $x = 0$ ist er $0$.\nDie Funktion, die jedem $x$ die lokale Änderungsrate zuordnet, heißt Ableitungsfunktion $f'$.",
+
+  rueckblick: {
+    titel: "Aus vielen Steigungen wird eine Funktion",
+    frage: "Gibt es ein Muster, wenn man die lokale Änderungsrate an vielen Stellen bestimmt?",
+    schritte: [
+      {kurz:"Vermuten", text:"Die Parabel $\\frac{1}{4}x^2$ fällt links von $0$ und steigt rechts, immer steiler. Der Änderungsgraph sollte also von negativ nach positiv wachsen."},
+      {kurz:"Messen", text:"Die Sekantensteigung für $h = 0{,}1$, $h = 0{,}001$ und kleiner liefert an den Stellen $-2$ bis $3$ die Grenzwerte $-1;\\ -0{,}5;\\ 0;\\ 0{,}5;\\ 1;\\ 1{,}5$."},
+      {kurz:"Muster", text:"Jeder Grenzwert ist halb so groß wie $x$. Die h-Methode bestätigt es: $m_{sek}(x) = \\frac{1}{2}x + \\frac{1}{4}h$."},
+      {kurz:"Übertragen", text:"Für $\\frac{1}{3}x^3$ ergeben sich $4;\\ 1;\\ 0;\\ 1;\\ 4;\\ 9$, also $x^2$. Nie negativ, weil der Graph nie fällt."},
+      {kurz:"Benennen", text:"Die Zuordnung „Stelle $x$ → lokale Änderungsrate“ ist selbst eine Funktion: die Ableitungsfunktion $f'$."}
+    ],
+    einsicht: "Die Grenzwerte folgen einem Term, der Ableitungsfunktion: $$f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$",
+    mitnehmen: "Wenn ich viele Einzelwerte habe, ordne ich sie in einer Tabelle und suche den Term, der sie alle erzeugt."
+  },
+
+  geogebra: {
+    sicht: [-3, 3.6, -1.7, 3, 1, 0.5],
+    frei: true,
+    fokus: "P",
+    achsen: {x:"x", y:"y"},
+    befehle: [
+      "teil=1", "hh=0.1",
+      "fa(x)=If(teil==1,x^2/4,x^3/3)",
+      "bahn(x)=If(-2.5<=x<=3.2,fa(x))",
+      "P=Point(bahn)",
+      "xp=x(P)",
+      "Qe=(xp+hh,fa(xp+hh))",
+      "sek=Line(P,Qe)",
+      "ms=(fa(xp+hh)-fa(xp))/hh",
+      "S=(xp,ms)",
+      "lotS=Segment((xp,0),S)",
+      "msk(x)=(fa(x+hh)-fa(x))/hh",
+      "fs(x)=If(teil==1,x/2,x^2)"
+    ],
+    startwerte: {P:[2, 1]},
+    ziehbar: ["P"],
+    sichtbar: ["fa","P","sek"],
+    stil: {
+      fa:{farbe:"gold", dicke:5},
+      P:{farbe:"hellgold", punkt:7, name:"P"},
+      sek:{farbe:"kupfer", dicke:3},
+      S:{farbe:"leucht", punkt:7, name:"S"},
+      lotS:{farbe:"leucht", dicke:2, strich:"gestrichelt"},
+      msk:{farbe:"rot", dicke:3, strich:"gestrichelt"},
+      fs:{farbe:"leucht", dicke:4}
+    }
+  },
+
+  regler: [
+    {text:"$h$", objekt:"hh", min:0.001, max:1, schritt:0.001, ab:"t1_tabelle"}
+  ],
+  werte: [
+    {text:"Stelle $x$", objekt:"xp", ab:"t1_tabelle", stellen:2},
+    {text:"$h$", objekt:"hh", ab:"t1_tabelle", stellen:3},
+    {text:"Sekantensteigung $m_{sek}(x)$", objekt:"ms", ab:"t1_tabelle", stellen:5}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Bisher haben wir die lokale Änderungsrate immer an einer einzigen Stelle bestimmt. Heute an vielen Stellen zugleich. Vielleicht zeigt sich dabei ein Muster.\n\nWir beginnen mit (1): dem [[Graphen|fa]] von $f(x) = \\frac{1}{4}x^2$.",
+      beimStart:["SetValue(teil,1)","SetValue(hh,0.1)"] },
+
+    { id:"t1_skizze", typ:"wahl",
+      text:"Bevor wir rechnen, eine Vermutung. Trägt man über jeder Stelle $x$ die Steigung des Graphen ab, entsteht der Änderungsgraph. Wie sieht er für $\\frac{1}{4}x^2$ aus?",
+      optionen:[
+        {text:"Eine steigende Gerade durch den Ursprung: links negativ, rechts positiv.", richtig:true},
+        {text:"Wieder eine nach oben geöffnete Parabel.", hinweis:"Eine solche Parabel hat nur Werte $\\geq 0$. Aber links von $0$ fällt der Graph, die Steigung ist dort negativ."},
+        {text:"Eine waagerechte Gerade, weil die Parabel gleichmäßig gekrümmt ist.", hinweis:"Waagerecht hieße: überall dieselbe Steigung. Weiter rechts wird die Parabel aber immer steiler."}
+      ],
+      tipps:["Wo fällt der Graph, wo steigt er? Wo ist er waagerecht?", "Rechts von $0$: Wird die Parabel steiler oder flacher, je weiter du gehst?"],
+      falsch:"Schau, wo der Graph fällt und wo er steigt.",
+      richtig:"Recht so. Prüfen wir es mit Zahlen." },
+
+    { id:"t1_tabelle", typ:"probieren",
+      text:"Ziehe [[$P$|P]] auf dem Graphen. Der Punkt [[$S$|S]] liegt über derselben Stelle $x$, seine Höhe ist die Sekantensteigung $m_{sek}(x)$ der [[Sekante|sek]].\n\nStelle $P$ nacheinander auf $x = -2, -1, 0, 1, 2, 3$ und lies $m_{sek}$ für $h = 0{,}1$ und $h = 0{,}001$ ab. Trage die Werte in deine Tabelle ein.",
+      zeige:["S","lotS"],
+      hinweis:"Bei $x = 2$ und $h = 0{,}1$ zeigt die Anzeige $1{,}025$." },
+
+    { id:"t1_x3", typ:"zahl",
+      text:"An der Stelle $x = 3$ findest du $1{,}525$ für $h = 0{,}1$ und $1{,}50025$ für $h = 0{,}001$. Welchen Grenzwert hat die Sekantensteigung dort für $h \\to 0$?",
+      loesung:1.5, toleranz:0.0001,
+      tipps:["Die Werte werden mit kleinerem $h$ immer kleiner. Welcher Zahl kommen sie nahe?", "Hinter dem Komma kommen immer mehr Nullen hinzu: $1{,}525$, $1{,}50025$, …"],
+      falsch:"Schau, welche Zahl in $1{,}525$ und $1{,}50025$ immer gleich bleibt.",
+      richtig:"Richtig: $1{,}5$. An den anderen Stellen findest du genauso: $-1;\\ -0{,}5;\\ 0;\\ 0{,}5;\\ 1$." },
+
+    { id:"t1_muster", typ:"wahl",
+      text:"Die Grenzwerte zu $x = -2, -1, 0, 1, 2, 3$ lauten $$-1;\\ -0{,}5;\\ 0;\\ 0{,}5;\\ 1;\\ 1{,}5.$$ Welcher Term erzeugt sie alle?",
+      optionen:[
+        {text:"$\\frac{1}{2}x$", richtig:true},
+        {text:"$\\frac{1}{4}x$", hinweis:"Prüfe an $x = 2$: $\\frac{1}{4} \\cdot 2 = 0{,}5$. Die Tabelle sagt aber $1$."},
+        {text:"$\\frac{1}{2}x^2$", hinweis:"Prüfe an $x = -2$: $\\frac{1}{2} \\cdot 4 = 2$. Die Tabelle sagt $-1$."}
+      ],
+      tipps:["Vergleiche jeden Grenzwert mit seinem $x$: $2 \\to 1$, $3 \\to 1{,}5$, $-2 \\to -1$."],
+      falsch:"Setze zwei $x$-Werte aus der Tabelle in deinen Term ein.",
+      richtig:"Genau: Die Grenzwerte liegen auf der Geraden [[$y = \\frac{1}{2}x$|fs]], wie vermutet.",
+      zeigeNachRichtig:["fs"] },
+
+    { id:"t1_warum", typ:"wahl",
+      text:"Ist das nur ein Muster, oder steckt mehr dahinter? Die h-Methode an einer beliebigen Stelle $x$: $$m_{sek}(x) = \\frac{\\frac{1}{4}(x+h)^2 - \\frac{1}{4}x^2}{h} = \\;?$$ Die [[rote Kurve|msk]] zeigt $m_{sek}$ für das eingestellte $h$.",
+      zeige:["msk"],
+      optionen:[
+        {text:"$\\frac{1}{2}x + \\frac{1}{4}h$", richtig:true},
+        {text:"$\\frac{1}{2}x + h$", hinweis:"Der Faktor $\\frac{1}{4}$ gilt für jeden Summanden: $\\frac{1}{4}(2xh + h^2)$. Durch $h$ geteilt bleibt $\\frac{1}{4}h$."},
+        {text:"$\\frac{1}{4}h$", hinweis:"Beim Ausmultiplizieren entsteht $\\frac{1}{4}(x^2 + 2xh + h^2)$. Das Mittelglied $2xh$ ist der wichtigste Teil."}
+      ],
+      tipps:["$(x+h)^2 - x^2 = 2xh + h^2$", "$\\frac{1}{4}(2xh + h^2) : h = \\frac{1}{2}x + \\frac{1}{4}h$"],
+      falsch:"Erst $(x+h)^2 - x^2$ vereinfachen, dann mal $\\frac{1}{4}$, dann durch $h$.",
+      richtig:"Vortrefflich. Darum war bei $h = 0{,}1$ jeder Wert um $0{,}025$ zu groß. Für $h \\to 0$ bleibt genau $\\frac{1}{2}x$. Ziehe den Regler: Die [[rote Kurve|msk]] legt sich auf die [[Gerade|fs]]." },
+
+    { id:"t3_skizze", typ:"wahl", gegeben:"(3) $f(x) = \\frac{1}{3}x^3$; Stellen $x = -2$ bis $3$",
+      text:"Nun (3): $f(x) = \\frac{1}{3}x^3$. Wie sieht ihr Änderungsgraph aus?",
+      sicht:[-3, 3.6, -6, 11, 1, 1],
+      optionen:[
+        {text:"Eine nach oben geöffnete Parabel, nie negativ.", richtig:true},
+        {text:"Eine steigende Gerade wie eben.", hinweis:"Eine steigende Gerade wird links negativ. Fällt $\\frac{1}{3}x^3$ irgendwo?"},
+        {text:"Eine Kurve wie $f$ selbst: links negativ, rechts positiv.", hinweis:"Links von $0$ liegt der Graph unter der Achse, aber er steigt dort trotzdem. Es kommt auf die Steigung an, nicht auf die Lage."}
+      ],
+      tipps:["Gibt es eine Stelle, an der $\\frac{1}{3}x^3$ fällt?", "Bei $x = 0$ ist der Graph ganz flach, links und rechts davon steigt er steil."],
+      falsch:"Achte auf die Steigung, nicht auf die Höhe des Graphen.",
+      richtig:"So ist es: Der Graph steigt überall, nur bei $0$ ist er waagerecht.",
+      beimStart:["SetValue(teil,2)","SetValue(hh,0.1)"], verberge:["fs","msk"] },
+
+    { id:"t3_x", typ:"zahl",
+      text:"Ziehe [[$P$|P]] auf $x = -2$ und verkleinere $h$. Welchen Grenzwert hat die Sekantensteigung dort?",
+      loesung:4, toleranz:0.0001,
+      tipps:["Für $h = 0{,}1$ zeigt die Anzeige etwa $3{,}80$, für $h = 0{,}001$ etwa $3{,}998$.", "Welcher ganzen Zahl kommen die Werte immer näher?"],
+      falsch:"Lies $m_{sek}$ bei $x = -2$ für kleine $h$ ab. Welcher Zahl nähert es sich?",
+      richtig:"Richtig: $4$. Positiv, obwohl der Graph dort unter der Achse liegt. Die anderen Stellen liefern $1;\\ 0;\\ 1;\\ 4;\\ 9$." },
+
+    { id:"t3_muster", typ:"wahl",
+      text:"Die Grenzwerte zu $x = -2, -1, 0, 1, 2, 3$ lauten $$4;\\ 1;\\ 0;\\ 1;\\ 4;\\ 9.$$ Welcher Term passt?",
+      optionen:[
+        {text:"$x^2$", richtig:true},
+        {text:"$3x^2$", hinweis:"Prüfe an $x = 1$: $3 \\cdot 1 = 3$, die Tabelle sagt $1$. $3x^2$ gehört zu $x^3$, hier steht aber $\\frac{1}{3}$ davor."},
+        {text:"$\\frac{1}{3}x^2$", hinweis:"Prüfe an $x = 3$: $\\frac{1}{3} \\cdot 9 = 3$. Die Tabelle sagt $9$."}
+      ],
+      tipps:["Die Zahlen $0, 1, 4, 9$ kennst du: Es sind Quadratzahlen."],
+      falsch:"Setze $x = 3$ in deinen Term ein. Kommt $9$ heraus?",
+      richtig:"Recht so: Die Grenzwerte liegen auf der [[Parabel $y = x^2$|fs]].",
+      zeigeNachRichtig:["fs"] },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Die lokalen Änderungsraten folgen einem Term. Zu $\\frac{1}{4}x^2$ gehört $\\frac{1}{2}x$, zu $\\frac{1}{3}x^3$ gehört $x^2$. Diese neue Funktion heißt Ableitungsfunktion $f'$.\n\nRechne (2) und (4) genauso. Zur Kontrolle: $1{,}5x$ hat überall die Rate $1{,}5$, und $x^2 - x$ hat die Ableitung $2x - 1$. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

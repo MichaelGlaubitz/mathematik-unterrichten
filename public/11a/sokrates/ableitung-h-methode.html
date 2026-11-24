@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Ableitungsfunktion mit der h-Methode – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Die Ableitungsfunktion mit der h-Methode – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Buch S. 110, Nr. 6 – Ableitungsfunktionen bestimmen\na) Ermitteln Sie die Ableitungsfunktion mit der h-Methode.\nb) Bestimmen Sie\n(1) die Steigung des Graphen in den Punkten $(1\\,|\\,f(1))$ und $(-2\\,|\\,f(-2))$;\n(2) die Punkte, in denen der Graph die Steigung $1$ bzw. $-2$ hat.\n\nIm Gespräch: $f_2(x) = x^2 + 4x$ ganz, dazu $f_5(x) = (x-2)^2$ in Teil a). Die übrigen Funktionen $x^2 + 4$, $-3x^2$ und $x^2 - 2x + 1$ rechnest du danach genauso.",
+
+  gegeben: "$f_2(x) = x^2 + 4x$; Stellen $1$ und $-2$; Steigungen $1$ und $-2$",
+
+  selbst: {
+    text:"Gut, {name}. Bestimme $f_2'$ mit der h-Methode und beantworte damit b) für $f_2(x) = x^2 + 4x$.",
+    fragen:[
+      {text:"(1) Steigung im Punkt $(1\\,|\\,f(1))$", kurz:"Steigung bei 1", loesung:6, toleranz:0.0001, ab:"b_eins",
+       fehler:[{wert:5, toleranz:0.0001, hinweis:"$5$ ist der Funktionswert $f(1)$. Gefragt ist $f'(1)$.", ab:"b_eins"},
+               {wert:2, toleranz:0.0001, hinweis:"Das wäre die Steigung von $x^2$ allein. Das $+4x$ trägt überall $4$ zur Steigung bei.", ab:"ansatz"}]},
+      {text:"(1) Steigung im Punkt $(-2\\,|\\,f(-2))$", kurz:"Steigung bei −2", loesung:0, toleranz:0.0001, ab:"b_minus2",
+       fehler:[{wert:-4, toleranz:0.0001, hinweis:"$-4$ ist der Funktionswert $f(-2)$. Gefragt ist $f'(-2)$.", ab:"b_minus2"}]},
+      {text:"(2) $x$-Koordinate des Punktes mit Steigung $1$", kurz:"Steigung 1 bei x", loesung:-1.5, toleranz:0.0001, ab:"b_st1",
+       fehler:[{wert:5, toleranz:0.0001, hinweis:"Das ist $f(1)$. Gesucht ist das $x$ mit $f'(x) = 1$, also $2x + 4 = 1$.", ab:"b_st1"}]},
+      {text:"(2) $y$-Koordinate des Punktes mit Steigung $1$", kurz:"Steigung 1, y-Wert", loesung:-3.75, toleranz:0.0001, ab:"b_st1y",
+       fehler:[{wert:1, toleranz:0.0001, hinweis:"$1$ ist die Steigung. Die $y$-Koordinate ist $f(-1{,}5)$.", ab:"b_st1y"}]},
+      {text:"(2) $x$-Koordinate des Punktes mit Steigung $-2$", kurz:"Steigung −2 bei x", loesung:-3, toleranz:0.0001, ab:"b_st2",
+       fehler:[{wert:-1, toleranz:0.0001, hinweis:"Prüfe: $f'(-1) = 2 \\cdot (-1) + 4 = 2$. Löse $2x + 4 = -2$.", ab:"b_st2"}]}
+    ]
+  },
+  vorwissen: [
+    "Die h-Methode an einer Stelle $a$",
+    "Binomische Formeln, Ausklammern und Kürzen",
+    "Lineare Gleichungen lösen"
+  ],
+  merkzettel: [
+    {"begriff":"Ableitungsfunktion $f'$", "text":"$f'(x) = \\displaystyle\\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$ ordnet jeder Stelle $x$ die Steigung des Graphen dort zu."},
+    {"begriff":"Die h-Methode für $f'$", "text":"Wie an einer Stelle $a$, nur mit $x$ statt $a$: Differenzenquotient aufschreiben, vereinfachen, $h$ kürzen, $h \\to 0$."},
+    {"begriff":"Steigung in einem Punkt", "text":"$x$-Wert des Punktes in $f'$ einsetzen. Gesucht ein Punkt mit Steigung $m$: $f'(x) = m$ lösen, dann $y = f(x)$."}
+  ],
+  hefteintrag: "S. 110 Nr. 6 – Ableitungsfunktionen bestimmen\n\na) $f_2(x) = x^2 + 4x$\n$\\dfrac{(x+h)^2 + 4(x+h) - (x^2 + 4x)}{h} = \\dfrac{2xh + h^2 + 4h}{h} = 2x + h + 4$\n$f_2'(x) = \\lim\\limits_{h \\to 0}(2x + h + 4) = 2x + 4$\n\n$f_5(x) = (x-2)^2$: $\\dfrac{(x+h-2)^2 - (x-2)^2}{h} = 2(x-2) + h$, also $f_5'(x) = 2x - 4$\n\nb) für $f_2$:\n(1) $f_2'(1) = 6$, $f_2'(-2) = 0$ (Scheitelpunkt $(-2\\,|\\,-4)$)\n(2) $2x + 4 = 1 \\Rightarrow x = -1{,}5$, Punkt $(-1{,}5\\,|\\,-3{,}75)$\n$2x + 4 = -2 \\Rightarrow x = -3$, Punkt $(-3\\,|\\,-3)$",
+
+  rueckblick: {
+    titel: "Einmal rechnen, überall ablesen",
+    frage: "Wie bekommt man die Steigung eines Graphen an jeder beliebigen Stelle, ohne jedes Mal neu zu rechnen?",
+    schritte: [
+      {kurz:"Verallgemeinern", text:"Die h-Methode funktioniert auch mit $x$ statt mit einer festen Zahl $a$. Für $x^2 + 4x$ wird der Zähler $2xh + h^2 + 4h$."},
+      {kurz:"Kürzen", text:"Nach dem Kürzen bleibt $2x + h + 4$, für $h \\to 0$ also $f'(x) = 2x + 4$. Das Ergebnis ist eine Funktion, keine Zahl."},
+      {kurz:"Einsetzen", text:"Die Steigung in einem Punkt ist jetzt nur noch Einsetzen: $f'(1) = 6$, $f'(-2) = 0$. Bei $-2$ liegt der Scheitel."},
+      {kurz:"Umkehren", text:"Gesucht ein Punkt mit Steigung $1$: $2x + 4 = 1$ ergibt $x = -1{,}5$, der Punkt ist $(-1{,}5\\,|\\,-3{,}75)$. Stolperstelle: Die $y$-Koordinate kommt aus $f$, nicht aus $f'$."}
+    ],
+    einsicht: "Die h-Methode mit $x$ liefert die Ableitungsfunktion: $$f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$",
+    mitnehmen: "Statt dieselbe Rechnung oft mit Zahlen zu wiederholen, rechne ich sie einmal allgemein und setze dann ein."
+  },
+
+  geogebra: {
+    sicht: [-5.5, 1.8, -5.5, 8.5, 1, 1],
+    frei: true,
+    fokus: "P",
+    achsen: {x:"x", y:"y"},
+    befehle: [
+      "teil=1",
+      "fa(x)=If(teil==1,x^2+4x,(x-2)^2)",
+      "fs(x)=If(teil==1,2x+4,2x-4)",
+      "fs5(x)=2x-4",
+      "bahn(x)=If(teil==1,If(-5<=x<=1.5,fa(x)),If(-0.5<=x<=4.5,fa(x)))",
+      "P=Point(bahn)",
+      "xp=x(P)", "yp=y(P)", "mp=fs(xp)",
+      "tP=Line(P,P+(1,mp))",
+      "B1=(1,5)", "B2=(-2,-4)", "C1=(-1.5,-3.75)", "C2=(-3,-3)",
+      "tB1(x)=6(x-1)+5", "tB2(x)=-4", "tC1(x)=(x+1.5)-3.75", "tC2(x)=-2(x+3)-3"
+    ],
+    startwerte: {P:[-4.5, 2.25]},
+    ziehbar: ["P"],
+    sichtbar: ["fa"],
+    stil: {
+      fa:{farbe:"gold", dicke:5},
+      fs:{farbe:"rot", dicke:3},
+      fs5:{farbe:"rot", dicke:3},
+      P:{farbe:"hellgold", punkt:7, name:"P"},
+      tP:{farbe:"kupfer", dicke:3},
+      B1:{farbe:"leucht", punkt:6},
+      B2:{farbe:"leucht", punkt:6},
+      C1:{farbe:"wasser", punkt:6},
+      C2:{farbe:"wasser", punkt:6},
+      tB1:{farbe:"leucht", dicke:2, strich:"gestrichelt"},
+      tB2:{farbe:"leucht", dicke:2, strich:"gestrichelt"},
+      tC1:{farbe:"wasser", dicke:2, strich:"gestrichelt"},
+      tC2:{farbe:"wasser", dicke:2, strich:"gestrichelt"}
+    }
+  },
+
+  werte: [
+    {text:"Stelle $x$", objekt:"xp", ab:"probe", stellen:2},
+    {text:"$f(x)$", objekt:"yp", ab:"probe", stellen:2},
+    {text:"Steigung $f'(x)$", objekt:"mp", ab:"probe", stellen:2, nurGeloest:true, bis:"b_st2"}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Bisher hast du die h-Methode an einer festen Stelle benutzt, etwa $a = 3$. Für jede neue Stelle begann die Rechnung von vorn.\n\nHeute rechnen wir einmal mit $x$ statt mit einer Zahl. Was herauskommt, ist dann keine Zahl, sondern eine Funktion: die Ableitungsfunktion $f'$. Wir beginnen mit dem [[Graphen|fa]] von $f_2(x) = x^2 + 4x$.",
+      beimStart:["SetValue(teil,1)"] },
+
+    { id:"ansatz", typ:"wahl",
+      text:"Der Differenzenquotient an einer beliebigen Stelle $x$ lautet $$\\frac{(x+h)^2 + 4(x+h) - (x^2 + 4x)}{h}.$$ Was steht im Zähler, wenn du ausmultiplizierst und zusammenfasst?",
+      optionen:[
+        {text:"$2xh + h^2 + 4h$", richtig:true},
+        {text:"$h^2 + 4h$", hinweis:"$(x+h)^2$ ist nicht $x^2 + h^2$. Das Mittelglied $2xh$ fehlt."},
+        {text:"$2xh + h^2$", hinweis:"$4(x+h) - 4x$ ergibt $4h$. Dieser Summand bleibt stehen."}
+      ],
+      tipps:["$(x+h)^2 = x^2 + 2xh + h^2$ und $4(x+h) = 4x + 4h$.", "Zieh $x^2 + 4x$ ab: $x^2$ und $4x$ heben sich weg."],
+      falsch:"Multipliziere beide Klammern aus und ziehe $x^2 + 4x$ ab.",
+      richtig:"Genau: $x^2 + 2xh + h^2 + 4x + 4h - x^2 - 4x = 2xh + h^2 + 4h$." },
+
+    { id:"kuerzen", typ:"wahl",
+      text:"Klammere $h$ aus, kürze und lass $h$ gegen $0$ gehen. Wie lautet $f_2'(x)$?",
+      optionen:[
+        {text:"$f_2'(x) = 2x + 4$", richtig:true},
+        {text:"$f_2'(x) = 2x + h + 4$", hinweis:"Das ist der gekürzte Differenzenquotient. Der letzte Schritt fehlt noch: $h \\to 0$."},
+        {text:"$f_2'(x) = 2x$", hinweis:"$\\frac{4h}{h} = 4$. Der Summand bleibt stehen."}
+      ],
+      tipps:["$\\frac{h\\,(2x + h + 4)}{h} = 2x + h + 4$", "Was bleibt von $2x + h + 4$, wenn $h$ gegen $0$ geht?"],
+      falsch:"Erst kürzen, dann $h \\to 0$.",
+      richtig:"Vortrefflich: $f_2'(x) = 2x + 4$. Das ist die [[rote Gerade|fs]]: Ihre Höhe über jeder Stelle ist die Steigung des Graphen dort.",
+      zeigeNachRichtig:["fs"] },
+
+    { id:"probe", typ:"probieren",
+      text:"Ziehe [[$P$|P]] auf dem Graphen. Die [[Tangente|tP]] hat die Steigung $f'(x)$, die du in der Anzeige siehst. Wo die [[rote Gerade|fs]] unter der Achse liegt, fällt die Parabel, wo sie darüber liegt, steigt sie.",
+      zeige:["P","tP"],
+      hinweis:"Wo schneidet die rote Gerade die $x$-Achse? Was ist dort an der Parabel?" },
+
+    { id:"b_eins", typ:"zahl", gegeben:"b) $f_2'(x) = 2x + 4$; Punkte $(1\\,|\\,f(1))$ und $(-2\\,|\\,f(-2))$; Steigung $1$ bzw. $-2$",
+      text:"Nun b) (1): Welche Steigung hat der Graph im Punkt $(1\\,|\\,f(1))$?",
+      loesung:6, toleranz:0.0001,
+      tipps:["Setze $x = 1$ in $f_2'(x) = 2x + 4$ ein."],
+      falsch:"Gefragt ist $f_2'(1)$, nicht $f_2(1)$.",
+      richtig:"Richtig: $f_2'(1) = 6$. Die [[Tangente|tB1]] in $(1\\,|\\,5)$ ist steil.",
+      zeigeNachRichtig:["B1","tB1"] },
+
+    { id:"b_minus2", typ:"zahl",
+      text:"Und im Punkt $(-2\\,|\\,f(-2))$?",
+      loesung:0, toleranz:0.0001,
+      tipps:["$f_2'(-2) = 2 \\cdot (-2) + 4$"],
+      falsch:"Setze $x = -2$ in $f_2'$ ein.",
+      richtig:"So ist es: $0$. Die [[Tangente|tB2]] liegt waagerecht, denn $(-2\\,|\\,-4)$ ist der Scheitelpunkt.",
+      zeigeNachRichtig:["B2","tB2"] },
+
+    { id:"b_st1", typ:"zahl",
+      text:"Nun umgekehrt, (2): In welchem Punkt hat der Graph die Steigung $1$? Gib zuerst die $x$-Koordinate an.",
+      loesung:-1.5, toleranz:0.0001,
+      tipps:["Gesucht ist $x$ mit $f_2'(x) = 1$.", "$2x + 4 = 1 \\iff 2x = -3$"],
+      falsch:"Setze $f_2'(x)$ gleich $1$ und löse nach $x$.",
+      richtig:"Recht so: $2x + 4 = 1$ ergibt $x = -1{,}5$." },
+
+    { id:"b_st1y", typ:"zahl",
+      text:"Und die $y$-Koordinate dieses Punktes?",
+      loesung:-3.75, toleranz:0.0001,
+      tipps:["Der Punkt liegt auf dem Graphen von $f_2$, nicht auf dem von $f_2'$.", "$f_2(-1{,}5) = 2{,}25 - 6$"],
+      falsch:"Setze $x = -1{,}5$ in $f_2(x) = x^2 + 4x$ ein.",
+      richtig:"Richtig: $(-1{,}5\\,|\\,-3{,}75)$. Die [[Tangente|tC1]] dort hat die Steigung $1$.",
+      zeigeNachRichtig:["C1","tC1"] },
+
+    { id:"b_st2", typ:"zahl",
+      text:"Und wo hat der Graph die Steigung $-2$? Gib die $x$-Koordinate an.",
+      loesung:-3, toleranz:0.0001,
+      tipps:["$2x + 4 = -2$"],
+      falsch:"Löse $2x + 4 = -2$.",
+      richtig:"Genau: $x = -3$, und $f_2(-3) = 9 - 12 = -3$. Der Punkt ist $(-3\\,|\\,-3)$ mit der [[Tangente|tC2]].",
+      zeigeNachRichtig:["C2","tC2"] },
+
+    { id:"f5", typ:"wahl", gegeben:"a) $f_5(x) = (x-2)^2$",
+      text:"Zum Schluss noch $f_5(x) = (x-2)^2$ aus a). Der Differenzenquotient vereinfacht sich zu $$\\frac{(x+h-2)^2 - (x-2)^2}{h} = 2(x-2) + h.$$ Welche Ableitungsfunktion ergibt sich?",
+      sicht:[-1.5, 5.5, -5.5, 6.5, 1, 1],
+      optionen:[
+        {text:"$f_5'(x) = 2x - 4$", richtig:true},
+        {text:"$f_5'(x) = 2x - 2$", hinweis:"$2(x-2)$ ausmultipliziert ergibt $2x - 4$. Die $2$ gilt für beide Summanden."},
+        {text:"$f_5'(x) = 2(x-2)^2$", hinweis:"Das Quadrat ist beim Vereinfachen verschwunden. Lies den Term $2(x-2) + h$ noch einmal und lass $h \\to 0$."}
+      ],
+      tipps:["Für $h \\to 0$ bleibt $2(x-2)$. Multipliziere aus."],
+      falsch:"Lass $h$ gegen $0$ gehen und multipliziere die Klammer aus.",
+      richtig:"Vortrefflich: $f_5'(x) = 2x - 4$. Die [[rote Gerade|fs5]] schneidet die Achse bei $x = 2$, genau unter dem Scheitel.",
+      zeigeNachRichtig:["fs5"],
+      beimStart:["SetValue(teil,2)","SetCoords(P,4,4)"], verberge:["fs","B1","B2","C1","C2","tB1","tB2","tC1","tC2"] },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Mit $x$ statt einer Zahl liefert die h-Methode die ganze Ableitungsfunktion. Danach ist jede Steigung nur noch Einsetzen, und jede gesuchte Steigung eine Gleichung.\n\nRechne die übrigen Funktionen genauso. Zur Kontrolle: $(x^2 + 4)' = 2x$, $(-3x^2)' = -6x$, $(x^2 - 2x + 1)' = 2x - 2$. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

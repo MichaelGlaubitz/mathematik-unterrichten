@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Kunstdüngerproduzent – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Der Kunstdüngerproduzent – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Buch S. 105, Nr. 16 – Kunstdüngerproduzent\nEine kleine Firma verkauft allen Kunstdünger, den sie herstellt. Ihr Gewinn in Euro bei $x$ Tonnen wird modelliert durch $$G(x) = -1000x^2 + 12000x - 20000.$$\na) Zeichnen Sie den Graphen. Was bedeutet ein negativer Gewinn?\nb) Bestimmen Sie die lokalen Änderungsraten an den Stellen $2$, $4$ und $6$. Was bedeuten sie im Sachzusammenhang?",
+
+  gegeben: "$G(x) = -1000x^2 + 12000x - 20000$; $x$ in Tonnen, $G$ in Euro",
+
+  selbst: {
+    text:"Gut, {name}. Bestimme die Mengen, bei denen der Gewinn null ist, und mit der h-Methode die drei lokalen Änderungsraten.",
+    fragen:[
+      {text:"a) Ab welcher Menge macht die Firma Gewinn?", kurz:"untere Grenze", einheit:"t", loesung:2, toleranz:0.0001, ab:"nullst",
+       fehler:[{wert:10, toleranz:0.0001, hinweis:"Ab $10$ t wird der Gewinn wieder negativ. Gesucht ist die kleinere Nullstelle.", ab:"nullst"}]},
+      {text:"a) Ab welcher Menge macht sie wieder Verlust?", kurz:"obere Grenze", einheit:"t", loesung:10, toleranz:0.0001, ab:"nullst",
+       fehler:[{wert:6, toleranz:0.0001, hinweis:"Bei $6$ t ist der Gewinn am größten, nicht null.", ab:"b6"}]},
+      {text:"b) lokale Änderungsrate bei $2$ t", kurz:"Rate bei 2 t", einheit:"€/t", loesung:8000, toleranz:0.5, tausender:true, ab:"b_ansatz",
+       fehler:[
+        {wert:12000, toleranz:0.5, hinweis:"Prüfe $(2+h)^2$: Das ist $4 + 4h + h^2$, nicht $4 + h^2$.", ab:"b_ansatz"},
+        {wert:7900, toleranz:0.5, hinweis:"$7900$ ist der Differenzenquotient für $h = 0{,}1$. Lass $h$ gegen $0$ gehen.", ab:"b2"}]},
+      {text:"b) lokale Änderungsrate bei $4$ t", kurz:"Rate bei 4 t", einheit:"€/t", loesung:4000, toleranz:0.5, tausender:true, ab:"b4",
+       fehler:[{wert:12000, toleranz:0.5, hinweis:"$12000$ € ist der Gewinn $G(4)$. Gefragt ist, wie schnell er sich dort ändert.", ab:"b4"}]},
+      {text:"b) lokale Änderungsrate bei $6$ t", kurz:"Rate bei 6 t", einheit:"€/t", loesung:0, toleranz:0.5, ab:"b6",
+       fehler:[{wert:16000, toleranz:0.5, hinweis:"$16000$ € ist der Gewinn $G(6)$. Wie steil ist der Graph dort?", ab:"b6"}]}
+    ]
+  },
+  vorwissen: [
+    "Nullstellen einer quadratischen Funktion (pq-Formel)",
+    "Die h-Methode: Differenzenquotient vereinfachen, dann $h \\to 0$",
+    "Einheit einer Änderungsrate: Einheit von $y$ pro Einheit von $x$"
+  ],
+  merkzettel: [
+    {"begriff":"pq-Formel", "text":"$x^2 + px + q = 0$ hat die Lösungen $x = -\\frac{p}{2} \\pm \\sqrt{\\left(\\frac{p}{2}\\right)^2 - q}$."},
+    {"begriff":"Die h-Methode", "text":"$\\dfrac{G(a+h) - G(a)}{h}$ aufschreiben, Zähler ausmultiplizieren, $h$ ausklammern und kürzen, dann $h \\to 0$."},
+    {"begriff":"Einheit der Rate", "text":"Gewinn in € geteilt durch Menge in t: Die Änderungsrate hat die Einheit €/t."}
+  ],
+  hefteintrag: "S. 105 Nr. 16 – Kunstdüngerproduzent\n$G(x) = -1000x^2 + 12000x - 20000$\n\na) Negativer Gewinn heißt Verlust: Die Kosten sind höher als die Einnahmen.\n$G(x) = 0 \\iff x^2 - 12x + 20 = 0 \\iff x = 2$ oder $x = 10$\nGewinn zwischen $2$ t und $10$ t, sonst Verlust.\n\nb) h-Methode an der Stelle $2$:\n$\\dfrac{G(2+h) - G(2)}{h} = \\dfrac{8000h - 1000h^2}{h} = 8000 - 1000h \\to 8000$\nEbenso: Stelle $4$: $4000 - 1000h \\to 4000$; Stelle $6$: $-1000h \\to 0$\nLokale Änderungsraten: $8000$ €/t, $4000$ €/t, $0$ €/t\n\nBedeutung: Bei $2$ t wächst der Gewinn um etwa $8000$ € je zusätzlicher Tonne, bei $4$ t nur noch um etwa $4000$ €. Bei $6$ t ist der Gewinn am größten ($16000$ €), eine kleine Mehrmenge ändert ihn kaum.",
+
+  rueckblick: {
+    titel: "Wie schnell wächst der Gewinn?",
+    frage: "Was sagt die lokale Änderungsrate einer Gewinnfunktion über den Betrieb?",
+    schritte: [
+      {kurz:"Einordnen", text:"Der Gewinn ist negativ, wenn die Kosten die Einnahmen übersteigen. $G(x) = 0$ ergibt $x = 2$ und $x = 10$: Nur dazwischen lohnt sich die Produktion."},
+      {kurz:"Rechnen", text:"Die h-Methode an der Stelle $2$ liefert $8000 - 1000h$, also die Rate $8000$ €/t. An den Stellen $4$ und $6$ ergeben sich $4000$ €/t und $0$ €/t."},
+      {kurz:"Stolperstelle", text:"Die Rate ist nicht der Gewinn. Bei $4$ t beträgt der Gewinn $12000$ €, er wächst dort aber nur um etwa $4000$ € je weiterer Tonne."},
+      {kurz:"Deuten", text:"Die Raten werden kleiner: Jede weitere Tonne bringt weniger zusätzlichen Gewinn. Bei $6$ t ist die Rate $0$, dort liegt der höchste Gewinn von $16000$ €."}
+    ],
+    einsicht: "Die lokale Änderungsrate misst, wie stark sich der Gewinn bei einer kleinen Mehrmenge ändert: $$\\lim_{h \\to 0} \\frac{G(a+h) - G(a)}{h} \\text{ in €/t}$$",
+    mitnehmen: "Ich unterscheide immer, ob nach einem Wert oder nach seiner Änderung gefragt ist, und schreibe die Einheit dazu."
+  },
+
+  geogebra: {
+    sicht: [-1, 12, -24000, 21000, 1, 5000],
+    frei: true,
+    fokus: "P",
+    achsen: {x:"x in t", y:"G in €"},
+    befehle: [
+      "stelle=2", "hh=1",
+      "G(x)=-1000x^2+12000x-20000",
+      "kurve(x)=If(0<=x<=11.5,G(x))",
+      "bahn(x)=If(stelle+0.01<=x<=stelle+3,G(x))",
+      "P=(stelle,G(stelle))", "Z=Point(bahn)",
+      "sek=Line(P,(stelle+hh,G(stelle+hh)))",
+      "dq=(G(stelle+hh)-G(stelle))/hh",
+      "gP=G(stelle)",
+      "N1=(2,0)", "N2=(10,0)",
+      "t2(x)=8000(x-2)", "t4(x)=4000(x-4)+12000", "t6(x)=16000",
+      "S2=(2,0)", "S4=(4,12000)", "S6=(6,16000)"
+    ],
+    koppeln: [{punkt:"Z", ziel:"hh", aus:"x(Z)-stelle", min:0.01, max:3, runden:2, px:"stelle+hh", py:"G(stelle+hh)"}],
+    ziehbar: ["Z"],
+    sichtbar: ["kurve"],
+    stil: {
+      kurve:{farbe:"gold", dicke:5},
+      P:{farbe:"leucht", punkt:7, name:"P"},
+      Z:{farbe:"hellgold", punkt:7, name:"Q"},
+      sek:{farbe:"kupfer", dicke:3},
+      N1:{farbe:"matt", punkt:6, name:"2"},
+      N2:{farbe:"matt", punkt:6, name:"10"},
+      t2:{farbe:"leucht", dicke:3},
+      t4:{farbe:"leucht", dicke:3},
+      t6:{farbe:"leucht", dicke:3},
+      S2:{farbe:"leucht", punkt:5},
+      S4:{farbe:"leucht", punkt:5},
+      S6:{farbe:"leucht", punkt:5}
+    }
+  },
+
+  regler: [
+    {text:"$h$", objekt:"hh", min:0.01, max:3, schritt:0.01, ab:"b_ansatz"}
+  ],
+  werte: [
+    {text:"Stelle $a$", objekt:"stelle", ab:"b_ansatz", einheit:"t", stellen:0},
+    {text:"$h$", objekt:"hh", ab:"b_ansatz", einheit:"t", stellen:2},
+    {text:"Gewinn $G(a)$", objekt:"gP", ab:"b_ansatz", einheit:"€", stellen:0},
+    {text:"Differenzenquotient", objekt:"dq", ab:"b_ansatz", einheit:"€/t", nurGeloest:true, stellen:0}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Eine kleine Firma stellt Kunstdünger her. Ihr Gewinn hängt davon ab, wie viele Tonnen sie produziert. Das zeigt der [[Graph|kurve]] von $$G(x) = -1000x^2 + 12000x - 20000.$$ Eine nach unten geöffnete Parabel: Erst steigt der Gewinn, dann fällt er wieder." },
+
+    { id:"verlust", typ:"wahl",
+      text:"Links und rechts liegt der [[Graph|kurve]] unter der $x$-Achse. Was bedeutet ein negativer Gewinn?",
+      optionen:[
+        {text:"Verlust: Die Kosten sind höher als die Einnahmen.", richtig:true},
+        {text:"Die Firma produziert weniger als nichts.", hinweis:"Die Menge steht auf der $x$-Achse und ist positiv. Negativ ist der $y$-Wert, also der Gewinn."},
+        {text:"Die Firma verkauft weniger, als sie herstellt.", hinweis:"Laut Aufgabe verkauft sie alles. Der Gewinn ist der Unterschied zwischen Einnahmen und Kosten."}
+      ],
+      tipps:["Gewinn = Einnahmen − Kosten. Wann wird das negativ?"],
+      falsch:"Gewinn ist Einnahmen minus Kosten.",
+      richtig:"Genau. Bei wenig Dünger decken die Einnahmen die festen Kosten nicht. Bei sehr viel Dünger auch nicht mehr." },
+
+    { id:"nullst", typ:"zahl",
+      text:"Ab welcher Menge macht die Firma Gewinn? Löse $G(x) = 0$. Teile dazu zuerst durch $-1000$.",
+      einheit:"t", loesung:2, toleranz:0.0001,
+      tipps:["Aus $G(x) = 0$ wird $x^2 - 12x + 20 = 0$.", "pq-Formel: $x = 6 \\pm \\sqrt{36 - 20} = 6 \\pm 4$"],
+      falsch:"Durch $-1000$ geteilt: $x^2 - 12x + 20 = 0$. Welche Lösung ist die kleinere?",
+      richtig:"Recht so: $x = 2$ oder $x = 10$. Zwischen [[$2$ t|N1]] und [[$10$ t|N2]] macht die Firma Gewinn, außerhalb Verlust.",
+      zeigeNachRichtig:["N1","N2"] },
+
+    { id:"b_ansatz", typ:"wahl", gegeben:"b) Stellen $2$, $4$ und $6$; $G(2) = 0$",
+      text:"Nun b): Wie schnell ändert sich der Gewinn bei $2$ t? Die [[Sekante|sek]] durch [[$P$|P]] und [[$Q$|Z]] gibt einen ersten Eindruck.\n\nMit der h-Methode: $G(2) = 0$, und $$G(2+h) = -1000(2+h)^2 + 12000(2+h) - 20000.$$ Welcher vereinfachte Differenzenquotient ergibt sich?",
+      zeige:["P","Z","sek"],
+      optionen:[
+        {text:"$8000 - 1000h$", richtig:true},
+        {text:"$12000 - 1000h$", hinweis:"Prüfe $(2+h)^2$: Das ist $4 + 4h + h^2$, nicht $4 + h^2$. Das Glied $-4000h$ fehlt dir."},
+        {text:"$8000h - 1000h^2$", hinweis:"Das ist der Zähler. Teile ihn noch durch $h$."}
+      ],
+      tipps:["$-1000(2+h)^2 = -1000(4 + 4h + h^2) = -4000 - 4000h - 1000h^2$", "$12000(2+h) = 24000 + 12000h$. Addiere alles und ziehe $20000$ ab.", "Zähler: $8000h - 1000h^2$. Teile durch $h$."],
+      falsch:"Multipliziere $G(2+h)$ Glied für Glied aus und fasse zusammen.",
+      richtig:"Genau: Der Zähler ist $8000h - 1000h^2$, gekürzt $8000 - 1000h$.",
+      beimStart:["SetValue(stelle,2)","SetValue(hh,1)"] },
+
+    { id:"b2", typ:"zahl",
+      text:"Welche lokale Änderungsrate hat der Gewinn also bei $2$ t?",
+      einheit:"€/t", loesung:8000, toleranz:0.5, tausender:true,
+      tipps:["Lass $h$ in $8000 - 1000h$ gegen $0$ gehen."],
+      falsch:"Was bleibt von $8000 - 1000h$ für $h \\to 0$?",
+      richtig:"Richtig: $8000$ €/t, die Steigung der [[Tangente|t2]] bei $2$ t.",
+      zeigeNachRichtig:["t2","S2"] },
+
+    { id:"b4", typ:"zahl",
+      text:"Nun die Stelle $4$. Rechne genauso, es ist $G(4) = 12000$. Welche lokale Änderungsrate ergibt sich?",
+      einheit:"€/t", loesung:4000, toleranz:0.5, tausender:true,
+      tipps:["$G(4+h) = -1000(16 + 8h + h^2) + 12000(4+h) - 20000$", "Zähler: $G(4+h) - 12000 = 4000h - 1000h^2$. Teile durch $h$."],
+      falsch:"Gefragt ist nicht der Gewinn $G(4)$, sondern wie schnell er sich dort ändert.",
+      richtig:"So ist es: $4000$ €/t. Die [[Tangente|t4]] ist schon flacher.",
+      zeigeNachRichtig:["t4","S4"],
+      beimStart:["SetValue(stelle,4)","SetValue(hh,1)"] },
+
+    { id:"b6", typ:"zahl",
+      text:"Und an der Stelle $6$? Es ist $G(6) = 16000$.",
+      einheit:"€/t", loesung:0, toleranz:0.5,
+      tipps:["$G(6+h) = -1000(36 + 12h + h^2) + 12000(6+h) - 20000$", "Der Zähler $G(6+h) - 16000$ wird $-1000h^2$. Teile durch $h$ und lass $h$ gegen $0$ gehen."],
+      falsch:"Lass $h$ gegen $0$ gehen.",
+      richtig:"Vortrefflich: $0$ €/t. Die [[Tangente|t6]] liegt waagerecht. Bei $6$ t erreicht der Gewinn sein Maximum von $16000$ €.",
+      zeigeNachRichtig:["t6","S6"],
+      beimStart:["SetValue(stelle,6)","SetValue(hh,1)"] },
+
+    { id:"deutung", typ:"wahl",
+      text:"Was bedeutet die Rate $4000$ €/t bei $4$ t für die Firma?",
+      optionen:[
+        {text:"Produziert sie etwas mehr als $4$ t, steigt der Gewinn um etwa $4000$ € je zusätzlicher Tonne.", richtig:true},
+        {text:"Bei $4$ t macht die Firma $4000$ € Gewinn.", hinweis:"Der Gewinn bei $4$ t ist $G(4) = 12000$ €. Die Rate sagt, wie schnell er sich dort ändert."},
+        {text:"Jede Tonne bringt der Firma $4000$ € Gewinn.", hinweis:"Das gilt nur in der Nähe von $4$ t. Bei $2$ t waren es $8000$ €/t, bei $6$ t nur noch $0$."}
+      ],
+      tipps:["Die Einheit €/t verrät es: Euro je Tonne mehr."],
+      falsch:"Achte auf die Einheit: Euro pro Tonne.",
+      richtig:"Recht so. Und siehst du das Muster? $8000$, $4000$, $0$: Je mehr produziert wird, desto weniger bringt die nächste Tonne." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Gewinn gibt es zwischen $2$ t und $10$ t. Die lokalen Änderungsraten $8000$, $4000$ und $0$ €/t sagen, wie stark der Gewinn bei einer kleinen Mehrmenge wächst. Bei $6$ t ist Schluss mit dem Wachsen. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Pistenraupen – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Die Pistenraupen – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Buch S. 107, Nr. 2 – Pistenraupen\nIn einem Skigebiet gibt es drei Pistenraupen: A bewältigt Steigungen bis $95\\,\\%$, B bis $70\\,\\%$, C bis $50\\,\\%$. Das Bergprofil zwischen der Aspitze und dem Bhorn wird modelliert durch $$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1 \\quad (x \\text{ und } y \\text{ in } 500\\text{ m}).$$ Schaffen alle Raupen die Auffahrt vom Tal zur Aspitze bzw. zum Bhorn? Wenn nicht: Wie weit kommen sie?\nIm GTR steht $Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}$. Was stellt $Y_2$ dar? Wie kommt man zu besseren Näherungswerten?",
+
+  gegeben: "$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1$; $x, y$ in $500$ m; A $95\\,\\%$, B $70\\,\\%$, C $50\\,\\%$",
+
+  selbst: {
+    text:"Gut, {name}. Untersuche das Profil mit der Sekantensteigungsfunktion. Gib mir die steilsten Steigungen und die Stellen, an denen B und C auf dem Weg zum Bhorn stecken bleiben.",
+    fragen:[
+      {text:"Steilste Stelle zwischen Tal und Bhorn, in ganzen Prozent", kurz:"steilste Stelle Bhorn", einheit:"%", loesung:92.74, toleranz:0.6, ab:"bhorn",
+       fehler:[{wert:0.93, toleranz:0.01, hinweis:"$0{,}93$ ist die Steigung als Dezimalzahl. In Prozent: mal $100$.", ab:"prozent"}]},
+      {text:"Steilste Stelle zwischen Tal und Aspitze (Betrag), in ganzen Prozent", kurz:"steilste Stelle Aspitze", einheit:"%", loesung:52.74, toleranz:0.6, ab:"aspitze",
+       fehler:[{wert:44, toleranz:0.6, hinweis:"$44\\,\\%$ ist die Steigung am Rand bei $x = -2$. Die Aspitze liegt schon bei $x \\approx -1{,}78$, und dazwischen ist der Hang steiler.", ab:"aspitze"}]},
+      {text:"Raupe C Richtung Bhorn: An welcher Stelle $x$ erreicht der Hang $50\\,\\%$? (zwei Nachkommastellen)", kurz:"C bleibt stehen bei", loesung:0.3082, toleranz:0.02, ab:"c_weit",
+       fehler:[{wert:1.72, toleranz:0.02, hinweis:"Dort sinkt die Steigung hinter der steilsten Stelle wieder auf $50\\,\\%$. C kommt aber gar nicht so weit: Sie bleibt an der ersten Stelle mit $50\\,\\%$ stehen.", ab:"c_weit"}]},
+      {text:"Raupe B Richtung Bhorn: An welcher Stelle $x$ erreicht der Hang $70\\,\\%$? (zwei Nachkommastellen)", kurz:"B bleibt stehen bei", loesung:0.5454, toleranz:0.02, ab:"c_weit",
+       fehler:[{wert:1.56, toleranz:0.02, hinweis:"Das ist die zweite Stelle mit $70\\,\\%$, hinter dem steilsten Stück. B bleibt schon an der ersten stehen.", ab:"c_weit"}]}
+    ]
+  },
+  vorwissen: [
+    "Steigung in Prozent: $\\frac{\\Delta y}{\\Delta x} \\cdot 100\\,\\%$",
+    "Sekantensteigung mit kleinem $h$ als Näherung der lokalen Steigung",
+    "GTR: Funktion als $Y_1$ eingeben, Tabelle und Graph"
+  ],
+  merkzettel: [
+    {"begriff":"Steigung in Prozent", "text":"$100\\,\\%$ heißt: auf $100$ m waagerecht $100$ m Höhe, also Steigung $1$ (Winkel $45°$). $95\\,\\%$ ist die Steigung $0{,}95$."},
+    {"begriff":"Sekantensteigungsfunktion", "text":"$m_{sek}(x) = \\dfrac{f(x+h) - f(x)}{h}$ mit festem kleinen $h$ ordnet jeder Stelle $x$ einen Näherungswert für die Steigung zu."},
+    {"begriff":"Im GTR", "text":"$Y_1$: die Funktion. $Y_2 = (Y_1(X + 0{,}001) - Y_1(X)) / 0{,}001$: die Sekantensteigungsfunktion. Tabelle und Graph von $Y_2$ zeigen die Steigung an jeder Stelle."}
+  ],
+  hefteintrag: "S. 107 Nr. 2 – Pistenraupen\n$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1$ ($x, y$ in $500$ m)\nTal bei $x \\approx -0{,}20$, Aspitze bei $x \\approx -1{,}78$, Bhorn bei $x \\approx 1{,}98$\n\n$Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}$ ist die Sekantensteigungsfunktion: an jeder Stelle fast die Steigung des Hangs.\n\nTal → Bhorn: steilste Stelle bei $x \\approx 1{,}09$ mit $92{,}7\\,\\%$.\nNur A ($95\\,\\%$) schafft es. B bleibt bei $x \\approx 0{,}55$ stehen ($70\\,\\%$, etwa $626$ m hoch), C bei $x \\approx 0{,}31$ ($50\\,\\%$, etwa $554$ m hoch).\n\nTal → Aspitze: steilste Stelle bei $x \\approx -1{,}09$ mit $52{,}7\\,\\%$.\nA und B schaffen es, C bleibt bei $x \\approx -0{,}91$ stehen (etwa $593$ m hoch).\n\nBessere Näherungen: $h$ kleiner wählen, z. B. $0{,}00001$.",
+
+  rueckblick: {
+    titel: "Die Steigung an jeder Stelle",
+    frage: "Wie findet man heraus, wo ein Hang zu steil wird, wenn nur das Profil als Funktion gegeben ist?",
+    schritte: [
+      {kurz:"Übersetzen", text:"$95\\,\\%$ heißt Steigung $0{,}95$. Weil $x$ und $y$ dieselbe Einheit ($500$ m) haben, ist die Steigung des Graphen direkt die Steigung des Hangs."},
+      {kurz:"Werkzeug", text:"$Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}$ berechnet an jeder Stelle die Sekantensteigung über ein winziges Stück, also fast die Steigung des Hangs dort."},
+      {kurz:"Ablesen", text:"Der Graph von $Y_2$ hat Richtung Bhorn einen Hochpunkt bei $92{,}7\\,\\%$, Richtung Aspitze einen Tiefpunkt bei $-52{,}7\\,\\%$."},
+      {kurz:"Entscheiden", text:"Zum Bhorn schafft es nur A. Zur Aspitze schaffen es A und B. Wo $Y_2$ die Grenze einer Raupe erreicht, bleibt sie stehen: C Richtung Bhorn bei $x \\approx 0{,}31$."},
+      {kurz:"Verbessern", text:"Kleinere $h$ machen die Näherung genauer. $h = 0$ geht nicht, denn dann steht $\\frac{0}{0}$ da."}
+    ],
+    einsicht: "Die Sekantensteigungsfunktion zeigt die Steigung als Graph über der ganzen Strecke: $$m_{sek}(x) = \\frac{f(x+h) - f(x)}{h}$$",
+    mitnehmen: "Wenn ich wissen will, wo etwas am stärksten zunimmt, schaue ich nicht auf die Funktion, sondern auf ihre Steigung."
+  },
+
+  geogebra: {
+    sicht: [-2.4, 2.8, -0.8, 2.75, 0.5, 0.5],
+    frei: true,
+    fokus: "P",
+    achsen: {x:"x", y:"y"},
+    befehle: [
+      "hh=0.001",
+      "fa(x)=-0.07x^4+0.5x^2+0.2x+1",
+      "kurve(x)=If(-2.2<=x<=2.2,fa(x))",
+      "P=Point(kurve)",
+      "xp=x(P)",
+      "Qe=(xp+hh,fa(xp+hh))",
+      "sek=Line(P,Qe)",
+      "ms=(fa(xp+hh)-fa(xp))/hh",
+      "proz=100*ms",
+      "hoehe=500*y(P)",
+      "msk(x)=If(-2.2<=x<=2.2,(fa(x+hh)-fa(x))/hh)",
+      "Asp=(-1.7805,fa(-1.7805))", "Bho=(1.9828,fa(1.9828))", "Tal=(-0.2023,fa(-0.2023))",
+      "gA(x)=0.95", "gB(x)=0.7", "gC(x)=0.5", "gCm(x)=-0.5",
+      "Wb=(1.0911,fa(1.0911))", "Wa=(-1.0911,fa(-1.0911))",
+      "Cb=(0.3082,fa(0.3082))", "Bb=(0.5454,fa(0.5454))", "Ca=(-0.9133,fa(-0.9133))"
+    ],
+    startwerte: {P:[-0.6, 1.05]},
+    ziehbar: ["P"],
+    sichtbar: ["kurve","Asp","Bho","Tal"],
+    stil: {
+      kurve:{farbe:"gold", dicke:5},
+      Asp:{farbe:"creme", punkt:6, name:"Aspitze"},
+      Bho:{farbe:"creme", punkt:6, name:"Bhorn"},
+      Tal:{farbe:"matt", punkt:5, name:"Tal"},
+      P:{farbe:"hellgold", punkt:7, name:"P"},
+      sek:{farbe:"kupfer", dicke:3},
+      msk:{farbe:"rot", dicke:4},
+      gA:{farbe:"wasser", dicke:2, strich:"gestrichelt", name:"A 95 %"},
+      gB:{farbe:"gruen", dicke:2, strich:"gestrichelt", name:"B 70 %"},
+      gC:{farbe:"matt", dicke:2, strich:"gestrichelt", name:"C 50 %"},
+      gCm:{farbe:"matt", dicke:2, strich:"gestrichelt", name:"−50 %"},
+      Wb:{farbe:"leucht", punkt:6},
+      Wa:{farbe:"leucht", punkt:6},
+      Cb:{farbe:"rot", punkt:6, name:"C"},
+      Bb:{farbe:"rot", punkt:6, name:"B"},
+      Ca:{farbe:"rot", punkt:6, name:"C"}
+    }
+  },
+
+  regler: [
+    {text:"$h$", objekt:"hh", min:0.001, max:0.5, schritt:0.001, ab:"besser"}
+  ],
+  werte: [
+    {text:"Stelle $x$", objekt:"xp", ab:"spiel", stellen:2},
+    {text:"Höhe", objekt:"hoehe", ab:"spiel", einheit:"m", stellen:0},
+    {text:"Steigung (mit $h = 0{,}001$)", objekt:"proz", ab:"spiel", einheit:"%", stellen:1, bis:"c_weit"},
+    {text:"$h$", objekt:"hh", ab:"besser", stellen:3},
+    {text:"Steigung $m_{sek}$", objekt:"proz", ab:"besser", einheit:"%", stellen:2}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Zwischen der [[Aspitze|Asp]] und dem [[Bhorn|Bho]] liegt ein [[Tal|Tal]]. Drei Pistenraupen sollen vom Tal aus hinauf: A schafft Steigungen bis $95\\,\\%$, B bis $70\\,\\%$, C bis $50\\,\\%$.\n\nDas [[Bergprofil|kurve]] ist $f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1$, beide Achsen in Einheiten von $500$ m." },
+
+    { id:"prozent", typ:"wahl",
+      text:"Zuerst die Sprache der Skifahrer: Was heißt „$95\\,\\%$ Steigung“?",
+      optionen:[
+        {text:"Auf $100$ m waagerecht geht es $95$ m hinauf, die Steigung ist $0{,}95$.", richtig:true},
+        {text:"Der Hang ist um $95°$ geneigt.", hinweis:"$95°$ wäre steiler als senkrecht, ein Überhang. Schon $100\\,\\%$ entspricht nur $45°$."},
+        {text:"Auf $100$ m Fahrweg geht es $95$ m hinauf.", hinweis:"Steigung misst die Höhe pro waagerechter Strecke, nicht pro Fahrweg am Hang."}
+      ],
+      tipps:["Steigung ist $\\frac{\\Delta y}{\\Delta x}$. Was ist $95\\,\\%$ als Dezimalzahl?"],
+      falsch:"Steigung ist Höhenunterschied durch waagerechten Abstand.",
+      richtig:"Recht so. Und weil $x$ und $y$ beide in $500$ m gemessen werden, kürzt sich der Faktor $500$: Die Steigung des Graphen ist direkt die Steigung des Hangs." },
+
+    { id:"y2", typ:"wahl",
+      text:"Im GTR des Buches steht neben $Y_1 = f(x)$ noch $$Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}.$$ Was stellt $Y_2$ dar?",
+      optionen:[
+        {text:"An jeder Stelle die Sekantensteigung über ein winziges Stück, also fast die Steigung des Hangs dort.", richtig:true},
+        {text:"Die Höhe des Berges an der Stelle $x + 0{,}001$.", hinweis:"Die Höhe wäre $Y_1(X + 0{,}001)$ allein. Hier wird eine Differenz durch $0{,}001$ geteilt. Was ist das?"},
+        {text:"Die mittlere Steigung von der Aspitze bis zum Bhorn.", hinweis:"Dann stünden die Stellen der Gipfel im Term. Hier hängt alles von $X$ ab, und das Intervall ist nur $0{,}001$ breit."}
+      ],
+      tipps:["Differenz der Funktionswerte durch Differenz der $x$-Werte: Das kennst du als Differenzenquotient."],
+      falsch:"Lies den Term als Differenzenquotient. Wie breit ist das Intervall?",
+      richtig:"Genau: $Y_2$ ist die Sekantensteigungsfunktion mit $h = 0{,}001$. Ihr Graph ist die [[rote Kurve|msk]].",
+      zeigeNachRichtig:["msk"] },
+
+    { id:"spiel", typ:"probieren",
+      text:"Ziehe [[$P$|P]] vom Tal aus den Hang hinauf, einmal nach rechts, einmal nach links. Die [[kupferne Gerade|sek]] ist die Sekante mit $h = 0{,}001$, kaum von der Tangente zu unterscheiden. Die Anzeige rechnet ihre Steigung in Prozent um.\n\nVergleiche mit der [[roten Kurve|msk]]: Ihr Wert über der Stelle $x$ ist genau diese Steigung.",
+      zeige:["P","sek"],
+      hinweis:"Wo ist der Hang Richtung Bhorn am steilsten? Dort hat die rote Kurve ihren Hochpunkt." },
+
+    { id:"bhorn", typ:"zahl",
+      text:"Wie steil ist die steilste Stelle auf dem Weg vom Tal zum Bhorn? Gib die Steigung in ganzen Prozent an.",
+      einheit:"%", loesung:92.74, toleranz:0.6,
+      tipps:["Suche den Hochpunkt der roten Kurve rechts vom Tal.", "Er liegt etwa bei $x = 1{,}1$. Lies dort die Steigung ab."],
+      falsch:"Ziehe $P$ zwischen Tal und Bhorn hin und her, bis die Steigung am größten ist.",
+      richtig:"Richtig: etwa $93\\,\\%$, an der [[steilsten Stelle|Wb]] bei $x \\approx 1{,}09$.",
+      zeigeNachRichtig:["Wb"] },
+
+    { id:"bhorn_wer", typ:"wahl",
+      text:"Die Grenzen der Raupen sind als [[gestrichelte Linien|gA,gB,gC]] eingezeichnet. Wer kommt auf das Bhorn?",
+      zeige:["gA","gB","gC"],
+      optionen:[
+        {text:"Nur A.", richtig:true},
+        {text:"A und B.", hinweis:"B schafft $70\\,\\%$. Die rote Kurve steigt aber über die $70\\,\\%$-Linie bis $93\\,\\%$."},
+        {text:"Alle drei, denn oben ist der Hang flach.", hinweis:"Oben schon, aber vorher müssen sie durch das steilste Stück. Eine Raupe bleibt an der ersten Stelle stehen, die zu steil ist."}
+      ],
+      tipps:["Vergleiche $93\\,\\%$ mit $95\\,\\%$, $70\\,\\%$ und $50\\,\\%$."],
+      falsch:"Wo die rote Kurve über einer Linie liegt, ist der Hang für diese Raupe zu steil.",
+      richtig:"So ist es. Nur A, und knapp: $93\\,\\%$ gegen $95\\,\\%$." },
+
+    { id:"aspitze", typ:"zahl",
+      text:"Nun der Weg vom Tal nach links zur Aspitze. Dort fällt der Graph, wenn man nach rechts liest; die Raupe fährt aber nach links hinauf. Wie steil ist die steilste Stelle? Gib den Betrag in ganzen Prozent an.",
+      einheit:"%", loesung:52.74, toleranz:0.6,
+      tipps:["Suche den Tiefpunkt der roten Kurve links vom Tal.", "Er liegt etwa bei $x = -1{,}1$. Nimm die Steigung ohne Minuszeichen."],
+      falsch:"Ziehe $P$ zwischen Tal und Aspitze, bis die Steigung am stärksten negativ ist.",
+      richtig:"Richtig: etwa $53\\,\\%$, an der [[steilsten Stelle|Wa]] bei $x \\approx -1{,}09$.",
+      zeigeNachRichtig:["Wa","gCm"] },
+
+    { id:"aspitze_wer", typ:"wahl",
+      text:"Wer kommt auf die Aspitze?",
+      optionen:[
+        {text:"A und B, C nicht.", richtig:true},
+        {text:"Alle drei.", hinweis:"C schafft $50\\,\\%$. Die steilste Stelle hat $53\\,\\%$."},
+        {text:"Nur A.", hinweis:"B schafft $70\\,\\%$, das reicht für $53\\,\\%$ gut."}
+      ],
+      tipps:["Vergleiche $53\\,\\%$ mit den drei Grenzen."],
+      falsch:"Vergleiche die steilste Stelle mit jeder Grenze.",
+      richtig:"Recht so. C scheitert knapp: Sie bleibt bei [[$x \\approx -0{,}91$|Ca]] stehen, etwa $593$ m hoch.",
+      zeigeNachRichtig:["Ca"] },
+
+    { id:"c_weit", typ:"zahl",
+      text:"Wie weit kommt Raupe C Richtung Bhorn? Gib die Stelle $x$ an, an der der Hang zum ersten Mal $50\\,\\%$ erreicht, auf zwei Nachkommastellen.",
+      loesung:0.3082, toleranz:0.02,
+      tipps:["Wo schneidet die rote Kurve rechts vom Tal zum ersten Mal die $50\\,\\%$-Linie?", "Ziehe $P$ rechts vom Tal hinauf, bis die Anzeige $50\\,\\%$ zeigt."],
+      falsch:"Suche den ersten Schnittpunkt der roten Kurve mit der Linie für C.",
+      richtig:"Richtig: bei [[$x \\approx 0{,}31$|Cb]], etwa $554$ m hoch. Ebenso bleibt [[B|Bb]] bei $x \\approx 0{,}55$ stehen, etwa $626$ m hoch.",
+      zeigeNachRichtig:["Cb","Bb"] },
+
+    { id:"besser", typ:"wahl",
+      text:"Unsere Werte beruhen auf $h = 0{,}001$. Wie kommt man zu besseren Näherungswerten? Probiere den Regler.",
+      optionen:[
+        {text:"$h$ noch kleiner wählen, etwa $0{,}00001$.", richtig:true},
+        {text:"$h = 0$ einsetzen, dann ist es genau.", hinweis:"Bei $h = 0$ steht $\\frac{0}{0}$ da. Der Rechner meldet einen Fehler."},
+        {text:"$h$ größer wählen, damit der Rechner nicht rundet.", hinweis:"Ziehe den Regler nach rechts: Die rote Kurve entfernt sich vom wahren Steigungsverlauf. Größere $h$ mitteln über ein längeres Stück."}
+      ],
+      tipps:["Ziehe $h$ am Regler groß und klein. Wann ändert sich die rote Kurve kaum noch?"],
+      falsch:"Ziehe den Regler und beobachte die rote Kurve.",
+      richtig:"Genau. Je kleiner $h$, desto genauer. Der Grenzwert für $h \\to 0$ wäre die exakte Steigung, die lokale Änderungsrate." },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Zum Bhorn kommt nur A, der Hang hat dort bis zu $93\\,\\%$. Zur Aspitze kommen A und B, dort sind es höchstens $53\\,\\%$. Die Sekantensteigungsfunktion $Y_2$ zeigt die Steigung über die ganze Strecke als Graph. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>

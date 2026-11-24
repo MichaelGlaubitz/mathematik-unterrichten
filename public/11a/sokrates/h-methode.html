@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die h-Methode – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+const DIALOG = {
+  titel: "Die h-Methode – ein Gespräch mit Sokrates",
+  heim: {text:"◂ 11a", href:"/11a/"},
+  lehrer: "Sokrates",
+  schueler: "{name}",
+
+  aufgabe: "Buch S. 104, Nr. 12 – Training der h-Methode\nBestimmen Sie die lokale Änderungsrate von $f$ an der Stelle $a$ mit der h-Methode. Vergleichen Sie jeden Grenzwert mit dem Differenzenquotienten für ein kleines $h$.\n\na) $f(x) = x^2;\\ a = 3$\nd) $f(x) = 3x^2;\\ a = 1$\nf) $f(x) = x^3;\\ a = -3$\n\nDie Teile b), c) und e) rechnest du danach genauso im Heft.",
+
+  gegeben: "a) $x^2$ bei $a = 3$; d) $3x^2$ bei $a = 1$; f) $x^3$ bei $a = -3$",
+
+  selbst: {
+    text:"Gut, {name}. Rechne a), d) und f) mit der h-Methode: Differenzenquotient aufschreiben, vereinfachen, $h$ gegen $0$ gehen lassen. Gib mir die drei lokalen Änderungsraten.",
+    fragen:[
+      {text:"a) lokale Änderungsrate von $x^2$ bei $a = 3$", kurz:"a) Rate", loesung:6, toleranz:0.0001, ab:"a_ansatz",
+       fehler:[
+        {wert:9, toleranz:0.0001, hinweis:"$9$ ist der Funktionswert $f(3)$. Gefragt ist die Steigung dort.", ab:"a_ansatz"},
+        {wert:6.1, toleranz:0.0001, hinweis:"$6{,}1$ ist der Differenzenquotient für $h = 0{,}1$. Was bleibt von $6 + h$, wenn $h$ gegen $0$ geht?", ab:"a_lim"}]},
+      {text:"d) lokale Änderungsrate von $3x^2$ bei $a = 1$", kurz:"d) Rate", loesung:6, toleranz:0.0001, ab:"d_ansatz",
+       fehler:[
+        {wert:2, toleranz:0.0001, hinweis:"Das wäre die Rate von $x^2$. Der Faktor $3$ wirkt auf jeden Summanden des Zählers.", ab:"d_ansatz"},
+        {wert:6.3, toleranz:0.0001, hinweis:"$6{,}3$ ist der Differenzenquotient für $h = 0{,}1$. Lass $h$ gegen $0$ gehen.", ab:"d_lim"}]},
+      {text:"f) lokale Änderungsrate von $x^3$ bei $a = -3$", kurz:"f) Rate", loesung:27, toleranz:0.0001, ab:"f_ansatz",
+       fehler:[
+        {wert:-27, toleranz:0.0001, hinweis:"$-27$ ist der Funktionswert $f(-3)$. Der Graph von $x^3$ steigt überall, die Steigung ist also positiv.", ab:"f_ansatz"},
+        {wert:26.11, toleranz:0.0001, hinweis:"$26{,}11$ ist der Differenzenquotient für $h = 0{,}1$. Lass $h$ gegen $0$ gehen.", ab:"f_lim"}]}
+    ]
+  },
+  vorwissen: [
+    "Differenzenquotient $\\dfrac{f(a+h) - f(a)}{h}$",
+    "Binomische Formeln, Ausklammern und Kürzen",
+    "Lokale Änderungsrate als Grenzwert für $h \\to 0$"
+  ],
+  merkzettel: [
+    {"begriff":"Differenzenquotient", "text":"$\\dfrac{f(a+h) - f(a)}{h}$ ist die Steigung der Sekante durch $P(a\\,|\\,f(a))$ und $Q(a+h\\,|\\,f(a+h))$."},
+    {"begriff":"Die h-Methode", "text":"1. Differenzenquotient aufschreiben. 2. Zähler ausmultiplizieren und zusammenfassen. 3. $h$ ausklammern und kürzen (erlaubt, weil $h \\neq 0$). 4. $h$ gegen $0$ gehen lassen."},
+    {"begriff":"Binomische Formeln", "text":"$(a+b)^2 = a^2 + 2ab + b^2$, $(a-b)^2 = a^2 - 2ab + b^2$"},
+    {"begriff":"Hoch drei", "text":"$(a+b)^3 = a^3 + 3a^2 b + 3ab^2 + b^3$. Oder schrittweise: $(a+b)^3 = (a+b)^2 \\cdot (a+b)$."},
+    {"begriff":"Der Limes", "text":"$\\displaystyle\\lim_{h \\to 0}$: der Wert, dem sich der Term nähert, wenn $h$ immer näher an $0$ rückt, ohne $0$ zu werden."}
+  ],
+  hefteintrag: "S. 104 Nr. 12 – Training der h-Methode\n\na) $f(x) = x^2$, $a = 3$\n$\\dfrac{(3+h)^2 - 9}{h} = \\dfrac{6h + h^2}{h} = 6 + h \\to 6$\nLokale Änderungsrate: $6$ (mit $h = 0{,}000001$: $6{,}000001$)\n\nd) $f(x) = 3x^2$, $a = 1$\n$\\dfrac{3(1+h)^2 - 3}{h} = \\dfrac{6h + 3h^2}{h} = 6 + 3h \\to 6$\nLokale Änderungsrate: $6$\n\nf) $f(x) = x^3$, $a = -3$\n$\\dfrac{(-3+h)^3 + 27}{h} = \\dfrac{27h - 9h^2 + h^3}{h} = 27 - 9h + h^2 \\to 27$\nLokale Änderungsrate: $27$\n\n$h = 0$ darf man nicht einsetzen: $\\frac{0}{0}$ ist nicht definiert. Erst kürzen, dann $h \\to 0$.",
+
+  rueckblick: {
+    titel: "Erst kürzen, dann h gegen null",
+    frage: "Wie bekommt man die lokale Änderungsrate genau, statt sie nur anzunähern?",
+    schritte: [
+      {kurz:"Das Hindernis", text:"Setzt man $h = 0$ direkt in den Differenzenquotienten ein, steht $\\frac{0}{0}$ da. Das ist keine Zahl."},
+      {kurz:"Umformen", text:"Solange $h \\neq 0$ ist, darf man rechnen: Für $x^2$ bei $a = 3$ wird der Zähler $6h + h^2$, nach dem Kürzen bleibt $6 + h$."},
+      {kurz:"Ablesen", text:"Im gekürzten Term ist $h = 0$ kein Problem mehr. Er läuft auf $6$ zu; der Rechner liefert für $h = 0{,}000001$ den Wert $6{,}000001$."},
+      {kurz:"Stolperstellen", text:"Bei $3x^2$ gilt der Faktor $3$ für jeden Summanden: $3(1+h)^2 - 3 = 6h + 3h^2$. Bei $x^3$ an der Stelle $-3$ wird $-27$ abgezogen, also $27$ addiert."},
+      {kurz:"Ergebnis", text:"a) $6$, d) $6$, f) $27$. Jedes Mal bleibt nach dem Kürzen ein fester Teil, der Rest verschwindet mit $h$."}
+    ],
+    einsicht: "Der gekürzte Differenzenquotient zeigt den Grenzwert genau: $$\\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$$",
+    mitnehmen: "Wenn ein Term für einen Wert nicht definiert ist, forme ich ihn erst um und setze dann ein."
+  },
+
+  geogebra: {
+    sicht: [1.2, 5, -1.5, 23, 0.5, 2],
+    frei: true,
+    fokus: "P",
+    achsen: {x:"x", y:"y"},
+    befehle: [
+      "teil=1", "hh=0.5",
+      "fa(x)=If(teil==1,x^2,If(teil==2,3x^2,x^3))",
+      "aa=If(teil==1,3,If(teil==2,1,-3))",
+      "bahn(x)=If(aa+0.004<=x<=aa+1.6,fa(x))",
+      "P=(aa,fa(aa))", "Qe=(aa+hh,fa(aa+hh))", "Z=Point(bahn)",
+      "fA=fa(aa)", "fB=fa(aa+hh)",
+      "sek=Line(P,Qe)",
+      "dq=(fa(aa+hh)-fa(aa))/hh",
+      "Ecke=(aa+hh,fa(aa))",
+      "stH=Segment(P,Ecke)", "stY=Segment(Ecke,Qe)",
+      "mtan=If(teil==1,6,If(teil==2,6,27))",
+      "tang=Line(P,P+(1,mtan))"
+    ],
+    koppeln: [{punkt:"Z", ziel:"hh", aus:"x(Z)-aa", min:0.005, max:1.5, runden:3, px:"aa+hh", py:"fa(aa+hh)"}],
+    ziehbar: ["Z"],
+    sichtbar: ["fa","P","Z","sek","stH","stY"],
+    stil: {
+      fa:{farbe:"gold", dicke:5},
+      P:{farbe:"leucht", punkt:7, name:"P"},
+      Z:{farbe:"hellgold", punkt:7, name:"Q"},
+      sek:{farbe:"kupfer", dicke:3},
+      stH:{farbe:"wasser", dicke:4, name:"h"},
+      stY:{farbe:"gruen", dicke:4, name:"Δy"},
+      tang:{farbe:"leucht", dicke:4}
+    }
+  },
+
+  regler: [
+    {text:"$h$", objekt:"hh", min:0.005, max:1.5, schritt:0.005, ab:"anfang"}
+  ],
+  werte: [
+    {text:"$a$", objekt:"aa", ab:"anfang", stellen:0},
+    {text:"$h$", objekt:"hh", ab:"anfang", stellen:3},
+    {text:"$f(a)$", objekt:"fA", ab:"anfang", stellen:4},
+    {text:"$f(a+h)$", objekt:"fB", ab:"anfang", stellen:4},
+    {text:"Differenzenquotient $\\frac{\\Delta y}{h}$", objekt:"dq", ab:"anfang", nurGeloest:true, stellen:4}
+  ],
+
+  schritte: [
+    { id:"anfang", typ:"rede",
+      text:"Sei gegrüßt, {name}. Bisher haben wir die lokale Änderungsrate angenähert: kleine $h$ einsetzen und hinschauen. Heute wollen wir sie genau. Dafür vereinfachen wir den Differenzenquotienten $$\\frac{f(a+h) - f(a)}{h},$$ die Steigung der [[Sekante|sek]] durch [[$P$|P]] und [[$Q$|Z]].\n\nDu kannst $Q$ ziehen oder $h$ am Regler einstellen. Wir beginnen mit a): $f(x) = x^2$ an der Stelle $a = 3$.",
+      beimStart:["SetValue(teil,1)","SetValue(hh,0.5)"] },
+
+    { id:"null", typ:"wahl",
+      text:"Eine naheliegende Idee: Warum setzen wir nicht einfach $h = 0$ ein? Dann wäre $Q$ doch genau $P$.",
+      optionen:[
+        {text:"Dann steht $\\frac{0}{0}$ da, und das ist keine Zahl.", richtig:true},
+        {text:"Das geht: Dann ist die Sekante schon die Tangente.", hinweis:"Eine Sekante braucht zwei verschiedene Punkte. Fallen $P$ und $Q$ zusammen, gibt es keine Gerade mehr, und im Quotienten steht $\\frac{f(3) - f(3)}{0}$."},
+        {text:"Dann kommt $0$ heraus, die Rate ist also $0$.", hinweis:"Der Zähler wird $0$, aber der Nenner auch. Durch $0$ darf man nicht teilen."}
+      ],
+      tipps:["Setze $h = 0$ in Zähler und Nenner ein. Was steht oben, was unten?"],
+      falsch:"Schau auf den Nenner: Was passiert dort bei $h = 0$?",
+      richtig:"Recht so. $h = 0$ geht nicht. Aber solange $h \\neq 0$ ist, dürfen wir den Term umformen. Das ist die ganze Idee der h-Methode." },
+
+    { id:"a_ansatz", typ:"wahl", gegeben:"a) $f(x) = x^2$, $a = 3$",
+      text:"Setze ein: $$\\frac{f(3+h) - f(3)}{h} = \\frac{(3+h)^2 - 9}{h}.$$ Was steht im Zähler, wenn du ausmultiplizierst und zusammenfasst?",
+      optionen:[
+        {text:"$6h + h^2$", richtig:true},
+        {text:"$h^2$", hinweis:"$(3+h)^2$ ist nicht $9 + h^2$. Die binomische Formel liefert noch das Mittelglied $2 \\cdot 3 \\cdot h$."},
+        {text:"$9 + 6h + h^2$", hinweis:"Das ist erst $(3+h)^2$. Die $9$ von $f(3)$ musst du noch abziehen."}
+      ],
+      tipps:["$(3+h)^2 = 3^2 + 2 \\cdot 3 \\cdot h + h^2$", "$9 + 6h + h^2 - 9 = \\;?$"],
+      falsch:"Erst die binomische Formel, dann $9$ abziehen.",
+      richtig:"Genau: $9 + 6h + h^2 - 9 = 6h + h^2$." },
+
+    { id:"a_lim", typ:"zahl",
+      text:"Klammere im Zähler $h$ aus und kürze: $$\\frac{6h + h^2}{h} = \\frac{h\\,(6 + h)}{h}.$$ Welcher Wert ergibt sich für $h \\to 0$?",
+      loesung:6, toleranz:0.0001,
+      tipps:["Nach dem Kürzen bleibt $6 + h$.", "Was wird aus $6 + h$, wenn $h$ immer kleiner wird?"],
+      falsch:"Nach dem Kürzen steht $6 + h$ da. Lass $h$ gegen $0$ gehen.",
+      richtig:"Richtig: $6 + h \\to 6$. Die [[Tangente|tang]] in $P(3\\,|\\,9)$ hat die Steigung $6$.",
+      zeigeNachRichtig:["tang"] },
+
+    { id:"vergleich", typ:"probieren",
+      text:"Das Buch will einen Vergleich: Ziehe $h$ am Regler so klein wie möglich und lies den Differenzenquotienten ab. Für $h = 0{,}000001$ liefert der Rechner $6{,}000001$.\n\nSiehst du, warum? Der gekürzte Term $6 + h$ sagt es: Der Überschuss über $6$ ist genau $h$.",
+      hinweis:"Stelle $h = 0{,}005$ ein: Der Quotient ist dann $6{,}005$." },
+
+    { id:"d_ansatz", typ:"wahl", gegeben:"d) $f(x) = 3x^2$, $a = 1$",
+      text:"Nun d): $f(x) = 3x^2$ an der Stelle $a = 1$. Was ergibt der Zähler $$3(1+h)^2 - 3\\;?$$",
+      sicht:[-0.4, 3, -1.5, 22, 0.5, 2],
+      optionen:[
+        {text:"$6h + 3h^2$", richtig:true},
+        {text:"$6h + 9h^2$", hinweis:"Du hast $3(1+h)$ zuerst gerechnet und dann quadriert. Die Reihenfolge ist: erst quadrieren, dann mal $3$."},
+        {text:"$6h + h^2$", hinweis:"Der Faktor $3$ wirkt auf jeden Summanden von $(1+h)^2$, also auch auf $h^2$."}
+      ],
+      tipps:["$(1+h)^2 = 1 + 2h + h^2$. Nimm das mal $3$.", "$3 + 6h + 3h^2 - 3 = \\;?$"],
+      falsch:"Erst $(1+h)^2$ ausrechnen, dann jeden Summanden mal $3$, dann $3$ abziehen.",
+      richtig:"So ist es: $3 + 6h + 3h^2 - 3 = 6h + 3h^2$.",
+      beimStart:["SetValue(teil,2)","SetValue(hh,0.5)"], verberge:["tang"] },
+
+    { id:"d_lim", typ:"zahl",
+      text:"Kürze durch $h$ und lass $h$ gegen $0$ gehen. Welche lokale Änderungsrate hat $3x^2$ bei $a = 1$?",
+      loesung:6, toleranz:0.0001,
+      tipps:["$\\frac{6h + 3h^2}{h} = 6 + 3h$", "Was bleibt von $6 + 3h$ für $h \\to 0$?"],
+      falsch:"Nach dem Kürzen steht $6 + 3h$ da.",
+      richtig:"Vortrefflich: $6 + 3h \\to 6$. Hier ist der Überschuss nicht $h$, sondern $3h$. Für $h = 0{,}1$ wäre der Quotient also $6{,}3$.",
+      zeigeNachRichtig:["tang"] },
+
+    { id:"f_ansatz", typ:"wahl", gegeben:"f) $f(x) = x^3$, $a = -3$",
+      text:"Zuletzt f), das schwerste Stück: $f(x) = x^3$ an der Stelle $a = -3$. Es ist $f(-3) = -27$ und $(-3+h)^3 = -27 + 27h - 9h^2 + h^3$. Welcher vereinfachte Differenzenquotient ergibt sich?",
+      sicht:[-3.7, -0.5, -30, 2, 0.5, 5],
+      optionen:[
+        {text:"$27 - 9h + h^2$", richtig:true},
+        {text:"$-27 + 27h - 9h^2 + h^3$", hinweis:"Das ist erst $(-3+h)^3$. Du musst noch $f(-3)$ abziehen und dann durch $h$ teilen."},
+        {text:"$27 - 9h + h^2 - \\frac{54}{h}$", hinweis:"Achte auf das Vorzeichen: $f(-3) = -27$ wird abgezogen. Minus mal minus ergibt plus, also $+27$."}
+      ],
+      tipps:["Der Zähler ist $(-3+h)^3 - (-27) = (-3+h)^3 + 27$.", "$-27 + 27h - 9h^2 + h^3 + 27 = 27h - 9h^2 + h^3$. Teile jeden Summanden durch $h$."],
+      falsch:"Zähler: $(-3+h)^3 - f(-3)$. Achte auf das doppelte Minus.",
+      richtig:"Recht so: $\\frac{27h - 9h^2 + h^3}{h} = 27 - 9h + h^2$.",
+      beimStart:["SetValue(teil,3)","SetValue(hh,0.5)"], verberge:["tang"] },
+
+    { id:"f_lim", typ:"zahl",
+      text:"Und der Grenzwert für $h \\to 0$?",
+      loesung:27, toleranz:0.0001,
+      tipps:["Lass in $27 - 9h + h^2$ jeden Summanden mit $h$ gegen $0$ gehen."],
+      falsch:"Von $27 - 9h + h^2$ bleibt für $h \\to 0$ nur der feste Teil.",
+      richtig:"Richtig: $27$. Die [[Tangente|tang]] ist sehr steil, obwohl der Graph dort tief liegt. Auf die Steigung kommt es an, nicht auf die Höhe.",
+      zeigeNachRichtig:["tang"] },
+
+    { id:"schluss", typ:"rede",
+      text:"So halten wir fest, {name}: Den Differenzenquotienten erst vereinfachen und kürzen, dann $h$ gegen $0$ gehen lassen. Ergebnisse: a) $6$, d) $6$, f) $27$.\n\nRechne b), c) und e) genauso. Zur Kontrolle: b) $8$, c) $2\\sqrt{3} \\approx 3{,}46$, e) $-4$. Schreibe dir den Hefteintrag ab." }
+  ]
+};
+
+</script>
+<script src="/sokrates/engine.js?v=202611241200"></script>
+</body>
+</html>
