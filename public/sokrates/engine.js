@@ -13,6 +13,12 @@
        Daten eintragen, nie Zwischenergebnisse. Der volle Aufgabentext klappt
        darunter auf; der Zustand steht in localStorage 'sokratesAufgabe'.
      · Notizen (✎): freies Textfeld je Seite, localStorage 'sokratesNotiz:'+Pfad.
+       Umschalter „Schreiben | Zeichnen“: Zeichenblatt (Karopapier) für Finger
+       und Stift mit drei Farben, dickem Strich, Radierer (ganze Striche),
+       Rückgängig, Leeren, großem Blatt und „Als Bild kopieren“; gespeichert in
+       'sokratesSkizze:'+Pfad, der Modus in 'sokratesNotizArt'. Nach dem ersten
+       Stiftstrich zeichnet der Finger nicht mehr (Handballen). Im eigenen Weg
+       öffnet „✎ Skizze zeichnen“ dasselbe Blatt.
      · Auf Touch-Geräten hängen die Tafeln (Rechner, Merkzettel, Notizen)
        oben und folgen dem sichtbaren Ausschnitt, damit die Tastatur sie
        nicht verdeckt.
@@ -191,6 +197,7 @@ function themaSetzen(t){
   try { localStorage.setItem('sokratesThema', thema); } catch(e){}
   const k = $('#thema');
   if (k){ k.textContent = thema === 'hell' ? '☾ Dunkel' : '☀ Hell'; k.title = thema === 'hell' ? 'Zum dunklen Design wechseln' : 'Zum hellen Design wechseln'; }
+  skMalen();
   blinkend.clear();
   stileAnwenden(true);
 }
@@ -417,6 +424,152 @@ function notizVerdrahten(root){
   });
 }
 
+/* ---- Skizze: Freihand in den Notizen, mit Finger oder Stift, je Seite gespeichert ----
+   localStorage 'sokratesSkizze:'+Pfad = {striche:[{f, b, p:[[x,y,druck],…]}]}.
+   x, y und Strichbreite b sind auf die Breite des Blattes bezogen, damit die
+   Skizze bei jeder Fensterbreite gleich aussieht. Hat das Gerät einen Stift
+   gemeldet, zeichnet der Finger nicht mehr (Handballen auf dem iPad). */
+const skizzeSchluessel = () => 'sokratesSkizze:' + location.pathname;
+const SK_FARBEN = { tinte:{dunkel:'#EDE6D6', hell:'#2B2417', papier:'#2B2417'},
+                    rot:  {dunkel:'#E0716D', hell:'#B03A36', papier:'#B03A36'},
+                    blau: {dunkel:'#7FB0DE', hell:'#2F6DA6', papier:'#2F6DA6'} };
+let skizze = null, skWerkzeug = 'tinte', skDick = false, skStift = false, skStrich = null, skVerlauf = [];
+function skLaden(){
+  if (skizze) return skizze;
+  try { skizze = JSON.parse(localStorage.getItem(skizzeSchluessel())); } catch(e){ skizze = null; }
+  if (!skizze || !Array.isArray(skizze.striche)) skizze = {striche:[]};
+  return skizze;
+}
+function skSpeichern(){
+  try { localStorage.setItem(skizzeSchluessel(), JSON.stringify(skizze)); }
+  catch(e){ const m = $('#skmeldung'); if (m) m.textContent = 'Der Speicher ist voll – kopiere die Skizze als Bild und leere das Blatt.'; }
+}
+function skBreite(s, d){ return s.b * (0.45 + 1.1 * d); }
+function skStrichMalen(ctx, s, W, farbe, ab){
+  const p = s.p; if (!p.length) return;
+  ctx.strokeStyle = farbe; ctx.fillStyle = farbe; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (p.length === 1){ ctx.beginPath(); ctx.arc(p[0][0]*W, p[0][1]*W, skBreite(s, p[0][2])*W/2, 0, 2*Math.PI); ctx.fill(); return; }
+  for (let i = Math.max(1, ab || 1); i < p.length; i++){
+    ctx.lineWidth = skBreite(s, (p[i][2] + p[i-1][2]) / 2) * W;
+    ctx.beginPath(); ctx.moveTo(p[i-1][0]*W, p[i-1][1]*W); ctx.lineTo(p[i][0]*W, p[i][1]*W); ctx.stroke();
+  }
+}
+function skMalen(){
+  const c = $('#skblatt'); if (!c || !c.offsetParent) return;
+  const W = c.clientWidth, H = c.clientHeight, r = window.devicePixelRatio || 1;
+  if (c.width !== Math.round(W*r) || c.height !== Math.round(H*r)){ c.width = Math.round(W*r); c.height = Math.round(H*r); }
+  const ctx = c.getContext('2d'); ctx.setTransform(r, 0, 0, r, 0, 0); ctx.clearRect(0, 0, W, H);
+  skLaden().striche.forEach(s => skStrichMalen(ctx, s, W, SK_FARBEN[s.f][thema]));
+}
+function skPunkt(c, e){
+  const q = c.getBoundingClientRect(), W = c.clientWidth;
+  const d = e.pointerType === 'pen' && e.pressure > 0 ? e.pressure : 0.5;
+  return [+((e.clientX - q.left) / W).toFixed(4), +((e.clientY - q.top) / W).toFixed(4), +d.toFixed(2)];
+}
+function skRadiere(pt){
+  const r = 0.03, alt = skLaden().striche, weg = [];
+  skizze.striche = alt.filter((s, i) => {
+    const treffer = s.p.some(q => Math.hypot(q[0]-pt[0], q[1]-pt[1]) < r + s.b);
+    if (treffer) weg.push({i, s});
+    return !treffer;
+  });
+  if (weg.length){ skVerlauf.push({typ:'weg', weg}); skMalen(); }
+}
+function skWerkzeugZeigen(){
+  document.querySelectorAll('#skwerkzeuge [data-sk]').forEach(b => b.classList.toggle('an', b.dataset.sk === skWerkzeug || (b.dataset.sk === 'dick' && skDick)));
+}
+function skizzeVerdrahten(){
+  const c = $('#skblatt'); if (!c || c.dataset.bereit) return;
+  c.dataset.bereit = '1';
+  c.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'pen') skStift = true;
+    if (e.pointerType === 'touch' && skStift) return;          // Handballen
+    if (e.button > 0) return;
+    e.preventDefault(); try { c.setPointerCapture(e.pointerId); } catch(err){}
+    const pt = skPunkt(c, e);
+    if (skWerkzeug === 'radierer'){ skStrich = {radierer:true, id:e.pointerId}; skRadiere(pt); return; }
+    const s = {f:skWerkzeug, b:+((skDick ? 6 : 2.6) / c.clientWidth).toFixed(4), p:[pt]};
+    skLaden().striche.push(s); skStrich = {s, id:e.pointerId};
+    const ctx = c.getContext('2d'); skStrichMalen(ctx, s, c.clientWidth, SK_FARBEN[s.f][thema]);
+  });
+  c.addEventListener('pointermove', e => {
+    if (!skStrich || skStrich.id !== e.pointerId) return;
+    e.preventDefault();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    if (skStrich.radierer){ (evs.length ? evs : [e]).forEach(ev => skRadiere(skPunkt(c, ev))); return; }
+    const s = skStrich.s, ab = s.p.length;
+    (evs.length ? evs : [e]).forEach(ev => s.p.push(skPunkt(c, ev)));
+    skStrichMalen(c.getContext('2d'), s, c.clientWidth, SK_FARBEN[s.f][thema], ab);
+  });
+  const ende = e => {
+    if (!skStrich || skStrich.id !== e.pointerId) return;
+    if (!skStrich.radierer) skVerlauf.push({typ:'neu'});
+    skStrich = null; skSpeichern();
+  };
+  c.addEventListener('pointerup', ende); c.addEventListener('pointercancel', ende);
+  // iOS: zusätzlich zu touch-action:none, damit die Seite beim Zeichnen nicht mitscrollt
+  c.addEventListener('touchmove', e => { if (skStrich) e.preventDefault(); }, {passive:false});
+  document.querySelectorAll('#skwerkzeuge [data-sk]').forEach(b => b.onclick = () => {
+    const w = b.dataset.sk;
+    if (w === 'dick') skDick = !skDick;
+    else if (w === 'zurueck'){
+      const v = skVerlauf.pop(); if (!v) return;
+      if (v.typ === 'neu') skizze.striche.pop();
+      else if (v.typ === 'weg') v.weg.slice().sort((a, b) => a.i - b.i).forEach(x => skizze.striche.splice(x.i, 0, x.s));
+      else if (v.typ === 'leer') skizze.striche = v.striche;
+      skSpeichern(); skMalen();
+    }
+    else if (w === 'leeren'){
+      if (!skLaden().striche.length) return;
+      skVerlauf.push({typ:'leer', striche:skizze.striche}); skizze.striche = []; skSpeichern(); skMalen();
+      $('#skmeldung').textContent = 'Blatt geleert. „↶“ holt die Skizze zurück.';
+    }
+    else if (w === 'bild') skBildKopieren();
+    else if (w === 'gross'){ $('#notizen').classList.toggle('gross'); b.classList.toggle('an'); skMalen(); }
+    else skWerkzeug = w;
+    skWerkzeugZeigen();
+  });
+  skWerkzeugZeigen();
+  window.addEventListener('resize', () => skMalen());
+}
+function skBild(){
+  const striche = skLaden().striche;
+  const W = 1200, hoch = striche.reduce((m, s) => Math.max(m, ...s.p.map(q => q[1])), 0);
+  const k = document.createElement('canvas'); k.width = W; k.height = Math.round(W * Math.max(0.3, hoch + 0.04));
+  const ctx = k.getContext('2d');
+  ctx.fillStyle = '#FBF7EC'; ctx.fillRect(0, 0, k.width, k.height);
+  ctx.strokeStyle = '#E8DFC8'; ctx.lineWidth = 1;
+  const kar = W * 20 / 460;
+  for (let x = kar; x < W; x += kar){ ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, k.height); ctx.stroke(); }
+  for (let y = kar; y < k.height; y += kar){ ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  striche.forEach(s => skStrichMalen(ctx, s, W, SK_FARBEN[s.f].papier));
+  return new Promise((ok, nein) => k.toBlob(b => b ? ok(b) : nein(new Error('kein Bild')), 'image/png'));
+}
+async function skBildKopieren(){
+  const m = $('#skmeldung'), ersatz = $('#skersatz');
+  if (!skLaden().striche.length){ m.textContent = 'Das Blatt ist noch leer.'; return; }
+  const bild = skBild(); let ok = false;
+  try {
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({'image/png':bild})]); ok = true;
+    }
+  } catch(e){}
+  if (ok){ ersatz.hidden = true; m.textContent = '✓ Skizze kopiert. In deinen Notizen lange tippen, dann „Einsetzen“.'; return; }
+  try {
+    const b = await bild; ersatz.hidden = false;
+    ersatz.innerHTML = '<p>Halte den Finger auf das Bild und wähle <b>Kopieren</b> oder <b>Teilen</b>.</p><img alt="Skizze als Bild">';
+    ersatz.querySelector('img').src = URL.createObjectURL(b); m.textContent = '';
+  } catch(e){ m.textContent = 'Das Bild ließ sich nicht erzeugen.'; }
+}
+let notizenOeffnen = () => {};
+function notizArt(art){
+  const zeichnen = art === 'zeichnen';
+  $('#notizfeld').hidden = zeichnen; $('#skbereich').hidden = !zeichnen;
+  document.querySelectorAll('#notizarten [data-art]').forEach(b => b.classList.toggle('an', b.dataset.art === art));
+  try { localStorage.setItem('sokratesNotizArt', art); } catch(e){}
+  if (zeichnen){ skizzeVerdrahten(); requestAnimationFrame(skMalen); }
+}
+
 /* ---- Zahlen lesen (Komma, Minus, Tausenderpunkte) ---- */
 function zahlAus(roh, tausender){
   roh = String(roh || '').trim().replace(/\s/g,'').replace(/−/g,'-');   // \s deckt auch geschützte Leerzeichen ab
@@ -520,7 +673,7 @@ function zeigeSelbst(neuGeprueft){
     ${alle && DIALOG.hefteintrag ? `<div class="heft" id="heft"><div class="heft-kopf"><span>Hefteintrag</span><span class="heft-hinweis">Vergleiche ihn mit deinem Weg.</span></div>${rich(DIALOG.hefteintrag)}</div>` : ''}
     <div class="schueler">
       <div class="sprecher">${nm(DIALOG.schueler)}</div>
-      <div class="weg-kopf">Dein Weg <span class="weg-hinweis">bleibt auf diesem Gerät gespeichert, auch unter ✎ Notizen</span></div>
+      <div class="weg-kopf">Dein Weg <span class="weg-hinweis">bleibt auf diesem Gerät gespeichert, auch unter ✎ Notizen</span> <button class="klein" id="wegzeichnen" title="Skizze mit Finger oder Stift">✎ Skizze zeichnen</button></div>
       <textarea class="notiz weg" id="wegfeld" rows="6" placeholder="Schreib hier deinen Rechenweg auf – Ansatz, Formel, Zwischenergebnisse …"></textarea>
       ${DIALOG.ais ? `<div class="ais-kasten"><button class="ais-knopf" id="aisknopf">Weg vom KI-Tutor prüfen lassen ▸</button><span class="ais-hinweis">AIS.chat – den Code bekommst du an der Tafel</span><div class="ais-info" id="aisinfo" hidden></div></div>` : ''}
       <div class="sfragen">${zeilen}</div>
@@ -534,6 +687,7 @@ function zeigeSelbst(neuGeprueft){
   formeln($('#dialog'));
   aufgabenleisteVerdrahten();
   notizVerdrahten($('#dialog'));
+  if ($('#wegzeichnen')) $('#wegzeichnen').onclick = () => notizenOeffnen('zeichnen');
   const heft = $('#heft');
   if (heft) ['copy','cut','contextmenu','selectstart','dragstart'].forEach(ev => heft.addEventListener(ev, e => e.preventDefault()));
   document.querySelectorAll('.seingabe').forEach(e => {
@@ -1025,16 +1179,29 @@ function hilfenEinrichten(){
       <div class="rechner-erg" id="rerg"></div><div class="rechner-verlauf" id="rverlauf"></div>
       <div class="rechner-hinweis">Komma oder Punkt als Dezimalzeichen · Potenz mit ^ · Wurzel mit √ · Ergebnis antippen übernimmt es.</div></div>
     <div class="tafel" id="merk" hidden><div class="tafel-kopf"><span>Merkzettel</span><button class="klein" data-zu="merk">✕</button></div><div id="merkinhalt"></div></div>
-    <div class="tafel" id="notizen" hidden><div class="tafel-kopf"><span>Notizen</span><button class="klein" data-zu="notizen">✕</button></div>
+    <div class="tafel" id="notizen" hidden><div class="tafel-kopf"><span>Notizen</span>
+        <span class="notizarten" id="notizarten"><button class="klein" data-art="text">Aa Schreiben</button><button class="klein" data-art="zeichnen">✎ Zeichnen</button></span>
+        <button class="klein" data-zu="notizen">✕</button></div>
       <textarea class="notiz" id="notizfeld" rows="9" placeholder="Platz für deine Rechnungen, Ideen und Fragen …"></textarea>
-      <div class="rechner-hinweis">Bleibt auf diesem Gerät gespeichert, auch nach dem Neuladen.</div></div>`);
+      <div id="skbereich" hidden>
+        <div class="skwerkzeuge" id="skwerkzeuge">
+          <button class="klein skfarbe" data-sk="tinte" title="Stift"><i style="--sk:var(--creme)"></i></button><button class="klein skfarbe" data-sk="rot" title="Rot"><i style="--sk:#C0504D"></i></button><button class="klein skfarbe" data-sk="blau" title="Blau"><i style="--sk:#5B8DB8"></i></button><button class="klein" data-sk="dick" title="Dicker Strich">━</button><button class="klein" data-sk="radierer" title="Radierer: ganze Striche entfernen">⌫ Radierer</button><button class="klein" data-sk="zurueck" title="Rückgängig">↶</button><button class="klein" data-sk="leeren" title="Blatt leeren">Leeren</button><button class="klein" data-sk="gross" title="Größeres Blatt">⤢</button><button class="klein" data-sk="bild" title="Als Bild kopieren">Als Bild kopieren</button>
+        </div>
+        <canvas id="skblatt" class="skblatt" aria-label="Zeichenblatt für Skizzen mit Finger oder Stift"></canvas>
+        <div class="skersatz" id="skersatz" hidden></div>
+      </div>
+      <div class="rechner-hinweis"><span id="skmeldung"></span> Bleibt auf diesem Gerät gespeichert, auch nach dem Neuladen.</div></div>`);
   notizVerdrahten(document.body);
+  document.querySelectorAll('#notizarten [data-art]').forEach(b => b.onclick = () => { notizArt(b.dataset.art); $('#skmeldung').textContent = ''; });
+  let art = 'text'; try { art = localStorage.getItem('sokratesNotizArt') || 'text'; } catch(e){}
+  notizArt(art);
   const zeige = id => {
     const t = $('#'+id); t.hidden = !t.hidden;
     if (!t.hidden && (id === 'merk' || id === 'notizen')) $('#' + (id === 'merk' ? 'notizen' : 'merk')).hidden = true;   // beide links: nur eine zur Zeit
     if (!t.hidden && id === 'rechner') $('#rin').focus({preventScroll:true});
-    if (!t.hidden && id === 'notizen') { notizVerdrahten(t); if (matchMedia('(pointer:fine)').matches) $('#notizfeld').focus({preventScroll:true}); }
+    if (!t.hidden && id === 'notizen') { notizVerdrahten(t); if ($('#skbereich').hidden){ if (matchMedia('(pointer:fine)').matches) $('#notizfeld').focus({preventScroll:true}); } else requestAnimationFrame(skMalen); }
   };
+  notizenOeffnen = art => { const t = $('#notizen'); if (art) notizArt(art); if (t.hidden) zeige('notizen'); else if (art === 'zeichnen') requestAnimationFrame(skMalen); };
   $('#rechnerknopf').onclick = () => zeige('rechner');
   $('#notizknopf').onclick = () => zeige('notizen');
   $('#merkknopf').onclick = () => {

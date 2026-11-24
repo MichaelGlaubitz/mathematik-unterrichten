@@ -12,7 +12,7 @@
 <script defer src="/katex/katex.min.js"></script>
 <script defer src="/katex/auto-render.min.js"></script>
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<link rel="stylesheet" href="/sokrates/engine.css?v=202611241200">
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611241800">
 </head>
 <body>
 <div class="seite">
@@ -32,7 +32,7 @@ const DIALOG = {
   lehrer: "Sokrates",
   schueler: "{name}",
 
-  aufgabe: "Buch S. 107, Nr. 2 – Pistenraupen\nIn einem Skigebiet gibt es drei Pistenraupen: A bewältigt Steigungen bis $95\\,\\%$, B bis $70\\,\\%$, C bis $50\\,\\%$. Das Bergprofil zwischen der Aspitze und dem Bhorn wird modelliert durch $$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1 \\quad (x \\text{ und } y \\text{ in } 500\\text{ m}).$$ Schaffen alle Raupen die Auffahrt vom Tal zur Aspitze bzw. zum Bhorn? Wenn nicht: Wie weit kommen sie?\nIm GTR steht $Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}$. Was stellt $Y_2$ dar? Wie kommt man zu besseren Näherungswerten?",
+  aufgabe: "Buch S. 107, Nr. 2 – Pistenraupen\nIn einem Skigebiet gibt es drei Pistenraupen: A bewältigt Steigungen bis $95\\,\\%$, B bis $70\\,\\%$, C bis $50\\,\\%$. Das Bergprofil zwischen der Aspitze und dem Bhorn wird modelliert durch $$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1 \\quad (x \\text{ und } y \\text{ in } 500\\text{ m}).$$ Schaffen alle Raupen die Auffahrt vom Tal zur Aspitze bzw. zum Bhorn? Wenn nicht: Wie weit kommen sie?\nIn GeoGebra gibt man dazu $m(x) = \\frac{f(x + 0{,}001) - f(x)}{0{,}001}$ ein. Was stellt $m$ dar? Wie kommt man zu besseren Näherungswerten?",
 
   gegeben: "$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1$; $x, y$ in $500$ m; A $95\\,\\%$, B $70\\,\\%$, C $50\\,\\%$",
 
@@ -52,23 +52,23 @@ const DIALOG = {
   vorwissen: [
     "Steigung in Prozent: $\\frac{\\Delta y}{\\Delta x} \\cdot 100\\,\\%$",
     "Sekantensteigung mit kleinem $h$ als Näherung der lokalen Steigung",
-    "GTR: Funktion als $Y_1$ eingeben, Tabelle und Graph"
+    "GeoGebra am iPad: Funktion eingeben, Graph und Werte ablesen"
   ],
   merkzettel: [
     {"begriff":"Steigung in Prozent", "text":"$100\\,\\%$ heißt: auf $100$ m waagerecht $100$ m Höhe, also Steigung $1$ (Winkel $45°$). $95\\,\\%$ ist die Steigung $0{,}95$."},
     {"begriff":"Sekantensteigungsfunktion", "text":"$m_{sek}(x) = \\dfrac{f(x+h) - f(x)}{h}$ mit festem kleinen $h$ ordnet jeder Stelle $x$ einen Näherungswert für die Steigung zu."},
-    {"begriff":"Im GTR", "text":"$Y_1$: die Funktion. $Y_2 = (Y_1(X + 0{,}001) - Y_1(X)) / 0{,}001$: die Sekantensteigungsfunktion. Tabelle und Graph von $Y_2$ zeigen die Steigung an jeder Stelle."}
+    {"begriff":"In GeoGebra", "text":"Eingabe f(x) = -0.07x^4 + 0.5x^2 + 0.2x + 1, dann m(x) = (f(x + 0.001) - f(x)) / 0.001 (Dezimalpunkt!). Der Graph von $m$ ist die Sekantensteigungsfunktion; ein Punkt auf $m$ zeigt die Steigung an jeder Stelle."}
   ],
-  hefteintrag: "S. 107 Nr. 2 – Pistenraupen\n$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1$ ($x, y$ in $500$ m)\nTal bei $x \\approx -0{,}20$, Aspitze bei $x \\approx -1{,}78$, Bhorn bei $x \\approx 1{,}98$\n\n$Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}$ ist die Sekantensteigungsfunktion: an jeder Stelle fast die Steigung des Hangs.\n\nTal → Bhorn: steilste Stelle bei $x \\approx 1{,}09$ mit $92{,}7\\,\\%$.\nNur A ($95\\,\\%$) schafft es. B bleibt bei $x \\approx 0{,}55$ stehen ($70\\,\\%$, etwa $626$ m hoch), C bei $x \\approx 0{,}31$ ($50\\,\\%$, etwa $554$ m hoch).\n\nTal → Aspitze: steilste Stelle bei $x \\approx -1{,}09$ mit $52{,}7\\,\\%$.\nA und B schaffen es, C bleibt bei $x \\approx -0{,}91$ stehen (etwa $593$ m hoch).\n\nBessere Näherungen: $h$ kleiner wählen, z. B. $0{,}00001$.",
+  hefteintrag: "S. 107 Nr. 2 – Pistenraupen\n$f(x) = -0{,}07x^4 + 0{,}5x^2 + 0{,}2x + 1$ ($x, y$ in $500$ m)\nTal bei $x \\approx -0{,}20$, Aspitze bei $x \\approx -1{,}78$, Bhorn bei $x \\approx 1{,}98$\n\n$m(x) = \\frac{f(x + 0{,}001) - f(x)}{0{,}001}$ ist die Sekantensteigungsfunktion: an jeder Stelle fast die Steigung des Hangs.\n\nTal → Bhorn: steilste Stelle bei $x \\approx 1{,}09$ mit $92{,}7\\,\\%$.\nNur A ($95\\,\\%$) schafft es. B bleibt bei $x \\approx 0{,}55$ stehen ($70\\,\\%$, etwa $626$ m hoch), C bei $x \\approx 0{,}31$ ($50\\,\\%$, etwa $554$ m hoch).\n\nTal → Aspitze: steilste Stelle bei $x \\approx -1{,}09$ mit $52{,}7\\,\\%$.\nA und B schaffen es, C bleibt bei $x \\approx -0{,}91$ stehen (etwa $593$ m hoch).\n\nBessere Näherungen: $h$ kleiner wählen, z. B. $0{,}00001$.",
 
   rueckblick: {
     titel: "Die Steigung an jeder Stelle",
     frage: "Wie findet man heraus, wo ein Hang zu steil wird, wenn nur das Profil als Funktion gegeben ist?",
     schritte: [
       {kurz:"Übersetzen", text:"$95\\,\\%$ heißt Steigung $0{,}95$. Weil $x$ und $y$ dieselbe Einheit ($500$ m) haben, ist die Steigung des Graphen direkt die Steigung des Hangs."},
-      {kurz:"Werkzeug", text:"$Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}$ berechnet an jeder Stelle die Sekantensteigung über ein winziges Stück, also fast die Steigung des Hangs dort."},
-      {kurz:"Ablesen", text:"Der Graph von $Y_2$ hat Richtung Bhorn einen Hochpunkt bei $92{,}7\\,\\%$, Richtung Aspitze einen Tiefpunkt bei $-52{,}7\\,\\%$."},
-      {kurz:"Entscheiden", text:"Zum Bhorn schafft es nur A. Zur Aspitze schaffen es A und B. Wo $Y_2$ die Grenze einer Raupe erreicht, bleibt sie stehen: C Richtung Bhorn bei $x \\approx 0{,}31$."},
+      {kurz:"Werkzeug", text:"In GeoGebra berechnet $m(x) = \\frac{f(x + 0{,}001) - f(x)}{0{,}001}$ an jeder Stelle die Sekantensteigung über ein winziges Stück, also fast die Steigung des Hangs dort."},
+      {kurz:"Ablesen", text:"Der Graph von $m$ hat Richtung Bhorn einen Hochpunkt bei $92{,}7\\,\\%$, Richtung Aspitze einen Tiefpunkt bei $-52{,}7\\,\\%$."},
+      {kurz:"Entscheiden", text:"Zum Bhorn schafft es nur A. Zur Aspitze schaffen es A und B. Wo $m$ die Grenze einer Raupe erreicht, bleibt sie stehen: C Richtung Bhorn bei $x \\approx 0{,}31$."},
       {kurz:"Verbessern", text:"Kleinere $h$ machen die Näherung genauer. $h = 0$ geht nicht, denn dann steht $\\frac{0}{0}$ da."}
     ],
     einsicht: "Die Sekantensteigungsfunktion zeigt die Steigung als Graph über der ganzen Strecke: $$m_{sek}(x) = \\frac{f(x+h) - f(x)}{h}$$",
@@ -147,15 +147,15 @@ const DIALOG = {
       richtig:"Recht so. Und weil $x$ und $y$ beide in $500$ m gemessen werden, kürzt sich der Faktor $500$: Die Steigung des Graphen ist direkt die Steigung des Hangs." },
 
     { id:"y2", typ:"wahl",
-      text:"Im GTR des Buches steht neben $Y_1 = f(x)$ noch $$Y_2 = \\frac{Y_1(X + 0{,}001) - Y_1(X)}{0{,}001}.$$ Was stellt $Y_2$ dar?",
+      text:"Gib in GeoGebra auf deinem iPad das Profil als $f$ ein und dazu $$m(x) = \\frac{f(x + 0{,}001) - f(x)}{0{,}001}.$$ Was stellt $m$ dar?",
       optionen:[
         {text:"An jeder Stelle die Sekantensteigung über ein winziges Stück, also fast die Steigung des Hangs dort.", richtig:true},
-        {text:"Die Höhe des Berges an der Stelle $x + 0{,}001$.", hinweis:"Die Höhe wäre $Y_1(X + 0{,}001)$ allein. Hier wird eine Differenz durch $0{,}001$ geteilt. Was ist das?"},
+        {text:"Die Höhe des Berges an der Stelle $x + 0{,}001$.", hinweis:"Die Höhe wäre $f(x + 0{,}001)$ allein. Hier wird eine Differenz durch $0{,}001$ geteilt. Was ist das?"},
         {text:"Die mittlere Steigung von der Aspitze bis zum Bhorn.", hinweis:"Dann stünden die Stellen der Gipfel im Term. Hier hängt alles von $X$ ab, und das Intervall ist nur $0{,}001$ breit."}
       ],
       tipps:["Differenz der Funktionswerte durch Differenz der $x$-Werte: Das kennst du als Differenzenquotient."],
       falsch:"Lies den Term als Differenzenquotient. Wie breit ist das Intervall?",
-      richtig:"Genau: $Y_2$ ist die Sekantensteigungsfunktion mit $h = 0{,}001$. Ihr Graph ist die [[rote Kurve|msk]].",
+      richtig:"Genau: $m$ ist die Sekantensteigungsfunktion mit $h = 0{,}001$. Ihr Graph ist die [[rote Kurve|msk]].",
       zeigeNachRichtig:["msk"] },
 
     { id:"spiel", typ:"probieren",
@@ -215,19 +215,19 @@ const DIALOG = {
       text:"Unsere Werte beruhen auf $h = 0{,}001$. Wie kommt man zu besseren Näherungswerten? Probiere den Regler.",
       optionen:[
         {text:"$h$ noch kleiner wählen, etwa $0{,}00001$.", richtig:true},
-        {text:"$h = 0$ einsetzen, dann ist es genau.", hinweis:"Bei $h = 0$ steht $\\frac{0}{0}$ da. Der Rechner meldet einen Fehler."},
-        {text:"$h$ größer wählen, damit der Rechner nicht rundet.", hinweis:"Ziehe den Regler nach rechts: Die rote Kurve entfernt sich vom wahren Steigungsverlauf. Größere $h$ mitteln über ein längeres Stück."}
+        {text:"$h = 0$ einsetzen, dann ist es genau.", hinweis:"Bei $h = 0$ steht $\\frac{0}{0}$ da. GeoGebra meldet „undefiniert“."},
+        {text:"$h$ größer wählen, damit GeoGebra nicht rundet.", hinweis:"Ziehe den Regler nach rechts: Die rote Kurve entfernt sich vom wahren Steigungsverlauf. Größere $h$ mitteln über ein längeres Stück."}
       ],
       tipps:["Ziehe $h$ am Regler groß und klein. Wann ändert sich die rote Kurve kaum noch?"],
       falsch:"Ziehe den Regler und beobachte die rote Kurve.",
       richtig:"Genau. Je kleiner $h$, desto genauer. Der Grenzwert für $h \\to 0$ wäre die exakte Steigung, die lokale Änderungsrate." },
 
     { id:"schluss", typ:"rede",
-      text:"So halten wir fest, {name}: Zum Bhorn kommt nur A, der Hang hat dort bis zu $93\\,\\%$. Zur Aspitze kommen A und B, dort sind es höchstens $53\\,\\%$. Die Sekantensteigungsfunktion $Y_2$ zeigt die Steigung über die ganze Strecke als Graph. Schreibe dir den Hefteintrag ab." }
+      text:"So halten wir fest, {name}: Zum Bhorn kommt nur A, der Hang hat dort bis zu $93\\,\\%$. Zur Aspitze kommen A und B, dort sind es höchstens $53\\,\\%$. Die Sekantensteigungsfunktion $m$ zeigt die Steigung über die ganze Strecke als Graph. Schreibe dir den Hefteintrag ab." }
   ]
 };
 
 </script>
-<script src="/sokrates/engine.js?v=202611241200"></script>
+<script src="/sokrates/engine.js?v=202611241800"></script>
 </body>
 </html>

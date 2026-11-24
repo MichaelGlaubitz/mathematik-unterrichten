@@ -144,6 +144,24 @@ button{font:inherit;cursor:pointer;border-radius:4px}
 textarea.notiz{display:block;width:100%;font:inherit;font-size:1rem;line-height:1.45;padding:8px 10px;background:var(--feld);
   color:var(--creme);border:1px solid var(--rand);border-radius:4px;resize:vertical;min-height:7em}
 textarea.notiz:focus{outline:none;border-color:var(--gold)}
+textarea.notiz[hidden]{display:none}
+/* Notizen: Schreiben oder Zeichnen */
+.notizarten{display:flex;gap:4px;margin-left:auto;margin-right:8px}
+.notizarten .klein.an,.skwerkzeuge .klein.an{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+#notizen.gross{width:min(760px,calc(100vw - 36px))}
+.skwerkzeuge{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.skwerkzeuge .klein{min-height:2.1rem;padding:3px 9px}
+.skfarbe i{display:inline-block;width:1rem;height:1rem;border-radius:50%;background:var(--sk);vertical-align:-2px;border:1px solid var(--rand)}
+.skblatt{display:block;width:100%;height:min(46vh,340px);border:1px solid var(--rand);border-radius:4px;touch-action:none;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:crosshair;
+  background-color:var(--feld);background-image:linear-gradient(var(--rand) 1px,transparent 1px),linear-gradient(90deg,var(--rand) 1px,transparent 1px);
+  background-size:20px 20px;background-position:-1px -1px}
+#notizen.gross .skblatt{height:min(68vh,620px)}
+@media (pointer:coarse){ .skblatt{height:min(52vh,420px)} #notizen.gross .skblatt{height:min(72vh,760px)} }
+.skersatz{margin-top:8px}
+.skersatz img{max-width:100%;border:1px solid var(--rand);border-radius:4px}
+.skersatz p{font-size:.88rem;margin:0 0 6px}
+#wegzeichnen{margin-left:8px;font-weight:400;font-size:.85rem}
 /* iPad: Tafeln oben, im sichtbaren Ausschnitt (Variablen setzt engine.js über visualViewport) */
 @media (pointer:coarse){
   .tafel{top:calc(var(--vv-oben,0px) + 10px);bottom:auto;max-height:calc(var(--vv-hoehe,100vh) - 20px)}
