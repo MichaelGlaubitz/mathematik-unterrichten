@@ -33,6 +33,9 @@
        und gibt nur Ergebnisse ein. Stimmt alles: Hefteintrag zum Vergleich.
        Sonst Hinweis zum erkannten Fehler und Einstieg ins Gespräch bei
        `ab` (Schritt-id) des ersten falschen Ergebnisses.
+     · Zahlen: Eingaben dürfen Brüche sein („5/39“), ein „%“ am Ende fällt weg.
+       zahl-Schritte können wie selbst.fragen typische Fehlwerte tragen:
+       fehler:[{wert, toleranz?, hinweis}] – Sokrates antwortet dann gezielt.
      · Rückblick: DIALOG.rueckblick = { titel, frage, schritte:[{kurz, text}],
          einsicht, mitnehmen } zeichnet nach dem letzten Schritt und nach dem
        stimmigen eigenen Weg nach, wie sich der Gedanke entwickelt hat. Er lässt
@@ -572,8 +575,10 @@ function notizArt(art){
 
 /* ---- Zahlen lesen (Komma, Minus, Tausenderpunkte) ---- */
 function zahlAus(roh, tausender){
-  roh = String(roh || '').trim().replace(/\s/g,'').replace(/−/g,'-');   // \s deckt auch geschützte Leerzeichen ab
+  roh = String(roh || '').trim().replace(/\s/g,'').replace(/−/g,'-').replace(/%$/,'');   // \s deckt auch geschützte Leerzeichen ab
   if (tausender) roh = roh.replace(/\.(?=\d{3}(\D|$))/g, '');
+  const bruch = roh.match(/^(-?\d+(?:[.,]\d+)?)\/(\d+(?:[.,]\d+)?)$/);   // Bruch wie 5/39
+  if (bruch){ const n = parseFloat(bruch[2].replace(',','.')); return n ? parseFloat(bruch[1].replace(',','.')) / n : null; }
   roh = roh.replace(',', '.');
   const v = parseFloat(roh);
   return (roh === '' || isNaN(v)) ? null : v;
@@ -1126,13 +1131,14 @@ function waehle(i){
 function pruefeZahl(){
   const s = DIALOG.schritte[schritt];
   let roh = $('#eingabe').value.trim().replace(/[\s  ]/g,'').replace(/−/g,'-');
-  if (s.tausender) roh = roh.replace(/\.(?=\d{3}(\D|$))/g, '');
-  roh = roh.replace(',', '.');
-  const v = parseFloat(roh);
-  if (roh === '' || isNaN(v)) return;
+  const v = zahlAus(roh, s.tausender);
+  if (v === null) return;
   if (Math.abs(v - s.loesung) <= (s.toleranz || 1e-9)) return richtigGeloest();
-  const gesagt = v.toLocaleString('de-DE', {maximumFractionDigits:4}).replace('-','−');
-  zeichne(`<p>Du sagst ${gesagt}?</p>` + rich(s.falsch || 'Prüfe es noch einmal.'), 'Du sagst ' + gesagt + '? ' + (s.falsch || 'Prüfe es noch einmal.'));
+  // Typische Fehlwerte bekommen ihren eigenen Hinweis, alle anderen den allgemeinen falsch-Text
+  const fe = (s.fehler || []).find(x => Math.abs(v - x.wert) <= (x.toleranz === undefined ? (s.toleranz || 1e-9) : x.toleranz));
+  const hinweis = (fe && fe.hinweis) || s.falsch || 'Prüfe es noch einmal.';
+  const gesagt = /\//.test(roh) ? roh : v.toLocaleString('de-DE', {maximumFractionDigits:4}).replace('-','−');
+  zeichne(`<p>Du sagst ${gesagt}?</p>` + rich(hinweis), 'Du sagst ' + gesagt + '? ' + hinweis);
 }
 
 /* ---- Rechner (eigener Parser, kein eval) ---- */
