@@ -97,7 +97,7 @@ STATIONEN.push({
     ];
     const baumDaten = { s1: name, s2: [name, name], p1: [brT(cnt[0], n), brT(cnt[1], n)], p2: z2.map((z) => z.map((x) => brT(x, n2))) };
     return {
-      html, felder, geschichte: "idee-" + art,
+      html, felder, geschichte: "idee-" + art, sok: { art, cnt, name, mit, i, j, satzA: satz("erste", i), satzB: satz("zweite", j) },
       bild: bild ? bild(mit) : "",
       auswahl: entscheidung(mit, mit
         ? "Vergleiche: P(B | A) und P(B) sind gleich. Das Wissen über den ersten Zug ändert nichts am zweiten."
@@ -136,7 +136,7 @@ STATIONEN.push({
     const html = `<p>${k.intro(N)}</p>${leg(k)}${tafel(w, tafelKopf(k))}
       <p>Sind A und B stochastisch unabhängig? Berechne P(${X}) und P(${X} | ${Y}) und vergleiche. <span class="klein leise">(Dezimalzahlen auf drei Stellen.)</span></p>`;
     return {
-      html,
+      html, sok: { w, k, N, unab, umgekehrt },
       felder: [
         { id: "px", label: `P(${X})`, wert: pX, tol: 0.0006,
           fallen: [{ wert: nXY / N, text: `Das ist das Innenfeld „A und B“. P(${X}) steht am Rand: alle mit ${X}, geteilt durch ${N}.` }] },
@@ -197,17 +197,17 @@ STATIONEN.push({
         return { key, wert: t[r][c], tol: 0.0051, fallen };
       });
       return {
-        html, felder: [], art: "tafel", tafelFelder: tf,
+        html, felder: [], art: "tafel", tafelFelder: tf, sok: { v: "tafel", k, pa, pb },
         tipps: [`Oben links: P(A) · P(B) = ${kz(pa)} · ${kz(pb)}.`, `Danach jede Zeile und jede Spalte: innen zusammen = Rand. Probe: Auch unten rechts innen ist ein Produkt, ${kz(1 - pa)} · ${kz(1 - pb)}.`],
         loesung: tafel(t, { ...tafelKopf(k), fmt: (x) => kz(x, 4) }),
       };
     }
     const pa = wahl([0.2, 0.25, 0.4, 0.5, 0.6, 0.75, 0.8]), pb = wahl([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8]);
-    const pab = pa * pb;
+    const pab = pa * pb, zweitNN = Math.random() < 0.5;
     const html = `<p>A und B sind stochastisch unabhängig. Es gilt <span class="m">P(A) = ${kz(pa)}</span> und <span class="m">P(A ∩ B) = ${kz(pab, 4)}</span>.</p>
       <p class="klein leise">Dezimalzahlen auf drei Stellen.</p>`;
     return {
-      html,
+      html, sok: { v: "rueck", pa, pb, zweit: zweitNN ? "nn" : "oder" },
       felder: [
         { id: "pb", label: "P(B)", wert: pb, tol: 0.0006,
           fallen: [
@@ -215,7 +215,7 @@ STATIONEN.push({
             { wert: pab, text: "Das ist P(A ∩ B) selbst. Gesucht ist der zweite Faktor." },
             { wert: pa - pab, text: "Das ist P(A ∩ B̄) (Rest der Zeile A). Gesucht ist P(B): teilen statt abziehen." },
           ] },
-        Math.random() < 0.5
+        zweitNN
           ? { id: "nn", label: `P(${Q("A")} ∩ ${Q("B")})`, wert: (1 - pa) * (1 - pb), tol: 0.0006,
               fallen: [
                 { wert: 1 - pab, text: "Das ist 1 − P(A ∩ B), also „nicht beides“. Gesucht ist „weder A noch B“." },
@@ -253,7 +253,7 @@ STATIONEN.push({
       <p>Das Flächenbild zeigt das Ergebnis. In der Spalte B sind ${w[2][0]}, in der Spalte ${Q("B")} ${w[2][1]}.</p>
       <p class="klein leise">Dezimalzahlen auf drei Stellen.</p>`;
     return {
-      html, bild: mosaikBild(w, k),
+      html, bild: mosaikBild(w, k), sok: { w, k, N, unab },
       felder: [
         { id: "h1", label: "P(A | B)", wert: h1, tol: 0.0006,
           fallen: [{ wert: w[0][0] / N, text: `Das ist P(A ∩ B), der Anteil an allen ${N}. Die Höhe misst den Anteil in der Spalte: durch ${w[2][0]} teilen.` },
@@ -355,6 +355,7 @@ STATIONEN.push({
     const pA = nA / N, pB = nB / N, pAB = nAB / N;
     return {
       html, geschichte: "abzaehlen-" + art, bild: raster(null) + `<p class="klein leise unterschrift">${N} gleich wahrscheinliche Ergebnisse</p>`,
+      sok: { art, At: A.t, Bt: B.t, marken: [...Array(Z).keys()].map((r) => [...Array(S).keys()].map((c) => mark(r, c))), N, nA, nB, nAB, unab },
       felder: [
         { id: "a", label: "P(A)", wert: pA, tol: 0.0006, fallen: [{ wert: nA, text: `Das ist eine Anzahl. Teile durch alle ${N} Ergebnisse.` }] },
         { id: "b", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: nB, text: `Das ist eine Anzahl. Teile durch alle ${N} Ergebnisse.` }] },
@@ -434,7 +435,7 @@ STATIONEN.push({
             { wert: pAgB, text: "Das ist P(A | B), der Anteil unter B. Gesucht ist der Anteil an allen: noch mal P(B)." },
           ] },
       ],
-      geschichte: "falle-" + FALLE.indexOf(c),
+      geschichte: "falle-" + FALLE.indexOf(c), sok: { pA, pB, pAgB, unab: !!c.unab },
       auswahl: entscheidung(!!c.unab, c.unab ? `P(A | B) = ${pz(pAgB)} = P(A): Ob B eintritt, ändert nichts an der Wahrscheinlichkeit von A.` : `P(A | B) = ${pz(pAgB)}, aber P(A) = ${pz(pA)}. Unter B ist A viel häufiger.`),
       tipps: [`Vergleiche P(A | B) mit P(A). Sind sie gleich, darfst du P(A) · P(B) rechnen, sonst nicht.`, `Pfad im Baum mit erster Stufe B: P(A ∩ B) = P(B) · P(A | B) = ${kz(pB)} · ${kz(pAgB)}.`],
       loesung: `<p>P(A ∩ B) = P(B) · P(A | B) = ${kz(pB)} · ${kz(pAgB)} = ${kz(richtig, 4)}</p>

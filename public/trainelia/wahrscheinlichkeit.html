@@ -136,6 +136,7 @@ details.karte[open]>summary{margin-bottom:10px}
 .bild{background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow-x:auto;align-self:start}
 @media (min-width:760px){.bild{position:sticky;top:12px}}
 .leiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.sokrates-leiste{padding-top:10px;border-top:1px dashed var(--linie)}
 .zaehl{color:var(--text-schwach);font-size:.88rem}
 /* Merke / Stolperstein */
 .kaesten{display:grid;grid-template-columns:1fr;gap:12px}
@@ -305,6 +306,8 @@ footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
 <footer>Ohne Anmeldung · Lernstand bleibt auf diesem Gerät · mathematik-unterrichten.de</footer>
 </div>
 
+<script src="sokrates-trainer.js?v=202611242040"></script>
+<script src="sokrates-trainer-u.js?v=202611242040"></script>
 <script>
 "use strict";
 /* ============================================================
@@ -794,7 +797,7 @@ STATIONEN.push({
     const html = g.text;
     const liste = g.menge ? `E = {${E.join("; ")}}` : `Zu E gehören die Karten ${E.join(", ")}`;
     return {
-      html, geschichte: "woerter-" + art,
+      html, geschichte: "woerter-" + art, sok: { labels: g.labels, inE: g.inE, menge: g.menge },
       bild: `${g.kopf}${kaertchen(g.labels, g.rot || [])}${TIPP_HINWEIS}`,
       felder: [
         { id: "k", label: "Anzahl der Ergebnisse in E", wert: k, tol: 0, art: "n",
@@ -873,7 +876,7 @@ STATIONEN.push({
     const bb = { s1: ["A", "B"], s2: [[f1, f2], [f1, f2]], p1: [br(kz6, m), br(m - kz6, m)], p2: [[br(r1, nA), br(b1, nA)], [br(r2, nB), br(b2, nB)]] };
     const geraetName = { wuerfel: "Würfel", rad: "Glücksrad", muenze: "Münze" }[geraet];
     return {
-      html, felder, geschichte: "baum-" + geraet,
+      html, felder, geschichte: "baum-" + geraet, sok: { v: "urne", geraet, kz6, m, f1, f2, r1, b1, r2, b2, welche },
       bild: urnenBild(kz6, f1, f2, [r1, b1], [r2, b2], m),
       tipps: [
         `Zeichne den Baum mit zwei Stufen: erst A oder B (${geraetName}), dann die Farbe. P(A) = ${br(kz6, m)}.`,
@@ -904,7 +907,7 @@ STATIONEN.push({
     return {
       html: `<p>In einer Urne liegen ${r} ${f1}e und ${b} ${f2}e Kugeln. Es werden zwei Kugeln <b>ohne Zurücklegen</b> gezogen.</p>
         <p class="klein leise">Brüche (z. B. 5/39) oder Dezimalzahlen auf drei Stellen.</p>`,
-      felder, geschichte: "baum-ohne",
+      felder, geschichte: "baum-ohne", sok: { v: "ohne", f1, f2, r, b, welche },
       bild: urneBild(f1, f2, r, b, "ohne Zurücklegen"),
       tipps: [`Zweite Stufe: Es liegen nur noch ${n - 1} Kugeln in der Urne. Nach einer ${f1}en sind es ${r - 1} ${f1}e.`, `${baum({ ...bb, hl: welche === 1 ? [1, 2] : [0] })}`],
       loesung: `${baum({ ...bb, enden: [brT(r * (r - 1), n * (n - 1)), brT(r * b, n * (n - 1)), brT(b * r, n * (n - 1)), brT(b * (b - 1), n * (n - 1))] })}
@@ -932,7 +935,7 @@ STATIONEN.push({
     return {
       html: `<p>Eine Basketballerin wirft zwei Freiwürfe. Den ersten trifft sie mit ${pz(p)}. Nach einem Treffer ist sie sicherer und trifft den zweiten mit ${pz(q1)}, nach einem Fehlwurf nur mit ${pz(q2)}.</p>
         <p class="klein leise">T: Treffer, D: daneben. Dezimalzahlen auf drei Stellen.</p>`,
-      felder: paare.map((k) => F[k]), geschichte: "baum-freiwurf",
+      felder: paare.map((k) => F[k]), geschichte: "baum-freiwurf", sok: { v: "frei", p, q1, q2, paare },
       tipps: [`Erste Stufe: erster Wurf T oder D. Zweite Stufe: die Quote hängt vom ersten Wurf ab.`, `${baum(bb)}`],
       loesung: `${baum({ ...bb, enden: [kz(zwei, 4), kz(p * (1 - q1), 4), kz((1 - p) * q2, 4), kz((1 - p) * (1 - q2), 4)] })}
         <p>P(zwei Treffer) = ${kz(p, 2)} · ${kz(q1, 2)} ≈ ${kz(zwei)}; P(genau ein Treffer) = ${kz(p, 2)} · ${kz(1 - q1, 2)} + ${kz(1 - p, 2)} · ${kz(q2, 2)} ≈ ${kz(genau)}; P(mindestens ein Treffer) = 1 − ${kz(1 - p, 2)} · ${kz(1 - q2, 2)} ≈ ${kz(mind)}</p>`,
@@ -971,7 +974,7 @@ STATIONEN.push({
       ${tafel(bekannt, { ...tafelKopf(k), eingabe: new Set(offen), id: "uebTafel" })}`;
     return {
       html, tafelFelder: offen.map((key) => { const [r, c] = key.split(",").map(Number); return { key, wert: w[r][c] }; }),
-      felder: [], art: "tafel",
+      felder: [], art: "tafel", sok: { w, k, N, geg: muster.g },
       tipps: [
         `Fang mit dem Rand an: Was in einer Zeile oder Spalte schon zwei Einträge hat, ergibt den dritten durch Plus oder Minus.`,
         `Jede Zeile: links + Mitte = rechts. Jede Spalte: oben + Mitte = unten. Die Gesamtzahl ist ${N}.`,
@@ -1013,7 +1016,7 @@ STATIONEN.push({
       return { key, wert: w[r][c] / N, tol: 0.0051, fallen };
     });
     return {
-      html, felder: [], art: "tafel", tafelFelder: tf,
+      html, felder: [], art: "tafel", tafelFelder: tf, sok: { w, k, N },
       tipps: [`Jedes Feld: Anzahl im Feld geteilt durch ${N}. Auch am Rand.`, `Oben links: ${brRoh(w[0][0], N)} ≈ ${kz(w[0][0] / N)}. Probe am Ende: Jede Zeile geht auf.`],
       loesung: tafel(w.map((z) => z.map((x) => x / N)), { ...tafelKopf(k), fmt: (x) => kz(x) }),
     };
@@ -1064,7 +1067,7 @@ STATIONEN.push({
     const html = `<p>${k.intro(N)}</p>${leg(k)}${tafel(w, tafelKopf(k))}<p><b>${frage}</b></p>`;
     const nenner = [N, ny, nx][notation];
     return {
-      html,
+      html, sok: { w, k, N, x, y, notation, frage },
       bild: mosaikBild(w, k),
       auswahl: { label: "Welche Wahrscheinlichkeit ist gefragt?", optionen, richtig: notation,
         falsch: (i) => i === 0 ? "„und“ ohne Auswahl aus einer Gruppe wäre der Schnitt. Hier wird aber aus einer Teilgruppe ausgewählt." : (notation === 0 ? "Hier wird aus allen ausgewählt, ohne Bedingung: Das ist der Schnitt „und“." : "Die Bedingung ist die Gruppe, aus der ausgewählt wird. Sie steht hinter dem Strich.") },
@@ -1114,7 +1117,7 @@ STATIONEN.push({
       <p>Übersetze die Tafel in ein Baumdiagramm, dessen erste Stufe <b>${ersteA ? "A" : "B"}</b> ist. Trage die Wahrscheinlichkeiten an den Ästen ① bis ⑥ ein (auf zwei Stellen oder als Bruch).</p>
       ${baum({ ...g, p1: ["①", "②"], p2: [["③", "④"], ["⑤", "⑥"]] })}`;
     return {
-      html, felder,
+      html, felder, sok: { w, k, N, ersteA },
       tipps: [`① und ② sind Randwerte geteilt durch ${N}.`, `③ bis ⑥: Anzahl im Innenfeld geteilt durch die Anzahl der Gruppe, aus der der Ast kommt. Zum Beispiel ③ = ${brRoh(g.innen[0][0], g.rand[0])}.`],
       loesung: baum({ ...g, p1: [kz(g.rand[0] / N, 2), kz(g.rand[1] / N, 2)], p2: g.innen.map((z, i) => z.map((x) => kz(x / g.rand[i], 3))),
         enden: [g.innen[0][0], g.innen[0][1], g.innen[1][0], g.innen[1][1]].map((x) => kz(x / N, 3)) }),
@@ -1169,7 +1172,7 @@ STATIONEN.push({
     const s = { s1: ["A", QS("A")], s2: [["B", QS("B")], ["B", QS("B")]] };
     return {
       html,
-      bild: hundertBild(Math.round(a * 100), c0.A, c0.ik.A), geschichte: "umkehr-" + c0.A,
+      bild: hundertBild(Math.round(a * 100), c0.A, c0.ik.A), geschichte: "umkehr-" + c0.A, sok: { A: c0.A, B: c0.B, a, b, c },
       felder: [
         { id: "pb", label: "P(B)", wert: pB, tol: 0.0006, fallen: [{ wert: ab, text: "Das ist nur der Pfad über A. B erreicht man auch über " + Q("A") + "." }, { wert: b, text: "Das ist P(B | A). P(B) ist die Summe beider Pfade zu B." }] },
         { id: "pab", label: "P(A | B)", wert: pAB, tol: 0.0006, fallen },
@@ -1370,8 +1373,10 @@ function neueAufgabe() {
       <button type="button" id="loesung">Lösung zeigen</button>
       <button type="button" id="neu">Neue Aufgabe</button>
     </div>
+    ${sokratesBereit() ? `<div class="leiste sokrates-leiste"><button type="button" id="sokrates">🏛 Mit Sokrates lösen</button><span class="klein leise">Sokrates führt dich mit Fragen durch genau diese Aufgabe.</span></div>` : ""}
     <div id="tipps"></div><div id="meldung"></div>`;
   $("#uebung").innerHTML = html;
+  if ($("#sokrates")) $("#sokrates").onclick = sokratesOeffnen;
   $("#pruefen").onclick = pruefen;
   $("#tipp").onclick = tippZeigen;
   $("#loesung").onclick = loesungZeigen;
@@ -1387,6 +1392,24 @@ function neueAufgabe() {
   $("#weg-text") && ($("#weg-text").value = "");
   $("#kiAntwort") && ($("#kiAntwort").innerHTML = "");
   serieZeichnen();
+}
+
+/* Sokratischer Trainer: Das Gespräch zur aktuellen Aufgabe entsteht hier, die Seite
+   sokrates.html liest es aus diesem Browser (localStorage). Nichts geht ans Netz. */
+function sokratesBereit() {
+  try { return !!(window.TraineliaSokrates && TraineliaSokrates.kann(aktiv.id, aufgabe)); } catch { return false; }
+}
+function sokratesOeffnen() {
+  try {
+    const d = TraineliaSokrates.dialog(aktiv.id, aufgabe, { text: "◂ Trainelia", href: location.pathname.replace(/^.*\//, "") });
+    localStorage.setItem("trainelia-sokrates", JSON.stringify(d));
+  } catch (e) {
+    $("#meldung").innerHTML = `<p class="meldung falsch">Das Gespräch ließ sich nicht vorbereiten. Nimm eine neue Aufgabe.</p>`;
+    console.error(e);
+    return;
+  }
+  const fenster = window.open("sokrates.html", "trainelia-sokrates");
+  if (!fenster) location.href = "sokrates.html";
 }
 
 const passt = (x, f) => (f.art === "n" ? Math.abs(x - f.wert) < 1e-9 : Math.abs(x - f.wert) <= f.tol + 1e-12);

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sokratischer Trainer – ein Gespräch mit Sokrates</title>
+<script>try{if(localStorage.getItem('sokratesThema')==='hell')document.documentElement.dataset.thema='hell'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js"></script>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+<link rel="stylesheet" href="/sokrates/engine.css?v=202611242000">
+</head>
+<body>
+<div class="seite">
+  <header>
+    <div class="kopf-links"><a class="heim" id="heim" hidden></a><h1 id="titel"></h1></div>
+    <div class="kopf-rechts"><span class="fortschritt" id="fortschritt"></span><button class="klein" id="thema">☀ Hell</button></div>
+  </header>
+  <main>
+    <section class="dialog" id="dialog"></section>
+    <section class="zeichnung"><div id="ggb"></div></section>
+  </main>
+</div>
+<script>
+/* Sokratischer Trainer für Trainelia. Das Gespräch entsteht auf der Übungsseite
+   (sokrates-trainer.js) zu der Aufgabe, die dort gerade steht, und wird nur in
+   diesem Browser abgelegt (localStorage 'trainelia-sokrates'). Diese Seite liest
+   es und übergibt es der gemeinsamen Engine. Kein DIALOG im Wortlaut hier. */
+(function () {
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem('trainelia-sokrates') || 'null'); } catch (e) {}
+  if (!d || !d.schritte || !d.geogebra) {
+    d = {
+      titel: "Sokratischer Trainer – ein Gespräch mit Sokrates",
+      heim: { text: "◂ Trainelia", href: "./" },
+      lehrer: "Sokrates", schueler: "{name}",
+      aufgabe: "Öffne den Trainer aus einer Übungsaufgabe: Knopf „Mit Sokrates lösen“.",
+      geogebra: { sicht: [-1, 1, -1, 1], befehle: [], startwerte: {}, ziehbar: [], sichtbar: [], stil: {} },
+      schritte: [{ id: "leer", typ: "rede", text: "Sei gegrüßt, {name}. Hier ist noch keine Aufgabe. Wähle auf der Übungsseite eine Aufgabe und tippe auf „Mit Sokrates lösen“." }]
+    };
+  }
+  /* Ein neues Gespräch beginnt mit leerem Notizfeld („Dein Weg“) */
+  try {
+    var schl = 'sokratesNotiz:' + location.pathname;
+    if (d.kennung && localStorage.getItem('trainelia-sokrates-kennung') !== d.kennung) {
+      localStorage.removeItem(schl);
+      localStorage.setItem('trainelia-sokrates-kennung', d.kennung);
+    }
+  } catch (e) {}
+  window.DIALOG = d;
+})();
+</script>
+<script src="/sokrates/engine.js?v=202611242000"></script>
+</body>
+</html>
