@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integration durch Substitution Schritt für Schritt</title>
+<meta name="description" content="Lernweg zur Integration durch Substitution für die Oberstufe: Kettenregel rückwärts, das Innere erkennen, das Verfahren in fünf Schritten, lineare Substitution, Grenzen mitnehmen, Fehler finden, erklären können. Vormachen mit Fragen, Üben mit immer neuen Aufgaben, Gespräch mit Sokrates, Rückmeldung zum eigenen Rechenweg.">
+<!--
+  ===========================================================================
+  Integration durch Substitution Schritt für Schritt (Trainelia, Kapitel 3)
+  ---------------------------------------------------------------------------
+  Gebaut aus dem Gerüst von wahrscheinlichkeit.html mit
+  trainelia-bau/baue_subst.mjs: Helfer, Anzeige, KI-Rückmeldung und
+  Sokrates-Anbindung sind dieselben, die Stationen (Abschnitt 4) sind neu.
+  Nicht hier ändern, sondern in trainelia-bau/stationen_s.js und neu bauen.
+
+  BUCHFREI, OHNE LERNGRUPPE: keine Schulbuchaufgabe, kein Seitenverweis,
+  kein Bezug auf eine Klasse oder Person.
+
+  WAS DAS GERÄT VERLÄSST: Der Lernstand nie (localStorage). Nur wer die
+  KI-Rückmeldung anfordert, schickt Aufgabe, Referenzlösung und den eigenen
+  Rechenweg an den Dienst ki-rueckmeldung/ (Stationen s-…).
+  ===========================================================================
+-->
+<style>
+:root{
+  --grund:#faf8f2; --flaeche:#ffffff; --flaeche-2:#f3efe6;
+  --linie:#dcd5c5; --linie-stark:#bfb39c;
+  --text:#2a241d; --text-leise:#564938; --text-schwach:#857355;
+  --akzent:#2563eb; --akzent-hell:#dbeafe; --akzent-tief:#1e40af;
+  --teal:#0d9488; --teal-hell:#ccfbf1;
+  --violett:#7c3aed; --violett-hell:#ede9fe;
+  --gold:#b45309; --gold-hell:#fef3c7;
+  --gruen:#15803d; --gruen-hell:#dcfce7;
+  --rot:#be123c; --rot-hell:#ffe4e6;
+  --radius:12px; --radius-klein:8px;
+  --schatten:0 1px 2px rgba(42,36,29,.06), 0 8px 24px -12px rgba(42,36,29,.18);
+  --schrift:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+    --linie:#423a56; --linie-stark:#5b5175;
+    --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+    --akzent:#7aa2ff; --akzent-hell:#24304f; --akzent-tief:#b9ccff;
+    --teal:#2dd4bf; --teal-hell:#123a37;
+    --violett:#a78bfa; --violett-hell:#2e2450;
+    --gold:#f2b35b; --gold-hell:#3a2c14;
+    --gruen:#4ade80; --gruen-hell:#143322;
+    --rot:#fb7185; --rot-hell:#3d1823;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+  --linie:#423a56; --linie-stark:#5b5175;
+  --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+  --akzent:#7aa2ff; --akzent-hell:#24304f; --akzent-tief:#b9ccff;
+  --teal:#2dd4bf; --teal-hell:#123a37;
+  --violett:#a78bfa; --violett-hell:#2e2450;
+  --gold:#f2b35b; --gold-hell:#3a2c14;
+  --gruen:#4ade80; --gruen-hell:#143322;
+  --rot:#fb7185; --rot-hell:#3d1823;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--grund);color:var(--text);font-family:var(--schrift);font-size:17px;line-height:1.55}
+.huelle{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;margin:0 0 .4em}
+h3{font-size:1.05rem;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+a{color:var(--akzent)}
+.leise{color:var(--text-leise)}
+.klein{font-size:.88rem}
+.kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.kopf .werkzeuge{display:flex;gap:8px}
+button{font:inherit;cursor:pointer;border-radius:var(--radius-klein);border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);padding:.45em .9em}
+button:hover{border-color:var(--akzent)}
+button.voll{background:var(--akzent);border-color:var(--akzent);color:#fff}
+:root[data-theme="dark"] button.voll{color:#10131c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.voll{color:#10131c}}
+button:disabled{opacity:.5;cursor:default}
+.karte{background:var(--flaeche);border:1px solid var(--linie);border-radius:var(--radius);box-shadow:var(--schatten);padding:18px;margin:16px 0}
+/* Wegübersicht */
+/* Bereiche: jeder hat seine Farbe (Fläche, linker Balken, Marke) */
+.vor-b{--b:var(--akzent);--b-hell:var(--akzent-hell)}
+.ueben-b{--b:var(--teal);--b-hell:var(--teal-hell)}
+.ki-b{--b:var(--violett);--b-hell:var(--violett-hell)}
+.zettel-b{--b:var(--gold);--b-hell:var(--gold-hell)}
+.bereich{background:var(--b-hell);border-left:6px solid var(--b)}
+.marke{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--b);margin-bottom:2px}
+.bereich .bild,.bereich .aufgabe,.bereich .antwort,.bereich textarea{background:var(--flaeche)}
+.bereich .merke,.bereich .stolper{background:var(--flaeche);border-width:1px 1px 1px 5px}
+.bereich .merke h3{color:var(--teal)} .bereich .stolper h3{color:var(--gold)}
+.bereich .aufgabe{border-radius:var(--radius-klein);padding:12px 14px;border:1px solid var(--linie)}
+.wegweiser .c{background:var(--b-hell);color:var(--b);padding:1px 9px;border-radius:999px;font-weight:600}
+/* Wegleiste: Nummer + ein Wort */
+.weg{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.weg button{display:flex;align-items:center;gap:7px;padding:5px 11px 5px 5px;border-radius:999px;font-size:.9rem}
+.weg button .nr{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--flaeche-2);font-weight:700;font-size:.85rem}
+.weg button.aktiv{border-color:var(--akzent);background:var(--akzent-hell)}
+.weg button.aktiv .nr{background:var(--akzent);color:#fff}
+.weg button.geschafft .nr{background:var(--gruen);color:#fff}
+/* Eingeklapptes */
+details.karte>summary{cursor:pointer;font-weight:600;list-style:none}
+details.karte>summary::before{content:"▸ ";color:var(--akzent)}
+details.karte[open]>summary::before{content:"▾ "}
+details.karte[open]>summary{margin-bottom:10px}
+/* Text, der sich aufschreibt */
+.w{opacity:0;transition:opacity .18s}
+.w.da{opacity:1}
+.punkte{display:inline-flex;gap:5px;vertical-align:middle}
+.punkte i{width:9px;height:9px;border-radius:50%;background:var(--linie-stark)}
+.punkte i.an{background:var(--akzent)}
+.einblenden{animation:ein .35s ease-out}
+@keyframes ein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.w{transition:none}.einblenden{animation:none}}
+/* Mathe-Schreibweisen */
+.q{display:inline-block;border-top:1.5px solid currentColor;line-height:1.05;padding-top:1px;margin-top:2px}
+.bruch{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;margin:0 .15em;font-size:.95em}
+.bruch>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.bruch>span:last-child{padding:0 .2em}
+.formel{font-family:var(--schrift);white-space:nowrap}
+.m{white-space:nowrap}
+/* Vorführung */
+.vor{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.vor{grid-template-columns:1.05fr 1fr}}
+.schritt{border-left:3px solid var(--akzent);padding:4px 0 4px 14px;font-size:1.08rem;min-height:5.5em;cursor:pointer}
+.bild{background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow-x:auto;align-self:start}
+@media (min-width:760px){.bild{position:sticky;top:12px}}
+.leiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.sokrates-leiste{padding-top:10px;border-top:1px dashed var(--linie)}
+.zaehl{color:var(--text-schwach);font-size:.88rem}
+/* Merke / Stolperstein */
+.kaesten{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.kaesten{grid-template-columns:1fr 1fr}}
+.merke,.stolper{border-radius:var(--radius-klein);padding:12px 14px}
+.merke{background:var(--teal-hell);border:1px solid var(--teal)}
+.stolper{background:var(--gold-hell);border:1px solid var(--gold)}
+.merke h3,.stolper h3{margin:0 0 .3em;font-size:.95rem}
+/* Vierfeldertafel */
+table.tafel{border-collapse:collapse;font-variant-numeric:tabular-nums;margin:4px auto}
+table.tafel th,table.tafel td{border:1px solid var(--linie-stark);padding:6px 10px;text-align:center;min-width:64px}
+table.tafel th{background:var(--flaeche);font-weight:600;font-size:.92rem}
+table.tafel td{background:var(--flaeche)}
+table.tafel td.rand{background:var(--flaeche-2)}
+table.tafel td.hl{background:var(--akzent-hell);outline:2px solid var(--akzent);outline-offset:-2px}
+table.tafel td.hl2{background:var(--gold-hell)}
+table.tafel td.falsch{background:var(--rot-hell)}
+table.tafel input{width:74px;text-align:center}
+table.tafel .kl{display:block;font-size:.72rem;color:var(--text-schwach);font-weight:400}
+/* Würfelseiten */
+.seiten{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.seiten span{width:44px;height:44px;border-radius:8px;border:1.5px solid var(--linie-stark);display:flex;align-items:center;justify-content:center;font-weight:600;background:var(--flaeche)}
+.seiten span.an{background:var(--akzent-hell);border-color:var(--akzent)}
+.seiten span.gegen{background:var(--gold-hell);border-color:var(--gold)}
+/* Baum */
+svg.baum{width:100%;max-width:520px;height:auto}
+svg.baum line{stroke:var(--linie-stark);stroke-width:2}
+svg.baum line.hl{stroke:var(--akzent);stroke-width:4}
+svg.baum text{fill:var(--text);font-family:var(--schrift);font-size:21px}
+svg.baum text.p{fill:var(--akzent-tief);font-size:19px;font-weight:600}
+svg.baum text.e{fill:var(--violett);font-size:19px;font-weight:600}
+svg.baum text.nr{fill:var(--gold);font-size:14px;font-weight:700}
+/* Üben */
+.aufgabe{margin:8px 0 12px}
+/* Aufgabe mit Bild: auf breiten Schirmen nebeneinander */
+.mitbild{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.mitbild{grid-template-columns:1fr 290px;align-items:start}}
+.abild{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px}
+.abild svg{width:100%;height:auto}
+.abild .unterschrift{margin:0;text-align:center}
+.abild .seiten span{width:36px;height:36px;font-size:.92rem}
+.tippbar span{cursor:pointer;user-select:none}
+/* Piktogramme */
+svg.ik{width:20px;height:20px;flex:none}
+svg.ik.gross{width:44px;height:44px}
+.legende{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;border-radius:999px;border:1px solid var(--linie);background:var(--flaeche-2);font-size:.9rem}
+.chip.ca svg{color:var(--akzent)} .chip.cb svg{color:var(--gold)}
+table.tafel .kl svg.ik{width:15px;height:15px;vertical-align:-3px;margin-right:3px}
+table.tafel th:not(:first-child) .kl svg.ik{color:var(--gold)}
+table.tafel tr th:first-child .kl svg.ik{color:var(--akzent)}
+.bildkopf{color:var(--akzent)}
+/* Würfelkörper */
+svg.koerper{max-width:130px}
+svg.koerper polygon,svg.koerper path,svg.koerper line{stroke:var(--text-leise);stroke-width:1.6;stroke-linejoin:round;fill:none}
+svg.koerper .f1{fill:var(--flaeche)} svg.koerper .f2{fill:var(--akzent-hell)} svg.koerper .f3{fill:var(--linie)}
+svg.koerper text{fill:var(--text);font:700 15px var(--schrift);text-anchor:middle}
+/* Urnen */
+svg.urnen{width:100%;max-width:340px;height:auto}
+svg.urnen .zA{fill:var(--akzent-hell);stroke:var(--akzent);stroke-width:2}
+svg.urnen .zB{fill:var(--gold-hell);stroke:var(--gold);stroke-width:2}
+svg.urnen text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.urnen .zz{font-size:16px;font-weight:700}
+svg.urnen .leg{font-size:13px;fill:var(--text-leise)}
+svg.urnen .un{font-size:15px;font-weight:700} svg.urnen .uA{fill:var(--akzent)} svg.urnen .uB{fill:var(--gold)}
+svg.urnen .glas{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:2}
+svg.urnen .kugel{stroke:var(--text-leise);stroke-width:1.2}
+/* Flächenbild */
+svg.mosaik{max-width:280px}
+svg.mosaik .mA{fill:var(--akzent)} svg.mosaik .mN{fill:var(--linie)}
+svg.mosaik text{font-family:var(--schrift);text-anchor:middle}
+svg.mosaik .mz{font-size:16px;font-weight:700;fill:var(--text)}
+svg.mosaik .mz.hell{fill:var(--flaeche)}
+svg.mosaik .mb,svg.mosaik .ma{font-size:16px;font-weight:700;fill:var(--text)}
+svg.mosaik .mk{color:var(--gold)}
+/* Hundert Punkte */
+svg.hundert{max-width:220px}
+svg.hundert circle{fill:var(--linie)}
+svg.hundert circle.an{fill:var(--akzent)}
+/* Kärtchen, Glücksrad, Ergebnisraster */
+.seiten.breit span{width:auto;min-width:36px;padding:0 6px}
+.seiten span.rotschrift{color:var(--rot)}
+svg.rad{width:100%;max-width:170px;height:auto}
+svg.rad .feld{stroke:var(--flaeche);stroke-width:2} svg.rad .f1{fill:var(--akzent-hell)} svg.rad .f2{fill:var(--flaeche-2)} svg.rad .an{fill:var(--teal)}
+svg.rad text{font:700 13px var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.rad .nabe{fill:var(--text-leise)} svg.rad .zeiger{fill:var(--rot)}
+svg.raster{width:100%;max-width:300px;height:auto}
+.bild{flex-wrap:wrap} .bild .unterschrift{flex-basis:100%;text-align:center;margin:6px 0 0}
+svg.raster text{font-family:var(--schrift);text-anchor:middle;fill:var(--text)}
+svg.raster .rk{font-size:14px;font-weight:700} svg.raster .rk.rot{fill:var(--rot)}
+svg.raster .rt{font-size:12px;fill:var(--text-leise)}
+svg.raster .rz{fill:var(--flaeche);stroke:var(--linie-stark);stroke-width:1.2}
+svg.raster .rz.a{fill:var(--akzent-hell);stroke:var(--akzent)} svg.raster .rz.b{fill:var(--gold-hell);stroke:var(--gold)}
+svg.raster .rz.ab{fill:var(--violett);stroke:var(--violett)}
+.punkt{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 3px 0 8px;border:1.5px solid}
+.punkt.a{background:var(--akzent-hell);border-color:var(--akzent)} .punkt.b{background:var(--gold-hell);border-color:var(--gold)} .punkt.ab{background:var(--violett);border-color:var(--violett)}
+.felder{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.feld{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.feld label{min-width:170px}
+.feld input,.feld select{font:inherit;padding:.35em .55em;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);width:150px}
+.feld select{width:auto}
+.feld.richtig input,.feld.richtig select{border-color:var(--gruen);background:var(--gruen-hell)}
+.feld.falsch input,.feld.falsch select{border-color:var(--rot);background:var(--rot-hell)}
+.meldung{border-radius:var(--radius-klein);padding:10px 12px;margin:10px 0}
+.meldung.gut{background:var(--gruen-hell);border:1px solid var(--gruen)}
+.meldung.schlecht{background:var(--rot-hell);border:1px solid var(--rot)}
+.meldung.neutral{background:var(--flaeche-2);border:1px solid var(--linie)}
+.tipp{background:var(--violett-hell);border:1px solid var(--violett);border-radius:var(--radius-klein);padding:10px 12px;margin:8px 0}
+.serie{display:inline-flex;gap:4px;vertical-align:middle}
+.serie i{width:14px;height:14px;border-radius:50%;border:2px solid var(--gruen);display:inline-block}
+.serie i.an{background:var(--gruen)}
+/* KI */
+.ki textarea{width:100%;min-height:110px;font:inherit;padding:10px;border-radius:var(--radius-klein);border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text)}
+.ki .antwort{white-space:pre-wrap;background:var(--flaeche-2);border-radius:var(--radius-klein);padding:12px;margin-top:10px}
+.ki .zeile{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.ki input[type=password],.ki input[type=text]{font:inherit;padding:.35em .55em;border-radius:6px;border:1px solid var(--linie-stark);background:var(--flaeche);color:var(--text);width:180px}
+.zettel table{border-collapse:collapse;width:100%}
+.zettel td{border-top:1px solid var(--linie);padding:8px 6px;vertical-align:top}
+.zettel td:first-child{white-space:nowrap;font-weight:600;padding-right:14px}
+footer{margin-top:40px;color:var(--text-schwach);font-size:.85rem}
+@media (max-width:520px){
+  .feld label{min-width:0;width:100%}
+  table.tafel th,table.tafel td{padding:5px 6px;min-width:52px;font-size:.92rem}
+  table.tafel input{width:60px}
+}
+/* Kapitel 3: Formeln, Fragen beim Zuschauen, Knopfauswahl, Graphen */
+.katex{font-size:1.07em}
+.aufgabe .katex-display,.tipp .katex-display,.fbild .katex-display{overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.t-in{color:var(--akzent)} .t-ab{color:var(--teal)}
+.fbild{width:100%;text-align:center;overflow-x:auto}
+.rweg{width:100%;display:flex;flex-direction:column;gap:4px}
+.rz{display:flex;gap:10px;align-items:baseline;padding:5px 8px;border-radius:6px}
+.rz>span:last-child{min-width:0;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.rweg .katex{font-size:1em}
+.rz.neu{background:var(--akzent-hell)}
+.rnr{color:var(--text-schwach);min-width:1.4em;font-weight:700}
+.aufgabe .rweg{margin:8px 0}
+.vfrage{margin-top:14px;padding:12px 14px;background:var(--flaeche);border:1px solid var(--linie);border-left:4px solid var(--violett);border-radius:var(--radius-klein)}
+.vf-kopf{font-size:.74rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--violett)}
+.vf-frage{font-weight:600;margin:.25em 0 .6em}
+.vf-optionen,.wahlen{display:flex;flex-direction:column;gap:6px}
+.vf-opt,.wahl{text-align:left;line-height:1.5}
+.vf-opt:disabled{opacity:1;cursor:default}
+.vf-opt.richtig{border-color:var(--gruen);background:var(--gruen-hell)}
+.vf-opt.falsch{border-color:var(--rot);background:var(--rot-hell);opacity:.65}
+.vf-gut,.vf-schlecht{margin-top:8px;padding:8px 10px;border-radius:6px}
+.vf-gut{background:var(--gruen-hell);border:1px solid var(--gruen)}
+.vf-schlecht{background:var(--rot-hell);border:1px solid var(--rot)}
+.wahlfeld{flex-direction:column;align-items:stretch}
+.wahl.an{border-color:var(--akzent);background:var(--akzent-hell)}
+.feld.richtig .wahl.an{border-color:var(--gruen);background:var(--gruen-hell)}
+.feld.falsch .wahl.an{border-color:var(--rot);background:var(--rot-hell)}
+svg.gr{width:100%;max-width:400px;height:auto}
+svg.gr .git{stroke:var(--linie);stroke-width:1}
+svg.gr .ach{stroke:var(--text-leise);stroke-width:1.3}
+svg.gr text{font-family:var(--schrift);font-size:11px;fill:var(--text-leise)}
+svg.gr text.an{font-style:italic;font-size:12px}
+svg.gr .ku-a{fill:none;stroke:var(--akzent);stroke-width:2.5}
+svg.gr .ku-b{fill:none;stroke:var(--teal);stroke-width:2.5}
+svg.gr .fa-a{fill:var(--akzent);fill-opacity:.22}
+svg.gr .fa-b{fill:var(--teal);fill-opacity:.28}
+svg.gr .lt-a{fill:var(--akzent);font-weight:600;font-size:12px}
+svg.gr .lt-b{fill:var(--teal);font-weight:600;font-size:12px}
+svg.gr .ft{fill:var(--text);font-weight:700;font-size:12px}
+</style>
+<link rel="stylesheet" href="/katex/katex.min.css">
+<script src="/katex/katex.min.js"></script>
+</head>
+<body>
+<div class="huelle">
+
+<header class="kopf">
+  <div>
+    <h1>Integration durch Substitution</h1>
+    <p class="klein leise"><a href="./">Trainelia</a> ▸ Kapitel 3 · Analysis</p>
+    <p class="leise wegweiser"><span class="c vor-b">zuschauen</span> ▸ <span class="c ueben-b">üben</span> ▸ <span class="c ki-b">Rückmeldung</span></p>
+  </div>
+  <div class="werkzeuge"><button id="thema" type="button" title="hell / dunkel">◐</button></div>
+</header>
+
+<nav class="weg" id="weg" aria-label="Stationen"></nav>
+
+<main id="station"></main>
+
+<details class="karte bereich zettel-b zettel" id="zettel">
+  <summary>Spickzettel</summary>
+  <table>
+    <tr><td>Idee</td><td>Kettenregel rückwärts: <span data-tex="\int f(g(x))\cdot g'(x)\,dx = F(g(x)) + C"></span></td></tr>
+    <tr><td>Erkennen</td><td>eine Verkettung, und die Ableitung ihres Inneren steht bis auf eine Zahl als Faktor daneben.</td></tr>
+    <tr><td>Fünf Schritte</td><td>① <span data-tex="u = g(x)"></span> ② <span data-tex="dx = \frac{du}{g'(x)}"></span> ③ ersetzen, bis kein x mehr dasteht ④ integrieren ⑤ zurücksubstituieren, <span data-tex="+\,C"></span></td></tr>
+    <tr><td>linear</td><td><span data-tex="\int f(ax+b)\,dx = \frac{1}{a}\,F(ax+b) + C"></span></td></tr>
+    <tr><td>bestimmt</td><td><span data-tex="\int_a^b f(g(x))\,g'(x)\,dx = \int_{g(a)}^{g(b)} f(u)\,du"></span>: Grenzen umrechnen, in u zu Ende rechnen.</td></tr>
+    <tr><td>Grundintegrale</td><td><span data-tex="u^m \to \tfrac{u^{m+1}}{m+1}"></span> · <span data-tex="e^u \to e^u"></span> · <span data-tex="\sin u \to -\cos u"></span> · <span data-tex="\cos u \to \sin u"></span> · <span data-tex="\tfrac{1}{u} \to \ln|u|"></span> · <span data-tex="\sqrt{u} \to \tfrac{2}{3}u^{3/2}"></span></td></tr>
+    <tr><td>Probe</td><td>Ableiten: Es muss der Integrand herauskommen.</td></tr>
+    <tr><td>Vorsicht</td><td>Bleibt nach dem Ersetzen ein x stehen, klappt diese Substitution nicht. Durch x „ausgleichen“ ist verboten.</td></tr>
+  </table>
+</details>
+
+<details class="karte ki" id="kicode">
+  <summary>Code für die KI-Rückmeldung</summary>
+  <div class="zeile">
+    <input type="password" id="code" autocomplete="off" placeholder="Code" aria-label="Code">
+    <button type="button" id="codeSpeichern">Speichern</button>
+    <span id="kiStatus" class="klein leise"></span>
+  </div>
+  <p class="leise klein">Bleibt nur in diesem Browser. Abgeschickt werden Aufgabe, Lösung und dein Rechenweg, ohne Namen. Gespeichert wird nichts.</p>
+</details>
+
+<footer>Ohne Anmeldung · Lernstand bleibt auf diesem Gerät · mathematik-unterrichten.de</footer>
+</div>
+
+<script src="sokrates-trainer.js?v=202611251800"></script>
+<script src="sokrates-trainer-s.js?v=202611251800"></script>
+<script>
+"use strict";
+/* ============================================================
+   1. Kleine Helfer
+   ============================================================ */
+const $ = (s, w = document) => w.querySelector(s);
+const zufall = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const wahl = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const ggt = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+function kz(x, st = 3) {          // Kommazahl ohne überflüssige Nullen
+  const s = (Math.round(x * 10 ** st) / 10 ** st).toFixed(st).replace(/\.?0+$/, "");
+  return s.replace(".", ",");
+}
+const pz = (x, st = 1) => kz(x * 100, st) + " %";
+function br(z, n) {               // Bruch als HTML, gekürzt
+  const g = ggt(z, n); z /= g; n /= g;
+  if (n === 1) return String(z);
+  return `<span class="bruch"><span>${z}</span><span>${n}</span></span>`;
+}
+const brRoh = (z, n) => `<span class="bruch"><span>${z}</span><span>${n}</span></span>`;
+const brT = (z, n) => { const g = ggt(z, n); return n / g === 1 ? String(z / g) : `${z / g}/${n / g}`; };
+const Q = (s) => `<span class="q">${s}</span>`;
+/* HTML → lesbarer Text (für Meldungen und für die KI): Überstrich als Ā,
+   Bruch als (a)/(b), Tabellen zeilenweise mit „|“. SVG fällt weg. */
+function text(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html;
+  d.querySelectorAll(".katex").forEach((e) => { const a = e.querySelector("annotation"); e.textContent = a ? " " + a.textContent.replace(/\\htmlClass\{[^}]*\}/g, "") + " " : e.textContent; });
+  d.querySelectorAll("svg").forEach((e) => e.remove());
+  d.querySelectorAll(".q").forEach((e) => { e.textContent = e.textContent.split("").map((c) => c + "̄").join(""); });
+  d.querySelectorAll(".bruch").forEach((e) => { const [z, n] = e.children; e.textContent = ` (${z.textContent})/(${n.textContent}) `; });
+  d.querySelectorAll("th,td").forEach((e) => e.append(" | "));
+  d.querySelectorAll("tr").forEach((e) => e.append("\n"));
+  d.querySelectorAll("table").forEach((e) => { e.prepend("\n"); e.append("\n"); });
+  d.querySelectorAll("p,div").forEach((e) => e.append("\n"));
+  return d.textContent.split("\n").map((z) => z.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n");
+}
+
+/* Eingabe lesen: 0,27 · 27 % · 53/194 · 0.27 */
+function lies(roh) {
+  let s = String(roh || "").trim().replace(/\s+/g, "").replace(/[−–]/g, "-").replace(/,/g, ".");
+  if (!s) return null;
+  let prozent = false;
+  if (s.endsWith("%")) { prozent = true; s = s.slice(0, -1); }
+  let w;
+  if (/^-?\d+(\.\d+)?\/\d+(\.\d+)?$/.test(s)) { const [a, b] = s.split("/").map(Number); if (!b) return null; w = a / b; }
+  else if (/^-?(\d+\.?\d*|\.\d+)$/.test(s)) w = Number(s);
+  else return null;
+  if (prozent) w /= 100;
+  return { wert: w, prozent };
+}
+
+/* Lernstand: nur auf diesem Gerät */
+const STAND_KEY = "mu-substitution-stand";
+let stand = {};
+try { stand = JSON.parse(localStorage.getItem(STAND_KEY) || "{}") || {}; } catch { stand = {}; }
+function sichern() { try { localStorage.setItem(STAND_KEY, JSON.stringify(stand)); } catch {} }
+const st = (id) => (stand[id] ||= { serie: 0, richtig: 0, geschafft: false });
+
+/* Thema hell/dunkel */
+(function () {
+  let t = null;
+  try { t = localStorage.getItem("mu-thema"); } catch {}
+  if (t) document.documentElement.dataset.theme = t;
+  $("#thema").onclick = () => {
+    const dunkel = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const neu = dunkel ? "light" : "dark";
+    document.documentElement.dataset.theme = neu;
+    try { localStorage.setItem("mu-thema", neu); } catch {}
+  };
+})();
+
+/* ============================================================
+   2. Bilder: Vierfeldertafel, Baum, Würfelseiten
+   ============================================================ */
+/* w: 3×3 Werte [[AB, AnB, A],[nAB, nAnB, nA],[B, nB, N]]
+   o: { kopf:[B,nB], seite:[A,nA], fmt, eingabe:Set("r,c"), hl:{ "r,c": "hl"|"hl2" }, id } */
+function tafel(w, o = {}) {
+  const fmt = o.fmt || ((x) => String(x));
+  const kopf = o.kopf || ["B", Q("B")], seite = o.seite || ["A", Q("A")];
+  const kl = o.kl || {};
+  const zelle = (r, c) => {
+    const k = r + "," + c, cls = [];
+    if (r === 2 || c === 2) cls.push("rand");
+    if (o.hl && o.hl[k]) cls.push(o.hl[k]);
+    let inhalt;
+    if (o.eingabe && o.eingabe.has(k)) inhalt = `<input inputmode="decimal" data-zelle="${k}" aria-label="Feld ${k}">`;
+    else if (w[r][c] === null || w[r][c] === undefined) inhalt = "";
+    else inhalt = fmt(w[r][c], r, c);
+    return `<td class="${cls.join(" ")}" data-k="${k}">${inhalt}</td>`;
+  };
+  const th = (h, k) => `<th>${h}${k ? ` <span class="kl">${k}</span>` : ""}</th>`;
+  return `<table class="tafel"${o.id ? ` id="${o.id}"` : ""}>
+    <tr><th></th>${th(kopf[0], kl.b)}${th(kopf[1], kl.nb)}${th("Summe")}</tr>
+    <tr>${th(seite[0], kl.a)}${zelle(0, 0)}${zelle(0, 1)}${zelle(0, 2)}</tr>
+    <tr>${th(seite[1], kl.na)}${zelle(1, 0)}${zelle(1, 1)}${zelle(1, 2)}</tr>
+    <tr>${th("Summe")}${zelle(2, 0)}${zelle(2, 1)}${zelle(2, 2)}</tr></table>`;
+}
+
+/* Baum mit zwei Stufen.
+   b = { s1:[l,l], p1:[t,t], s2:[[l,l],[l,l]], p2:[[t,t],[t,t]], enden:[t,t,t,t], hl:[pfadindex...], nr:true } */
+function baum(b) {
+  const W = 600, H = 275;
+  const wurzel = [24, 135], k1 = [[200, 68], [200, 202]], bl = [[372, 30], [372, 108], [372, 166], [372, 244]];
+  const hl = new Set(b.hl || []);
+  /* SVG-Text verträgt kein HTML: Brüche als a/b, Überstrich als Kombinationszeichen */
+  const leer = (x) => (x === undefined || x === null ? "" : String(x)
+    .replace(/<span class="bruch"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span>/g, "$1/$2")
+    .replace(/<span class="q">([^<]*)<\/span>/g, (_, s) => QS(s))
+    .replace(/<[^>]+>/g, ""));
+  let s = `<svg class="baum" viewBox="0 0 ${W} ${H}" role="img" aria-label="Baumdiagramm">`;
+  for (let i = 0; i < 2; i++) {
+    const an = hl.has(2 * i) || hl.has(2 * i + 1);
+    s += `<line x1="${wurzel[0] + 6}" y1="${wurzel[1]}" x2="${k1[i][0] - 14}" y2="${k1[i][1]}" class="${an ? "hl" : ""}"/>`;
+    const mx = (wurzel[0] + k1[i][0]) / 2 - 8, my = (wurzel[1] + k1[i][1]) / 2 + (i ? 22 : -10);
+    s += `<text class="p" x="${mx}" y="${my}" text-anchor="middle">${leer(b.p1 && b.p1[i])}</text>`;
+    s += `<text x="${k1[i][0]}" y="${k1[i][1] + 5}" text-anchor="middle">${leer(b.s1[i])}</text>`;
+    for (let j = 0; j < 2; j++) {
+      const n = 2 * i + j, e = bl[n];
+      s += `<line x1="${k1[i][0] + 16}" y1="${k1[i][1]}" x2="${e[0] - 12}" y2="${e[1]}" class="${hl.has(n) ? "hl" : ""}"/>`;
+      const px = (k1[i][0] + e[0]) / 2 + 6, py = (k1[i][1] + e[1]) / 2 + (j ? 20 : -8);
+      s += `<text class="p" x="${px}" y="${py}" text-anchor="middle">${leer(b.p2 && b.p2[i][j])}</text>`;
+      s += `<text x="${e[0]}" y="${e[1] + 5}" text-anchor="middle">${leer(b.s2[i][j])}</text>`;
+      if (b.enden && b.enden[n] !== undefined && b.enden[n] !== null)
+        s += `<text class="e" x="${e[0] + 52}" y="${e[1] + 5}">${leer(b.enden[n])}</text>`;
+    }
+  }
+  if (b.wurzel) s += `<text x="2" y="${wurzel[1] - 16}" text-anchor="start" class="e">${leer(b.wurzel)}</text>`;
+  return s + `<circle cx="${wurzel[0]}" cy="${wurzel[1]}" r="4" fill="currentColor"/></svg>`;
+}
+/* SVG-Text verträgt kein HTML: Überstrich als Kombinationszeichen */
+const QS = (s) => s.split("").map((c) => c + "̅").join("");
+
+function seiten(n, an = [], gegen = []) {
+  let s = '<div class="seiten">';
+  for (let i = 1; i <= n; i++) s += `<span class="${an.includes(i) ? "an" : gegen.includes(i) ? "gegen" : ""}">${i}</span>`;
+  return s + "</div>";
+}
+
+/* ---------- Bildchen für die Übungen (alles gezeichnet, nichts geladen) ---------- */
+/* Strich-Piktogramme, 24er-Raster, Farbe über currentColor */
+const IKON = {
+  note: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  mikro: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>',
+  kunde: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M12 8.3l1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4z"/>',
+  karte: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  bar: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/>',
+  m1: '<path d="M3 21V9l5 3V9l5 3V4h7v17zM2 21h20"/><text x="16.5" y="18" font-size="7.5" text-anchor="middle" stroke="none" fill="currentColor" font-weight="700">1</text>',
+  m2: '<path d="M3 21V9l5 3V9l5 3V4h7v17zM2 21h20"/><text x="16.5" y="18" font-size="7.5" text-anchor="middle" stroke="none" fill="currentColor" font-weight="700">2</text>',
+  fehler: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.2 9.5"/>',
+  garten: '<circle cx="12" cy="9" r="6"/><path d="M12 15v7M8.5 22h7"/>',
+  pfote: '<ellipse cx="12" cy="16.5" rx="4.6" ry="3.8"/><circle cx="5.3" cy="10.8" r="2"/><circle cx="9.4" cy="6.6" r="2"/><circle cx="14.6" cy="6.6" r="2"/><circle cx="18.7" cy="10.8" r="2"/>',
+  bus: '<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 10h16M7 18v3M17 18v3M7.5 14h.01M16.5 14h.01"/>',
+  rad: '<circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16L10 9h6l2.5 7M10 9l2 7H5.5M16 9l-4 7M16 9V6.5M14.5 6.5h3"/>',
+  uhr: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4.2l2.8 2M9.5 2h5"/>',
+  spaet: '<circle cx="12" cy="13" r="8"/><path d="M12 8.5v5M12 17h.01M9.5 2h5"/>',
+  virus: '<circle cx="12" cy="12" r="5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5M4.9 4.9l3.6 3.6M15.5 15.5l3.6 3.6M4.9 19.1l3.6-3.6M15.5 8.5l3.6-3.6"/>',
+  test: '<rect x="8" y="2" width="8" height="20" rx="2"/><path d="M12 6.5v4M10 8.5h4M10 16h4"/>',
+  mail: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/>',
+  filter: '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/>',
+  spritze: '<path d="M18 2l4 4M20 4l-9.5 9.5M17 7l-2-2M14.5 9.5l-2-2M3 21l3.5-3.5M6.5 17.5l-2-2 9-9 4 4-9 9z"/>',
+  paket: '<path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8M7.5 5.5l9 5"/>',
+  tasse: '<path d="M4 9h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 2v3M12 2v3"/>',
+  mond: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  klammer: '<path d="M20.5 11.5l-8.3 8.3a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.4 8.4a1.7 1.7 0 0 1-2.5-2.5l7.7-7.7"/>',
+  lenkrad: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M3.3 10.5h6.6M14.1 10.5h6.6M12 14.2V21"/>',
+  wolke: '<path d="M7 16a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.3 2A3.6 3.6 0 0 1 17.5 16z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/>',
+  blitz: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  hand: '<path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15l-1.3-3a1.5 1.5 0 0 1 2.6-1.4L8 13"/>',
+  jacke: '<path d="M9 3l3 2 3-2 5 3v5l-3-1v11H7V10l-3 1V6z"/><path d="M12 5v16"/>',
+};
+const ikon = (name, durch, cls = "") => `<svg viewBox="0 0 24 24" class="ik ${cls}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IKON[name] || ""}${durch ? '<path d="M3.5 3.5l17 17" stroke-width="2.2"/>' : ""}</svg>`;
+/* Piktogramm zu einem Ereignis: eigenes Bild oder das Bild des Gegenstücks, durchgestrichen */
+const ikonFuer = (ik, s) => (ik[s] ? ikon(ik[s], false) : ikon(ik[s.slice(1)], true));
+
+/* Würfel mit n Seiten als Körper (W6, W8, W10, W12, W20) */
+function wuerfelBild(n) {
+  const P = (pts) => pts.map((p) => p.join(",")).join(" ");
+  const rund = (k, r, dreh = -90) => [...Array(k)].map((_, i) => { const w = (dreh + i * 360 / k) * Math.PI / 180; return [60 + r * Math.cos(w), 62 + r * Math.sin(w)].map((x) => Math.round(x * 10) / 10); });
+  let s = "", zahl = [60, 66, String(n)];
+  if (n === 6) {
+    s = `<polygon class="f1" points="60,16 100,37 60,58 20,37"/><polygon class="f2" points="20,37 60,58 60,106 20,85"/><polygon class="f3" points="60,58 100,37 100,85 60,106"/>`;
+    s += `<text x="60" y="43">5</text><text x="40" y="86">1</text><text x="80" y="86">3</text>`; zahl = null;
+  } else if (n === 8) {
+    s = `<polygon class="f1" points="60,8 16,60 60,76"/><polygon class="f3" points="60,8 60,76 104,60"/><polygon class="f2" points="16,60 60,112 60,76"/><polygon class="f2" points="60,76 60,112 104,60"/>`;
+    zahl = [47, 56, "8"]; s += `<text x="73" y="56">3</text>`;
+  } else if (n === 10) {
+    s = `<polygon class="f2" points="60,8 14,58 30,74 60,112 90,74 106,58"/><polygon class="f1" points="60,8 34,58 60,80 86,58"/><path d="M34,58 L14,58 M86,58 L106,58 M60,80 L60,112 M34,58 L30,74 M86,58 L90,74"/>`;
+    zahl = [60, 60, "10"];
+  } else if (n === 12) {
+    const aus = rund(10, 54, -90), inn = rund(5, 27, -90);
+    s = `<polygon class="f2" points="${P(aus)}"/><polygon class="f1" points="${P(inn)}"/>` + inn.map((p, i) => `<line x1="${p[0]}" y1="${p[1]}" x2="${aus[2 * i][0]}" y2="${aus[2 * i][1]}"/>`).join("");
+  } else {
+    const aus = rund(6, 54, -90), inn = rund(3, 30, -90);
+    s = `<polygon class="f2" points="${P(aus)}"/><polygon class="f1" points="${P(inn)}"/>`;
+    const zu = [[5, 0, 1], [1, 2, 3], [3, 4, 5]];
+    inn.forEach((p, i) => zu[i].forEach((j) => { s += `<line x1="${p[0]}" y1="${p[1]}" x2="${aus[j][0]}" y2="${aus[j][1]}"/>`; }));
+  }
+  if (zahl) s += `<text x="${zahl[0]}" y="${zahl[1]}">${zahl[2]}</text>`;
+  return `<svg class="koerper" viewBox="0 0 120 124" role="img" aria-label="Würfel mit ${n} Seiten">${s}</svg>`;
+}
+
+/* Kugeln in einer Urne: Farbname → Füllung */
+const KUGEL = { rot: "#dc2626", blau: "#2563eb", grün: "#16a34a", gelb: "#facc15", schwarz: "#27272a", weiß: "#ffffff" };
+function mischen(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+/* Würfel entscheidet über die Urne, darunter beide Urnen mit ihren Kugeln */
+function urnenBild(kA, f1, f2, inA, inB, m = 6) {
+  let s = `<svg class="urnen" viewBox="0 0 320 236" role="img" aria-label="Zufallsgerät und zwei Urnen">`;
+  const schritt = Math.min(46, 300 / m), breite = Math.min(34, schritt - 6), start = 160 - (m * schritt - (schritt - breite)) / 2;
+  const name = (z) => (m === 2 ? ["W", "Z"][z - 1] : z);
+  for (let z = 1; z <= m; z++) {
+    const x = start + (z - 1) * schritt, a = z <= kA;
+    s += `<rect x="${x}" y="6" width="${breite}" height="34" rx="7" class="${a ? "zA" : "zB"}"/><text x="${x + breite / 2}" y="29" class="zz">${name(z)}</text>`;
+  }
+  s += `<text x="160" y="60" class="leg">${m === 2 ? "Wappen" : kA === 1 ? "1" : "1 bis " + kA} → Urne A · sonst Urne B</text>`;
+  const urne = (x0, name, kl, r, b) => {
+    let u = `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+    const kugeln = mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]);
+    kugeln.forEach((f, i) => {
+      const reihe = Math.floor(i / 4), sp = i % 4;
+      u += `<circle class="kugel" cx="${x0 + 24 + sp * 24}" cy="${195 - reihe * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+    });
+    return u + `<text x="${x0 + 60}" y="232" class="un ${kl}">${name}</text>`;
+  };
+  s += urne(14, "Urne A", "uA", inA[0], inA[1]) + urne(186, "Urne B", "uB", inB[0], inB[1]);
+  return s + "</svg>";
+}
+
+/* Flächenbild einer Vierfeldertafel: Spaltenbreite = Anteil an allen,
+   Höhe in der Spalte = Anteil innerhalb der Spalte. Zahlen nur, wo Platz ist. */
+function mosaikBild(w, k) {
+  const X = 34, Y = 34, B = 236, H = 170, luecke = 4;
+  const b0 = Math.round((B - luecke) * w[2][0] / w[2][2]);
+  const spalten = [[X, b0, 0], [X + b0 + luecke, B - luecke - b0, 1]];
+  let s = `<svg class="mosaik" viewBox="0 0 ${X + B + 6} ${Y + H + 8}" role="img" aria-label="Flächenbild der Tafel">`;
+  for (const [x, breite, c] of spalten) {
+    const hA = Math.round((H - luecke) * w[0][c] / w[2][c]);
+    s += `<rect x="${x}" y="${Y}" width="${breite}" height="${hA}" class="mA" rx="3"/>`;
+    s += `<rect x="${x}" y="${Y + hA + luecke}" width="${breite}" height="${H - luecke - hA}" class="mN" rx="3"/>`;
+    if (hA >= 20) s += `<text x="${x + breite / 2}" y="${Y + hA / 2 + 6}" class="mz hell">${w[0][c]}</text>`;
+    if (H - luecke - hA >= 20) s += `<text x="${x + breite / 2}" y="${Y + hA + luecke + (H - luecke - hA) / 2 + 6}" class="mz">${w[1][c]}</text>`;
+    s += `<g transform="translate(${x + breite / 2 - 21},4)" class="mk">${k.ik ? ikonFuer(k.ik, c ? "nB" : "B").replace('<svg ', '<svg width="20" height="20" ') : ""}</g>`;
+    s += `<text x="${x + breite / 2 + 12}" y="21" class="mb">${c ? QS("B") : "B"}</text>`;
+  }
+  s += `<text x="14" y="${Y + 18}" class="ma">A</text><text x="14" y="${Y + H - 6}" class="ma">${QS("A")}</text>`;
+  return s + `</svg><p class="klein leise unterschrift">Breite: Anteil an allen ${w[2][2]}. Höhe: Anteil innerhalb der Spalte. Blau: A.</p>`;
+}
+
+/* Hundert Punkte, davon k markiert: zeigt, wie selten oder häufig A ist */
+function hundertBild(k, name, ik) {
+  let s = `<svg class="hundert" viewBox="0 0 210 210" role="img" aria-label="${k} von 100">`;
+  for (let i = 0; i < 100; i++) s += `<circle cx="${12 + (i % 10) * 20.6}" cy="${12 + Math.floor(i / 10) * 20.6}" r="7.2" class="${i < k ? "an" : ""}"/>`;
+  s += "</svg>";
+  return `${ik ? `<div class="bildkopf">${ikon(ik, false, "gross")}</div>` : ""}${s}<p class="klein leise unterschrift">${k} von 100 sind „${name}“</p>`;
+}
+
+/* Kärtchenreihe zum Antippen: labels = alle Ergebnisse, rot = Indizes in Rot */
+function kaertchen(labels, rot = []) {
+  return `<div class="seiten tippbar${labels.some((l) => String(l).length > 2) ? " breit" : ""}">${labels.map((l, i) => `<span class="${rot.includes(i) ? "rotschrift" : ""}">${l}</span>`).join("")}</div>`;
+}
+const TIPP_HINWEIS = `<p class="klein leise unterschrift" data-zaehler>Tippe an, was zu E gehört.</p>`;
+
+/* Eine einzelne Urne */
+function urneBild(f1, f2, r, b, zeile) {
+  const x0 = 26;
+  let s = `<svg class="urnen" viewBox="0 30 172 192" role="img" aria-label="Urne mit ${r} ${f1}en und ${b} ${f2}en Kugeln" style="max-width:210px">`;
+  s += `<path class="glas" d="M${x0 + 34} 74 h52 v12 q34 10 34 40 v70 q0 16 -16 16 h-88 q-16 0 -16 -16 v-70 q0 -30 34 -40 z"/>`;
+  mischen([...Array(r).fill(f1), ...Array(b).fill(f2)]).forEach((f, i) => {
+    s += `<circle class="kugel" cx="${x0 + 24 + (i % 4) * 24}" cy="${195 - Math.floor(i / 4) * 23}" r="10.5" fill="${KUGEL[f]}"/>`;
+  });
+  if (zeile) s += `<text x="${x0 + 60}" y="56" class="un uA">${zeile}</text>`;
+  return s + "</svg>";
+}
+
+/* Glücksrad mit n gleich großen Feldern; farbig = Indizes (0-basiert) */
+function radBild(n, farbig = []) {
+  const R = 70, cx = 80, cy = 82;
+  let s = `<svg class="rad" viewBox="0 0 160 170" role="img" aria-label="Glücksrad mit ${n} Feldern">`;
+  for (let i = 0; i < n; i++) {
+    const w0 = (-90 + i * 360 / n) * Math.PI / 180, w1 = (-90 + (i + 1) * 360 / n) * Math.PI / 180, wm = (w0 + w1) / 2;
+    const p = (w, r) => `${(cx + r * Math.cos(w)).toFixed(1)},${(cy + r * Math.sin(w)).toFixed(1)}`;
+    s += `<path d="M${cx},${cy} L${p(w0, R)} A${R},${R} 0 0 1 ${p(w1, R)} z" class="feld ${farbig.includes(i) ? "an" : i % 2 ? "f2" : "f1"}"/>`;
+    s += `<text x="${(cx + R * 0.72 * Math.cos(wm)).toFixed(1)}" y="${(cy + R * 0.72 * Math.sin(wm) + 5).toFixed(1)}">${i + 1}</text>`;
+  }
+  return s + `<circle cx="${cx}" cy="${cy}" r="6" class="nabe"/><path d="M${cx - 7},4 h14 l-7,12 z" class="zeiger"/></svg>`;
+}
+
+/* Raster aller Ergebnisse (Würfelpaare, Karten, Münzen). mark(r, c) → "", "a", "b", "ab" */
+function rasterBild(zeilenKopf, spaltenKopf, mark, titelZ, titelS, zeileFarbe) {
+  const Z = zeilenKopf.length, S = spaltenKopf.length, cw = S > 6 ? 30 : S > 4 ? 36 : 46, ch = 30;
+  const L = 40, T = 40, B = L + S * cw + 6, H = T + Z * ch + 6;
+  let s = `<svg class="raster" viewBox="0 0 ${B} ${H}" role="img" aria-label="Alle ${Z * S} Ergebnisse">`;
+  s += `<text x="${L + S * cw / 2}" y="13" class="rt">${titelS}</text>`;
+  spaltenKopf.forEach((k, c) => { s += `<text x="${L + c * cw + cw / 2}" y="${T - 8}" class="rk">${k}</text>`; });
+  s += `<text x="10" y="${T + Z * ch / 2}" class="rt" transform="rotate(-90 10 ${T + Z * ch / 2})">${titelZ}</text>`;
+  zeilenKopf.forEach((k, r) => { s += `<text x="${L - 10}" y="${T + r * ch + ch / 2 + 5}" class="rk ${zeileFarbe ? zeileFarbe(r) : ""}">${k}</text>`; });
+  for (let r = 0; r < Z; r++) for (let c = 0; c < S; c++)
+    s += `<rect x="${L + c * cw + 2}" y="${T + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" class="rz ${mark ? mark(r, c) : ""}"/>`;
+  return s + "</svg>";
+}
+const RASTER_LEG = `<p class="klein leise unterschrift"><span class="punkt a"></span> nur A <span class="punkt b"></span> nur B <span class="punkt ab"></span> A und B</p>`;
+/* Kartenspiel mit 32 Karten */
+const FARB = ["♣", "♠", "♥", "♦"], FARBNAME = ["Kreuz", "Pik", "Herz", "Karo"];
+const WERTE = ["7", "8", "9", "10", "B", "D", "K", "A"];
+
+/* ============================================================
+   3. Sachzusammenhänge (frei erfunden, kein Schulbuch)
+   ============================================================ */
+const KONTEXTE = [
+  { wer: "Jugendliche", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Instrument", nA: "kein Instrument", B: "Chor", nB: "kein Chor",
+    aP: "spielen ein Instrument", naP: "spielen kein Instrument", bP: "singen im Chor", nbP: "singen nicht im Chor",
+    aD: "ein Instrument spielt", naD: "kein Instrument spielt", bD: "im Chor singt", nbD: "nicht im Chor singt",
+    ik: { A: "note", B: "mikro" },
+    intro: (N) => `In einer Umfrage wurden ${N} Jugendliche befragt.` },
+  { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Kundenkarte", nA: "keine Kundenkarte", B: "Karte", nB: "bar",
+    aP: "haben eine Kundenkarte", naP: "haben keine Kundenkarte", bP: "zahlen mit Karte", nbP: "zahlen bar",
+    aD: "eine Kundenkarte hat", naD: "keine Kundenkarte hat", bD: "mit Karte zahlt", nbD: "bar zahlt",
+    ik: { A: "kunde", B: "karte", nB: "bar" },
+    intro: (N) => `An einem Vormittag kaufen ${N} Personen in einem Supermarkt ein.` },
+  { wer: "Werkstücke", pron: "es", rel: "das", eine: "ein Werkstück", akk: "ein Werkstück",
+    A: "Maschine 1", nA: "Maschine 2", B: "fehlerhaft", nB: "in Ordnung",
+    aP: "stammen von Maschine 1", naP: "stammen von Maschine 2", bP: "sind fehlerhaft", nbP: "sind in Ordnung",
+    aD: "von Maschine 1 stammt", naD: "von Maschine 2 stammt", bD: "fehlerhaft ist", nbD: "in Ordnung ist",
+    ik: { A: "m1", nA: "m2", B: "fehler", nB: "ok" },
+    intro: (N) => `Ein Betrieb prüft ${N} Werkstücke aus zwei Maschinen.` },
+  { wer: "Haushalte", pron: "er", rel: "der", eine: "ein Haushalt", akk: "einen Haushalt",
+    A: "Garten", nA: "kein Garten", B: "Haustier", nB: "kein Haustier",
+    aP: "haben einen Garten", naP: "haben keinen Garten", bP: "haben ein Haustier", nbP: "haben kein Haustier",
+    aD: "einen Garten hat", naD: "keinen Garten hat", bD: "ein Haustier hat", nbD: "kein Haustier hat",
+    ik: { A: "garten", B: "pfote" },
+    intro: (N) => `In einer Gemeinde wurden ${N} Haushalte befragt.` },
+  { wer: "Schülerinnen und Schüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "Bus", nA: "Rad", B: "pünktlich", nB: "zu spät",
+    aP: "kommen mit dem Bus", naP: "kommen mit dem Rad", bP: "sind pünktlich", nbP: "kommen zu spät",
+    aD: "mit dem Bus kommt", naD: "mit dem Rad kommt", bD: "pünktlich ist", nbD: "zu spät kommt",
+    ik: { A: "bus", nA: "rad", B: "uhr", nB: "spaet" },
+    intro: (N) => `An einem Morgen wurde bei ${N} Schülerinnen und Schülern notiert, wie sie zur Schule kamen und ob sie pünktlich waren.` },
+  { wer: "Personen", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "geimpft", nA: "nicht geimpft", B: "Grippe", nB: "keine Grippe",
+    aP: "sind gegen Grippe geimpft", naP: "sind nicht geimpft", bP: "hatten Grippe", nbP: "hatten keine Grippe",
+    aD: "geimpft ist", naD: "nicht geimpft ist", bD: "Grippe hatte", nbD: "keine Grippe hatte",
+    ik: { A: "spritze", B: "virus" },
+    intro: (N) => `Über einen Winter wurden ${N} Personen beobachtet: geimpft oder nicht, Grippe oder nicht.` },
+  { wer: "Pakete", pron: "es", rel: "das", eine: "ein Paket", akk: "ein Paket",
+    A: "Express", nA: "Standard", B: "pünktlich", nB: "verspätet",
+    aP: "wurden als Express verschickt", naP: "wurden als Standard verschickt", bP: "kamen pünktlich an", nbP: "kamen verspätet an",
+    aD: "als Express verschickt wurde", naD: "als Standard verschickt wurde", bD: "pünktlich ankam", nbD: "verspätet ankam",
+    ik: { A: "paket", B: "uhr", nB: "spaet" },
+    intro: (N) => `Ein Versanddienst wertet ${N} Pakete aus.` },
+  { wer: "Gäste", pron: "er", rel: "der", eine: "ein Gast", akk: "einen Gast",
+    A: "Frühstück", nA: "ohne Frühstück", B: "mehr als 3 Nächte", nB: "höchstens 3 Nächte",
+    aP: "buchten Frühstück", naP: "buchten kein Frühstück", bP: "blieben mehr als 3 Nächte", nbP: "blieben höchstens 3 Nächte",
+    aD: "Frühstück gebucht hat", naD: "kein Frühstück gebucht hat", bD: "mehr als 3 Nächte bleibt", nbD: "höchstens 3 Nächte bleibt",
+    ik: { A: "tasse", B: "mond" },
+    intro: (N) => `Ein Hotel hatte im Sommer ${N} Gäste.` },
+  { wer: "E-Mails", pron: "sie", rel: "die", eine: "eine E-Mail", akk: "eine E-Mail",
+    A: "Anhang", nA: "kein Anhang", B: "Spam", nB: "kein Spam",
+    aP: "haben einen Anhang", naP: "haben keinen Anhang", bP: "sind Spam", nbP: "sind kein Spam",
+    aD: "einen Anhang hat", naD: "keinen Anhang hat", bD: "Spam ist", nbD: "kein Spam ist",
+    ik: { A: "klammer", B: "filter" },
+    intro: (N) => `In einem Postfach wurden ${N} E-Mails untersucht.` },
+  { wer: "Fahrschülerinnen und Fahrschüler", pron: "sie", rel: "die", eine: "eine Person", akk: "eine Person",
+    A: "über 25 Fahrstunden", nA: "höchstens 25", B: "bestanden", nB: "nicht bestanden",
+    aP: "hatten mehr als 25 Fahrstunden", naP: "hatten höchstens 25 Fahrstunden", bP: "bestanden die Prüfung", nbP: "bestanden nicht",
+    aD: "mehr als 25 Fahrstunden hatte", naD: "höchstens 25 Fahrstunden hatte", bD: "die Prüfung bestanden hat", nbD: "nicht bestanden hat",
+    ik: { A: "lenkrad", B: "ok", nB: "fehler" },
+    intro: (N) => `Eine Fahrschule wertet die Prüfungen von ${N} Fahrschülerinnen und Fahrschülern aus.` },
+];
+/* Zeile/Spalte → Ereignis: x ∈ {A, nA}, y ∈ {B, nB} */
+const ereignisName = { A: "A", nA: Q("A"), B: "B", nB: Q("B") };
+
+/* Eine passende Vierfeldertafel mit ganzen Zahlen, jedes Feld ≥ 5 */
+function neueTafel() {
+  for (;;) {
+    const N = wahl([200, 250, 300, 400, 500, 600, 800, 1000]);
+    const a = Math.round(zufall(25, 75) * N / 100);
+    const b = Math.round(zufall(20, 80) * N / 100);
+    const lo = Math.max(5, a + b - N + 5), hi = Math.min(a, b) - 5;
+    if (hi < lo) continue;
+    const ab = zufall(lo, hi);
+    const w = [[ab, a - ab, a], [b - ab, N - a - b + ab, N - a], [b, N - b, N]];
+    if (w[0][1] < 5 || w[1][0] < 5 || w[1][1] < 5) continue;
+    // nicht unabhängig (sonst sind bedingte und unbedingte Werte gleich – schlecht zum Unterscheiden)
+    if (Math.abs(ab / b - a / N) < 0.06) continue;
+    return { N, w, k: wahl(KONTEXTE) };
+  }
+}
+const tafelKopf = (k) => ({ kopf: ["B", Q("B")], seite: ["A", Q("A")],
+  kl: k.ik ? { a: ikonFuer(k.ik, "A") + k.A, na: ikonFuer(k.ik, "nA") + k.nA, b: ikonFuer(k.ik, "B") + k.B, nb: ikonFuer(k.ik, "nB") + k.nB }
+          : { a: k.A, na: k.nA, b: k.B, nb: k.nB } });
+/* Legende als Bildkarten: Piktogramm, Buchstabe, Bedeutung */
+const leg = (k) => `<div class="legende">${[["A", "A", k.A], ["nA", Q("A"), k.nA], ["B", "B", k.B], ["nB", Q("B"), k.nB]]
+  .map(([s, n, wort]) => `<span class="chip ${s.endsWith("A") ? "ca" : "cb"}">${k.ik ? ikonFuer(k.ik, s) : ""}<b>${n}</b> = ${wort}</span>`).join(" ")}</div>`;
+
+/* ============================================================
+   4. Die Stationen (Kapitel 3: Integration durch Substitution)
+   Jede Station: id, titel, vor (Schritte), merke, stolper,
+   neu() → Aufgabe, ziel (Serie richtig in Folge)
+   Ein Vorführschritt: { t, v, f? }  mit  f = { q, o:[{t, ok?, w}], d? }:
+   Sokrates-Frage vor dem Weitergehen (Weiter erst nach der richtigen Wahl).
+   Aufgabe: { html, bild?, felder:[{id,label,wert,tol,art,fallen}], auswahl?,
+              tipps:[html], loesung:html, sok? }
+   art "z": beliebige Zahl mit Toleranz (nicht als Prozent gelesen),
+   art "n": ganze Zahl, exakt.
+   ============================================================ */
+const STATIONEN = [];
+const T = String.raw;
+
+/* ---------- Formeln mit KaTeX ---------- */
+const KATEX_OPT = { throwOnError: false, strict: false, trust: (k) => k.command === "\\htmlClass" };
+const M = (tex) => (window.katex ? katex.renderToString(tex, KATEX_OPT) : `<span class="m">${tex}</span>`);
+const MD = (tex) => (window.katex ? katex.renderToString(tex, { ...KATEX_OPT, displayMode: true }) : `<div class="m">${tex}</div>`);
+const IN = (s) => T`\htmlClass{t-in}{${s}}`;      // das Innere, blau
+const AB = (s) => T`\htmlClass{t-ab}{${s}}`;      // die innere Ableitung, türkis
+const misch = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const kzT = (x, st = 3) => kz(x, st).replace(",", "{,}");
+
+/* ---------- Brüche ---------- */
+const Bruch = (z, n = 1) => { if (n < 0) { z = -z; n = -n; } const g = ggt(z, n); return [z / g, n / g]; };
+const bmal = (a, b) => Bruch(a[0] * b[0], a[1] * b[1]);
+const bdurch = (a, b) => Bruch(a[0] * b[1], a[1] * b[0]);
+const bw = (a) => a[0] / a[1];
+const bgleich = (a, b) => a[0] === b[0] && a[1] === b[1];
+function bTex(b) { const [z, n] = b; if (n === 1) return String(z); return (z < 0 ? "-" : "") + T`\frac{${Math.abs(z)}}{${n}}`; }
+function bTxt(b) { return b[1] === 1 ? String(b[0]) : `${b[0]}/${b[1]}`; }
+/* Faktor vor einem Ausdruck: 1 → nichts, −1 → „−“ */
+function koef(b) { if (bgleich(b, [1, 1])) return ""; if (bgleich(b, [-1, 1])) return "-"; return bTex(b) + T`\,`; }
+
+/* ---------- Innere Funktion g(x) = p·xⁿ + q ---------- */
+const xPot = (e) => (e === 0 ? "" : e === 1 ? "x" : `x^{${e}}`);
+function innen(p, n, q) {
+  const mon = (p === 1 ? "" : p === -1 ? "-" : String(p)) + xPot(n);
+  const tex = mon + (q > 0 ? ` + ${q}` : q < 0 ? ` - ${-q}` : "");
+  const ggb = `${p}*x^${n}` + (q > 0 ? `+${q}` : q < 0 ? `${q}` : "");
+  const d = n * p;                                     // g'(x) = d·x^(n−1)
+  const dTex = n === 1 ? String(p) : (d === 1 ? "" : d === -1 ? "-" : String(d)) + xPot(n - 1);
+  return { p, n, q, tex, ggb, d, dTex, w: (x) => p * x ** n + q };
+}
+
+/* ---------- Äußere Funktionen ----------
+   F = Fk · bare(u) ist eine Stammfunktion von f. */
+const klam = (U) => (/^[a-z]$/.test(U) ? U : `(${U})`);
+const AUSSEN = {
+  pot: (m) => ({ art: "pot", m, f: (u) => u ** m, F: (u) => u ** (m + 1) / (m + 1), Fk: [1, m + 1],
+    tex: (U) => `${klam(U)}^{${m}}`, bare: (U) => `${klam(U)}^{${m + 1}}`, abl: (U) => `${m}${klam(U)}^{${m - 1 === 1 ? "" : m - 1}}`.replace("^{}", ""),
+    ggb: (U) => `(${U})^${m}`, Fggb: (U) => `(${U})^${m + 1}`,
+    grund: T`\int u^{${m}}\,du = \frac{1}{${m + 1}}\,u^{${m + 1}} + C`, fehlt: `Beim Integrieren von ${M(`u^{${m}}`)} steigt der Exponent auf ${m + 1}, und es kommt der Faktor ${M(T`\frac{1}{${m + 1}}`)} dazu.` }),
+  exp: () => ({ art: "exp", f: Math.exp, F: Math.exp, Fk: [1, 1],
+    tex: (U) => `e^{${U}}`, bare: (U) => `e^{${U}}`, abl: null,
+    ggb: (U) => `exp(${U})`, Fggb: (U) => `exp(${U})`,
+    grund: T`\int e^{u}\,du = e^{u} + C`, fehlt: "" }),
+  sin: () => ({ art: "sin", f: Math.sin, F: (u) => -Math.cos(u), Fk: [-1, 1],
+    tex: (U) => T`\sin(${U})`, bare: (U) => T`\cos(${U})`, abl: (U) => T`\cos(${U})`,
+    ggb: (U) => `sin(${U})`, Fggb: (U) => `cos(${U})`,
+    grund: T`\int \sin(u)\,du = -\cos(u) + C`, fehlt: `Die Stammfunktion von ${M(T`\sin`)} ist ${M(T`-\cos`)}: Achte auf das Minus.` }),
+  cos: () => ({ art: "cos", f: Math.cos, F: Math.sin, Fk: [1, 1],
+    tex: (U) => T`\cos(${U})`, bare: (U) => T`\sin(${U})`, abl: (U) => T`-\sin(${U})`,
+    ggb: (U) => `cos(${U})`, Fggb: (U) => `sin(${U})`,
+    grund: T`\int \cos(u)\,du = \sin(u) + C`, fehlt: `Die Stammfunktion von ${M(T`\cos`)} ist ${M(T`\sin`)}, ohne Minus.` }),
+  kehr: () => ({ art: "kehr", f: (u) => 1 / u, F: (u) => Math.log(Math.abs(u)), Fk: [1, 1],
+    tex: (U) => T`\frac{1}{${U}}`, bare: (U) => T`\ln|${U}|`, abl: (U) => T`-\frac{1}{${klam(U)}^{2}}`,
+    ggb: (U) => `1/(${U})`, Fggb: (U) => `ln(abs(${U}))`,
+    grund: T`\int \frac{1}{u}\,du = \ln|u| + C`, fehlt: "" }),
+  wurzel: () => ({ art: "wurzel", f: Math.sqrt, F: (u) => (2 / 3) * u ** 1.5, Fk: [2, 3],
+    tex: (U) => T`\sqrt{${U}}`, bare: (U) => `${klam(U)}^{\\frac{3}{2}}`, abl: (U) => T`\frac{1}{2\sqrt{${U}}}`,
+    ggb: (U) => `sqrt(${U})`, Fggb: (U) => `(${U})^(3/2)`,
+    grund: T`\int \sqrt{u}\,du = \int u^{\frac{1}{2}}\,du = \frac{2}{3}\,u^{\frac{3}{2}} + C`, fehlt: `${M(T`\sqrt{u} = u^{\frac{1}{2}}`)}: Der Exponent steigt auf ${M(T`\frac{3}{2}`)}, dazu kommt der Faktor ${M(T`\frac{2}{3}`)}.` }),
+};
+
+/* Vorfaktor c·x^e und Integrand c·x^(n−1)·f(g(x)) als TeX */
+function vorTex(cB, e) {
+  const xs = xPot(e);
+  if (!xs) return bgleich(cB, [1, 1]) ? "" : bgleich(cB, [-1, 1]) ? "-" : bTex(cB);
+  if (bgleich(cB, [1, 1])) return xs;
+  if (bgleich(cB, [-1, 1])) return "-" + xs;
+  return bTex(cB) + xs;
+}
+function hTex(cB, gi, a, faerben) {
+  const gT = faerben ? IN(gi.tex) : gi.tex;
+  const xs = xPot(gi.n - 1);
+  if (a.art === "kehr") {
+    const oben = cB[1] === 1 ? (vorTex(cB, gi.n - 1) || "1").replace(/^-$/, "-1") : (xs || "1");
+    const davor = cB[1] === 1 ? "" : bTex(cB) + T`\cdot `;
+    return davor + T`\frac{${faerben && xs ? AB(oben) : oben}}{${gT}}`;
+  }
+  const v = vorTex(cB, gi.n - 1);
+  const vT = faerben && v && v !== "-" ? AB(v) : v;
+  return v === "" ? a.tex(gT) : v === "-" ? "-" + a.tex(gT) : `${vT}\\,${a.tex(gT)}`;
+}
+const ggbZahl = (b) => (b[1] === 1 ? String(b[0]) : `(${b[0]}/${b[1]})`);
+
+/* Eine Substitutionsaufgabe würfeln.
+   o.n: Grade des Inneren, o.arten: äußere Funktionen, o.def: bestimmtes Integral */
+function sub(o = {}) {
+  for (let v = 0; v < 400; v++) {
+    const n = wahl(o.n || [1, 2, 2, 3]);
+    const p = n === 1 ? wahl([2, 3, 4, 5, -2, -3]) : wahl([1, 1, 1, 2, 3]);
+    const q = n === 1 ? wahl([1, 2, 3, 5, -1, -2, -4, 7]) : wahl([0, 1, 1, 2, 3, 4, 5, -1, -2]);
+    const art = wahl(o.arten || ["pot", "pot", "exp", "sin", "cos", "kehr", "wurzel"]);
+    if ((art === "pot" || art === "kehr" || art === "wurzel") && q === 0) continue;
+    const m = art === "pot" ? wahl(n === 1 ? [2, 3, 4, 5, 6] : [2, 3, 4]) : 0;
+    const a = art === "pot" ? AUSSEN.pot(m) : AUSSEN[art]();
+    const gi = innen(p, n, q);
+    const c = n === 1 ? wahl([1, 1, 1, 2, 3]) : wahl([1, 1, 2, 3, 4, 6, Math.abs(gi.d), 2 * Math.abs(gi.d)]);
+    const cB = [c, 1];
+    const k = Bruch(c, gi.d);                         // ∫ h dx = k ∫ f(u) du
+    const K = bmal(k, a.Fk);                          // Ergebnis: K · bare(g(x)) + C
+    const h = (x) => c * x ** (n - 1) * a.f(gi.w(x));
+    const t = { n, p, q, c, cB, art, m, a, gi, k, K, h, geschichte: art + n };
+    t.hT = hTex(cB, gi, a);
+    t.hTf = hTex(cB, gi, a, true);
+    t.uT = a.tex("u");
+    t.FuT = koef(a.Fk) + a.bare("u");
+    t.ergT = `${koef(K)}${a.bare(gi.tex)} + C`;
+    t.hG = `${c}*x^${n - 1}*${a.ggb(gi.ggb)}`;
+    t.FG = `${ggbZahl(K)}*${a.Fggb(gi.ggb)}`;
+    t.fG = `${ggbZahl(k)}*${a.ggb("x")}`;
+    if (o.def) {
+      const paare = n === 1 ? [[0, 1], [0, 2], [1, 2], [1, 3], [-1, 1], [0, 3]] : [[0, 1], [0, 1], [0, 2], [1, 2]];
+      const [x1, x2] = wahl(paare);
+      const u1 = gi.w(x1), u2 = gi.w(x2);
+      if (u1 === u2) continue;
+      if (art === "exp" && Math.max(Math.abs(u1), Math.abs(u2)) > 5) continue;
+      if (art === "kehr" && u1 * u2 <= 0) continue;
+      if (art === "wurzel" && Math.min(u1, u2) < 0) continue;
+      if (art === "pot" && Math.max(Math.abs(u1), Math.abs(u2)) ** (m + 1) > 4000) continue;
+      const V = bw(k) * (a.F(u2) - a.F(u1));
+      if (!isFinite(V) || Math.abs(V) < 0.02 || Math.abs(V) > 3000) continue;
+      Object.assign(t, { x1, x2, u1, u2, V, geschichte: art + n + "d" });
+      t.altV = bw(k) * (a.F(x2) - a.F(x1));            // alte Grenzen in u eingesetzt
+    }
+    return t;
+  }
+  throw new Error("Keine Aufgabe gefunden");
+}
+/* Für den sokratischen Trainer: nur Zeichenketten und Zahlen */
+function sokVon(t) {
+  const { a, gi } = t;
+  const s = { art: t.art, m: t.m, n: t.n, p: t.p, q: t.q, c: t.c, d: gi.d, k: t.k, K: t.K, Fk: a.Fk,
+    hT: t.hT, gT: gi.tex, dT: gi.dTex, ganzT: a.tex(gi.tex),
+    duF: t.n > 1 ? (t.p === 1 ? "" : String(t.p)) + xPot(t.n - 1) : "", uT: t.uT, FuT: t.FuT, bareU: a.bare("u"), bareG: a.bare(gi.tex), ergT: t.ergT,
+    ablU: a.abl ? a.abl("u") : "", grund: a.grund,
+    hG: t.hG, FG: t.FG, fG: t.fG, xPow: xPot(t.n - 1) };
+  const xs = t.x1 !== undefined ? [Math.min(t.x1, t.u1, t.u2, 0), Math.max(t.x2, t.u1, t.u2)] : [-2.5, 2.5];
+  if (t.x1 !== undefined) Object.assign(s, { x1: t.x1, x2: t.x2, u1: t.u1, u2: t.u2, V: t.V, altV: t.altV });
+  /* Ausschnitt aus Stichproben: Integrand (und äußere Funktion bzw. Stammfunktion) */
+  const proben = [];
+  const probe = (f, von, bis) => { for (let i = 0; i <= 200; i++) { const y = f(von + (bis - von) * i / 200); if (isFinite(y)) proben.push(y); } };
+  if (t.x1 !== undefined) {          // nur dort, wo die Flächen liegen
+    probe(t.h, t.x1, t.x2);
+    probe((u) => bw(t.k) * a.f(u), Math.min(t.u1, t.u2), Math.max(t.u1, t.u2));
+  } else {
+    probe(t.h, xs[0], xs[1]);
+    probe((x) => bw(t.K) * (a.F(gi.w(x)) / bw(a.Fk)), xs[0], xs[1]);
+  }
+  proben.sort((u, w) => u - w);
+  const rand = t.x1 !== undefined ? 0 : 0.03;
+  let lo = Math.min(0, proben[Math.floor((proben.length - 1) * rand)] ?? -1), hi = Math.max(0, proben[Math.ceil((proben.length - 1) * (1 - rand))] ?? 1);
+  if (hi - lo < 1) hi = lo + 1;
+  s.sicht = [xs[0] - 0.4, xs[1] + 0.4, lo - (hi - lo) * 0.12, hi + (hi - lo) * 0.12];
+  return s;
+}
+
+/* ---------- Bilder ---------- */
+let grNr = 0;
+function stufe(spanne) { const r = spanne / 6, e = 10 ** Math.floor(Math.log10(r)); return [1, 2, 2.5, 5, 10].map((f) => f * e).find((s) => s >= r); }
+/* o = {xmin,xmax,ymin,ymax, xname, kurven:[{f, farbe:"a"|"b", von, bis, flaeche:[a,b], text, legende}]} */
+function graph(o) {
+  const W = 340, H = 224, L = 36, R = 12, Tp = 12, B = 26, id = "gk" + ++grNr;
+  const { xmin, xmax, ymin, ymax } = o;
+  const sx = (x) => L + (x - xmin) / (xmax - xmin) * (W - L - R);
+  const sy = (y) => Tp + (ymax - y) / (ymax - ymin) * (H - Tp - B);
+  const r = (z) => Math.round(z * 10) / 10;
+  let s = `<svg class="gr" viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label || "Graph"}"><defs><clipPath id="${id}"><rect x="${L}" y="${Tp}" width="${W - L - R}" height="${H - Tp - B}"/></clipPath></defs>`;
+  const dx = o.dx || stufe(xmax - xmin), dy = o.dy || stufe(ymax - ymin);
+  const y0 = ymin <= 0 && ymax >= 0 ? 0 : ymin, x0 = xmin <= 0 && xmax >= 0 ? 0 : xmin;
+  for (let x = Math.ceil(xmin / dx) * dx; x <= xmax + 1e-9; x += dx) {
+    s += `<line class="git" x1="${r(sx(x))}" y1="${Tp}" x2="${r(sx(x))}" y2="${H - B}"/>`;
+    if (Math.abs(x) > 1e-9) s += `<text x="${r(sx(x))}" y="${r(sy(y0) + 14)}" text-anchor="middle">${kz(x, 2)}</text>`;
+  }
+  for (let y = Math.ceil(ymin / dy) * dy; y <= ymax + 1e-9; y += dy) {
+    s += `<line class="git" x1="${L}" y1="${r(sy(y))}" x2="${W - R}" y2="${r(sy(y))}"/>`;
+    if (Math.abs(y) > 1e-9) s += `<text x="${r(sx(x0) - 5)}" y="${r(sy(y) + 4)}" text-anchor="end">${kz(y, 2)}</text>`;
+  }
+  s += `<line class="ach" x1="${L}" y1="${r(sy(y0))}" x2="${W - R}" y2="${r(sy(y0))}"/><line class="ach" x1="${r(sx(x0))}" y1="${Tp}" x2="${r(sx(x0))}" y2="${H - B}"/>`;
+  s += `<text x="${W - R - 2}" y="${r(sy(y0) - 6)}" text-anchor="end" class="an">${o.xname || "x"}</text>`;
+  s += `<g clip-path="url(#${id})">`;
+  for (const k of o.kurven) if (k.flaeche) {
+    const [a, b] = k.flaeche, N = 80;
+    let d = `M${r(sx(a))},${r(sy(0))}`;
+    for (let i = 0; i <= N; i++) { const x = a + (b - a) * i / N, y = k.f(x); d += `L${r(sx(x))},${r(sy(Math.max(ymin - 1, Math.min(ymax + 1, y))))}`; }
+    s += `<path class="fa-${k.farbe}" d="${d}L${r(sx(b))},${r(sy(0))}Z"/>`;
+  }
+  for (const k of o.kurven) {
+    const a = Math.max(xmin, k.von ?? xmin), b = Math.min(xmax, k.bis ?? xmax), N = 240;
+    let d = "", auf = false;
+    for (let i = 0; i <= N; i++) {
+      const x = a + (b - a) * i / N, y = k.f(x);
+      if (!isFinite(y) || Math.abs(y) > 1e4) { auf = false; continue; }
+      d += `${auf ? "L" : "M"}${r(sx(x))},${r(sy(Math.max(ymin - 5, Math.min(ymax + 5, y))))}`; auf = true;
+    }
+    s += `<path class="ku-${k.farbe}" d="${d}"/>`;
+  }
+  s += `</g>`;
+  for (const k of o.kurven) if (k.flaeche && k.text) {
+    const xm = (k.flaeche[0] + k.flaeche[1]) / 2;
+    s += `<text class="ft" x="${r(sx(xm))}" y="${r(sy(k.f(xm) / 2) + 4)}" text-anchor="middle">${k.text}</text>`;
+  }
+  let ly = Tp + 14;
+  for (const k of o.kurven) if (k.legende) { s += `<text class="lt-${k.farbe}" x="${W - R - 4}" y="${ly}" text-anchor="end">${k.legende}</text>`; ly += 15; }
+  return s + `</svg>`;
+}
+const formelBild = (tex, unter) => `<div class="fbild">${MD(tex)}${unter ? `<div class="klein leise">${unter}</div>` : ""}</div>`;
+/* Rechenweg, der Zeile für Zeile wächst; die neueste Zeile ist markiert */
+function rechenweg(zeilen, bis) {
+  return `<div class="rweg">${zeilen.slice(0, bis + 1).map((z, i) => `<div class="rz${i === bis ? " neu" : ""}"><span class="rnr">${z[0]}</span><span>${M(z[1])}</span></div>`).join("")}</div>`;
+}
+/* Bild zu einer Aufgabe mit Grenzen: Fläche unter dem Integranden */
+function flaechenBild(t, mitU) {
+  const xs = mitU ? [Math.min(t.x1, t.u1, t.u2, 0), Math.max(t.x2, t.u1, t.u2)] : [Math.min(t.x1, 0), t.x2];
+  const ys = [0];
+  for (let i = 0; i <= 120; i++) {
+    const x = xs[0] + (xs[1] - xs[0]) * i / 120;
+    for (const y of [t.h(x), mitU ? bw(t.k) * t.a.f(x) : NaN]) if (isFinite(y)) ys.push(y);
+  }
+  ys.sort((a, b) => a - b);
+  const lo = Math.min(0, ys[Math.floor(ys.length * 0.02)]), hi = Math.max(0, ys[Math.floor(ys.length * 0.98)]) || 1;
+  const kurven = [{ f: t.h, farbe: "a", flaeche: [t.x1, t.x2], legende: "Integrand über dem x-Intervall" }];
+  if (mitU) kurven.push({ f: (x) => bw(t.k) * t.a.f(x), farbe: "b", flaeche: [Math.min(t.u1, t.u2), Math.max(t.u1, t.u2)], legende: "k · f(u) über dem u-Intervall" });
+  return graph({ xmin: xs[0] - 0.3, xmax: xs[1] + 0.3, ymin: lo - (hi - lo) * 0.1, ymax: hi + (hi - lo) * 0.15, kurven, label: "Fläche unter dem Integranden" });
+}
+
+/* Auswahl als Knöpfe (Formeln sind erlaubt). opts: [{t, ok?, w}] */
+function knopfWahl(label, opts) {
+  const o = misch(opts);
+  return { label, optionen: o.map((x) => x.t), richtig: o.findIndex((x) => x.ok), falsch: (i) => o[i].w || "" };
+}
+/* Verschiedene Optionen: gleiche Formeln nur einmal */
+function eindeutig(opts) { const ges = new Set(); return opts.filter((x) => (ges.has(x.t) ? false : ges.add(x.t))); }
+
+/* Fallen für den Faktor vor der Stammfunktion */
+function faktorFallen(t) {
+  const { a, gi, k, K, c } = t;
+  return [
+    { wert: bw(bmal([c, 1], a.Fk)), text: `Du hast nicht durch die innere Ableitung geteilt. Aus ${M(T`dx = \frac{du}{${gi.dTex}}`)} kommt der Faktor ${M(T`\frac{1}{${gi.d}}`)}.` },
+    { wert: bw(bmal([c * gi.d, 1], a.Fk)), text: `Du hast mit der inneren Ableitung ${M(String(gi.d))} multipliziert. Beim Integrieren wird durch sie geteilt.` },
+    ...(bgleich(a.Fk, [1, 1]) ? [] : [{ wert: bw(k), text: a.fehlt || "Der Faktor aus dem Grundintegral fehlt." }]),
+    { wert: -bw(K), text: "Prüfe das Vorzeichen." },
+  ];
+}
+
+/* ---------- 1 · Die Idee ---------- */
+STATIONEN.push({
+  id: "s-idee", titel: "Die Idee: Kettenregel rückwärts", ziel: 3,
+  vor: [
+    { t: `Manche Integrale passen zu keiner Grundregel, zum Beispiel ${M(T`\int 2x\cdot\cos(x^2)\,dx`)}. Ableiten kannst du aber fast alles. Die Idee: Wir lesen eine Ableitung <b>rückwärts</b>.`,
+      v: () => graph({ xmin: -0.2, xmax: 2.4, ymin: -4.6, ymax: 3.2, kurven: [{ f: (x) => 2 * x * Math.cos(x * x), farbe: "a", legende: "y = 2x · cos(x²)" }] }),
+      f: { q: `Welche Regel brauchst du, um ${M(T`\sin(x^2)`)} abzuleiten?`, o: [
+        { t: "die Kettenregel", ok: true, w: "Genau: äußere Ableitung mal innere Ableitung." },
+        { t: "die Produktregel", w: `${M(T`\sin(x^2)`)} ist kein Produkt, sondern eine Verkettung: ${M(T`\sin`)} von ${M("x^2")}.` },
+        { t: "die Potenzregel", w: `Die Potenzregel allein reicht nicht, denn ${M("x^2")} steckt im Sinus.` }] } },
+    { t: `Die Kettenregel liefert ${M(T`\bigl(\sin(${IN("x^2")})\bigr)' = \cos(${IN("x^2")})\cdot ${AB("2x")}`)}. Außen steht ${M(T`\sin`)}, innen ${M(IN("x^2"))}, und als Faktor erscheint die innere Ableitung ${M(AB("2x"))}.`,
+      v: () => formelBild(T`\bigl(\sin(${IN("x^2")})\bigr)' = \cos(${IN("x^2")})\cdot ${AB("2x")}`, "blau: das Innere, türkis: seine Ableitung"),
+      f: { q: `Was folgt daraus für ${M(T`\int 2x\cdot\cos(x^2)\,dx`)}?`, o: [
+        { t: M(T`\sin(x^2) + C`), ok: true, w: "Denn die Ableitung von sin(x²) ist genau der Integrand." },
+        { t: M(T`\cos(x^2)\cdot x^2 + C`), w: `Leite zur Probe ab. Mit der Produktregel entsteht etwas ganz anderes als ${M(T`2x\cos(x^2)`)}.` },
+        { t: M(T`x^2\sin(x^2) + C`), w: "Leite zur Probe ab: Das gibt zwei Summanden. Der Integrand hat nur einen." }] } },
+    { t: `Das ist das <b>Muster</b>: Steht im Integral eine Verkettung ${M(T`f(${IN("g(x)")})`)} und daneben die innere Ableitung ${M(AB("g'(x)"))}, dann ist ${M(T`\int f(${IN("g(x)")})\cdot ${AB("g'(x)")}\,dx = F(g(x)) + C`)}. Dabei ist F eine Stammfunktion von f.`,
+      v: () => formelBild(T`\int f(${IN("g(x)")})\cdot ${AB("g'(x)")}\,dx = F(g(x)) + C`, "F ist eine Stammfunktion von f"),
+      f: { q: `Bei ${M(T`\int 3x^2\, e^{x^3}\,dx`)}: Was ist innen, was ist die innere Ableitung?`, o: [
+        { t: `innen ${M("x^3")}, Ableitung ${M("3x^2")}`, ok: true, w: `Genau. Darum ist ${M(T`\int 3x^2 e^{x^3}\,dx = e^{x^3} + C`)}.` },
+        { t: `innen ${M("3x^2")}, Ableitung ${M("6x")}`, w: `${M("3x^2")} steht als Faktor davor, nicht in der e-Funktion. Innen ist, was im Exponenten steckt.` },
+        { t: `innen ${M("e")}, Ableitung ${M("0")}`, w: "e ist eine feste Zahl. Verkettet ist die e-Funktion mit dem Exponenten." }] } },
+    { t: `Die Probe ist immer erlaubt und immer sicher: ${M(T`\bigl(e^{x^3}\bigr)' = e^{x^3}\cdot 3x^2`)}. Das ist der Integrand. Wer eine Stammfunktion gefunden hat, leitet sie zur Kontrolle ab.`,
+      v: () => formelBild(T`\bigl(e^{x^3}\bigr)' = e^{x^3}\cdot 3x^2 \;\checkmark`) },
+    { t: `Was, wenn der Zahlenfaktor nicht stimmt? Bei ${M(T`\int x\cdot e^{x^2}\,dx`)} wäre die innere Ableitung ${M("2x")}, da steht nur ${M("x")}. Ein Zahlenfaktor lässt sich ausgleichen: ${M(T`x = \tfrac{1}{2}\cdot 2x`)}.`,
+      v: () => formelBild(T`\int x\, e^{x^2}\,dx = \frac{1}{2}\int 2x\, e^{x^2}\,dx`),
+      f: { q: `Welche Stammfunktion hat ${M(T`x\cdot e^{x^2}`)}?`, o: [
+        { t: M(T`\tfrac{1}{2}\, e^{x^2}`), ok: true, w: `Probe: ${M(T`\bigl(\tfrac{1}{2}e^{x^2}\bigr)' = \tfrac{1}{2}\, e^{x^2}\cdot 2x = x\, e^{x^2}`)}.` },
+        { t: M(T`e^{x^2}`), w: `Ableiten gibt ${M(T`2x\, e^{x^2}`)}, doppelt so viel wie gewünscht.` },
+        { t: M(T`2\, e^{x^2}`), w: `Ableiten gibt ${M(T`4x\, e^{x^2}`)}: Du hast mit 2 multipliziert statt durch 2 geteilt.` },
+        { t: M(T`\frac{e^{x^2}}{2x}`), w: "Durch einen Term mit x darf man so nicht teilen. Leite ab: Mit der Quotientenregel entsteht etwas anderes." }] } },
+    { t: `Ein fehlender <b>Zahlenfaktor</b> lässt sich ausgleichen, ein fehlender <b>Term mit x</b> nicht. ${M(T`\int e^{x^2}\,dx`)} hat keine Stammfunktion, die man mit den üblichen Funktionen hinschreiben kann.`,
+      v: () => formelBild(T`\int e^{x^2}\,dx = \;?`, "hier fehlt der Faktor x, keine Zahl"),
+      f: { q: `Klappt der Trick bei ${M(T`\int x^2\cos(x^3)\,dx`)}?`, o: [
+        { t: `Ja, mit dem Faktor ${M(T`\tfrac{1}{3}`)}`, ok: true, w: `Die innere Ableitung ist ${M("3x^2")}, da steht ${M("x^2")}: nur die Zahl 3 fehlt. Also ${M(T`\tfrac{1}{3}\sin(x^3) + C`)}.` },
+        { t: "Nein, es fehlt ein Term mit x", w: `Die innere Ableitung ist ${M("3x^2")}. Das x² steht schon da, es fehlt nur die Zahl 3.` },
+        { t: `Ja, mit dem Faktor ${M("3")}`, w: `${M("x^2")} ist ein Drittel von ${M("3x^2")}. Der Faktor ist also ein Drittel, nicht drei.` }] } },
+  ],
+  merke: `${M(T`\int f(g(x))\cdot g'(x)\,dx = F(g(x)) + C`)}. Fehlt nur ein Zahlenfaktor der inneren Ableitung, gleicht man ihn aus. Probe: ableiten.`,
+  stolper: `Durch Terme mit x darf man nicht „ausgleichen“: ${M(T`\int e^{x^2}dx \neq \frac{e^{x^2}}{2x}`)}. Leite ab, dann siehst du es.`,
+  neu() {
+    const t = sub({ n: [2, 2, 3, 1] });
+    const { a, gi, K, cB } = t;
+    const opts = eindeutig([
+      { t: M(`${koef(K)}${a.bare(gi.tex)}`), ok: true },
+      { t: M(`${koef(bmal(K, [gi.d * gi.d, 1]))}${a.bare(gi.tex)}`), w: `Leite ab. Es entsteht das ${M(String(gi.d * gi.d))}-Fache des Integranden: Du hast mit der inneren Ableitung multipliziert, statt durch sie zu teilen.` },
+      ...(bgleich(K, a.Fk) ? [] : [{ t: M(`${koef(a.Fk)}${a.bare(gi.tex)}`), w: `Leite ab: Die innere Ableitung ${M(gi.dTex)} kommt als Faktor dazu. Gleiche sie durch ${M(T`\frac{1}{${gi.d}}`)} aus.` }]),
+      ...(a.abl ? [{ t: M(`${koef(t.k)}${a.abl(gi.tex)}`), w: "Hier wurde die äußere Funktion abgeleitet statt integriert." }] : []),
+      { t: M(`${koef(bmal(K, [-1, 1]))}${a.bare(gi.tex)}`), w: "Leite ab und achte auf das Vorzeichen." },
+    ]).slice(0, 4);
+    return {
+      html: `<p>Welche Funktion ist eine Stammfunktion von</p>${MD(`h(x) = ${t.hT}`)}`,
+      geschichte: t.geschichte, sok: sokVon(t), felder: [],
+      auswahl: knopfWahl("Eine Stammfunktion ist …", opts),
+      tipps: [`Was steckt verkettet in der äußeren Funktion? Das Innere ist ${M(gi.tex)}, seine Ableitung ${M(gi.dTex)}.`,
+        `Leite jede Auswahl mit der Kettenregel ab und vergleiche mit ${M(t.hT)}.`],
+      loesung: `${M(T`\int ${t.hT}\,dx = ${t.ergT}`)}. Probe: Ableiten ergibt äußere Ableitung mal innere Ableitung ${M(gi.dTex)}, und der Faktor ${M(bTex(K))} gleicht die Zahl aus.`,
+    };
+  },
+});
+
+/* ---------- 2 · Inneres und Faktor erkennen ---------- */
+STATIONEN.push({
+  id: "s-erkennen", titel: "Das Innere und den Faktor erkennen", ziel: 3,
+  vor: [
+    { t: `Vor jeder Substitution steht ein genauer Blick auf den Integranden. Nimm ${M(T`\int x\,(x^2+3)^4\,dx`)}. Welcher Teil ist verkettet? Sein Inneres bekommt einen neuen Namen: <b>u</b>.`,
+      v: () => formelBild(T`\int x\,(x^2+3)^4\,dx`),
+      f: { q: "Was ist hier das Innere?", o: [
+        { t: M("x^2+3"), ok: true, w: "Genau, es steckt in der vierten Potenz." },
+        { t: M("(x^2+3)^4"), w: "Das ist die ganze Verkettung. Innen steht, was in der Klammer steckt." },
+        { t: M("x"), w: "x ist der Faktor vor der Klammer. Gesucht ist das Innere der Verkettung." }] } },
+    { t: `Wir setzen ${M(T`u = ${IN("x^2+3")}`)}. Die Ableitung ist ${M(T`\frac{du}{dx} = ${AB("2x")}`)}. Als Merkzeile: ${M(T`du = ${AB("2x")}\,dx`)}, also ${M(T`dx = \frac{du}{${AB("2x")}}`)}.`,
+      v: () => formelBild(T`u = ${IN("x^2+3")}\qquad dx = \frac{du}{${AB("2x")}}`),
+      f: { q: `Ersetze dx durch ${M(T`\frac{du}{2x}`)}. Was geschieht mit dem Faktor x vor der Klammer?`, o: [
+        { t: `Er kürzt sich: ${M(T`x\cdot\frac{1}{2x} = \frac{1}{2}`)}`, ok: true, w: "Genau. Übrig bleibt nur eine Zahl." },
+        { t: "Er bleibt stehen", w: `Rechne ${M(T`x\cdot\frac{du}{2x}`)}: Das x steht oben und unten.` },
+        { t: `Er wird zu ${M("2x")}`, w: "Es wird geteilt, nicht multipliziert." }] } },
+    { t: `${M(T`\int x\,(x^2+3)^4\,dx = \int x\cdot u^4\cdot\frac{du}{2x} = \frac{1}{2}\int u^4\,du`)}. Kein x mehr! Das ist das Zeichen, dass die Substitution gelingt.`,
+      v: () => formelBild(T`\int x\,(x^2+3)^4\,dx = \frac{1}{2}\int u^4\,du`, "rechts steht nur noch u") },
+    { t: `Die Zahl vor dem neuen Integral nennen wir <b>k</b>. Bei ${M(T`\int 6x^2\cos(x^3+1)\,dx`)} ist ${M(T`u' = 3x^2`)}, also ${M(T`6x^2 = 2\cdot 3x^2`)} und ${M("k = 2")}.`,
+      v: () => formelBild(T`\int 6x^2\cos(x^3+1)\,dx = 2\int \cos(u)\,du`),
+      f: { q: `Welches k gehört zu ${M(T`\int x^2\sqrt{x^3+5}\,dx`)}?`, o: [
+        { t: M(T`k = \tfrac{1}{3}`), ok: true, w: `${M(T`u' = 3x^2`)}, und ${M("x^2")} ist ein Drittel davon.` },
+        { t: M("k = 3"), w: `Umgekehrt: ${M("x^2")} ist ein Drittel von ${M("3x^2")}, nicht das Dreifache.` },
+        { t: M("k = 1"), w: `Es fehlt die 3 aus ${M(T`u' = 3x^2`)}.` }] } },
+  ],
+  merke: `u ist das Innere der Verkettung. Mit ${M(T`dx = \frac{du}{u'(x)}`)} muss jedes x verschwinden; übrig bleibt ${M(T`k\int f(u)\,du`)}.`,
+  stolper: `Nicht das Ganze ist u, sondern das Innere. Und k ist (Zahl vor dem x-Faktor) geteilt durch (Zahl in u'), nicht umgekehrt.`,
+  neu() {
+    const t = sub({ n: [2, 2, 3] });
+    const { a, gi, k, c } = t;
+    const opts = eindeutig([
+      { t: M(`u = ${gi.tex}`), ok: true },
+      { t: M(`u = ${a.tex(gi.tex)}`), w: "Das ist die ganze Verkettung. u ist das, was innen steckt." },
+      { t: M(`u = ${c === 1 ? "" : c}${xPot(gi.n - 1)}`), w: "Das ist der Faktor davor. Er wird nachher von dx = du : u' aufgefressen." },
+      { t: M(`u = ${gi.dTex}`), w: "Das ist die Ableitung des Inneren, nicht das Innere selbst." },
+    ]);
+    return {
+      html: `<p>Bei welcher Substitution verschwindet jedes x? Und welche Zahl k bleibt dann stehen?</p>${MD(T`\int ${t.hT}\,dx = k\cdot\int ${t.uT}\,du`)}`,
+      geschichte: t.geschichte, sok: sokVon(t),
+      auswahl: knopfWahl("Die passende Substitution:", opts),
+      felder: [{ id: "k", label: `Faktor ${M("k")} (Bruch erlaubt)`, wert: bw(k), tol: 0.0011, art: "z", fallen: [
+        { wert: bw(bdurch([1, 1], k)), text: `Umgekehrt: Teile die Zahl vor dem x-Faktor durch die Zahl in ${M(T`u' = ${gi.dTex}`)}.` },
+        { wert: c, text: `Du hast nicht durch die innere Ableitung geteilt. Aus ${M(T`dx = \frac{du}{${gi.dTex}}`)} kommt noch ${M(T`\frac{1}{${gi.d}}`)}.` },
+        { wert: 1 / gi.d, text: `Die Zahl ${M(String(c))} vor dem x-Faktor gehört mit in k.` }] }],
+      tipps: [`Das Innere ist ${M(gi.tex)}. Leite es ab: ${M(T`du = ${gi.dTex}\,dx`)}.`,
+        `Setze ${M(T`dx = \frac{du}{${gi.dTex}}`)} ein und kürze das x. Es bleibt ${M(T`\frac{${c}}{${gi.d}}`)}.`],
+      loesung: `${M(T`u = ${gi.tex},\; dx = \frac{du}{${gi.dTex}}`)}, also ${M(T`\int ${t.hT}\,dx = ${bTex(k)}\int ${t.uT}\,du`)}, ${M(T`k = ${bTex(k)}`)}.`,
+    };
+  },
+});
+
+/* ---------- 3 · Das Verfahren ---------- */
+const WEG3 = [
+  ["①", T`u = x^3 + 2`],
+  ["②", T`du = 3x^2\,dx \;\Rightarrow\; dx = \frac{du}{3x^2}`],
+  ["③", T`\int x^2 (x^3+2)^4\,dx = \int x^2\, u^4\, \frac{du}{3x^2} = \frac{1}{3}\int u^4\,du`],
+  ["④", T`= \frac{1}{3}\cdot\frac{u^5}{5} = \frac{1}{15}\,u^5`],
+  ["⑤", T`= \frac{1}{15}\,(x^3+2)^5 + C`],
+  ["✓", T`\Bigl(\tfrac{1}{15}(x^3+2)^5\Bigr)' = \tfrac{1}{15}\cdot 5(x^3+2)^4\cdot 3x^2 = x^2(x^3+2)^4`],
+];
+STATIONEN.push({
+  id: "s-verfahren", titel: "Das Verfahren in fünf Schritten", ziel: 3,
+  vor: [
+    { t: `Jetzt der ganze Weg an einem Beispiel: ${M(T`\int x^2\,(x^3+2)^4\,dx`)}. <b>① Substituieren:</b> Das Innere heißt ${M(T`u = x^3+2`)}.`, v: () => rechenweg(WEG3, 0) },
+    { t: `<b>② Differenzieren:</b> ${M(T`du = 3x^2\,dx`)}, nach dx umgestellt ${M(T`dx = \frac{du}{3x^2}`)}.`, v: () => rechenweg(WEG3, 1),
+      f: { q: `Warum ist ${M(T`du = 3x^2\,dx`)} richtig?`, o: [
+        { t: `Weil ${M(T`\frac{du}{dx} = u'(x) = 3x^2`)}`, ok: true, w: "Genau. Man schreibt die Ableitung als Quotient und stellt um." },
+        { t: "Weil man u und x einfach vertauscht", w: "Vertauscht wird nichts. du und dx hängen über die Ableitung zusammen." },
+        { t: `Weil ${M(T`x^3 + 2`)} und ${M("3x^2")} gleich groß sind`, w: `${M("3x^2")} ist die Ableitung von ${M("x^3+2")}, nicht derselbe Wert.` }] } },
+    { t: `<b>③ Ersetzen:</b> Alles mit x wird ersetzt. Das ${M("x^2")} kürzt sich gegen das ${M("3x^2")} im Nenner. Übrig: ${M(T`\frac{1}{3}\int u^4\,du`)}.`, v: () => rechenweg(WEG3, 2),
+      f: { q: "Was prüfst du nach dem Ersetzen?", o: [
+        { t: "Dass kein x mehr dasteht", ok: true, w: "Steht noch ein x da, ist die Substitution gescheitert. Dann hilft eine andere oder gar keine." },
+        { t: "Dass das Ergebnis positiv ist", w: "Das Vorzeichen spielt hier keine Rolle. Entscheidend ist, ob das x verschwunden ist." },
+        { t: "Dass u kleiner als x ist", w: "u ist ein neuer Name, kein kleinerer Wert. Wichtig ist: Es darf kein x übrig sein." }] } },
+    { t: `<b>④ Integrieren:</b> Jetzt ist es ein Grundintegral: ${M(T`\frac{1}{3}\cdot\frac{u^5}{5} = \frac{1}{15}\,u^5`)}.`, v: () => rechenweg(WEG3, 3),
+      f: { q: `Welche Stammfunktion hat ${M("u^4")}?`, o: [
+        { t: M(T`\frac{u^5}{5}`), ok: true, w: "Exponent um eins erhöhen, durch den neuen Exponenten teilen." },
+        { t: M("4u^3"), w: "Das ist die Ableitung, nicht die Stammfunktion." },
+        { t: M("u^5"), w: `Leite ab: ${M("5u^4")}. Es fehlt der Faktor ${M(T`\frac{1}{5}`)}.` }] } },
+    { t: `<b>⑤ Zurücksubstituieren:</b> Für u wieder ${M("x^3+2")} einsetzen und ${M("+C")} nicht vergessen.`, v: () => rechenweg(WEG3, 4),
+      f: { q: "Warum darf u am Ende nicht stehen bleiben?", o: [
+        { t: "Gesucht ist eine Stammfunktion von x", ok: true, w: "u war nur ein Hilfsname. Die Aufgabe ist in x gestellt, die Antwort auch." },
+        { t: "u darf nur bei Grenzen vorkommen", w: "Beim unbestimmten Integral ist u nur ein Hilfsname. Gefragt ist eine Funktion von x." },
+        { t: "Sonst fehlt das C", w: "Das C gehört immer dazu. Zurück muss man, weil die Aufgabe in x gestellt ist." }] } },
+    { t: `<b>Probe</b> durch Ableiten: äußere Ableitung mal innere Ableitung gibt genau den Integranden. Fertig.`, v: () => rechenweg(WEG3, 5) },
+  ],
+  merke: `① ${M("u = g(x)")} ② ${M(T`dx = \frac{du}{g'(x)}`)} ③ ersetzen, bis kein x mehr dasteht ④ integrieren ⑤ zurücksubstituieren, ${M("+C")}. Probe: ableiten.`,
+  stolper: `Zwei Faktoren können zusammenkommen: einer aus ${M(T`dx = \frac{du}{g'(x)}`)}, einer aus dem Grundintegral. Beide gehören ins Ergebnis.`,
+  neu() {
+    const t = sub({ n: [2, 2, 3], arten: ["pot", "pot", "pot", "exp", "sin", "cos", "kehr", "wurzel"] });
+    const { a, gi, K } = t;
+    const felder = [{ id: "K", label: `Faktor vor ${M(a.bare(gi.tex))} (Bruch erlaubt)`, wert: bw(K), tol: 0.0011, art: "z", fallen: faktorFallen(t) }];
+    let rechts = T`\square\cdot ${a.bare(gi.tex)} + C`;
+    if (t.art === "pot") {
+      rechts = T`\square\cdot (${gi.tex})^{\triangle} + C`;
+      felder[0].label = `Faktor ${M(T`\square`)} (Bruch erlaubt)`;
+      felder.push({ id: "e", label: `Exponent ${M(T`\triangle`)}`, wert: t.m + 1, art: "n", fallen: [
+        { wert: t.m, text: "Beim Integrieren steigt der Exponent um eins." }, { wert: t.m - 1, text: "Das wäre beim Ableiten so. Beim Integrieren steigt der Exponent." }] });
+    }
+    return {
+      html: `<p>Integriere mit Substitution und fülle die Lücken.</p>${MD(T`\int ${t.hT}\,dx = ${rechts}`)}`,
+      geschichte: t.geschichte, sok: sokVon(t), felder,
+      tipps: [`① ${M(T`u = ${gi.tex}`)} ② ${M(T`dx = \frac{du}{${gi.dTex}}`)} ③ Es bleibt ${M(T`${bTex(t.k)}\int ${t.uT}\,du`)}.`,
+        `④ ${M(a.grund)}. Multipliziere die beiden Faktoren.`],
+      loesung: `${M(T`\int ${t.hT}\,dx = ${bTex(t.k)}\int ${t.uT}\,du = ${bTex(t.k)}\cdot ${t.FuT} + C = ${t.ergT}`)}`,
+    };
+  },
+});
+
+/* ---------- 4 · Lineare Substitution ---------- */
+STATIONEN.push({
+  id: "s-linear", titel: "Innen steht ax + b", ziel: 4,
+  vor: [
+    { t: `Besonders oft steht innen eine lineare Funktion, etwa bei ${M(T`\int e^{3x-1}\,dx`)}. Dann ist alles schneller erledigt.`,
+      v: () => formelBild(T`\int e^{${IN("3x-1")}}\,dx`),
+      f: { q: `Was ist ${M("u'")} für ${M("u = 3x - 1")}?`, o: [
+        { t: M("3"), ok: true, w: "Die Ableitung einer linearen Funktion ist ihre Steigung." },
+        { t: M("3x"), w: `${M("3x")} abgeleitet ist ${M("3")}, ohne x.` },
+        { t: M("-1"), w: "Die −1 fällt beim Ableiten weg. Es bleibt die Steigung." }] } },
+    { t: `${M(T`du = 3\,dx`)}, also ${M(T`dx = \frac{du}{3}`)}. Damit ${M(T`\int e^{u}\,\frac{du}{3} = \frac{1}{3}\,e^{u} = \frac{1}{3}\,e^{3x-1} + C`)}.`,
+      v: () => formelBild(T`\int e^{3x-1}\,dx = \frac{1}{3}\,e^{3x-1} + C`) },
+    { t: `Allgemein gilt die <b>lineare Substitution</b>: ${M(T`\int f(ax+b)\,dx = \frac{1}{a}\,F(ax+b) + C`)}. Außen integrieren, durch die Steigung a teilen.`,
+      v: () => formelBild(T`\int f(${IN("ax+b")})\,dx = \frac{1}{${AB("a")}}\,F(ax+b) + C`),
+      f: { q: `${M(T`\int \cos(2x+5)\,dx = \;?`)}`, o: [
+        { t: M(T`\tfrac{1}{2}\sin(2x+5) + C`), ok: true, w: `Probe: ${M(T`\bigl(\tfrac12\sin(2x+5)\bigr)' = \tfrac12\cos(2x+5)\cdot 2`)} ✓` },
+        { t: M(T`2\sin(2x+5) + C`), w: "Leite ab: Es kommt 4·cos(2x+5) heraus. Durch a teilen, nicht malnehmen." },
+        { t: M(T`\sin(2x+5) + C`), w: "Leite ab: Es kommt 2·cos(2x+5) heraus, doppelt so viel." },
+        { t: M(T`-\tfrac{1}{2}\sin(2x+5) + C`), w: "Die Stammfunktion von cos ist sin, ohne Minus." }] } },
+    { t: `Bei Potenzen kommen zwei Faktoren zusammen: ${M(T`\int (4x-3)^5\,dx = \frac{1}{4}\cdot\frac{(4x-3)^6}{6} = \frac{1}{24}(4x-3)^6 + C`)}. Ein Faktor stammt vom Grundintegral, einer von der Steigung.`,
+      v: () => formelBild(T`\int (4x-3)^5\,dx = \frac{1}{4}\cdot\frac{1}{6}\,(4x-3)^6 + C`),
+      f: { q: `Welcher Faktor steht bei ${M(T`\int (2x+1)^3\,dx`)} vor ${M(T`(2x+1)^4`)}?`, o: [
+        { t: M(T`\tfrac{1}{8}`), ok: true, w: `${M(T`\tfrac14`)} vom Grundintegral, ${M(T`\tfrac12`)} von der Steigung.` },
+        { t: M(T`\tfrac{1}{4}`), w: "Das ist nur der Faktor aus dem Grundintegral. Die Steigung 2 fehlt." },
+        { t: M(T`\tfrac{1}{2}`), w: "Das ist nur der Faktor aus der Steigung. Das Grundintegral bringt noch ¼." },
+        { t: M("2"), w: "Durch die Steigung wird geteilt, nicht mit ihr multipliziert." }] } },
+  ],
+  merke: `${M(T`\int f(ax+b)\,dx = \frac{1}{a}\,F(ax+b) + C`)}. Kurz: außen integrieren, durch die innere Ableitung a teilen.`,
+  stolper: `Durch a teilen, nicht mit a malnehmen. Und bei Potenzen kommt der Faktor des Grundintegrals noch dazu.`,
+  neu() {
+    const t = sub({ n: [1], arten: ["pot", "pot", "exp", "sin", "cos", "kehr", "wurzel"] });
+    const { a, gi, K } = t;
+    return {
+      html: `<p>Bestimme den Faktor.</p>${MD(T`\int ${t.hT}\,dx = \square\cdot ${a.bare(gi.tex)} + C`)}`,
+      geschichte: t.geschichte, sok: sokVon(t),
+      felder: [{ id: "K", label: `Faktor ${M(T`\square`)} (Bruch erlaubt)`, wert: bw(K), tol: 0.0011, art: "z", fallen: faktorFallen(t) }],
+      tipps: [`Die Steigung innen ist ${M(T`a = ${gi.p}`)}. Durch sie wird geteilt.`, `${M(a.grund)}${t.c !== 1 ? `, und die ${t.c} davor bleibt stehen` : ""}.`],
+      loesung: `${M(T`\int ${t.hT}\,dx = ${t.c !== 1 ? t.c + T`\cdot` : ""}\frac{1}{${gi.p}}\cdot ${koef(a.Fk)}${a.bare(gi.tex)} + C = ${t.ergT}`)}`,
+    };
+  },
+});
+
+/* ---------- 5 · Grenzen mitnehmen ---------- */
+const BSP5 = { h: (x) => 2 * x / (x * x + 1), f: (u) => 1 / u };
+const bild5 = (beide) => graph({ xmin: -0.1, xmax: 5.6, ymin: -0.05, ymax: 1.15, dx: 1, dy: 0.25, xname: beide ? "x bzw. u" : "x",
+  kurven: [{ f: BSP5.h, farbe: "a", flaeche: [1, 2], legende: "y = 2x/(x²+1), x von 1 bis 2", text: beide ? "0,916" : "" },
+    ...(beide ? [{ f: BSP5.f, farbe: "b", von: 0.15, flaeche: [2, 5], legende: "y = 1/u, u von 2 bis 5", text: "0,916" }] : [])] });
+STATIONEN.push({
+  id: "s-grenzen", titel: "Bestimmte Integrale: Grenzen mitnehmen", ziel: 3,
+  vor: [
+    { t: `Gesucht ist ${M(T`\int_1^2 \frac{2x}{x^2+1}\,dx`)}, die Fläche unter dem blauen Graphen zwischen 1 und 2.`, v: () => bild5(false),
+      f: { q: "Welche Substitution bietet sich an?", o: [
+        { t: M("u = x^2 + 1"), ok: true, w: `Und ${M("2x")} im Zähler ist genau ihre Ableitung.` },
+        { t: M("u = 2x"), w: `Dann bliebe ${M("x^2+1")} im Nenner stehen, mit x darin.` },
+        { t: M(T`u = \frac{1}{x^2+1}`), w: "Dann wäre u die ganze Verkettung. Innen steht der Nenner." }] } },
+    { t: `Mit ${M("u = x^2+1")} und ${M(T`du = 2x\,dx`)} wird der Integrand zu ${M(T`\frac{1}{u}`)}. Aber Achtung: Die Grenzen 1 und 2 sind <b>x-Werte</b>.`, v: () => bild5(false),
+      f: { q: "Welche u-Werte gehören zu x = 1 und x = 2?", o: [
+        { t: "u = 2 und u = 5", ok: true, w: `${M("1^2+1 = 2")} und ${M("2^2+1 = 5")}.` },
+        { t: "u = 1 und u = 2", w: "Das sind die alten Grenzen. Setze sie in u = x² + 1 ein." },
+        { t: "u = 3 und u = 5", w: `Rechne nach: ${M("1^2 + 1 = 2")}.` }] } },
+    { t: `Also ${M(T`\int_1^2 \frac{2x}{x^2+1}\,dx = \int_2^5 \frac{1}{u}\,du`)}. Rechts steht eine <b>andere Fläche</b>: unter ${M(T`\frac{1}{u}`)} von 2 bis 5.`, v: () => bild5(true),
+      f: { q: "Ist die türkise Fläche genauso groß wie die blaue?", o: [
+        { t: "Ja, genau gleich groß", ok: true, w: "Die Substitution verzerrt die Fläche: breiter, dafür flacher. Der Inhalt bleibt gleich." },
+        { t: "Nein, die türkise ist größer, weil sie breiter ist", w: "Breiter ja, aber auch flacher. Beide haben den Inhalt 0,916." },
+        { t: "Nein, die blaue ist größer, weil sie höher ist", w: "Höher ja, aber schmaler. Beide haben den Inhalt 0,916." }] } },
+    { t: `Ausrechnen in u: ${M(T`\bigl[\ln u\bigr]_2^5 = \ln 5 - \ln 2 \approx 0{,}916`)}. Wer die Grenzen mitgenommen hat, muss nicht zurücksubstituieren.`, v: () => bild5(true) },
+    { t: `Es gibt einen zweiten Weg: erst unbestimmt integrieren und zurücksubstituieren, ${M(T`\ln(x^2+1)`)}, dann die <b>alten</b> Grenzen einsetzen: ${M(T`\ln 5 - \ln 2`)}. Beide Wege sind richtig. Falsch ist nur die Mischung.`, v: () => bild5(true),
+      f: { q: `Was kommt heraus, wenn man ${M(T`\ln u`)} mit den alten Grenzen 1 und 2 auswertet?`, o: [
+        { t: `${M(T`\ln 2 - \ln 1 \approx 0{,}693`)}, also falsch`, ok: true, w: "Genau. u-Stammfunktion und x-Grenzen passen nicht zusammen." },
+        { t: `${M(T`\ln 2 - \ln 1`)}, und das ist richtig`, w: "Rechne nach: 0,693 ist nicht 0,916. Zu u gehören die u-Grenzen." },
+        { t: "Dasselbe, weil ln immer gleich bleibt", w: "Die Grenzen 1 und 2 sind x-Werte. Für u laufen sie von 2 bis 5." }] } },
+  ],
+  merke: `${M(T`\int_a^b f(g(x))\,g'(x)\,dx = \int_{g(a)}^{g(b)} f(u)\,du`)}. Neue Grenzen ausrechnen und in u zu Ende rechnen.`,
+  stolper: `Nie die u-Stammfunktion mit den x-Grenzen auswerten. Entweder neue Grenzen oder zurücksubstituieren, nicht halb und halb.`,
+  neu() {
+    const t = sub({ def: true });
+    const { gi, k } = t;
+    return {
+      html: `<p>Berechne mit Substitution.</p>${MD(T`\int_{${t.x1}}^{${t.x2}} ${t.hT}\,dx`)}`,
+      bild: flaechenBild(t, false),
+      geschichte: t.geschichte, sok: sokVon(t),
+      felder: [
+        { id: "u1", label: `neue untere Grenze ${M("u_1")}`, wert: t.u1, art: "n", fallen: [{ wert: t.x1, text: `Das ist die alte Grenze. Setze ${M(`x = ${t.x1}`)} in ${M(`u = ${gi.tex}`)} ein.` }] },
+        { id: "u2", label: `neue obere Grenze ${M("u_2")}`, wert: t.u2, art: "n", fallen: [{ wert: t.x2, text: `Das ist die alte Grenze. Setze ${M(`x = ${t.x2}`)} in ${M(`u = ${gi.tex}`)} ein.` }] },
+        { id: "V", label: "Wert des Integrals (drei Nachkommastellen)", wert: t.V, tol: 0.0011, art: "z", fallen: [
+          { wert: t.altV, text: "Du hast die u-Stammfunktion mit den alten x-Grenzen ausgewertet. Nimm die neuen Grenzen." },
+          { wert: t.V / bw(k), text: `Der Faktor ${M(T`k = ${bTex(k)}`)} aus ${M(T`dx = \frac{du}{${gi.dTex}}`)} fehlt.` },
+          { wert: t.V / bw(k) / bw(k), text: `Der Faktor ist ${M(bTex(k))}, nicht ${M(bTex(bdurch([1, 1], k)))}.` },
+          { wert: -t.V, text: "Prüfe das Vorzeichen: obere Grenze minus untere Grenze." }] },
+      ],
+      tipps: [`${M(T`u = ${gi.tex}`)}. Die neuen Grenzen: ${M(`u(${t.x1})`)} und ${M(`u(${t.x2})`)}.`,
+        `${M(T`\int_{${t.x1}}^{${t.x2}} ${t.hT}\,dx = ${bTex(k)}\int_{${t.u1}}^{${t.u2}} ${t.uT}\,du`)}. ${M(t.a.grund)}.`],
+      loesung: `${M(T`${bTex(k)}\int_{${t.u1}}^{${t.u2}} ${t.uT}\,du = ${bTex(k)}\Bigl[${t.FuT}\Bigr]_{${t.u1}}^{${t.u2}} \approx ${kzT(t.V)}`)}`,
+    };
+  },
+});
+
+/* ---------- 6 · Fehler finden ---------- */
+STATIONEN.push({
+  id: "s-fehler", titel: "Fehler finden", ziel: 3,
+  vor: [
+    { t: `Wer Fehler sicher findet, hat das Verfahren verstanden. Der häufigste: <b>dx nicht ersetzt</b>. Jemand rechnet ${M(T`\int x\cos(x^2)\,dx = \int\cos(u)\,du = \sin(x^2) + C`)}.`,
+      v: () => formelBild(T`\int x\cos(x^2)\,dx \overset{?}{=} \sin(x^2) + C`),
+      f: { q: `Stimmt das? Leite ${M(T`\sin(x^2)`)} ab.`, o: [
+        { t: `Nein: Ableiten gibt ${M(T`2x\cos(x^2)`)}`, ok: true, w: `Das ist doppelt so viel. Aus ${M(T`dx = \frac{du}{2x}`)} fehlt der Faktor ${M(T`\frac12`)}.` },
+        { t: "Ja, das ist richtig", w: `Leite ${M(T`\sin(x^2)`)} mit der Kettenregel ab: Es kommt ${M(T`2x\cos(x^2)`)} heraus.` },
+        { t: `Nein: Es müsste ${M(T`\cos(x^2)`)} heißen`, w: "Die Stammfunktion von cos ist sin. Der Fehler steckt im Faktor." }] } },
+    { t: `Zweiter Fehler: <b>alte Grenzen behalten</b>. Wer substituiert und in u rechnet, muss die Grenzen umrechnen: ${M("u_1 = g(a)")}, ${M("u_2 = g(b)")}.`,
+      v: () => formelBild(T`\int_a^b \ldots\,dx = \int_{g(a)}^{g(b)} \ldots\,du`) },
+    { t: `Dritter Fehler: <b>ein x bleibt stehen</b>. Bei ${M(T`\int e^{x^2}\,dx`)} mit ${M("u = x^2")} entsteht ${M(T`\int \frac{e^u}{2x}\,du`)}. Da steht noch ein x.`,
+      v: () => formelBild(T`\int e^{x^2}dx = \int \frac{e^u}{2x}\,du`, "x und u gemischt: gescheitert"),
+      f: { q: "Was folgt daraus?", o: [
+        { t: "Diese Substitution führt nicht zum Ziel", ok: true, w: "Genau. Man darf das x nicht wie eine Zahl vor das Integral ziehen." },
+        { t: `Man zieht ${M(T`\frac{1}{2x}`)} vor das Integral`, w: "x ist keine Konstante, solange nach u integriert wird. So entsteht ein falsches Ergebnis." },
+        { t: "Man ersetzt x durch u", w: "x ist nicht u, sondern √u. Damit wird es nur schwieriger, nicht lösbar." }] } },
+    { t: `Vierter Fehler: <b>falsche Stammfunktion</b>, etwa abgeleitet statt integriert oder ${M(T`\int\sin u\,du = \cos u`)} ohne Minus. Und immer gilt: Die Probe durch Ableiten deckt jeden Fehler beim unbestimmten Integral auf.`,
+      v: () => formelBild(T`\int \sin(u)\,du = -\cos(u) + C`) },
+  ],
+  merke: `Prüfe vier Stellen: Ist u' richtig? Ist dx ersetzt (Faktor k)? Sind die Grenzen umgerechnet? Stimmt das Grundintegral?`,
+  stolper: `Ein Fehler zieht alle folgenden Zeilen mit. Gesucht ist die <b>erste</b> falsche Zeile.`,
+  neu() {
+    const t = sub({ def: true, n: [2, 2, 3, 1] });
+    const { a, gi, k } = t;
+    const arten = ["keiner", "du", "dx", "grenze", "alt", "stamm"].filter((e) =>
+      (e !== "du" || (gi.n > 1 && gi.p !== gi.d)) && (e !== "dx" || !bgleich(k, [1, 1])) && (e !== "grenze" || gi.n > 1) && (e !== "stamm" || a.abl) && (e !== "alt" || t.x1 !== t.u1 || t.x2 !== t.u2));
+    const fehler = wahl(arten);
+    /* richtige Werte, dann den Fehler einbauen; alle späteren Zeilen rechnen mit ihm weiter */
+    let dT = gi.dTex, d = gi.d, kk = k, u1 = t.u1, u2 = t.u2, FT = t.FuT, F = (u) => a.F(u), zeile = 0;
+    if (fehler === "du") { d = gi.p; dT = (gi.p === 1 ? "" : String(gi.p)) + xPot(gi.n - 1); kk = Bruch(t.c, d); zeile = 1; }
+    if (fehler === "dx") { kk = [1, 1]; zeile = 3; }
+    if (fehler === "grenze") { const f2 = gi.p * t.x2 + gi.q; if (f2 === u2) return this.neu(); u2 = f2; zeile = 2; }
+    if (fehler === "alt") { u1 = t.x1; u2 = t.x2; zeile = 3; }
+    if (fehler === "stamm") {
+      FT = a.abl("u"); zeile = 4;
+      const ab = { pot: (u) => t.m * u ** (t.m - 1), sin: Math.cos, cos: (u) => -Math.sin(u), kehr: (u) => -1 / (u * u), wurzel: (u) => 1 / (2 * Math.sqrt(u)) }[t.art];
+      F = ab;
+    }
+    const wert = bw(kk) * (F(u2) - F(u1));
+    if (!isFinite(wert) || (fehler !== "keiner" && Math.abs(wert - t.V) < 0.002)) return this.neu();
+    const zeilen = [
+      T`u = ${gi.tex},\quad du = ${dT}\,dx,\quad dx = \frac{du}{${dT}}`,
+      T`x = ${t.x1} \Rightarrow u = ${fehler === "alt" ? t.u1 : u1},\qquad x = ${t.x2} \Rightarrow u = ${fehler === "alt" ? t.u2 : u2}`,
+      T`\int_{${t.x1}}^{${t.x2}} ${t.hT}\,dx = ${koef(kk)}\int_{${u1}}^{${u2}} ${t.uT}\,du`,
+      T`= ${koef(kk)}\Bigl[${FT}\Bigr]_{${u1}}^{${u2}} \approx ${kzT(wert)}`,
+    ];
+    const html = `<p>So hat jemand ${M(T`\int_{${t.x1}}^{${t.x2}} ${t.hT}\,dx`)} gerechnet:</p><div class="rweg">${zeilen.map((z, i) => `<div class="rz"><span class="rnr">${i + 1}</span><span>${M(z)}</span></div>`).join("")}</div>`;
+    const warum = {
+      keiner: "Jede Zeile stimmt. Prüfe trotzdem jede: u', Faktor, Grenzen, Grundintegral.",
+      du: `In Zeile 1 ist ${M("u'")} falsch: Die Ableitung von ${M(gi.tex)} ist ${M(gi.dTex)}.`,
+      grenze: `In Zeile 2 ist die obere Grenze falsch: ${M(`u(${t.x2}) = ${t.u2}`)}. Die Potenz von x wurde vergessen.`,
+      dx: `In Zeile 3 fehlt der Faktor ${M(bTex(k))} aus ${M(T`dx = \frac{du}{${gi.dTex}}`)}.`,
+      alt: "In Zeile 3 stehen am u-Integral noch die alten x-Grenzen, obwohl Zeile 2 die neuen ausgerechnet hat.",
+      stamm: `In Zeile 4 wurde abgeleitet statt integriert. Richtig: ${M(a.grund)}.`,
+    }[fehler];
+    const opts = ["Zeile 1", "Zeile 2", "Zeile 3", "Zeile 4", "Kein Fehler"].map((txt, i) => ({ t: txt, ok: (i + 1) % 5 === zeile, w: warum }));
+    return {
+      html, geschichte: "fehler-" + fehler, sok: sokVon(t),
+      auswahl: { label: "Der erste Fehler steckt in …", optionen: opts.map((o) => o.t), richtig: opts.findIndex((o) => o.ok), falsch: () => "Noch nicht. Prüfe Zeile für Zeile: u', die Grenzen, den Faktor k, das Grundintegral." },
+      felder: [{ id: "V", label: "richtiger Wert des Integrals (drei Nachkommastellen)", wert: t.V, tol: 0.0011, art: "z", fallen: fehler === "keiner" ? [] : [{ wert, text: "Das ist der Wert aus dem fehlerhaften Rechenweg. Rechne ihn richtig nach." }] }],
+      tipps: [`Rechne selbst: ${M(T`u = ${gi.tex}`)}, ${M(T`du = ${gi.dTex}\,dx`)}, neue Grenzen ${M(`${t.u1}`)} und ${M(`${t.u2}`)}.`,
+        `${M(T`${bTex(k)}\int_{${t.u1}}^{${t.u2}} ${t.uT}\,du`)}. Vergleiche mit den Zeilen.`],
+      loesung: `${warum} Richtig: ${M(T`${bTex(k)}\Bigl[${t.FuT}\Bigr]_{${t.u1}}^{${t.u2}} \approx ${kzT(t.V)}`)}.`,
+    };
+  },
+});
+
+/* ---------- 7 · Erklären können ---------- */
+const ERKLAER = [
+  { q: "Aus welcher Ableitungsregel entsteht die Integration durch Substitution?", o: [
+    { t: "aus der Kettenregel", ok: true }, { t: "aus der Produktregel", w: "Die Produktregel rückwärts gelesen ergibt die partielle Integration, ein anderes Verfahren." },
+    { t: "aus der Quotientenregel", w: "Die Quotientenregel hat kein eigenes Integrationsverfahren. Substitution ist die Kettenregel rückwärts." },
+    { t: "aus der Summenregel", w: "Die Summenregel erlaubt nur, Summanden einzeln zu integrieren." }] },
+  { q: "Woran erkennst du, dass Substitution passen könnte?", o: [
+    { t: "Eine Verkettung steht da, und die Ableitung ihres Inneren steht bis auf eine Zahl als Faktor daneben", ok: true },
+    { t: "Im Integranden steht ein Produkt", w: "Ein Produkt allein reicht nicht. x·eˣ ist ein Produkt, braucht aber partielle Integration." },
+    { t: "Der Integrand ist ein Bruch", w: "Manche Brüche passen (2x/(x²+1)), andere nicht (1/(x²+1)). Entscheidend ist die innere Ableitung." },
+    { t: "Im Integranden kommt eine e-Funktion vor", w: "e^(x²) allein lässt sich so gerade nicht integrieren. Entscheidend ist die innere Ableitung." }] },
+  { q: `Warum klappt ${M(T`\int e^{x^2}\,dx`)} mit ${M("u = x^2")} nicht?`, o: [
+    { t: "Nach dem Ersetzen bleibt ein x übrig, weil der Faktor 2x fehlt", ok: true },
+    { t: `Es klappt: Das Ergebnis ist ${M(T`\frac{e^{x^2}}{2x}`)}`, w: "Leite ab: Mit der Quotientenregel kommt nicht e^(x²) heraus. Durch x darf man nicht so teilen." },
+    { t: `Weil ${M("e^u")} keine Stammfunktion hat`, w: "eᵘ hat die Stammfunktion eᵘ. Das Problem ist das übrig bleibende x." },
+    { t: "Weil man e-Funktionen nie substituiert", w: "Bei x·e^(x²) klappt es wunderbar. Hier fehlt nur das x." }] },
+  { q: "Warum ändern sich beim bestimmten Integral die Grenzen?", o: [
+    { t: "Nach dem Substituieren läuft u, und u läuft von g(a) bis g(b)", ok: true },
+    { t: "Damit die Fläche gleich bleibt, verdoppelt man sie", w: "Verdoppelt wird nichts. Die Grenzen werden in u = g(x) eingesetzt." },
+    { t: "Sie ändern sich gar nicht", w: "Die Grenzen a und b gehören zu x. Zum neuen Integral in u gehören g(a) und g(b)." },
+    { t: "Weil die Stammfunktion sich ändert", w: "Die Grenzen ändern sich, weil die Integrationsvariable wechselt." }] },
+  { q: `Was zeigt das Bild zu ${M(T`\int_1^2 \frac{2x}{x^2+1}\,dx = \int_2^5 \frac{1}{u}\,du`)}?`, o: [
+    { t: "Zwei verschiedene Flächen mit demselben Inhalt", ok: true },
+    { t: "Dieselbe Fläche, nur verschoben", w: "Die Flächen haben verschiedene Form: eine schmal und hoch, eine breit und flach." },
+    { t: "Die zweite Fläche ist halb so groß", w: "Beide haben den Inhalt ln 5 − ln 2 ≈ 0,916." },
+    { t: "Eine Fläche und ihre Stammfunktion", w: "Beide Bilder zeigen Flächen unter Graphen. Ihr Inhalt ist gleich." }] },
+  { q: `Was bedeutet die Merkzeile ${M(T`du = g'(x)\,dx`)}?`, o: [
+    { t: "Ändert sich x ein wenig, ändert sich u ungefähr g'(x)-mal so stark", ok: true },
+    { t: "u und x sind gleich groß", w: "u = g(x) ist ein neuer Wert. Die Merkzeile vergleicht kleine Änderungen." },
+    { t: "Man darf du und dx beliebig tauschen", w: "Getauscht wird nichts. Der Umrechnungsfaktor ist die Ableitung g'(x)." },
+    { t: "Man multipliziert das Integral mit g'(x)", w: "Ersetzt wird dx durch du : g'(x). Das ist der Umrechnungsfaktor." }] },
+  { q: `${M(T`\int \cos(3x)\,dx = \;?`)}`, o: [
+    { t: M(T`\tfrac{1}{3}\sin(3x) + C`), ok: true }, { t: M(T`3\sin(3x) + C`), w: "Leite ab: 9·cos(3x). Durch die Steigung teilen." },
+    { t: M(T`\sin(3x) + C`), w: "Leite ab: 3·cos(3x), dreimal zu viel." }, { t: M(T`-\tfrac{1}{3}\sin(3x) + C`), w: "Die Stammfunktion von cos ist sin, ohne Minus." }] },
+  { q: `${M(T`\int \frac{x}{x^2+1}\,dx = \;?`)}`, o: [
+    { t: M(T`\tfrac{1}{2}\ln(x^2+1) + C`), ok: true }, { t: M(T`\ln(x^2+1) + C`), w: "Leite ab: 2x/(x²+1), doppelt so viel." },
+    { t: M(T`2\ln(x^2+1) + C`), w: "Leite ab: 4x/(x²+1). Durch 2 teilen, nicht malnehmen." }, { t: M(T`x\ln(x^2+1) + C`), w: "Ein x darf nicht vor dem ln stehen. Leite ab: Produktregel, zwei Summanden." }] },
+  { q: "Welches Integral löst man durch Substitution?", o: [
+    { t: M(T`\int x\,e^{x^2}\,dx`), ok: true }, { t: M(T`\int x\,e^{x}\,dx`), w: "Hier ist x nicht die Ableitung des Exponenten x. Das ist ein Fall für die partielle Integration." },
+    { t: M(T`\int x\sin(x)\,dx`), w: "Hier steht im Sinus nur x. Das ist ein Fall für die partielle Integration." },
+    { t: M(T`\int e^{x^2}\,dx`), w: "Hier fehlt der Faktor x. Das klappt mit keinem Schulverfahren." }] },
+  { q: "Wie prüfst du ein unbestimmtes Integral am sichersten?", o: [
+    { t: "Ableiten: Es muss der Integrand herauskommen", ok: true },
+    { t: "Mit dem Taschenrechner einen Wert einsetzen", w: "Ein einzelner Wert sagt wenig. Ableiten prüft die ganze Funktion." },
+    { t: "Noch einmal integrieren", w: "Zweimal integrieren gibt etwas Neues. Die Probe ist das Ableiten." },
+    { t: "Nachsehen, ob ein C dasteht", w: "Das C gehört dazu, prüft aber nichts. Leite ab." }] },
+  { q: "Beim bestimmten Integral hat man nach u gerechnet und die Grenzen umgerechnet. Muss man zurücksubstituieren?", o: [
+    { t: "Nein, man rechnet mit den u-Grenzen zu Ende", ok: true },
+    { t: "Ja, immer", w: "Mit neuen Grenzen ist man in u fertig. Zurück muss man nur, wenn man die alten Grenzen nehmen will." },
+    { t: "Ja, und dann die u-Grenzen einsetzen", w: "Das mischt zwei Wege: Nach dem Zurücksubstituieren gehören die x-Grenzen dazu." },
+    { t: "Nur, wenn eine Grenze 0 ist", w: "Mit der Null hat das nichts zu tun." }] },
+  { q: "Wann teilt man durch die innere Ableitung, wann multipliziert man?", o: [
+    { t: "Beim Integrieren teilt man, beim Ableiten multipliziert man", ok: true },
+    { t: "Beim Integrieren multipliziert man", w: "Leite deine Stammfunktion ab: Die Kettenregel multipliziert. Damit es passt, muss man vorher geteilt haben." },
+    { t: "Man multipliziert immer", w: "Beim Ableiten ja. Beim Integrieren muss man das ausgleichen, also teilen." },
+    { t: "Das hängt vom Vorzeichen ab", w: "Das Vorzeichen spielt keine Rolle. Integrieren ist die Umkehrung: teilen." }] },
+];
+STATIONEN.push({
+  id: "s-erklaeren", titel: "Erklären können", ziel: 5,
+  vor: [
+    { t: `Wer ein Verfahren erklären kann, hat es verstanden. Eine gute Erklärung hat fünf Teile: <b>Problem, Idee, Verfahren, Bild, Grenzen</b>.`,
+      v: () => formelBild(T`\text{Problem} \to \text{Idee} \to \text{Verfahren} \to \text{Bild} \to \text{Grenzen}`),
+      f: { q: "Womit beginnt eine Erklärung am besten?", o: [
+        { t: "Mit einem Integral, das die Grundregeln nicht schaffen", ok: true, w: `Ein Problem macht neugierig: ${M(T`\int 2x\cos(x^2)\,dx`)} sieht schwierig aus, und keine Regel passt.` },
+        { t: "Mit der allgemeinen Formel", w: "Die Formel ist das Ergebnis. Ohne Problem weiß niemand, wofür sie gut ist." },
+        { t: "Mit einem schweren Beispiel", w: "Am Anfang soll das Problem klar sein, nicht die Rechnung schwer." }] } },
+    { t: `<b>Idee:</b> Die Kettenregel ${M(T`\bigl(F(g(x))\bigr)' = f(g(x))\cdot g'(x)`)} wird rückwärts gelesen. Wer das zeigt, zeigt, <i>warum</i> das Verfahren stimmt.`,
+      v: () => formelBild(T`\bigl(F(g(x))\bigr)' = f(g(x))\cdot g'(x)\;\Longleftrightarrow\;\int f(g(x))\,g'(x)\,dx = F(g(x)) + C`) },
+    { t: `<b>Verfahren:</b> Ein Beispiel Schritt für Schritt vorrechnen, mit ①–⑤ an der Seite: substituieren, differenzieren, ersetzen, integrieren, zurücksubstituieren. Dazu die Probe.`,
+      v: () => rechenweg(WEG3, 5),
+      f: { q: "Welches Beispiel eignet sich als erstes?", o: [
+        { t: M(T`\int 2x\,(x^2+1)^3\,dx`), ok: true, w: "Die innere Ableitung steht genau da. Kein Faktor stört, das Prinzip ist klar zu sehen." },
+        { t: M(T`\int x^2\sqrt{2x^3-5}\,dx`), w: "Gut für später: Hier kommen zwei Faktoren zusammen. Für den Anfang zu viel auf einmal." },
+        { t: M(T`\int e^{x^2}\,dx`), w: "Das klappt gar nicht. Es eignet sich für den Teil „Grenzen“." }] } },
+    { t: `<b>Bild:</b> Beim bestimmten Integral entstehen zwei verschiedene Flächen mit gleichem Inhalt. Das macht die neuen Grenzen anschaulich.`,
+      v: () => bild5(true) },
+    { t: `<b>Grenzen:</b> Wann klappt es nicht? ${M(T`\int e^{x^2}dx`)}, weil ein x übrig bleibt. Und die Abgrenzung: ${M(T`\int x\,e^x\,dx`)} braucht die partielle Integration, die Produktregel rückwärts.`,
+      v: () => formelBild(T`\int x\,e^{x^2}\,dx\;\checkmark\qquad \int x\,e^{x}\,dx\;\to\;\text{partiell}\qquad \int e^{x^2}dx\;\text{geht nicht}`),
+      f: { q: "Und zum Schluss?", o: [
+        { t: "Eine Frage an die Zuhörer, die sie selbst lösen", ok: true, w: `Zum Beispiel ${M(T`\int \cos(3x)\,dx`)}. Darunter stehen Fragen, die Zuhörer stellen könnten. Wer sie alle beantwortet, ist bereit.` },
+        { t: "Noch einmal alle Formeln", w: "Eine Wiederholung ist gut, eine eigene Aufgabe für die Zuhörer ist besser." },
+        { t: "Die Geschichte des Verfahrens", w: "Eine Geschichte passt eher an den Anfang. Am Ende sollen alle selbst rechnen." }] } },
+  ],
+  merke: `Problem (keine Grundregel passt) ▸ Idee (Kettenregel rückwärts) ▸ Verfahren (①–⑤ und Probe) ▸ Bild (gleiche Flächen) ▸ Grenzen (e^(x²), partielle Integration).`,
+  stolper: `Wer nur die Formel aufsagt, kann Rückfragen nicht beantworten. Übe die Fragen unten, bis du jede Antwort begründen kannst.`,
+  neu() {
+    const nr = zufall(0, ERKLAER.length - 1), e = ERKLAER[nr];
+    const richtig = e.o.find((o) => o.ok);
+    return {
+      html: `<p><b>Eine Frage aus dem Publikum:</b></p><p>${e.q}</p>`, geschichte: "erklaeren-" + nr, felder: [],
+      auswahl: knopfWahl("Deine Antwort:", e.o),
+      tipps: ["Denke an die Kettenregel und an die Probe durch Ableiten."],
+      loesung: richtig.t,
+    };
+  },
+});
+
+/* ---------- 8 · Mix ---------- */
+STATIONEN.push({
+  id: "s-mix", titel: "Gemischt", ziel: 5,
+  vor: null,
+  merke: "Aufgaben aus allen Stationen, bunt gemischt. Erst überlegen: Welche Substitution? Bestimmt oder unbestimmt?",
+  stolper: "Bei bestimmten Integralen die Grenzen umrechnen. Bei unbestimmten am Ende zurücksubstituieren.",
+  neu() {
+    const quellen = ["s-erkennen", "s-verfahren", "s-linear", "s-grenzen", "s-grenzen", "s-fehler"];
+    const id = wahl(quellen), s = STATIONEN.find((x) => x.id === id);
+    const a = s.neu();
+    a.herkunft = id;
+    a.html = `<p class="klein leise">aus: ${s.titel}</p>` + a.html;
+    return a;
+  },
+});
+
+/* Spickzettel mit Formeln setzen */
+for (const e of document.querySelectorAll("[data-tex]")) e.innerHTML = M(e.dataset.tex);
+
+/* ============================================================
+   5. Anzeige einer Station
+   ============================================================ */
+let aktiv = null, aufgabe = null, vorSchritt = 0, versucht = false, loesungGesehen = false, tippZahl = 0;
+
+const KURZ = { "s-idee": "Idee", "s-erkennen": "Erkennen", "s-verfahren": "Verfahren", "s-linear": "ax + b",
+  "s-grenzen": "Grenzen", "s-fehler": "Fehler finden", "s-erklaeren": "Erklären", "s-mix": "Mix" };
+
+function wegZeichnen() {
+  $("#weg").innerHTML = STATIONEN.map((s, i) => {
+    const z = st(s.id);
+    return `<button type="button" data-id="${s.id}" title="${s.titel}" class="${aktiv && aktiv.id === s.id ? "aktiv" : ""} ${z.geschafft ? "geschafft" : ""}">
+      <span class="nr">${z.geschafft ? "✓" : i + 1}</span>${KURZ[s.id]}</button>`;
+  }).join("");
+  for (const b of $("#weg").querySelectorAll("button")) b.onclick = () => oeffne(b.dataset.id, true);
+}
+
+/* Text Wort für Wort aufschreiben. Brüche und Überstriche bleiben ganze
+   Einheiten. Ein Klick auf den Text zeigt sofort alles. */
+const RUHIG = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let schreibUhr = null;
+function aufschreiben(el, html, fertig) {
+  clearInterval(schreibUhr);
+  el.innerHTML = html;
+  const ganz = el.querySelectorAll(".bruch, .q, svg, table, .katex");
+  ganz.forEach((e) => e.classList.add("w"));
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const knoten = [];
+  while (tw.nextNode()) if (!tw.currentNode.parentElement.closest(".bruch, .q, svg, table, .katex")) knoten.push(tw.currentNode);
+  for (const t of knoten) {
+    const frag = document.createDocumentFragment();
+    for (const teil of t.textContent.split(/(\s+)/)) {
+      if (!teil) continue;
+      if (/^\s+$/.test(teil)) { frag.append(teil); continue; }
+      const s = document.createElement("span"); s.className = "w"; s.textContent = teil; frag.append(s);
+    }
+    t.replaceWith(frag);
+  }
+  const einheiten = [...el.querySelectorAll(".w")];
+  const alles = () => { clearInterval(schreibUhr); einheiten.forEach((e) => e.classList.add("da")); el.onclick = null; fertig && fertig(); fertig = null; };
+  if (RUHIG) { alles(); return; }
+  let i = 0;
+  el.onclick = alles;
+  schreibUhr = setInterval(() => { if (i >= einheiten.length) { alles(); return; } einheiten[i++].classList.add("da"); }, 55);
+}
+
+function oeffne(id, scrollen) {
+  aktiv = STATIONEN.find((s) => s.id === id) || STATIONEN[0];
+  try { localStorage.setItem("mu-substitution-zuletzt", aktiv.id); } catch {}
+  vorSchritt = 0;
+  clearInterval(schreibUhr);
+  const i = STATIONEN.indexOf(aktiv);
+  $("#station").innerHTML = `
+    <section class="karte bereich vor-b">
+      <span class="marke">${aktiv.vor ? "▶ Zuschauen" : "Überblick"}</span>
+      <h2>${i + 1} · ${aktiv.titel}</h2>
+      ${aktiv.vor ? `
+      <div class="vor"><div><div class="schritt" id="schritt" title="Klick: alles zeigen"></div><div id="vorFrage"></div></div><div class="bild" id="bild"></div></div>
+      <div class="leiste">
+        <button type="button" id="zurueck" aria-label="Schritt zurück">◂</button>
+        <button type="button" class="voll" id="weiter">Weiter ▸</button>
+        <span class="punkte" id="punkte"></span>
+        <button type="button" id="ueberspringen" class="klein">direkt üben</button>
+      </div>` : ""}
+      <div id="nachVor"></div>
+    </section>
+    <section class="karte bereich ueben-b" id="uebenKarte" hidden>
+      <span class="marke">✎ Üben</span>
+      <div class="kopf"><h2>Aufgabe</h2><span class="serie" id="serie" title="${aktiv.ziel} richtig in Folge"></span></div>
+      <div id="uebung"></div>
+    </section>
+    <section class="karte bereich ki-b ki" id="kiKarte" hidden>
+      <span class="marke">✍ Rückmeldung zum Rechenweg</span>
+      <div id="kiBereich"></div>
+    </section>`;
+  if (aktiv.vor) {
+    $("#weiter").onclick = () => {
+      if (vorSchritt < aktiv.vor.length - 1) { vorSchritt++; vorZeichnen(); }
+      else zeigeUeben(true);
+    };
+    $("#zurueck").onclick = () => { if (vorSchritt > 0) { vorSchritt--; vorZeichnen(); } };
+    $("#ueberspringen").onclick = () => { zeigeKaesten(); zeigeUeben(true); };
+    vorZeichnen();
+  }
+  /* Wer hier schon geübt hat oder keine Vorführung hat, kommt gleich zum Üben */
+  if (!aktiv.vor || st(aktiv.id).richtig > 0) { zeigeKaesten(); zeigeUeben(false); }
+  wegZeichnen();
+  if (scrollen) $("#station").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+const VF_OK = new Set();     // beantwortete Fragen (Stationsschritt), gilt bis zum Neuladen
+function vorZeichnen() {
+  const v = aktiv.vor, sch = v[vorSchritt], letzter = vorSchritt === v.length - 1, schl = aktiv.id + ":" + vorSchritt;
+  $("#bild").innerHTML = sch.v();
+  $("#bild").firstElementChild && $("#bild").firstElementChild.classList.add("einblenden");
+  $("#vorFrage").innerHTML = "";
+  const offen = !!sch.f && !VF_OK.has(schl);
+  aufschreiben($("#schritt"), sch.t, () => {
+    if (sch.f) vorFrage(sch.f, schl, letzter);
+    else if (letzter) zeigeKaesten();
+  });
+  $("#punkte").innerHTML = v.map((_, k) => `<i class="${k <= vorSchritt ? "an" : ""}"></i>`).join("");
+  $("#weiter").disabled = offen;
+  $("#weiter").textContent = offen ? "Erst antworten" : letzter ? "Jetzt üben ▸" : "Weiter ▸";
+  $("#zurueck").disabled = vorSchritt === 0;
+}
+function vorFrage(f, schl, letzter) {
+  const box = $("#vorFrage");
+  box.innerHTML = `<div class="vfrage einblenden"><div class="vf-kopf">🏛 Sokrates fragt</div><div class="vf-frage">${f.q}</div>
+    <div class="vf-optionen">${f.o.map((o, i) => `<button type="button" class="vf-opt" data-i="${i}">${o.t}</button>`).join("")}</div>
+    <div id="vfAntwort"></div>
+    <div class="leiste"><button type="button" class="klein" id="vfZeigen">Antwort zeigen</button></div></div>`;
+  const knoepfe = [...box.querySelectorAll(".vf-opt")], ri = f.o.findIndex((o) => o.ok);
+  const geloest = (sofort) => {
+    VF_OK.add(schl);
+    knoepfe.forEach((b, j) => { b.disabled = true; b.classList.toggle("richtig", j === ri); });
+    $("#vfZeigen").hidden = true;
+    const html = `<div class="vf-gut">${f.o[ri].w || "Recht so."}${f.d ? " " + f.d : ""}</div>`;
+    if (sofort) $("#vfAntwort").innerHTML = html; else aufschreiben($("#vfAntwort"), html);
+    $("#weiter").disabled = false;
+    $("#weiter").textContent = letzter ? "Jetzt üben ▸" : "Weiter ▸";
+    if (letzter) zeigeKaesten();
+  };
+  knoepfe.forEach((b, i) => (b.onclick = () => {
+    if (i === ri) { geloest(false); return; }
+    b.classList.add("falsch"); b.disabled = true;
+    aufschreiben($("#vfAntwort"), `<div class="vf-schlecht">${f.o[i].w || "Noch nicht. Überlege noch einmal."}</div>`);
+  }));
+  $("#vfZeigen").onclick = () => geloest(false);
+  if (VF_OK.has(schl)) geloest(true);
+}
+
+function zeigeKaesten() {
+  if ($("#nachVor").childElementCount) return;
+  $("#nachVor").innerHTML = `<div class="kaesten einblenden" style="margin-top:16px">
+    <div class="merke"><h3>Merke</h3>${aktiv.merke}</div>
+    <div class="stolper"><h3>Stolperstein</h3>${aktiv.stolper}</div></div>`;
+}
+
+function zeigeUeben(scrollen) {
+  const karte = $("#uebenKarte");
+  if (karte.hidden) {
+    karte.hidden = false;
+    $("#kiKarte").hidden = false;
+    karte.classList.add("einblenden");
+    neueAufgabe();
+    kiBereichZeichnen();
+  }
+  if (scrollen) karte.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function serieZeichnen() {
+  const z = st(aktiv.id);
+  let s = "";
+  for (let i = 0; i < aktiv.ziel; i++) s += `<i class="${i < Math.min(z.serie, aktiv.ziel) ? "an" : ""}"></i>`;
+  $("#serie").innerHTML = s;
+}
+
+/* Keine Wiederholung: Die letzten 25 Aufgaben je Station (als Prüfsumme) und
+   die zuletzt erzählte Geschichte werden gemerkt. Eine neue Aufgabe darf
+   keine davon wörtlich wiederholen und erzählt möglichst eine andere
+   Geschichte als die vorige. */
+function pruefsumme(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+function geschichteVon(a) { return a.geschichte || text(a.html).split("\n")[0].replace(/\d+([.,]\d+)?/g, "#").slice(0, 48); }
+function frischeAufgabe() {
+  const z = st(aktiv.id);
+  z.zuletzt = Array.isArray(z.zuletzt) ? z.zuletzt : [];
+  let wahl = null;
+  for (let v = 0; v < 40; v++) {
+    const a = aktiv.neu();
+    const fp = pruefsumme(text(a.html) + "|" + a.felder.map((f) => f.label).join(";"));
+    const gs = geschichteVon(a);
+    if (z.zuletzt.includes(fp)) { wahl = wahl || { a, fp, gs }; continue; }
+    wahl = { a, fp, gs };
+    if (gs !== z.geschichte || v >= 15) break;
+  }
+  z.zuletzt = [...z.zuletzt, wahl.fp].slice(-25);
+  z.geschichte = wahl.gs;
+  sichern();
+  return wahl.a;
+}
+
+function neueAufgabe() {
+  aufgabe = frischeAufgabe();
+  /* Fallen, die zufällig mit der Lösung zusammenfallen, wären irreführend */
+  for (const f of [...aufgabe.felder, ...(aufgabe.tafelFelder || [])])
+    if (f.fallen) f.fallen = f.fallen.filter((fa) => Math.abs(fa.wert - f.wert) > Math.max(f.tol || 0, 0.0006) + 1e-9);
+  versucht = false; loesungGesehen = false; tippZahl = 0;
+  let html = aufgabe.bild
+    ? `<div class="aufgabe mitbild"><div>${aufgabe.html}</div><figure class="abild">${aufgabe.bild}</figure></div><div class="felder">`
+    : `<div class="aufgabe">${aufgabe.html}</div><div class="felder">`;
+  if (aufgabe.auswahl) {
+    html += `<div class="feld wahlfeld" data-feld="auswahl"><span class="wahl-label">${aufgabe.auswahl.label}</span><input type="hidden" id="f-auswahl" value=""><div class="wahlen">${aufgabe.auswahl.optionen.map((o, i) => `<button type="button" class="wahl" data-i="${i}">${o}</button>`).join("")}</div></div>`;
+  }
+  for (const f of aufgabe.felder)
+    html += `<div class="feld" data-feld="${f.id}"><label for="f-${f.id}">${f.label}</label><input id="f-${f.id}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>`;
+  html += `</div>
+    <div class="leiste">
+      <button type="button" class="voll" id="pruefen">Prüfen</button>
+      <button type="button" id="tipp">Tipp</button>
+      <button type="button" id="loesung">Lösung zeigen</button>
+      <button type="button" id="neu">Neue Aufgabe</button>
+    </div>
+    ${sokratesBereit() ? `<div class="leiste sokrates-leiste"><button type="button" id="sokrates">🏛 Mit Sokrates lösen</button><span class="klein leise">Sokrates führt dich mit Fragen durch genau diese Aufgabe.</span></div>` : ""}
+    <div id="tipps"></div><div id="meldung"></div>`;
+  $("#uebung").innerHTML = html;
+  if ($("#sokrates")) $("#sokrates").onclick = sokratesOeffnen;
+  for (const b of $("#uebung").querySelectorAll(".wahl")) b.onclick = () => {
+    $("#f-auswahl").value = b.dataset.i;
+    for (const x of $("#uebung").querySelectorAll(".wahl")) x.classList.toggle("an", x === b);
+    b.closest(".feld").classList.remove("richtig", "falsch");
+  };
+  $("#pruefen").onclick = pruefen;
+  $("#tipp").onclick = tippZeigen;
+  $("#loesung").onclick = loesungZeigen;
+  $("#neu").onclick = neueAufgabe;
+  for (const inp of $("#uebung").querySelectorAll("input")) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") pruefen(); });
+  /* Zahlenkärtchen zum Antippen: E sichtbar zusammenstellen (wird nicht bewertet) */
+  const tb = $("#uebung .tippbar");
+  if (tb) for (const k of tb.children) k.onclick = () => {
+    k.classList.toggle("an");
+    const n = tb.querySelectorAll(".an").length;
+    $("#uebung [data-zaehler]").textContent = n ? `markiert: ${n}` : "Tippe an, was zu E gehört.";
+  };
+  $("#weg-text") && ($("#weg-text").value = "");
+  $("#kiAntwort") && ($("#kiAntwort").innerHTML = "");
+  serieZeichnen();
+}
+
+/* Sokratischer Trainer: Das Gespräch zur aktuellen Aufgabe entsteht hier, die Seite
+   sokrates.html liest es aus diesem Browser (localStorage). Nichts geht ans Netz. */
+function sokratesBereit() {
+  try { return !!(window.TraineliaSokrates && TraineliaSokrates.kann(aktiv.id, aufgabe)); } catch { return false; }
+}
+function sokratesOeffnen() {
+  try {
+    const d = TraineliaSokrates.dialog(aktiv.id, aufgabe, { text: "◂ Trainelia", href: location.pathname.replace(/^.*\//, "") });
+    localStorage.setItem("trainelia-sokrates", JSON.stringify(d));
+  } catch (e) {
+    $("#meldung").innerHTML = `<p class="meldung falsch">Das Gespräch ließ sich nicht vorbereiten. Nimm eine neue Aufgabe.</p>`;
+    console.error(e);
+    return;
+  }
+  const fenster = window.open("sokrates.html", "trainelia-sokrates");
+  if (!fenster) location.href = "sokrates.html";
+}
+
+const passt = (x, f) => (f.art === "n" ? Math.abs(x - f.wert) < 1e-9 : Math.abs(x - f.wert) <= f.tol + 1e-12);
+
+/* Ein Feld prüfen → { ok, text } */
+function feldPruefen(roh, f) {
+  const e = lies(roh);
+  if (!e) return { ok: false, leer: !String(roh || "").trim(), text: "" };
+  let x = e.wert;
+  if (f.art !== "n" && f.art !== "z" && !e.prozent && x > 1 && x <= 100) x = x / 100;  // „27“ als 27 % lesen
+  if (passt(x, f)) {
+    const hinweis = f.art !== "n" && f.art !== "z" && !e.prozent && e.wert > 1 ? "Richtig – schreib beim nächsten Mal das %-Zeichen dazu." : "";
+    return { ok: true, text: hinweis };
+  }
+  for (const fa of f.fallen || []) if (Math.abs(x - fa.wert) <= Math.max(f.tol, 0.0006) + 1e-12) return { ok: false, text: fa.text };
+  if (f.art !== "n" && f.tol < 0.005 && Math.abs(x - f.wert) <= 0.006) return { ok: false, text: "Ganz nah dran. Runde genauer (siehe Angabe der Stellen) oder rechne ohne gerundete Zwischenergebnisse." };
+  return { ok: false, text: "" };
+}
+
+function pruefen() {
+  const meld = [];
+  let alle = true, leer = false;
+  if (aufgabe.auswahl) {
+    const el = $("#f-auswahl"), box = el.closest(".feld");
+    const v = el.value;
+    box.classList.remove("richtig", "falsch");
+    if (v === "") { leer = true; alle = false; }
+    else if (Number(v) === aufgabe.auswahl.richtig) box.classList.add("richtig");
+    else { box.classList.add("falsch"); alle = false; meld.push(aufgabe.auswahl.falsch(Number(v))); }
+  }
+  for (const f of aufgabe.felder) {
+    const el = $("#f-" + f.id), box = el.closest(".feld");
+    box.classList.remove("richtig", "falsch");
+    const r = feldPruefen(el.value, f);
+    if (r.leer) { leer = true; alle = false; continue; }
+    box.classList.add(r.ok ? "richtig" : "falsch");
+    if (!r.ok) alle = false;
+    if (r.text) meld.push(`<b>${text(f.label)}:</b> ${r.text}`);
+  }
+  if (aufgabe.tafelFelder) {
+    const tab = $("#uebTafel");
+    for (const tf of aufgabe.tafelFelder) {
+      const inp = tab.querySelector(`input[data-zelle="${tf.key}"]`), td = inp.closest("td");
+      td.classList.remove("hl", "falsch");
+      const f = { wert: tf.wert, tol: tf.tol === undefined ? 0 : tf.tol, art: tf.tol === undefined ? "n" : "p", fallen: tf.fallen || [] };
+      const r = feldPruefen(inp.value, f);
+      if (r.leer) { leer = true; alle = false; continue; }
+      if (r.ok) td.classList.add("hl"); else { td.classList.add("falsch"); alle = false; }
+      if (r.text && !r.ok && !meld.includes(r.text)) meld.push(r.text);
+    }
+    if (!alle && !meld.length && !leer) meld.push("Rot markierte Felder stimmen noch nicht. Probe: Geht jede Zeile und jede Spalte auf?");
+  }
+  const z = st(aktiv.id);
+  const ausgang = $("#meldung");
+  if (leer && !meld.length) { ausgang.innerHTML = `<div class="meldung neutral">Fülle zuerst alle Felder aus.</div>`; return; }
+  if (alle) {
+    if (!versucht && !loesungGesehen) { z.serie++; z.richtig++; }
+    if (z.serie >= aktiv.ziel && !z.geschafft) z.geschafft = true;
+    sichern();
+    const extra = meld.length ? `<br>${meld.join("<br>")}` : "";
+    ausgang.innerHTML = `<div class="meldung gut">Richtig.${!versucht && !loesungGesehen ? "" : " (Zählt nicht für die Serie, weil es nicht beim ersten Versuch war.)"}${z.geschafft && z.serie === aktiv.ziel ? " <b>Station geschafft.</b>" : ""}${extra}
+      <div class="leiste"><button type="button" class="voll" id="weiterAufgabe">Nächste Aufgabe</button></div></div>`;
+    $("#weiterAufgabe").onclick = neueAufgabe;
+  } else {
+    versucht = true;
+    z.serie = 0; sichern();
+    ausgang.innerHTML = `<div class="meldung schlecht">${meld.length ? meld.join("<br>") : "Noch nicht. Schau dir einen Tipp an."}</div>`;
+  }
+  serieZeichnen(); wegZeichnen();
+}
+
+function tippZeigen() {
+  if (tippZahl >= aufgabe.tipps.length) { loesungZeigen(); return; }
+  $("#tipps").insertAdjacentHTML("beforeend", `<div class="tipp"><b>Tipp ${tippZahl + 1}:</b> ${aufgabe.tipps[tippZahl]}</div>`);
+  tippZahl++;
+  if (tippZahl >= aufgabe.tipps.length) $("#tipp").textContent = "Lösung";
+}
+function loesungZeigen() {
+  loesungGesehen = true;
+  const z = st(aktiv.id); z.serie = 0; sichern();
+  $("#tipps").insertAdjacentHTML("beforeend", `<div class="tipp"><b>Lösung:</b> ${aufgabe.loesung}</div>`);
+  $("#loesung").disabled = true;
+  serieZeichnen();
+}
+
+/* ============================================================
+   6. KI-Rückmeldung
+   ============================================================ */
+const KI = (() => {
+  const p = new URLSearchParams(location.search).get("ki");
+  if (p && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(p)) return p;
+  return "https://ki-rueckmeldung.michaelglaubitz-barton.workers.dev";
+})();
+let code = "";
+try { code = localStorage.getItem("mu-ki-code") || ""; } catch {}
+$("#code").value = code;
+function setzeCode(neu) {
+  code = String(neu || "").trim();
+  try { localStorage.setItem("mu-ki-code", code); } catch {}
+  $("#code").value = code;
+}
+$("#codeSpeichern").onclick = () => { setzeCode($("#code").value); $("#kiStatus").textContent = code ? "Gespeichert." : "Code entfernt."; };
+
+/* Erst beim Aufklappen wird der Dienst überhaupt angefragt */
+let kiStatus = null;
+function kiPruefen() {
+  kiStatus ||= fetch(KI + "/v1/status").then((r) => r.json()).then((d) => (d.bereit ? "bereit" : "aus")).catch(() => "weg");
+  return kiStatus;
+}
+
+function kiBereichZeichnen() {
+  $("#kiBereich").innerHTML = `<div class="leiste"><button type="button" id="kiAuf">✍ Rechenweg prüfen lassen</button></div><div id="kiPanel" hidden></div>`;
+  $("#kiAuf").onclick = async () => {
+    const p = $("#kiPanel");
+    if (!p.hidden) { p.hidden = true; return; }
+    p.hidden = false;
+    if (!p.childElementCount) {
+      p.innerHTML = `<div class="einblenden">
+        <textarea id="weg-text" placeholder="So wie im Heft: z. B. u = x² + 1, du = 2x dx, also dx = du/(2x) …"></textarea>
+        <div class="zeile" id="codeZeile" ${code ? "hidden" : ""}><input type="password" id="codeInline" autocomplete="off" placeholder="Code" aria-label="Code"></div>
+        <div class="zeile"><button type="button" class="voll" id="kiFrage">Rückmeldung holen</button><span id="kiHinweis" class="klein leise"></span></div>
+        <div id="kiAntwort"></div></div>`;
+      $("#kiFrage").onclick = kiFragen;
+    }
+    $("#weg-text").focus();
+    const s = await kiPruefen();
+    if (s !== "bereit") $("#kiHinweis").textContent = s === "aus" ? "Die KI-Rückmeldung ist noch nicht eingerichtet." : "Die KI-Rückmeldung ist gerade nicht erreichbar.";
+  };
+}
+
+function aufgabeAlsText() {
+  let s = text(aufgabe.html);
+  if (aufgabe.tafelFelder && aufgabe.art === "tafel") s += " (Gesucht: die leeren Felder der Tafel.)";
+  if (aufgabe.auswahl) s += " Teilfrage: " + aufgabe.auswahl.label + " Optionen: " + aufgabe.auswahl.optionen.map(text).join(", ");
+  if (aufgabe.felder.length) s += " Gesucht: " + aufgabe.felder.map((f) => text(f.label)).join("; ");
+  return s;
+}
+function loesungAlsText() {
+  let s = text(aufgabe.loesung);
+  if (aufgabe.tafelFelder) s += " Felder: " + aufgabe.tafelFelder.map((t) => `${t.key} = ${t.tol === undefined ? t.wert : kz(t.wert, 4)}`).join(", ") + " (Zeile,Spalte; 0 = A bzw. B, 1 = nicht A bzw. nicht B, 2 = Summe)";
+  if (aufgabe.felder.length) s += " Werte: " + aufgabe.felder.map((f) => `${text(f.label)} = ${kz(f.wert, 5)}`).join("; ");
+  if (aufgabe.auswahl) s += " Gefragt ist: " + text(aufgabe.auswahl.optionen[aufgabe.auswahl.richtig]);
+  return s;
+}
+
+async function kiFragen() {
+  const weg = $("#weg-text").value.trim();
+  const out = $("#kiAntwort"), hin = $("#kiHinweis");
+  const inl = $("#codeInline");
+  if (inl && inl.value.trim()) setzeCode(inl.value);
+  if (!code) { $("#codeZeile").hidden = false; hin.textContent = "Erst den Code eintragen."; $("#codeInline").focus(); return; }
+  if (weg.length < 3) { hin.textContent = "Erst den Rechenweg aufschreiben."; return; }
+  $("#kiFrage").disabled = true; hin.textContent = "Claude liest …"; out.innerHTML = "";
+  try {
+    const r = await fetch(KI + "/v1/rueckmeldung", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code, station: aufgabe.herkunft || aktiv.id, aufgabe: aufgabeAlsText(), loesung: loesungAlsText(), antwort: weg }),
+    });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      hin.textContent = d.fehler || "Das hat nicht geklappt.";
+      if (r.status === 403) { setzeCode(""); $("#codeZeile").hidden = false; $("#codeInline").value = ""; $("#codeInline").focus(); }
+      return;
+    }
+    $("#codeZeile").hidden = true;
+    /* Mitlesen, während Claude schreibt */
+    out.innerHTML = `<div class="antwort einblenden"></div>`;
+    const feld = out.firstChild, leser = r.body.getReader(), dek = new TextDecoder();
+    hin.textContent = "";
+    for (;;) {
+      const { value, done } = await leser.read();
+      if (done) break;
+      feld.textContent += dek.decode(value, { stream: true });
+    }
+    feld.textContent += dek.decode();
+    const rest = r.headers.get("x-rest");
+    hin.textContent = rest !== null ? `Heute noch ${rest} Rückmeldungen.` : "";
+  } catch {
+    hin.textContent = "Der Dienst ist gerade nicht erreichbar.";
+  } finally {
+    $("#kiFrage").disabled = false;
+  }
+}
+
+/* ============================================================
+   7. Start
+   ============================================================ */
+let zuletzt = null;
+try { zuletzt = localStorage.getItem("mu-substitution-zuletzt"); } catch {}
+oeffne(zuletzt || STATIONEN[0].id, false);
+</script>
+</body>
+</html>

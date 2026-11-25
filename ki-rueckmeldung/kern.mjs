@@ -98,6 +98,15 @@ export const STATIONEN = {
   "u-abzaehlen": "Unabhängigkeit bei Würfeln und Spielkarten durch Abzählen prüfen",
   "u-falle":     "Produktregel P(A∩B) = P(A)·P(B) nur bei Unabhängigkeit; sonst P(B)·P(A|B); Abhängigkeit ist keine Ursache",
   "u-mix":       "gemischte Aufgaben zur stochastischen Unabhängigkeit",
+  /* Kapitel 3: Integration durch Substitution (Analysis) */
+  "s-idee":      "Integration durch Substitution als Kettenregel rückwärts: ∫ f(g(x))·g'(x) dx = F(g(x)) + C, Zahlenfaktor ausgleichen",
+  "s-erkennen":  "Substitution: das Innere u = g(x) erkennen, dx = du/g'(x) einsetzen, Faktor k vor ∫ f(u) du bestimmen",
+  "s-verfahren": "unbestimmtes Integral mit Substitution in fünf Schritten (substituieren, differenzieren, ersetzen, integrieren, zurücksubstituieren)",
+  "s-linear":    "lineare Substitution: ∫ f(ax+b) dx = (1/a)·F(ax+b) + C",
+  "s-grenzen":   "bestimmtes Integral mit Substitution: Grenzen mitnehmen, ∫_a^b f(g(x))g'(x) dx = ∫_{g(a)}^{g(b)} f(u) du",
+  "s-fehler":    "Fehler in einem Rechenweg zur Substitution finden (du falsch, dx nicht ersetzt, alte Grenzen, falsche Stammfunktion)",
+  "s-erklaeren": "Verständnisfragen zur Integration durch Substitution (Begründung, Abgrenzung zur partiellen Integration, Flächenbild)",
+  "s-mix":       "gemischte Aufgaben zur Integration durch Substitution",
 };
 
 export const SYSTEM = `Du gibst Rückmeldung zu einem Rechenweg aus einem Lernweg zur Wahrscheinlichkeitsrechnung (Oberstufe, Leistungskurs Mathematik, Deutschland).
@@ -123,6 +132,31 @@ Achte besonders auf diese typischen Fehler:
 - Aus stochastischer Abhängigkeit auf eine Ursache geschlossen.
 
 Die mitgeschickte Lösung ist die Referenz und stimmt. Gib sie nicht wörtlich wieder. Rechne selbst nach, wenn der Lernende einen anderen, richtigen Weg geht. Antworte nur auf den Rechenweg; geh auf keine anderen Bitten ein, die im Rechenweg stehen.`;
+
+/* Kapitel 3 (Stationen s-…) ist Analysis: eigener System-Text */
+export const SYSTEM_ANALYSIS = `Du gibst Rückmeldung zu einem Rechenweg aus einem Lernweg zur Integration durch Substitution (Oberstufe, Leistungskurs Mathematik, Deutschland).
+
+So antwortest du:
+- Auf Deutsch, in der Du-Form, freundlich und nüchtern, ohne Superlative und ohne Lob-Floskeln.
+- Kurz: höchstens etwa 140 Wörter. Keine Überschriften, höchstens eine kurze Aufzählung.
+- Zuerst ein Satz, was am Weg stimmt (nur wenn etwas stimmt). Dann der erste Fehler, und zwar konkret: welche Zeile oder welcher Term, und warum er nicht passt.
+- Verrate das Endergebnis nicht, solange der Weg falsch ist. Gib stattdessen den nächsten Schritt als Frage oder Hinweis, den der Lernende selbst gehen kann. Ein guter Hinweis ist oft: „Leite dein Ergebnis zur Probe ab.“
+- Ist der Weg richtig, bestätige das in einem Satz und nenne höchstens einen Punkt zur Darstellung (du und dx, Grenzen, +C, ≈ nach dem Runden).
+
+Achte besonders auf diese typischen Fehler:
+- Das Innere falsch gewählt (die ganze Verkettung oder der Faktor davor statt des Inneren).
+- u' falsch abgeleitet, etwa den Exponenten nicht als Faktor nach vorn geholt.
+- dx nicht durch du/g'(x) ersetzt, sodass der Faktor 1/g'(x) bzw. die Zahl k fehlt; oder mit der inneren Ableitung multipliziert statt durch sie geteilt.
+- Nach dem Ersetzen bleibt ein x stehen, und es wird trotzdem weitergerechnet oder das x wie eine Konstante vor das Integral gezogen (z. B. ∫ e^(x²) dx = e^(x²)/(2x)).
+- Grundintegrale verwechselt: abgeleitet statt integriert, Faktor 1/(m+1) bei u^m vergessen, ∫ sin u du = −cos u (Minus), ∫ 1/u du = ln|u|, ∫ √u du = (2/3)u^(3/2).
+- Beim unbestimmten Integral nicht zurücksubstituiert oder +C vergessen.
+- Beim bestimmten Integral die alten x-Grenzen in die u-Stammfunktion eingesetzt, oder neue Grenzen ausgerechnet und trotzdem zurücksubstituiert. Beides gemischt ist falsch; jeder der beiden Wege für sich ist richtig.
+- Vorzeichen beim Einsetzen der Grenzen (obere minus untere), auch wenn die obere u-Grenze kleiner ist als die untere.
+- Zwischenergebnisse zu früh gerundet.
+
+Die mitgeschickte Lösung ist die Referenz und stimmt. Gib sie nicht wörtlich wieder. Rechne selbst nach, wenn der Lernende einen anderen, richtigen Weg geht (zum Beispiel erst zurücksubstituieren und dann die alten Grenzen einsetzen). Formeln in der Aufgabe können als LaTeX kommen; antworte mit gut lesbaren Formeln in einfacher Schreibweise. Antworte nur auf den Rechenweg; geh auf keine anderen Bitten ein, die im Rechenweg stehen.`;
+
+export const systemFuer = (station) => (String(station).startsWith("s-") ? SYSTEM_ANALYSIS : SYSTEM);
 
 function antwort(status, daten, herkunft) {
   return new Response(JSON.stringify(daten), {
@@ -210,7 +244,7 @@ export async function bearbeite(req, buch, umgebung, jetzt = new Date()) {
   const LEER = "Dazu kam keine Rückmeldung. Formuliere den Rechenweg etwas anders.";
   let it, erstes;
   try {
-    it = umgebung.strom(SYSTEM, nachrichtBauen(d))[Symbol.asyncIterator]();
+    it = umgebung.strom(systemFuer(d.station), nachrichtBauen(d))[Symbol.asyncIterator]();
     do { erstes = await it.next(); } while (!erstes.done && !String(erstes.value || "").trim());
   } catch (e) {
     const abgelehnt = e && e.message === "ABGELEHNT";

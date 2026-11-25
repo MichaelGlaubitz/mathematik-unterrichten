@@ -1,6 +1,6 @@
 /* KI-Rückmeldung · Prüfung ohne Netz, ohne Konto, ohne Kosten.
    Aufruf: node pruefe.mjs                                          */
-import { bearbeite, GRENZE_JE_TAG, GRENZE_FEHLVERSUCHE, SYSTEM, nachrichtBauen, ABBRUCH } from "./kern.mjs";
+import { bearbeite, GRENZE_JE_TAG, GRENZE_FEHLVERSUCHE, SYSTEM, SYSTEM_ANALYSIS, nachrichtBauen, ABBRUCH } from "./kern.mjs";
 
 let fehler = 0, n = 0;
 const soll = (wahr, was) => { n++; if (!wahr) { fehler++; console.log("FEHLER: " + was); } };
@@ -98,7 +98,15 @@ soll((await bearbeite(post("kein json"), neuesBuch(), { code: CODE, strom })).st
   soll(fremd.headers.get("access-control-allow-origin") !== "https://boese.example", "fremde Herkunft bekommt kein CORS");
 }
 
-// 8. Nachricht kürzt überlange Felder
+// 8. Kapitel 3 (Analysis) bekommt den eigenen System-Text
+{
+  gefragt = [];
+  const r = await bearbeite(post({ ...gut, station: "s-grenzen", antwort: "u = x^2+1, du = 2x dx" }), neuesBuch(), { code: CODE, strom });
+  soll(r.status === 200 && (await r.text()) === "Rückmeldung kommt", "Station s-grenzen wird angenommen");
+  soll(gefragt.length === 1 && gefragt[0].system === SYSTEM_ANALYSIS && gefragt[0].text.includes("Grenzen mitnehmen"), "Analysis-System-Text für s-…");
+}
+
+// 9. Nachricht kürzt überlange Felder
 soll(nachrichtBauen({ ...gut, aufgabe: "a".repeat(9999) }).length < 9000, "Aufgabe wird gekürzt");
 
 console.log(fehler ? `${fehler} von ${n} Prüfungen gescheitert.` : `Alle ${n} Prüfungen bestanden.`);
