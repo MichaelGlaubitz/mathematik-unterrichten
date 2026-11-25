@@ -1254,10 +1254,29 @@ function ansichtAttr(){
   const el = $('#ggb'); const f = Math.min(el.clientWidth / 700, el.clientHeight / 520);
   return `xZero="${a.x0||0}" yZero="${a.y0||0}" zZero="${a.z0||0}" scale="${((a.massstab||50)*f).toFixed(2)}" xAngle="${a.kippen===undefined?20:a.kippen}" zAngle="${a.drehen===undefined?-60:a.drehen}" `;
 }
+/* Projektion der 3D-Ansicht (ansicht3d.projektion):
+   'parallel' (Vorgabe) · 'perspektive' – Fluchtpunkt, Stärke über augabstand (Pixel bei 700 px Breite,
+   Vorgabe 1500; kleiner = stärker) · 'schraeg' – Schrägbild wie im Heft (schraegwinkel 45°, verkuerzung 0,5). */
+function projektionTag(){
+  const a = DIALOG.geogebra.ansicht3d || {};
+  const p = a.projektion || 'parallel';
+  if (p === 'perspektive'){
+    const el = $('#ggb'); const f = Math.min(el.clientWidth / 700, el.clientHeight / 520) || 1;
+    return `<projection type="1" distance="${Math.round((a.augabstand || 1500) * f)}"/>`;
+  }
+  if (p === 'schraeg') return `<projection type="3" obliqueAngle="${a.schraegwinkel===undefined?45:a.schraegwinkel}" obliqueFactor="${a.verkuerzung===undefined?0.5:a.verkuerzung}"/>`;
+  return '<projection type="0"/>';
+}
+function mitProjektion(x){
+  const t = projektionTag();
+  return /<euclidianView3D>[\s\S]*?<projection [^>]*\/>/.test(x)
+    ? x.replace(/(<euclidianView3D>[\s\S]*?)<projection [^>]*\/>/, '$1' + t)
+    : x.replace(/<\/euclidianView3D>/, '\t' + t + '\n</euclidianView3D>');
+}
 function ansichtZuruecksetzen(){
   if (!api || !DREI) return;
   const el = $('#ggb'); api.setSize(el.clientWidth, el.clientHeight);
-  api.setXML(api.getXML().replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>'));
+  api.setXML(mitProjektion(api.getXML().replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>')));
 }
 function aktuelleSicht(){
   for (let i = Math.min(schritt, DIALOG.schritte.length-1); i >= 0; i--) if (DIALOG.schritte[i].sicht) return DIALOG.schritte[i].sicht;
@@ -1317,7 +1336,7 @@ function ggbBereit(a){
     let x = api.getXML();
     x = x.replace(/<plate show="true"\/>/,'<plate show="false"/>').replace(/<axis id="(\d)" show="true"/g,'<axis id="$1" show="false"').replace(/axes="true"/g,'axes="false"').replace(/grid="true"/g,'grid="false"');
     x = x.replace(/(<euclidianView3D>\s*<coordSystem )[^>]*\/>/, '$1' + ansichtAttr() + '/>');
-    api.setXML(x);
+    api.setXML(mitProjektion(x));
   } else {
     const ax = DIALOG.geogebra.achsen;
     api.setAxesVisible(!!ax, !!ax); api.setGridVisible(false);
