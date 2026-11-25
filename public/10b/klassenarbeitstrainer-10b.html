@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klassenarbeitstrainer 10b – Kreise und Körper</title>
+<meta name="description" content="Übungsprogramm der 10b zur 2. Klassenarbeit: Kreis, Kreisausschnitt, Bogenmaß, Netze und Schrägbilder, Zylinder, Pyramide, Kegel und zusammengesetzte Körper – Diagnose, Erklärung, Üben, Re-Test. Läuft ganz im Browser.">
+<!--
+  ===========================================================================
+  Klassenarbeitstrainer 10b – Kreise und Körper
+  ---------------------------------------------------------------------------
+  Gebaut mit der Skill klassenarbeitstrainer (Vorlage aus dem Klausurtrainer
+  11a und dem Klassenarbeitstrainer 7b, September 2026). Sechs Schritte je
+  Thema:
+
+      Diagnose  ->  Zuspruch  ->  Erklären  ->  Üben  ->  Re-Test  ->  Bestätigung
+
+  INHALT: 2. Klassenarbeit der 10b (Do 10.12.2026), Kapitel 2 Kreise und Körper. Elf Themen: Einheiten, Formeln umstellen und Pythagoras (Werkzeuge); Kreis, Kreisausschnitt, Zylinder-Volumen, Zylinder-Oberfläche, Pyramide, Kegel, zusammengesetzte Körper, Netze und Schrägbilder, Bogenmaß.
+
+  ABDICHTUNG: Kein Kontext und keine Aufgabe der Klassenarbeit oder der
+  Probearbeit steht hier. Geprüft vor jeder Veröffentlichung mit
+  pruefe_trainer.mjs der Skill und der Musterliste Stundenregie/bau-ka2-10b/trainer_muster.json (die Arbeit war beim Bau noch nicht geschrieben; die Kontexte dieses Trainers stehen dort zur Gegenprobe).
+
+  WARUM GENERIERTE AUFGABEN: Ein Re-Test muss dieselbe Sache mit anderen
+  Zahlen prüfen. Aus einem festen Pool käme die gemerkte Aufgabe zurück.
+
+  WARUM NICHTS ÜBERTRAGEN WIRD: Der Stand bleibt im Browser des Geräts
+  (localStorage). Kein Server, keine Anmeldung, keine Auswertung.
+  ===========================================================================
+-->
+<style>
+/* --- Farben und Maße: dieselben Marken wie die Werkzeuge der Website ------ */
+:root{
+  --grund:#faf8f2; --flaeche:#ffffff; --flaeche-2:#f3efe6;
+  --linie:#dcd5c5; --linie-stark:#bfb39c;
+  --text:#2a241d; --text-leise:#564938; --text-schwach:#857355;
+  --akzent:#2563eb; --akzent-hell:#dbeafe; --akzent-tief:#1e40af;
+  --teal:#0d9488; --teal-hell:#ccfbf1;
+  --violett:#7c3aed; --violett-hell:#ede9fe;
+  --gold:#b45309; --gold-hell:#fef3c7;
+  --gruen:#15803d; --gruen-hell:#dcfce7;
+  --rot:#be123c; --rot-hell:#ffe4e6;
+  --radius:12px; --radius-klein:8px;
+  --schatten:0 1px 2px rgba(42,36,29,.06), 0 8px 24px -12px rgba(42,36,29,.18);
+  --schrift:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --basis:17px;
+}
+html[data-thema="dunkel"]{
+  --grund:#1a1623; --flaeche:#241f30; --flaeche-2:#2e2840;
+  --linie:#423a56; --linie-stark:#5b5175;
+  --text:#f3efe6; --text-leise:#cfc7bb; --text-schwach:#a79c8d;
+  --akzent:#60a5fa; --akzent-hell:#1e3a8a; --akzent-tief:#93c5fd;
+  --teal:#2dd4bf; --teal-hell:#134e4a;
+  --violett:#a78bfa; --violett-hell:#3b2a6b;
+  --gold:#fbbf24; --gold-hell:#4a3208;
+  --gruen:#4ade80; --gruen-hell:#14361f;
+  --rot:#fb7185; --rot-hell:#4c1327;
+  --schatten:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{color-scheme:light; font-size:var(--basis); -webkit-text-size-adjust:100%}
+html[data-thema="dunkel"]{color-scheme:dark}
+body{
+  margin:0; min-height:100vh; font-family:var(--schrift); color:var(--text);
+  background:var(--grund); line-height:1.55;
+}
+h1,h2,h3{font-family:var(--serif); font-weight:600; line-height:1.25; margin:0}
+h1{font-size:1.5rem} h2{font-size:1.28rem} h3{font-size:1.05rem}
+p{margin:0 0 .8em}
+a{color:var(--akzent)}
+
+/* --- Kopfleiste ---------------------------------------------------------- */
+.kopf{
+  position:sticky; top:0; z-index:30; background:var(--grund);
+  border-bottom:1px solid var(--linie);
+}
+.kopf-innen{
+  max-width:820px; margin:0 auto; padding:.6rem .9rem;
+  display:flex; align-items:center; gap:.8rem;
+}
+.kopf-titel{font-family:var(--serif); font-weight:600; font-size:1rem; margin:0; flex:1; min-width:0}
+.kopf-titel small{display:block; font-family:var(--schrift); font-weight:400;
+  font-size:.76rem; color:var(--text-schwach)}
+.streifen{height:4px; background:linear-gradient(90deg,var(--akzent),var(--teal),var(--violett))}
+
+/* Fortschrittsring: neun Themen, ein Kreis. Sichtbar in jeder Ansicht, damit
+   „wie weit bin ich?“ nie eine eigene Frage ist. */
+.ring{flex:0 0 auto; width:2.7rem; height:2.7rem; position:relative}
+.ring svg{display:block; transform:rotate(-90deg)}
+.ring .zahl{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-leise);
+}
+.iknopf{
+  width:2.2rem; height:2.2rem; border:1px solid transparent; background:transparent;
+  color:var(--text-leise); border-radius:var(--radius-klein); cursor:pointer;
+  font-size:1rem; line-height:1; flex:0 0 auto;
+}
+.iknopf:hover{background:var(--flaeche-2); border-color:var(--linie)}
+
+/* --- Grundbausteine ------------------------------------------------------ */
+.huelle{max-width:820px; margin:0 auto; padding:1.1rem .9rem 5rem}
+.karte{
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius);
+  padding:1.05rem 1.15rem; box-shadow:var(--schatten);
+}
+.karte + .karte{margin-top:.9rem}
+.reihe{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center}
+.reihe-ende{justify-content:flex-end}
+.lead{color:var(--text-leise); font-size:1.02rem; max-width:62ch; margin:.35rem 0 1.1rem}
+.leise{color:var(--text-schwach); font-size:.86rem}
+
+.knopf{
+  font:inherit; font-size:.95rem; font-weight:500; padding:.5rem .95rem;
+  border-radius:var(--radius-klein); border:1px solid var(--linie-stark);
+  background:var(--flaeche); color:var(--text); cursor:pointer;
+  display:inline-flex; align-items:center; gap:.45rem; min-height:2.6rem;
+}
+.knopf:hover{background:var(--flaeche-2); border-color:var(--akzent)}
+.knopf:active{transform:translateY(1px)}
+.knopf:focus-visible{outline:3px solid var(--akzent); outline-offset:2px}
+.knopf[disabled]{opacity:.45; cursor:not-allowed}
+.knopf-haupt{background:var(--akzent); border-color:var(--akzent); color:#fff; font-weight:600}
+html[data-thema="dunkel"] .knopf-haupt{color:#10131c}
+.knopf-haupt:hover{background:var(--akzent-tief); border-color:var(--akzent-tief)}
+html[data-thema="dunkel"] .knopf-haupt:hover{color:#10131c}
+.knopf-still{border-color:transparent; background:transparent; color:var(--text-leise)}
+.knopf-still:hover{background:var(--flaeche-2); border-color:var(--linie)}
+.knopf-gross{font-size:1.08rem; padding:.7rem 1.3rem; min-height:3rem}
+
+.pille{
+  display:inline-flex; align-items:center; gap:.3rem; padding:.12rem .6rem;
+  border-radius:999px; font-size:.76rem; font-weight:600;
+  background:var(--akzent-hell); color:var(--akzent-tief);
+}
+html[data-thema="dunkel"] .pille{color:var(--text)}
+.pille-gruen{background:var(--gruen-hell); color:var(--gruen)}
+.pille-gold{background:var(--gold-hell); color:var(--gold)}
+.pille-rot{background:var(--rot-hell); color:var(--rot)}
+.pille-teal{background:var(--teal-hell); color:var(--teal)}
+
+.hinweis{
+  border-left:4px solid var(--akzent); background:var(--flaeche-2);
+  padding:.7rem .9rem; border-radius:0 var(--radius-klein) var(--radius-klein) 0;
+  font-size:.94rem; color:var(--text-leise); margin:.8rem 0;
+}
+.hinweis strong{color:var(--text)}
+.hinweis-gold{border-left-color:var(--gold)}
+.hinweis-gruen{border-left-color:var(--gruen)}
+.hinweis-rot{border-left-color:var(--rot)}
+
+/* --- Mathematischer Satz ------------------------------------------------- */
+.m{font-family:var(--serif); font-size:1.06em; white-space:nowrap}
+.mblock{
+  font-family:var(--serif); font-size:1.28rem; text-align:center;
+  margin:.9rem 0; padding:.55rem .4rem; overflow-x:auto;
+}
+.mblock.klein{font-size:1.08rem}
+sup{font-size:.72em; vertical-align:.45em; line-height:0}
+sub{font-size:.72em; vertical-align:-.25em; line-height:0}
+.br{display:inline-block; vertical-align:-.55em; text-align:center; margin:0 .16em}
+.br > span{display:block; padding:0 .22em}
+.br > span:first-child{border-bottom:1.5px solid currentColor; padding-bottom:.05em}
+.br > span:last-child{padding-top:.05em}
+.wz{white-space:nowrap}
+.wz > .dach{border-top:1.5px solid currentColor; padding:0 .12em 0 .06em; margin-left:-.06em}
+
+/* --- Schrittfolge (das ausführliche Erklären) ---------------------------- */
+.schritte{list-style:none; margin:.6rem 0 0; padding:0}
+.schritt{
+  display:grid; grid-template-columns:1.8rem 1fr; gap:.1rem .7rem;
+  padding:.55rem 0; border-top:1px solid var(--linie);
+}
+.schritt:first-child{border-top:0}
+.schritt .nr{
+  grid-row:span 2; width:1.8rem; height:1.8rem; border-radius:50%;
+  background:var(--akzent-hell); color:var(--akzent-tief);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.82rem; font-weight:700; margin-top:.15rem;
+}
+html[data-thema="dunkel"] .schritt .nr{color:var(--text)}
+.schritt .was{font-size:.9rem; color:var(--text-leise)}
+.schritt .rechnung{font-family:var(--serif); font-size:1.12rem; margin-top:.1rem; overflow-x:auto}
+
+/* --- Aufgabenkarte ------------------------------------------------------- */
+.frage{font-size:1.06rem; margin:0 0 .2rem}
+.felder{display:flex; flex-wrap:wrap; gap:.7rem 1rem; align-items:flex-end; margin:.9rem 0 .2rem}
+.feld{display:flex; align-items:center; gap:.4rem}
+.feld label{font-family:var(--serif); font-size:1.08rem; white-space:nowrap}
+.feld input{
+  font:inherit; font-family:var(--mono); font-size:1rem; width:7.5rem;
+  padding:.5rem .6rem; border-radius:var(--radius-klein);
+  border:1.5px solid var(--linie-stark); background:var(--flaeche); color:var(--text);
+  min-height:2.8rem; text-align:center;
+}
+.feld input:focus-visible{outline:3px solid var(--akzent); outline-offset:1px; border-color:var(--akzent)}
+.feld input[data-stand="richtig"]{border-color:var(--gruen); background:var(--gruen-hell)}
+.feld input[data-stand="falsch"]{border-color:var(--rot); background:var(--rot-hell)}
+.feld .einheit{font-size:.92rem; color:var(--text-leise)}
+
+.wahlen{display:grid; gap:.5rem; margin:.9rem 0 .2rem}
+.wahl{
+  display:flex; align-items:center; gap:.7rem; text-align:left; width:100%;
+  font:inherit; padding:.7rem .85rem; border-radius:var(--radius-klein);
+  border:1.5px solid var(--linie-stark); background:var(--flaeche); color:var(--text);
+  cursor:pointer; min-height:3rem;
+}
+.wahl:hover{border-color:var(--akzent); background:var(--flaeche-2)}
+.wahl .buchstabe{
+  flex:0 0 auto; width:1.7rem; height:1.7rem; border-radius:50%;
+  background:var(--flaeche-2); border:1px solid var(--linie-stark);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.82rem; font-weight:700; color:var(--text-leise);
+}
+.wahl[aria-pressed="true"]{border-color:var(--akzent); background:var(--akzent-hell)}
+.wahl[aria-pressed="true"] .buchstabe{background:var(--akzent); color:#fff; border-color:var(--akzent)}
+.wahl[data-stand="richtig"]{border-color:var(--gruen); background:var(--gruen-hell)}
+.wahl[data-stand="falsch"]{border-color:var(--rot); background:var(--rot-hell)}
+.wahl[disabled]{cursor:default; opacity:1}
+.wahl .inhalt{font-family:var(--serif); font-size:1.06rem}
+
+/* --- Rückmeldung --------------------------------------------------------- */
+.echo{
+  margin:.9rem 0 0; padding:.85rem 1rem; border-radius:var(--radius-klein);
+  border:1px solid var(--linie); background:var(--flaeche-2);
+}
+.echo.gut{border-color:var(--gruen); background:var(--gruen-hell)}
+.echo.fast{border-color:var(--gold); background:var(--gold-hell)}
+.echo.nein{border-color:var(--rot); background:var(--rot-hell)}
+.echo .kopfzeile{display:flex; align-items:center; gap:.5rem; font-weight:700; margin-bottom:.3rem}
+.echo .zeichen{font-size:1.15rem}
+.echo p:last-child{margin-bottom:0}
+
+/* --- Landkarte ----------------------------------------------------------- */
+.gruppe-titel{
+  font-size:.78rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--text-schwach); margin:1.4rem 0 .5rem;
+}
+.thema-zeile{
+  display:flex; align-items:center; gap:.85rem; width:100%; text-align:left;
+  font:inherit; padding:.75rem .9rem; margin:.45rem 0; cursor:pointer;
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius);
+  color:var(--text);
+}
+.thema-zeile:hover{border-color:var(--akzent)}
+.thema-zeile[data-dran="ja"]{border-color:var(--akzent); border-width:2px; box-shadow:var(--schatten)}
+.thema-zeile .ampel{
+  flex:0 0 auto; width:2.2rem; height:2.2rem; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700;
+  background:var(--flaeche-2); color:var(--text-schwach); border:1px solid var(--linie);
+}
+.thema-zeile[data-stand="sicher"] .ampel{background:var(--gruen-hell); color:var(--gruen); border-color:var(--gruen)}
+.thema-zeile[data-stand="wackelig"] .ampel{background:var(--gold-hell); color:var(--gold); border-color:var(--gold)}
+.thema-zeile[data-stand="offen"] .ampel{background:var(--rot-hell); color:var(--rot); border-color:var(--rot)}
+.thema-zeile .mitte{flex:1; min-width:0}
+.thema-zeile .name{display:block; font-family:var(--serif); font-weight:600; font-size:1.02rem}
+.thema-zeile .unter{display:block; font-size:.83rem; color:var(--text-schwach)}
+.thema-zeile .pfeil{color:var(--text-schwach); font-size:1.1rem; flex:0 0 auto}
+
+/* --- Phasenleiste im Thema ----------------------------------------------- */
+.phasen{display:flex; gap:.3rem; margin:0 0 1rem; flex-wrap:wrap}
+.phase{
+  flex:1 1 0; min-width:4.6rem; text-align:center; font-size:.72rem; font-weight:600;
+  padding:.32rem .2rem; border-radius:999px; background:var(--flaeche-2);
+  color:var(--text-schwach); border:1px solid var(--linie);
+}
+.phase[data-jetzt="ja"]{background:var(--akzent); color:#fff; border-color:var(--akzent)}
+html[data-thema="dunkel"] .phase[data-jetzt="ja"]{color:#10131c}
+.phase[data-fertig="ja"]{background:var(--gruen-hell); color:var(--gruen); border-color:var(--gruen)}
+
+/* --- Punkte (Re-Test-Fortschritt) ---------------------------------------- */
+.punkte{display:flex; gap:.35rem; margin:.2rem 0 0}
+.punkt{width:.7rem; height:.7rem; border-radius:50%; background:var(--linie)}
+.punkt[data-stand="richtig"]{background:var(--gruen)}
+.punkt[data-stand="falsch"]{background:var(--rot)}
+
+/* --- Zeichnungen --------------------------------------------------------- */
+svg.bild{display:block; width:100%; max-width:420px; height:auto; margin:.7rem auto;
+  background:var(--flaeche); border:1px solid var(--linie); border-radius:var(--radius-klein)}
+.bildpaar{display:grid; grid-template-columns:1fr 1fr; gap:.5rem}
+.bildpaar svg.bild{max-width:100%}
+
+table.werte{width:100%; border-collapse:collapse; font-family:var(--serif); font-size:1.02rem; margin:.7rem 0}
+table.werte th,table.werte td{border:1px solid var(--linie); padding:.35rem .5rem; text-align:center}
+table.werte th{background:var(--flaeche-2); font-weight:600; font-size:.92rem}
+
+/* --- Fuß ----------------------------------------------------------------- */
+.fuss{
+  max-width:820px; margin:0 auto; padding:1.4rem .9rem 3rem;
+  border-top:1px solid var(--linie); font-size:.82rem; color:var(--text-schwach);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:baseline;
+}
+.fuss a{color:var(--text-leise)}
+kbd{font-family:var(--mono); font-size:.78em; padding:.1em .4em; border:1px solid var(--linie-stark);
+  border-bottom-width:2px; border-radius:4px; background:var(--flaeche-2); color:var(--text-leise)}
+
+@media (max-width:30rem){
+  .huelle{padding:.9rem .7rem 5rem}
+  .karte{padding:.9rem .85rem}
+  .phase{font-size:.66rem; min-width:3.6rem}
+  .feld input{width:6rem}
+}
+@media print{
+  .kopf,.fuss,.nicht-drucken,.streifen{display:none !important}
+  body{background:#fff}
+  .karte{box-shadow:none; border-color:#bbb; break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:1ms !important; animation-duration:1ms !important}}
+/* --- Ergänzungen: Lücken, Bild-Antworten, kleine Tabellen -------------- */
+.luecke{display:inline-block; min-width:1.8em; padding:0 .2em; border-bottom:2px solid var(--akzent); color:var(--akzent); font-weight:700}
+.wahl svg.bild{margin:.15rem 0; max-width:220px}
+.wahl svg.gefaess{max-width:110px}
+/* Bild-Antworten nebeneinander: vier Graphen untereinander füllen sonst
+   drei Bildschirmhöhen. */
+.wahlen:has(svg){grid-template-columns:1fr 1fr}
+@media (max-width:22rem){ .wahlen:has(svg){grid-template-columns:1fr} }
+svg.gefaess{max-width:160px}
+table.werte.mini{width:auto; margin:.15rem 0; font-size:.95rem}
+table.werte.mini th, table.werte.mini td{padding:.15rem .5rem}
+</style>
+</head>
+<body>
+
+<header class="kopf nicht-drucken">
+  <div class="kopf-innen">
+    <div class="ring" id="ring" title="Themen, die sitzen"></div>
+    <h1 class="kopf-titel">Klassenarbeitstrainer 10b<small id="kopf-unter">Kapitel 2 — Kreise und Körper</small></h1>
+    <button class="iknopf" id="knopf-karte" type="button" title="Zur Übersicht" aria-label="Zur Übersicht">☰</button>
+    <button class="iknopf" id="knopf-thema" type="button" title="Hell oder dunkel" aria-label="Hell oder dunkel">☾</button>
+  </div>
+</header>
+<div class="streifen nicht-drucken"></div>
+
+<main class="huelle" id="buehne"></main>
+
+<footer class="fuss nicht-drucken">
+  <span>Läuft ganz im Browser. Dein Stand bleibt auf diesem Gerät — er wird nirgendwohin geschickt.</span>
+  <span style="margin-left:auto"><button class="knopf knopf-still" id="knopf-reset" type="button">Alles zurücksetzen</button></span>
+</footer>
+
+<script>
+"use strict";
+/* ==========================================================================
+   0 — Steckbrief
+   --------------------------------------------------------------------------
+   Das Einzige neben Aufgaben (3c) und Themen (4), was je Lerngruppe anders
+   ist. Jede Zeichenkette hier erscheint so auf dem Bildschirm.
+   ========================================================================== */
+var KONFIG = {
+  klasse:  "10b",        /* wie auf der Website, z. B. "7b"              */
+  kuerzel: "katrainer",       /* Speicherschlüssel: "katrainer" (KA) oder "klausurtrainer" */
+  art:     "Klassenarbeit",           /* "Klassenarbeit" oder "Klausur"              */
+  check:   "Arbeits-Check",         /* "Arbeits-Check" oder "Klausur-Check"        */
+  niveau:  "Klassenarbeitsniveau",        /* "Klassenarbeitsniveau" oder "Klausurniveau" */
+  datum:   "2026-12-10",         /* Schreibtermin, JJJJ-MM-TT                   */
+  kapitel: "Kapitel 2 — Kreise und Körper",       /* Unterzeile nach dem Termin, z. B. "Kapitel 1 — Zuordnungen" */
+  bogen:   "vom Kreisumfang über Bogen und Bogenmaß bis zu Zylinder, Pyramide und Kegel",         /* Startseite: „… durch alles, was in der Klassenarbeit
+                                   vorkommt — <bogen>.“ z. B. "vom Graphenlesen bis zur Frage, …" */
+  gruppen: {
+    werkzeug: { titel: "Werkzeuge: Einheiten und Umstellen", pille: "Grundlage" },
+    klausur:  { titel: "Kreise und Körper",  pille: "Aktuelles Thema" }
+  },
+  /* Beispiele unter jedem Zahlenfeld: nur Formen, die hier wirklich gefragt sind */
+  eingabeBeispiele: ["113,1", "6", "5/12"]
+};
+
+var ZAHLWORT = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben",
+                "acht", "neun", "zehn", "elf", "zwölf"];
+function zahlwort(n){ return ZAHLWORT[n] || String(n); }
+var MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli",
+              "August", "September", "Oktober", "November", "Dezember"];
+
+/* ==========================================================================
+   1 — Kleinteile: Text, Zahlen, Zufall
+   ========================================================================== */
+
+var MINUS = "−";        /* echtes Minuszeichen, wie im Buch und an der Wand */
+var MAL   = "·";
+var HOCH2 = "²";
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(z){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[z];
+  });
+}
+
+function el(tag, attr, kinder){
+  var k = document.createElement(tag);
+  if (attr) Object.keys(attr).forEach(function(name){
+    var w = attr[name];
+    if (w === null || w === undefined || w === false) return;
+    if (name === "text") k.textContent = w;
+    else if (name === "html") k.innerHTML = w;
+    else if (name.slice(0,2) === "on" && typeof w === "function") k.addEventListener(name.slice(2).toLowerCase(), w);
+    else k.setAttribute(name, w === true ? "" : w);
+  });
+  (kinder || []).forEach(function(kind){
+    if (kind === null || kind === undefined) return;
+    k.appendChild(typeof kind === "string" ? document.createTextNode(kind) : kind);
+  });
+  return k;
+}
+
+/* --- Brüche als Datentyp -------------------------------------------------
+   WARUM: Eine Steigung ist oft 2/3, und 0,6666666667 ist an der Tafel keine
+   Antwort. Wo geteilt wird, rechnet der Trainer mit {z, n} weiter und
+   entscheidet erst beim Anzeigen, ob Dezimalzahl oder Bruch dasteht. */
+function ggt(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var h=b; b=a%b; a=h; } return a||1; }
+
+function BR(z, n){
+  if (n === undefined) n = 1;
+  if (n < 0){ z = -z; n = -n; }
+  var t = ggt(z, n);
+  return { z: z/t, n: n/t, bruch: true };
+}
+function istBr(v){ return v && typeof v === "object" && v.bruch === true; }
+function wertVon(v){ return istBr(v) ? v.z / v.n : v; }
+function brMal(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.z, a.n*b.n); }
+function brPlus(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n + b.z*a.n, a.n*b.n); }
+function brMinus(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n - b.z*a.n, a.n*b.n); }
+function brDurch(a, b){ a = zuBr(a); b = zuBr(b); return BR(a.z*b.n, a.n*b.z); }
+function zuBr(v){
+  if (istBr(v)) return v;
+  if (Number.isInteger(v)) return BR(v, 1);
+  /* Dezimalzahlen aus den Generatoren haben höchstens vier Stellen. */
+  return BR(Math.round(v*10000), 10000);
+}
+
+/* Dezimaltext in deutscher Schreibweise, ohne Nachkommanullen. */
+function dez(x, stellen){
+  var n = (stellen === undefined) ? 4 : stellen;
+  var g = Math.round(x * Math.pow(10,n)) / Math.pow(10,n);
+  var s = String(g);
+  if (s.indexOf("e") >= 0) s = g.toFixed(n);
+  return s.replace("-", MINUS).replace(".", ",");
+}
+
+/* Endet die Dezimaldarstellung nach höchstens drei Stellen? Dann ist sie
+   lesbarer als der Bruch — 0,75 statt drei Vierteln. */
+function kurzDezimal(v){
+  var b = zuBr(v);
+  var x = b.z / b.n;
+  return Math.abs(Math.round(x*1000)/1000 - x) < 1e-12;
+}
+
+/* Zahl als reiner Text (für Eingabefelder, Titel, Tabellen). */
+function zText(v){
+  if (!istBr(v)) return dez(v);
+  if (v.n === 1) return dez(v.z);
+  if (kurzDezimal(v)) return dez(v.z/v.n);
+  return (v.z < 0 ? MINUS : "") + Math.abs(v.z) + "/" + v.n;
+}
+
+/* Zahl als HTML — hier darf der Bruch übereinander stehen. */
+function zHtml(v){
+  if (!istBr(v)) return esc(dez(v));
+  if (v.n === 1) return esc(dez(v.z));
+  if (kurzDezimal(v)) return esc(dez(v.z/v.n));
+  return (v.z < 0 ? MINUS : "") + bruchHtml(Math.abs(v.z), v.n);
+}
+function bruchHtml(oben, unten){
+  return '<span class="br"><span>' + oben + '</span><span>' + unten + '</span></span>';
+}
+function wurzelHtml(inhalt){
+  return '<span class="wz">√<span class="dach">' + inhalt + '</span></span>';
+}
+function hochHtml(basis, exp){
+  if (exp === 2) return basis + HOCH2;
+  if (exp === 3) return basis + "³";
+  return basis + "<sup>" + exp + "</sup>";
+}
+
+/* --- Terme zusammensetzen ------------------------------------------------
+   Ein Term wie 2x² − x + 3 soll auch dann richtig aussehen, wenn ein
+   Koeffizient 1, −1 oder 0 ist. Das hier ist die einzige Stelle, an der
+   diese Fallunterscheidung steht. */
+function summandHtml(k, teil, erster){
+  var x = wertVon(k);
+  if (x === 0) return "";
+  var negativ = x < 0;
+  var betrag = istBr(k) ? BR(Math.abs(k.z), k.n) : Math.abs(x);
+  var zahl = (teil && wertVon(betrag) === 1) ? "" : zHtml(betrag);
+  var kern = zahl + (teil || "");
+  if (erster) return (negativ ? MINUS : "") + kern;
+  return " " + (negativ ? MINUS : "+") + " " + kern;
+}
+function termHtml(teile){
+  /* teile: [{k: Koeffizient, t: HTML des Variablenteils}] */
+  var raus = "", erster = true;
+  teile.forEach(function(s){
+    var stueck = summandHtml(s.k, s.t, erster);
+    if (stueck){ raus += stueck; erster = false; }
+  });
+  return raus || "0";
+}
+function linHtml(m, b){ return termHtml([{k:m, t:"x"}, {k:b, t:""}]); }
+function quadHtml(a, b, c){ return termHtml([{k:a, t:"x"+HOCH2}, {k:b, t:"x"}, {k:c, t:""}]); }
+/* f(x) = a(x − d)² + e — mit dem Vorzeichenwechsel, der die halbe Klasse kostet. */
+function scheitelHtml(a, d, e){
+  var innen = "x " + (wertVon(d) < 0 ? "+" : MINUS) + " " + zHtml(istBr(d) ? BR(Math.abs(d.z), d.n) : Math.abs(wertVon(d)));
+  if (wertVon(d) === 0) innen = "x";
+  var klammer = (wertVon(d) === 0 ? "x" : "(" + innen + ")") + HOCH2;
+  var vorn = summandHtml(a, klammer, true);
+  var hinten = summandHtml(e, "", false);
+  return vorn + hinten;
+}
+/* Negative Zahlen gehoeren in Klammern: „3 · (−5)" liest sich, „3 · −5" nicht. */
+function kl(v){ return wertVon(v) < 0 ? "(" + zHtml(v) + ")" : zHtml(v); }
+/* Der Faktor vor einer Klammer: 1 und −1 werden nicht geschrieben. */
+function vorFaktor(m){ return m === 1 ? "" : (m === -1 ? MINUS : zHtml(m)); }
+var ORDNUNG = { 2: "zweite", 3: "dritte", 4: "vierte", 5: "fünfte" };
+
+function punktHtml(name, x, y){
+  return esc(name) + "(" + zHtml(x) + " | " + zHtml(y) + ")";
+}
+
+/* --- Zufall -------------------------------------------------------------- */
+function rnd(min, max){ return Math.floor(Math.random()*(max-min+1)) + min; }
+function rndOhne0(min, max){ var x; do { x = rnd(min,max); } while (x === 0); return x; }
+function vorz(){ return Math.random() < 0.5 ? -1 : 1; }
+function waehle(liste){ return liste[Math.floor(Math.random()*liste.length)]; }
+function mische(liste){
+  var k = liste.slice();
+  for (var i = k.length-1; i > 0; i--){
+    var j = Math.floor(Math.random()*(i+1)), h = k[i]; k[i] = k[j]; k[j] = h;
+  }
+  return k;
+}
+/* Zwei verschiedene Zahlen aus einem Bereich — für Punkte, Nullstellen, Paare. */
+function zweiVerschieden(min, max){
+  var a = rnd(min,max), b;
+  do { b = rnd(min,max); } while (b === a);
+  return [a, b];
+}
+
+/* --- Eingaben lesen ------------------------------------------------------
+   Was getippt wird: 0,5 · 0.5 · 1/2 · " 4 " — alles wird verstanden. */
+function zahlAus(text){
+  var s = String(text).trim().replace(/\s+/g, "");
+  if (!s) return null;
+  s = s.replace(/−/g, "-").replace(/,/g, ".");
+  var bruch = /^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/.exec(s);
+  if (bruch){
+    var n = parseFloat(bruch[2]);
+    if (!n) return null;
+    return parseFloat(bruch[1]) / n;
+  }
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+/* Wie genau muss eine Eingabe stimmen?
+   Bei glatten Werten auf die letzte Stelle. Bei krummen — 4/3, 1/3, 0,8333 —
+   waere das eine Falle: Wer den Bruch richtig hat und ihn als 1,33 eintippt,
+   hat die Aufgabe verstanden. Deshalb dort zwei Nachkommastellen. */
+function toleranzFuer(feld){
+  if (typeof feld.toleranz === "number") return feld.toleranz;
+  var x = feld.soll;
+  return Math.abs(Math.round(x*1000)/1000 - x) < 1e-12 ? 1e-6 : 0.0051;
+}
+function gleichAuf(a, b, toleranz){
+  if (a === null || a === undefined) return false;
+  var t = (toleranz === undefined) ? 1e-6 : toleranz;
+  return Math.abs(a - b) <= t + 1e-9;
+}
+
+/* ==========================================================================
+   2 — Kleine Zeichnungen
+   Ein Graph sagt bei Parabeln und Sinuskurven mehr als drei Sätze. Gezeichnet
+   wird mit den Farbmarken der Seite, damit die Bilder auch dunkel stimmen.
+   ========================================================================== */
+var graphZaehler = 0;
+function graphSvg(opt){
+  var B = 400, H = opt.hoehe || 300, rand = 26;
+  /* Eigene Kennung je Bild: Auf einer Seite können mehrere Koordinatensysteme
+     stehen, und zwei gleich benannte Schnittmasken würden sich in die Quere
+     kommen. */
+  var maske = "gsvg" + (++graphZaehler);
+  var xmin = opt.xmin, xmax = opt.xmax, ymin = opt.ymin, ymax = opt.ymax;
+  function px(x){ return rand + (x - xmin) / (xmax - xmin) * (B - 2*rand); }
+  function py(y){ return H - rand - (y - ymin) / (ymax - ymin) * (H - 2*rand); }
+  var teile = [];
+
+  /* Gitter in ganzen Schritten, aber höchstens 20 Linien je Richtung. */
+  var sx = Math.max(1, Math.ceil((xmax - xmin) / 20));
+  var sy = Math.max(1, Math.ceil((ymax - ymin) / 20));
+  for (var gx = Math.ceil(xmin/sx)*sx; gx <= xmax; gx += sx)
+    teile.push('<line x1="'+px(gx)+'" y1="'+py(ymin)+'" x2="'+px(gx)+'" y2="'+py(ymax)+'" stroke="var(--linie)" stroke-width="1"/>');
+  for (var gy = Math.ceil(ymin/sy)*sy; gy <= ymax; gy += sy)
+    teile.push('<line x1="'+px(xmin)+'" y1="'+py(gy)+'" x2="'+px(xmax)+'" y2="'+py(gy)+'" stroke="var(--linie)" stroke-width="1"/>');
+
+  /* Achsen */
+  if (ymin <= 0 && ymax >= 0)
+    teile.push('<line x1="'+px(xmin)+'" y1="'+py(0)+'" x2="'+px(xmax)+'" y2="'+py(0)+'" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  if (xmin <= 0 && xmax >= 0)
+    teile.push('<line x1="'+px(0)+'" y1="'+py(ymin)+'" x2="'+px(0)+'" y2="'+py(ymax)+'" stroke="var(--text-leise)" stroke-width="1.6"/>');
+
+  /* Achsenbeschriftung: nur wenige Zahlen, sonst wird es unruhig. */
+  var bx = Math.max(sx, Math.round((xmax-xmin)/6/sx)*sx);
+  for (var tx = Math.ceil(xmin/bx)*bx; tx <= xmax; tx += bx){
+    if (tx === 0) continue;
+    teile.push('<text x="'+px(tx)+'" y="'+(py(Math.max(ymin,Math.min(ymax,0)))+14)+'" text-anchor="middle" font-size="11" fill="var(--text-schwach)">'+dez(tx)+'</text>');
+  }
+  var by = Math.max(sy, Math.round((ymax-ymin)/6/sy)*sy);
+  for (var ty = Math.ceil(ymin/by)*by; ty <= ymax; ty += by){
+    if (ty === 0) continue;
+    teile.push('<text x="'+(px(Math.max(xmin,Math.min(xmax,0)))-6)+'" y="'+(py(ty)+4)+'" text-anchor="end" font-size="11" fill="var(--text-schwach)">'+dez(ty)+'</text>');
+  }
+
+  (opt.kurven || []).forEach(function(kurve){
+    var punkte = [], N = 260, luecke = true, d = "";
+    for (var i = 0; i <= N; i++){
+      var x = xmin + (xmax - xmin) * i / N;
+      var y = kurve.f(x);
+      if (!isFinite(y) || y < ymin - (ymax-ymin) || y > ymax + (ymax-ymin)){ luecke = true; continue; }
+      d += (luecke ? "M" : "L") + px(x).toFixed(1) + " " + py(y).toFixed(1) + " ";
+      luecke = false;
+    }
+    teile.push('<g clip-path="url(#'+maske+')"><path d="'+d+'" fill="none" stroke="'+(kurve.farbe||"var(--akzent)")+'" stroke-width="2.4" stroke-linecap="round"'
+      + (kurve.strich ? ' stroke-dasharray="6 5"' : '') + '/></g>');
+  });
+
+  (opt.punkte || []).forEach(function(p){
+    teile.push('<circle cx="'+px(p.x)+'" cy="'+py(p.y)+'" r="4.5" fill="'+(p.farbe||"var(--rot)")+'"/>');
+    if (p.name) teile.push('<text x="'+(px(p.x)+8)+'" y="'+(py(p.y)-8)+'" font-size="12" font-weight="600" fill="'+(p.farbe||"var(--rot)")+'">'+esc(p.name)+'</text>');
+  });
+
+  return '<svg class="bild" viewBox="0 0 '+B+' '+H+'" role="img" aria-label="'
+    + esc(opt.alt || "Koordinatensystem mit Graph") + '"><defs><clipPath id="'+maske+'">'
+    + '<rect x="'+(rand-4)+'" y="'+(rand-4)+'" width="'+(B-2*rand+8)+'" height="'+(H-2*rand+8)+'"/>'
+    + '</clipPath></defs>' + teile.join("") + '</svg>';
+}
+/* ==========================================================================
+   3 — Die Aufgaben
+   --------------------------------------------------------------------------
+   Jede Aufgabe ist ein Objekt:
+
+     frage      HTML der Aufgabenstellung
+     bild       optional: SVG, Tabelle, Gleichungssystem
+     eingabe    wie geantwortet wird (Zahl, mehrere Felder, Auswahl)
+     hinweis    der erste Tipp nach einem Fehler — nie die Lösung
+     schritte   die vollständige Rechnung, Schritt für Schritt
+     antwort    die Endantwort in einem Satz
+
+   Erzeugt werden sie von Funktionen ohne Argumente. Jeder Aufruf liefert
+   dieselbe Sorte Aufgabe mit neuen Zahlen — das ist der Grund, warum ein
+   Re-Test hier etwas bestätigt und nicht nur ein Gedächtnis prüft.
+   ========================================================================== */
+
+function S(was, rechnung){ return { was: was, r: rechnung }; }
+
+/* Vier Wahlmöglichkeiten mischen und merken, welche die richtige ist. */
+function wahl(richtigHtml, falschHtmls){
+  var alle = mische([{ h: richtigHtml, ok: true }].concat(
+    falschHtmls.map(function(h){ return { h: h, ok: false }; })));
+  return {
+    art: "wahl",
+    optionen: alle.map(function(a){ return a.h; }),
+    richtig: alle.findIndex(function(a){ return a.ok; })
+  };
+}
+/* Wie wahl(), aber gegen den haeufigsten Generatorfehler abgesichert: Bei
+   bestimmten Zahlen faellt ein Ablenker mit der richtigen Antwort zusammen
+   (bei a = 1 ist a² = a). Aus einer Vorratsliste werden die ersten drei
+   genommen, die weder gleich der Loesung noch untereinander gleich sind. */
+function wahlAus(richtigHtml, vorrat){
+  var raus = [];
+  vorrat.forEach(function(k){
+    if (k !== richtigHtml && raus.indexOf(k) < 0 && raus.length < 3) raus.push(k);
+  });
+  while (raus.length < 3) raus.push("keine dieser Antworten" + " ".repeat(raus.length));
+  return wahl(richtigHtml, raus);
+}
+function zahlFeld(label, soll, extra){
+  var e = { art: "felder", felder: [Object.assign({ label: label, soll: soll }, extra || {})] };
+  return e;
+}
+function felder(liste, egal){
+  return { art: "felder", felder: liste, egal: !!egal };
+}
+
+/* ==========================================================================
+   3b — Kleinteile, die sich bewährt haben (aus dem Trainer der 7b)
+   --------------------------------------------------------------------------
+   Geld, Tabellen, Diagramme im ersten Quadranten, Gefäße. Die Kontexte sind
+   bewusst andere als in der Arbeit und in der Probearbeit: Wer hier
+   übt, soll das Verfahren lernen, nicht eine bestimmte Aufgabe.
+   ========================================================================== */
+var NAMEN = ["Mia", "Noah", "Lea", "Finn", "Nele", "Ole", "Aylin", "Can", "Jana", "Paul", "Sofia", "Luca"];
+
+function glatt(v, stellen){
+  var f = Math.pow(10, stellen === undefined ? 2 : stellen);
+  return Math.abs(Math.round(v * f) - v * f) < 1e-7;
+}
+/* Geld: ganze Beträge ohne Nachkommastellen, sonst immer zwei. */
+function eurText(x){
+  var r = Math.round(x * 100) / 100;
+  return Number.isInteger(r) ? dez(r) : r.toFixed(2).replace(".", ",");
+}
+function eur(x){ return eurText(x) + "&nbsp;€"; }
+function mitE(x, e){ return dez(x) + (e ? "&nbsp;" + e : ""); }
+
+var LUECKE = '<span class="luecke">?</span>';
+
+function tabelle(kopfX, kopfY, xs, ys){
+  function zelle(v){ return "<td>" + (typeof v === "number" ? esc(dez(v)) : v) + "</td>"; }
+  return '<table class="werte"><tr><th>' + kopfX + "</th>" + xs.map(zelle).join("")
+    + "</tr><tr><th>" + kopfY + "</th>" + ys.map(zelle).join("") + "</tr></table>";
+}
+/* Kleine Tabelle als Antwortmöglichkeit — ohne Kopfspalte. */
+function miniTabelle(xs, ys){
+  function zeile(w){ return "<tr>" + w.map(function(v){ return "<td>" + esc(dez(v)) + "</td>"; }).join("") + "</tr>"; }
+  return '<table class="werte mini"><tr><th>x</th>' + xs.map(function(v){ return "<td>" + esc(dez(v)) + "</td>"; }).join("")
+    + '</tr><tr><th>y</th>' + ys.map(function(v){ return "<td>" + esc(dez(v)) + "</td>"; }).join("") + "</tr></table>";
+}
+function teilerVon(G, min, max){
+  var t = [];
+  for (var d = min; d <= max; d++) if (G % d === 0) t.push(d);
+  return t;
+}
+function zweiAus(liste){
+  var a = waehle(liste), b;
+  do { b = waehle(liste); } while (b === a);
+  return [a, b];
+}
+
+/* --- Diagramm im ersten Quadranten --------------------------------------
+   Anders als graphSvg: Achsen mit Namen, Gitter im Takt der Aufgabe, Punkte
+   ohne Linie möglich. klein: für Antwortmöglichkeiten, ohne Zahlen. */
+var diaZaehler = 0;
+function diagramm(opt){
+  var klein = !!opt.klein;
+  var B = klein ? 200 : 420, H = klein ? 150 : 300;
+  var L = klein ? 18 : 48, R = 12, O = klein ? 12 : 30, U = klein ? 18 : 40;
+  var xmax = opt.xmax, ymax = opt.ymax;
+  function px(x){ return L + x / xmax * (B - L - R); }
+  function py(y){ return H - U - y / ymax * (H - U - O); }
+  var t = [];
+  if (!klein){
+    var sx = opt.sx, sy = opt.sy;
+    for (var gx = sx; gx <= xmax + 1e-9; gx += sx){
+      t.push('<line x1="' + px(gx) + '" y1="' + py(0) + '" x2="' + px(gx) + '" y2="' + py(ymax) + '" stroke="var(--linie)" stroke-width="1"/>');
+      t.push('<text x="' + px(gx) + '" y="' + (py(0) + 16) + '" text-anchor="middle" font-size="12" fill="var(--text-leise)">' + dez(gx) + "</text>");
+    }
+    for (var gy = sy; gy <= ymax + 1e-9; gy += sy){
+      t.push('<line x1="' + px(0) + '" y1="' + py(gy) + '" x2="' + px(xmax) + '" y2="' + py(gy) + '" stroke="var(--linie)" stroke-width="1"/>');
+      t.push('<text x="' + (px(0) - 6) + '" y="' + (py(gy) + 4) + '" text-anchor="end" font-size="12" fill="var(--text-leise)">' + dez(gy) + "</text>");
+    }
+    t.push('<text x="' + (px(0) - 6) + '" y="' + (py(0) + 16) + '" text-anchor="end" font-size="12" fill="var(--text-leise)">0</text>');
+  }
+  /* Achsen mit Pfeil */
+  t.push('<line x1="' + px(0) + '" y1="' + py(0) + '" x2="' + (px(xmax) + 8) + '" y2="' + py(0) + '" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  t.push('<line x1="' + px(0) + '" y1="' + py(0) + '" x2="' + px(0) + '" y2="' + (py(ymax) - 8) + '" stroke="var(--text-leise)" stroke-width="1.6"/>');
+  t.push('<path d="M' + (px(xmax) + 8) + " " + (py(0) - 4) + "L" + (px(xmax) + 14) + " " + py(0) + "L" + (px(xmax) + 8) + " " + (py(0) + 4) + 'Z" fill="var(--text-leise)"/>');
+  t.push('<path d="M' + (px(0) - 4) + " " + (py(ymax) - 8) + "L" + px(0) + " " + (py(ymax) - 14) + "L" + (px(0) + 4) + " " + (py(ymax) - 8) + 'Z" fill="var(--text-leise)"/>');
+  var fs = klein ? 10 : 13;
+  if (opt.xname) t.push('<text x="' + (B - R) + '" y="' + (H - (klein ? 3 : 8)) + '" text-anchor="end" font-size="' + fs + '" font-weight="600" fill="var(--text-leise)">' + esc(opt.xname) + "</text>");
+  if (opt.yname) t.push('<text x="' + (px(0) + 6) + '" y="' + (klein ? 10 : 16) + '" font-size="' + fs + '" font-weight="600" fill="var(--text-leise)">' + esc(opt.yname) + "</text>");
+
+  if (opt.linien){
+    var pts = opt.linien.map(function(p){ return px(p[0]).toFixed(1) + "," + py(p[1]).toFixed(1); }).join(" ");
+    t.push('<polyline points="' + pts + '" fill="none" stroke="var(--akzent)" stroke-width="' + (klein ? 2.4 : 2.8) + '" stroke-linejoin="round" stroke-linecap="round"/>');
+  }
+  (opt.punkte || []).forEach(function(p){
+    t.push('<circle cx="' + px(p[0]) + '" cy="' + py(p[1]) + '" r="' + (klein ? 3.5 : 4.5) + '" fill="var(--rot)"/>');
+  });
+  var name = "dia" + (++diaZaehler);
+  return '<svg class="bild' + (klein ? " klein" : "") + '" viewBox="0 0 ' + B + " " + H + '" role="img" aria-label="'
+    + esc(opt.alt || "Diagramm") + '" id="' + name + '">' + t.join("") + "</svg>";
+}
+
+/* ==========================================================================
+   3c — Die Aufgaben dieses Trainers (10b, KA 2 Kreise und Körper)
+   --------------------------------------------------------------------------
+   Elf Themen, je Thema eine Liste G_<NAME> von Generatoren. Gehalten wurden
+   bis zur Arbeit: Kreiszahl mit U = πd und A = πr² (Erstkontakt, nichts aus
+   Jahrgang 8 vorausgesetzt), Sektor und Bogen, Bogenmaß, Netze und
+   Schrägbilder (45°, Verkürzung 0,7), Körper herstellen mit Kegelnetz,
+   Zylinder-Volumen mit V = G · h, Pyramide mit Faktor ⅓, laut Plan Kegel und
+   vermischte Körperberechnungen.
+
+   Die Arbeit ist beim Bau dieses Trainers noch nicht geschrieben. Alle
+   Kontexte sind frei erfunden und in bau-ka2-10b/trainer_muster.json unter
+   „trainer_kontexte“ festgehalten — beim Bau der Arbeit dagegen prüfen.
+   ========================================================================== */
+
+var PI = Math.PI;
+function r1(x){ return Math.round(x * 10) / 10; }
+function r2(x){ return Math.round(x * 100) / 100; }
+var RUNDE = " Runde auf eine Stelle nach dem Komma.";
+var RUNDE2 = " Runde auf zwei Stellen nach dem Komma.";
+
+/* Feld für Ergebnisse mit π.
+   WARUM die Toleranz von 0,6 %: Wer mit 3,14 rechnet oder ein
+   Zwischenergebnis rundet, hat das Verfahren richtig und soll nicht an der
+   letzten Stelle scheitern. Die typischen Fehler — d statt r (Faktor 4),
+   Umfang statt Bogen, das vergessene Drittel — liegen weit außerhalb. */
+function piFeld(label, gerundet, einheit){
+  return { label: label, soll: gerundet, einheit: einheit, toleranz: Math.max(0.06, Math.abs(gerundet) * 0.006) };
+}
+function piFeld2(label, gerundet, einheit){
+  return { label: label, soll: gerundet, einheit: einheit, toleranz: Math.max(0.006, Math.abs(gerundet) * 0.006) };
+}
+function einFeld(f){ return felder([f]); }
+function fl(x, e){ return dez(x) + "&nbsp;" + e; }
+function ca(x, e){ return "≈ " + fl(x, e); }
+
+/* Pythagoras-Tripel für Seitenhöhe, Mantellinie, Körperhöhe: ganze Zahlen,
+   damit die Rechnung nicht an einer Wurzel hängen bleibt. [a, b, c] mit
+   a² + b² = c². */
+var TRIPEL = [[3,4,5],[4,3,5],[6,8,10],[8,6,10],[5,12,13],[12,5,13],[9,12,15],[12,9,15],[8,15,17],[15,8,17],[12,16,20],[16,12,20],[7,24,25],[20,15,25],[15,20,25]];
+
+/* --- Skizzen -------------------------------------------------------------
+   Gezeichnet mit den Farbmarken der Seite, damit sie auch dunkel stimmen.
+   Verdeckte Kanten gestrichelt, wie im Schrägbild an der Wand. */
+var SK_LINIE = 'stroke="var(--text-leise)" stroke-width="2" fill="none"';
+var SK_VERDECKT = 'stroke="var(--text-schwach)" stroke-width="1.6" stroke-dasharray="5 4" fill="none"';
+var SK_MASS = 'stroke="var(--akzent)" stroke-width="2.2" fill="none"';
+function skText(x, y, t, anker){
+  return '<text x="' + x + '" y="' + y + '" font-size="15" font-weight="600" fill="var(--akzent-tief)" text-anchor="' + (anker || "middle") + '">' + t + "</text>";
+}
+function skSvg(b, h, inhalt, alt){
+  return '<svg class="bild" viewBox="0 0 ' + b + " " + h + '" role="img" aria-label="' + esc(alt) + '" style="max-width:300px">' + inhalt + "</svg>";
+}
+function skZylinder(lr, lh){
+  var t = [];
+  t.push('<ellipse cx="130" cy="40" rx="70" ry="18" fill="var(--akzent-hell)" ' + SK_LINIE + '/>');
+  t.push('<line x1="60" y1="40" x2="60" y2="180" ' + SK_LINIE + '/><line x1="200" y1="40" x2="200" y2="180" ' + SK_LINIE + '/>');
+  t.push('<path d="M60 180 A70 18 0 0 0 200 180" ' + SK_LINIE + '/>');
+  t.push('<path d="M60 180 A70 18 0 0 1 200 180" ' + SK_VERDECKT + '/>');
+  if (lr){ t.push('<line x1="130" y1="180" x2="200" y2="180" ' + SK_MASS + '/><circle cx="130" cy="180" r="3" fill="var(--akzent)"/>'); t.push(skText(165, 218, lr)); }
+  if (lh){ t.push('<line x1="215" y1="40" x2="215" y2="180" ' + SK_MASS + '/>'); t.push(skText(222, 115, lh, "start")); }
+  return skSvg(300, 226, t.join(""), "Zylinder");
+}
+function skKegel(lr, lh, ls){
+  var t = [];
+  t.push('<path d="M55 180 L130 30 L205 180" fill="var(--akzent-hell)" ' + SK_LINIE + '/>');
+  t.push('<path d="M55 180 A75 18 0 0 0 205 180" fill="var(--akzent-hell)" ' + SK_LINIE + '/>');
+  t.push('<path d="M55 180 A75 18 0 0 1 205 180" ' + SK_VERDECKT + '/>');
+  if (lh){ t.push('<line x1="130" y1="30" x2="130" y2="180" ' + SK_VERDECKT + '/>'); t.push(skText(84, 112, lh, "end")); }
+  if (lr){ t.push('<line x1="130" y1="180" x2="205" y2="180" ' + SK_MASS + '/><circle cx="130" cy="180" r="3" fill="var(--akzent)"/>'); t.push(skText(168, 216, lr)); }
+  if (ls){ t.push('<line x1="130" y1="30" x2="205" y2="180" ' + SK_MASS + '/>'); t.push(skText(176, 98, ls, "start")); }
+  return skSvg(300, 224, t.join(""), "Kegel");
+}
+function skPyramide(la, lh, lhs){
+  var t = [];
+  t.push('<path d="M50 190 L170 190 L220 150 L135 35 Z M50 190 L135 35 M170 190 L135 35" fill="var(--akzent-hell)" ' + SK_LINIE + '/>');
+  t.push('<path d="M50 190 L100 150 L220 150 M100 150 L135 35" ' + SK_VERDECKT + '/>');
+  /* Auf der Zeichnung nur die Buchstaben (sonst kreuzen die Texte die
+     Kanten), die Maße stehen als Zeile darunter. */
+  function buchstabe(l){ return String(l).split(" = ")[0]; }
+  if (lh){ t.push('<line x1="135" y1="35" x2="135" y2="170" ' + SK_VERDECKT + '/><circle cx="135" cy="170" r="3" fill="var(--text-schwach)"/>'); t.push(skText(140, 153, buchstabe(lh), "start")); }
+  if (lhs){ t.push('<line x1="135" y1="35" x2="110" y2="190" ' + SK_MASS + '/>'); t.push(skText(106, 142, buchstabe(lhs), "end")); }
+  if (la){ t.push(skText(110, 207, buchstabe(la))); }
+  t.push('<text x="150" y="234" font-size="14" fill="var(--text)" text-anchor="middle">' + [la, lh, lhs].filter(Boolean).join(" \u00a0·\u00a0 ") + "</text>");
+  return skSvg(300, 242, t.join(""), "quadratische Pyramide");
+}
+function skSektor(lr, alpha){
+  var cx = 130, cy = 115, R = 85, a = alpha * PI / 180;
+  var x1 = cx + R, y1 = cy, x2 = cx + R * Math.cos(a), y2 = cy - R * Math.sin(a);
+  var gross = alpha > 180 ? 1 : 0;
+  var t = [];
+  t.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" ' + SK_VERDECKT + '/>');
+  t.push('<path d="M' + cx + " " + cy + " L" + x1 + " " + y1 + " A" + R + " " + R + " 0 " + gross + " 0 " + x2.toFixed(1) + " " + y2.toFixed(1) + ' Z" fill="var(--akzent-hell)" ' + SK_LINIE + '/>');
+  t.push('<path d="M' + x1 + " " + y1 + " A" + R + " " + R + " 0 " + gross + " 0 " + x2.toFixed(1) + " " + y2.toFixed(1) + '" ' + SK_MASS + ' stroke-width="3.2"/>');
+  var m = a / 2;
+  t.push(skText((cx + 30 * Math.cos(m)).toFixed(1), (cy - 30 * Math.sin(m) + 5).toFixed(1), alpha + "°"));
+  t.push(skText(cx + R / 2, cy + 20, lr));
+  return skSvg(270, 230, t.join(""), "Kreisausschnitt mit Mittelpunktswinkel " + alpha + " Grad");
+}
+
+/* --- Netze ---------------------------------------------------------------
+   Sieben Netzarten, jede eindeutig anders gezeichnet. */
+var NETZ_STIL = 'fill="var(--akzent-hell)" stroke="var(--text-leise)" stroke-width="1.8"';
+function netzSvg(art, klein){
+  var t = [];
+  function re(x, y, b, h){ t.push('<rect x="' + x + '" y="' + y + '" width="' + b + '" height="' + h + '" ' + NETZ_STIL + '/>'); }
+  function kr(x, y, r){ t.push('<circle cx="' + x + '" cy="' + y + '" r="' + r + '" ' + NETZ_STIL + '/>'); }
+  function po(p){ t.push('<polygon points="' + p + '" ' + NETZ_STIL + '/>'); }
+  if (art === "zylinder"){ re(40, 70, 140, 60); kr(110, 48, 22); kr(110, 152, 22); }
+  else if (art === "kegel"){
+    /* Sektor mit 216° (r : s = 42 : 70 = 3 : 5), Grundkreis an den Bogen gelegt */
+    var cx = 110, cy = 25, s = 70, a0 = (90 - 108) * PI / 180, a1 = (90 + 108) * PI / 180;
+    var x0 = cx + s * Math.cos(a0), y0 = cy + s * Math.sin(a0), x1 = cx + s * Math.cos(a1), y1 = cy + s * Math.sin(a1);
+    t.push('<path d="M' + cx + " " + cy + " L" + x0.toFixed(1) + " " + y0.toFixed(1) + " A" + s + " " + s + " 0 1 1 " + x1.toFixed(1) + " " + y1.toFixed(1) + ' Z" ' + NETZ_STIL + '/>');
+    kr(cx, cy + s + 42, 42);
+  }
+  else if (art === "pyramide"){ re(80, 70, 60, 60); po("80,70 140,70 110,20"); po("140,70 140,130 190,100"); po("80,130 140,130 110,180"); po("80,70 80,130 30,100"); }
+  else if (art === "wuerfel"){ re(85, 20, 40, 40); re(45, 60, 40, 40); re(85, 60, 40, 40); re(125, 60, 40, 40); re(165, 60, 40, 40); re(85, 100, 40, 40); }
+  else if (art === "quader"){ re(70, 20, 70, 30); re(40, 50, 30, 80); re(70, 50, 70, 80); re(140, 50, 30, 80); re(170, 50, 70, 80); re(70, 130, 70, 30); }
+  else if (art === "prisma"){ re(30, 70, 50, 70); re(80, 70, 50, 70); re(130, 70, 50, 70); po("80,70 130,70 105,27"); po("80,140 130,140 105,183"); }
+  else if (art === "tetraeder"){ po("30,180 190,180 110,41"); t.push('<polyline points="70,110.5 150,110.5 110,180 70,110.5" fill="none" stroke="var(--text-leise)" stroke-width="1.8"/>'); }
+  return '<svg class="bild' + (klein ? " klein" : "") + '" viewBox="0 0 250 200" role="img" aria-label="Netz" style="max-width:' + (klein ? 200 : 280) + 'px">' + t.join("") + "</svg>";
+}
+var NETZ_NAME = { zylinder: "Zylinder", kegel: "Kegel", pyramide: "quadratische Pyramide", wuerfel: "Würfel",
+                  quader: "Quader", prisma: "Dreiecksprisma", tetraeder: "dreiseitige Pyramide" };
+var NETZ_ERKENNEN = {
+  zylinder: "Zwei gleiche Kreise und ein Rechteck. Das Rechteck wird zum Mantel gerollt.",
+  kegel: "Ein Kreisausschnitt und ein Kreis. Der Ausschnitt wird zur Spitze gerollt.",
+  pyramide: "Ein Quadrat und vier gleiche Dreiecke, die sich oben in einer Spitze treffen.",
+  wuerfel: "Sechs gleich große Quadrate.",
+  quader: "Sechs Rechtecke, je zwei gleich groß.",
+  prisma: "Drei Rechtecke nebeneinander und zwei gleiche Dreiecke als Deckel.",
+  tetraeder: "Vier Dreiecke, die zu einer Spitze zusammengeklappt werden."
+};
+
+/* ==========================================================================
+   THEMA EINHEITEN — Flächen- und Raumeinheiten (Gruppe „werkzeug“)
+   Jede Körperaufgabe endet mit einer Einheit; das Volumen wird oft in Litern
+   gefragt. Belegt: 01.10., Sporthallentür in cm² statt m².
+   ========================================================================== */
+/* Ganze Zahlen hin und her: Wert = m · 10^k, Ergebnis über Zehnerpotenzen,
+   damit kein Gleitkommarest entsteht. */
+function zehnerMal(m, k){
+  /* m ganz oder mit höchstens einer Nachkommastelle, k ganz */
+  var zehntel = Math.round(m * 10), e = k - 1;
+  var x = zehntel * Math.pow(10, Math.max(0, e)) / Math.pow(10, Math.max(0, -e));
+  return Number(x.toPrecision(12));
+}
+var G_EINH = [
+  function(){
+    /* Flächen: m², dm², cm² */
+    var faelle = [
+      { von: "m²", nach: "cm²", k: 4, schritt: "1 m² = 100 dm² = 10 000 cm²", f: "10 000" },
+      { von: "dm²", nach: "cm²", k: 2, schritt: "1 dm² = 100 cm²", f: "100" },
+      { von: "cm²", nach: "m²", k: -4, schritt: "10 000 cm² = 1 m²", f: "10 000" },
+      { von: "cm²", nach: "dm²", k: -2, schritt: "100 cm² = 1 dm²", f: "100" },
+      { von: "m²", nach: "dm²", k: 2, schritt: "1 m² = 100 dm²", f: "100" }
+    ];
+    var q = waehle(faelle);
+    var m = q.k > 0 ? waehle([0.5, 1.2, 2.5, 3, 0.8, 4.6, 1.5]) : waehle([350, 1200, 4500, 800, 25000, 60, 1750]);
+    var soll = zehnerMal(m, q.k);
+    var falsch = zehnerMal(m, q.k > 0 ? q.k / 2 : q.k / 2);
+    return {
+      frage: "Rechne um: " + fl(m, q.von) + " = ? " + q.nach,
+      eingabe: einFeld({ label: "Ergebnis:", soll: soll, einheit: q.nach }),
+      hinweis: "Bei Flächen ist der Umrechnungsfaktor zwischen benachbarten Einheiten 100, nicht 10 — eine Fläche hat zwei Richtungen.",
+      schritte: [
+        S("Umrechnungsfaktor", q.schritt),
+        S(q.k > 0 ? "In die kleinere Einheit: mehr Stück, also mal " + q.f : "In die größere Einheit: weniger Stück, also durch " + q.f,
+          fl(m, q.von) + " " + (q.k > 0 ? MAL : ":") + " " + q.f + " = " + fl(soll, q.nach)),
+        S("Probe gegen den Faktor-10-Fehler", "mit Faktor 10 je Stufe käme " + fl(falsch, q.nach) + " heraus — das wäre falsch")
+      ],
+      antwort: fl(m, q.von) + " = <strong>" + fl(soll, q.nach) + "</strong>"
+    };
+  },
+  function(){
+    /* Volumen: cm³, dm³, Liter, m³, ml */
+    var faelle = [
+      { von: "cm³", nach: "l", k: -3, schritt: "1000 cm³ = 1 dm³ = 1 Liter", op: ": 1000" },
+      { von: "l", nach: "cm³", k: 3, schritt: "1 Liter = 1 dm³ = 1000 cm³", op: MAL + " 1000" },
+      { von: "m³", nach: "l", k: 3, schritt: "1 m³ = 1000 dm³ = 1000 Liter", op: MAL + " 1000" },
+      { von: "l", nach: "m³", k: -3, schritt: "1000 Liter = 1000 dm³ = 1 m³", op: ": 1000" },
+      { von: "ml", nach: "cm³", k: 0, schritt: "1 ml = 1 cm³", op: "bleibt gleich" },
+      { von: "dm³", nach: "cm³", k: 3, schritt: "1 dm³ = 1000 cm³", op: MAL + " 1000" }
+    ];
+    var q = waehle(faelle);
+    var m = q.k > 0 ? waehle([0.5, 1.2, 2.5, 3, 0.8, 4.6, 1.5, 0.3]) : (q.k === 0 ? waehle([250, 330, 500, 75]) : waehle([350, 1200, 4500, 800, 2500, 750, 1750]));
+    var soll = zehnerMal(m, q.k);
+    return {
+      frage: "Rechne um: " + fl(m, q.von) + " = ? " + (q.nach === "l" ? "Liter" : q.nach),
+      eingabe: einFeld({ label: "Ergebnis:", soll: soll, einheit: q.nach }),
+      hinweis: "Merke die Brücke: 1 Liter = 1 dm³ = 1000 cm³. Bei Volumen ist der Faktor zwischen benachbarten Einheiten 1000.",
+      schritte: [
+        S("Die Brücke", q.schritt),
+        S("Umrechnen", fl(m, q.von) + " " + q.op + (q.k === 0 ? "" : " = " + fl(soll, q.nach)))
+      ],
+      antwort: fl(m, q.von) + " = <strong>" + fl(soll, q.nach === "l" ? "Liter" : q.nach) + "</strong>"
+    };
+  },
+  function(){
+    var art = waehle(["flaeche", "volumen"]);
+    var richtig, vorrat, frage, erkl;
+    if (art === "flaeche"){
+      var e = waehle([["m²", "cm²", "10 000", ["100", "1000", "100 000", "10"]], ["dm²", "cm²", "100", ["10", "1000", "10 000", "1"]], ["m²", "dm²", "100", ["10", "1000", "10 000", "1"]]]);
+      frage = "1 " + e[0] + " sind wie viele " + e[1] + "?"; richtig = e[2] + " " + e[1]; vorrat = e[3].map(function(z){ return z + " " + e[1]; });
+      erkl = "Ein Quadrat mit 1 " + e[0].charAt(0) + e[0].charAt(1).replace("²", "") + " Seitenlänge: Auf jede Seite passen " + (e[2] === "10 000" ? "100" : "10") + " der kleinen Längen, also " + (e[2] === "10 000" ? "100 " + MAL + " 100" : "10 " + MAL + " 10") + " Quadrate.";
+    } else {
+      var v = waehle([["dm³", "cm³", "1000", ["100", "10", "10 000", "1"]], ["m³", "Liter", "1000", ["100", "10", "1", "10 000"]], ["Liter", "cm³", "1000", ["100", "10", "1", "10 000"]]]);
+      frage = "1 " + v[0] + " sind wie viele " + v[1] + "?"; richtig = v[2] + " " + v[1]; vorrat = v[3].map(function(z){ return z + " " + v[1]; });
+      erkl = "Ein Würfel: In jede der drei Richtungen passen 10 der kleineren Längen, also 10 " + MAL + " 10 " + MAL + " 10 = 1000 kleine Würfel.";
+    }
+    return {
+      frage: frage,
+      eingabe: wahlAus(richtig, vorrat),
+      hinweis: "Zähle die Richtungen: Eine Fläche hat zwei, ein Körper drei. Je Richtung kommt der Faktor 10 dazu.",
+      schritte: [
+        S("Wie viele Richtungen?", art === "flaeche" ? "Fläche: zwei Richtungen" : "Volumen: drei Richtungen"),
+        S("Auslegen", erkl)
+      ],
+      antwort: frage.replace(/ sind wie viele .*$/, "") + " = <strong>" + richtig + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA UMSTELLEN — Formeln umstellen und Pythagoras im Körper
+   (Gruppe „werkzeug“). Rückwärtsaufgaben (Höhe aus dem Volumen, Körperhöhe
+   aus der Seitenhöhe) tragen die anspruchsvolleren Teile der Arbeit.
+   ========================================================================== */
+var G_UMST = [
+  function(){
+    /* Körperhöhe der Pyramide aus Seitenhöhe und Kante */
+    var tr = waehle(TRIPEL), halb = tr[0], h = tr[1], hs = tr[2], a = 2 * halb;
+    return {
+      frage: "Eine quadratische Pyramide hat die Grundkante a = " + fl(a, "cm") + " und die Seitenhöhe h<sub>s</sub> = " + fl(hs, "cm") + ". Wie hoch ist die Pyramide?",
+      bild: skPyramide("a = " + a + " cm", "h = ?", "hₛ = " + hs + " cm"),
+      eingabe: zahlFeld("Körperhöhe h =", h, { einheit: "cm" }),
+      hinweis: "Im Inneren steht ein rechtwinkliges Dreieck: Körperhöhe h, die halbe Grundkante a/2 und die Seitenhöhe h<sub>s</sub> als längste Seite.",
+      schritte: [
+        S("Rechtwinkliges Dreieck: h<sub>s</sub> ist die Hypotenuse", "h² + (a/2)² = h<sub>s</sub>²"),
+        S("Halbe Grundkante", "a/2 = " + a + " : 2 = " + halb + " cm"),
+        S("Nach h umstellen", "h² = " + hs + "² " + MINUS + " " + halb + "² = " + (hs * hs) + " " + MINUS + " " + (halb * halb) + " = " + (h * h)),
+        S("Wurzel ziehen", "h = " + wurzelHtml(h * h) + " = " + h + " cm")
+      ],
+      antwort: "Die Pyramide ist <strong>" + fl(h, "cm") + "</strong> hoch."
+    };
+  },
+  function(){
+    /* Radius des Kegels aus Mantellinie und Höhe */
+    var tr = waehle(TRIPEL), r = tr[0], h = tr[1], s = tr[2];
+    return {
+      frage: "Ein Kegel hat die Höhe h = " + fl(h, "cm") + " und die Mantellinie s = " + fl(s, "cm") + ". Wie groß ist der Radius der Grundfläche?",
+      bild: skKegel("r = ?", "h = " + h + " cm", "s = " + s + " cm"),
+      eingabe: zahlFeld("Radius r =", r, { einheit: "cm" }),
+      hinweis: "Höhe, Radius und Mantellinie bilden ein rechtwinkliges Dreieck. Die Mantellinie s liegt dem rechten Winkel gegenüber.",
+      schritte: [
+        S("Rechtwinkliges Dreieck", "r² + h² = s²"),
+        S("Nach r² umstellen", "r² = " + s + "² " + MINUS + " " + h + "² = " + (s * s) + " " + MINUS + " " + (h * h) + " = " + (r * r)),
+        S("Wurzel ziehen", "r = " + wurzelHtml(r * r) + " = " + r + " cm")
+      ],
+      antwort: "Der Radius ist <strong>" + fl(r, "cm") + "</strong>."
+    };
+  },
+  function(){
+    /* Höhe der Pyramide aus Volumen */
+    var a = waehle([3, 4, 5, 6, 8, 9, 10, 12]), h = rnd(2, 15);
+    var V = a * a * h / 3;
+    if (!Number.isInteger(V)){ h = 3 * rnd(1, 5); V = a * a * h / 3; }
+    return {
+      frage: "Eine quadratische Pyramide hat die Grundkante a = " + fl(a, "cm") + " und das Volumen V = " + fl(V, "cm³") + ". Wie hoch ist sie?",
+      eingabe: zahlFeld("Höhe h =", h, { einheit: "cm" }),
+      hinweis: "Setze in V = ⅓ " + MAL + " G " + MAL + " h ein, was du weißt. Dann löse rückwärts: erst mal 3, dann durch G.",
+      schritte: [
+        S("Grundfläche", "G = a² = " + a + "² = " + (a * a) + " cm²"),
+        S("Formel mit Zahlen", fl(V, "cm³") + " = ⅓ " + MAL + " " + (a * a) + " " + MAL + " h"),
+        S("Mal 3", (3 * V) + " = " + (a * a) + " " + MAL + " h"),
+        S("Durch G", "h = " + (3 * V) + " : " + (a * a) + " = " + h + " cm")
+      ],
+      antwort: "Die Pyramide ist <strong>" + fl(h, "cm") + "</strong> hoch."
+    };
+  },
+  function(){
+    /* Höhe des Kegels aus dem Volumen */
+    var r = rnd(2, 9), V = waehle([100, 150, 200, 250, 300, 400, 500, 600, 800, 1000]);
+    var G = PI * r * r, h = r1(3 * V / G);
+    return {
+      frage: "Ein Kegel hat den Radius r = " + fl(r, "cm") + " und das Volumen V = " + fl(V, "cm³") + ". Wie hoch ist er?" + RUNDE,
+      eingabe: einFeld(piFeld("Höhe h ≈", h, "cm")),
+      hinweis: "Stelle V = ⅓ " + MAL + " π " + MAL + " r² " + MAL + " h nach h um: h = 3 " + MAL + " V : (π " + MAL + " r²).",
+      schritte: [
+        S("Grundfläche", "G = π " + MAL + " " + r + "² ≈ " + fl(r2(G), "cm²")),
+        S("Umstellen", "h = 3 " + MAL + " V : G"),
+        S("Einsetzen", "h = 3 " + MAL + " " + V + " : " + dez(r2(G)) + " " + ca(h, "cm"))
+      ],
+      antwort: "Der Kegel ist etwa <strong>" + fl(h, "cm") + "</strong> hoch."
+    };
+  },
+  function(){
+    /* Radius des Zylinders aus der Mantelfläche */
+    var h = rnd(4, 20), M = waehle([100, 120, 150, 200, 250, 300, 360, 400, 500]);
+    var r = r1(M / (2 * PI * h));
+    return {
+      frage: "Ein Zylinder ist " + fl(h, "cm") + " hoch und hat die Mantelfläche M = " + fl(M, "cm²") + ". Wie groß ist sein Radius?" + RUNDE,
+      eingabe: einFeld(piFeld("Radius r ≈", r, "cm")),
+      hinweis: "Der Mantel ist ein Rechteck: Breite 2 " + MAL + " π " + MAL + " r, Höhe h. Teile M erst durch h, dann durch 2π.",
+      schritte: [
+        S("Formel", "M = 2 " + MAL + " π " + MAL + " r " + MAL + " h"),
+        S("Durch h: die Breite des Rechtecks", M + " : " + h + " ≈ " + fl(r2(M / h), "cm") + " = 2πr"),
+        S("Durch 2π", "r ≈ " + dez(r2(M / h)) + " : " + dez(r2(2 * PI)) + " " + ca(r, "cm"))
+      ],
+      antwort: "Der Radius ist etwa <strong>" + fl(r, "cm") + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA KREIS — Umfang und Flächeninhalt, auch rückwärts (Gruppe „klausur“)
+   Grundlage jeder Körperformel: Der Kreis ist Grundfläche von Zylinder und
+   Kegel. In der 10b Erstkontakt am 29.09. — keine Formel aus Jahrgang 8.
+   ========================================================================== */
+var G_KREIS = [
+  function(){
+    var mitD = Math.random() < 0.5, r = rnd(2, 15), d = 2 * r;
+    var U = r1(PI * d);
+    return {
+      frage: "Ein Kreis hat " + (mitD ? "den Durchmesser d = " + fl(d, "cm") : "den Radius r = " + fl(r, "cm")) + ". Berechne den Umfang." + RUNDE,
+      eingabe: einFeld(piFeld("U ≈", U, "cm")),
+      hinweis: "U = π " + MAL + " d. " + (mitD ? "Der Durchmesser ist schon gegeben." : "Gegeben ist der Radius — der Durchmesser ist doppelt so lang."),
+      schritte: [
+        S("Formel", "U = π " + MAL + " d = 2 " + MAL + " π " + MAL + " r"),
+        S(mitD ? "Durchmesser einsetzen" : "Erst der Durchmesser", mitD ? "d = " + d + " cm" : "d = 2 " + MAL + " " + r + " cm = " + d + " cm"),
+        S("Ausrechnen", "U = π " + MAL + " " + d + " " + ca(U, "cm"))
+      ],
+      antwort: "Der Umfang ist etwa <strong>" + fl(U, "cm") + "</strong>."
+    };
+  },
+  function(){
+    var mitD = Math.random() < 0.6, r = rnd(2, 12) + (Math.random() < 0.3 ? 0.5 : 0), d = 2 * r;
+    var A = r1(PI * r * r);
+    return {
+      frage: "Ein Kreis hat " + (mitD ? "den Durchmesser d = " + fl(d, "cm") : "den Radius r = " + fl(r, "cm")) + ". Berechne den Flächeninhalt." + RUNDE,
+      eingabe: einFeld(piFeld("A ≈", A, "cm²")),
+      hinweis: "A = π " + MAL + " r². Quadriert wird der Radius" + (mitD ? " — halbiere zuerst den Durchmesser." : "."),
+      schritte: [
+        S("Formel", "A = π " + MAL + " r²"),
+        S("Radius", mitD ? "r = " + dez(d) + " cm : 2 = " + dez(r) + " cm" : "r = " + dez(r) + " cm"),
+        S("Erst quadrieren, dann mal π", "A = π " + MAL + " " + dez(r) + "² = π " + MAL + " " + dez(r * r) + " " + ca(A, "cm²"))
+      ],
+      antwort: "Der Flächeninhalt ist etwa <strong>" + fl(A, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var U = rnd(150, 950) / 10;
+    var d = r1(U / PI), r = r1(U / (2 * PI));
+    return {
+      frage: "Ein kreisrundes Beet hat einen Umfang von " + fl(U, "m") + ". Wie groß ist sein Radius?" + RUNDE,
+      eingabe: einFeld(piFeld("r ≈", r, "m")),
+      hinweis: "Rechne rückwärts: Aus U = π " + MAL + " d folgt d = U : π. Der Radius ist die Hälfte davon.",
+      schritte: [
+        S("Formel umstellen", "U = π " + MAL + " d &nbsp;⟹&nbsp; d = U : π"),
+        S("Durchmesser", "d = " + dez(U) + " : π " + ca(r2(U / PI), "m")),
+        S("Halbieren", "r = d : 2 " + ca(r, "m"))
+      ],
+      antwort: "Der Radius ist etwa <strong>" + fl(r, "m") + "</strong>."
+    };
+  },
+  function(){
+    var A = waehle([20, 50, 80, 100, 150, 200, 250, 300, 400, 500, 750, 1000]);
+    var r = r1(Math.sqrt(A / PI));
+    return {
+      frage: "Ein Kreis hat den Flächeninhalt A = " + fl(A, "cm²") + ". Wie groß ist sein Radius?" + RUNDE,
+      eingabe: einFeld(piFeld("r ≈", r, "cm")),
+      hinweis: "Rückwärts: A = π " + MAL + " r². Teile erst durch π, dann ziehe die Wurzel.",
+      schritte: [
+        S("Durch π", "r² = " + A + " : π " + ca(r2(A / PI), "cm²")),
+        S("Wurzel ziehen", "r = " + wurzelHtml(dez(r2(A / PI))) + " " + ca(r, "cm"))
+      ],
+      antwort: "Der Radius ist etwa <strong>" + fl(r, "cm") + "</strong>."
+    };
+  },
+  function(){
+    var r = rnd(2, 9), d = 2 * r;
+    var richtig = "π " + MAL + " " + r + "²";
+    return {
+      frage: "Ein Kreis hat den Durchmesser " + fl(d, "cm") + ". Welche Rechnung liefert seinen Flächeninhalt?",
+      eingabe: wahlAus(richtig, ["π " + MAL + " " + d + "²", "π " + MAL + " " + d, "2 " + MAL + " π " + MAL + " " + r, "π " + MAL + " " + d + " : 2", "π² " + MAL + " " + r]),
+      hinweis: "In der Flächenformel steht der Radius, nicht der Durchmesser — und er wird quadriert.",
+      schritte: [
+        S("Radius aus dem Durchmesser", "r = " + d + " cm : 2 = " + r + " cm"),
+        S("In A = π · r² einsetzen", "A = π " + MAL + " " + r + "²"),
+        S("Die anderen Rechnungen", "π " + MAL + " " + d + " und 2 " + MAL + " π " + MAL + " " + r + " sind der Umfang, π " + MAL + " " + d + "² ist viermal zu groß")
+      ],
+      antwort: "Richtig ist <strong>" + richtig + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA SEKTOR — Kreisausschnitt: Bogen und Fläche (Gruppe „klausur“)
+   Der Kegelmantel ist ein Kreisausschnitt. Belegter Stolperstein der Reihe:
+   „Umfang statt Bogen“ (06.10.: 11 von 20, 27.10.: 18 von 26).
+   ========================================================================== */
+var WINKEL_SEKTOR = [30, 40, 45, 60, 72, 80, 90, 100, 120, 135, 150, 160, 200, 210, 225, 240, 270, 300];
+var G_SEKTOR = [
+  function(){
+    var a = waehle(WINKEL_SEKTOR), r = rnd(3, 15);
+    var U = 2 * PI * r, b = r1(a / 360 * U);
+    return {
+      frage: "Ein Kreisausschnitt hat den Radius r = " + fl(r, "cm") + " und den Mittelpunktswinkel α = " + a + "°. Wie lang ist sein Bogen?" + RUNDE,
+      bild: skSektor("r = " + r + " cm", a),
+      eingabe: einFeld(piFeld("b ≈", b, "cm")),
+      hinweis: "Der Bogen ist nur ein Teil des ganzen Umfangs — der Anteil ist α : 360°.",
+      schritte: [
+        S("Ganzer Umfang", "U = 2 " + MAL + " π " + MAL + " " + r + " " + ca(r2(U), "cm")),
+        S("Anteil des Ausschnitts", bruchHtml(a, 360) + (ggt(a, 360) > 1 ? " = " + bruchHtml(a / ggt(a, 360), 360 / ggt(a, 360)) : "")),
+        S("Bogen", "b = " + bruchHtml(a, 360) + " " + MAL + " 2 " + MAL + " π " + MAL + " " + r + " " + ca(b, "cm"))
+      ],
+      antwort: "Der Bogen ist etwa <strong>" + fl(b, "cm") + "</strong> lang."
+    };
+  },
+  function(){
+    var a = waehle(WINKEL_SEKTOR), r = rnd(3, 12);
+    var A = r1(a / 360 * PI * r * r);
+    return {
+      frage: "Berechne den Flächeninhalt eines Kreisausschnitts mit r = " + fl(r, "cm") + " und α = " + a + "°." + RUNDE,
+      bild: skSektor("r = " + r + " cm", a),
+      eingabe: einFeld(piFeld("A ≈", A, "cm²")),
+      hinweis: "Erst die ganze Kreisfläche π " + MAL + " r², dann der Anteil α : 360°.",
+      schritte: [
+        S("Ganze Kreisfläche", "π " + MAL + " " + r + "² " + ca(r2(PI * r * r), "cm²")),
+        S("Anteil", bruchHtml(a, 360)),
+        S("Ausschnitt", "A = " + bruchHtml(a, 360) + " " + MAL + " π " + MAL + " " + r + "² " + ca(A, "cm²"))
+      ],
+      antwort: "Der Ausschnitt hat etwa <strong>" + fl(A, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var a = waehle([45, 60, 90, 120, 135, 150, 240, 270]), r = rnd(3, 12);
+    var b = r1(a / 360 * 2 * PI * r);
+    var richtig = fl(b, "cm");
+    return {
+      frage: "Ein " + (a === 90 ? "Viertelkreis" : (a === 270 ? "Dreiviertelkreis" : "Kreisausschnitt mit α = " + a + "°")) + " hat den Radius " + fl(r, "cm") + ". Wie lang ist sein Bogen?",
+      eingabe: wahlAus(richtig, [fl(r1(2 * PI * r), "cm"), fl(r1(a / 360 * PI * r), "cm"), fl(r1(a / 360 * PI * r * r), "cm"), fl(r1(PI * r), "cm"), fl(r1(a / 180 * 2 * PI * r), "cm")]),
+      hinweis: "Nicht der ganze Umfang ist gefragt. Welcher Bruchteil des Kreises ist das?",
+      schritte: [
+        S("Anteil", a + "° von 360° = " + bruchHtml(a / ggt(a, 360), 360 / ggt(a, 360))),
+        S("Bogen = Anteil mal Umfang", bruchHtml(a / ggt(a, 360), 360 / ggt(a, 360)) + " " + MAL + " 2 " + MAL + " π " + MAL + " " + r + " ≈ " + richtig),
+        S("Typischer Fehler", fl(r1(2 * PI * r), "cm") + " ist der ganze Umfang — der Anteil fehlt")
+      ],
+      antwort: "Der Bogen ist etwa <strong>" + richtig + "</strong> lang."
+    };
+  },
+  function(){
+    var a = waehle([40, 45, 60, 72, 80, 90, 100, 120, 135, 150, 200, 240]), r = rnd(4, 12);
+    var b = r1(a / 360 * 2 * PI * r), U = 2 * PI * r;
+    var soll = Math.round(b / U * 360);
+    return {
+      frage: "Zu einem Kreis mit r = " + fl(r, "cm") + " gehört ein Bogen von " + fl(b, "cm") + ". Wie groß ist der Mittelpunktswinkel?",
+      eingabe: zahlFeld("α ≈", soll, { einheit: "°", toleranz: 1 }),
+      hinweis: "Welcher Bruchteil des ganzen Umfangs ist der Bogen? Derselbe Bruchteil von 360° ist der Winkel.",
+      schritte: [
+        S("Ganzer Umfang", "U = 2 " + MAL + " π " + MAL + " " + r + " " + ca(r2(U), "cm")),
+        S("Anteil des Bogens", dez(b) + " : " + dez(r2(U)) + " ≈ " + dez(Math.round(b / U * 1000) / 1000, 3)),
+        S("Derselbe Anteil von 360°", "α ≈ " + dez(Math.round(b / U * 1000) / 1000, 3) + " " + MAL + " 360° ≈ " + soll + "°")
+      ],
+      antwort: "Der Mittelpunktswinkel ist etwa <strong>" + soll + "°</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA ZYLVOL — Zylinder: Volumen (Gruppe „klausur“)
+   V = G · h, am 10.11. hergeleitet (Schichten am Quader, dann Kreisscheiben).
+   ========================================================================== */
+var G_ZYLVOL = [
+  function(){
+    var r = rnd(2, 10), h = rnd(3, 25);
+    var G = PI * r * r, V = r1(G * h);
+    return {
+      frage: "Ein Zylinder hat den Radius r = " + fl(r, "cm") + " und die Höhe h = " + fl(h, "cm") + ". Berechne sein Volumen." + RUNDE,
+      bild: skZylinder("r = " + r + " cm", "h = " + h + " cm"),
+      eingabe: einFeld(piFeld("V ≈", V, "cm³")),
+      hinweis: "Volumen = Grundfläche mal Höhe. Die Grundfläche ist ein Kreis.",
+      schritte: [
+        S("Grundfläche", "G = π " + MAL + " " + r + "² " + ca(r2(G), "cm²")),
+        S("Mal die Höhe", "V = G " + MAL + " h = π " + MAL + " " + r + "² " + MAL + " " + h + " " + ca(V, "cm³"))
+      ],
+      antwort: "Der Zylinder hat ein Volumen von etwa <strong>" + fl(V, "cm³") + "</strong>."
+    };
+  },
+  function(){
+    var ding = waehle([["Ein zylindrischer Wassertank", 60, 140, 50, 150], ["Eine Regentrommel", 30, 60, 40, 90], ["Ein runder Blumenkübel", 30, 50, 25, 50], ["Ein Aquarium in Zylinderform", 40, 80, 40, 70]]);
+    var d = 2 * rnd(ding[1] / 2, ding[2] / 2), h = rnd(ding[3], ding[4]), r = d / 2;
+    var V = PI * r * r * h, L = r1(V / 1000);
+    return {
+      frage: ding[0] + " hat innen den Durchmesser " + fl(d, "cm") + " und die Höhe " + fl(h, "cm") + ". Wie viele Liter passen hinein?" + RUNDE,
+      eingabe: einFeld(piFeld("V ≈", L, "l")),
+      hinweis: "Zwei Fallen: In die Formel kommt der Radius, nicht der Durchmesser. Und 1 Liter = 1000 cm³.",
+      schritte: [
+        S("Radius", "r = " + d + " cm : 2 = " + r + " cm"),
+        S("Volumen in cm³", "V = π " + MAL + " " + r + "² " + MAL + " " + h + " " + ca(Math.round(V), "cm³")),
+        S("In Liter: durch 1000", dez(Math.round(V)) + " cm³ : 1000 " + ca(L, "Liter"))
+      ],
+      antwort: "Es passen etwa <strong>" + fl(L, "Liter") + "</strong> hinein."
+    };
+  },
+  function(){
+    var r = rnd(3, 10), G = PI * r * r;
+    /* Nur Füllhöhen zwischen 5 und 30 cm — ein Glas, kein Turm. Für jedes r gibt es mindestens zwei. */
+    var V = waehle([500, 750, 1000, 1500, 2000, 2500, 3000].filter(function(v){ return v / G >= 5 && v / G <= 30; }));
+    var h = r1(V / G);
+    var liter = V >= 1000 && Math.random() < 0.5;
+    return {
+      frage: "In ein zylindrisches Glas mit dem Radius " + fl(r, "cm") + " werden " + (liter ? fl(V / 1000, "Liter") : fl(V, "ml")) + " Saft gegossen. Wie hoch steht er?" + RUNDE,
+      eingabe: einFeld(piFeld("h ≈", h, "cm")),
+      hinweis: "V = G " + MAL + " h, also h = V : G. " + (liter ? "Rechne die Liter zuerst in cm³ um." : "1 ml = 1 cm³."),
+      schritte: [
+        S("Volumen in cm³", liter ? fl(V / 1000, "Liter") + " = " + fl(V, "cm³") : fl(V, "ml") + " = " + fl(V, "cm³")),
+        S("Grundfläche", "G = π " + MAL + " " + r + "² " + ca(r2(G), "cm²")),
+        S("Durch die Grundfläche", "h = " + V + " : " + dez(r2(G)) + " " + ca(h, "cm"))
+      ],
+      antwort: "Der Saft steht etwa <strong>" + fl(h, "cm") + "</strong> hoch."
+    };
+  },
+  function(){
+    var fall = waehle([
+      ["der Radius verdoppelt", "4-mal so groß", "r kommt quadriert vor: 2² = 4"],
+      ["der Radius verdreifacht", "9-mal so groß", "r kommt quadriert vor: 3² = 9"],
+      ["die Höhe verdoppelt", "doppelt so groß", "h steht einfach in der Formel: Faktor 2"],
+      ["die Höhe verdreifacht", "3-mal so groß", "h steht einfach in der Formel: Faktor 3"],
+      ["Radius und Höhe verdoppelt", "8-mal so groß", "2² " + MAL + " 2 = 8"],
+      ["der Radius halbiert", "ein Viertel so groß", "(½)² = ¼"]
+    ]);
+    return {
+      frage: "Bei einem Zylinder wird " + fall[0] + ". Wie ändert sich das Volumen?",
+      eingabe: wahlAus(fall[1], ["doppelt so groß", "4-mal so groß", "8-mal so groß", "3-mal so groß", "9-mal so groß", "halb so groß", "ein Viertel so groß", "bleibt gleich"]),
+      hinweis: "Schau in V = π " + MAL + " r² " + MAL + " h, wie oft die geänderte Größe vorkommt.",
+      schritte: [
+        S("Formel", "V = π " + MAL + " r² " + MAL + " h"),
+        S("Was passiert", fall[2])
+      ],
+      antwort: "Das Volumen wird <strong>" + fall[1] + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA ZYLOB — Zylinder: Mantel und Oberfläche (Gruppe „klausur“)
+   Der Mantel ist ein Rechteck mit der Breite 2πr. Stolperstein der Reihe:
+   „Umfang statt Bogen“ kommt hier als Mantelbreite zurück.
+   ========================================================================== */
+var G_ZYLOB = [
+  function(){
+    var r = rnd(2, 10), h = rnd(3, 25);
+    var M = r1(2 * PI * r * h);
+    return {
+      frage: "Berechne die Mantelfläche eines Zylinders mit r = " + fl(r, "cm") + " und h = " + fl(h, "cm") + "." + RUNDE,
+      bild: skZylinder("r = " + r + " cm", "h = " + h + " cm"),
+      eingabe: einFeld(piFeld("M ≈", M, "cm²")),
+      hinweis: "Rolle den Mantel ab: ein Rechteck. Seine eine Seite ist die Höhe, die andere so lang wie der Umfang des Grundkreises.",
+      schritte: [
+        S("Breite des Rechtecks = Umfang", "2 " + MAL + " π " + MAL + " " + r + " " + ca(r2(2 * PI * r), "cm")),
+        S("Mal die Höhe", "M = 2 " + MAL + " π " + MAL + " " + r + " " + MAL + " " + h + " " + ca(M, "cm²"))
+      ],
+      antwort: "Die Mantelfläche ist etwa <strong>" + fl(M, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var r = rnd(2, 10), h = rnd(3, 20);
+    var G = PI * r * r, M = 2 * PI * r * h, O = r1(2 * G + M);
+    return {
+      frage: "Berechne die Oberfläche eines geschlossenen Zylinders mit r = " + fl(r, "cm") + " und h = " + fl(h, "cm") + "." + RUNDE,
+      eingabe: einFeld(piFeld("O ≈", O, "cm²")),
+      hinweis: "Die Oberfläche ist das ganze Netz: zwei Kreise und der Mantel.",
+      schritte: [
+        S("Ein Kreis", "G = π " + MAL + " " + r + "² " + ca(r2(G), "cm²")),
+        S("Mantel", "M = 2 " + MAL + " π " + MAL + " " + r + " " + MAL + " " + h + " " + ca(r2(M), "cm²")),
+        S("Zwei Kreise und Mantel", "O = 2 " + MAL + " " + dez(r2(G)) + " + " + dez(r2(M)) + " " + ca(O, "cm²"))
+      ],
+      antwort: "Die Oberfläche ist etwa <strong>" + fl(O, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var art = waehle([
+      ["Eine Papprolle (an beiden Enden offen)", 0, "nur der Mantel — beide Enden sind offen"],
+      ["Ein Becher ohne Deckel", 1, "ein Kreis (der Boden) und der Mantel"],
+      ["Eine geschlossene Dose", 2, "zwei Kreise und der Mantel"]
+    ]);
+    var r = rnd(2, 8), h = rnd(5, 18);
+    var G = PI * r * r, M = 2 * PI * r * h, O = r1(art[1] * G + M);
+    return {
+      frage: art[0] + " hat den Radius " + fl(r, "cm") + " und ist " + fl(h, "cm") + " hoch. Wie viel Material braucht man dafür (ohne Überlappung)?" + RUNDE,
+      eingabe: einFeld(piFeld("Material ≈", O, "cm²")),
+      hinweis: "Überlege zuerst, welche Teile des Netzes es überhaupt gibt: Wie viele Kreise hat der Körper?",
+      schritte: [
+        S("Welche Teile?", art[2]),
+        S("Mantel", "M = 2 " + MAL + " π " + MAL + " " + r + " " + MAL + " " + h + " " + ca(r2(M), "cm²")),
+        S(art[1] ? "Kreis" : "Kein Kreis", art[1] ? "G = π " + MAL + " " + r + "² " + ca(r2(G), "cm²") + (art[1] === 2 ? ", zweimal" : ", einmal") : "es bleibt beim Mantel"),
+        S("Zusammen", (art[1] === 2 ? "2 " + MAL + " " + dez(r2(G)) + " + " : (art[1] === 1 ? dez(r2(G)) + " + " : "")) + dez(r2(M)) + " " + ca(O, "cm²"))
+      ],
+      antwort: "Man braucht etwa <strong>" + fl(O, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var r = rnd(2, 9), h = rnd(4, 15);
+    var b = r1(2 * PI * r);
+    return {
+      frage: "Das Netz eines Zylinders mit r = " + fl(r, "cm") + " und h = " + fl(h, "cm") + " enthält ein Rechteck. Wie lang ist die Seite des Rechtecks, die an die Kreise stößt?" + RUNDE,
+      bild: netzSvg("zylinder"),
+      eingabe: einFeld(piFeld("Länge ≈", b, "cm")),
+      hinweis: "Beim Aufrollen legt sich diese Seite einmal ganz um den Kreis herum.",
+      schritte: [
+        S("Diese Seite wickelt sich um den Kreis", "Länge = Umfang des Grundkreises"),
+        S("Umfang", "2 " + MAL + " π " + MAL + " " + r + " " + ca(b, "cm")),
+        S("Die andere Seite", "ist die Höhe, " + fl(h, "cm"))
+      ],
+      antwort: "Die Seite ist etwa <strong>" + fl(b, "cm") + "</strong> lang."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA PYRAMIDE — Volumen ⅓ · G · h und Oberfläche (Gruppe „klausur“)
+   Am 17.11. mit dem Zerlegungsargument (drei Pyramiden im Würfel); die
+   Seitenhöhe kam dort über Pythagoras.
+   ========================================================================== */
+var G_PYR = [
+  function(){
+    var a = waehle([3, 4, 5, 6, 8, 9, 10, 12]), h;
+    do { h = rnd(3, 18); } while ((a * a * h) % 3 !== 0);
+    var V = a * a * h / 3;
+    return {
+      frage: "Eine quadratische Pyramide hat die Grundkante a = " + fl(a, "cm") + " und die Höhe h = " + fl(h, "cm") + ". Berechne ihr Volumen.",
+      bild: skPyramide("a = " + a + " cm", "h = " + h + " cm"),
+      eingabe: zahlFeld("V =", V, { einheit: "cm³" }),
+      hinweis: "Eine Pyramide ist ein Drittel des Prismas mit gleicher Grundfläche und Höhe.",
+      schritte: [
+        S("Grundfläche", "G = " + a + "² = " + (a * a) + " cm²"),
+        S("Prisma wäre", "G " + MAL + " h = " + (a * a) + " " + MAL + " " + h + " = " + (a * a * h) + " cm³"),
+        S("Ein Drittel davon", "V = ⅓ " + MAL + " " + (a * a * h) + " = " + V + " cm³")
+      ],
+      antwort: "Die Pyramide hat ein Volumen von <strong>" + fl(V, "cm³") + "</strong>."
+    };
+  },
+  function(){
+    var a = rnd(3, 12), b, h;
+    do { b = rnd(3, 12); } while (b === a);
+    do { h = rnd(3, 15); } while ((a * b * h) % 3 !== 0);
+    var V = a * b * h / 3;
+    return {
+      frage: "Eine Pyramide hat eine rechteckige Grundfläche mit den Seiten " + fl(a, "m") + " und " + fl(b, "m") + ". Sie ist " + fl(h, "m") + " hoch. Wie groß ist ihr Volumen?",
+      eingabe: zahlFeld("V =", V, { einheit: "m³" }),
+      hinweis: "V = ⅓ " + MAL + " G " + MAL + " h. Die Grundfläche ist hier ein Rechteck.",
+      schritte: [
+        S("Grundfläche", "G = " + a + " " + MAL + " " + b + " = " + (a * b) + " m²"),
+        S("Ein Drittel von G · h", "V = ⅓ " + MAL + " " + (a * b) + " " + MAL + " " + h + " = " + V + " m³")
+      ],
+      antwort: "Das Volumen ist <strong>" + fl(V, "m³") + "</strong>."
+    };
+  },
+  function(){
+    var a = rnd(3, 12), hs = rnd(4, 15);
+    var dreieck = a * hs / 2, O = a * a + 4 * dreieck;
+    return {
+      frage: "Eine quadratische Pyramide hat die Grundkante a = " + fl(a, "cm") + " und die Seitenhöhe h<sub>s</sub> = " + fl(hs, "cm") + ". Berechne ihre Oberfläche.",
+      bild: skPyramide("a = " + a + " cm", null, "hₛ = " + hs + " cm"),
+      eingabe: zahlFeld("O =", O, { einheit: "cm²" }),
+      hinweis: "Das Netz: ein Quadrat und vier gleiche Dreiecke. Ein Dreieck hat die Grundseite a und die Höhe h<sub>s</sub>.",
+      schritte: [
+        S("Quadrat", "G = " + a + "² = " + (a * a) + " cm²"),
+        S("Ein Dreieck", "½ " + MAL + " " + a + " " + MAL + " " + hs + " = " + dez(dreieck) + " cm²"),
+        S("Vier Dreiecke", "M = 4 " + MAL + " " + dez(dreieck) + " = " + dez(4 * dreieck) + " cm²"),
+        S("Zusammen", "O = " + (a * a) + " + " + dez(4 * dreieck) + " = " + dez(O) + " cm²")
+      ],
+      antwort: "Die Oberfläche ist <strong>" + fl(O, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var tr = waehle(TRIPEL), halb = tr[0], h = tr[1], hs = tr[2], a = 2 * halb;
+    var O = a * a + 2 * a * hs;
+    return {
+      frage: "Eine quadratische Pyramide hat die Grundkante a = " + fl(a, "cm") + " und die Höhe h = " + fl(h, "cm") + ". Berechne zuerst die Seitenhöhe, dann die Oberfläche.",
+      bild: skPyramide("a = " + a + " cm", "h = " + h + " cm", "hₛ = ?"),
+      eingabe: felder([{ label: "Seitenhöhe h<sub>s</sub> =", soll: hs, einheit: "cm" }, { label: "Oberfläche O =", soll: O, einheit: "cm²" }]),
+      hinweis: "Die Seitenhöhe ist nicht die Körperhöhe. Sie ist die Hypotenuse im Dreieck aus h und a/2.",
+      schritte: [
+        S("Pythagoras mit h und a/2", "h<sub>s</sub>² = " + h + "² + " + halb + "² = " + (h * h) + " + " + (halb * halb) + " = " + (hs * hs)),
+        S("Seitenhöhe", "h<sub>s</sub> = " + wurzelHtml(hs * hs) + " = " + hs + " cm"),
+        S("Vier Dreiecke", "4 " + MAL + " ½ " + MAL + " " + a + " " + MAL + " " + hs + " = " + (2 * a * hs) + " cm²"),
+        S("Plus Quadrat", "O = " + (a * a) + " + " + (2 * a * hs) + " = " + O + " cm²")
+      ],
+      antwort: "Die Seitenhöhe ist <strong>" + fl(hs, "cm") + "</strong>, die Oberfläche <strong>" + fl(O, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var V = 3 * rnd(10, 120);
+    var richtig = fl(V / 3, "cm³");
+    return {
+      frage: "Ein Prisma hat das Volumen " + fl(V, "cm³") + ". Eine Pyramide hat dieselbe Grundfläche und dieselbe Höhe. Wie groß ist ihr Volumen?",
+      eingabe: wahlAus(richtig, [fl(V, "cm³"), fl(V / 2, "cm³"), fl(3 * V, "cm³"), fl(2 * V / 3, "cm³"), fl(V / 4, "cm³")]),
+      hinweis: "Drei solche Pyramiden füllen das Prisma genau aus.",
+      schritte: [
+        S("Prisma", "V<sub>Prisma</sub> = G " + MAL + " h = " + fl(V, "cm³")),
+        S("Pyramide: ein Drittel", "V = ⅓ " + MAL + " " + V + " = " + dez(V / 3) + " cm³")
+      ],
+      antwort: "Die Pyramide hat <strong>" + richtig + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA KEGEL — Volumen, Mantel und Oberfläche (Gruppe „klausur“)
+   Übertragung von der Pyramide (⅓) und vom Kreisausschnitt (Mantel π · r · s).
+   ========================================================================== */
+var G_KEGEL = [
+  function(){
+    var r = rnd(2, 10), h = rnd(3, 20);
+    var V = r1(PI * r * r * h / 3);
+    return {
+      frage: "Ein Kegel hat den Radius r = " + fl(r, "cm") + " und die Höhe h = " + fl(h, "cm") + ". Berechne sein Volumen." + RUNDE,
+      bild: skKegel("r = " + r + " cm", "h = " + h + " cm"),
+      eingabe: einFeld(piFeld("V ≈", V, "cm³")),
+      hinweis: "Wie bei der Pyramide: ein Drittel von Grundfläche mal Höhe. Die Grundfläche ist ein Kreis.",
+      schritte: [
+        S("Grundfläche", "G = π " + MAL + " " + r + "² " + ca(r2(PI * r * r), "cm²")),
+        S("Zylinder wäre", "G " + MAL + " h " + ca(r2(PI * r * r * h), "cm³")),
+        S("Ein Drittel davon", "V = ⅓ " + MAL + " π " + MAL + " " + r + "² " + MAL + " " + h + " " + ca(V, "cm³"))
+      ],
+      antwort: "Der Kegel hat ein Volumen von etwa <strong>" + fl(V, "cm³") + "</strong>."
+    };
+  },
+  function(){
+    var tr = waehle(TRIPEL), r = tr[0], h = tr[1], s = tr[2];
+    var M = r1(PI * r * s);
+    return {
+      frage: "Ein Kegel hat den Radius r = " + fl(r, "cm") + " und die Höhe h = " + fl(h, "cm") + ". Berechne die Mantellinie s und die Mantelfläche." + RUNDE,
+      bild: skKegel("r = " + r + " cm", "h = " + h + " cm", "s = ?"),
+      eingabe: felder([{ label: "Mantellinie s =", soll: s, einheit: "cm" }, piFeld("Mantel M ≈", M, "cm²")]),
+      hinweis: "Die Mantellinie s ist die Hypotenuse im Dreieck aus r und h. In die Mantelformel π " + MAL + " r " + MAL + " s gehört s, nicht h.",
+      schritte: [
+        S("Pythagoras", "s² = " + r + "² + " + h + "² = " + (r * r) + " + " + (h * h) + " = " + (s * s)),
+        S("Mantellinie", "s = " + wurzelHtml(s * s) + " = " + s + " cm"),
+        S("Mantel", "M = π " + MAL + " r " + MAL + " s = π " + MAL + " " + r + " " + MAL + " " + s + " " + ca(M, "cm²"))
+      ],
+      antwort: "s = <strong>" + fl(s, "cm") + "</strong>, M ≈ <strong>" + fl(M, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var r = rnd(2, 9), s = r + rnd(3, 12);
+    var G = PI * r * r, M = PI * r * s, O = r1(G + M);
+    return {
+      frage: "Ein Kegel hat den Radius r = " + fl(r, "cm") + " und die Mantellinie s = " + fl(s, "cm") + ". Berechne seine Oberfläche." + RUNDE,
+      eingabe: einFeld(piFeld("O ≈", O, "cm²")),
+      hinweis: "Das Netz des Kegels: ein Kreis und ein Kreisausschnitt. Der Ausschnitt hat die Fläche π " + MAL + " r " + MAL + " s.",
+      schritte: [
+        S("Grundkreis", "G = π " + MAL + " " + r + "² " + ca(r2(G), "cm²")),
+        S("Mantel", "M = π " + MAL + " " + r + " " + MAL + " " + s + " " + ca(r2(M), "cm²")),
+        S("Zusammen", "O = " + dez(r2(G)) + " + " + dez(r2(M)) + " " + ca(O, "cm²"))
+      ],
+      antwort: "Die Oberfläche ist etwa <strong>" + fl(O, "cm²") + "</strong>."
+    };
+  },
+  function(){
+    var tr = waehle(TRIPEL), r = tr[0], h = tr[1], s = tr[2];
+    var richtig = "π " + MAL + " " + r + " " + MAL + " " + s;
+    return {
+      frage: "Ein Kegel hat r = " + fl(r, "cm") + ", h = " + fl(h, "cm") + " und s = " + fl(s, "cm") + ". Welche Rechnung liefert seine Mantelfläche?",
+      bild: skKegel("r = " + r + " cm", "h = " + h + " cm", "s = " + s + " cm"),
+      eingabe: wahlAus(richtig, ["π " + MAL + " " + r + " " + MAL + " " + h, "2 " + MAL + " π " + MAL + " " + r + " " + MAL + " " + h, "π " + MAL + " " + s + "²", "⅓ " + MAL + " π " + MAL + " " + r + "² " + MAL + " " + h, "π " + MAL + " " + r + "²"]),
+      hinweis: "Der Mantel ist ein Kreisausschnitt, dessen Radius die Mantellinie ist — nicht die Höhe.",
+      schritte: [
+        S("Mantel des Kegels", "M = π " + MAL + " r " + MAL + " s"),
+        S("Einsetzen", "M = " + richtig),
+        S("Die anderen", "π · r · h nimmt die Höhe statt s; ⅓ · π · r² · h ist das Volumen")
+      ],
+      antwort: "Richtig ist <strong>" + richtig + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA ZUSAMMEN — Zusammengesetzte Körper (Gruppe „klausur“)
+   Vermischte Körperberechnungen (Plan KW 49): Teilkörper erkennen, dann
+   addieren oder abziehen.
+   ========================================================================== */
+var G_ZUS = [
+  function(){
+    var r = rnd(2, 6), h1 = rnd(6, 20), h2 = rnd(3, 9);
+    var V1 = PI * r * r * h1, V2 = PI * r * r * h2 / 3, V = r1(V1 + V2);
+    return {
+      frage: "Ein Holzstück besteht aus einem Zylinder (r = " + fl(r, "cm") + ", h = " + fl(h1, "cm") + ") mit einem aufgesetzten Kegel (gleicher Radius, Höhe " + fl(h2, "cm") + "). Berechne das Volumen." + RUNDE,
+      eingabe: einFeld(piFeld("V ≈", V, "cm³")),
+      hinweis: "Zerlege in zwei Körper, rechne jeden für sich, dann addiere.",
+      schritte: [
+        S("Zylinder", "π " + MAL + " " + r + "² " + MAL + " " + h1 + " " + ca(r2(V1), "cm³")),
+        S("Kegel", "⅓ " + MAL + " π " + MAL + " " + r + "² " + MAL + " " + h2 + " " + ca(r2(V2), "cm³")),
+        S("Addieren", dez(r2(V1)) + " + " + dez(r2(V2)) + " " + ca(V, "cm³"))
+      ],
+      antwort: "Das Volumen ist etwa <strong>" + fl(V, "cm³") + "</strong>."
+    };
+  },
+  function(){
+    var ri = rnd(2, 8), ra = ri + rnd(1, 4), h = rnd(10, 100);
+    var V = r1(PI * (ra * ra - ri * ri) * h);
+    return {
+      frage: "Ein Rohr ist " + fl(h, "cm") + " lang, sein Außenradius beträgt " + fl(ra, "cm") + ", sein Innenradius " + fl(ri, "cm") + ". Wie viel Material steckt im Rohr?" + RUNDE,
+      eingabe: einFeld(piFeld("V ≈", V, "cm³")),
+      hinweis: "Großer Zylinder minus das Loch. Achtung: (R − r)² ist nicht dasselbe wie R² − r².",
+      schritte: [
+        S("Großer Zylinder", "π " + MAL + " " + ra + "² " + MAL + " " + h + " " + ca(r2(PI * ra * ra * h), "cm³")),
+        S("Loch", "π " + MAL + " " + ri + "² " + MAL + " " + h + " " + ca(r2(PI * ri * ri * h), "cm³")),
+        S("Abziehen", "π " + MAL + " (" + (ra * ra) + " " + MINUS + " " + (ri * ri) + ") " + MAL + " " + h + " " + ca(V, "cm³"))
+      ],
+      antwort: "Im Rohr stecken etwa <strong>" + fl(V, "cm³") + "</strong> Material."
+    };
+  },
+  function(){
+    var a = waehle([3, 4, 5, 6, 8, 9, 10, 12]), h;
+    do { h = rnd(2, 15); } while ((a * a * h) % 3 !== 0);
+    var VW = a * a * a, VP = a * a * h / 3;
+    return {
+      frage: "Ein Spielturm-Modell besteht aus einem Würfel mit der Kante " + fl(a, "cm") + " und einer aufgesetzten quadratischen Pyramide mit derselben Grundkante und der Höhe " + fl(h, "cm") + ". Berechne das Volumen.",
+      eingabe: zahlFeld("V =", VW + VP, { einheit: "cm³" }),
+      hinweis: "Würfel und Pyramide getrennt berechnen. Die Pyramide ist ein Drittel von G " + MAL + " h.",
+      schritte: [
+        S("Würfel", a + "³ = " + VW + " cm³"),
+        S("Pyramide", "⅓ " + MAL + " " + (a * a) + " " + MAL + " " + h + " = " + VP + " cm³"),
+        S("Zusammen", VW + " + " + VP + " = " + (VW + VP) + " cm³")
+      ],
+      antwort: "Das Modell hat ein Volumen von <strong>" + fl(VW + VP, "cm³") + "</strong>."
+    };
+  },
+  function(){
+    var a = rnd(8, 20), b = rnd(6, 15), c = rnd(3, 10), r = rnd(1, Math.min(4, Math.floor(Math.min(a, b) / 3)));
+    var VQ = a * b * c, VZ = PI * r * r * c, V = r1(VQ - VZ);
+    return {
+      frage: "Durch einen Quader (" + a + " cm × " + b + " cm × " + c + " cm) wird senkrecht ein durchgehendes Loch mit dem Radius " + fl(r, "cm") + " gebohrt. Das Loch ist so lang wie der Quader hoch (" + fl(c, "cm") + "). Welches Volumen hat der Rest?" + RUNDE,
+      eingabe: einFeld(piFeld("V ≈", V, "cm³")),
+      hinweis: "Quader minus Zylinder. Der Zylinder hat die Höhe des Quaders.",
+      schritte: [
+        S("Quader", a + " " + MAL + " " + b + " " + MAL + " " + c + " = " + VQ + " cm³"),
+        S("Bohrloch (Zylinder)", "π " + MAL + " " + r + "² " + MAL + " " + c + " " + ca(r2(VZ), "cm³")),
+        S("Abziehen", VQ + " " + MINUS + " " + dez(r2(VZ)) + " " + ca(V, "cm³"))
+      ],
+      antwort: "Der Rest hat ein Volumen von etwa <strong>" + fl(V, "cm³") + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA NETZ — Netze und Schrägbilder (Gruppe „klausur“)
+   27.10. (Netze, Schrägbild mit 45° und Verkürzung 0,7) und 29.10.
+   (Körper herstellen, Kegelnetz mit Kreisausschnitt).
+   ========================================================================== */
+var NETZ_ARTEN = ["zylinder", "kegel", "pyramide", "wuerfel", "quader", "prisma", "tetraeder"];
+/* Kegelnetze mit glattem Mittelpunktswinkel: α = 360° · r : s */
+var KEGEL_NETZ = [[3,5],[4,10],[6,10],[5,12],[2,8],[3,9],[5,9],[4,6],[3,12],[5,15],[6,8],[7,12],[5,8],[3,4],[4,9],[2,5]];
+var G_NETZ = [
+  function(){
+    var art = waehle(NETZ_ARTEN);
+    var richtig = NETZ_NAME[art];
+    var vorrat = mische(NETZ_ARTEN.filter(function(x){ return x !== art; })).map(function(x){ return NETZ_NAME[x]; });
+    return {
+      frage: "Zu welchem Körper gehört dieses Netz?",
+      bild: netzSvg(art),
+      eingabe: wahlAus(richtig, vorrat),
+      hinweis: "Zähle die Flächen und schau ihre Form an: Kreise, Rechtecke, Dreiecke, Kreisausschnitte?",
+      schritte: [
+        S("Flächen", NETZ_ERKENNEN[art]),
+        S("Körper", richtig)
+      ],
+      antwort: "Das Netz gehört zu: <strong>" + richtig + "</strong>."
+    };
+  },
+  function(){
+    var art = waehle(["zylinder", "kegel", "pyramide", "prisma", "quader"]);
+    var richtig = netzSvg(art, true);
+    var vorrat = mische(NETZ_ARTEN.filter(function(x){ return x !== art; })).map(function(x){ return netzSvg(x, true); });
+    return {
+      frage: "Welches Netz lässt sich zu einem Körper der Form <strong>" + NETZ_NAME[art] + "</strong> falten?",
+      eingabe: wahlAus(richtig, vorrat),
+      hinweis: "Überlege, welche Flächen der Körper hat — und wie viele davon.",
+      schritte: [
+        S("Flächen des Körpers", NETZ_ERKENNEN[art]),
+        S("Das passende Netz", "das mit genau diesen Flächen")
+      ],
+      antwort: "Richtig ist das Netz aus diesen Flächen: <strong>" + NETZ_ERKENNEN[art] + "</strong>"
+    };
+  },
+  function(){
+    var p = waehle(KEGEL_NETZ), r = p[0], s = p[1], alpha = 360 * r / s;
+    return {
+      frage: "Ein Kegel mit dem Radius r = " + fl(r, "cm") + " und der Mantellinie s = " + fl(s, "cm") + " soll aus Papier gebaut werden. Wie groß ist der Mittelpunktswinkel des Kreisausschnitts für den Mantel?",
+      eingabe: zahlFeld("α =", alpha, { einheit: "°" }),
+      hinweis: "Der Bogen des Ausschnitts legt sich um den Grundkreis: Er ist so lang wie dessen Umfang 2 " + MAL + " π " + MAL + " r. Der Radius des Ausschnitts ist s.",
+      schritte: [
+        S("Bogen = Umfang des Grundkreises", "b = 2 " + MAL + " π " + MAL + " " + r),
+        S("Bogen des Ausschnitts mit Radius s", "b = " + bruchHtml("α", 360) + " " + MAL + " 2 " + MAL + " π " + MAL + " " + s),
+        S("Gleichsetzen, 2π kürzt sich", bruchHtml("α", 360) + " = " + bruchHtml(r, s) + "&nbsp; ⟹ &nbsp;α = 360° " + MAL + " " + r + " : " + s + " = " + alpha + "°")
+      ],
+      antwort: "Der Mittelpunktswinkel ist <strong>" + alpha + "°</strong>."
+    };
+  },
+  function(){
+    var t = rnd(2, 14), zehntel = 7 * t;
+    var b = rnd(2, 12), h = rnd(2, 12);
+    return {
+      frage: "Ein Quader ist " + fl(b, "cm") + " breit, " + fl(h, "cm") + " hoch und " + fl(t, "cm") + " tief. Im Schrägbild laufen die Tiefenkanten unter 45° nach hinten, Verkürzungsfaktor 0,7. Wie lang zeichnest du eine Tiefenkante?",
+      eingabe: zahlFeld("Länge im Bild =", zehntel / 10, { einheit: "cm" }),
+      hinweis: "Breite und Höhe der Vorderfläche bleiben, wie sie sind. Nur die Kanten nach hinten werden verkürzt.",
+      schritte: [
+        S("Welche Kante wird verkürzt?", "nur die Tiefe, " + fl(t, "cm")),
+        S("Mal 0,7", t + " " + MAL + " 0,7 = " + dez(zehntel / 10) + " cm")
+      ],
+      antwort: "Du zeichnest die Tiefenkante <strong>" + fl(zehntel / 10, "cm") + "</strong> lang."
+    };
+  },
+  function(){
+    var t = rnd(2, 14), bild = 7 * t / 10;
+    return {
+      frage: "In einem Schrägbild (45°, Verkürzungsfaktor 0,7) ist die Tiefenkante eines Quaders " + fl(bild, "cm") + " lang. Wie tief ist der Quader in Wirklichkeit?",
+      eingabe: zahlFeld("Tiefe =", t, { einheit: "cm" }),
+      hinweis: "Im Bild wurde mal 0,7 gerechnet. Rechne rückwärts.",
+      schritte: [
+        S("Im Bild", "Tiefe " + MAL + " 0,7 = " + dez(bild) + " cm"),
+        S("Rückwärts: durch 0,7", dez(bild) + " : 0,7 = " + t + " cm")
+      ],
+      antwort: "Der Quader ist <strong>" + fl(t, "cm") + "</strong> tief."
+    };
+  }
+];
+
+/* ==========================================================================
+   THEMA BOGENMASS — Grad und Bogenmaß (Gruppe „klausur“)
+   06.10.: Bogenmaß = Bogenlänge am Einheitskreis, x = b : r. Belegt: 30° nur
+   von 8 von 16 zu Ende gerechnet, „π/2,4“ statt 5π/12.
+   ========================================================================== */
+var WINKEL_BM = [15, 20, 30, 36, 40, 45, 60, 72, 75, 90, 105, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360];
+function piBruch(z, n){
+  var g = ggt(z, n); z /= g; n /= g;
+  if (n === 1) return (z === 1 ? "" : z) + "π";
+  return bruchHtml((z === 1 ? "" : z) + "π", n);
+}
+var G_BOGENMASS = [
+  function(){
+    var a = waehle(WINKEL_BM), g = ggt(a, 180), z = a / g, n = 180 / g;
+    var soll = a / 180;
+    return {
+      frage: "Gib den Winkel " + a + "° im Bogenmaß an — als Bruchteil von π.",
+      eingabe: einFeld({ label: "x =", soll: soll, einheit: "· π", toleranz: 0.0011 }),
+      hinweis: "180° entsprechen π. Welcher Bruchteil von 180° ist " + a + "°? Kürze ganz — oben und unten nur ganze Zahlen.",
+      schritte: [
+        S("180° ≙ π", a + "° ist " + bruchHtml(a, 180) + " von 180°"),
+        S("Kürzen" + (g > 1 ? " durch " + g : ""), bruchHtml(a, 180) + " = " + bruchHtml(z, n)),
+        S("Bogenmaß", "x = " + piBruch(z, n))
+      ],
+      antwort: a + "° = <strong>" + piBruch(z, n) + "</strong>"
+    };
+  },
+  function(){
+    var a = waehle(WINKEL_BM), g = ggt(a, 180), z = a / g, n = 180 / g;
+    return {
+      frage: "Welcher Winkel in Grad gehört zum Bogenmaß x = " + piBruch(z, n) + "?",
+      eingabe: zahlFeld("α =", a, { einheit: "°" }),
+      hinweis: "Setze für π einfach 180° ein und rechne aus.",
+      schritte: [
+        S("π ≙ 180°", "x = " + piBruch(z, n) + " ≙ " + (z === 1 ? "" : z + " " + MAL + " ") + "180° " + (n === 1 ? "" : ": " + n)),
+        S("Ausrechnen", "α = " + a + "°")
+      ],
+      antwort: piBruch(z, n) + " entspricht <strong>" + a + "°</strong>."
+    };
+  },
+  function(){
+    var a = waehle([10, 20, 25, 30, 40, 50, 80, 100, 110, 130, 140, 160, 200, 250]);
+    var x = r2(a * PI / 180);
+    return {
+      frage: "Gib den Winkel " + a + "° im Bogenmaß als Dezimalzahl an." + RUNDE2,
+      eingabe: einFeld(piFeld2("x ≈", x, "")),
+      hinweis: "x = " + bruchHtml("α", "180°") + " " + MAL + " π.",
+      schritte: [
+        S("Bruchteil von 180°", bruchHtml(a, 180)),
+        S("Mal π", "x = " + bruchHtml(a, 180) + " " + MAL + " π ≈ " + dez(x))
+      ],
+      antwort: a + "° ≈ <strong>" + dez(x) + "</strong> im Bogenmaß."
+    };
+  },
+  function(){
+    var r = rnd(2, 12), xz = waehle([5, 8, 10, 12, 15, 20, 25, 30]), b = r * xz / 10;
+    var x = xz / 10, grad = r1(x * 180 / PI);
+    return {
+      frage: "An einem Kreis mit dem Radius " + fl(r, "cm") + " gehört zu einem Winkel der Bogen " + fl(b, "cm") + ". Wie groß ist der Winkel im Bogenmaß und in Grad?" + RUNDE,
+      eingabe: felder([{ label: "Bogenmaß x =", soll: x }, piFeld("in Grad α ≈", grad, "°")]),
+      hinweis: "Am Einheitskreis ist das Bogenmaß die Bogenlänge. An jedem anderen Kreis teilst du den Bogen durch den Radius.",
+      schritte: [
+        S("Bogenmaß", "x = b : r = " + dez(b) + " : " + r + " = " + dez(x)),
+        S("In Grad: x = α/180° · π, also α = x : π · 180°", "α = " + dez(x) + " : π " + MAL + " 180° " + ca(grad, "°"))
+      ],
+      antwort: "x = <strong>" + dez(x) + "</strong>, das sind etwa <strong>" + dez(grad) + "°</strong>."
+    };
+  },
+  function(){
+    var x = waehle([1, 2, 0.5, 3, 1.5]), grad = r1(x * 180 / PI);
+    var richtig = dez(grad) + "°";
+    return {
+      frage: "Welcher Winkel gehört zum Bogenmaß x = " + dez(x) + "?",
+      eingabe: wahlAus(richtig, [dez(x * 60) + "°", dez(x) + "°", dez(x * 180) + "°", dez(x * 90) + "°", dez(r1(x * 3.14)) + "°"]),
+      hinweis: "Bogenmaß 1 heißt: Der Bogen ist genau so lang wie der Radius. Ist der Winkel dazu 60° — oder etwas weniger?",
+      schritte: [
+        S("Umrechnung", "α = x : π " + MAL + " 180°"),
+        S("Einsetzen", dez(x) + " : π " + MAL + " 180° ≈ " + richtig),
+        S("Warum nicht " + dez(x * 60) + "°?", "Das hieße „1 ≙ 60°“. Doch 60° gehören zur Sehne, die so lang ist wie der Radius. Der Bogen ist länger als die Sehne — zum Bogen der Länge r gehört deshalb ein kleinerer Winkel, etwa 57,3°")
+      ],
+      antwort: "Das Bogenmaß " + dez(x) + " entspricht etwa <strong>" + richtig + "</strong>."
+    };
+  }
+];
+
+/* ==========================================================================
+   4 — Die Themen
+   --------------------------------------------------------------------------
+   Vorn die Werkzeuge, dann Kreis, Körper, Darstellung und Bogenmaß.
+   ========================================================================== */
+var THEMEN = [
+  {
+    id: "einheiten", name: "Einheiten umrechnen", unter: "cm² und m², cm³ und Liter",
+    gruppe: "werkzeug", gen: G_EINH,
+    warum: "Fast jede Körperaufgabe endet mit einer Einheit, und Volumen wird oft in Litern gefragt. Ein falscher Faktor macht ein richtiges Verfahren falsch.",
+    merksatz: "Flächen: Faktor 100 zwischen benachbarten Einheiten. Volumen: Faktor 1000. Und 1 Liter = 1 dm³ = 1000 cm³.",
+    stolperstein: "Mit Faktor 10 umrechnen wie bei Längen: 2500 cm² sind 0,25 m², nicht 25 m². Ebenso leicht passiert es, eine Fläche in cm² anzugeben, wenn m² gefragt sind.",
+    koennen: ["Flächen zwischen cm², dm² und m² umrechnen",
+              "Volumen zwischen cm³, Liter und m³ umrechnen",
+              "begründen, warum der Faktor 100 bzw. 1000 ist"]
+  },
+  {
+    id: "umstellen", name: "Formeln umstellen und Pythagoras", unter: "Höhe, Radius, Seitenhöhe rückwärts",
+    gruppe: "werkzeug", gen: G_UMST,
+    warum: "Viele Aufgaben geben das Volumen oder die Mantellinie vor und fragen nach Höhe oder Radius. Dafür musst du rückwärts rechnen und das rechtwinklige Dreieck im Körper finden.",
+    merksatz: "Rückwärts heißt: die Rechenschritte in umgekehrter Reihenfolge umkehren. Im Körper steckt ein rechtwinkliges Dreieck — die längste Seite (s oder h<sub>s</sub>) liegt dem rechten Winkel gegenüber.",
+    stolperstein: "Beim Pythagoras addieren, obwohl die gesuchte Seite eine Kathete ist: Ist die Seitenhöhe gegeben und die Körperhöhe gesucht, wird subtrahiert — h² = h<sub>s</sub>² − (a/2)².",
+    koennen: ["die Höhe einer Pyramide oder eines Kegels aus dem Volumen bestimmen",
+              "im Körper das rechtwinklige Dreieck finden",
+              "mit Pythagoras Körperhöhe, Seitenhöhe oder Radius ausrechnen"]
+  },
+  {
+    id: "kreis", name: "Kreis: Umfang und Fläche", unter: "U = π · d, A = π · r², auch rückwärts",
+    gruppe: "klausur", gen: G_KREIS,
+    warum: "Der Kreis ist Grundfläche von Zylinder und Kegel und steckt im Bogen jedes Ausschnitts. Ohne die beiden Kreisformeln geht keine Körperaufgabe.",
+    merksatz: "U = π · d = 2 · π · r und A = π · r². Quadriert wird immer der Radius.",
+    stolperstein: "Den Durchmesser in die Flächenformel setzen: Bei d = 10 cm ist A = π · 5², nicht π · 10² — das wäre viermal zu groß.",
+    koennen: ["den Umfang aus Radius oder Durchmesser berechnen",
+              "den Flächeninhalt berechnen, auch wenn der Durchmesser gegeben ist",
+              "aus Umfang oder Fläche den Radius zurückrechnen"]
+  },
+  {
+    id: "sektor", name: "Kreisausschnitt: Bogen und Fläche", unter: "der Anteil α : 360°",
+    gruppe: "klausur", gen: G_SEKTOR,
+    warum: "Bogen und Ausschnittsfläche sind eigene Aufgaben und kommen beim Kegelmantel wieder: Der Mantel ist ein Kreisausschnitt.",
+    merksatz: "Ein Ausschnitt mit Winkel α ist der Anteil α : 360° vom ganzen Kreis: b = α/360° · 2πr und A = α/360° · πr².",
+    stolperstein: "Umfang statt Bogen — der häufigste Fehler der ganzen Reihe: Beim Viertelkreis mit r = 4 cm den ganzen Umfang (25,1 cm) hinschreiben statt des Bogens (6,3 cm).",
+    koennen: ["die Bogenlänge eines Kreisausschnitts berechnen",
+              "die Fläche eines Kreisausschnitts berechnen",
+              "aus dem Bogen den Mittelpunktswinkel bestimmen"]
+  },
+  {
+    id: "zylvol", name: "Zylinder: Volumen", unter: "V = G · h = π · r² · h",
+    gruppe: "klausur", gen: G_ZYLVOL,
+    warum: "Das Zylindervolumen ist die erste Körperformel der Reihe — auch Kegel und zusammengesetzte Körper bauen darauf auf.",
+    merksatz: "V = G · h: Kreisfläche mal Höhe, also V = π · r² · h.",
+    stolperstein: "Mit dem Durchmesser rechnen oder in cm³ stehen bleiben, obwohl Liter gefragt sind: 1000 cm³ sind 1 Liter.",
+    koennen: ["das Volumen eines Zylinders berechnen",
+              "das Ergebnis in Liter angeben",
+              "aus dem Volumen die Höhe zurückrechnen",
+              "sagen, wie sich das Volumen ändert, wenn r oder h sich ändert"]
+  },
+  {
+    id: "zylob", name: "Zylinder: Mantel und Oberfläche", unter: "M = 2πr · h, zwei Kreise dazu",
+    gruppe: "klausur", gen: G_ZYLOB,
+    warum: "Wie viel Material braucht eine Dose, ein Rohr, ein Becher? Dafür brauchst du den Mantel — und musst wissen, wie viele Kreise dazugehören.",
+    merksatz: "Der Mantel ist ein Rechteck: Breite 2 · π · r, Höhe h. Oberfläche = 2 · π · r² + 2 · π · r · h.",
+    stolperstein: "Nur einen Kreis rechnen (oder zwei, obwohl der Körper offen ist) — und als Mantelbreite den Radius statt des Umfangs 2πr nehmen.",
+    koennen: ["die Mantelfläche eines Zylinders berechnen",
+              "die Oberfläche eines geschlossenen Zylinders berechnen",
+              "bei offenen Körpern die richtigen Teile auswählen"]
+  },
+  {
+    id: "pyramide", name: "Pyramide: Volumen und Oberfläche", unter: "V = ⅓ · G · h, Seitenhöhe",
+    gruppe: "klausur", gen: G_PYR,
+    warum: "Die Pyramide bringt den Faktor ⅓ und die Seitenhöhe — beides kommt beim Kegel wieder.",
+    merksatz: "V = ⅓ · G · h. Oberfläche = Grundfläche + vier Dreiecke mit der Seitenhöhe h<sub>s</sub>.",
+    stolperstein: "Das Drittel vergessen — oder für die Dreiecke die Körperhöhe h statt der Seitenhöhe h<sub>s</sub> nehmen.",
+    koennen: ["das Volumen einer Pyramide berechnen",
+              "die Oberfläche aus Grundkante und Seitenhöhe berechnen",
+              "die Seitenhöhe mit Pythagoras bestimmen"]
+  },
+  {
+    id: "kegel", name: "Kegel: Volumen, Mantel, Oberfläche", unter: "⅓ · π · r² · h und π · r · s",
+    gruppe: "klausur", gen: G_KEGEL,
+    warum: "Der Kegel verbindet alles: den Kreis als Grundfläche, das Drittel der Pyramide und den Kreisausschnitt als Mantel.",
+    merksatz: "V = ⅓ · π · r² · h. Mantel M = π · r · s, Oberfläche O = π · r² + π · r · s. Die Mantellinie s kommt aus s² = r² + h².",
+    stolperstein: "In der Mantelformel die Höhe h statt der Mantellinie s nehmen.",
+    koennen: ["das Volumen eines Kegels berechnen",
+              "die Mantellinie mit Pythagoras bestimmen",
+              "Mantel und Oberfläche eines Kegels berechnen"]
+  },
+  {
+    id: "zusammen", name: "Zusammengesetzte Körper", unter: "zerlegen, addieren, abziehen",
+    gruppe: "klausur", gen: G_ZUS,
+    warum: "Vermischte Aufgaben setzen Körper zusammen oder bohren Löcher hinein. Die Formeln kennst du — schwierig ist das Zerlegen.",
+    merksatz: "Erst zerlegen: Welche Teilkörper stecken darin? Dann jeden für sich berechnen und addieren — oder abziehen, wenn etwas fehlt.",
+    stolperstein: "Beim Rohr (R − r)² statt R² − r² rechnen: Bei R = 5 und r = 3 ist das 4 statt 16.",
+    koennen: ["einen Körper in Zylinder, Kegel, Würfel und Pyramide zerlegen",
+              "Volumen von Teilkörpern addieren",
+              "Hohlkörper und Bohrungen durch Abziehen berechnen"]
+  },
+  {
+    id: "netz", name: "Netze und Schrägbilder", unter: "Netze erkennen, Kegelnetz, Verkürzung 0,7",
+    gruppe: "klausur", gen: G_NETZ,
+    warum: "Aus dem Netz liest man ab, welche Flächen ein Körper hat — Grundlage jeder Oberfläche. Beim Kegel bestimmt der Bogen des Ausschnitts den Winkel.",
+    merksatz: "Beim Kegelnetz ist der Bogen des Ausschnitts so lang wie der Umfang des Grundkreises: α = 360° · r : s. Im Schrägbild werden nur die Tiefenkanten mit 0,7 verkürzt.",
+    stolperstein: "Beim Kegelnetz den Grundkreisradius r als Radius des Ausschnitts nehmen — der Ausschnitt hat den Radius s.",
+    koennen: ["Netze den Körpern zuordnen",
+              "den Mittelpunktswinkel eines Kegelnetzes berechnen",
+              "Längen im Schrägbild mit dem Verkürzungsfaktor bestimmen"]
+  },
+  {
+    id: "bogenmass", name: "Bogenmaß", unter: "Grad und Bruchteile von π",
+    gruppe: "klausur", gen: G_BOGENMASS,
+    warum: "Das Bogenmaß misst Winkel über die Bogenlänge am Einheitskreis — es verbindet Winkel und Kreisbogen.",
+    merksatz: "180° ≙ π. Ein Winkel α hat das Bogenmaß x = α/180° · π. An einem Kreis mit Radius r gilt x = b : r.",
+    stolperstein: "Nicht zu Ende kürzen: 75° sind 5π/12 — wer 360 : 75 rechnet, landet bei „π/2,4“, und das ist kein fertiges Ergebnis.",
+    koennen: ["Grad in Bogenmaß umrechnen, als Bruchteil von π",
+              "Bogenmaß in Grad umrechnen",
+              "das Bogenmaß aus Bogen und Radius bestimmen"]
+  }
+];
+
+function themaMit(id){ return THEMEN.find(function(t){ return t.id === id; }); }
+
+/* ==========================================================================
+   5 — Was der Trainer sich merkt
+   ========================================================================== */
+var SCHLUESSEL = "mu-" + KONFIG.klasse + "-" + KONFIG.kuerzel + "-v1";
+var THEMA_SCHLUESSEL = "mu-" + KONFIG.klasse + "-thema";   /* hell/dunkel, wie auf der Website */
+var KLAUSUR = (function(){ var d = KONFIG.datum.split("-"); return new Date(+d[0], +d[1] - 1, +d[2]); })();
+
+var stand = laden();
+
+function leererStand(){
+  var t = {};
+  THEMEN.forEach(function(th){ t[th.id] = { stand: "unbekannt", runden: 0, letzte: null }; });
+  return { fassung: 1, diagnose: null, themen: t, check: null };
+}
+function laden(){
+  try {
+    var roh = localStorage.getItem(SCHLUESSEL);
+    if (!roh) return leererStand();
+    var s = JSON.parse(roh);
+    var frisch = leererStand();
+    if (!s || s.fassung !== 1) return frisch;
+    /* Neue Themen dürfen später dazukommen, ohne alte Stände zu verlieren. */
+    THEMEN.forEach(function(th){ if (!s.themen[th.id]) s.themen[th.id] = frisch.themen[th.id]; });
+    return s;
+  } catch (e) { return leererStand(); }
+}
+function sichern(){
+  try { localStorage.setItem(SCHLUESSEL, JSON.stringify(stand)); } catch (e) { /* privates Fenster */ }
+}
+
+function tageBisKlausur(){
+  var heute = new Date(); heute.setHours(0,0,0,0);
+  return Math.round((KLAUSUR - heute) / 86400000);
+}
+function zahlSicher(){
+  return THEMEN.filter(function(t){ return stand.themen[t.id].stand === "sicher"; }).length;
+}
+
+/* ==========================================================================
+   6 — Rückmeldung in Worten
+   Immer dieselbe Haltung: Was war richtig, woran lag es, wie geht es weiter.
+   Nie „falsch“ allein, nie Ausrufezeichen-Jubel.
+   ========================================================================== */
+var LOB = [
+  "Sitzt.", "Genau so.", "Richtig — und sauber gerechnet.", "Das stimmt.",
+  "Richtig.", "Passt.", "Genau.", "Stimmt — weiter so."
+];
+var MUT = [
+  "Noch nicht — aber das ist der Sinn des Übens. Schau dir den Hinweis an.",
+  "Das war es noch nicht. Ein Blick auf den Hinweis, dann noch einmal.",
+  "Knapp daneben ist auch daneben — aber leicht zu reparieren. Hinweis lesen, neu versuchen.",
+  "Nicht ganz. Der Hinweis unten sagt dir, wo es kippt."
+];
+var ZWEITER = [
+  "Immer noch nicht — dann rechnen wir es gemeinsam durch.",
+  "Kein Problem. Hier ist der ganze Weg, Schritt für Schritt.",
+  "Dann schauen wir uns die Rechnung genau an. Danach probierst du es noch einmal."
+];
+
+/* ==========================================================================
+   7 — Eine Aufgabe anzeigen und prüfen
+   ========================================================================== */
+
+function aufgabeHtml(auf){
+  var teile = [];
+  if (auf.frage) teile.push('<p class="frage">' + auf.frage + "</p>");
+  if (auf.formel) teile.push('<div class="mblock">' + auf.formel + "</div>");
+  if (auf.bild) teile.push(auf.bild);
+  return teile.join("");
+}
+
+function eingabeHtml(auf, nr){
+  var e = auf.eingabe;
+  if (e.art === "wahl"){
+    return '<div class="wahlen" role="group" aria-label="Antwortmöglichkeiten">'
+      + e.optionen.map(function(o, i){
+          return '<button class="wahl" type="button" data-wahl="' + i + '" aria-pressed="false">'
+            + '<span class="buchstabe">' + "ABCD".charAt(i) + '</span><span class="inhalt">' + o + "</span></button>";
+        }).join("")
+      + "</div>";
+  }
+  return '<div class="felder">' + e.felder.map(function(f, i){
+    return '<span class="feld"><label for="f' + nr + "_" + i + '">' + f.label + "</label>"
+      + '<input id="f' + nr + "_" + i + '" type="text" inputmode="text" autocomplete="off" spellcheck="false" data-feld="' + i + '">'
+      + (f.einheit ? '<span class="einheit">' + esc(f.einheit) + "</span>" : "") + "</span>";
+  }).join("") + "</div>";
+}
+
+/* Prüfen: liefert {ok, teile} — teile sagt je Feld, ob es stimmt. */
+function pruefen(auf, wurzel){
+  var e = auf.eingabe;
+  if (e.art === "wahl"){
+    var gewaehlt = wurzel.querySelector('.wahl[aria-pressed="true"]');
+    if (!gewaehlt) return null;                       /* nichts angekreuzt */
+    var i = Number(gewaehlt.getAttribute("data-wahl"));
+    return { ok: i === e.richtig, gewaehlt: i, teile: [] };
+  }
+  var eingaben = [].slice.call(wurzel.querySelectorAll("input[data-feld]"));
+  var werte = eingaben.map(function(inp){ return zahlAus(inp.value); });
+  if (werte.some(function(w){ return w === null; })) return null;
+
+  if (e.egal && e.felder.length === 2){
+    /* Reihenfolge egal: x₁ und x₂ dürfen vertauscht sein. */
+    var s0 = e.felder[0].soll, s1 = e.felder[1].soll;
+    var t0 = toleranzFuer(e.felder[0]), t1 = toleranzFuer(e.felder[1]);
+    var gerade = gleichAuf(werte[0], s0, t0) && gleichAuf(werte[1], s1, t1);
+    var quer   = gleichAuf(werte[0], s1, t1) && gleichAuf(werte[1], s0, t0);
+    var ok = gerade || quer;
+    return { ok: ok, teile: ok ? [true,true]
+      : [ gleichAuf(werte[0], s0, t0) || gleichAuf(werte[0], s1, t1),
+          gleichAuf(werte[1], s0, t0) || gleichAuf(werte[1], s1, t1) ] };
+  }
+  var teile = werte.map(function(w, i){ return gleichAuf(w, e.felder[i].soll, toleranzFuer(e.felder[i])); });
+  return { ok: teile.every(Boolean), teile: teile };
+}
+
+function markieren(auf, wurzel, ergebnis){
+  if (auf.eingabe.art === "wahl"){
+    [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k, i){
+      k.disabled = true;
+      if (i === auf.eingabe.richtig) k.setAttribute("data-stand", "richtig");
+      else if (i === ergebnis.gewaehlt) k.setAttribute("data-stand", "falsch");
+    });
+  } else {
+    [].slice.call(wurzel.querySelectorAll("input[data-feld]")).forEach(function(inp, i){
+      inp.setAttribute("data-stand", ergebnis.teile[i] ? "richtig" : "falsch");
+    });
+  }
+}
+function entsperren(wurzel){
+  [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k){
+    k.disabled = false; k.removeAttribute("data-stand"); k.setAttribute("aria-pressed","false");
+  });
+  [].slice.call(wurzel.querySelectorAll("input[data-feld]")).forEach(function(inp){
+    inp.removeAttribute("data-stand");
+  });
+}
+
+function schritteHtml(auf){
+  var s = auf.schritte.map(function(sch, i){
+    return '<li class="schritt"><span class="nr">' + (i+1) + "</span>"
+      + '<span class="was">' + sch.was + "</span>"
+      + '<span class="rechnung">' + sch.r + "</span></li>";
+  }).join("");
+  return '<ol class="schritte">' + s + "</ol>"
+    + (auf.bildNachher ? auf.bildNachher() : "");
+}
+
+/* Wahl-Knöpfe verhalten sich wie Radiobuttons. */
+function wahlBinden(wurzel, beiAuswahl){
+  [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(k){
+    k.addEventListener("click", function(){
+      if (k.disabled) return;
+      [].slice.call(wurzel.querySelectorAll(".wahl")).forEach(function(a){ a.setAttribute("aria-pressed","false"); });
+      k.setAttribute("aria-pressed","true");
+      if (beiAuswahl) beiAuswahl();
+    });
+  });
+}
+/* ==========================================================================
+   8 — Die Ansichten
+   ========================================================================== */
+var buehne = document.getElementById("buehne");
+
+function zeige(html){
+  buehne.innerHTML = html;
+  ringZeichnen();
+  window.scrollTo(0, 0);
+}
+
+function ringZeichnen(){
+  var n = zahlSicher(), ganz = THEMEN.length;
+  var u = 2*Math.PI*15;
+  var anteil = ganz ? n/ganz : 0;
+  document.getElementById("ring").innerHTML =
+    '<svg viewBox="0 0 36 36" width="43" height="43" aria-hidden="true">'
+    + '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--linie)" stroke-width="4"/>'
+    + '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--gruen)" stroke-width="4" stroke-linecap="round"'
+    + ' stroke-dasharray="' + (anteil*u).toFixed(2) + " " + u.toFixed(2) + '"/></svg>'
+    + '<span class="zahl">' + n + "/" + ganz + "</span>";
+  document.getElementById("ring").setAttribute("title", n + " von " + ganz + " Themen sitzen");
+}
+
+function countdownText(){
+  var t = tageBisKlausur();
+  if (t > 1) return "Noch " + t + " Tage bis zur " + KONFIG.art + " am " + KLAUSUR.getDate() + ". " + MONATE[KLAUSUR.getMonth()] + ".";
+  if (t === 1) return "Morgen ist die " + KONFIG.art + ".";
+  if (t === 0) return "Heute ist die " + KONFIG.art + ". Viel Erfolg!";
+  return KONFIG.kapitel + ".";
+}
+
+/* --- Startseite ---------------------------------------------------------- */
+function zeigeStart(){
+  var begonnen = stand.diagnose !== null;
+  zeige(
+    '<div class="karte">'
+    + "<h2>Hallo.</h2>"
+    + '<p class="lead">Dieses Programm bringt dich Thema für Thema durch alles, was in der ' + KONFIG.art + ' vorkommt — ' + KONFIG.bogen + '. '
+    + "Es sagt dir zuerst, wo du stehst, erklärt dann in Ruhe, lässt dich üben und prüft am Ende mit neuen Aufgaben nach, ob es wirklich sitzt.</p>"
+    + '<div class="hinweis"><strong>' + countdownText() + "</strong> "
+    + "Du musst nicht alles auf einmal machen. Der Trainer merkt sich auf diesem Gerät, wie weit du bist.</div>"
+    + "<h3 style=\"margin-top:1.1rem\">So läuft es ab</h3>"
+    + '<ol style="margin:.5rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
+    + "<li><strong>Diagnose</strong> — " + 2 * THEMEN.length + " kurze Aufgaben, quer durch alle Themen. Keine Note, keine Zeit, kein Publikum.</li>"
+    + "<li><strong>Landkarte</strong> — du siehst, was schon sitzt und was noch nicht.</li>"
+    + "<li><strong>Erklärung</strong> — für jedes offene Thema eine vollständige Musterlösung, Schritt für Schritt.</li>"
+    + "<li><strong>Üben</strong> — mit Hinweis beim ersten Fehler und der ganzen Rechnung beim zweiten.</li>"
+    + "<li><strong>Re-Test</strong> — neue Aufgaben, neue Zahlen. Drei von vier genügen.</li>"
+    + "<li><strong>Bestätigung</strong> — das Thema wird grün, und du siehst schwarz auf weiß, was du jetzt kannst.</li>"
+    + "</ol>"
+    + '<div class="reihe">'
+    + (begonnen
+        ? '<button class="knopf knopf-haupt knopf-gross" id="k-weiter" type="button">Weitermachen</button>'
+          + '<button class="knopf" id="k-diagnose" type="button">Diagnose noch einmal</button>'
+        : '<button class="knopf knopf-haupt knopf-gross" id="k-diagnose" type="button">Diagnose starten</button>'
+          + '<button class="knopf" id="k-karte" type="button">Ohne Diagnose zur Themenliste</button>')
+    + "</div>"
+    + '<p class="leise" style="margin-top:1rem">Alles bleibt auf deinem Gerät. Es wird nichts verschickt und nichts ausgewertet — '
+    + "auch nicht von mir. Wenn du an einer Stelle wirklich hängst, frag im Unterricht nach; genau dafür ist er da.</p>"
+    + "</div>"
+  );
+  var a = document.getElementById("k-diagnose"); if (a) a.onclick = diagnoseStarten;
+  var b = document.getElementById("k-karte");    if (b) b.onclick = zeigeKarte;
+  var c = document.getElementById("k-weiter");   if (c) c.onclick = zeigeKarte;
+}
+
+/* --- Diagnose ------------------------------------------------------------
+   Zwei Aufgaben je Thema. Wer bei der ersten „weiß ich nicht“ drückt,
+   bekommt die zweite nicht mehr — das Ergebnis stünde ohnehin fest, und
+   nichts entmutigt so zuverlässig wie eine zweite Aufgabe zum selben Loch. */
+var dia = null;
+
+function diagnoseStarten(){
+  dia = { plan: [], index: 0, treffer: {} };
+  THEMEN.forEach(function(t){
+    dia.treffer[t.id] = [];
+    dia.plan.push({ id: t.id, stufe: 0 });
+    dia.plan.push({ id: t.id, stufe: 1 });
+  });
+  diagnoseSchritt();
+}
+
+function diagnoseSchritt(){
+  /* Übersprungene Aufgaben aussortieren. */
+  while (dia.index < dia.plan.length){
+    var p = dia.plan[dia.index];
+    if (p.stufe === 1 && dia.treffer[p.id].indexOf("weissnicht") >= 0){ dia.index++; continue; }
+    break;
+  }
+  if (dia.index >= dia.plan.length) return diagnoseAuswerten();
+
+  var eintrag = dia.plan[dia.index];
+  var thema = themaMit(eintrag.id);
+  var macher = thema.gen[eintrag.stufe % thema.gen.length];
+  var auf = macher();
+  var offen = dia.plan.filter(function(p, i){
+    return i >= dia.index && !(p.stufe === 1 && dia.treffer[p.id].indexOf("weissnicht") >= 0);
+  }).length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille">Diagnose</span>'
+    + '<span class="leise">noch ' + offen + " " + (offen === 1 ? "Aufgabe" : "Aufgaben") + "</span></div>"
+    + '<p class="leise" style="margin:.6rem 0 .2rem">' + esc(thema.name) + "</p>"
+    + aufgabeHtml(auf)
+    + eingabeHtml(auf, dia.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="d-ok" type="button">Antwort abschicken</button>'
+    + '<button class="knopf knopf-still" id="d-nix" type="button">Weiß ich nicht</button>'
+    + "</div>"
+    + '<p class="leise" style="margin-top:.9rem">Hier gibt es keine Rückmeldung — das ist Absicht. '
+    + "Die Diagnose soll ein ehrliches Bild geben, kein Training. „Weiß ich nicht“ ist eine gültige und nützliche Antwort.</p>"
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  document.getElementById("d-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      meldung(karte, "Da fehlt noch eine Antwort. Wenn du nicht weiterweißt, ist „Weiß ich nicht“ genau richtig.");
+      return;
+    }
+    dia.treffer[eintrag.id].push(e.ok ? "richtig" : "falsch");
+    dia.index++;
+    diagnoseSchritt();
+  };
+  document.getElementById("d-nix").onclick = function(){
+    dia.treffer[eintrag.id].push("weissnicht");
+    dia.index++;
+    diagnoseSchritt();
+  };
+}
+
+function meldung(karte, text){
+  var alt = karte.querySelector(".echo");
+  if (alt) alt.remove();
+  karte.appendChild(el("div", { class: "echo", html: "<p>" + text + "</p>" }));
+}
+
+function diagnoseAuswerten(){
+  THEMEN.forEach(function(t){
+    var r = dia.treffer[t.id] || [];
+    var richtig = r.filter(function(x){ return x === "richtig"; }).length;
+    var neu = richtig >= 2 ? "sicher" : (richtig === 1 ? "wackelig" : "offen");
+    /* Ein bereits bestandener Re-Test wiegt schwerer als eine Momentaufnahme:
+       Wer ein Thema abgeschlossen hat, verliert das nicht durch einen
+       verrutschten Diagnoseklick. */
+    if (!(stand.themen[t.id].stand === "sicher" && stand.themen[t.id].runden > 0))
+      stand.themen[t.id].stand = neu;
+  });
+  stand.diagnose = { wann: new Date().toISOString().slice(0,10) };
+  sichern();
+
+  var offen = THEMEN.filter(function(t){ return stand.themen[t.id].stand !== "sicher"; });
+  var sicher = THEMEN.length - offen.length;
+  var text;
+  if (sicher === THEMEN.length)
+    text = "Alle " + zahlwort(THEMEN.length) + " Themen sitzen bereits. Dann ist der " + KONFIG.check + " unten dein nächster Schritt — "
+         + "gemischte Aufgaben, wie in der " + KONFIG.art + ", ohne Ankündigung, welches Thema kommt.";
+  else if (sicher >= Math.ceil(THEMEN.length * 0.6))
+    text = "Der größte Teil steht. Es bleiben " + offen.length + " Themen — das ist in ein paar Sitzungen zu schaffen.";
+  else if (sicher >= Math.ceil(THEMEN.length * 0.3))
+    text = "Eine solide Grundlage und " + offen.length + " Baustellen. Genau dafür ist noch Zeit.";
+  else
+    text = "Das sieht nach viel aus — ist es aber nicht. Die Themen bauen aufeinander auf: Wenn die ersten beiden sitzen, "
+         + "fallen mehrere der späteren fast von allein.";
+
+  zeige(
+    '<div class="karte">'
+    + '<span class="pille pille-teal">Diagnose ausgewertet</span>'
+    + "<h2 style=\"margin-top:.6rem\">Das ist deine Landkarte</h2>"
+    + '<p class="lead">' + text + "</p>"
+    + '<div class="hinweis hinweis-gold"><strong>Wichtig:</strong> Das hier ist keine Note und kein Urteil. '
+    + "Es ist eine Karte, die dir sagt, wo deine Zeit gerade am meisten bringt. Rot heißt nicht „kann ich nicht“, "
+    + "sondern „hier hole ich am schnellsten Punkte“.</div>"
+    + '<div class="reihe"><button class="knopf knopf-haupt knopf-gross" id="d-karte" type="button">Zur Übersicht</button></div>'
+    + "</div>"
+  );
+  document.getElementById("d-karte").onclick = zeigeKarte;
+}
+
+/* --- Landkarte ----------------------------------------------------------- */
+var STAND_TEXT = {
+  sicher:    { zeichen: "✓", wort: "sitzt" },
+  wackelig:  { zeichen: "~", wort: "wackelt noch" },
+  offen:     { zeichen: "!", wort: "offen" },
+  unbekannt: { zeichen: "?", wort: "noch nicht geprüft" }
+};
+
+function zeigeKarte(){
+  var dranId = null;
+  for (var i = 0; i < THEMEN.length; i++){
+    if (stand.themen[THEMEN[i].id].stand !== "sicher"){ dranId = THEMEN[i].id; break; }
+  }
+  function zeile(t){
+    var s = stand.themen[t.id];
+    var info = STAND_TEXT[s.stand];
+    return '<button class="thema-zeile" type="button" data-thema="' + t.id + '" data-stand="' + s.stand + '"'
+      + (t.id === dranId ? ' data-dran="ja"' : "") + ">"
+      + '<span class="ampel" aria-hidden="true">' + info.zeichen + "</span>"
+      + '<span class="mitte"><span class="name">' + esc(t.name) + "</span>"
+      + '<span class="unter">' + esc(t.unter) + " · " + info.wort
+      + (t.id === dranId ? " · <strong>hier weiter</strong>" : "") + "</span></span>"
+      + '<span class="pfeil" aria-hidden="true">›</span></button>';
+  }
+  var werkzeug = THEMEN.filter(function(t){ return t.gruppe === "werkzeug"; });
+  var klausur  = THEMEN.filter(function(t){ return t.gruppe === "klausur"; });
+  var alleSicher = zahlSicher() === THEMEN.length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between; align-items:baseline">'
+    + "<h2>Deine Themen</h2><span class=\"leise\">" + esc(countdownText()) + "</span></div>"
+    + '<p class="lead" style="margin-bottom:.4rem">' + zahlSicher() + " von " + THEMEN.length + " Themen sitzen. "
+    + (dranId ? "Vorgeschlagen ist das erste noch offene Thema — du kannst aber jedes anklicken."
+              : "Alles grün. Jetzt lohnt sich der gemischte " + KONFIG.check + ".") + "</p>"
+    + '<div class="gruppe-titel">' + KONFIG.gruppen.werkzeug.titel + '</div>'
+    + werkzeug.map(zeile).join("")
+    + '<div class="gruppe-titel">' + KONFIG.gruppen.klausur.titel + '</div>'
+    + klausur.map(zeile).join("")
+    + "</div>"
+    + '<div class="karte">'
+    + "<h3>" + KONFIG.check + "</h3>"
+    + "<p>" + (function(w){ return w.charAt(0).toUpperCase() + w.slice(1); })(zahlwort(CHECK_ANZAHL)) + " gemischte Aufgaben quer durch alle Themen — ohne Ankündigung, welches Thema gerade dran ist. "
+    + "Genau das ist in der " + KONFIG.art + " der eigentliche Unterschied: Du musst nicht nur rechnen können, sondern auch erkennen, <em>was</em> gefragt ist.</p>"
+    + (alleSicher ? "" : '<p class="leise">Du kannst ihn jederzeit machen. Am meisten bringt er, wenn die Themen oben grün sind.</p>')
+    + '<div class="reihe"><button class="knopf' + (alleSicher ? " knopf-haupt" : "") + '" id="k-check" type="button">' + KONFIG.check + ' starten</button></div>'
+    + (stand.check ? '<p class="leise" style="margin-top:.7rem">Letztes Ergebnis: ' + stand.check.richtig + " von " + stand.check.gesamt + " richtig.</p>" : "")
+    + "</div>"
+  );
+  [].slice.call(buehne.querySelectorAll(".thema-zeile")).forEach(function(k){
+    k.onclick = function(){ themaOeffnen(k.getAttribute("data-thema")); };
+  });
+  document.getElementById("k-check").onclick = checkStarten;
+}
+
+/* --- Ein Thema durcharbeiten --------------------------------------------- */
+var sitzung = null;
+var PHASEN = ["Ankommen","Erklärung","Üben","Re-Test","Geschafft"];
+
+function phasenleiste(jetzt){
+  return '<div class="phasen">' + PHASEN.map(function(p, i){
+    return '<span class="phase"' + (i === jetzt ? ' data-jetzt="ja"' : (i < jetzt ? ' data-fertig="ja"' : "")) + ">" + esc(p) + "</span>";
+  }).join("") + "</div>";
+}
+
+function themaOeffnen(id){
+  sitzung = { id: id, runde: 0, index: 0, ergebnisse: [], versuch: 0 };
+  zeigeAnkommen();
+}
+
+function zeigeAnkommen(){
+  var t = themaMit(sitzung.id);
+  var s = stand.themen[t.id];
+  var gruss;
+  if (s.stand === "sicher")
+    gruss = "Dieses Thema hast du schon bestanden. Eine Auffrischung schadet trotzdem nie — besonders kurz vor der " + KONFIG.art + ".";
+  else if (s.stand === "wackelig")
+    gruss = "In der Diagnose war eine von zwei Aufgaben richtig. Das heißt: Der Gedanke ist da, es fehlt die Sicherheit. Das ist die schnellste Sorte Baustelle.";
+  else if (s.stand === "offen")
+    gruss = "In der Diagnose hat das hier noch nicht geklappt. Kein Grund zur Sorge — dafür ist das Programm da. Wir gehen es von vorn an, in Ruhe und mit vollständiger Rechnung.";
+  else
+    gruss = "Dieses Thema ist noch nicht geprüft. Wir fangen einfach vorn an.";
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(0)
+    + '<span class="pille' + (t.gruppe === "werkzeug" ? "" : " pille-teal") + '">'
+    + KONFIG.gruppen[t.gruppe === "werkzeug" ? "werkzeug" : "klausur"].pille + "</span>"
+    + '<h2 style="margin-top:.6rem">' + esc(t.name) + "</h2>"
+    + '<p class="leise">' + esc(t.unter) + (t.buch ? " · " + esc(t.buch) : "") + "</p>"
+    + '<div class="hinweis hinweis-gold" style="margin-top:1rem">' + gruss + "</div>"
+    + "<h3 style=\"margin-top:1.2rem\">Warum das zählt</h3>"
+    + "<p>" + t.warum + "</p>"
+    + "<h3>Was du danach kannst</h3>"
+    + '<ul style="margin:.4rem 0 1rem 1.1rem; padding:0; color:var(--text-leise)">'
+    + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="t-los" type="button">Los geht\'s</button>'
+    + (s.stand === "sicher" ? '<button class="knopf" id="t-direkt" type="button">Direkt zum Re-Test</button>' : "")
+    + '<button class="knopf knopf-still" id="t-zurueck" type="button">Zurück zur Übersicht</button>'
+    + "</div></div>"
+  );
+  document.getElementById("t-los").onclick = zeigeErklaerung;
+  var d = document.getElementById("t-direkt");
+  if (d) d.onclick = function(){ sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest(); };
+  document.getElementById("t-zurueck").onclick = zeigeKarte;
+}
+
+/* Die Erklärung: ein vollständig durchgerechnetes Beispiel, Schritt für
+   Schritt aufdeckbar. Wer alles auf einmal sieht, liest es nicht. */
+function zeigeErklaerung(){
+  var t = themaMit(sitzung.id);
+  var macher = t.gen[sitzung.runde % t.gen.length];
+  var auf = macher();
+  sitzung.beispiel = auf;
+  sitzung.gezeigt = 0;
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(1)
+    + '<h2>' + esc(t.name) + "</h2>"
+    + '<div class="hinweis"><strong>Das Wichtigste in einem Satz:</strong> ' + t.merksatz + "</div>"
+    + '<div class="hinweis hinweis-rot"><strong>Typischer Stolperstein:</strong> ' + t.stolperstein + "</div>"
+    + "<h3 style=\"margin-top:1.2rem\">Ein Beispiel, ganz durchgerechnet</h3>"
+    + aufgabeHtml(auf)
+    + '<div id="erk-schritte"></div>'
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="e-mehr" type="button">Ersten Schritt zeigen</button>'
+    + '<button class="knopf knopf-still" id="e-alles" type="button">Alle Schritte auf einmal</button>'
+    + "</div>"
+    + '<div class="reihe" style="margin-top:.6rem" id="e-weiter-reihe" hidden>'
+    + '<button class="knopf knopf-haupt knopf-gross" id="e-weiter" type="button">Verstanden — jetzt selbst</button>'
+    + "</div></div>"
+  );
+
+  var ziel = document.getElementById("erk-schritte");
+  function nachlegen(){
+    var sch = auf.schritte[sitzung.gezeigt];
+    ziel.insertAdjacentHTML("beforeend",
+      '<ol class="schritte" style="margin-top:0"><li class="schritt"><span class="nr">' + (sitzung.gezeigt+1) + "</span>"
+      + '<span class="was">' + sch.was + '</span><span class="rechnung">' + sch.r + "</span></li></ol>");
+    sitzung.gezeigt++;
+    if (sitzung.gezeigt >= auf.schritte.length) fertig();
+    else document.getElementById("e-mehr").textContent = "Nächster Schritt (" + (sitzung.gezeigt+1) + " von " + auf.schritte.length + ")";
+  }
+  function fertig(){
+    document.getElementById("e-mehr").hidden = true;
+    document.getElementById("e-alles").hidden = true;
+    if (auf.bildNachher) ziel.insertAdjacentHTML("beforeend", auf.bildNachher());
+    ziel.insertAdjacentHTML("beforeend", '<div class="echo gut"><p><strong>Ergebnis:</strong> ' + auf.antwort + "</p></div>");
+    document.getElementById("e-weiter-reihe").hidden = false;
+  }
+  document.getElementById("e-mehr").onclick = nachlegen;
+  document.getElementById("e-alles").onclick = function(){
+    while (sitzung.gezeigt < auf.schritte.length) nachlegen();
+  };
+  document.getElementById("e-weiter").onclick = function(){
+    sitzung.index = 0; sitzung.ergebnisse = []; sitzung.versuch = 0;
+    zeigeUeben();
+  };
+}
+
+/* Üben: drei Aufgaben, mit Hinweis beim ersten und voller Rechnung beim
+   zweiten Fehlversuch. Fehler kosten hier nichts. */
+var UEBEN_ANZAHL = 3;
+
+function zeigeUeben(){
+  var t = themaMit(sitzung.id);
+  if (sitzung.index >= UEBEN_ANZAHL) return zeigeUebergang();
+  var auf = waehle(t.gen)();
+  sitzung.versuch = 0;
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(2)
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille">Üben · Aufgabe ' + (sitzung.index+1) + " von " + UEBEN_ANZAHL + "</span>"
+    + '<span class="leise">' + esc(t.name) + "</span></div>"
+    + '<div style="margin-top:.7rem">' + aufgabeHtml(auf) + "</div>"
+    + eingabeHtml(auf, "u" + sitzung.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="u-ok" type="button">Prüfen</button>'
+    + '<button class="knopf knopf-still" id="u-hilf" type="button">Ich komme nicht weiter</button>'
+    + "</div>"
+    + '<div id="u-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  var echo = document.getElementById("u-echo");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  function loesungZeigen(vorspann, art){
+    markierenWennMoeglich();
+    echo.innerHTML = '<div class="echo ' + art + '">'
+      + '<div class="kopfzeile"><span class="zeichen">→</span>' + vorspann + "</div>"
+      + schritteHtml(auf)
+      + "<p style=\"margin-top:.7rem\"><strong>Antwort:</strong> " + auf.antwort + "</p></div>"
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-next" type="button">'
+      + (sitzung.index + 1 >= UEBEN_ANZAHL ? "Weiter zum Re-Test" : "Nächste Aufgabe") + "</button></div>";
+    document.getElementById("u-ok").disabled = true;
+    document.getElementById("u-hilf").hidden = true;
+    document.getElementById("u-next").onclick = function(){ sitzung.index++; zeigeUeben(); };
+    document.getElementById("u-next").focus();
+  }
+  function markierenWennMoeglich(){
+    var e = pruefen(auf, karte);
+    if (e) markieren(auf, karte, e);
+    else if (auf.eingabe.art === "wahl"){
+      [].slice.call(karte.querySelectorAll(".wahl")).forEach(function(k, i){
+        k.disabled = true;
+        if (i === auf.eingabe.richtig) k.setAttribute("data-stand","richtig");
+      });
+    }
+  }
+
+  document.getElementById("u-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      echo.innerHTML = '<div class="echo"><p>Da fehlt noch eine Antwort — oder eine Eingabe ist keine Zahl. '
+        + "Erlaubt sind zum Beispiel " + KONFIG.eingabeBeispiele.map(function(b){ return "<code>" + esc(b) + "</code>"; }).join(", ").replace(/, (?=[^,]*$)/, " oder ") + ".</p></div>";
+      return;
+    }
+    sitzung.versuch++;
+    if (e.ok){
+      markieren(auf, karte, e);
+      echo.innerHTML = '<div class="echo gut"><div class="kopfzeile"><span class="zeichen">✓</span>' + waehle(LOB) + "</div>"
+        + "<p>" + auf.antwort + "</p>"
+        + '<p style="margin-top:.5rem"><button class="knopf knopf-still" id="u-weg" type="button">Rechenweg trotzdem ansehen</button></p></div>'
+        + '<div id="u-weg-ziel"></div>'
+        + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-next" type="button">'
+        + (sitzung.index + 1 >= UEBEN_ANZAHL ? "Weiter zum Re-Test" : "Nächste Aufgabe") + "</button></div>";
+      document.getElementById("u-ok").disabled = true;
+      document.getElementById("u-hilf").hidden = true;
+      document.getElementById("u-weg").onclick = function(){
+        document.getElementById("u-weg-ziel").innerHTML = schritteHtml(auf);
+        document.getElementById("u-weg").hidden = true;
+      };
+      document.getElementById("u-next").onclick = function(){ sitzung.index++; zeigeUeben(); };
+      document.getElementById("u-next").focus();
+      return;
+    }
+    if (sitzung.versuch === 1){
+      markieren(auf, karte, e);
+      echo.innerHTML = '<div class="echo fast"><div class="kopfzeile"><span class="zeichen">~</span>' + waehle(MUT) + "</div>"
+        + "<p><strong>Hinweis:</strong> " + auf.hinweis + "</p></div>"
+        + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="u-retry" type="button">Noch einmal versuchen</button></div>';
+      document.getElementById("u-retry").onclick = function(){
+        entsperren(karte);
+        echo.innerHTML = "";
+        var f = karte.querySelector("input[data-feld]");
+        if (f) f.focus();
+      };
+      return;
+    }
+    loesungZeigen(waehle(ZWEITER), "nein");
+  };
+  document.getElementById("u-hilf").onclick = function(){
+    loesungZeigen("Kein Problem — hier ist der ganze Weg.", "");
+  };
+}
+
+/* Zwischenstopp vor dem Re-Test: kurz Luft holen, klar sagen, was kommt. */
+function zeigeUebergang(){
+  var t = themaMit(sitzung.id);
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + "<h2>Jetzt der Re-Test</h2>"
+    + '<p class="lead">Vier Aufgaben zu <strong>' + esc(t.name) + "</strong> — neue Zahlen, kein Hinweis, ein Versuch pro Aufgabe. "
+    + "Drei richtige genügen, damit das Thema als sicher gilt.</p>"
+    + '<div class="hinweis"><strong>Warum ohne Hilfe?</strong> Weil in der ' + KONFIG.art + ' auch niemand danebensteht. '
+    + "Und weil du erst dann weißt, dass du es kannst, wenn du es einmal allein geschafft hast. "
+    + "Geht es schief, ist nichts verloren — dann erkläre ich es dir noch einmal anders.</div>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="r-los" type="button">Re-Test starten</button>'
+    + '<button class="knopf knopf-still" id="r-mehr" type="button">Lieber noch etwas üben</button>'
+    + "</div></div>"
+  );
+  document.getElementById("r-los").onclick = function(){
+    sitzung.index = 0; sitzung.ergebnisse = []; zeigeRetest();
+  };
+  document.getElementById("r-mehr").onclick = function(){
+    sitzung.index = 0; zeigeUeben();
+  };
+}
+
+var TEST_ANZAHL = 4, TEST_NOETIG = 3;
+
+function zeigeRetest(){
+  var t = themaMit(sitzung.id);
+  if (sitzung.index >= TEST_ANZAHL) return retestAuswerten();
+  var auf = waehle(t.gen)();
+
+  var punkte = "";
+  for (var i = 0; i < TEST_ANZAHL; i++){
+    var s = sitzung.ergebnisse[i];
+    punkte += '<span class="punkt"' + (s === undefined ? "" : ' data-stand="' + (s ? "richtig" : "falsch") + '"') + "></span>";
+  }
+
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille pille-teal">Re-Test · ' + (sitzung.index+1) + " von " + TEST_ANZAHL + "</span>"
+    + '<span class="punkte" aria-label="bisherige Ergebnisse">' + punkte + "</span></div>"
+    + '<div style="margin-top:.7rem">' + aufgabeHtml(auf) + "</div>"
+    + eingabeHtml(auf, "r" + sitzung.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="rt-ok" type="button">Antwort abschicken</button></div>'
+    + '<div id="rt-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  document.getElementById("rt-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      document.getElementById("rt-echo").innerHTML =
+        '<div class="echo"><p>Bitte trage in jedes Feld eine Zahl ein — oder wähle eine Antwort aus.</p></div>';
+      return;
+    }
+    markieren(auf, karte, e);
+    sitzung.ergebnisse.push(e.ok);
+    document.getElementById("rt-ok").disabled = true;
+    document.getElementById("rt-echo").innerHTML =
+      '<div class="echo ' + (e.ok ? "gut" : "nein") + '">'
+      + '<div class="kopfzeile"><span class="zeichen">' + (e.ok ? "✓" : "✗") + "</span>"
+      + (e.ok ? waehle(LOB) : "Diese nicht.") + "</div>"
+      + "<p>" + auf.antwort + "</p>"
+      + '<p style="margin-top:.5rem"><button class="knopf knopf-still" id="rt-weg" type="button">Rechenweg ansehen</button></p></div>'
+      + '<div id="rt-weg-ziel"></div>'
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="rt-next" type="button">'
+      + (sitzung.index + 1 >= TEST_ANZAHL ? "Auswertung" : "Nächste Aufgabe") + "</button></div>";
+    document.getElementById("rt-weg").onclick = function(){
+      document.getElementById("rt-weg-ziel").innerHTML = schritteHtml(auf);
+      document.getElementById("rt-weg").hidden = true;
+    };
+    document.getElementById("rt-next").onclick = function(){ sitzung.index++; zeigeRetest(); };
+    document.getElementById("rt-next").focus();
+  };
+}
+
+function retestAuswerten(){
+  var t = themaMit(sitzung.id);
+  var richtig = sitzung.ergebnisse.filter(Boolean).length;
+  var bestanden = richtig >= TEST_NOETIG;
+  var s = stand.themen[t.id];
+  s.runden++;
+  s.letzte = { richtig: richtig, gesamt: TEST_ANZAHL };
+  if (bestanden) s.stand = "sicher";
+  else if (richtig >= 1 && s.stand === "offen") s.stand = "wackelig";
+  sichern();
+
+  if (bestanden){
+    var naechste = null;
+    for (var i = 0; i < THEMEN.length; i++){
+      if (stand.themen[THEMEN[i].id].stand !== "sicher"){ naechste = THEMEN[i]; break; }
+    }
+    var schluss = naechste
+      ? "Als Nächstes steht <strong>" + esc(naechste.name) + "</strong> an."
+      : "Damit sind alle " + zahlwort(THEMEN.length) + " Themen grün. Der gemischte " + KONFIG.check + " ist jetzt der beste nächste Schritt.";
+    zeige(
+      '<div class="karte">'
+      + phasenleiste(4)
+      + '<span class="pille pille-gruen">' + richtig + " von " + TEST_ANZAHL + " richtig</span>"
+      + "<h2 style=\"margin-top:.6rem\">" + esc(t.name) + " sitzt.</h2>"
+      + '<p class="lead">' + (richtig === TEST_ANZAHL
+          ? "Vier von vier — ohne Hinweise, mit neuen Zahlen. Das ist kein Zufall mehr, das ist Können."
+          : "Drei von vier ohne Hilfe: Das reicht. Der eine Ausrutscher ist normal und kein Grund, hier länger zu bleiben.") + "</p>"
+      + '<div class="hinweis hinweis-gruen"><strong>Du kannst jetzt:</strong><ul style="margin:.4rem 0 0 1.1rem; padding:0">'
+      + t.koennen.map(function(k){ return "<li>" + k + "</li>"; }).join("") + "</ul></div>"
+      + '<p class="leise">Ein Tipp aus Erfahrung: Komm in ein paar Tagen noch einmal her und mach nur den Re-Test. '
+      + "Was man zweimal mit Abstand kann, kann man in der " + KONFIG.art + " auch.</p>"
+      + "<p>" + schluss + "</p>"
+      + '<div class="reihe">'
+      + (naechste ? '<button class="knopf knopf-haupt knopf-gross" id="g-next" type="button">Weiter mit ' + esc(naechste.name) + "</button>" : "")
+      + '<button class="knopf" id="g-karte" type="button">Zur Übersicht</button>'
+      + "</div></div>"
+    );
+    var n = document.getElementById("g-next");
+    if (n) n.onclick = function(){ themaOeffnen(naechste.id); };
+    document.getElementById("g-karte").onclick = zeigeKarte;
+    return;
+  }
+
+  /* Nicht bestanden: kein Tadel, sondern ein zweiter Anlauf mit einem
+     anderen Beispiel. Der Weg zurück ist immer derselbe wie beim ersten Mal. */
+  sitzung.runde++;
+  zeige(
+    '<div class="karte">'
+    + phasenleiste(3)
+    + '<span class="pille pille-gold">' + richtig + " von " + TEST_ANZAHL + " richtig</span>"
+    + "<h2 style=\"margin-top:.6rem\">Noch nicht — und das ist in Ordnung.</h2>"
+    + '<p class="lead">' + (richtig === 2
+        ? "Zwei von vier: Die Hälfte stimmt schon. Meistens fehlt genau ein Schritt, und den finden wir jetzt."
+        : (richtig === 1
+          ? "Eine richtige Antwort ist mehr als keine — aber es fehlt noch etwas Grundsätzliches. Gehen wir es anders an."
+          : "Diesmal hat keine gepasst. Das heißt nicht, dass du es nicht kannst; es heißt, dass die Erklärung noch nicht bei dir angekommen ist. Also nehmen wir eine andere.")) + "</p>"
+    + '<div class="hinweis"><strong>So geht es weiter:</strong> ein neues Beispiel, vollständig durchgerechnet, '
+    + "danach wieder drei Übungsaufgaben mit Hinweisen — und dann ein frischer Re-Test. "
+    + "Es gibt keine Begrenzung, wie oft du das machen darfst.</div>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt knopf-gross" id="w-erk" type="button">Neues Beispiel ansehen</button>'
+    + '<button class="knopf knopf-still" id="w-karte" type="button">Später weitermachen</button>'
+    + "</div></div>"
+  );
+  document.getElementById("w-erk").onclick = zeigeErklaerung;
+  document.getElementById("w-karte").onclick = zeigeKarte;
+}
+
+/* --- Gemischter Check: wie in der Arbeit, ohne Themenansage ------------- */
+var check = null;
+var CHECK_ANZAHL = Math.max(12, THEMEN.length + 2);
+
+function checkStarten(){
+  /* Gemischt, aber mit Schwerpunkt auf den Klausurthemen: jedes Thema
+     mindestens einmal, die restlichen Plätze an die aktuellen Themen. */
+  var plan = THEMEN.map(function(t){ return t.id; });
+  var klausurThemen = THEMEN.filter(function(t){ return t.gruppe === "klausur"; }).map(function(t){ return t.id; });
+  while (plan.length < CHECK_ANZAHL) plan.push(waehle(klausurThemen));
+  check = { plan: mische(plan), index: 0, ergebnisse: [] };
+  checkSchritt();
+}
+
+function checkSchritt(){
+  if (check.index >= check.plan.length) return checkAuswerten();
+  var t = themaMit(check.plan[check.index]);
+  var auf = waehle(t.gen)();
+  var richtigBisher = check.ergebnisse.filter(function(e){ return e.ok; }).length;
+
+  zeige(
+    '<div class="karte">'
+    + '<div class="reihe" style="justify-content:space-between">'
+    + '<span class="pille pille-teal">' + KONFIG.check + ' · ' + (check.index+1) + " von " + CHECK_ANZAHL + "</span>"
+    + '<span class="leise">' + richtigBisher + " richtig</span></div>"
+    + '<p class="leise" style="margin:.7rem 0 0">Welches Thema? Das musst du hier selbst erkennen.</p>'
+    + aufgabeHtml(auf)
+    + eingabeHtml(auf, "c" + check.index)
+    + '<div class="reihe" style="margin-top:1rem">'
+    + '<button class="knopf knopf-haupt" id="c-ok" type="button">Antwort abschicken</button>'
+    + '<button class="knopf knopf-still" id="c-skip" type="button">Überspringen</button></div>'
+    + '<div id="c-echo"></div>'
+    + "</div>"
+  );
+
+  var karte = buehne.querySelector(".karte");
+  wahlBinden(karte);
+  var erstes = karte.querySelector("input[data-feld]");
+  if (erstes) erstes.focus();
+
+  function weiter(ok){
+    check.ergebnisse.push({ id: t.id, ok: ok });
+    check.index++;
+    checkSchritt();
+  }
+  document.getElementById("c-ok").onclick = function(){
+    var e = pruefen(auf, karte);
+    if (!e){
+      document.getElementById("c-echo").innerHTML = '<div class="echo"><p>Bitte fülle alle Felder aus oder überspringe die Aufgabe.</p></div>';
+      return;
+    }
+    markieren(auf, karte, e);
+    document.getElementById("c-ok").disabled = true;
+    document.getElementById("c-skip").hidden = true;
+    document.getElementById("c-echo").innerHTML =
+      '<div class="echo ' + (e.ok ? "gut" : "nein") + '"><div class="kopfzeile"><span class="zeichen">'
+      + (e.ok ? "✓" : "✗") + "</span>" + (e.ok ? waehle(LOB) : esc(t.name) + " — schau gleich noch einmal hin.") + "</div>"
+      + "<p>" + auf.antwort + "</p></div>"
+      + '<div class="reihe" style="margin-top:.8rem"><button class="knopf knopf-haupt" id="c-next" type="button">Weiter</button></div>';
+    document.getElementById("c-next").onclick = function(){ weiter(e.ok); };
+    document.getElementById("c-next").focus();
+  };
+  document.getElementById("c-skip").onclick = function(){ weiter(false); };
+}
+
+function checkAuswerten(){
+  var proThema = {};
+  check.ergebnisse.forEach(function(e){
+    if (!proThema[e.id]) proThema[e.id] = { richtig: 0, gesamt: 0 };
+    proThema[e.id].gesamt++;
+    if (e.ok) proThema[e.id].richtig++;
+  });
+  var richtig = check.ergebnisse.filter(function(e){ return e.ok; }).length;
+  stand.check = { richtig: richtig, gesamt: CHECK_ANZAHL, wann: new Date().toISOString().slice(0,10) };
+  /* Ein Thema, das im gemischten Test durchfällt, war nur im Zusammenhang
+     sicher. Es rutscht auf „wackelig“ — mit Absicht: Das ist die ehrlichere
+     Auskunft, und der Weg dorthin zurück ist kurz. */
+  Object.keys(proThema).forEach(function(id){
+    if (proThema[id].richtig === 0 && stand.themen[id].stand === "sicher")
+      stand.themen[id].stand = "wackelig";
+  });
+  sichern();
+
+  var urteil;
+  var anteil = richtig / CHECK_ANZAHL;
+  if (anteil >= 11/12) urteil = "Das ist " + KONFIG.niveau + ". Mehr als eine Wiederholung in ein paar Tagen braucht es nicht.";
+  else if (anteil >= 9/12) urteil = "Ein gutes Ergebnis. Sieh dir die zwei, drei Wackler unten an — der Rest sitzt.";
+  else if (anteil >= 6/12) urteil = "Die Hälfte und mehr steht. Nimm dir gezielt die Themen vor, die unten rot sind, statt alles noch einmal zu machen.";
+  else urteil = "Das war noch schwer. Wichtig: Nicht alles gleichzeitig. Nimm dir das erste rote Thema von oben vor und arbeite es fertig — das trägt die anderen mit.";
+
+  var zeilen = Object.keys(proThema).map(function(id){
+    var t = themaMit(id), p = proThema[id];
+    var farbe = p.richtig === p.gesamt ? "pille-gruen" : (p.richtig === 0 ? "pille-rot" : "pille-gold");
+    return '<tr><td style="text-align:left">' + esc(t.name) + '</td><td><span class="pille ' + farbe + '">'
+      + p.richtig + "/" + p.gesamt + "</span></td></tr>";
+  }).join("");
+
+  zeige(
+    '<div class="karte">'
+    + '<span class="pille pille-teal">' + KONFIG.check + '</span>'
+    + "<h2 style=\"margin-top:.6rem\">" + richtig + " von " + CHECK_ANZAHL + " richtig</h2>"
+    + '<p class="lead">' + urteil + "</p>"
+    + '<table class="werte"><tr><th style="text-align:left">Thema</th><th>Ergebnis</th></tr>' + zeilen + "</table>"
+    + '<div class="reihe">'
+    + '<button class="knopf knopf-haupt" id="c-karte" type="button">Zur Übersicht</button>'
+    + '<button class="knopf" id="c-nochmal" type="button">Noch einen Durchgang</button>'
+    + "</div></div>"
+  );
+  document.getElementById("c-karte").onclick = zeigeKarte;
+  document.getElementById("c-nochmal").onclick = checkStarten;
+}
+
+/* ==========================================================================
+   9 — Bedienung außen herum
+   ========================================================================== */
+document.getElementById("knopf-karte").onclick = function(){
+  if (stand.diagnose === null && zahlSicher() === 0) zeigeStart(); else zeigeKarte();
+};
+document.getElementById("knopf-thema").onclick = function(){
+  var dunkel = document.documentElement.getAttribute("data-thema") === "dunkel";
+  document.documentElement.setAttribute("data-thema", dunkel ? "hell" : "dunkel");
+  document.getElementById("knopf-thema").textContent = dunkel ? "☾" : "☀";
+  try { localStorage.setItem(THEMA_SCHLUESSEL, dunkel ? "hell" : "dunkel"); } catch (e) {}
+};
+document.getElementById("knopf-reset").onclick = function(){
+  if (!window.confirm("Wirklich alles zurücksetzen? Dein Fortschritt auf diesem Gerät geht dabei verloren.")) return;
+  stand = leererStand();
+  sichern();
+  zeigeStart();
+};
+
+/* Enter schickt ab — auf dem iPad spart das den Griff zum Knopf. */
+document.addEventListener("keydown", function(e){
+  if (e.key !== "Enter" || e.shiftKey || e.ctrlKey || e.metaKey) return;
+  var ziel = e.target;
+  if (ziel && ziel.tagName === "BUTTON") return;
+  var knopf = buehne.querySelector(".knopf-haupt:not([disabled])");
+  if (knopf){ e.preventDefault(); knopf.click(); }
+});
+
+/* Beim Öffnen: gespeicherte Darstellung, dann die passende Ansicht. */
+(function start(){
+  var t = null;
+  try { t = localStorage.getItem(THEMA_SCHLUESSEL); } catch (e) {}
+  if (t !== "hell" && t !== "dunkel"){
+    var dunkel = false;
+    try { dunkel = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) {}
+    t = dunkel ? "dunkel" : "hell";
+  }
+  document.documentElement.setAttribute("data-thema", t);
+  document.getElementById("knopf-thema").textContent = t === "dunkel" ? "☀" : "☾";
+  document.getElementById("kopf-unter").textContent = countdownText();
+  zeigeStart();
+})();
+</script>
+
+</body>
+</html>
