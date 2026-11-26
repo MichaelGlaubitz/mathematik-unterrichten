@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Integration durch Substitution Schritt für Schritt</title>
-<meta name="description" content="Lernweg zur Integration durch Substitution für die Oberstufe: Kettenregel rückwärts, das Innere erkennen, das Verfahren in fünf Schritten, lineare Substitution, Grenzen mitnehmen, Fehler finden, erklären können. Vormachen mit Fragen, Üben mit immer neuen Aufgaben, Gespräch mit Sokrates, Rückmeldung zum eigenen Rechenweg.">
+<meta name="description" content="Lernweg zur Integration durch Substitution für die Oberstufe: die Kettenregel, Kettenregel rückwärts, das Innere erkennen, das Verfahren in fünf Schritten, lineare Substitution, Grenzen mitnehmen, Fehler finden, erklären können. Vormachen mit Fragen, Üben mit immer neuen Aufgaben, Gespräch mit Sokrates, Rückmeldung zum eigenen Rechenweg.">
 <!--
   ===========================================================================
   Integration durch Substitution Schritt für Schritt (Trainelia, Kapitel 3)
@@ -321,6 +321,7 @@ svg.gr .ft{fill:var(--text);font-weight:700;font-size:12px}
 <details class="karte bereich zettel-b zettel" id="zettel">
   <summary>Spickzettel</summary>
   <table>
+    <tr><td>Kettenregel</td><td><span data-tex="\bigl(f(g(x))\bigr)' = f'(g(x))\cdot g'(x)"></span>: äußere Ableitung, das Innere bleibt stehen, mal innere Ableitung</td></tr>
     <tr><td>Idee</td><td>Kettenregel rückwärts: <span data-tex="\int f(g(x))\cdot g'(x)\,dx = F(g(x)) + C"></span></td></tr>
     <tr><td>Erkennen</td><td>eine Verkettung, und die Ableitung ihres Inneren steht bis auf eine Zahl als Faktor daneben.</td></tr>
     <tr><td>Fünf Schritte</td><td>① <span data-tex="u = g(x)"></span> ② <span data-tex="dx = \frac{du}{g'(x)}"></span> ③ ersetzen, bis kein x mehr dasteht ④ integrieren ⑤ zurücksubstituieren, <span data-tex="+\,C"></span></td></tr>
@@ -345,8 +346,8 @@ svg.gr .ft{fill:var(--text);font-weight:700;font-size:12px}
 <footer>Ohne Anmeldung · Lernstand bleibt auf diesem Gerät · mathematik-unterrichten.de</footer>
 </div>
 
-<script src="sokrates-trainer.js?v=202611251800"></script>
-<script src="sokrates-trainer-s.js?v=202611251800"></script>
+<script src="sokrates-trainer.js?v=202611261200"></script>
+<script src="sokrates-trainer-s.js?v=202611261200"></script>
 <script>
 "use strict";
 /* ============================================================
@@ -1003,6 +1004,169 @@ function faktorFallen(t) {
   ];
 }
 
+/* ---------- 0 · Vorher: die Kettenregel ---------- */
+/* Text mit $…$ → KaTeX (dieselben Hinweise dienen dem Trainer und dem Sokrates-Gespräch) */
+const mt = (s) => s.replace(/\$([^$]+)\$/g, (_, x) => M(x));
+/* Ableitung von f(g(x)) als C · x^e · Stück(G); bei kehr und wurzel als Bruch */
+function ablTex(C, e, art, m, G) {
+  if (art === "kehr" || art === "wurzel") {
+    const num = vorTex([Math.abs(C[0]), 1], e) || "1";
+    const den = (C[1] === 1 ? "" : C[1]) + (art === "kehr" ? `${klam(G)}^{2}` : T`\sqrt{${G}}`);
+    return (C[0] < 0 ? "-" : "") + T`\frac{${num}}{${den}}`;
+  }
+  const P = { pot: m - 1 === 1 ? klam(G) : `${klam(G)}^{${m - 1}}`, exp: `e^{${G}}`, sin: T`\cos(${G})`, cos: T`\sin(${G})` }[art];
+  return mitVor(vorTex(C, e), P);
+}
+const mitVor = (v, P) => (v === "" ? P : v === "-" ? "-" + P : `${v}\\,${P}`);
+const ABL_U = { pot: (m) => (m - 1 === 1 ? `${m}u` : `${m}u^{${m - 1}}`), exp: () => "e^{u}", sin: () => T`\cos(u)`, cos: () => T`-\sin(u)`,
+  kehr: () => T`-\frac{1}{u^{2}}`, wurzel: () => T`\frac{1}{2\sqrt{u}}` };
+function kette() {
+  for (let v = 0; v < 400; v++) {
+    const n = wahl([1, 1, 2, 2, 3]);
+    const p = n === 1 ? wahl([2, 3, 4, 5, -2, -3]) : wahl([1, 1, 2, 3, -1]);
+    const q = n === 1 ? wahl([1, 2, 3, 5, -1, -2, -4, 7]) : wahl([0, 1, 2, 3, 4, 5, -1, -2]);
+    const art = wahl(["pot", "pot", "pot", "exp", "sin", "cos", "kehr", "wurzel"]);
+    if ((art === "pot" || art === "kehr" || art === "wurzel") && q === 0) continue;
+    if (art === "wurzel" && (q < 0 || p < 0)) continue;
+    const m = art === "pot" ? wahl(n === 1 ? [2, 3, 4, 5] : [2, 3, 4]) : 0;
+    const a = art === "pot" ? AUSSEN.pot(m) : AUSSEN[art]();
+    const gi = innen(p, n, q), d = gi.d, e = n - 1;
+    const C = { pot: [m * d, 1], exp: [d, 1], sin: [d, 1], cos: [-d, 1], kehr: [-d, 1], wurzel: Bruch(d, 2) }[art];
+    const P = { pot: (u) => u ** (m - 1), exp: Math.exp, sin: Math.cos, cos: Math.sin, kehr: (u) => 1 / (u * u), wurzel: (u) => 1 / Math.sqrt(u) }[art];
+    const Pg = { pot: (g) => `(${g})^${m - 1}`, exp: (g) => `exp(${g})`, sin: (g) => `cos(${g})`, cos: (g) => `sin(${g})`, kehr: (g) => `1/(${g})^2`, wurzel: (g) => `1/sqrt(${g})` }[art];
+    const h = (x) => a.f(gi.w(x));
+    const hp = (x) => bw(C) * x ** e * P(gi.w(x));
+    const t = { n, p, q, m, art, a, gi, C, e, h, hp, geschichte: "k" + art + n };
+    t.hT = a.tex(gi.tex); t.hTf = a.tex(IN(gi.tex));
+    t.hpT = ablTex(C, e, art, m, gi.tex);
+    t.aussenAblT = ABL_U[art](m);
+    /* falsche Ableitungen mit Begründung ($…$ ist TeX) */
+    const ohne = bdurch(C, [d, 1]);
+    t.falsch = [
+      { tex: ablTex(ohne, 0, art, m, gi.tex), grund: `Die innere Ableitung fehlt. Nach der äußeren Ableitung kommt noch der Faktor $g'(x) = ${gi.dTex}$.` },
+    ];
+    if (art === "exp") t.falsch.push({ tex: `${klam(gi.tex)}\\,e^{${gi.tex}-1}`, grund: "Die Potenzregel gilt nicht, wenn x im Exponenten steht. $e^{u}$ ist seine eigene Ableitung." });
+    else t.falsch.push({ tex: mitVor(vorTex([d, 1], e), a.tex(gi.tex)), grund: `Hier wurde nur das Innere abgeleitet. Auch die äußere Funktion $${a.tex("u")}$ muss abgeleitet werden.` });
+    if (n > 1) t.falsch.push({ tex: ablTex(ohne, 0, art, m, gi.dTex), grund: `In der äußeren Ableitung bleibt das Innere unverändert stehen: Dort gehört $${gi.tex}$ hin, nicht seine Ableitung.` });
+    if (art === "sin") t.falsch.push({ tex: ablTex(bmal(C, [-1, 1]), e, art, m, gi.tex), grund: "Die Ableitung von $\\sin$ ist $\\cos$, ohne Minus." });
+    if (art === "cos") t.falsch.push({ tex: ablTex(bmal(C, [-1, 1]), e, art, m, gi.tex), grund: "Die Ableitung von $\\cos$ ist $-\\sin$: Das Minus fehlt." });
+    if (art === "kehr") t.falsch.push({ tex: ablTex(bmal(C, [-1, 1]), e, art, m, gi.tex), grund: "$\\bigl(\\frac{1}{u}\\bigr)' = -\\frac{1}{u^{2}}$: Achte auf das Minus." });
+    if (art === "pot") t.falsch.push({ tex: mitVor(vorTex(C, e), `${klam(gi.tex)}^{${m}}`), grund: "Beim Ableiten sinkt der Exponent um 1." });
+    if (art === "wurzel") t.falsch.push({ tex: ablTex([d, 1], e, art, m, gi.tex), grund: "$(\\sqrt{u})' = \\frac{1}{2\\sqrt{u}}$: Die 2 im Nenner fehlt." });
+    /* Stelle für die Steigung */
+    const stellen = misch([1, -1, 2, 0, 0.5]).filter((x0) => isFinite(h(x0)) && isFinite(hp(x0)) && Math.abs(hp(x0)) > 0.05 && Math.abs(hp(x0)) < 60);
+    if (!stellen.length) continue;
+    t.x0 = stellen[0]; t.y0 = h(t.x0); t.m0 = hp(t.x0);
+    t.hG = a.ggb(gi.ggb); t.hpG = `${ggbZahl(C)}*x^${e}*${Pg(gi.ggb)}`;
+    return t;
+  }
+  throw new Error("Keine Kettenaufgabe gefunden");
+}
+function sokKette(t) {
+  const proben = [];
+  for (const f of [t.h, t.hp]) for (let i = 0; i <= 200; i++) { const y = f(-2.5 + 5 * i / 200); if (isFinite(y)) proben.push(y); }
+  proben.sort((u, w) => u - w);
+  let lo = Math.min(0, proben[Math.floor((proben.length - 1) * 0.05)] ?? -1), hi = Math.max(0, proben[Math.ceil((proben.length - 1) * 0.95)] ?? 1);
+  lo = Math.min(lo, t.y0 - 1); hi = Math.max(hi, t.y0 + 1);
+  if (hi - lo < 2) hi = lo + 2;
+  return { kette: true, art: t.art, n: t.n, p: t.p, hT: t.hT, gT: t.gi.tex, dT: t.gi.dTex, aussenT: t.a.tex("u"), aussenAblT: t.aussenAblT,
+    hpT: t.hpT, falsch: t.falsch, hG: t.hG, hpG: t.hpG, x0: t.x0, y0: t.y0, m0: t.m0,
+    duF: (t.p === 1 ? "" : t.p === -1 ? "-" : String(t.p)) + xPot(t.n - 1),
+    sicht: [-2.9, 2.9, lo - (hi - lo) * 0.1, hi + (hi - lo) * 0.1] };
+}
+const sinVergleich = () => graph({ xmin: -0.1, xmax: 3.3, ymin: -1.25, ymax: 1.95, dx: 0.5, dy: 0.5, kurven: [
+  { f: Math.sin, farbe: "a", legende: "y = sin(x)" }, { f: (x) => Math.sin(3 * x), farbe: "b", legende: "y = sin(3x)" },
+  { f: (x) => x, farbe: "a", von: 0, bis: 0.9 }, { f: (x) => 3 * x, farbe: "b", von: 0, bis: 0.33 }], label: "sin(x) und sin(3x) mit Tangenten im Nullpunkt" });
+const KETTE = [
+  ["①", T`\text{außen: } f(u) = u^{3},\quad f'(u) = 3u^{2}`],
+  ["②", T`\text{Inneres einsetzen: } 3(${IN("x^2+1")})^{2}`],
+  ["③", T`\text{innen: } g(x) = ${IN("x^2+1")},\quad g'(x) = ${AB("2x")}`],
+  ["④", T`h'(x) = 3(${IN("x^2+1")})^{2}\cdot ${AB("2x")} = 6x\,(x^2+1)^{2}`],
+];
+STATIONEN.push({
+  id: "s-kette", titel: "Vorher: Die Kettenregel", ziel: 3,
+  vor: [
+    { t: `Die Substitution ist die Kettenregel rückwärts. Darum zuerst die Kettenregel selbst. Sie gilt für <b>verkettete</b> Funktionen: Zwei Funktionen werden nacheinander ausgeführt. Bei ${M(T`h(x) = (x^2+1)^3`)} rechnest du für ${M("x = 2")} zuerst ${M("2^2 + 1 = 5")} und dann ${M("5^3 = 125")}.`,
+      v: () => formelBild(T`x \;\xrightarrow{\;g\;}\; ${IN("x^2+1")} \;\xrightarrow{\;f\;}\; (${IN("x^2+1")})^{3}`, "zuerst die innere Funktion g (blau), dann die äußere f(u) = u³"),
+      f: { q: `Was ist bei ${M(T`h(x) = \sin(x^2)`)} die innere Funktion?`, o: [
+        { t: M("x^2"), ok: true, w: `Genau: Zuerst wird quadriert, dann kommt der Sinus. Die äußere Funktion ist ${M(T`f(u) = \sin(u)`)}.` },
+        { t: M(T`\sin(x)`), w: `Der Sinus kommt zuletzt, er ist außen. Was steht in seiner Klammer?` },
+        { t: M(T`\sin(x^2)`), w: "Das ist die ganze Verkettung h. Gesucht ist der Teil, der zuerst gerechnet wird." }] } },
+    { t: `Warum reicht es nicht, nur außen abzuleiten? Vergleiche ${M(T`\sin(x)`)} und ${M(T`\sin(3x)`)}. Die zweite Kurve durchläuft dieselben Werte, aber dreimal so schnell, denn das Innere ${M("3x")} wächst dreimal so schnell wie x. Darum ist sie überall dreimal so steil.`,
+      v: sinVergleich,
+      f: { q: `Nur außen abgeleitet hieße ${M(T`\bigl(\sin(3x)\bigr)' = \cos(3x)`)}. Im Nullpunkt wäre die Steigung dann ${M(T`\cos(0) = 1`)}. Was zeigt das Bild?`, o: [
+        { t: "Die Steigung ist 3: Es fehlt der Faktor 3", ok: true, w: `Genau. Die 3 ist die Ableitung des Inneren ${M("3x")}. Sie kommt als Faktor dazu.` },
+        { t: "Die Steigung ist 1, das passt", w: "Schau auf die türkise Tangente: Sie steigt auf einem Drittel Weg schon um 1. Ihre Steigung ist 3." },
+        { t: `Die Steigung ist ${M(T`\tfrac{1}{3}`)}`, w: "sin(3x) ist steiler als sin(x), nicht flacher." }] } },
+    { t: `Das ist die <b>Kettenregel</b>: ${M(T`\bigl(f(${IN("g(x)")})\bigr)' = f'(${IN("g(x)")})\cdot ${AB("g'(x)")}`)}. In Worten: die äußere Funktion ableiten und das Innere dabei unverändert stehen lassen, dann mit der inneren Ableitung malnehmen.`,
+      v: () => formelBild(T`\bigl(f(${IN("g(x)")})\bigr)' = f'(${IN("g(x)")})\cdot ${AB("g'(x)")}`, "äußere Ableitung · innere Ableitung"),
+      f: { q: `Was ist ${M(T`\bigl(\sin(3x)\bigr)'`)}?`, o: [
+        { t: M(T`\cos(3x)\cdot 3`), ok: true, w: "Genau: außen cos, das Innere 3x bleibt stehen, mal 3." },
+        { t: M(T`\cos(3x)`), w: "Die innere Ableitung 3 fehlt. Das Bild hat gezeigt: Die Kurve ist dreimal so steil." },
+        { t: M(T`\cos(3)`), w: "In der äußeren Ableitung bleibt das Innere unverändert stehen. Aus 3x wird dort nicht 3." },
+        { t: M(T`3\cos(x)`), w: "Das Innere 3x muss im Kosinus stehen bleiben." }] } },
+    { t: `Ein ganzes Beispiel: ${M(T`h(x) = (x^2+1)^3`)}. Erst außen ableiten und das Innere wieder einsetzen, dann die innere Ableitung bestimmen und malnehmen.`,
+      v: () => rechenweg(KETTE, 3),
+      f: { q: `Welche Ableitung hat ${M(T`(2x-5)^4`)}?`, o: [
+        { t: M(T`8\,(2x-5)^{3}`), ok: true, w: `Genau: ${M(T`4(2x-5)^3\cdot 2`)}.` },
+        { t: M(T`4\,(2x-5)^{3}`), w: "Die innere Ableitung 2 fehlt." },
+        { t: M(T`4\cdot 2^{3}`), w: "In der äußeren Ableitung bleibt das Innere 2x − 5 unverändert stehen." },
+        { t: M(T`8x\,(2x-5)^{3}`), w: "Die Ableitung von 2x − 5 ist 2, ohne x." }] } },
+    { t: `Bei der e-Funktion ist es besonders einfach, denn ${M(T`(e^u)' = e^u`)}. Außen bleibt also alles stehen, nur die innere Ableitung kommt dazu: ${M(T`\bigl(e^{${IN("x^2")}}\bigr)' = e^{${IN("x^2")}}\cdot ${AB("2x")}`)}.`,
+      v: () => formelBild(T`\bigl(e^{${IN("x^2")}}\bigr)' = e^{${IN("x^2")}}\cdot ${AB("2x")}`),
+      f: { q: `Was ist ${M(T`\bigl(e^{-3x}\bigr)'`)}?`, o: [
+        { t: M(T`-3\,e^{-3x}`), ok: true, w: "Genau: e^(−3x) bleibt stehen, mal die innere Ableitung −3." },
+        { t: M(T`e^{-3x}`), w: "Die innere Ableitung −3 fehlt." },
+        { t: M(T`-3x\,e^{-3x-1}`), w: "Die Potenzregel gilt nicht, wenn x im Exponenten steht." },
+        { t: M(T`e^{-3}`), w: "Das Innere −3x bleibt im Exponenten stehen." }] } },
+    { t: `Bei Sinus und Kosinus kommt das Vorzeichen dazu: ${M(T`(\sin u)' = \cos u`)} und ${M(T`(\cos u)' = -\sin u`)}. Zum Beispiel ${M(T`\bigl(\cos(${IN("x^2")})\bigr)' = -\sin(${IN("x^2")})\cdot ${AB("2x")} = -2x\sin(x^2)`)}.`,
+      v: () => formelBild(T`\bigl(\cos(${IN("x^2")})\bigr)' = -\sin(${IN("x^2")})\cdot ${AB("2x")}`),
+      f: { q: `Was ist ${M(T`\bigl(\cos(4x+1)\bigr)'`)}?`, o: [
+        { t: M(T`-4\sin(4x+1)`), ok: true, w: "Genau: −sin außen, das Innere bleibt, mal 4." },
+        { t: M(T`4\sin(4x+1)`), w: "Die Ableitung von cos ist −sin. Das Minus fehlt." },
+        { t: M(T`-\sin(4x+1)`), w: "Die innere Ableitung 4 fehlt." },
+        { t: M(T`-\sin(4)`), w: "Das Innere 4x + 1 bleibt in der äußeren Ableitung unverändert stehen." }] } },
+    { t: `Und jetzt rückwärts gelesen: Weil ${M(T`\bigl(\sin(${IN("x^2")})\bigr)' = \cos(${IN("x^2")})\cdot ${AB("2x")}`)}, ist ${M(T`\int \cos(${IN("x^2")})\cdot ${AB("2x")}\,dx = \sin(x^2) + C`)}. Wer die Kettenregel kennt, erkennt ihre <b>Spur</b> im Integral: eine Verkettung und daneben die Ableitung ihres Inneren. Darum geht es ab der nächsten Station.`,
+      v: () => formelBild(T`\int \cos(${IN("x^2")})\cdot ${AB("2x")}\,dx = \sin(x^2) + C`, "die Kettenregel, rückwärts gelesen"),
+      f: { q: "In welchem Integral steckt die Spur der Kettenregel?", o: [
+        { t: M(T`\int 2x\,e^{x^2}\,dx`), ok: true, w: `Genau: ${M(T`e^{x^2}`)} ist verkettet, und ${M("2x")} ist die Ableitung des Inneren. Also ${M(T`\int 2x\,e^{x^2}\,dx = e^{x^2} + C`)}.` },
+        { t: M(T`\int e^{x^2}\,dx`), w: "Verkettet ist es, aber die Ableitung des Inneren fehlt daneben." },
+        { t: M(T`\int x^2\,e^{x}\,dx`), w: `Hier ist nichts ineinander gesteckt: ${M("x^2")} und ${M("e^x")} werden nur malgenommen.` }] } },
+  ],
+  merke: `${M(T`\bigl(f(g(x))\bigr)' = f'(g(x))\cdot g'(x)`)}: die äußere Funktion ableiten, das Innere dabei unverändert stehen lassen, mit der inneren Ableitung malnehmen.`,
+  stolper: `Die innere Ableitung vergessen. Und das Innere in der äußeren Ableitung verändern: ${M(T`\bigl(\sin(3x)\bigr)' = 3\cos(3x)`)}, nicht ${M(T`\cos(3)`)}.`,
+  neu() {
+    const t = kette();
+    const { gi, a } = t;
+    const tipps = [`Innen steht ${M(T`g(x) = ${IN(gi.tex)}`)}, außen ${M(T`f(u) = ${a.tex("u")}`)}.`,
+      `Äußere Ableitung ${M(T`f'(u) = ${t.aussenAblT}`)}, innere Ableitung ${M(T`g'(x) = ${AB(gi.dTex)}`)}. Setze das Innere für u ein und nimm mal.`];
+    const loesung = `${M(T`h'(x) = ${ablTex(bdurch(t.C, [gi.d, 1]), 0, t.art, t.m, IN(gi.tex))}\cdot ${AB(gi.dTex)} = ${t.hpT}`)}`;
+    const sok = sokKette(t);
+    if (Math.random() < 0.4 && (t.art === "pot" || t.art === "kehr") && Number.isInteger(t.x0)) {
+      const wert = t.m0;
+      const fallen = [
+        { wert: bw(bdurch(t.C, [gi.d, 1])) * (t.art === "pot" ? gi.w(t.x0) ** (t.m - 1) : 1 / gi.w(t.x0) ** 2), text: `Die innere Ableitung fehlt. Es kommt noch der Faktor ${M(T`g'(${t.x0})`)} dazu.` },
+        { wert: gi.d * t.x0 ** t.e * t.h(t.x0), text: "Die äußere Funktion wurde nicht abgeleitet." },
+        { wert: -wert, text: "Prüfe das Vorzeichen." },
+      ].filter((f) => isFinite(f.wert) && Math.abs(f.wert - wert) > 0.002);
+      return {
+        html: `<p>Wie steil ist der Graph von</p>${MD(`h(x) = ${t.hT}`)}<p>an der Stelle ${M(`x = ${t.x0}`)}? Berechne ${M(`h'(${t.x0})`)}.</p>`,
+        geschichte: t.geschichte + "w", sok,
+        felder: [{ id: "m0", label: `${M(`h'(${t.x0})`)} (Bruch erlaubt)`, wert, tol: 0.0011, art: "z", fallen }],
+        tipps: [...tipps, `${M(T`h'(x) = ${t.hpT}`)}. Setze ${M(`x = ${t.x0}`)} ein.`],
+        loesung: `${loesung}, also ${M(T`h'(${t.x0}) = ${kzT(wert, 4)}`)}.`,
+      };
+    }
+    const opts = eindeutig([{ t: M(t.hpT), ok: true }, ...misch(t.falsch).map((f) => ({ t: M(f.tex), w: mt(f.grund) }))]).slice(0, 4);
+    return {
+      html: `<p>Leite ab.</p>${MD(`h(x) = ${t.hT}`)}`,
+      geschichte: t.geschichte, sok, felder: [],
+      auswahl: knopfWahl("h′(x) = …", opts),
+      tipps, loesung,
+    };
+  },
+});
+
 /* ---------- 1 · Die Idee ---------- */
 STATIONEN.push({
   id: "s-idee", titel: "Die Idee: Kettenregel rückwärts", ziel: 3,
@@ -1460,7 +1624,7 @@ for (const e of document.querySelectorAll("[data-tex]")) e.innerHTML = M(e.datas
    ============================================================ */
 let aktiv = null, aufgabe = null, vorSchritt = 0, versucht = false, loesungGesehen = false, tippZahl = 0;
 
-const KURZ = { "s-idee": "Idee", "s-erkennen": "Erkennen", "s-verfahren": "Verfahren", "s-linear": "ax + b",
+const KURZ = { "s-kette": "Kettenregel", "s-idee": "Idee", "s-erkennen": "Erkennen", "s-verfahren": "Verfahren", "s-linear": "ax + b",
   "s-grenzen": "Grenzen", "s-fehler": "Fehler finden", "s-erklaeren": "Erklären", "s-mix": "Mix" };
 
 function wegZeichnen() {

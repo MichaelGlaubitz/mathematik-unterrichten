@@ -15,6 +15,7 @@ const bw = (b) => b[0] / b[1];
 const eins = (b) => b[0] === 1 && b[1] === 1;
 const koef = (b) => (eins(b) ? "" : b[0] === -1 && b[1] === 1 ? "-" : bT(b) + "\\,");
 const MERK_S = {
+  ableiten: { begriff: "Kettenregel", text: "$\\bigl(f(g(x))\\bigr)' = f'(g(x))\\cdot g'(x)$: äußere Ableitung (das Innere bleibt stehen) mal innere Ableitung." },
   ketten: { begriff: "Kettenregel", text: "$\\bigl(F(g(x))\\bigr)' = f(g(x))\\cdot g'(x)$: äußere Ableitung mal innere Ableitung." },
   sub: { begriff: "Substitution", text: "$u = g(x)$, $du = g'(x)\\,dx$, also $dx = \\frac{du}{g'(x)}$. Danach darf kein x mehr dastehen." },
   grenzen: { begriff: "Grenzen", text: "$\\int_a^b f(g(x))\\,g'(x)\\,dx = \\int_{g(a)}^{g(b)} f(u)\\,du$" },
@@ -173,6 +174,77 @@ function bestimmt(a) {
   });
 }
 
+/* ---------- vorher: ableiten mit der Kettenregel ---------- */
+function ableiten(a) {
+  const s = a.sok;
+  const z = Zeichnung();
+  z.befehle.push(`hf(x)=${s.hG}`); z.stil.hf = { farbe: "gold", dicke: 4 }; z.sichtbar.push("hf");
+  z.befehle.push(`df(x)=${s.hpG}`); z.stil.df = { farbe: "wasser", dicke: 4 };
+  z.befehle.push(`tg(x)=${s.m0}*(x-(${s.x0}))+(${s.y0})`); z.stil.tg = { farbe: "wasser", dicke: 2 };
+  z.befehle.push(`P=(${s.x0},${s.y0})`); z.stil.P = { farbe: "gold", dicke: 6 };
+  const aussenOpt = [
+    { text: `$f(u) = ${s.aussenT}$`, richtig: true },
+    { text: `$f(u) = ${s.gT}$`, hinweis: "Das ist das Innere. Gesucht ist, was danach mit dem Ergebnis u geschieht." },
+    { text: `$f(u) = u$`, hinweis: "Dann wäre h einfach g. Was wird mit dem Ergebnis des Inneren noch gemacht?" },
+  ];
+  const ablOpt = [{ text: `$f'(u) = ${s.aussenAblT}$`, richtig: true }];
+  if (s.art === "exp") ablOpt.push({ text: "$f'(u) = u\\,e^{u-1}$", hinweis: "Die Potenzregel gilt nicht, wenn die Variable im Exponenten steht." });
+  else ablOpt.push({ text: `$f'(u) = ${s.aussenT}$`, hinweis: "Das ist f selbst, noch nicht abgeleitet." });
+  if (s.art === "sin") ablOpt.push({ text: "$f'(u) = -\\cos(u)$", hinweis: "$(\\sin u)' = \\cos u$, ohne Minus." });
+  if (s.art === "cos") ablOpt.push({ text: "$f'(u) = \\sin(u)$", hinweis: "$(\\cos u)' = -\\sin u$: Das Minus fehlt." });
+  if (s.art === "kehr") ablOpt.push({ text: "$f'(u) = \\frac{1}{u^{2}}$", hinweis: "$\\frac{1}{u} = u^{-1}$, abgeleitet $-u^{-2}$: Das Minus fehlt." });
+  if (s.art === "wurzel") ablOpt.push({ text: "$f'(u) = \\frac{1}{\\sqrt{u}}$", hinweis: "$\\sqrt{u} = u^{\\frac12}$, abgeleitet $\\frac12 u^{-\\frac12}$: Die 2 im Nenner fehlt." });
+  const innenAblOpt = [
+    { text: `$g'(x) = ${s.dT}$`, richtig: true },
+    { text: `$g'(x) = ${s.gT}$`, hinweis: "Das ist g selbst, noch nicht abgeleitet." },
+    s.n > 1 ? { text: `$g'(x) = ${s.duF}$`, hinweis: "Beim Ableiten wandert der Exponent als Faktor nach vorn." }
+      : { text: `$g'(x) = ${s.p}x$`, hinweis: "Die Ableitung einer linearen Funktion ist ihre Steigung, ohne x." },
+  ];
+  const hpOpt = [{ text: `$h'(x) = ${s.hpT}$`, richtig: true }, ...s.falsch.slice(0, 3).map((f) => ({ text: `$h'(x) = ${f.tex}$`, hinweis: f.grund }))];
+  const schritte = [
+    { id: "anfang", typ: "rede", text: `Sei gegrüßt, {name}. Heute leiten wir [[h|hf]] ab: $$h(x) = ${s.hT}$$ h ist eine Verkettung. Zwei Funktionen werden nacheinander ausgeführt, und genau dafür gibt es die Kettenregel.` },
+    { id: "innen", typ: "wahl", text: "Setze in Gedanken eine Zahl für x ein. Was rechnest du zuerst? Das ist die innere Funktion g.",
+      optionen: [
+        { text: `$g(x) = ${s.gT}$`, richtig: true },
+        { text: `$g(x) = ${s.hT}$`, hinweis: "Das ist die ganze Verkettung h. Gesucht ist der Teil, der zuerst gerechnet wird." },
+        { text: "$g(x) = x$", hinweis: "x allein wird nicht erst ausgerechnet. Was steht in der Klammer, im Exponenten oder unter der Wurzel?" }],
+      tipps: ["Schau, was in der Klammer, im Exponenten, unter dem Bruchstrich oder unter der Wurzel steht."], richtig: `${lob()} Zuerst $${s.gT}$. Das Ergebnis nennen wir u.` },
+    { id: "aussen", typ: "wahl", text: "Was geschieht danach mit dem Ergebnis u? Das ist die äußere Funktion f.", optionen: aussenOpt,
+      tipps: [`Ersetze in $${s.hT}$ das Innere durch u.`], richtig: `${lob()} Also $h(x) = f(g(x))$ mit $f(u) = ${s.aussenT}$.` },
+    { id: "fabl", typ: "wahl", text: "Leite zuerst die äußere Funktion ab, ganz gewöhnlich nach u.", optionen: ablOpt,
+      tipps: ["Benutze die bekannten Ableitungen von $u^n$, $e^u$, $\\sin u$, $\\cos u$."], richtig: `${lob()} $f'(u) = ${s.aussenAblT}$.` },
+    { id: "gabl", typ: "wahl", text: "Und jetzt die innere Funktion. Was ist $g'(x)$?", optionen: innenAblOpt,
+      tipps: ["Leite g Summand für Summand ab. Eine Zahl allein fällt weg."], richtig: `${lob()} $g'(x) = ${s.dT}$.` },
+    { id: "zusammen", typ: "wahl", text: `Jetzt setzen wir zusammen: In $f'(u)$ kommt für u wieder das Innere $${s.gT}$, unverändert. Dann mal $g'(x)$. Was ist $h'(x)$?`, optionen: hpOpt,
+      tipps: ["$h'(x) = f'(g(x))\\cdot g'(x)$"], richtig: `${lob()} Das ist die [[Ableitung|df]].`, zeigeNachRichtig: ["df"] },
+    { id: "steigung", typ: "zahl", text: `Prüfen wir es am Bild. Wie steil ist [[h|hf]] an der Stelle $x = ${s.x0}$? Setze ein: $h'(${s.x0})$. Drei Nachkommastellen.`,
+      loesung: s.m0, toleranz: T3, falsch: `Setze $x = ${s.x0}$ in $h'(x) = ${s.hpT}$ ein.`, tipps: [`$h'(${s.x0})$ mit $h'(x) = ${s.hpT}$`],
+      richtig: `${lob()} Die [[Tangente|tg]] im [[Punkt|P]] hat genau diese Steigung: $h'(${s.x0}) \\approx ${dz(s.m0)}$.`, zeigeNachRichtig: ["tg", "P"] },
+    { id: "schluss", typ: "rede", text: `So halten wir fest, {name}: $$h'(x) = ${s.hpT}$$ Äußere Ableitung, das Innere unverändert stehen lassen, mal innere Ableitung. Wer das rückwärts lesen kann, kann substituieren. Schreibe dir den Hefteintrag ab.`, zeige: ["df", "tg", "P"] },
+  ];
+  return gespraech(a, {
+    titel: "Die Kettenregel",
+    aufgabe: `Leite $h(x) = ${s.hT}$ ab.`, gegeben: `$h(x) = ${s.hT}$`,
+    vorwissen: ["Ableitungen von $x^n$, $e^x$, $\\sin x$, $\\cos x$"], merkzettel: [MERK_S.ableiten],
+    selbst: [{ text: `Steigung $h'(${s.x0})$ (drei Nachkommastellen):`, kurz: `$h'(${s.x0})$`, loesung: s.m0, toleranz: T3, ab: "steigung" }],
+    hefteintrag: `$h(x) = ${s.hT}$\n\ninnen $g(x) = ${s.gT}$, $g'(x) = ${s.dT}$\n\naußen $f(u) = ${s.aussenT}$, $f'(u) = ${s.aussenAblT}$\n\n$h'(x) = f'(g(x))\\cdot g'(x) = ${s.hpT}$`,
+    rueckblick: {
+      titel: "Außen mal innen",
+      frage: `Wie leitet man $${s.hT}$ ab?`,
+      schritte: [
+        { kurz: "Zerlegen", text: `Innen $g(x) = ${s.gT}$, außen $f(u) = ${s.aussenT}$.` },
+        { kurz: "Außen", text: `$f'(u) = ${s.aussenAblT}$, das Innere bleibt dabei unverändert.` },
+        { kurz: "Innen", text: `$g'(x) = ${s.dT}$.` },
+        { kurz: "Malnehmen", text: `$h'(x) = ${s.hpT}$.` },
+      ],
+      einsicht: "Die Kettenregel: $$\\bigl(f(g(x))\\bigr)' = f'(g(x))\\cdot g'(x)$$",
+      mitnehmen: "Ich frage zuerst: Was wird zuerst gerechnet? Das ist innen. Seine Ableitung kommt als Faktor dazu.",
+    },
+    geogebra: { ...z.fertig(s.sicht), frei: true, achsen: { x: "x", y: "y" } }, schritte,
+  });
+}
+
+BAU["s-kette"] = ableiten;
 BAU["s-idee"] = unbestimmt;
 BAU["s-erkennen"] = unbestimmt;
 BAU["s-verfahren"] = unbestimmt;

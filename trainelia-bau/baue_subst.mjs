@@ -19,7 +19,7 @@ const hier = dirname(fileURLToPath(import.meta.url));
 const ORDNER = join(hier, "..", "public", "trainelia") + "/";
 let s = readFileSync(ORDNER + "wahrscheinlichkeit.html", "utf8");
 const stationen = readFileSync(join(hier, "stationen_s.js"), "utf8");
-const VERSION = "202611251800";
+const VERSION = "202611261200";
 
 function ersetze(alt, neu, anzahl = 1) {
   const n = typeof alt === "string" ? s.split(alt).length - 1 : (s.match(new RegExp(alt.source, alt.flags.includes("g") ? alt.flags : alt.flags + "g")) || []).length;
@@ -29,7 +29,7 @@ function ersetze(alt, neu, anzahl = 1) {
 }
 
 ersetze(/<title>[^<]*<\/title>/, "<title>Integration durch Substitution Schritt für Schritt</title>");
-ersetze(/<meta name="description" content="[^"]*">/, `<meta name="description" content="Lernweg zur Integration durch Substitution für die Oberstufe: Kettenregel rückwärts, das Innere erkennen, das Verfahren in fünf Schritten, lineare Substitution, Grenzen mitnehmen, Fehler finden, erklären können. Vormachen mit Fragen, Üben mit immer neuen Aufgaben, Gespräch mit Sokrates, Rückmeldung zum eigenen Rechenweg.">`);
+ersetze(/<meta name="description" content="[^"]*">/, `<meta name="description" content="Lernweg zur Integration durch Substitution für die Oberstufe: die Kettenregel, Kettenregel rückwärts, das Innere erkennen, das Verfahren in fünf Schritten, lineare Substitution, Grenzen mitnehmen, Fehler finden, erklären können. Vormachen mit Fragen, Üben mit immer neuen Aufgaben, Gespräch mit Sokrates, Rückmeldung zum eigenen Rechenweg.">`);
 ersetze(/<!--[\s\S]*?-->/, `<!--
   ===========================================================================
   Integration durch Substitution Schritt für Schritt (Trainelia, Kapitel 3)
@@ -53,6 +53,7 @@ ersetze("</head>", `<link rel="stylesheet" href="/katex/katex.min.css">
 ersetze("<h1>Bedingte Wahrscheinlichkeit</h1>", "<h1>Integration durch Substitution</h1>");
 ersetze(/<p class="leise wegweiser">/, `<p class="klein leise"><a href="./">Trainelia</a> ▸ Kapitel 3 · Analysis</p>\n    <p class="leise wegweiser">`);
 ersetze(/(<details class="karte bereich zettel-b zettel" id="zettel">\s*<summary>Spickzettel<\/summary>\s*)<table>[\s\S]*?<\/table>/, `$1<table>
+    <tr><td>Kettenregel</td><td><span data-tex="\\bigl(f(g(x))\\bigr)' = f'(g(x))\\cdot g'(x)"></span>: äußere Ableitung, das Innere bleibt stehen, mal innere Ableitung</td></tr>
     <tr><td>Idee</td><td>Kettenregel rückwärts: <span data-tex="\\int f(g(x))\\cdot g'(x)\\,dx = F(g(x)) + C"></span></td></tr>
     <tr><td>Erkennen</td><td>eine Verkettung, und die Ableitung ihres Inneren steht bis auf eine Zahl als Faktor daneben.</td></tr>
     <tr><td>Fünf Schritte</td><td>① <span data-tex="u = g(x)"></span> ② <span data-tex="dx = \\frac{du}{g'(x)}"></span> ③ ersetzen, bis kein x mehr dasteht ④ integrieren ⑤ zurücksubstituieren, <span data-tex="+\\,C"></span></td></tr>
@@ -75,7 +76,7 @@ const A5 = s.indexOf("/* =======================================================
 if (A4 < 0 || A5 < A4) throw new Error("Abschnittsmarken nicht gefunden");
 s = s.slice(0, A4) + stationen + "\n" + s.slice(A5);
 
-ersetze(/const KURZ = \{[\s\S]*?\};/, `const KURZ = { "s-idee": "Idee", "s-erkennen": "Erkennen", "s-verfahren": "Verfahren", "s-linear": "ax + b",
+ersetze(/const KURZ = \{[\s\S]*?\};/, `const KURZ = { "s-kette": "Kettenregel", "s-idee": "Idee", "s-erkennen": "Erkennen", "s-verfahren": "Verfahren", "s-linear": "ax + b",
   "s-grenzen": "Grenzen", "s-fehler": "Fehler finden", "s-erklaeren": "Erklären", "s-mix": "Mix" };`);
 
 /* Formeln als Ganzes aufschreiben; für Meldungen und KI das TeX lesen */

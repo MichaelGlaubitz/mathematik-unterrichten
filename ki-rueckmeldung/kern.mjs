@@ -99,7 +99,8 @@ export const STATIONEN = {
   "u-falle":     "Produktregel P(A∩B) = P(A)·P(B) nur bei Unabhängigkeit; sonst P(B)·P(A|B); Abhängigkeit ist keine Ursache",
   "u-mix":       "gemischte Aufgaben zur stochastischen Unabhängigkeit",
   /* Kapitel 3: Integration durch Substitution (Analysis) */
-  "s-idee":      "Integration durch Substitution als Kettenregel rückwärts: ∫ f(g(x))·g'(x) dx = F(g(x)) + C, Zahlenfaktor ausgleichen",
+  "s-kette":     "Kettenregel als Vorwissen: h(x) = f(g(x)) ableiten, h'(x) = f'(g(x))·g'(x), äußere Ableitung mal innere Ableitung, Steigung an einer Stelle",
+  "s-idee":"Integration durch Substitution als Kettenregel rückwärts: ∫ f(g(x))·g'(x) dx = F(g(x)) + C, Zahlenfaktor ausgleichen",
   "s-erkennen":  "Substitution: das Innere u = g(x) erkennen, dx = du/g'(x) einsetzen, Faktor k vor ∫ f(u) du bestimmen",
   "s-verfahren": "unbestimmtes Integral mit Substitution in fünf Schritten (substituieren, differenzieren, ersetzen, integrieren, zurücksubstituieren)",
   "s-linear":    "lineare Substitution: ∫ f(ax+b) dx = (1/a)·F(ax+b) + C",
