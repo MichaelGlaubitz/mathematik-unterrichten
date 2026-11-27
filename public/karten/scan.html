@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b1220">
+<title>Kartenquiz · Scanner</title>
+<style>
+  :root{--gruen:#22c55e;--gelb:#facc15;--rot:#ef4444;--ink:#e5e7eb}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0b1220;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+  #buehne{position:fixed;inset:0}
+  video,#bild,#zeichen{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+  #bild{display:none}
+  .leiste{position:fixed;left:0;right:0;display:flex;align-items:center;gap:10px;padding:10px 14px;
+          background:rgba(11,18,32,.82);backdrop-filter:blur(6px);z-index:5}
+  .oben{top:0;padding-top:max(10px,env(safe-area-inset-top))}
+  .unten{bottom:0;padding-bottom:max(12px,env(safe-area-inset-bottom));justify-content:space-between}
+  #frage{font-weight:800;font-size:20px}
+  #anzahl{font-size:20px;margin-left:auto;font-variant-numeric:tabular-nums}
+  #punkt{width:12px;height:12px;border-radius:50%;background:#64748b;flex:none}
+  #punkt.gut{background:var(--gruen)} #punkt.schlecht{background:var(--rot)}
+  button{font:inherit;font-size:17px;font-weight:700;border:0;border-radius:12px;padding:12px 16px;
+         background:#1f2a44;color:var(--ink);min-width:52px}
+  button.haupt{background:var(--gruen);color:#06210f;flex:1;max-width:260px}
+  button.haupt.pause{background:var(--gelb);color:#2a2000}
+  #hinweis{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;max-width:88vw;
+           text-align:center;background:rgba(15,23,42,.92);border:1px solid #334155;border-radius:16px;padding:22px 22px;font-size:18px;line-height:1.45}
+  #hinweis b{color:#fff}
+  #hinweis[hidden]{display:none}
+  #liste{position:fixed;right:10px;top:64px;bottom:84px;width:min(260px,60vw);overflow:auto;z-index:5;
+         background:rgba(15,23,42,.92);border-radius:12px;padding:8px 10px;display:none;font-variant-numeric:tabular-nums}
+  #liste.an{display:block}
+  #liste div{display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px solid #1e293b;font-size:17px}
+  #liste .neu{color:var(--gelb)}
+  #ms{font-size:12px;color:#64748b;min-width:56px;text-align:right}
+</style>
+</head>
+<body>
+<div id="buehne">
+  <video id="video" playsinline muted autoplay></video>
+  <img id="bild" alt="">
+  <canvas id="zeichen"></canvas>
+</div>
+<div class="leiste oben">
+  <span id="punkt" title="Verbindung"></span>
+  <span id="frage">Kartenquiz</span>
+  <span id="anzahl"></span>
+</div>
+<div id="liste"></div>
+<div class="leiste unten">
+  <button id="listeKnopf" title="Gescannte Karten">☰</button>
+  <button id="start" class="haupt">▶ Scannen</button>
+  <button id="licht" title="Taschenlampe" hidden>💡</button>
+  <span id="ms"></span>
+</div>
+<div id="hinweis"></div>
+
+<script>
+/* Plickers-Karten 1-63: 5x5-Raster, zeilenweise, 1 = schwarz, gedruckte Lage (B oben, C rechts, D unten, A links).
+   Erzeugt von muster_aus_pdf.py aus PlickersCards_1up_1-63.pdf. Nicht von Hand ändern. */
+const KARTENMUSTER = {
+  1: "1111111110110111111011111",
+  2: "1111111110110111111111011",
+  3: "1111111110110101111011011",
+  4: "1011111111110111111011111",
+  5: "1000111111110111111011111",
+  6: "1100111111010110111111111",
+  7: "1010111111110101111011111",
+  8: "1011111111110111111111011",
+  9: "1111101111010100111111111",
+  10: "1001111111110101111111011",
+  11: "1010111111110101111111011",
+  12: "1111111110010101111110111",
+  13: "1111111110010111111010111",
+  14: "1111111110010111111110011",
+  15: "1100101111010100111111111",
+  16: "1110111111110111111111101",
+  17: "1110111111110111111110001",
+  18: "1001111111110101111110111",
+  19: "1101101111110110111011111",
+  20: "1110111111010110111011111",
+  21: "1110101111110111111110101",
+  22: "1011111111110101111010111",
+  23: "1110101111010111111110001",
+  24: "1001111111110111111110011",
+  25: "1010111111110111111110011",
+  26: "1111101110010111111111011",
+  27: "1100111111010111111110001",
+  28: "1111101110010111111110111",
+  29: "1110101111010100111011111",
+  30: "1001111111110101111010011",
+  31: "1100101111110100111011111",
+  32: "1111111111110110111111011",
+  33: "1101111110110101111011111",
+  34: "1111111111010101111111001",
+  35: "1111111111010101111110101",
+  36: "1111101111110101111111001",
+  37: "1110101111110110111111011",
+  38: "1011111111010101111011111",
+  39: "1100101111010110111111011",
+  40: "1111111111010100111111011",
+  41: "1101111110010111111011111",
+  42: "1101111110010111111111011",
+  43: "1000111111010101111111011",
+  44: "1110111111110100111111011",
+  45: "1110101111010100111111011",
+  46: "1001111111010101111011011",
+  47: "1010111111010101111011011",
+  48: "1001111111010111111110111",
+  49: "1101101110110111111011111",
+  50: "1110111111010101111111101",
+  51: "1101101111010110111011011",
+  52: "1011111111010111111010111",
+  53: "1110101111110101111110001",
+  54: "1100111111010110111011011",
+  55: "1100101111110110111011011",
+  56: "1011111111010111111110011",
+  57: "1101101110010101111011111",
+  58: "1101111111010100111011011",
+  59: "1010111111010101111110011",
+  60: "1001111111010111111010011",
+  61: "1101101110010111111010111",
+  62: "1100111111110100111011011",
+  63: "1100101111010101111110001"
+};
+
+/* ============================================================
+   Kartenquiz · Erkennung der Plickers-Karten in einem Graubild
+   ------------------------------------------------------------
+   Läuft unverändert im Browser (Handy-Scanner) und in Node (Prüfung).
+   Kein OpenCV, keine Bibliothek: ein Graubild rein, Karten raus.
+
+   Eine Plickers-Karte ist ein 5x5-Raster aus schwarzen und weißen
+   Feldern. Die vier Ecken sind immer schwarz, die Mitte immer weiß.
+   Die gedruckte Lage hat B oben, C rechts, D unten, A links; wer
+   antwortet, hält seinen Buchstaben nach oben.
+
+   Ablauf
+     1. Örtliche Schwelle (Mittel über ein Fenster aus dem Summenbild):
+        dunkel ist, was deutlich dunkler ist als seine Umgebung. Große
+        schwarze Flächen werden dabei innen hohl - das schadet nicht,
+        gebraucht wird nur ihr äußerer Umriss.
+     2. Zusammenhängende dunkle Gebiete (8er-Nachbarschaft).
+     3. Je Gebiet die konvexe Hülle. Weil die Ecken der Karte immer
+        schwarz sind, ist die Hülle das volle Quadrat - auch wenn am
+        Rand weiße Felder Kerben schneiden.
+     4. Vier Ecken aus der Hülle, Vierteldrehung so, dass die obere
+        Kante oben liegt.
+     5. Perspektivische Abbildung Einheitsquadrat -> Viereck, 25 Felder
+        abtasten, Schwelle zwischen Ecken (schwarz) und Mitte (weiß).
+     6. Muster in der Tabelle aller 252 Lagen nachschlagen.
+   ============================================================ */
+
+/* k Vierteldrehungen im Uhrzeigersinn gegenüber der gedruckten Lage:
+   0 -> B oben, 1 -> A oben (links wandert nach oben), 2 -> D, 3 -> C. */
+const BUCHSTABE_NACH_DREHUNG = ["B", "A", "D", "C"];
+
+function drehe(bits) {
+  let aus = "";
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) aus += bits[(4 - c) * 5 + r];
+  return aus;
+}
+
+const TABELLE = new Map();
+for (const [nr, m] of Object.entries(KARTENMUSTER)) {
+  let x = m;
+  for (let k = 0; k < 4; k++) { TABELLE.set(x, { karte: Number(nr), antwort: BUCHSTABE_NACH_DREHUNG[k] }); x = drehe(x); }
+}
+const LAGEN = [...TABELLE.entries()];
+
+/* Nächste Lage mit höchstens einem abweichenden Feld - nur wenn eindeutig. */
+function naechste(bits) {
+  let treffer = null;
+  for (const [m, wert] of LAGEN) {
+    let d = 0;
+    for (let i = 0; i < 25 && d < 2; i++) if (m[i] !== bits[i]) d++;
+    if (d === 1) { if (treffer) return null; treffer = wert; }
+  }
+  return treffer;
+}
+
+/* ---------- Hilfen: Hülle, Vierecke, Abbildung ------------------- */
+function kreuz(o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }
+
+function huelle(punkte) {
+  punkte.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const unten = [], oben = [];
+  for (const p of punkte) {
+    while (unten.length >= 2 && kreuz(unten[unten.length - 2], unten[unten.length - 1], p) <= 0) unten.pop();
+    unten.push(p);
+  }
+  for (let i = punkte.length - 1; i >= 0; i--) {
+    const p = punkte[i];
+    while (oben.length >= 2 && kreuz(oben[oben.length - 2], oben[oben.length - 1], p) <= 0) oben.pop();
+    oben.push(p);
+  }
+  oben.pop(); unten.pop();
+  return unten.concat(oben);
+}
+
+function flaeche(poly) {
+  let s = 0;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    s += a[0] * b[1] - b[0] * a[1];
+  }
+  return Math.abs(s) / 2;
+}
+
+const abstand2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2;
+
+/* Vier Ecken aus einer Hülle: am weitesten außen, dann gegenüber, dann je Seite am weitesten von der Diagonale. */
+function viereck(h) {
+  let mx = 0, my = 0;
+  for (const p of h) { mx += p[0]; my += p[1]; }
+  const m = [mx / h.length, my / h.length];
+  let p0 = h[0];
+  for (const p of h) if (abstand2(p, m) > abstand2(p0, m)) p0 = p;
+  let p2 = h[0];
+  for (const p of h) if (abstand2(p, p0) > abstand2(p2, p0)) p2 = p;
+  let p1 = null, p3 = null, d1 = 0, d3 = 0;
+  for (const p of h) {
+    const d = kreuz(p0, p2, p);
+    if (d > d1) { d1 = d; p1 = p; }
+    if (d < d3) { d3 = d; p3 = p; }
+  }
+  if (!p1 || !p3) return null;
+  return [p0, p1, p2, p3];
+}
+
+/* Einheitsquadrat (0,0),(1,0),(1,1),(0,1) -> Ecken e0..e3 (Heckbert). */
+function abbildung(e) {
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = e;
+  const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
+  const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+  const nenner = dx1 * dy2 - dx2 * dy1;
+  if (Math.abs(nenner) < 1e-9) return null;
+  const g = (dx3 * dy2 - dx2 * dy3) / nenner, h = (dx1 * dy3 - dx3 * dy1) / nenner;
+  const a = x1 - x0 + g * x1, b = x3 - x0 + h * x3, c = x0;
+  const d = y1 - y0 + g * y1, ee = y3 - y0 + h * y3, f = y0;
+  return (u, v) => { const z = g * u + h * v + 1; return [(a * u + b * v + c) / z, (d * u + ee * v + f) / z]; };
+}
+
+/* ---------- Hauptfunktion ---------------------------------------- */
+/**
+ * @param grau   Uint8Array/Uint8ClampedArray, w*h Grauwerte (0 schwarz)
+ * @param w, h   Bildgröße
+ * @param opt    { fenster, schwelle, minKante, maxKarten, nahe }
+ * @returns      [{ karte, antwort, ecken:[[x,y]x4], unsicher, kontrast }]
+ */
+function erkenneKarten(grau, w, h, opt = {}) {
+  const r = opt.fenster ?? Math.max(6, Math.round(Math.min(w, h) / 40));
+  const T = opt.schwelle ?? 0.82;              // dunkel: Grauwert < T * Umgebungsmittel
+  const minKante = opt.minKante ?? 12;
+  const W1 = w + 1;
+
+  /* 1. Summenbild */
+  const sum = new Uint32Array(W1 * (h + 1));
+  for (let y = 0; y < h; y++) {
+    let zeile = 0;
+    const o = y * w, s0 = y * W1, s1 = (y + 1) * W1;
+    for (let x = 0; x < w; x++) { zeile += grau[o + x]; sum[s1 + x + 1] = sum[s0 + x + 1] + zeile; }
+  }
+
+  /* 2. Schwelle und Markierung in einem Durchgang (Union-Find) */
+  const lab = new Int32Array(w * h);
+  let eltern = new Int32Array(4096);
+  let naechsteMarke = 1;
+  const wurzel = (a) => { while (eltern[a] !== a) { eltern[a] = eltern[eltern[a]]; a = eltern[a]; } return a; };
+  const vereine = (a, b) => { a = wurzel(a); b = wurzel(b); if (a !== b) { if (a < b) eltern[b] = a; else eltern[a] = b; } return a < b ? a : b; };
+
+  for (let y = 0; y < h; y++) {
+    const ya = Math.max(0, y - r), yb = Math.min(h, y + r + 1);
+    const za = ya * W1, zb = yb * W1, hoehe = yb - ya;
+    for (let x = 0; x < w; x++) {
+      const xa = Math.max(0, x - r), xb = Math.min(w, x + r + 1);
+      const s = sum[zb + xb] - sum[za + xb] - sum[zb + xa] + sum[za + xa];
+      const i = y * w + x;
+      if (grau[i] * (xb - xa) * hoehe >= T * s) continue;
+      let m = 0;
+      if (x > 0 && lab[i - 1]) m = lab[i - 1];
+      if (y > 0) {
+        const o = i - w;
+        if (x > 0 && lab[o - 1]) m = m ? vereine(m, lab[o - 1]) : lab[o - 1];
+        if (lab[o]) m = m ? vereine(m, lab[o]) : lab[o];
+        if (x < w - 1 && lab[o + 1]) m = m ? vereine(m, lab[o + 1]) : lab[o + 1];
+      }
+      if (!m) {
+        if (naechsteMarke >= eltern.length) { const neu = new Int32Array(eltern.length * 2); neu.set(eltern); eltern = neu; }
+        m = naechsteMarke++; eltern[m] = m;
+      }
+      lab[i] = m;
+    }
+  }
+
+  /* Statistik je Gebiet */
+  const n = naechsteMarke;
+  const anz = new Int32Array(n), x0 = new Int32Array(n).fill(w), x1 = new Int32Array(n).fill(-1),
+        y0 = new Int32Array(n).fill(h), y1 = new Int32Array(n).fill(-1);
+  for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
+    let m = lab[i];
+    if (!m) continue;
+    m = wurzel(m); lab[i] = m;
+    anz[m]++;
+    if (x < x0[m]) x0[m] = x; if (x > x1[m]) x1[m] = x;
+    if (y < y0[m]) y0[m] = y; if (y > y1[m]) y1[m] = y;
+  }
+
+  /* 3.-6. je Kandidat */
+  const maxKante = Math.min(w, h) * 0.95;
+  const funde = [];
+  const wert = (x, y) => {
+    const xi = Math.round(x), yi = Math.round(y);
+    if (xi < 0 || yi < 0 || xi >= w || yi >= h) return -1;
+    return grau[yi * w + xi];
+  };
+  for (let m = 1; m < n; m++) {
+    if (!anz[m] || eltern[m] !== m) continue;
+    const bw = x1[m] - x0[m] + 1, bh = y1[m] - y0[m] + 1;
+    if (Math.max(bw, bh) < minKante || Math.max(bw, bh) > maxKante) continue;
+    if (bw > 3.2 * bh || bh > 3.2 * bw) continue;
+    if (anz[m] < 0.12 * bw * bh) continue;
+
+    const punkte = [];
+    for (let y = y0[m]; y <= y1[m]; y++) {
+      const o = y * w;
+      let a = -1, b = -1;
+      for (let x = x0[m]; x <= x1[m]; x++) if (lab[o + x] === m) { a = x; break; }
+      if (a < 0) continue;
+      for (let x = x1[m]; x >= a; x--) if (lab[o + x] === m) { b = x; break; }
+      punkte.push([a, y], [b + 1, y], [a, y + 1], [b + 1, y + 1]);
+    }
+    const hl = huelle(punkte);
+    if (hl.length < 4) continue;
+    const q = viereck(hl);
+    if (!q) continue;
+    const fh = flaeche(hl), fq = flaeche(q);
+    if (fq < 0.9 * fh) continue;                       // kein Viereck
+    const seiten = [0, 1, 2, 3].map(i => Math.sqrt(abstand2(q[i], q[(i + 1) % 4])));
+    if (Math.min(...seiten) < minKante * 0.6) continue;
+    if (seiten[0] > 2.5 * seiten[2] || seiten[2] > 2.5 * seiten[0] ||
+        seiten[1] > 2.5 * seiten[3] || seiten[3] > 2.5 * seiten[1]) continue;
+    if (Math.max(...seiten) > 3 * Math.min(...seiten)) continue;
+
+    /* im Uhrzeigersinn ordnen (Bild: y nach unten), obere Kante zuerst */
+    const cx = (q[0][0] + q[1][0] + q[2][0] + q[3][0]) / 4, cy = (q[0][1] + q[1][1] + q[2][1] + q[3][1]) / 4;
+    q.sort((a, b) => Math.atan2(a[1] - cy, a[0] - cx) - Math.atan2(b[1] - cy, b[0] - cx));
+    let start = 0, bestY = Infinity;
+    for (let i = 0; i < 4; i++) {
+      const my = (q[i][1] + q[(i + 1) % 4][1]) / 2;
+      if (my < bestY) { bestY = my; start = i; }
+    }
+    const ecken = [0, 1, 2, 3].map(i => q[(start + i) % 4]);
+    const abb = abbildung(ecken);
+    if (!abb) continue;
+
+    /* 25 Felder abtasten, je 3x3 Punkte im inneren Teil des Feldes */
+    const felder = new Array(25);
+    let kaputt = false;
+    for (let rr = 0; rr < 5 && !kaputt; rr++) for (let cc = 0; cc < 5; cc++) {
+      let s = 0, k = 0;
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) {
+        const [px, py] = abb((cc + 0.5 + a * 0.22) / 5, (rr + 0.5 + b * 0.22) / 5);
+        const v = wert(px, py);
+        if (v < 0) { kaputt = true; break; }
+        s += v; k++;
+      }
+      if (kaputt) break;
+      felder[rr * 5 + cc] = s / k;
+    }
+    if (kaputt) continue;
+    const dunkel = (felder[0] + felder[4] + felder[20] + felder[24]) / 4;
+    const hell = felder[12];
+    if (hell - dunkel < 18) continue;
+    const schwelle = (dunkel + hell) / 2;
+    let bits = "";
+    for (let i = 0; i < 25; i++) bits += felder[i] < schwelle ? "1" : "0";
+    let treffer = TABELLE.get(bits), unsicher = false;
+    if (!treffer) { treffer = naechste(bits); unsicher = true; }
+    if (!treffer) continue;
+    funde.push({ karte: treffer.karte, antwort: treffer.antwort, ecken, unsicher,
+                 kontrast: Math.round(hell - dunkel), groesse: Math.round(Math.sqrt(fq)) });
+  }
+
+  /* Dieselbe Karte zweimal (selten: innerer Ring) -> die größere gilt */
+  const beste = new Map();
+  for (const f of funde) {
+    const alt = beste.get(f.karte);
+    if (!alt || (alt.unsicher && !f.unsicher) || (alt.unsicher === f.unsicher && f.groesse > alt.groesse)) beste.set(f.karte, f);
+  }
+  return [...beste.values()].sort((a, b) => a.karte - b.karte);
+}
+
+/* RGBA (Canvas getImageData) -> Grau, wahlweise verkleinert um den Faktor 'teil'. */
+function grauAusRGBA(rgba, w, h) {
+  const g = new Uint8Array(w * h);
+  for (let i = 0, j = 0; i < g.length; i++, j += 4) g[i] = (rgba[j] * 77 + rgba[j + 1] * 150 + rgba[j + 2] * 29) >> 8;
+  return g;
+}
+
+</script>
+<script>
+/* ============================================================
+   Kartenquiz · Scanner (Handy der Lehrkraft)
+   ------------------------------------------------------------
+   Kamera -> Graubild -> erkenneKarten() -> bestätigen -> an den Dienst.
+   Gekoppelt wird über den QR-Code der Beamer-Seite:
+     scan.html#r=<raum>&d=<dienstadresse>
+   Raum und Dienst bleiben danach im Gerät gespeichert.
+   Eine Karte gilt als erkannt, wenn sie zweimal hintereinander gleich
+   gelesen wurde (bei einem unsicheren Feld dreimal).
+   ============================================================ */
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.hash.slice(1) + "&" + location.search.slice(1));
+  if (params.get("r")) localStorage.setItem("kartenquiz-raum", params.get("r"));
+  if (params.get("d")) localStorage.setItem("kartenquiz-dienst", params.get("d"));
+  if (params.get("r") || params.get("d")) history.replaceState(null, "", location.pathname + location.search.replace(/([?&])(r|d)=[^&]*/g, ""));
+  const RAUM = localStorage.getItem("kartenquiz-raum") || "";
+  const DIENST = (localStorage.getItem("kartenquiz-dienst") || "https://karten.michaelglaubitz-barton.workers.dev").replace(/\/$/, "");
+  const TESTBILD = params.get("testbild");
+  const MAXSEITE = Number(params.get("max") || 1920);
+
+  const video = $("video"), bild = $("bild"), zeichen = $("zeichen"), zctx = zeichen.getContext("2d");
+  const arbeit = document.createElement("canvas"), actx = arbeit.getContext("2d", { willReadFrequently: true });
+
+  let laeuft = false, strom = null, wachbleiben = null;
+  let frage = { schluessel: "", nr: 0, offen: false, optionen: 4 };
+  let bestaetigt = new Map();     // karte -> Buchstabe (für diese Frage)
+  let gemeldet = new Map();       // karte -> Buchstabe, vom Dienst angenommen
+  let kandidaten = new Map();     // karte -> {antwort, zaehler, zuletzt}
+  let funde = [], letzteBreite = 1, letzteHoehe = 1;
+  let verbunden = null;
+
+  function hinweis(html) { const h = $("hinweis"); h.innerHTML = html || ""; h.hidden = !html; }
+
+  if (!RAUM) {
+    hinweis("<b>Noch nicht gekoppelt.</b><br>Öffne auf dem Beamer-Laptop das Kartenquiz, " +
+            "tippe dort auf „📱 Handy koppeln“ und scanne den QR-Code mit der Kamera-App.");
+    $("start").disabled = true;
+  }
+
+  /* ---------- Dienst ---------------------------------------------- */
+  async function anDienst(weg, koerper) {
+    const r = await fetch(DIENST + "/v1/raum/" + RAUM + "/" + weg, koerper === undefined ? { cache: "no-store" } :
+      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(koerper) });
+    const d = await r.json().catch(() => ({}));
+    return { status: r.status, ...d };
+  }
+
+  function standUebernehmen(s) {
+    if (!s || typeof s.schluessel !== "string") return;
+    if (s.schluessel !== frage.schluessel) {           // neue Frage am Beamer: alles frisch
+      bestaetigt = new Map(); gemeldet = new Map(); kandidaten = new Map();
+    }
+    frage = { schluessel: s.schluessel, nr: s.nr, offen: s.offen, optionen: s.optionen };
+    /* Was der Dienst kennt, gilt als gemeldet (z. B. nach Neuladen des Handys). */
+    for (const [k, v] of Object.entries(s.scans || {})) { gemeldet.set(Number(k), v); if (!bestaetigt.has(Number(k))) bestaetigt.set(Number(k), v); }
+    for (const k of [...gemeldet.keys()]) if (!(k in (s.scans || {}))) { gemeldet.delete(k); bestaetigt.delete(k); }
+    anzeigen();
+  }
+
+  function setzeVerbunden(ok) {
+    verbunden = ok;
+    $("punkt").className = ok ? "gut" : "schlecht";
+  }
+
+  let sendetGerade = false;
+  async function senden() {
+    if (sendetGerade || !RAUM) return;
+    const offen = {};
+    for (const [k, v] of bestaetigt) if (gemeldet.get(k) !== v) offen[k] = v;
+    sendetGerade = true;
+    try {
+      const s = Object.keys(offen).length && frage.offen
+        ? await anDienst("scans", { schluessel: frage.schluessel, scans: offen })
+        : await anDienst("stand");
+      setzeVerbunden(true);
+      standUebernehmen(s);
+    } catch { setzeVerbunden(false); }
+    sendetGerade = false;
+  }
+  setInterval(() => { if (!document.hidden) senden(); }, 700);
+
+  /* ---------- Anzeige --------------------------------------------- */
+  function anzeigen() {
+    $("frage").textContent = !frage.schluessel ? "Keine Frage" : `Frage ${frage.nr}` + (frage.offen ? "" : " · zu");
+    $("anzahl").textContent = bestaetigt.size ? `${bestaetigt.size} Karten` : "";
+    const zeilen = [...bestaetigt.entries()].sort((a, b) => a[0] - b[0])
+      .map(([k, v]) => `<div class="${gemeldet.get(k) === v ? "" : "neu"}"><span>Karte ${k}</span><b>${v}</b></div>`);
+    $("liste").innerHTML = zeilen.join("") || "<div>noch keine</div>";
+    if (RAUM && !laeuft && !TESTBILD) hinweis("");
+    if (RAUM && frage.schluessel === "" && laeuft) hinweis("Am Beamer ist noch keine Frage aufgeschlagen.<br>Gescannt wird trotzdem – gemeldet erst, wenn eine Frage offen ist.");
+    else if (RAUM && laeuft) hinweis("");
+  }
+
+  function overlay() {
+    const r = zeichen.getBoundingClientRect();
+    if (zeichen.width !== Math.round(r.width * devicePixelRatio)) {
+      zeichen.width = Math.round(r.width * devicePixelRatio); zeichen.height = Math.round(r.height * devicePixelRatio);
+    }
+    zctx.clearRect(0, 0, zeichen.width, zeichen.height);
+    /* object-fit: contain nachbilden */
+    const s = Math.min(zeichen.width / letzteBreite, zeichen.height / letzteHoehe);
+    const ox = (zeichen.width - letzteBreite * s) / 2, oy = (zeichen.height - letzteHoehe * s) / 2;
+    for (const f of funde) {
+      const fertig = bestaetigt.get(f.karte) === f.antwort;
+      zctx.strokeStyle = fertig ? "#22c55e" : "#facc15";
+      zctx.lineWidth = 4 * devicePixelRatio;
+      zctx.beginPath();
+      f.ecken.forEach(([x, y], i) => i ? zctx.lineTo(ox + x * s, oy + y * s) : zctx.moveTo(ox + x * s, oy + y * s));
+      zctx.closePath(); zctx.stroke();
+      const mx = ox + f.ecken.reduce((a, p) => a + p[0], 0) / 4 * s, my = oy + f.ecken.reduce((a, p) => a + p[1], 0) / 4 * s;
+      const text = `${f.karte} ${f.antwort}`;
+      zctx.font = `800 ${18 * devicePixelRatio}px system-ui,sans-serif`;
+      const tw = zctx.measureText(text).width + 12 * devicePixelRatio;
+      zctx.fillStyle = fertig ? "#22c55e" : "#facc15";
+      zctx.fillRect(mx - tw / 2, my - 14 * devicePixelRatio, tw, 28 * devicePixelRatio);
+      zctx.fillStyle = "#0b1220"; zctx.textAlign = "center"; zctx.textBaseline = "middle";
+      zctx.fillText(text, mx, my + 1);
+    }
+  }
+
+  /* ---------- Erkennen und bestätigen ----------------------------- */
+  function verarbeite(quelle, w, h) {
+    const s = Math.min(1, MAXSEITE / Math.max(w, h));
+    const bw = Math.round(w * s), bh = Math.round(h * s);
+    if (arbeit.width !== bw || arbeit.height !== bh) { arbeit.width = bw; arbeit.height = bh; }
+    actx.drawImage(quelle, 0, 0, bw, bh);
+    const t0 = performance.now();
+    const grau = grauAusRGBA(actx.getImageData(0, 0, bw, bh).data, bw, bh);
+    funde = erkenneKarten(grau, bw, bh);
+    $("ms").textContent = Math.round(performance.now() - t0) + " ms";
+    letzteBreite = bw; letzteHoehe = bh;
+    const jetzt = performance.now();
+    let neu = false;
+    for (const f of funde) {
+      const k = kandidaten.get(f.karte);
+      if (k && k.antwort === f.antwort && jetzt - k.zuletzt < 2500) { k.zaehler++; k.zuletzt = jetzt; }
+      else kandidaten.set(f.karte, { antwort: f.antwort, zaehler: 1, zuletzt: jetzt });
+      const kk = kandidaten.get(f.karte);
+      if (kk.zaehler >= (f.unsicher ? 3 : 2) && bestaetigt.get(f.karte) !== f.antwort) {
+        if (f.antwort.charCodeAt(0) - 65 < (frage.optionen || 4)) { bestaetigt.set(f.karte, f.antwort); neu = true; }
+      }
+    }
+    if (neu) { anzeigen(); if (navigator.vibrate) navigator.vibrate(12); }
+    overlay();
+  }
+
+  async function schleife() {
+    if (!laeuft) return;
+    try {
+      if (TESTBILD) { if (bild.complete && bild.naturalWidth) verarbeite(bild, bild.naturalWidth, bild.naturalHeight); }
+      else if (video.readyState >= 2) verarbeite(video, video.videoWidth, video.videoHeight);
+    } catch (e) { console.error(e); }
+    setTimeout(schleife, TESTBILD ? 250 : 30);
+  }
+
+  async function starten() {
+    if (laeuft) { anhalten(); return; }
+    try {
+      if (TESTBILD) {
+        bild.src = TESTBILD; bild.style.display = "block"; video.style.display = "none";
+      } else {
+        strom = await navigator.mediaDevices.getUserMedia({ audio: false,
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } } });
+        video.srcObject = strom; await video.play();
+        const spur = strom.getVideoTracks()[0];
+        const kann = spur.getCapabilities ? spur.getCapabilities() : {};
+        $("licht").hidden = !kann.torch;
+      }
+      try { wachbleiben = await navigator.wakeLock?.request("screen"); } catch {}
+      laeuft = true;
+      $("start").textContent = "⏸ Pause"; $("start").classList.add("pause");
+      anzeigen(); schleife();
+    } catch (e) {
+      hinweis("<b>Die Kamera ließ sich nicht öffnen.</b><br>" + (e.name === "NotAllowedError"
+        ? "Bitte den Kamerazugriff für diese Seite erlauben." : String(e.message || e)));
+    }
+  }
+
+  function anhalten() {
+    laeuft = false; funde = []; overlay();
+    if (strom) { strom.getTracks().forEach(t => t.stop()); strom = null; }
+    try { wachbleiben?.release(); } catch {}
+    $("start").textContent = "▶ Scannen"; $("start").classList.remove("pause");
+  }
+
+  let lichtAn = false;
+  $("licht").onclick = async () => {
+    const spur = strom?.getVideoTracks()[0]; if (!spur) return;
+    lichtAn = !lichtAn;
+    try { await spur.applyConstraints({ advanced: [{ torch: lichtAn }] }); } catch {}
+  };
+  $("start").onclick = starten;
+  $("listeKnopf").onclick = () => $("liste").classList.toggle("an");
+  document.addEventListener("visibilitychange", () => { if (document.hidden && laeuft && !TESTBILD) anhalten(); });
+  window.kartenquizScanner = { zustand: () => ({ frage, bestaetigt: Object.fromEntries(bestaetigt), gemeldet: Object.fromEntries(gemeldet), verbunden }) };
+  if (RAUM) senden();
+  anzeigen();
+})();
+</script>
+</body>
+</html>
